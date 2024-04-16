@@ -1,10 +1,6 @@
 import { MouseEventHandler, useMemo } from "react";
 
-import {
-  ArrowPathIcon,
-  ArrowDownTrayIcon,
-  WalletIcon,
-} from "@heroicons/react/24/outline";
+import { ArrowPathIcon, ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import { PiWalletThin } from "react-icons/pi";
 import { useChain } from "@cosmos-kit/react";
 import { WalletStatus } from "cosmos-kit";

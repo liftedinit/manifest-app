@@ -26,7 +26,7 @@ export default function SideNav() {
   }) => (
     <li>
       <Link href={href} passHref legacyBehavior>
-        <a className="flex justify-center p-1 items-center mt-8 text-dark-bg-800 rounded-lg transition-all duration-300 ease-in-out dark:text-light-bg-100 hover:text-mint-600 dark:hover:text-mint hover:bg-dark-bg-100/10 dark:hover:bg-light-bg-100/10">
+        <a className="flex justify-center p-1 items-center mt-8 text-dark-bg-800 rounded-lg transition-all duration-300 ease-in-out dark:text-light-bg-200 hover:text-mint-light-600 dark:hover:text-mint-light hover:bg-tan/50 dark:hover:bg-shell/30">
           <Icon className="w-8 h-8" />
         </a>
       </Link>
@@ -34,12 +34,12 @@ export default function SideNav() {
   );
 
   const SideNav: React.FC = () => (
-    <div className="overflow-y-auto z-30 py-5 px-3 w-20 mx-auto justify-center align-middle h-full bg-light-bg-300 dark:bg-dark-bg-300 border-r border-mint-100  dark:border-mint-400 transition-transform duration-300 ease-in-out items-center">
+    <div className="overflow-y-auto z-30 py-5 px-3 w-20 mx-auto justify-center align-middle h-full bg-light-bg dark:bg-dark-bg border-r border-mint-dark  dark:border-mint-light transition-transform duration-300 ease-in-out items-center">
       <Link href={"/#"} passHref legacyBehavior>
         <a href="#">
           <Image
-            src="/logo.svg"
-            className="pl-2 h-12"
+            src={theme === "dark" ? "/darkLogo.png" : "/lightLogo.png"}
+            className=" h-12 w-12 mx-auto rounded-full"
             alt="Logo"
             height={264}
             width={264}
@@ -55,7 +55,7 @@ export default function SideNav() {
       </ul>
       <div className="bottom-6 justify-center absolute space-y-4 p-3 mx-auto items-center">
         <div className="w-full mx-auto flex flex-col items-center justify-center">
-          <IconWallet chainName="akash" />
+          <IconWallet chainName="manifest" />
         </div>
         <button
           className="flex focus:ring-4 focus:ring-mint-300 dark:focus:ring-mint-900 items-center justify-center text-dark-bg-800 dark:text-light-bg-100 p-1 rounded-lg transition duration-200 hover:text-gray-900 dark:hover:text-white hover:bg-dark-bg-100/10 dark:hover:bg-light-bg-100/10"
@@ -85,14 +85,17 @@ export default function SideNav() {
   const SideDrawer: React.FC = () => (
     <div
       id="secondary-sidenav"
-      className="overflow-y-auto relative py-5 px-3 w-64 h-full bg-light-bg-300 border-r border-mint-100 dark:bg-dark-bg-300 dark:border-mint-400 transition-transform duration-300 ease-in-out"
+      className="overflow-y-auto relative py-5 px-3 w-64 h-full bg-light-bg-300 border-r border-mint-100 dark:bg-dark-bg  dark:border-mint-light transition-transform duration-300 ease-in-out"
     >
       <div className="flex ml-6 items-center row-span-1 mt-2">
-        <h1 className="mb-4 text-md font-extrabold tracking-tight leading-none md:text-xl xl:text-xl bg-clip-text text-transparent bg-gradient-to-r from-black to-mint dark:from-white dark:to-mint">
-          Template
+        <h1 className="mb-4 text-xl font-extrabold tracking-tight leading-none md:text-xl xl:text-xl bg-clip-text text-transparent bg-gradient-to-r from-black to-mint-light dark:from-white dark:to-mint-light">
+          Alberto
         </h1>
-        <div className=" -mt-4 ml-6 w-6 h-6">
-          <img src="/logo.svg" alt="mockup" />
+        <div className=" -mt-4 ml-6 w-10 h-10">
+          <img
+            src={theme === "dark" ? "/darkLogo.png" : "/lightLogo.png"}
+            alt="mockup"
+          />
         </div>
       </div>
       <ul className="space-y-6 mt-4">
@@ -109,16 +112,16 @@ export default function SideNav() {
       </ul>
       <ul className="pt-5 mt-5 space-y-2 border-t border-mint-100 dark:border-mint-400">
         <div className="flex flex-col justify-center items-center h-full">
-          <WalletSection chainName="akash" />
+          <WalletSection chainName="manifest" />
         </div>
       </ul>
-      <div className="flex absolute right-2 bottom-7 z-20 justify-end w-full bg-light-bg-300 dark:bg-dark-bg-300">
+      <div className="flex absolute right-2 bottom-7 z-20 justify-end w-full ">
         <button
           id="show-secondary-sidenav-button"
           aria-controls="secondary-sidenav"
           type="button"
           onClick={toggleDrawer}
-          className="inline-flex p-2  rounded-full cursor-pointer text-gray-900 border border-mint-300  hover:bg-mint-100 focus:ring-4 focus:ring-gray-100 dark:text-white dark:border-mint-700 dark:hover:bg-mint-700/20 dark:focus:ring-mint-800"
+          className="inline-flex p-2  rounded-full cursor-pointer text-gray-900 border border-mint-300  hover:bg-mint-100 focus:ring-4 focus:ring-gray-100 dark:text-mint-light dark:border-mint-700 dark:hover:bg-shell/30 dark:focus:ring-mint-light"
         >
           <svg
             className="w-6 h-6"
