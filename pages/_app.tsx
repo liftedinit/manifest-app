@@ -182,7 +182,7 @@ function Template({ Component, pageProps }: AppProps) {
       <ThemeProvider>
         <QueryClientProvider client={client}>
           <ReactQueryDevtools initialIsOpen={false} />
-          {/* <SideNav /> */}
+          <SideNav />
           <div className="min-h-screen   max-w-screen  ml-20 ">
             <Component {...pageProps} />
           </div>

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import ConfirmationForm from "@/components/groups/forms/ConfirmationForm";
-import GroupDetails from "@/components/groups/forms/GroupDetailsForm";
-import GroupPolicyForm from "@/components/groups/forms/GroupPolicyForm";
-import MemberInfoForm from "@/components/groups/forms/MemberInfoForm";
+import ConfirmationForm from "@/components/groups/forms/groups/ConfirmationForm";
+import GroupDetails from "@/components/groups/forms/groups/GroupDetailsForm";
+import GroupPolicyForm from "@/components/groups/forms/groups/GroupPolicyForm";
+import MemberInfoForm from "@/components/groups/forms/groups/MemberInfoForm";
 
 export default function CreateGroup() {
   const [currentStep, setCurrentStep] = useState(1);

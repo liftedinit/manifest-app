@@ -10,7 +10,7 @@ export const useFeeEstimation = (chainName: string) => {
   const gasPrice = chain.fees?.fee_tokens[0].average_gas_price || 0.025;
 
   const coin = getCoin(chainName);
-  console.log({coin})
+
 
   const estimateFee = async (
     address: string,

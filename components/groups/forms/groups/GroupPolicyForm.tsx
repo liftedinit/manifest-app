@@ -10,9 +10,9 @@ export default function GroupPolicyForm({
       <div className="lg:flex min-h-screen mx-auto">
         <div className="flex items-center mx-auto md:w-[42rem]  px-4 md:px-8 xl:px-0">
           <div className="w-full">
-            <ol className="flex flex-wrap justify-between items-center text-md font-medium text-center text-gray-500 dark:text-gray-400 mb-10">
+            <ol className="flex flex-wrap justify-between items-center text-md font-medium text-center  mb-10">
               <li className="flex-1">
-                <div className="flex items-center sm:block after:content-['/'] sm:after:hidden after:mx-2 after:font-light after:text-gray-200 dark:after:text-gray-500">
+                <div className="flex items-center sm:block after:content-['/'] sm:after:hidden after:mx-2 after:font-light ">
                   <svg
                     className="w-4 h-4 mr-2 sm:mb-2 sm:w-6 sm:h-6 sm:mx-auto"
                     fill="currentColor"
@@ -41,7 +41,7 @@ export default function GroupPolicyForm({
                 <div>Confirmation</div>
               </li>
             </ol>
-            <h1 className="mb-4 text-2xl font-extrabold tracking-tight text-gray-900 sm:mb-6 leding-tight dark:text-white">
+            <h1 className="mb-4 text-2xl font-extrabold tracking-tight  sm:mb-6 leding-tight ">
               Group Policy
             </h1>
             <form className=" min-h-[330px]">
@@ -49,7 +49,7 @@ export default function GroupPolicyForm({
                 <div>
                   <label
                     htmlFor="full-name"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    className="block mb-2 text-sm font-medium "
                   >
                     Voting Period
                   </label>
@@ -62,7 +62,7 @@ export default function GroupPolicyForm({
                 <div>
                   <label
                     htmlFor="email"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    className="block mb-2 text-sm font-medium "
                   >
                     Voting Threshold
                   </label>
@@ -74,25 +74,16 @@ export default function GroupPolicyForm({
                 </div>
               </div>
             </form>
-            <button
-              onClick={nextStep}
-              className="w-full  btn px-5 py-2.5 sm:py-3.5 text-sm font-medium text-center  rounded-lg bg-accent hover:bg-secondary/70 focus:ring-4 focus:outline-none focus:ring-primary/30 dark:bg-primary-/60 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-            >
+            <button onClick={nextStep} className="w-full  btn btn-primary">
               Next: Member Info
             </button>
-            <div className="flex space-x-3 mt-6">
-              <a
+            <div className="flex space-x-3 ga-4 mt-6">
+              <button
                 onClick={prevStep}
-                className="text-center items-center w-full py-2.5 sm:py-3.5 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+                className="text-center items-center w-1/2 py-2.5 sm:py-3.5 btn btn-neutral"
               >
-                Prev: Group Info
-              </a>
-              <a
-                onClick={nextStep}
-                className="text-center items-center w-full py-2.5 sm:py-3.5 text-sm font-medium text-transparent focus:outline-none bg-transparent rounded-lg border "
-              >
-                Next: Member Info
-              </a>
+                Prev: Group Details
+              </button>
             </div>
           </div>
         </div>

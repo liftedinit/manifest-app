@@ -1,6 +1,4 @@
-import { MoonIcon, SunIcon } from "@heroicons/react/24/outline";
 import { PiSunThin, PiMoonThin } from "react-icons/pi";
-import { useTheme } from "../../contexts/theme";
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -15,7 +13,6 @@ import {
 import { IconWallet, WalletSection } from "../wallet";
 
 export default function SideNav() {
-  const { theme, toggleTheme } = useTheme();
   const [isDrawerVisible, setDrawerVisible] = useState(false);
 
   const toggleDrawer = () => setDrawerVisible(!isDrawerVisible);
@@ -26,7 +23,7 @@ export default function SideNav() {
   }) => (
     <li>
       <Link href={href} passHref legacyBehavior>
-        <a className="flex justify-center p-1 items-center mt-8 text-dark-bg-800 rounded-lg transition-all duration-300 ease-in-out dark:text-light-bg-200 hover:text-mint-light-600 dark:hover:text-mint-light hover:bg-tan/50 dark:hover:bg-shell/30">
+        <a className="flex justify-center p-1 items-center mt-8  rounded-lg transition-all duration-300 ease-in-out ">
           <Icon className="w-8 h-8" />
         </a>
       </Link>
@@ -34,11 +31,11 @@ export default function SideNav() {
   );
 
   const SideNav: React.FC = () => (
-    <div className="overflow-y-auto z-30 py-5 px-3 w-20 mx-auto justify-center align-middle h-full bg-light-bg dark:bg-dark-bg border-r border-mint-dark  dark:border-mint-light transition-transform duration-300 ease-in-out items-center">
+    <div className="overflow-y-auto z-30 py-5 px-3 w-20 bg-base-200 border-r border-primary mx-auto justify-center align-middle h-full transition-transform duration-300 ease-in-out items-center shadow-lg">
       <Link href={"/#"} passHref legacyBehavior>
         <a href="#">
           <Image
-            src={theme === "dark" ? "/darkLogo.png" : "/lightLogo.png"}
+            src={"/darkLogo.png"}
             className=" h-12 w-12 mx-auto rounded-full"
             alt="Logo"
             height={264}
@@ -57,16 +54,17 @@ export default function SideNav() {
         <div className="w-full mx-auto flex flex-col items-center justify-center">
           <IconWallet chainName="manifest" />
         </div>
-        <button
-          className="flex focus:ring-4 focus:ring-mint-300 dark:focus:ring-mint-900 items-center justify-center text-dark-bg-800 dark:text-light-bg-100 p-1 rounded-lg transition duration-200 hover:text-gray-900 dark:hover:text-white hover:bg-dark-bg-100/10 dark:hover:bg-light-bg-100/10"
-          onClick={toggleTheme}
-        >
-          {theme === "light" ? (
-            <PiMoonThin className="w-6 h-6 dark:hover:text-mint text-dark-bg-800 dark:text-light-bg-100 hover:text-mint transition-all duration-300 ease-in-out" />
-          ) : (
-            <PiSunThin className="w-6 h-6 dark:hover:text-mint text-dark-bg-800 dark:text-light-bg-100 hover:text-mint transition-all duration-300 ease-in-out" />
-          )}
-        </button>
+        <label className="swap swap-rotate mx-auto">
+          <input
+            type="checkbox"
+            className="theme-controller hidden"
+            value="light"
+          />
+
+          <PiSunThin className="swap-on mx-auto fill-current w-8 h-8" />
+
+          <PiMoonThin className="swap-off mx-auto fill-current w-8 h-8" />
+        </label>
       </div>
     </div>
   );
@@ -75,7 +73,7 @@ export default function SideNav() {
     <li>
       <button
         type="button"
-        className="flex items-center p-2 w-full text-base font-normal ease-in-out text-gray-900 rounded-lg transition duration-220 group hover:bg-gray-100 dark:text-white dark:hover:bg-dark-bg-600/50 hover:dark:text-mint"
+        className="flex items-center p-2 w-full text-base font-normal ease-in-out  rounded-lg transition duration-220 group"
       >
         <span className="flex-1 ml-3 text-left whitespace-nowrap">{label}</span>
       </button>
@@ -85,17 +83,14 @@ export default function SideNav() {
   const SideDrawer: React.FC = () => (
     <div
       id="secondary-sidenav"
-      className="overflow-y-auto relative py-5 px-3 w-64 h-full bg-light-bg-300 border-r border-mint-100 dark:bg-dark-bg  dark:border-mint-light transition-transform duration-300 ease-in-out"
+      className="overflow-y-auto relative py-5 px-3 w-64 h-full  border-primary bg-base-200 transition-transform duration-300 ease-in-out"
     >
       <div className="flex ml-6 items-center row-span-1 mt-2">
         <h1 className="mb-4 text-xl font-extrabold tracking-tight leading-none md:text-xl xl:text-xl bg-clip-text text-transparent bg-gradient-to-r from-black to-mint-light dark:from-white dark:to-mint-light">
           Alberto
         </h1>
         <div className=" -mt-4 ml-6 w-10 h-10">
-          <img
-            src={theme === "dark" ? "/darkLogo.png" : "/lightLogo.png"}
-            alt="mockup"
-          />
+          <img src={"/darkLogo.png"} alt="mockup" />
         </div>
       </div>
       <ul className="space-y-6 mt-4">
@@ -121,7 +116,7 @@ export default function SideNav() {
           aria-controls="secondary-sidenav"
           type="button"
           onClick={toggleDrawer}
-          className="inline-flex p-2  rounded-full cursor-pointer text-gray-900 border border-mint-300  hover:bg-mint-100 focus:ring-4 focus:ring-gray-100 dark:text-mint-light dark:border-mint-700 dark:hover:bg-shell/30 dark:focus:ring-mint-light"
+          className="inline-flex p-2  rounded-full cursor-pointer  border border-mint-300  hover:bg-mint-100 focus:ring-4 focus:ring-gray-100 "
         >
           <svg
             className="w-6 h-6"
@@ -155,7 +150,7 @@ export default function SideNav() {
           aria-controls="secondary-sidenav"
           type="button"
           onClick={toggleDrawer}
-          className="inline-flex absolute bottom-7 left-28 p-2  cursor-pointer text-gray-900 border border-mint-300 rounded-full hover:bg-mint-100 focus:ring-4 focus:ring-gray-100 dark:text-white dark:border-mint-700 dark:hover:bg-mint-700/20 dark:focus:ring-mint-800"
+          className="inline-flex absolute bottom-7 left-28 p-2  cursor-pointer border border-mint-300 rounded-full hover:bg-mint-100 focus:ring-4 focus:ring-gray-100 "
         >
           <svg
             className="w-6 h-6"

@@ -22,11 +22,7 @@ export const Connecting = ({
   return (
     <div className="mt-3 text-center sm:mt-1.5">
       <div className="flex flex-row items-center justify-between">
-        <button
-          type="button"
-          className="p-2 text-black bg-white rounded-full hover:bg-gray-200 dark:text-white dark:bg-dark-bg-100 dark:hover:bg-white/10"
-          onClick={onReturn}
-        >
+        <button type="button" className="p-2 " onClick={onReturn}>
           <span className="sr-only">Return</span>
           <ChevronLeftIcon className="w-5 h-5" aria-hidden="true" />
         </button>

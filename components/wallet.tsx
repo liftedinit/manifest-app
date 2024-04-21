@@ -134,9 +134,9 @@ export const IconWallet: React.FC<WalletSectionProps> = ({ chainName }) => {
   const _renderConnectButton = useMemo(() => {
     if (status === WalletStatus.Connecting) {
       return (
-        <button className="rounded-lg w-6 h-6 justify-center items-center mx-auto ml-[6px] font-medium cursor-wait text-dark-bg-800 dark:text-light-bg-100 text-sm">
+        <button className="rounded-lg w-8 h-8 justify-center items-center mx-auto  font-medium cursor-wait  text-sm">
           <svg
-            className="w-6 h-6 text-dark-bg-800 dark:text-mint justify-center items-center animate-spin mx-auto"
+            className="w-8 h-8 text-black justify-center items-center animate-spin mx-auto"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -171,17 +171,17 @@ export const IconWallet: React.FC<WalletSectionProps> = ({ chainName }) => {
 
     return (
       <button
-        className="rounded-lg mx-auto hover:bg-dark-bg-100/10 dark:hover:bg-light-bg-100/10 p-1 transition-all duration-200 ease-in-out focus:ring-4 focus:ring-mint-300 dark:focus:ring-mint-900  justify-center items-center  font-medium text-dark-bg-800 dark:text-light-bg-100 text-sm"
+        className="rounded-lg mx-auto  p-1 transition-all duration-200 ease-in-out focus:ring-4 focus:ring-mint-300 dark:focus:ring-mint-900  justify-center items-center  font-medium  text-sm"
         onClick={onClick}
       >
-        <buttonData.icon className=" w-6 h-6 text-dark-bg-800 dark:text-light-bg-100 transition-all duration-200 ease-in-out  hover:text-mint dark:hover:text-mint" />
+        <buttonData.icon className=" w-8 h-8 transition-all duration-200 ease-in-out  " />
       </button>
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, connect, openView]);
 
   return (
-    <div className="w-full mx-auto ">
+    <div className="w-full mx-auto flex items-center justify-center">
       <div className="w-full mx-auto">{_renderConnectButton}</div>
     </div>
   );

@@ -44,7 +44,7 @@ export const uploadJsonToIPFS = async (jsonString: BlobPart) => {
     const formData = new FormData();
     formData.append('file', blob, 'groupMetadata.json');
 
-        const response = await fetch('http://66.172.36.138:5001/api/v0/add', {
+        const response = await fetch('https://nodes.chandrastation.com/ipfs/api/add', {
             method: 'POST',
             body: formData
         });

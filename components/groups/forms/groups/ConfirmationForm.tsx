@@ -10,6 +10,7 @@ import {
 import { Duration } from "@chalabi/manifestjs/dist/codegen/google/protobuf/duration";
 import { useChain } from "@cosmos-kit/react";
 import { group } from "console";
+import Link from "next/link";
 import { useState } from "react";
 export default function ConfirmationModal({
   nextStep,
@@ -34,7 +35,7 @@ export default function ConfirmationModal({
   ];
 
   const groupMetadata = {
-    title: "Test PoA Tx",
+    title: "Test Upload 2",
     authors: "Chandra Station",
     summary: "This is a test group submitted via the groups web ui",
     details: "This is a test group submitted via the groups web ui",
@@ -45,7 +46,7 @@ export default function ConfirmationModal({
   // Convert the object to a JSON string
   const jsonString = JSON.stringify(groupMetadata);
 
-  const { tx } = useTx("manifest");
+  const { tx, Toast, toastMessage, setToastMessage } = useTx("manifest");
   const { estimateFee } = useFeeEstimation("manifest");
 
   const uploadMetaDataToIPFS = async () => {
@@ -120,7 +121,7 @@ export default function ConfirmationModal({
     amount: [
       {
         denom: "umfx",
-        amount: "10000000",
+        amount: "100",
       },
     ],
   });
@@ -149,11 +150,10 @@ export default function ConfirmationModal({
       ],
       gas: "200000",
     };
-    await tx([msg], {
+    await tx([msgSend], {
       fee,
       onSuccess: () => {
         nextStep();
-        console.log("success");
       },
     });
   };
@@ -161,11 +161,12 @@ export default function ConfirmationModal({
   return (
     <section className="">
       <div className="lg:flex min-h-screen mx-auto">
+        <Toast toastMessage={toastMessage} setToastMessage={setToastMessage} />
         <div className="flex items-center mx-auto md:w-[42rem] px-4 md:px-8 xl:px-0">
           <div className="w-full">
-            <ol className="flex flex-wrap justify-between items-center text-md font-medium text-center text-gray-500 dark:text-gray-400 mb-10">
+            <ol className="flex flex-wrap justify-between items-center text-md font-medium text-center  mb-10">
               <li className="flex-1">
-                <div className="flex items-center sm:block after:content-['/'] sm:after:hidden after:mx-2 after:font-light after:text-gray-200 dark:after:text-gray-500">
+                <div className="flex items-center sm:block after:content-['/'] sm:after:hidden after:mx-2 after:font-light ">
                   <svg
                     className="w-4 h-4 mr-2 sm:mb-2 sm:w-6 sm:h-6 sm:mx-auto"
                     fill="currentColor"
@@ -182,7 +183,7 @@ export default function ConfirmationModal({
                 </div>
               </li>
               <li className="flex-1">
-                <div className="flex items-center sm:block after:content-['/'] sm:after:hidden after:mx-2 after:font-light after:text-gray-200 dark:after:text-gray-500">
+                <div className="flex items-center sm:block after:content-['/'] sm:after:hidden after:mx-2 after:font-light ">
                   <svg
                     className="w-4 h-4 mr-2 sm:mb-2 sm:w-6 sm:h-6 sm:mx-auto"
                     fill="currentColor"
@@ -199,7 +200,7 @@ export default function ConfirmationModal({
                 </div>
               </li>
               <li className="flex-1">
-                <div className="flex items-center sm:block after:content-['/'] sm:after:hidden after:mx-2 after:font-light after:text-gray-200 dark:after:text-gray-500">
+                <div className="flex items-center sm:block after:content-['/'] sm:after:hidden after:mx-2 after:font-light ">
                   <svg
                     className="w-4 h-4 mr-2 sm:mb-2 sm:w-6 sm:h-6 sm:mx-auto"
                     fill="currentColor"
@@ -220,7 +221,7 @@ export default function ConfirmationModal({
                 <div>Confirmation</div>
               </li>
             </ol>
-            <h1 className="mb-4 text-2xl font-extrabold tracking-tight text-gray-900 sm:mb-6 leding-tight dark:text-white">
+            <h1 className="mb-4 text-2xl font-extrabold tracking-tight  sm:mb-6 leding-tight ">
               Confirmation
             </h1>
             <form className="min-h-[330px] max-h-[330px]">
@@ -228,33 +229,29 @@ export default function ConfirmationModal({
                 <div>
                   <label
                     htmlFor="full-name"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    className="block mb-2 text-sm font-medium "
                   >
                     Group Title
                   </label>
-                  <a className="font-medium mb-4 text-gray-900 dark:text-white">
-                    Manifest PoA Admins
-                  </a>
+                  <a className="font-medium mb-4 ">Manifest PoA Admins</a>
                 </div>
                 <div>
                   <label
                     htmlFor="email"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    className="block mb-2 text-sm font-medium "
                   >
                     Authors
                   </label>
-                  <a className="font-medium mb-4 text-gray-900 dark:text-white">
-                    Lifted Intiative
-                  </a>
+                  <a className="font-medium mb-4 ">Lifted Intiative</a>
                 </div>
                 <div>
                   <label
                     htmlFor="password"
-                    className="block mb-2 text-sm font-medium  text-gray-900 dark:text-white"
+                    className="block mb-2 text-sm font-medium  "
                   >
                     Summary
                   </label>
-                  <a className="font-medium mb-4 text-gray-900 dark:text-white">
+                  <a className="font-medium mb-4 ">
                     The authority of the Manifest Network, and the Lifted
                     Initiative
                   </a>
@@ -262,11 +259,11 @@ export default function ConfirmationModal({
                 <div>
                   <label
                     htmlFor="confirm-password"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    className="block mb-2 text-sm font-medium "
                   >
                     Description
                   </label>
-                  <a className="font-medium mb-4 text-gray-900 dark:text-white">
+                  <a className="font-medium mb-4 ">
                     This group is in authoratative contorl of the manifest
                     network
                   </a>
@@ -274,50 +271,40 @@ export default function ConfirmationModal({
                 <div>
                   <label
                     htmlFor="email"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    className="block mb-2 text-sm font-medium "
                   >
                     Forum Link
                   </label>
-                  <a className="font-medium mb-4 text-gray-900 dark:text-white">
-                    https://forum.cosmos
-                  </a>
+                  <a className="font-medium mb-4 ">https://forum.cosmos</a>
                 </div>
                 <div>
                   <label
                     htmlFor="confirm-password"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    className="block mb-2 text-sm font-medium "
                   >
                     Threshold
                   </label>
-                  <a className="font-medium mb-4 text-gray-900 dark:text-white">
-                    1 / 3
-                  </a>
+                  <a className="font-medium mb-4 ">1 / 3</a>
                 </div>
                 <div>
                   <label
                     htmlFor="confirm-password"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    className="block mb-2 text-sm font-medium "
                   >
                     Voting Period
                   </label>
-                  <a className="font-medium mb-4 text-gray-900 dark:text-white">
-                    3 days
-                  </a>
+                  <a className="font-medium mb-4 ">3 days</a>
                 </div>
                 <div>
                   <label
                     htmlFor="confirm-password"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    className="block mb-2 text-sm font-medium "
                   >
                     Members
                   </label>
                   <div className="flex gap-2">
-                    <a className="font-medium mb-4 text-gray-900 dark:text-white">
-                      manifest1...123243
-                    </a>
-                    <a className="font-medium mb-4 text-gray-900 dark:text-white">
-                      manifest1...123243
-                    </a>
+                    <a className="font-medium mb-4 ">manifest1...123243</a>
+                    <a className="font-medium mb-4 ">manifest1...123243</a>
                   </div>
                 </div>
               </div>
@@ -325,25 +312,24 @@ export default function ConfirmationModal({
             <div className="flex gap-4">
               <button
                 onClick={uploadMetaDataToIPFS}
-                className="w-1/2 px-5 py-2.5 sm:py-3.5 text-sm font-medium text-center text-white rounded-lg bg-accent hover:bg-secondary/70 focus:ring-4 focus:outline-none focus:ring-primary/30 dark:bg-primary-/60 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                className="w-1/2 px-5 py-2.5 sm:py-3.5 btn btn-primary"
               >
                 Upload Metadata
               </button>
               <button
                 onClick={handleConfirm}
-                className="w-1/2 px-5 py-2.5 sm:py-3.5 text-sm font-medium text-center text-white rounded-lg bg-accent hover:bg-secondary/70 focus:ring-4 focus:outline-none focus:ring-primary/30 dark:bg-primary-/60 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                className="w-1/2 px-5 py-2.5 sm:py-3.5 btn btn-primary"
               >
                 Sign Transaction
               </button>
             </div>
             <div className="flex space-x-3 ga-4 mt-6">
-              <a
+              <button
                 onClick={prevStep}
-                className="text-center items-center w-1/2 py-2.5 sm:py-3.5 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+                className="text-center items-center w-1/2 py-2.5 sm:py-3.5 btn btn-neutral"
               >
                 Prev: Member Info
-              </a>
-              <a className="text-center items-center w-1/2 py-2.5 sm:py-3.5 text-sm font-medium"></a>
+              </button>
             </div>
           </div>
         </div>

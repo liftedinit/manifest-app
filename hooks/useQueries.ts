@@ -140,3 +140,78 @@ export const useMembersById = (groupId: string) => {
     };
 
 }
+
+export const useProposalsByPolicyAccount = (policyAccount: string) => {
+    const { lcdQueryClient } = useLcdQueryClient();
+
+    const fetchGroupInfo = async () => {
+        if (!lcdQueryClient) {
+            throw new Error("LCD Client not ready");
+        }
+        return await lcdQueryClient.cosmos.group.v1.proposalsByGroupPolicy({ address: policyAccount});
+    };
+
+    const proposalQuery = useQuery({
+        queryKey: ["proposalInfo", policyAccount],
+        queryFn: fetchGroupInfo,
+        enabled: !!lcdQueryClient && !!policyAccount,
+        staleTime: Infinity,
+    });
+
+    return {
+        proposals: proposalQuery.data?.proposals || [],
+        isProposalsLoading: proposalQuery.isLoading,
+        isProposalsError: proposalQuery.isError,
+        refetchProposals: proposalQuery.refetch,
+    };
+}
+
+export const useTallyCount = (proposalId: bigint) => {
+    const { lcdQueryClient } = useLcdQueryClient();
+
+    const fetchGroupInfo = async () => {
+        if (!lcdQueryClient) {
+            throw new Error("LCD Client not ready");
+        }
+        return await lcdQueryClient.cosmos.group.v1.tallyResult({ proposalId });
+    };
+
+    const tallyQuery = useQuery({
+        queryKey: ["tallyInfo", proposalId],
+        queryFn: fetchGroupInfo,
+        enabled: !!lcdQueryClient && !!proposalId,
+        staleTime: Infinity,
+    });
+
+    return {
+        tally: tallyQuery.data,
+        isTallyLoading: tallyQuery.isLoading,
+        isTallyError: tallyQuery.isError,
+        refetchTally: tallyQuery.refetch,
+    };
+}
+
+export const useVotesByProposal = (proposalId: bigint) => {
+    const { lcdQueryClient } = useLcdQueryClient();
+
+    const fetchGroupInfo = async () => {
+        if (!lcdQueryClient) {
+            throw new Error("LCD Client not ready");
+        }
+        return await lcdQueryClient.cosmos.group.v1.votesByProposal({ proposalId });
+    };
+
+    const voteQuery = useQuery({
+        queryKey: ["voteInfo", proposalId],
+        queryFn: fetchGroupInfo,
+        enabled: !!lcdQueryClient && !!proposalId,
+        staleTime: Infinity,
+    });
+
+    return {
+        votes: voteQuery.data?.votes || [],
+        isVotesLoading: voteQuery.isLoading,
+        isVotesError: voteQuery.isError,
+        refetchVotes: voteQuery.refetch,
+    };
+}
