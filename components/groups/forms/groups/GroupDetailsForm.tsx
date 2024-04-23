@@ -1,32 +1,18 @@
+import { Action, FormData } from "@/helpers/formReducer";
 import Link from "next/link";
 
 export default function GroupDetails({
   nextStep,
   formData,
-  onDataChange,
+  dispatch,
 }: {
   nextStep: () => void;
-  formData: {
-    title: string;
-    authors: string;
-    summary: string;
-    description: string;
-    forumLink: string;
-    votingPeriod: string;
-    votingThreshold: string;
-    members: { address: string; name: string; weight: string }[];
-  };
-  onDataChange: (newData: {
-    title: string;
-    authors: string;
-    summary: string;
-    description: string;
-    forumLink: string;
-    votingPeriod: string;
-    votingThreshold: string;
-    members: { address: string; name: string; weight: string }[];
-  }) => void;
+  formData: FormData;
+  dispatch: React.Dispatch<Action>;
 }) {
+  const updateField = (field: keyof FormData, value: any) => {
+    dispatch({ type: "UPDATE_FIELD", field, value });
+  };
   return (
     <section className="">
       <div className="lg:flex min-h-screen mx-auto">
@@ -71,9 +57,7 @@ export default function GroupDetails({
                     placeholder="Title"
                     className="input input-bordered w-full max-w-xs"
                     value={formData.title}
-                    onChange={(e) =>
-                      onDataChange({ ...formData, title: e.target.value })
-                    }
+                    onChange={(e) => updateField("title", e.target.value)}
                   />
                 </div>
                 <div>
@@ -88,9 +72,7 @@ export default function GroupDetails({
                     placeholder="List of authors"
                     className="input input-bordered w-full max-w-xs"
                     value={formData.authors}
-                    onChange={(e) =>
-                      onDataChange({ ...formData, authors: e.target.value })
-                    }
+                    onChange={(e) => updateField("authors", e.target.value)}
                   />
                 </div>
                 <div>
@@ -104,9 +86,7 @@ export default function GroupDetails({
                     className="textarea textarea-bordered w-full max-w-xs"
                     placeholder="Short Bio"
                     value={formData.summary}
-                    onChange={(e) =>
-                      onDataChange({ ...formData, summary: e.target.value })
-                    }
+                    onChange={(e) => updateField("summary", e.target.value)}
                   ></textarea>
                 </div>
                 <div>
@@ -120,9 +100,7 @@ export default function GroupDetails({
                     className="textarea textarea-bordered w-full max-w-xs"
                     placeholder="Long Bio"
                     value={formData.description}
-                    onChange={(e) =>
-                      onDataChange({ ...formData, description: e.target.value })
-                    }
+                    onChange={(e) => updateField("description", e.target.value)}
                   ></textarea>
                 </div>
                 <div>
@@ -137,9 +115,7 @@ export default function GroupDetails({
                     placeholder="Link to forum"
                     className="input input-bordered w-full max-w-xs mb-4"
                     value={formData.forumLink}
-                    onChange={(e) =>
-                      onDataChange({ ...formData, forumLink: e.target.value })
-                    }
+                    onChange={(e) => updateField("forumLink", e.target.value)}
                   />
                 </div>
               </div>

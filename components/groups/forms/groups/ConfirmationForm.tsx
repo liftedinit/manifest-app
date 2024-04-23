@@ -1,4 +1,5 @@
 import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
+import { FormData } from "@/helpers/formReducer";
 import { useFeeEstimation } from "@/hooks/useFeeEstimation";
 import { uploadJsonToIPFS } from "@/hooks/useIpfs";
 import { useTx } from "@/hooks/useTx";
@@ -20,16 +21,7 @@ export default function ConfirmationModal({
 }: {
   nextStep: () => void;
   prevStep: () => void;
-  formData: {
-    title: string;
-    authors: string;
-    summary: string;
-    description: string;
-    forumLink: string;
-    votingPeriod: string;
-    votingThreshold: string;
-    members: { address: string; name: string; weight: string }[];
-  };
+  formData: FormData;
 }) {
   const { address } = useChain("manifest");
   const { createGroupWithPolicy } = cosmos.group.v1.MessageComposer.withTypeUrl;

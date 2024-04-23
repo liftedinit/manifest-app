@@ -1,32 +1,20 @@
+import { Action, FormData } from "@/helpers/formReducer";
+
 export default function GroupPolicyForm({
   nextStep,
   prevStep,
   formData,
-  onDataChange,
+  dispatch,
 }: {
-  formData: {
-    title: string;
-    authors: string;
-    summary: string;
-    description: string;
-    forumLink: string;
-    votingPeriod: string;
-    votingThreshold: string;
-    members: { address: string; name: string; weight: string }[];
-  };
-  onDataChange: (newData: {
-    title: string;
-    authors: string;
-    summary: string;
-    description: string;
-    forumLink: string;
-    votingPeriod: string;
-    votingThreshold: string;
-    members: { address: string; name: string; weight: string }[];
-  }) => void;
+  formData: FormData;
+  dispatch: React.Dispatch<Action>;
   nextStep: () => void;
   prevStep: () => void;
 }) {
+  const updateField = (field: keyof FormData, value: any) => {
+    dispatch({ type: "UPDATE_FIELD", field, value });
+  };
+
   return (
     <section className="">
       <div className="lg:flex min-h-screen mx-auto">
@@ -81,10 +69,7 @@ export default function GroupPolicyForm({
                     className="input input-bordered w-full max-w-xs"
                     value={formData?.votingPeriod}
                     onChange={(e) =>
-                      onDataChange({
-                        ...formData,
-                        votingPeriod: e.target.value,
-                      })
+                      updateField("votingPeriod", e.target.value)
                     }
                   />
                 </div>
@@ -101,10 +86,7 @@ export default function GroupPolicyForm({
                     className="input input-bordered w-full max-w-xs"
                     value={formData?.votingThreshold}
                     onChange={(e) =>
-                      onDataChange({
-                        ...formData,
-                        votingThreshold: e.target.value,
-                      })
+                      updateField("votingThreshold", e.target.value)
                     }
                   />
                 </div>

@@ -1,56 +1,63 @@
+import { Action, FormData } from "@/helpers/formReducer";
 import React, { useState, useEffect } from "react";
 
 const initialMember = { address: "", name: "", weight: "" };
 
-export default function GroupPolicyForm({
+export default function MemberInfoForm({
+  formData,
+  dispatch,
   nextStep,
   prevStep,
-  formData,
-  onDataChange,
 }: {
+  formData: FormData;
+  dispatch: (action: Action) => void;
   nextStep: () => void;
   prevStep: () => void;
-  formData: {
-    title: string;
-    authors: string;
-    summary: string;
-    description: string;
-    forumLink: string;
-    votingPeriod: string;
-    votingThreshold: string;
-    members: { address: string; name: string; weight: string }[];
-  };
-  onDataChange: (newData: {
-    title: string;
-    authors: string;
-    summary: string;
-    description: string;
-    forumLink: string;
-    votingPeriod: string;
-    votingThreshold: string;
-    members: { address: string; name: string; weight: string }[];
-  }) => void;
 }) {
-  const [members, setMembers] = useState([formData.members]);
   const [numberOfMembers, setNumberOfMembers] = useState(2);
+
+  const updateMembers = () => {
+    const currentLength = formData.members.length;
+    if (numberOfMembers > currentLength) {
+      for (let i = 0; i < numberOfMembers - currentLength; i++) {
+        dispatch({
+          type: "ADD_MEMBER",
+          member: { address: "", name: "", weight: "" },
+        });
+      }
+    } else if (numberOfMembers < currentLength) {
+      for (let i = 0; i < currentLength - numberOfMembers; i++) {
+        formData.members.pop();
+      }
+      dispatch({
+        type: "UPDATE_FIELD",
+        field: "members",
+        value: formData.members,
+      });
+    }
+  };
 
   useEffect(() => {
     updateMembers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [numberOfMembers]);
 
-  const updateMembers = () => {
-    const currentLength = members.length;
-    if (numberOfMembers > currentLength) {
-      setMembers(
-        members.concat(
-          Array.from({ length: numberOfMembers - currentLength }, () => ({
-            ...initialMember,
-          }))
-        )
-      );
-    } else if (numberOfMembers < currentLength) {
-      setMembers(members.slice(0, numberOfMembers));
-    }
+  const handleChange = (
+    index: number,
+    field: keyof FormData["members"][0],
+    value: string
+  ) => {
+    dispatch({
+      type: "UPDATE_MEMBER",
+      index,
+      field,
+      value,
+    });
+  };
+
+  const handleSubmit = (event: { preventDefault: () => void }) => {
+    event.preventDefault();
+    nextStep();
   };
 
   const handleNumberChange = (event: { target: { value: string } }) => {
@@ -58,29 +65,6 @@ export default function GroupPolicyForm({
     if (!isNaN(newCount) && newCount >= 0) {
       setNumberOfMembers(newCount);
     }
-  };
-
-  const handleChange = (index: number, field: string, value: string) => {
-    const newMembers = members.map((member, i) => {
-      if (i === index) {
-        return { ...member, [field]: value };
-      }
-      return member;
-    });
-    setMembers(newMembers);
-  };
-
-  const handleSubmit = (event: { preventDefault: () => void }) => {
-    event.preventDefault();
-
-    const updatedFormData = {
-      ...formData,
-      members: members.flat(),
-    };
-
-    onDataChange(updatedFormData);
-
-    nextStep();
   };
 
   return (
@@ -149,7 +133,7 @@ export default function GroupPolicyForm({
                   </button>
                   <input
                     className="input input-bordered mx-2 text-center input-sm w-[40px]"
-                    value={numberOfMembers}
+                    value={formData.members.length}
                     onChange={handleNumberChange}
                     min="0"
                   />
@@ -166,7 +150,7 @@ export default function GroupPolicyForm({
               <form onSubmit={handleSubmit} className=" min-h-[330px]">
                 <div className="overflow-y-scroll max-h-[330px] min-h-[330px]">
                   {(
-                    members as unknown as {
+                    formData.members as unknown as {
                       address: string;
                       name: string;
                       weight: string;
@@ -235,12 +219,13 @@ export default function GroupPolicyForm({
                   className="btn btn-primary w-full"
                   disabled={
                     !(
-                      members as unknown as {
+                      formData.members as unknown as {
                         address: string;
                         name: string;
                         weight: string;
                       }[]
-                    ).every((m) => m.address && m.name && m.weight)
+                    ).every((m) => m.address && m.name && m.weight) ||
+                    numberOfMembers === 0
                   }
                 >
                   Next: Group Policy
