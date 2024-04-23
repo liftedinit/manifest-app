@@ -1,10 +1,11 @@
+import { Coin } from "@cosmjs/stargate";
 import React, { useState } from "react";
 
 const initialMessage = {
   type: "",
   from_address: "",
   to_address: "",
-  amount: [{ denom: "", amount: "" }],
+  amount: { denom: "", amount: "" },
   isVisible: false,
 };
 
@@ -20,7 +21,15 @@ export default function ProposalMessages({
     title: string;
     proposers: string;
     summary: string;
-    messages: {}[];
+    messages: {
+      from_address: string;
+      to_address: string;
+      amount: {
+        denom: string;
+        amount: string;
+      };
+      isVisible: boolean;
+    }[];
     metadata: {
       title: string;
       authors: string;
@@ -32,7 +41,15 @@ export default function ProposalMessages({
     title: string;
     proposers: string;
     summary: string;
-    messages: {}[];
+    messages: {
+      from_address: string;
+      to_address: string;
+      amount: {
+        denom: string;
+        amount: string;
+      };
+      isVisible: boolean;
+    }[];
     metadata: {
       title: string;
       authors: string;
@@ -72,7 +89,7 @@ export default function ProposalMessages({
         if (field === "amount") {
           return {
             ...message,
-            amount: [{ denom: value.denom, amount: value.amount }],
+            amount: { denom: value.denom, amount: value.amount },
           };
         } else {
           if (field === "type" && value !== "" && message.type === "") {
@@ -250,10 +267,10 @@ export default function ProposalMessages({
                                     type="text"
                                     placeholder="Denom"
                                     className="input input-sm input-bordered w-1/2"
-                                    value={message.amount[0].denom}
+                                    value={message.amount.denom}
                                     onChange={(e) =>
                                       handleChangeMessage(index, "amount", {
-                                        ...message.amount[0],
+                                        ...message.amount,
                                         denom: e.target.value,
                                       })
                                     }
@@ -262,10 +279,10 @@ export default function ProposalMessages({
                                     type="text"
                                     placeholder="Amount"
                                     className="input input-sm input-bordered w-1/2"
-                                    value={message.amount[0].amount}
+                                    value={message.amount.amount}
                                     onChange={(e) =>
                                       handleChangeMessage(index, "amount", {
-                                        ...message.amount[0],
+                                        ...message.amount,
                                         amount: e.target.value,
                                       })
                                     }
@@ -283,6 +300,15 @@ export default function ProposalMessages({
                 <button
                   onClick={handleNextStep}
                   className="btn mt-4 btn-primary w-full"
+                  disabled={
+                    !formData.messages.every(
+                      (m) =>
+                        m.from_address &&
+                        m.to_address &&
+                        m.amount.denom &&
+                        m.amount.amount
+                    ) || formData.messages.length === 0
+                  }
                 >
                   Next: Group Policy
                 </button>

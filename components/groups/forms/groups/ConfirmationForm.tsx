@@ -1,3 +1,4 @@
+import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
 import { useFeeEstimation } from "@/hooks/useFeeEstimation";
 import { uploadJsonToIPFS } from "@/hooks/useIpfs";
 import { useTx } from "@/hooks/useTx";
@@ -15,24 +16,25 @@ import { useState } from "react";
 export default function ConfirmationModal({
   nextStep,
   prevStep,
+  formData,
 }: {
   nextStep: () => void;
   prevStep: () => void;
+  formData: {
+    title: string;
+    authors: string;
+    summary: string;
+    description: string;
+    forumLink: string;
+    votingPeriod: string;
+    votingThreshold: string;
+    members: { address: string; name: string; weight: string }[];
+  };
 }) {
   const { address } = useChain("manifest");
   const { createGroupWithPolicy } = cosmos.group.v1.MessageComposer.withTypeUrl;
-
+  console.log(formData);
   const [CID, setCID] = useState<string>("");
-
-  const members: Member[] = [
-    {
-      address: address ?? "",
-      weight: "1",
-      metadata: "",
-      addedAt: new Date(),
-    },
-    // Add more Member objects here as needed
-  ];
 
   const groupMetadata = {
     title: "Test Upload 2",
@@ -80,28 +82,7 @@ export default function ConfirmationModal({
   const GroupMsg = {
     msg: cosmos.group.v1.MsgCreateGroupWithPolicy.typeUrl,
     admin: address ?? "",
-    members: members,
-    groupMetadata: "",
-    groupPolicyMetadata: CID,
-    groupPolicyAsAdmin: true,
-    decisionPolicy: {
-      percentage: "0",
-      threshold: "1",
-      value: policy,
-      typeUrl: cosmos.group.v1.ThresholdDecisionPolicy.typeUrl,
-    },
-  };
-
-  const groupFromPartial = MsgCreateGroupWithPolicy.fromPartial(GroupMsg);
-
-  const groupBinary =
-    MsgCreateGroupWithPolicy.encode(groupFromPartial).finish();
-
-  const GroupMsgFixed = {
-    typeUrl: cosmos.group.v1.MsgCreateGroupWithPolicy.typeUrl,
-    value: groupBinary,
-    admin: address ?? "",
-    members: members,
+    members: formData.members,
     groupMetadata: "",
     groupPolicyMetadata: CID,
     groupPolicyAsAdmin: true,
@@ -127,13 +108,18 @@ export default function ConfirmationModal({
   });
 
   const handleConfirm = async () => {
+    uploadMetaDataToIPFS();
     const msg = createGroupWithPolicy({
       admin: address ?? "",
-      members: members,
+      members: formData.members.map((member) => ({
+        ...member,
+        metadata: "",
+        addedAt: new Date(),
+      })),
       groupMetadata: "",
       groupPolicyMetadata: CID,
       groupPolicyAsAdmin: true,
-      value: groupBinary,
+      value: formData.votingThreshold,
       typeUrl: cosmos.group.v1.MsgCreateGroupWithPolicy.typeUrl,
       // @ts-ignore
       decisionPolicy: {
@@ -224,8 +210,11 @@ export default function ConfirmationModal({
             <h1 className="mb-4 text-2xl font-extrabold tracking-tight  sm:mb-6 leding-tight ">
               Confirmation
             </h1>
-            <form className="min-h-[330px] max-h-[330px]">
-              <div className="grid gap-5 my-6 sm:grid-cols-2">
+            <form className="min-h-[330px] sm:max-h-[378px] overflow-y-auto ">
+              <label className="block mb-2 text-xl font-light  ">
+                GROUP DETAILS
+              </label>
+              <div className="grid gap-5 mb-4 sm:grid-cols-2 bg-base-200 shadow rounded-lg p-4 ">
                 <div>
                   <label
                     htmlFor="full-name"
@@ -233,7 +222,7 @@ export default function ConfirmationModal({
                   >
                     Group Title
                   </label>
-                  <a className="font-medium mb-4 ">Manifest PoA Admins</a>
+                  <a className="font-medium mb-4 ">{formData.title}</a>
                 </div>
                 <div>
                   <label
@@ -242,31 +231,22 @@ export default function ConfirmationModal({
                   >
                     Authors
                   </label>
-                  <a className="font-medium mb-4 ">Lifted Intiative</a>
+                  <TruncatedAddressWithCopy
+                    address={formData.authors}
+                    slice={14}
+                  />
                 </div>
-                <div>
-                  <label
-                    htmlFor="password"
-                    className="block mb-2 text-sm font-medium  "
-                  >
-                    Summary
-                  </label>
-                  <a className="font-medium mb-4 ">
-                    The authority of the Manifest Network, and the Lifted
-                    Initiative
-                  </a>
+                <div className="flex flex-col mt-4">
+                  <a className="text-sm font-light">SUMMARY</a>
+                  <div className=" max-h-24 mt-2 overflow-y-auto rounded-md bg-base-300 p-4">
+                    <a className="text-sm  ">{formData.summary}</a>
+                  </div>
                 </div>
-                <div>
-                  <label
-                    htmlFor="confirm-password"
-                    className="block mb-2 text-sm font-medium "
-                  >
-                    Description
-                  </label>
-                  <a className="font-medium mb-4 ">
-                    This group is in authoratative contorl of the manifest
-                    network
-                  </a>
+                <div className="flex flex-col mt-4">
+                  <a className="text-sm font-light">DESCRIPTION</a>
+                  <div className=" max-h-24 mt-2 overflow-y-auto rounded-md bg-base-300 p-4">
+                    <a className="text-sm  ">{formData.description}</a>
+                  </div>
                 </div>
                 <div>
                   <label
@@ -275,60 +255,78 @@ export default function ConfirmationModal({
                   >
                     Forum Link
                   </label>
-                  <a className="font-medium mb-4 ">https://forum.cosmos</a>
+                  <a className="font-medium mb-4 ">{formData.forumLink}</a>
                 </div>
+              </div>
+              <label className="block mb-2 text-xl font-light  ">
+                POLICY DETAILS
+              </label>
+              <div className="grid gap-5 mb-4 sm:grid-cols-2 bg-base-200 shadow rounded-lg p-4 ">
                 <div>
                   <label
-                    htmlFor="confirm-password"
+                    htmlFor="full-name"
                     className="block mb-2 text-sm font-medium "
                   >
                     Threshold
                   </label>
-                  <a className="font-medium mb-4 ">1 / 3</a>
+                  <a className="font-medium mb-4 ">
+                    {formData.votingThreshold}
+                  </a>
                 </div>
                 <div>
                   <label
-                    htmlFor="confirm-password"
+                    htmlFor="email"
                     className="block mb-2 text-sm font-medium "
                   >
-                    Voting Period
+                    Period
                   </label>
-                  <a className="font-medium mb-4 ">3 days</a>
-                </div>
-                <div>
-                  <label
-                    htmlFor="confirm-password"
-                    className="block mb-2 text-sm font-medium "
-                  >
-                    Members
-                  </label>
-                  <div className="flex gap-2">
-                    <a className="font-medium mb-4 ">manifest1...123243</a>
-                    <a className="font-medium mb-4 ">manifest1...123243</a>
-                  </div>
+                  {formData.votingPeriod}
                 </div>
               </div>
+              <label className="block mb-2 text-xl font-light  ">MEMBERS</label>
+              <div className="flex flex-col bg-base-200 shadow rounded-lg p-4">
+                {formData.members.map((memmber, index) => (
+                  <div
+                    key={index}
+                    className="flex flex-col bg-base-300 p-4 mb-4 rounded-md relative"
+                  >
+                    <div className="absolute top-2 right-4"># {index + 1}</div>
+                    <div className="grid sm:grid-cols-3 gap-6">
+                      <div className="flex flex-col">
+                        <a className="text-sm font-light">Address</a>
+
+                        <TruncatedAddressWithCopy
+                          address={memmber.address}
+                          slice={14}
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <a className="text-sm font-light">Name</a>
+
+                        {memmber.name}
+                      </div>
+                      <div className="flex flex-col">
+                        <a className="text-sm font-light">Weight</a>
+
+                        {memmber.weight}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </form>
-            <div className="flex gap-4">
-              <button
-                onClick={uploadMetaDataToIPFS}
-                className="w-1/2 px-5 py-2.5 sm:py-3.5 btn btn-primary"
-              >
-                Upload Metadata
-              </button>
-              <button
-                onClick={handleConfirm}
-                className="w-1/2 px-5 py-2.5 sm:py-3.5 btn btn-primary"
-              >
-                Sign Transaction
-              </button>
-            </div>
             <div className="flex space-x-3 ga-4 mt-6">
               <button
                 onClick={prevStep}
                 className="text-center items-center w-1/2 py-2.5 sm:py-3.5 btn btn-neutral"
               >
                 Prev: Member Info
+              </button>
+              <button
+                onClick={handleConfirm}
+                className="w-1/2 px-5 py-2.5 sm:py-3.5 btn btn-primary"
+              >
+                Sign Transaction
               </button>
             </div>
           </div>

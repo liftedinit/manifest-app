@@ -11,13 +11,15 @@ export default function ProposalDetails({
     title: string;
     proposers: string;
     summary: string;
-    messages: [
-      {
-        from_address: string;
-        to_address: string;
-        amount: Coin[];
-      }
-    ];
+    messages: {
+      from_address: string;
+      to_address: string;
+      amount: {
+        denom: string;
+        amount: string;
+      };
+      isVisible: boolean;
+    }[];
     metadata: {
       title: string;
       authors: string;
@@ -29,13 +31,15 @@ export default function ProposalDetails({
     title: string;
     proposers: string;
     summary: string;
-    messages: [
-      {
-        from_address: string;
-        to_address: string;
-        amount: Coin[];
-      }
-    ];
+    messages: {
+      from_address: string;
+      to_address: string;
+      amount: {
+        denom: string;
+        amount: string;
+      };
+      isVisible: boolean;
+    }[];
     metadata: {
       title: string;
       authors: string;
@@ -130,6 +134,9 @@ export default function ProposalDetails({
             <button
               onClick={nextStep}
               className="w-full  mt-4 btn px-5 py-2.5 sm:py-3.5 btn-primary"
+              disabled={
+                !formData.title || !formData.proposers || !formData.summary
+              }
             >
               Next: Proposal Messages
             </button>

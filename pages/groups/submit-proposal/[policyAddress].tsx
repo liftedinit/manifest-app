@@ -4,6 +4,7 @@ import ProposalDetails from "@/components/groups/forms/proposals/ProposalDetails
 import ProposalMetadataForm from "@/components/groups/forms/proposals/ProposalMetadataForm";
 import ProposalMessages from "@/components/groups/forms/proposals/ProposalMessages";
 import { useRouter } from "next/router";
+import { Coin } from "@cosmjs/stargate";
 
 export default function CreateGroup() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -19,7 +20,11 @@ export default function CreateGroup() {
       {
         from_address: "",
         to_address: "",
-        amount: [],
+        amount: {
+          denom: "",
+          amount: "",
+        },
+        isVisible: false,
       },
     ],
     metadata: {
@@ -59,13 +64,15 @@ export default function CreateGroup() {
     title: string;
     proposers: string;
     summary: string;
-    messages: [
-      {
-        from_address: "";
-        to_address: "";
-        amount: [];
-      }
-    ];
+    messages: {
+      from_address: string;
+      to_address: string;
+      amount: {
+        denom: string;
+        amount: string;
+      };
+      isVisible: boolean;
+    }[];
     metadata: {
       title: string;
       authors: string;

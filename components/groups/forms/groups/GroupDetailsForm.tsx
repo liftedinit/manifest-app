@@ -1,6 +1,32 @@
 import Link from "next/link";
 
-export default function GroupDetails({ nextStep }: { nextStep: () => void }) {
+export default function GroupDetails({
+  nextStep,
+  formData,
+  onDataChange,
+}: {
+  nextStep: () => void;
+  formData: {
+    title: string;
+    authors: string;
+    summary: string;
+    description: string;
+    forumLink: string;
+    votingPeriod: string;
+    votingThreshold: string;
+    members: { address: string; name: string; weight: string }[];
+  };
+  onDataChange: (newData: {
+    title: string;
+    authors: string;
+    summary: string;
+    description: string;
+    forumLink: string;
+    votingPeriod: string;
+    votingThreshold: string;
+    members: { address: string; name: string; weight: string }[];
+  }) => void;
+}) {
   return (
     <section className="">
       <div className="lg:flex min-h-screen mx-auto">
@@ -44,6 +70,10 @@ export default function GroupDetails({ nextStep }: { nextStep: () => void }) {
                     type="text"
                     placeholder="Title"
                     className="input input-bordered w-full max-w-xs"
+                    value={formData.title}
+                    onChange={(e) =>
+                      onDataChange({ ...formData, title: e.target.value })
+                    }
                   />
                 </div>
                 <div>
@@ -57,6 +87,10 @@ export default function GroupDetails({ nextStep }: { nextStep: () => void }) {
                     type="text"
                     placeholder="List of authors"
                     className="input input-bordered w-full max-w-xs"
+                    value={formData.authors}
+                    onChange={(e) =>
+                      onDataChange({ ...formData, authors: e.target.value })
+                    }
                   />
                 </div>
                 <div>
@@ -69,6 +103,10 @@ export default function GroupDetails({ nextStep }: { nextStep: () => void }) {
                   <textarea
                     className="textarea textarea-bordered w-full max-w-xs"
                     placeholder="Short Bio"
+                    value={formData.summary}
+                    onChange={(e) =>
+                      onDataChange({ ...formData, summary: e.target.value })
+                    }
                   ></textarea>
                 </div>
                 <div>
@@ -81,6 +119,10 @@ export default function GroupDetails({ nextStep }: { nextStep: () => void }) {
                   <textarea
                     className="textarea textarea-bordered w-full max-w-xs"
                     placeholder="Long Bio"
+                    value={formData.description}
+                    onChange={(e) =>
+                      onDataChange({ ...formData, description: e.target.value })
+                    }
                   ></textarea>
                 </div>
                 <div>
@@ -94,6 +136,10 @@ export default function GroupDetails({ nextStep }: { nextStep: () => void }) {
                     type="text"
                     placeholder="Link to forum"
                     className="input input-bordered w-full max-w-xs mb-4"
+                    value={formData.forumLink}
+                    onChange={(e) =>
+                      onDataChange({ ...formData, forumLink: e.target.value })
+                    }
                   />
                 </div>
               </div>
@@ -102,6 +148,13 @@ export default function GroupDetails({ nextStep }: { nextStep: () => void }) {
             <button
               onClick={nextStep}
               className="w-full  btn px-5 py-2.5 sm:py-3.5 btn-primary"
+              disabled={
+                !formData.title ||
+                !formData.authors ||
+                !formData.summary ||
+                !formData.description ||
+                !formData.forumLink
+              }
             >
               Next: Group Policy
             </button>

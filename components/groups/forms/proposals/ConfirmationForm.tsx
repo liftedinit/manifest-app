@@ -8,6 +8,7 @@ import { Any } from "@chalabi/manifestjs/dist/codegen/google/protobuf/any";
 import { Coin } from "@cosmjs/stargate";
 import { useChain } from "@cosmos-kit/react";
 import Link from "next/link";
+import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
 
 import { useState } from "react";
 export default function ConfirmationModal({
@@ -27,7 +28,8 @@ export default function ConfirmationModal({
     messages: {
       from_address: string;
       to_address: string;
-      amount: Coin[];
+      amount: Coin;
+      isVisible: boolean;
     }[];
     metadata: {
       title: string;
@@ -43,7 +45,8 @@ export default function ConfirmationModal({
     messages: {
       from_address: string;
       to_address: string;
-      amount: Coin[];
+      amount: Coin;
+      isVisible: boolean;
     }[];
     metadata: {
       title: string;
@@ -101,6 +104,7 @@ export default function ConfirmationModal({
   };
 
   const handleConfirm = async () => {
+    uploadMetaDataToIPFS();
     const msg = submitProposal({
       address: policyAddress ?? "",
       messages: [msgSend],
@@ -191,8 +195,10 @@ export default function ConfirmationModal({
             <h1 className="mb-4 text-2xl font-extrabold tracking-tight  sm:mb-6 leding-tight ">
               Confirmation
             </h1>
-            <form className="min-h-[330px] max-h-[330px]">
-              <div className="grid gap-5 my-6 sm:grid-cols-2">
+            <div className=" divider divider-vertical md:hidden block" />
+            <form className="min-h-[330px] sm:max-h-[394px] overflow-y-auto ">
+              <label className="block mb-2 text-xl font-light  ">DETAILS</label>
+              <div className="grid gap-5 mb-4 sm:grid-cols-2 bg-base-200 shadow rounded-lg p-4 ">
                 <div>
                   <label
                     htmlFor="full-name"
@@ -200,7 +206,7 @@ export default function ConfirmationModal({
                   >
                     Group Title
                   </label>
-                  <a className="font-medium mb-4 ">Manifest PoA Admins</a>
+                  <a className="font-medium mb-4 ">{formData.title}</a>
                 </div>
                 <div>
                   <label
@@ -209,7 +215,10 @@ export default function ConfirmationModal({
                   >
                     Authors
                   </label>
-                  <a className="font-medium mb-4 ">Lifted Intiative</a>
+                  <TruncatedAddressWithCopy
+                    address={formData.proposers}
+                    slice={14}
+                  />
                 </div>
                 <div>
                   <label
@@ -218,84 +227,86 @@ export default function ConfirmationModal({
                   >
                     Summary
                   </label>
-                  <a className="font-medium mb-4 ">
-                    The authority of the Manifest Network, and the Lifted
-                    Initiative
-                  </a>
+                  <a className="font-medium mb-4 ">{formData.summary}</a>
                 </div>
-                <div>
-                  <label
-                    htmlFor="confirm-password"
-                    className="block mb-2 text-sm font-medium "
+              </div>
+              <label className="block mb-2 text-xl font-light  ">
+                MESSAGES
+              </label>
+              <div className="flex flex-col bg-base-200 shadow rounded-lg p-4">
+                {formData.messages.map((message, index) => (
+                  <div
+                    key={index}
+                    className="flex flex-col bg-base-300 p-4 mb-4 rounded-md relative"
                   >
-                    Description
-                  </label>
-                  <a className="font-medium mb-4 ">
-                    This group is in authoratative contorl of the manifest
-                    network
-                  </a>
+                    <div className="absolute top-2 right-4"># {index + 1}</div>
+                    <div className="grid sm:grid-cols-2 gap-6">
+                      <div className="flex flex-col">
+                        <a className="text-sm font-light">TYPE</a>
+                        <a className="text-md">/cosmos.bank.v1beta1.MsgSend</a>
+                      </div>
+                      <div className="flex flex-col">
+                        <a className="text-sm font-light">FROM</a>
+                        <TruncatedAddressWithCopy
+                          address={message.from_address}
+                          slice={14}
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <a className="text-sm font-light">TO</a>
+                        <TruncatedAddressWithCopy
+                          address={message.to_address}
+                          slice={14}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <label className="block mb-2 text-xl font-light mt-6">
+                METADATA
+              </label>
+              <div className="flex flex-col bg-base-200 shadow rounded-lg p-4">
+                <div className="grid grid-cols-2 gap-2 ">
+                  <div className="flex flex-col">
+                    <a className="text-sm font-light">AUTHORS</a>
+
+                    <a className="text-xl mt-2 ">{formData.metadata.authors}</a>
+                  </div>
+
+                  <div className="flex flex-col">
+                    <a className="text-sm font-light">TITLE</a>
+
+                    <a className="text-xl mt-2 ">{formData.metadata.title}</a>
+                  </div>
                 </div>
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="block mb-2 text-sm font-medium "
-                  >
-                    Forum Link
-                  </label>
-                  <a className="font-medium mb-4 ">https://forum.cosmos</a>
+                <div className="flex flex-col mt-4">
+                  <a className="text-sm font-light">DETAILS</a>
+                  <div className="max-h-24  mt-2 overflow-y-auto rounded-md bg-base-300 p-4">
+                    <a className="text-sm  ">{formData.metadata.details}</a>
+                  </div>
                 </div>
-                <div>
-                  <label
-                    htmlFor="confirm-password"
-                    className="block mb-2 text-sm font-medium "
-                  >
-                    Threshold
-                  </label>
-                  <a className="font-medium mb-4 ">1 / 3</a>
-                </div>
-                <div>
-                  <label
-                    htmlFor="confirm-password"
-                    className="block mb-2 text-sm font-medium "
-                  >
-                    Voting Period
-                  </label>
-                  <a className="font-medium mb-4 ">3 days</a>
-                </div>
-                <div>
-                  <label
-                    htmlFor="confirm-password"
-                    className="block mb-2 text-sm font-medium "
-                  >
-                    Members
-                  </label>
-                  <div className="flex gap-2">
-                    <a className="font-medium mb-4 ">manifest1...123243</a>
-                    <a className="font-medium mb-4 ">manifest1...123243</a>
+                <div className="flex flex-col mt-4">
+                  <a className="text-sm font-light">SUMMARY</a>
+                  <div className=" max-h-24 mt-2 overflow-y-auto rounded-md bg-base-300 p-4">
+                    <a className="text-sm  ">{formData.metadata.summary}</a>
                   </div>
                 </div>
               </div>
             </form>
-            <div className="flex gap-4 mt-4">
+
+            <div className="flex space-x-3 ga-4 mt-6">
               <button
-                onClick={uploadMetaDataToIPFS}
-                className="w-1/2 px-5 py-2.5 sm:py-3.5 btn btn-primary"
+                onClick={prevStep}
+                className="text-center items-center w-1/2 py-2.5 sm:py-3.5 btn btn-neutral"
               >
-                Upload Metadata
+                Prev: Metadata
               </button>
               <button
                 onClick={handleConfirm}
                 className="w-1/2 px-5 py-2.5 sm:py-3.5 btn btn-primary"
               >
                 Sign Transaction
-              </button>
-            </div>
-            <div className="flex space-x-3 ga-4 mt-6">
-              <button
-                onClick={prevStep}
-                className="text-center items-center w-1/2 py-2.5 sm:py-3.5 btn btn-neutral"
-              >
-                Prev: Member Info
               </button>
             </div>
           </div>

@@ -5,11 +5,33 @@ const initialMember = { address: "", name: "", weight: "" };
 export default function GroupPolicyForm({
   nextStep,
   prevStep,
+  formData,
+  onDataChange,
 }: {
   nextStep: () => void;
   prevStep: () => void;
+  formData: {
+    title: string;
+    authors: string;
+    summary: string;
+    description: string;
+    forumLink: string;
+    votingPeriod: string;
+    votingThreshold: string;
+    members: { address: string; name: string; weight: string }[];
+  };
+  onDataChange: (newData: {
+    title: string;
+    authors: string;
+    summary: string;
+    description: string;
+    forumLink: string;
+    votingPeriod: string;
+    votingThreshold: string;
+    members: { address: string; name: string; weight: string }[];
+  }) => void;
 }) {
-  const [members, setMembers] = useState([initialMember]);
+  const [members, setMembers] = useState([formData.members]);
   const [numberOfMembers, setNumberOfMembers] = useState(2);
 
   useEffect(() => {
@@ -50,6 +72,15 @@ export default function GroupPolicyForm({
 
   const handleSubmit = (event: { preventDefault: () => void }) => {
     event.preventDefault();
+
+    const updatedFormData = {
+      ...formData,
+      members: members,
+    };
+
+    onDataChange(updatedFormData);
+
+    nextStep();
   };
 
   return (
@@ -193,7 +224,13 @@ export default function GroupPolicyForm({
                   ))}
                 </div>
 
-                <button onClick={nextStep} className="btn btn-primary w-full">
+                <button
+                  onClick={handleSubmit}
+                  className="btn btn-primary w-full"
+                  disabled={
+                    !members.every((m) => m.address && m.name && m.weight)
+                  }
+                >
                   Next: Group Policy
                 </button>
               </form>

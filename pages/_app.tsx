@@ -1,5 +1,6 @@
 import "../styles/globals.css";
 import "@interchain-ui/react/styles";
+import "@fontsource/rubik";
 
 import type { AppProps } from "next/app";
 

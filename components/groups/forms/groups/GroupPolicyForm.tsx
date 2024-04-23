@@ -1,7 +1,29 @@
 export default function GroupPolicyForm({
   nextStep,
   prevStep,
+  formData,
+  onDataChange,
 }: {
+  formData: {
+    title: string;
+    authors: string;
+    summary: string;
+    description: string;
+    forumLink: string;
+    votingPeriod: string;
+    votingThreshold: string;
+    members: { address: string; name: string; weight: string }[];
+  };
+  onDataChange: (newData: {
+    title: string;
+    authors: string;
+    summary: string;
+    description: string;
+    forumLink: string;
+    votingPeriod: string;
+    votingThreshold: string;
+    members: { address: string; name: string; weight: string }[];
+  }) => void;
   nextStep: () => void;
   prevStep: () => void;
 }) {
@@ -57,6 +79,13 @@ export default function GroupPolicyForm({
                     type="text"
                     placeholder="Type here"
                     className="input input-bordered w-full max-w-xs"
+                    value={formData?.votingPeriod}
+                    onChange={(e) =>
+                      onDataChange({
+                        ...formData,
+                        votingPeriod: e.target.value,
+                      })
+                    }
                   />
                 </div>
                 <div>
@@ -70,11 +99,22 @@ export default function GroupPolicyForm({
                     type="text"
                     placeholder="Type here"
                     className="input input-bordered w-full max-w-xs"
+                    value={formData?.votingThreshold}
+                    onChange={(e) =>
+                      onDataChange({
+                        ...formData,
+                        votingThreshold: e.target.value,
+                      })
+                    }
                   />
                 </div>
               </div>
             </form>
-            <button onClick={nextStep} className="w-full  btn btn-primary">
+            <button
+              onClick={nextStep}
+              className="w-full  btn btn-primary"
+              disabled={!formData?.votingPeriod || !formData?.votingThreshold}
+            >
               Next: Member Info
             </button>
             <div className="flex space-x-3 ga-4 mt-6">

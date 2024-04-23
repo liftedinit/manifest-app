@@ -10,7 +10,15 @@ export default function ProposalMetadataForm({
     title: string;
     proposers: string;
     summary: string;
-    messages: {}[];
+    messages: {
+      from_address: string;
+      to_address: string;
+      amount: {
+        denom: string;
+        amount: string;
+      };
+      isVisible: boolean;
+    }[];
     metadata: {
       title: string;
       authors: string;
@@ -22,7 +30,15 @@ export default function ProposalMetadataForm({
     title: string;
     proposers: string;
     summary: string;
-    messages: {}[];
+    messages: {
+      from_address: string;
+      to_address: string;
+      amount: {
+        denom: string;
+        amount: string;
+      };
+      isVisible: boolean;
+    }[];
     metadata: {
       title: string;
       authors: string;
@@ -177,7 +193,16 @@ export default function ProposalMetadataForm({
                 </div>
               </div>
             </form>
-            <button onClick={nextStep} className="w-full mt-4 btn btn-primary">
+            <button
+              onClick={nextStep}
+              className="w-full mt-4 btn btn-primary"
+              disabled={
+                !formData.metadata.title ||
+                !formData.metadata.authors ||
+                !formData.metadata.summary ||
+                !formData.metadata.details
+              }
+            >
               Next: Member Info
             </button>
             <div className="flex space-x-3 ga-4 mt-6">
