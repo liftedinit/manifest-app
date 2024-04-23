@@ -75,7 +75,7 @@ export default function GroupPolicyForm({
 
     const updatedFormData = {
       ...formData,
-      members: members,
+      members: members.flat(),
     };
 
     onDataChange(updatedFormData);
@@ -165,7 +165,13 @@ export default function GroupPolicyForm({
 
               <form onSubmit={handleSubmit} className=" min-h-[330px]">
                 <div className="overflow-y-scroll max-h-[330px] min-h-[330px]">
-                  {members.map((member, index) => (
+                  {(
+                    members as unknown as {
+                      address: string;
+                      name: string;
+                      weight: string;
+                    }[]
+                  ).flatMap((member, index) => (
                     <div key={index} className="grid grid-cols-3 gap-4 mb-4">
                       <div>
                         <label
@@ -228,7 +234,13 @@ export default function GroupPolicyForm({
                   onClick={handleSubmit}
                   className="btn btn-primary w-full"
                   disabled={
-                    !members.every((m) => m.address && m.name && m.weight)
+                    !(
+                      members as unknown as {
+                        address: string;
+                        name: string;
+                        weight: string;
+                      }[]
+                    ).every((m) => m.address && m.name && m.weight)
                   }
                 >
                   Next: Group Policy
