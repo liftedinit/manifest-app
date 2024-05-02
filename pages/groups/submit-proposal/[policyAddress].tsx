@@ -119,7 +119,6 @@ export default function CreateGroup() {
         <ConfirmationForm
           policyAddress={policyAddress as string}
           formData={formData}
-          onDataChange={handleDataChange}
           prevStep={prevStep}
           nextStep={nextStep}
         />

@@ -12,7 +12,7 @@ import {
 } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types";
 import { QueryTallyResultResponseSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/query";
 import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
-import { VotingModal } from "./voteModal";
+import VotingPopup from "./voteModal";
 import { ApexOptions } from "apexcharts";
 import { shiftDigits } from "@/utils";
 import { useChain } from "@cosmos-kit/react";
@@ -35,6 +35,8 @@ function VoteDetailsModal({
   proposal,
   admin,
   modalId,
+  refetchVotes,
+  refetchTally,
 }: {
   tallies: QueryTallyResultResponseSDKType;
   votes: VoteSDKType[];
@@ -42,6 +44,8 @@ function VoteDetailsModal({
   proposal: Proposal;
   admin: string;
   modalId: string;
+  refetchVotes: () => void;
+  refetchTally: () => void;
 }) {
   const voteMap = useMemo(
     () =>
@@ -69,7 +73,7 @@ function VoteDetailsModal({
 
   const normalizedMembers = useMemo(
     () =>
-      members.map((member) => ({
+      members?.map((member) => ({
         ...member,
         address: member?.address?.toLowerCase().trim(),
       })),
@@ -92,6 +96,11 @@ function VoteDetailsModal({
     chart: {
       type: "bar",
       height: 350,
+      toolbar: {
+        tools: {
+          download: false,
+        },
+      },
     },
     plotOptions: {
       bar: {
@@ -109,14 +118,25 @@ function VoteDetailsModal({
     },
     xaxis: {
       categories: ["Yes", "No", "Veto", "Abstain"],
+      labels: {
+        style: {
+          colors: ["", "#f4f4f4", "#f4f4f4", "#f4f4f4"],
+        },
+      },
     },
     yaxis: {
       min: 0,
-      tickAmount: Math.max(...series[0].data),
+      tickAmount: 1,
       forceNiceScale: true,
+      labels: {
+        style: {
+          colors: "#f4f4f4",
+        },
+      },
     },
     fill: {
       opacity: 1,
+      colors: ["#23cf42", "#f64b4b", "#e2b957", "#9d78f5"],
     },
     tooltip: {
       y: {
@@ -125,7 +145,6 @@ function VoteDetailsModal({
         },
       },
     },
-
     colors: ["#23cf42", "#f64b4b", "#e2b957", "#9d78f5"],
   };
 
@@ -134,7 +153,7 @@ function VoteDetailsModal({
   const { exec } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
   const msg = exec({
-    proposalId: proposal?.id,
+    proposal_id: proposal?.id,
     signer: address ?? "",
   });
 
@@ -152,7 +171,10 @@ function VoteDetailsModal({
     try {
       await tx([msg], {
         fee,
-        onSuccess: () => {},
+        onSuccess: () => {
+          refetchTally();
+          refetchVotes();
+        },
       });
     } catch (error) {
       console.error("Failed to execute proposal: ", error);
@@ -214,6 +236,12 @@ function VoteDetailsModal({
     return () => clearInterval(interval);
   }, [proposal?.voting_period_end]);
 
+  const [isGridVisible, setIsGridVisible] = useState(false);
+
+  const handleButtonClick = () => {
+    setIsGridVisible((prev) => !prev);
+  };
+
   return (
     <dialog id={modalId} className="modal">
       <div className="modal-box relative max-w-4xl min-h-96  flex flex-col md:flex-row md:ml-20  rounded-lg shadow">
@@ -226,7 +254,8 @@ function VoteDetailsModal({
           <div className="flex flex-row gap-2 items-center">
             <p>#&nbsp;{proposal?.id.toString()}</p>
             <span className="badge badge-lg items-center justify-center badge-primary">
-              {proposal?.status !== "PROPOSAL_STATUS_SUBMITTED"
+              {proposal?.status !==
+              ("PROPOSAL_STATUS_SUBMITTED" as unknown as ProposalStatus)
                 ? executorResultMapping[
                     proposal?.executor_result as unknown as keyof typeof executorResultMapping
                   ]
@@ -266,22 +295,22 @@ function VoteDetailsModal({
                       <h4 className="font-medium">From:</h4>
                       <TruncatedAddressWithCopy
                         slice={14}
-                        address={message.from_address}
+                        address={message?.from_address}
                       />
                     </div>
                     <div>
                       <h4 className="font-medium">To:</h4>
                       <TruncatedAddressWithCopy
                         slice={14}
-                        address={message.to_address}
+                        address={message?.to_address}
                       />
                     </div>
                     <div>
                       <h4 className="font-medium">Amount:</h4>
                       {message?.amount?.map((amount: any, idx: number) => (
                         <p key={idx}>
-                          {shiftDigits(amount.amount, -6)}{" "}
-                          {amount.denom.slice(1).toUpperCase()}
+                          {shiftDigits(amount?.amount, -6)}{" "}
+                          {amount?.denom.slice(1).toUpperCase()}
                         </p>
                       ))}
                     </div>
@@ -344,7 +373,7 @@ function VoteDetailsModal({
           </div>
         </div>
         <div className="divider divider-horizontal"></div>
-        <div className="flex flex-col w-full flex-grow items-start justify-start">
+        <div className="flex flex-col w-full relative flex-grow items-start justify-start">
           <p className="text-xs font-light mt-2">TALLY</p>
           <div className="w-full">
             <Chart options={options} series={series} type="bar" height={200} />
@@ -367,7 +396,7 @@ function VoteDetailsModal({
               </thead>
               <tbody>
                 {/* Mapping over members */}
-                {normalizedMembers.map((member, index) => {
+                {normalizedMembers?.map((member, index) => {
                   const memberVote = voteMap[member?.member?.address];
                   return (
                     <tr key={index}>
@@ -386,7 +415,7 @@ function VoteDetailsModal({
                 })}
               </tbody>
             </table>
-            <div className="mb-4 mt-4 md:hidden block ">
+            <div className="mb-4 mt-8 md:hidden block ">
               <p className="text-xs font-light mt-4 ">VOTING COUNTDOWN</p>
               <div className="grid grid-flow-col md:hidden gap-5 mt-2 text-center auto-cols-max">
                 <div className="flex flex-col">
@@ -440,7 +469,8 @@ function VoteDetailsModal({
               </div>
             </div>
           </div>
-          {proposal.executor_result === "PROPOSAL_EXECUTOR_RESULT_NOT_RUN" &&
+          {proposal.executor_result ===
+            ("PROPOSAL_EXECUTOR_RESULT_NOT_RUN" as unknown as ProposalExecutorResult) &&
             countdownValues.days +
               countdownValues.hours +
               countdownValues.minutes +
@@ -454,22 +484,22 @@ function VoteDetailsModal({
                 Execute
               </button>
             )}
+          {isGridVisible && (
+            <VotingPopup
+              proposalId={proposal.id}
+              isGridVisible={isGridVisible}
+            />
+          )}
           {proposal.status !==
             ("PROPOSAL_STATUS_CLOSED" as unknown as ProposalStatus) && (
             <button
               disabled={!address}
-              className="btn w-full btn-primary ml-auto mt-4"
-              onClick={() =>
-                (
-                  document.getElementById("voting_modal") as HTMLDialogElement
-                )?.showModal()
-              }
+              className="btn w-full btn-primary ml-auto mt-4 border-r-4 border-r-primaryShadow border-b-4 border-b-primaryShadow"
+              onClick={handleButtonClick}
             >
               Vote
             </button>
           )}
-
-          <VotingModal proposalId={proposal.id} />
         </div>
       </div>
       <form method="dialog" className="modal-backdrop">

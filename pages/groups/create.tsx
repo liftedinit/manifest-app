@@ -4,6 +4,7 @@ import ConfirmationForm from "@/components/groups/forms/groups/ConfirmationForm"
 import GroupDetails from "@/components/groups/forms/groups/GroupDetailsForm";
 import GroupPolicyForm from "@/components/groups/forms/groups/GroupPolicyForm";
 import MemberInfoForm from "@/components/groups/forms/groups/MemberInfoForm";
+import { Duration } from "@chalabi/manifestjs/dist/codegen/google/protobuf/duration";
 
 const initialFormData: FormData = {
   title: "",
@@ -11,8 +12,9 @@ const initialFormData: FormData = {
   summary: "",
   description: "",
   forumLink: "",
-  votingPeriod: "",
+  votingPeriod: {} as Duration,
   votingThreshold: "",
+
   members: [{ address: "", name: "", weight: "" }],
 };
 

@@ -3,16 +3,12 @@ import { FormData } from "@/helpers/formReducer";
 import { useFeeEstimation } from "@/hooks/useFeeEstimation";
 import { uploadJsonToIPFS } from "@/hooks/useIpfs";
 import { useTx } from "@/hooks/useTx";
-import { cosmos } from "@chalabi/manifestjs";
-import { MsgCreateGroupWithPolicy } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/tx";
-import {
-  Member,
-  ThresholdDecisionPolicy,
-} from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types";
+import { cosmos } from "interchain";
+
+import { ThresholdDecisionPolicy } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types";
 import { Duration } from "@chalabi/manifestjs/dist/codegen/google/protobuf/duration";
 import { useChain } from "@cosmos-kit/react";
-import { group } from "console";
-import Link from "next/link";
+
 import { useState } from "react";
 export default function ConfirmationModal({
   nextStep,
@@ -25,15 +21,15 @@ export default function ConfirmationModal({
 }) {
   const { address } = useChain("manifest");
   const { createGroupWithPolicy } = cosmos.group.v1.MessageComposer.withTypeUrl;
-  console.log(formData);
+
   const [CID, setCID] = useState<string>("");
 
   const groupMetadata = {
-    title: "Test Upload 2",
-    authors: "Chandra Station",
-    summary: "This is a test group submitted via the groups web ui",
-    details: "This is a test group submitted via the groups web ui",
-    proposalForumURL: "https://forum.cosmos",
+    title: formData.title,
+    authors: formData.authors,
+    summary: formData.summary,
+    details: formData.description,
+    proposalForumURL: formData.forumLink,
     voteOptionContext: "",
   };
 
@@ -59,64 +55,41 @@ export default function ConfirmationModal({
   };
 
   const thresholdMsg = {
-    threshold: "1",
+    threshold: formData.votingThreshold,
     windows: {
-      votingPeriod: votingPeriod,
-      minExecutionPeriod: minExecutionPeriod,
+      voting_period: formData.votingPeriod,
+      min_execution_period: minExecutionPeriod,
     },
     msg: cosmos.group.v1.ThresholdDecisionPolicy.typeUrl,
   };
 
-  const policyFromPartial = ThresholdDecisionPolicy.fromPartial(thresholdMsg);
+  const threshholdPolicyFromPartial =
+    ThresholdDecisionPolicy.fromPartial(thresholdMsg);
 
-  const policy = ThresholdDecisionPolicy.encode(policyFromPartial).finish();
+  const threshholdPolicy = ThresholdDecisionPolicy.encode(
+    threshholdPolicyFromPartial
+  ).finish();
 
-  const GroupMsg = {
-    msg: cosmos.group.v1.MsgCreateGroupWithPolicy.typeUrl,
-    admin: address ?? "",
-    members: formData.members,
-    groupMetadata: "",
-    groupPolicyMetadata: CID,
-    groupPolicyAsAdmin: true,
-    decisionPolicy: {
-      percentage: "0",
-      threshold: "1",
-      value: policy,
-      typeUrl: cosmos.group.v1.ThresholdDecisionPolicy.typeUrl,
-    },
-  };
-
-  const { send } = cosmos.bank.v1beta1.MessageComposer.withTypeUrl;
-
-  const msgSend = send({
-    fromAddress: address ?? "",
-    toAddress: "manifest1aucdev30u9505dx9t6q5fkcm70sjg4rh7rn5nf",
-    amount: [
-      {
-        denom: "umfx",
-        amount: "100",
-      },
-    ],
-  });
+  const typeUrl = cosmos.group.v1.ThresholdDecisionPolicy.typeUrl;
 
   const handleConfirm = async () => {
     uploadMetaDataToIPFS();
     const msg = createGroupWithPolicy({
       admin: address ?? "",
       members: formData.members.map((member) => ({
-        ...member,
-        metadata: "",
-        addedAt: new Date(),
+        address: member.address,
+        weight: member.weight,
+        metadata: member.name,
+        added_at: new Date(),
       })),
-      groupMetadata: "",
-      groupPolicyMetadata: CID,
-      groupPolicyAsAdmin: true,
-      value: formData.votingThreshold,
-      typeUrl: cosmos.group.v1.MsgCreateGroupWithPolicy.typeUrl,
-      // @ts-ignore
-      decisionPolicy: {
-        value: policy,
-        typeUrl: cosmos.group.v1.ThresholdDecisionPolicy.typeUrl,
+      group_metadata: CID,
+      group_policy_metadata: "",
+      group_policy_as_admin: true,
+      decision_policy: {
+        threshold: formData.votingThreshold,
+        percentage: formData.votingThreshold,
+        value: threshholdPolicy,
+        type_url: typeUrl,
       },
     });
     const fee = {
@@ -128,7 +101,7 @@ export default function ConfirmationModal({
       ],
       gas: "200000",
     };
-    await tx([msgSend], {
+    await tx([msg], {
       fee,
       onSuccess: () => {
         nextStep();
@@ -272,7 +245,7 @@ export default function ConfirmationModal({
                   >
                     Period
                   </label>
-                  {formData.votingPeriod}
+                  {formData.votingPeriod.seconds.toString()}
                 </div>
               </div>
               <label className="block mb-2 text-xl font-light  ">MEMBERS</label>

@@ -9,8 +9,15 @@ module.exports = {
   ],
   theme: {
     extend: {
+      boxShadow: {
+        inner: "inset 0 2px 4px 0 rgba(0, 0, 0, 1)",
+        clicked: "inset 0 2px 18px 0 rgba(0, 0, 0, 1)",
+      },
       animation: {
-        scroll: "scroll 10s linear infinite",
+        fadeIn: "fadeIn 400ms ease-in",
+        fadeOut: "fadeOut 400ms ease-out",
+        fadeSlideUp: "fadeSlideUp 400ms ease-in",
+        fadeSlideDown: "fadeSlideDown 400ms ease-out",
       },
       keyframes: {
         fadeIn: {
@@ -21,11 +28,18 @@ module.exports = {
           "0%": { opacity: 1 },
           "100%": { opacity: 0 },
         },
+        fadeSlideUp: {
+          "0%": { transform: "translateY(100%)", opacity: 0 },
+          "50%": { transform: "translateY(0%)", opacity: 0.1 },
+          "75%": { transform: "translateY(0%)", opacity: 0.5 },
+          "100%": { transform: "translateY(0%)", opacity: 1 },
+        },
+        fadeSlideDown: {
+          "0%": { transform: "translateY(-100%)", opacity: 0 },
+          "100%": { transform: "translateY(0)", opacity: 1 },
+        },
       },
-      animation: {
-        fadeIn: "fadeIn 300ms ease-in forwards",
-        fadeOut: "fadeOut 300ms ease-out forwards",
-      },
+
       fontFamily: {
         sans: ["Rubik", "sans-serif"],
         body: ["Rubik", "sans-serif"],
@@ -158,6 +172,8 @@ module.exports = {
       {
         light: {
           primary: "#8DDFD4",
+          "primary-shadow": "#446c67DDFD4",
+
           "primary-focus": "#dd9c80",
           "primary-content": "#ffffff",
           secondary: "#ab7781",
@@ -171,7 +187,7 @@ module.exports = {
           "neutral-content": "#ffffff",
           "base-100": "#faf0ea",
           "base-200": "#f8e9e0",
-          "base-300": "#f1d4c3",
+          "base-300": "#efded5",
           "base-content": "#452E33",
           info: "#2094f3",
           success: "#009485",
@@ -182,6 +198,7 @@ module.exports = {
       {
         dark: {
           primary: "#324D4B",
+          "primary-shadow": "#263c3add",
           "primary-focus": "#22444B",
           "primary-content": "#ffffff",
           secondary: "#543842",

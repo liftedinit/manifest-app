@@ -12,7 +12,7 @@ interface Group {
   };
 }
 
-export function GroupDetailsModal({
+export function UpdateGroupModal({
   group,
   modalId,
 }: Group & { modalId: string }) {

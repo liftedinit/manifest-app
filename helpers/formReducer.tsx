@@ -1,10 +1,13 @@
+import { Duration } from "@chalabi/manifestjs/dist/codegen/google/protobuf/duration";
+
 export type FormData = {
   title: string;
   authors: string;
   summary: string;
   description: string;
   forumLink: string;
-  votingPeriod: string;
+  votingPeriod: Duration;
+
   votingThreshold: string;
   members: { address: string; name: string; weight: string }[];
 };

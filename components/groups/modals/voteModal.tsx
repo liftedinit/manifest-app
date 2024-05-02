@@ -3,7 +3,13 @@ import { cosmos } from "@chalabi/manifestjs";
 import { useChain } from "@cosmos-kit/react";
 import React from "react";
 
-export function VotingModal({ proposalId }: { proposalId: bigint }) {
+function VotingPopup({
+  proposalId,
+  isGridVisible,
+}: {
+  proposalId: bigint;
+  isGridVisible: boolean;
+}) {
   const { tx, Toast, toastMessage, setToastMessage } = useTx("manifest");
   const { address } = useChain("manifest");
 
@@ -21,7 +27,7 @@ export function VotingModal({ proposalId }: { proposalId: bigint }) {
 
   const handleVote = async (option: number) => {
     const msg = vote({
-      proposalId,
+      proposal_id: proposalId,
       voter: address ?? "",
       option: option,
       metadata: "",
@@ -38,15 +44,14 @@ export function VotingModal({ proposalId }: { proposalId: bigint }) {
   };
 
   return (
-    <dialog id="voting_modal" className="modal">
+    <>
       <Toast toastMessage={toastMessage} setToastMessage={setToastMessage} />
-      <div className="modal-box p-12 relative rounded-lg shadow">
-        <form method="dialog">
-          <button className="btn btn-sm btn-circle btn-ghost absolute right-1 top-1">
-            ✕
-          </button>
-        </form>
-        <div className="grid grid-cols-2 gap-4">
+      <div
+        className={`mx-auto w-full bg-base-300 p-4 rounded-md border-r-4 border-r-base-200 border-b-4 border-b-base-200 absolute flex justify-center items-center bottom-14 mb-2 ${
+          isGridVisible ? "animate-fadeSlideUp" : "animate-fadeSlideDown"
+        } transition-opacity duration-300`}
+      >
+        <div className="grid w-full grid-cols-2 gap-4">
           <button onClick={() => handleVote(1)} className="btn btn-success">
             Yes
           </button>
@@ -61,9 +66,8 @@ export function VotingModal({ proposalId }: { proposalId: bigint }) {
           </button>
         </div>
       </div>
-      <form method="dialog" className="modal-backdrop">
-        <button>close</button>
-      </form>
-    </dialog>
+    </>
   );
 }
+
+export default VotingPopup;

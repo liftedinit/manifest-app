@@ -42,9 +42,9 @@ export const useGroupsByMember = (address: string) => {
                 setLoading(true);
                 try {
                     const policyPromises = groupQuery.data.groups.map(group => 
-                        lcdQueryClient?.cosmos.group.v1.groupPoliciesByGroup({ groupId: group.id }));
+                        lcdQueryClient?.cosmos.group.v1.groupPoliciesByGroup({ group_id: group.id }));
                     const memberPromises = groupQuery.data.groups.map(group => 
-                        lcdQueryClient?.cosmos.group.v1.groupMembers({ groupId: group.id }));
+                        lcdQueryClient?.cosmos.group.v1.groupMembers({ group_id: group.id }));
                     const ipfsPromises = groupQuery.data.groups.map(group => 
                         fetch(`https://nodes.chandrastation.com/ipfs/gateway/${group.metadata}`)
                             .then(response => {
@@ -89,14 +89,14 @@ export const useGroupsByMember = (address: string) => {
 };
 
 
-export const usePoliciesById = (groupId: string) => {
+export const usePoliciesById = (groupId: bigint) => {
     const { lcdQueryClient } = useLcdQueryClient();
 
     const fetchGroupInfo = async () => {
         if (!lcdQueryClient) {
             throw new Error("LCD Client not ready");
         }
-        return await lcdQueryClient.cosmos.group.v1.groupPoliciesByGroup({ groupId: groupId});
+        return await lcdQueryClient.cosmos.group.v1.groupPoliciesByGroup({ group_id: groupId});
     };
 
     const policyQuery = useQuery({
@@ -115,14 +115,14 @@ export const usePoliciesById = (groupId: string) => {
 
 }
 
-export const useMembersById = (groupId: string) => {
+export const useMembersById = (groupId: bigint) => {
     const { lcdQueryClient } = useLcdQueryClient();
 
     const fetchGroupInfo = async () => {
         if (!lcdQueryClient) {
             throw new Error("LCD Client not ready");
         }
-        return await lcdQueryClient.cosmos.group.v1.groupMembers({ groupId: groupId});
+        return await lcdQueryClient.cosmos.group.v1.groupMembers({ group_id: groupId});
     };
 
     const memberQuery = useQuery({
@@ -173,7 +173,7 @@ export const useTallyCount = (proposalId: bigint) => {
         if (!lcdQueryClient) {
             throw new Error("LCD Client not ready");
         }
-        return await lcdQueryClient.cosmos.group.v1.tallyResult({ proposalId });
+        return await lcdQueryClient.cosmos.group.v1.tallyResult({ proposal_id: proposalId});
     };
 
     const tallyQuery = useQuery({
@@ -198,7 +198,7 @@ export const useVotesByProposal = (proposalId: bigint) => {
         if (!lcdQueryClient) {
             throw new Error("LCD Client not ready");
         }
-        return await lcdQueryClient.cosmos.group.v1.votesByProposal({ proposalId });
+        return await lcdQueryClient.cosmos.group.v1.votesByProposal({ proposal_id: proposalId});
     };
 
     const voteQuery = useQuery({
@@ -213,5 +213,30 @@ export const useVotesByProposal = (proposalId: bigint) => {
         isVotesLoading: voteQuery.isLoading,
         isVotesError: voteQuery.isError,
         refetchVotes: voteQuery.refetch,
+    };
+}
+
+export const useBalance = (address: string) => {
+    const { lcdQueryClient } = useLcdQueryClient();
+
+    const fetchBalance = async () => {
+        if (!lcdQueryClient) {
+            throw new Error("LCD Client not ready");
+        }
+        return await lcdQueryClient.cosmos.bank.v1beta1.balance({ denom: "umfx", address});
+    };
+
+    const balanceQuery = useQuery({
+        queryKey: ["balanceInfo", address],
+        queryFn: fetchBalance,
+        enabled: !!lcdQueryClient && !!address,
+        staleTime: Infinity,
+    });
+
+    return {
+        balance: balanceQuery.data?.balance,
+        isBalanceLoading: balanceQuery.isLoading,
+        isBalanceError: balanceQuery.isError,
+        refetchBalance: balanceQuery.refetch,
     };
 }

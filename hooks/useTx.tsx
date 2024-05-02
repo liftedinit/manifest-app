@@ -5,7 +5,7 @@ import {
 } from "@cosmjs/stargate";
 import { useChain } from "@cosmos-kit/react";
 
-import { TxRaw } from "@chalabi/manifestjs/dist/codegen/cosmos/tx/v1beta1/tx";
+import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { useState } from "react";
 import Link from "next/link";
 
@@ -77,6 +77,7 @@ export const useTx = (chainName: string) => {
           }
         })
         .catch((err: Error) => {
+          console.error("Failed to broadcast: ", err);
           setToastMessage({
             type: "alert-error",
             title: "Transaction Failed",
@@ -84,6 +85,7 @@ export const useTx = (chainName: string) => {
           });
         });
     } catch (e: any) {
+      console.error("Failed to broadcast: ", e);
       setToastMessage({
         type: "alert-error",
         title: "Transaction Failed",

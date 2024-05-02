@@ -4,6 +4,11 @@ import "@fontsource/rubik";
 
 import type { AppProps } from "next/app";
 
+import { PromptSign, SignData } from "@cosmos-kit/web3auth";
+import { makeWeb3AuthWallets } from "@cosmos-kit/web3auth/esm/index";
+import { useMemo, useState } from "react";
+import SignModal from "@/components/groups/modals/authSignerModal";
+
 import { SignerOptions, wallets } from "cosmos-kit";
 import { ChainProvider } from "@cosmos-kit/react";
 import { Registry } from "@cosmjs/proto-signing";
@@ -150,46 +155,113 @@ function Template({ Component, pageProps }: AppProps) {
 
   const client = new QueryClient();
 
+  const [web3AuthPrompt, setWeb3AuthPrompt] = useState<
+    | {
+        signData: SignData;
+        resolve: (approved: boolean) => void;
+      }
+    | undefined
+  >();
+  const web3AuthWallets = useMemo(
+    () =>
+      makeWeb3AuthWallets({
+        loginMethods: [
+          // add whichever login methods you want to support
+          {
+            provider: "google",
+            name: "Google",
+            logo: "https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg",
+          },
+          {
+            provider: "twitter",
+            name: "Twitter",
+            logo: "https://upload.wikimedia.org/wikipedia/commons/5/57/X_logo_2023_%28white%29.png",
+          },
+          {
+            provider: "github",
+            name: "GitHub",
+            logo: "https://upload.wikimedia.org/wikipedia/commons/2/24/Github_logo_svg.svg",
+          },
+          {
+            provider: "apple",
+            name: "Apple",
+            logo: "https://upload.wikimedia.org/wikipedia/commons/1/1b/Apple_logo_grey.svg",
+          },
+          {
+            provider: "discord",
+            name: "Discord",
+            logo: "https://assets-global.website-files.com/6257adef93867e50d84d30e2/653714c174fc6c8bbea73caf_636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg",
+          },
+        ],
+
+        client: {
+          clientId:
+            "BBUtlzggdx-jVCLSRnyOD8sVc2-lwB4L7IdmQkOMaq5642jfuXQjh_5fMIyhydo0eQIxxyLiMRLQK4WzSUAmMcA",
+          web3AuthNetwork: "sapphire_devnet",
+        },
+
+        promptSign: async (_, signData) =>
+          new Promise((resolve) =>
+            setWeb3AuthPrompt({
+              signData,
+              resolve: (approved) => {
+                setWeb3AuthPrompt(undefined);
+                resolve(approved);
+              },
+            })
+          ),
+      }),
+    []
+  );
+
+  const combinedWallets = [...web3AuthWallets, ...wallets];
+
   return (
-    <ChainProvider
-      chains={[manifestChain]}
-      assetLists={[manifestAssets]}
-      wallets={wallets}
-      logLevel="NONE"
-      endpointOptions={{
-        isLazy: true,
-        endpoints: {
-          manifest: {
-            rpc: ["https://nodes.chandrastation.com/rpc/manifest/"],
-            rest: ["https://nodes.chandrastation.com/api/manifest/"],
+    <QueryClientProvider client={client}>
+      <ChainProvider
+        chains={[manifestChain]}
+        assetLists={[manifestAssets]}
+        wallets={combinedWallets}
+        endpointOptions={{
+          isLazy: true,
+          endpoints: {
+            manifest: {
+              rpc: ["https://nodes.chandrastation.com/rpc/manifest/"],
+              rest: ["https://nodes.chandrastation.com/api/manifest/"],
+            },
           },
-        },
-      }}
-      walletConnectOptions={{
-        signClient: {
-          projectId: "a8510432ebb71e6948cfd6cde54b70f7",
-          relayUrl: "wss://relay.walletconnect.org",
-          metadata: {
-            name: "CosmosKit Template",
-            description: "CosmosKit dapp template",
-            url: "https://docs.cosmology.zone/cosmos-kit/",
-            icons: [],
+        }}
+        walletConnectOptions={{
+          signClient: {
+            projectId: "a8510432ebb71e6948cfd6cde54b70f7",
+            relayUrl: "wss://relay.walletconnect.org",
+            metadata: {
+              name: "CosmosKit Template",
+              description: "CosmosKit dapp template",
+              url: "https://docs.cosmology.zone/cosmos-kit/",
+              icons: [],
+            },
           },
-        },
-      }}
-      signerOptions={signerOptions}
-      walletModal={TailwindModal}
-    >
-      <ThemeProvider>
-        <QueryClientProvider client={client}>
+        }}
+        signerOptions={signerOptions}
+        walletModal={TailwindModal}
+      >
+        <ThemeProvider>
           <ReactQueryDevtools initialIsOpen={false} />
           <SideNav />
-          <div className="min-h-screen   max-w-screen  ml-20 ">
+          <div className="min-h-screen max-w-screen md:ml-20 sm:px-4 sm:py-2 bg-gradient-to-r from-base-100 from-10% via-20% to-40% via-base-200 to-base-300">
             <Component {...pageProps} />
+            <SignModal
+              visible={web3AuthPrompt !== undefined}
+              onClose={() => web3AuthPrompt?.resolve(false)}
+              data={{}}
+              approve={() => web3AuthPrompt?.resolve(true)}
+              reject={() => web3AuthPrompt?.resolve(false)}
+            />
           </div>
-        </QueryClientProvider>
-      </ThemeProvider>
-    </ChainProvider>
+        </ThemeProvider>
+      </ChainProvider>
+    </QueryClientProvider>
   );
 }
 

@@ -100,11 +100,7 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
     const buttonData = buttons[status];
 
     return (
-      <button
-        className="rounded-lg bg-purple-damp w-full bg-mint inline-flex justify-center items-center py-2 font-medium text-dark-bg-800 dark:text-light-bg-100 text-sm"
-        onClick={onClick}
-      >
-        <buttonData.icon className="flex-shrink-0 w-4 h-4 mr-2 text-dark-bg-800 dark:text-light-bg-100" />
+      <button className="btn btn-primary btn-lg mx-auto" onClick={onClick}>
         {buttonData.title}
       </button>
     );
@@ -112,8 +108,8 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
   }, [status, connect, openView]);
 
   return (
-    <div className="w-full max-w-48">
-      <div className="w-full px-4">{_renderConnectButton}</div>
+    <div className="w-full ">
+      <div className="w-full ">{_renderConnectButton}</div>
     </div>
   );
 };
@@ -136,7 +132,7 @@ export const IconWallet: React.FC<WalletSectionProps> = ({ chainName }) => {
       return (
         <button className="rounded-lg w-8 h-8 justify-center items-center mx-auto  font-medium cursor-wait  text-sm">
           <svg
-            className="w-8 h-8 text-black justify-center items-center animate-spin mx-auto"
+            className="w-8 h-8 text-primary justify-center items-center animate-spin mx-auto"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -171,7 +167,7 @@ export const IconWallet: React.FC<WalletSectionProps> = ({ chainName }) => {
 
     return (
       <button
-        className="rounded-lg mx-auto  p-1 transition-all duration-200 ease-in-out focus:ring-4 focus:ring-mint-300 dark:focus:ring-mint-900  justify-center items-center  font-medium  text-sm"
+        className="rounded-lg mx-auto  focus:ring-4 focus:ring-primary   justify-center items-center  font-medium  text-sm"
         onClick={onClick}
       >
         <buttonData.icon className=" w-8 h-8 transition-all duration-200 ease-in-out  " />

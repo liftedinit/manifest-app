@@ -175,7 +175,7 @@ export const TailwindModal = ({
 
   return (
     <Transition.Root show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={onCloseModal}>
+      <Dialog as="div" className="relative " onClose={onCloseModal}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -185,10 +185,10 @@ export const TailwindModal = ({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 transition-opacity  bg-opacity-50" />
+          <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity" />
         </Transition.Child>
 
-        <div className="fixed inset-0 z-10 overflow-y-auto">
+        <div className="fixed inset-0 overflow-y-auto">
           <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
             <Transition.Child
               as={Fragment}

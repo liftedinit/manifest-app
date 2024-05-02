@@ -7,7 +7,7 @@ import { MsgSend } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx
 import { Any } from "@chalabi/manifestjs/dist/codegen/google/protobuf/any";
 import { Coin } from "@cosmjs/stargate";
 import { useChain } from "@cosmos-kit/react";
-import Link from "next/link";
+
 import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
 
 import { useState } from "react";
@@ -16,7 +16,6 @@ export default function ConfirmationModal({
   nextStep,
   prevStep,
   formData,
-  onDataChange,
 }: {
   policyAddress: string;
   nextStep: () => void;
@@ -38,23 +37,6 @@ export default function ConfirmationModal({
       details: string;
     };
   };
-  onDataChange: (newData: {
-    title: string;
-    proposers: string;
-    summary: string;
-    messages: {
-      from_address: string;
-      to_address: string;
-      amount: Coin;
-      isVisible: boolean;
-    }[];
-    metadata: {
-      title: string;
-      authors: string;
-      summary: string;
-      details: string;
-    };
-  }) => void;
 }) {
   const { address } = useChain("manifest");
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
@@ -83,28 +65,28 @@ export default function ConfirmationModal({
 
   const messages = formData.messages.map((message) => {
     return MsgSend.encode({
-      fromAddress: message.from_address,
-      toAddress: message.to_address,
+      from_address: message.from_address,
+      to_address: message.to_address,
       amount: [{ denom: "mfx", amount: "1" }],
     }).finish();
   });
 
   const packedMsg = Any.encode({
-    typeUrl: cosmos.bank.v1beta1.MsgSend.typeUrl,
+    type_url: cosmos.bank.v1beta1.MsgSend.typeUrl,
     value: MsgSend.encode({
-      fromAddress: formData.messages[0].from_address,
-      toAddress: formData.messages[0].to_address,
+      from_address: formData.messages[0].from_address,
+      to_address: formData.messages[0].to_address,
       amount: [{ denom: "umfx", amount: "1" }],
     }).finish(),
   }).finish();
 
   const msgSend = {
-    typeUrl: cosmos.bank.v1beta1.MsgSend.typeUrl,
+    type_url: cosmos.bank.v1beta1.MsgSend.typeUrl,
     value: packedMsg,
   };
 
   const handleConfirm = async () => {
-    uploadMetaDataToIPFS();
+    await uploadMetaDataToIPFS();
     const msg = submitProposal({
       address: policyAddress ?? "",
       messages: [msgSend],

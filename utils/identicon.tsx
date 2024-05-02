@@ -2,7 +2,13 @@ import React, { useState, useEffect } from "react";
 import Identicon, { IdenticonOptions } from "identicon.js";
 import CryptoJS from "crypto-js";
 
-const ProfileAvatar = ({ walletAddress }: { walletAddress: string }) => {
+const ProfileAvatar = ({
+  walletAddress,
+  size,
+}: {
+  walletAddress: string;
+  size?: number;
+}) => {
   const [avatarSrc, setAvatarSrc] = useState("");
 
   const colors: [number, number, number, number][] = [
@@ -22,8 +28,8 @@ const ProfileAvatar = ({ walletAddress }: { walletAddress: string }) => {
       const options: IdenticonOptions = {
         foreground: colors[colorIndex],
         background: [70, 70, 70, 255],
-        margin: 0.2,
-        size: 420,
+        margin: 0.21,
+        size: size ?? 700,
         format: "svg",
       };
 
@@ -32,11 +38,14 @@ const ProfileAvatar = ({ walletAddress }: { walletAddress: string }) => {
     }
   }, [walletAddress]);
 
+  const imageSize = size ? `${size}px` : "32px";
+
   return (
     <img
       src={avatarSrc}
       alt="Profile Avatar"
-      className="h-10 w-10 rounded-full mr-4"
+      className="rounded-full mr-4"
+      style={{ height: imageSize, width: imageSize }}
     />
   );
 };

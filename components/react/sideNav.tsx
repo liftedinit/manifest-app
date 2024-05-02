@@ -1,5 +1,5 @@
 import { PiSunThin, PiMoonThin } from "react-icons/pi";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -14,6 +14,19 @@ import { IconWallet, WalletSection } from "../wallet";
 
 export default function SideNav() {
   const [isDrawerVisible, setDrawerVisible] = useState(false);
+
+  const [isdark, setIsdark] = useState(false);
+
+  useEffect(() => {
+    const storedIsDark = localStorage.getItem("isdark");
+    if (storedIsDark) {
+      setIsdark(JSON.parse(storedIsDark));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("isdark", JSON.stringify(isdark));
+  }, [isdark]);
 
   const toggleDrawer = () => setDrawerVisible(!isDrawerVisible);
 
@@ -31,7 +44,7 @@ export default function SideNav() {
   );
 
   const SideNav: React.FC = () => (
-    <div className="overflow-y-auto z-30 py-5 px-3 w-20 bg-base-200 border-r border-primary mx-auto justify-center align-middle h-full transition-transform duration-300 ease-in-out items-center shadow-lg">
+    <div className="overflow-y-auto z-30 py-5 px-3 w-20 bg-base-200 shadow-xl shadow-primary border-r border-primary mx-auto justify-center align-middle h-full transition-transform duration-300 ease-in-out items-center ">
       <Link href={"/#"} passHref legacyBehavior>
         <a href="#">
           <Image
@@ -59,6 +72,8 @@ export default function SideNav() {
             type="checkbox"
             className="theme-controller hidden"
             value="light"
+            checked={isdark}
+            onChange={() => setIsdark(!isdark)}
           />
 
           <PiSunThin className="swap-on mx-auto fill-current w-8 h-8" />
@@ -141,7 +156,7 @@ export default function SideNav() {
     <>
       <aside
         id="sidebar-double"
-        className={`flex z-40 fixed top-0 left-0 h-full`}
+        className={`   hidden md:flex fixed top-0 left-0 h-full`}
         aria-label="Sidebar"
       >
         <SideNav />
