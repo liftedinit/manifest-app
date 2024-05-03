@@ -11,6 +11,7 @@ import VoteDetailsModal from "@/components/groups/modals/voteDetailsModal";
 import { QueryTallyResultResponseSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/query";
 import {
   MemberSDKType,
+  ProposalExecutorResult,
   ProposalSDKType,
 } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types";
 import Link from "next/link";
@@ -19,6 +20,7 @@ import { useEffect, useState } from "react";
 import { PiArrowDownLight } from "react-icons/pi";
 import { useRouter } from "next/router";
 import { useChain } from "@cosmos-kit/react";
+import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
 
 export default function ProposalsForPolicy({
   policyAddress,
@@ -118,7 +120,7 @@ export default function ProposalsForPolicy({
               </Link>
             </div>
             {isProposalsLoading ? (
-              <div className="flex px-4 flex-col gap-4 w-full mx-auto justify-center mt-6 items-center transition-opacity duration-300 ease-in-out animate-fadeIn">
+              <div className="flex px-4 flex-col gap-4 w-full mx-auto justify-center mt-6 mb-[2.05rem]  items-center transition-opacity duration-300 ease-in-out animate-fadeIn">
                 <div className="skeleton h-4 w-full "></div>
                 <div className="skeleton h-4 w-full "></div>
                 <div className="skeleton h-4 w-full "></div>
@@ -126,72 +128,162 @@ export default function ProposalsForPolicy({
                 <div className="skeleton h-4 w-full "></div>
                 <div className="skeleton h-4 w-full "></div>
                 <div className="skeleton h-4 w-full "></div>
-                <div className="skeleton h-4 w-full "></div>
+                <div className="skeleton h-12 w-full "></div>
               </div>
             ) : isProposalsError ? (
               <div className="py-2">Error loading proposals</div>
             ) : (
-              <div className="overflow-y-auto max-h-[18rem] min-h-[18rem]">
-                {proposals?.length === 0 && (
-                  <div className="flex flex-col my-36 gap-4 w-full mx-auto justify-center items-center transition-opacity duration-300 ease-in-out animate-fadeIn">
-                    <div className="text-center underline">
-                      No proposals found for this policy
+              <>
+                <div className="overflow-y-auto max-h-[13.8rem] min-h-[13.8rem]">
+                  {proposals?.length === 0 && (
+                    <div className="flex flex-col my-36 gap-4 w-full mx-auto justify-center items-center transition-opacity duration-300 ease-in-out animate-fadeIn">
+                      <div className="text-center underline">
+                        No proposals found for this policy
+                      </div>
                     </div>
-                  </div>
-                )}
-                {proposals?.length > 0 && (
-                  <table className="table w-full table-pin-rows z-0 transition-opacity  duration-300 ease-in-out animate-fadeIn text-left">
-                    <thead>
-                      <tr className="w-full">
-                        <th className="w-1/6">#</th>
-                        <th className="w-1/6">title</th>
-                        <th className="w-1/6">time left</th>
-                        <th className="w-1/6">type</th>
-                        <th className="w-1/6">status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {proposals?.map((proposal, index) => {
-                        // Find the corresponding tally for this proposal
-                        const proposalTally = tallies.find(
-                          (t) => t.proposalId === proposal.id
-                        );
-                        const { isPassing = false } = proposalTally
-                          ? isProposalPassing(proposalTally.tally)
-                          : {};
+                  )}
+                  {proposals?.length > 0 && (
+                    <table className="table w-full table-pin-rows z-0 transition-opacity  duration-300 ease-in-out animate-fadeIn text-left">
+                      <thead>
+                        <tr className="w-full">
+                          <th className="w-1/6">#</th>
+                          <th className="w-1/6">title</th>
+                          <th className="w-1/6">time left</th>
+                          <th className="w-1/6">type</th>
+                          <th className="w-1/6">status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {proposals?.map((proposal, index) => {
+                          // Find the corresponding tally for this proposal
+                          const proposalTally = tallies.find(
+                            (t) => t.proposalId === proposal.id
+                          );
+                          const { isPassing = false } = proposalTally
+                            ? isProposalPassing(proposalTally.tally)
+                            : {};
+                          const endTime = new Date(proposal?.voting_period_end);
+                          const now = new Date();
+                          const msPerMinute = 1000 * 60;
+                          const msPerHour = msPerMinute * 60;
+                          const msPerDay = msPerHour * 24;
 
-                        return (
-                          <tr
-                            onClick={() => handleRowClick(proposal)}
-                            key={index}
-                            className={`w-full
+                          const diff = endTime.getTime() - now.getTime();
+
+                          let timeLeft: string;
+
+                          if (diff <= 0) {
+                            timeLeft = "Execute";
+                          } else if (diff >= msPerDay) {
+                            const days = Math.floor(diff / msPerDay);
+                            timeLeft = `${days} day${days === 1 ? "" : "s"}`;
+                          } else if (diff >= msPerHour) {
+                            const hours = Math.floor(diff / msPerHour);
+                            timeLeft = `${hours} hour${hours === 1 ? "" : "s"}`;
+                          } else if (diff >= msPerMinute) {
+                            const minutes = Math.floor(diff / msPerMinute);
+                            timeLeft = `${minutes} minute${
+                              minutes === 1 ? "" : "s"
+                            }`;
+                          } else {
+                            timeLeft = "less than a minute";
+                          }
+                          return (
+                            <tr
+                              onClick={() => handleRowClick(proposal)}
+                              key={index}
+                              className={`w-full
                             hover:bg-base-200 !important 
                             active:bg-base-100 
                             focus:bg-base-300 focus:shadow-inner 
                             transition-all duration-200 
                             cursor-pointer`}
-                          >
-                            <td className="">#{proposal.id.toString()}</td>
-                            <td className="w-2/6 truncate">{proposal.title}</td>
-                            <td className="w-1/6">5 days</td>
-                            <td className="w-1/6"> Send</td>
-                            <td className="w-1/6">
-                              {isPassing ? "Passing" : "Failing"}
-                            </td>
-                            <Modal
-                              admin={admin}
-                              proposalId={proposal.id}
-                              members={members}
-                              proposal={proposal}
-                              updateTally={updateTally}
-                            />
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                )}
-              </div>
+                            >
+                              <td className="">#{proposal.id.toString()}</td>
+                              <td className="w-2/6 truncate">
+                                {proposal.title}
+                              </td>
+                              <td className="w-1/6">
+                                {diff <= 0 &&
+                                proposal.executor_result ===
+                                  ("PROPOSAL_EXECUTOR_RESULT_NOT_RUN" as unknown as ProposalExecutorResult)
+                                  ? "Execute"
+                                  : timeLeft}
+                              </td>
+                              <td className="w-1/6"> Send</td>
+                              <td className="w-1/6">
+                                {isPassing ? "Passing" : "Failing"}
+                              </td>
+                              <Modal
+                                admin={admin}
+                                proposalId={proposal.id}
+                                members={members}
+                                proposal={proposal}
+                                updateTally={updateTally}
+                              />
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+                <div className="flex flex-row justify-center items-center mx-auto w-full transition-opacity  duration-300 ease-in-out animate-fadeIn h-16 border-b-4 border-b-base-200 border-r-4 border-r-base-200 rounded-md mt-3 bg-base-300">
+                  <div className="flex flex-col gap-1 justify-left w-1/4 items-center">
+                    <span className="text-sm  capitalize text-gray-400">
+                      ACTIVE PROPOSALS
+                    </span>
+                    <span className="text-md ">{proposals.length}</span>
+                  </div>
+                  <div className="flex flex-col gap-1 justify-left w-1/4 items-center">
+                    <span className="text-sm  capitalize text-gray-400">
+                      AWAITING EXECUTION
+                    </span>
+                    <span className="text-md">
+                      {
+                        proposals.filter(
+                          (proposal) =>
+                            proposal.executor_result ===
+                              "PROPOSAL_EXECUTOR_RESULT_NOT_RUN" &&
+                            new Date(proposal.voting_period_end) < new Date()
+                        ).length
+                      }
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-1 justify-center w-1/4 items-center">
+                    <span className="text-sm  capitalize text-gray-400">
+                      NAUGHTY MEMBER
+                    </span>
+                    <TruncatedAddressWithCopy
+                      address={address ?? ""}
+                      slice={8}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1 justify-left w-1/4 items-center">
+                    <span className="text-sm  capitalize text-gray-400">
+                      ENDING SOON
+                    </span>
+                    <span className="text-md ">
+                      #
+                      {proposals
+                        .reduce((closest, proposal) => {
+                          const proposalDate = new Date(
+                            proposal.voting_period_end
+                          ).getTime();
+                          const closestDate = new Date(
+                            closest.voting_period_end
+                          ).getTime();
+
+                          return Math.abs(proposalDate - new Date().getTime()) <
+                            Math.abs(closestDate - new Date().getTime())
+                            ? proposal
+                            : closest;
+                        }, proposals[0])
+                        ?.id.toString() || "No proposal ending soon"}
+                    </span>
+                  </div>
+                </div>
+              </>
             )}
           </div>
         </div>

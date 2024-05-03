@@ -81,8 +81,11 @@ export function Proposals({
                 </div>
 
                 <div className="flex flex-col gap-2 bg-base-300 p-4 rounded-md border-r-base-200 border-b-base-200 border-r-4 border-b-4  justify-left items-left">
-                  <span className="text-sm  capitalize text-gray-400">
+                  <span className="text-sm  capitalize text-gray-400 md:block hidden">
                     POLICY BALANCE
+                  </span>
+                  <span className="text-sm  capitalize text-gray-400 block md:hidden">
+                    BALANCE
                   </span>
                   <div className="flex flex-row gap-1 items-center justify-start">
                     <span className="text-md ">
@@ -116,9 +119,10 @@ export function Proposals({
                       {group?.policies[0]?.decision_policy?.threshold} /{" "}
                       {group?.total_weight}
                     </span>
-                    <div className="flex flex-row  text-secondary justify-between items-center gap-2">
+
+                    <div className="flex-row  justify-between items-center gap-2 hidden md:flex">
                       <button
-                        className="btn-sm -mr-3 -mt-2 bg-transparent underline text-secondary "
+                        className="btn btn-xs btn-secondary "
                         onClick={() => {
                           const modal = document.getElementById(
                             `group_modal_${group?.id}`
@@ -126,9 +130,8 @@ export function Proposals({
                           modal?.showModal();
                         }}
                       >
-                        more info
+                        more info <PiArrowUpRightLight />
                       </button>
-                      <PiArrowUpRightLight />
                     </div>
                   </div>
                 </div>

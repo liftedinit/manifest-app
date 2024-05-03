@@ -19,6 +19,7 @@ import { useChain } from "@cosmos-kit/react";
 import { chainName } from "@/config";
 import { useTx } from "@/hooks/useTx";
 import { cosmos } from "@chalabi/manifestjs";
+import { useTheme } from "@/contexts/theme";
 
 const Chart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
@@ -59,15 +60,18 @@ function VoteDetailsModal({
 
   const { address } = useChain(chainName);
 
-  const series = [
+  const { theme } = useTheme();
+
+  const textColor = theme === "dark" ? "#E0D1D4" : "#2e2e2e";
+
+  const series: ApexAxisChartSeries = [
     {
-      name: "Votes",
       data: [
-        tallies.tally?.yes_count,
-        tallies.tally?.no_count,
-        tallies.tally?.no_with_veto_count,
-        tallies.tally?.abstain_count,
-      ].map((count) => Number(count) || 0),
+        parseInt(tallies?.tally?.yes_count ?? ""),
+        parseInt(tallies?.tally?.no_count ?? ""),
+        parseInt(tallies?.tally?.no_with_veto_count ?? ""),
+        parseInt(tallies?.tally?.abstain_count ?? ""),
+      ],
     },
   ];
 
@@ -92,6 +96,13 @@ function VoteDetailsModal({
     PROPOSAL_EXECUTOR_RESULT_FAILURE: "failed",
   };
 
+  const voteMapping: { [key: string]: string } = {
+    VOTE_OPTION_YES: "yes",
+    VOTE_OPTION_NO: "no",
+    VOTE_OPTION_NO_WITH_VETO: "veto",
+    VOTE_OPTION_ABSTAIN: "abstain",
+  };
+
   const options: ApexOptions = {
     chart: {
       type: "bar",
@@ -102,52 +113,68 @@ function VoteDetailsModal({
         },
       },
     },
+    legend: {
+      labels: {
+        useSeriesColors: true,
+      },
+      markers: {
+        width: 12,
+        height: 12,
+        radius: 12,
+      },
+    },
+    states: {
+      normal: {
+        filter: { type: "none", value: 0 },
+      },
+      hover: {
+        filter: { type: "lighten", value: 0.2 },
+      },
+      active: {
+        filter: { type: "darken", value: 0.2 },
+        allowMultipleDataPointsSelection: false,
+      },
+    },
     plotOptions: {
       bar: {
         horizontal: false,
         columnWidth: "55%",
+        distributed: true,
       },
     },
     dataLabels: {
       enabled: false,
     },
     stroke: {
-      show: true,
-      width: 2,
-      colors: ["transparent"],
+      show: false,
     },
     xaxis: {
       categories: ["Yes", "No", "Veto", "Abstain"],
       labels: {
         style: {
-          colors: ["", "#f4f4f4", "#f4f4f4", "#f4f4f4"],
+          colors: textColor,
         },
       },
     },
     yaxis: {
       min: 0,
-      tickAmount: 1,
+      tickAmount: votes.length,
       forceNiceScale: true,
       labels: {
         style: {
-          colors: "#f4f4f4",
+          colors: textColor,
         },
       },
     },
     fill: {
       opacity: 1,
-      colors: ["#23cf42", "#f64b4b", "#e2b957", "#9d78f5"],
     },
+    series: series,
+    colors: ["#78f59599", "#fcd4779a", "#fe6565b0", "#a885f8a1"],
     tooltip: {
-      y: {
-        formatter: function (val: number) {
-          return val + " votes";
-        },
-      },
+      enabled: false,
     },
-    colors: ["#23cf42", "#f64b4b", "#e2b957", "#9d78f5"],
   };
-
   const { tx } = useTx("manifest");
 
   const { exec } = cosmos.group.v1.MessageComposer.withTypeUrl;
@@ -242,6 +269,23 @@ function VoteDetailsModal({
     setIsGridVisible((prev) => !prev);
   };
 
+  const proposalClosed =
+    countdownValues.days +
+      countdownValues.hours +
+      countdownValues.minutes +
+      countdownValues.seconds ===
+    0;
+
+  const userHasVoted = votes.some(
+    (vote) => vote.voter.toLowerCase().trim() === address
+  );
+
+  const userVoteOption = userHasVoted
+    ? votes.find((vote) => vote.voter.toLowerCase().trim() === address)?.option
+    : null;
+
+  const userVotedStatus = useMemo(() => userHasVoted, [votes]);
+
   return (
     <dialog id={modalId} className="modal">
       <div className="modal-box relative max-w-4xl min-h-96  flex flex-col md:flex-row md:ml-20  rounded-lg shadow">
@@ -251,16 +295,40 @@ function VoteDetailsModal({
           </button>
         </form>
         <div className="flex flex-col flex-grow w-full">
-          <div className="flex flex-row gap-2 items-center">
-            <p>#&nbsp;{proposal?.id.toString()}</p>
-            <span className="badge badge-lg items-center justify-center badge-primary">
-              {proposal?.status !==
-              ("PROPOSAL_STATUS_SUBMITTED" as unknown as ProposalStatus)
-                ? executorResultMapping[
-                    proposal?.executor_result as unknown as keyof typeof executorResultMapping
-                  ]
-                : "active"}
-            </span>
+          <div className="flex flex-row justify-between items-center">
+            <div className="flex flex-row gap-2">
+              <p>#&nbsp;{proposal?.id.toString()}</p>
+              <span className="badge badge-lg items-center shadow-lg justify-center badge-primary">
+                {proposal?.status !==
+                ("PROPOSAL_STATUS_SUBMITTED" as unknown as ProposalStatus)
+                  ? executorResultMapping[
+                      proposal?.executor_result as unknown as keyof typeof executorResultMapping
+                    ]
+                  : "active"}
+              </span>
+            </div>
+            {userHasVoted && (
+              <div className="flex flex-row gap-2 justify-center items-center">
+                <span>your vote</span>
+                <span
+                  className={`items-center justify-center badge badge-lg ${
+                    userVoteOption === "VOTE_OPTION_YES"
+                      ? "bg-green-500/50"
+                      : userVoteOption === "VOTE_OPTION_NO"
+                      ? "bg-red-500/50"
+                      : userVoteOption === "VOTE_OPTION_NO_WITH_VETO"
+                      ? "bg-yellow-500/50"
+                      : userVoteOption === "VOTE_OPTION_ABSTAIN"
+                      ? "bg-purple-500/50"
+                      : ""
+                  }`}
+                >
+                  {userVoteOption !== null
+                    ? voteMapping[userVoteOption ?? ""]
+                    : null}
+                </span>
+              </div>
+            )}
           </div>
           <div className="flex flex-col justify-start  items-start">
             <p className="text-xs font-light mt-6">TITLE</p>
@@ -375,7 +443,7 @@ function VoteDetailsModal({
         <div className="divider divider-horizontal"></div>
         <div className="flex flex-col w-full relative flex-grow items-start justify-start">
           <p className="text-xs font-light mt-2">TALLY</p>
-          <div className="w-full">
+          <div className="w-full ">
             <Chart options={options} series={series} type="bar" height={200} />
           </div>
           <p className="text-xs font-light mt-4">MEMBERS</p>
@@ -471,11 +539,7 @@ function VoteDetailsModal({
           </div>
           {proposal.executor_result ===
             ("PROPOSAL_EXECUTOR_RESULT_NOT_RUN" as unknown as ProposalExecutorResult) &&
-            countdownValues.days +
-              countdownValues.hours +
-              countdownValues.minutes +
-              countdownValues.seconds ===
-              0 && (
+            proposalClosed && (
               <button
                 className="btn w-full btn-primary ml-auto mt-4"
                 disabled={address !== admin}
@@ -488,18 +552,20 @@ function VoteDetailsModal({
             <VotingPopup
               proposalId={proposal.id}
               isGridVisible={isGridVisible}
+              refetch={refetchVotes || refetchTally}
             />
           )}
           {proposal.status !==
-            ("PROPOSAL_STATUS_CLOSED" as unknown as ProposalStatus) && (
-            <button
-              disabled={!address}
-              className="btn w-full btn-primary ml-auto mt-4 border-r-4 border-r-primaryShadow border-b-4 border-b-primaryShadow"
-              onClick={handleButtonClick}
-            >
-              Vote
-            </button>
-          )}
+            ("PROPOSAL_STATUS_CLOSED" as unknown as ProposalStatus) &&
+            !proposalClosed && (
+              <button
+                disabled={!address || userVotedStatus}
+                className="btn w-full btn-primary ml-auto mt-4 border-r-4 border-r-primaryShadow border-b-4 border-b-primaryShadow"
+                onClick={handleButtonClick}
+              >
+                Vote
+              </button>
+            )}
         </div>
       </div>
       <form method="dialog" className="modal-backdrop">

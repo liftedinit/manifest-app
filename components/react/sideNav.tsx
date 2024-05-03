@@ -9,18 +9,22 @@ import {
   PiChalkboardTeacherThin,
   PiCoinsThin,
 } from "react-icons/pi";
-
+import { useRouter } from "next/router";
 import { IconWallet, WalletSection } from "../wallet";
+import { useTheme } from "@/contexts/theme";
 
 export default function SideNav() {
   const [isDrawerVisible, setDrawerVisible] = useState(false);
 
   const [isdark, setIsdark] = useState(false);
 
+  const { toggleTheme } = useTheme();
+
   useEffect(() => {
     const storedIsDark = localStorage.getItem("isdark");
     if (storedIsDark) {
       setIsdark(JSON.parse(storedIsDark));
+      toggleTheme();
     }
   }, []);
 
@@ -29,22 +33,34 @@ export default function SideNav() {
   }, [isdark]);
 
   const toggleDrawer = () => setDrawerVisible(!isDrawerVisible);
-
   const NavItem: React.FC<{ Icon: React.ElementType; href: string }> = ({
     Icon,
     href,
-  }) => (
-    <li>
-      <Link href={href} passHref legacyBehavior>
-        <a className="flex justify-center p-1 items-center mt-8  rounded-lg transition-all duration-300 ease-in-out ">
-          <Icon className="w-8 h-8" />
-        </a>
-      </Link>
-    </li>
-  );
+  }) => {
+    const { pathname } = useRouter();
+
+    const isActive = pathname === href;
+
+    const iconClassName = `w-8 h-8 transition-all duration-300 ease-in-out ${
+      isActive ? "text-primary scale-105" : "hover:text-primary"
+    }`;
+
+    return (
+      <li>
+        <Link href={href} passHref legacyBehavior>
+          <a className="group active:scale-95  hover:ring-2 hover:ring-primary flex justify-center p-1 items-center mt-8 rounded-lg transition-all duration-300 ease-in-out">
+            <Icon className={iconClassName} />
+            <div className="tooltip absolute z-10 invisible ml-3 group-hover:visible inline-block px-3 left-[4.5rem] text-white py-2 text-sm font-medium rounded-lg shadow-sm opacity-0 group-hover:opacity-100 bg-primary transition-all duration-300 ease-in-out ">
+              {href}
+            </div>
+          </a>
+        </Link>
+      </li>
+    );
+  };
 
   const SideNav: React.FC = () => (
-    <div className="overflow-y-auto z-30 py-5 px-3 w-20 bg-base-200 shadow-xl shadow-primary border-r border-primary mx-auto justify-center align-middle h-full transition-transform duration-300 ease-in-out items-center ">
+    <div className="overflow-y-auto z-30 py-5 px-3 w-20 bg-base-200 border-r border-primary mx-auto justify-center align-middle h-full transition-transform duration-300 ease-in-out items-center ">
       <Link href={"/#"} passHref legacyBehavior>
         <a href="#">
           <Image
@@ -67,16 +83,19 @@ export default function SideNav() {
         <div className="w-full mx-auto flex flex-col items-center justify-center">
           <IconWallet chainName="manifest" />
         </div>
-        <label className="swap swap-rotate mx-auto">
+        <label className="swap swap-rotate mx-auto hover:text-primary transition-all duration-300 ease-in-out">
           <input
             type="checkbox"
             className="theme-controller hidden"
             value="light"
             checked={isdark}
-            onChange={() => setIsdark(!isdark)}
+            onChange={() => {
+              setIsdark(!isdark);
+              toggleTheme();
+            }}
           />
 
-          <PiSunThin className="swap-on mx-auto fill-current w-8 h-8" />
+          <PiSunThin className="swap-on mx-auto fill-current w-8 h-8 " />
 
           <PiMoonThin className="swap-off mx-auto fill-current w-8 h-8" />
         </label>

@@ -185,7 +185,7 @@ function Template({ Component, pageProps }: AppProps) {
           {
             provider: "apple",
             name: "Apple",
-            logo: "https://upload.wikimedia.org/wikipedia/commons/1/1b/Apple_logo_grey.svg",
+            logo: "/appleBlack.svg",
           },
           {
             provider: "discord",
@@ -222,6 +222,7 @@ function Template({ Component, pageProps }: AppProps) {
         chains={[manifestChain]}
         assetLists={[manifestAssets]}
         wallets={combinedWallets}
+        logLevel="NONE"
         endpointOptions={{
           isLazy: true,
           endpoints: {

@@ -38,20 +38,20 @@ export default function Home() {
     <>
       <div className="max-w-5xl relative py-[2rem] mx-auto lg:mx-auto">
         <Head>
-          <title>Cosmos Web App Template</title>
-          <meta name="description" content="Cosmos web app" />
+          <title>Groups</title>
+          <meta name="description" content="Interact with the groups module" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
-        <div className="-ml-4 -mt-2 flex items-center justify-between sm:flex-nowrap">
+        <div className="-ml-4 -mt-2 px-0 sm:px-6 flex items-center justify-between sm:flex-nowrap">
           <div className="ml-4 mt-2">
             <h3 className="tracking-tight leading-none text-4xl xl:text-4xl">
-              Groups
+              groups
             </h3>
           </div>
           {groupByMemberData?.groups?.length >= 1 && isWalletConnected && (
             <Link href="/groups/create" passHref>
               <button className="relative inline-flex items-center btn btn-primary">
-                Create new group
+                create new group
               </button>
             </Link>
           )}

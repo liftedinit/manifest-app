@@ -167,7 +167,7 @@ export const IconWallet: React.FC<WalletSectionProps> = ({ chainName }) => {
 
     return (
       <button
-        className="rounded-lg mx-auto  focus:ring-4 focus:ring-primary   justify-center items-center  font-medium  text-sm"
+        className="rounded-lg mx-auto  hover:ring-2 hover:ring-primary hover:text-primary   justify-center items-center  font-medium  text-sm"
         onClick={onClick}
       >
         <buttonData.icon className=" w-8 h-8 transition-all duration-200 ease-in-out  " />
