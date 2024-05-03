@@ -228,61 +228,86 @@ export default function ProposalsForPolicy({
                     </table>
                   )}
                 </div>
-                <div className="flex flex-row justify-center items-center mx-auto w-full transition-opacity  duration-300 ease-in-out animate-fadeIn h-16 border-b-4 border-b-base-200 border-r-4 border-r-base-200 rounded-md mt-3 bg-base-300">
-                  <div className="flex flex-col gap-1 justify-left w-1/4 items-center">
-                    <span className="text-sm  capitalize text-gray-400">
-                      ACTIVE PROPOSALS
-                    </span>
-                    <span className="text-md ">{proposals.length}</span>
-                  </div>
-                  <div className="flex flex-col gap-1 justify-left w-1/4 items-center">
-                    <span className="text-sm  capitalize text-gray-400">
-                      AWAITING EXECUTION
-                    </span>
-                    <span className="text-md">
-                      {
-                        proposals.filter(
-                          (proposal) =>
-                            proposal.executor_result ===
-                              "PROPOSAL_EXECUTOR_RESULT_NOT_RUN" &&
-                            new Date(proposal.voting_period_end) < new Date()
-                        ).length
-                      }
-                    </span>
-                  </div>
-                  <div className="flex flex-col gap-1 justify-center w-1/4 items-center">
-                    <span className="text-sm  capitalize text-gray-400">
-                      NAUGHTY MEMBER
-                    </span>
-                    <TruncatedAddressWithCopy
-                      address={address ?? ""}
-                      slice={8}
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1 justify-left w-1/4 items-center">
-                    <span className="text-sm  capitalize text-gray-400">
-                      ENDING SOON
-                    </span>
-                    <span className="text-md ">
-                      #
-                      {proposals
-                        .reduce((closest, proposal) => {
-                          const proposalDate = new Date(
-                            proposal.voting_period_end
-                          ).getTime();
-                          const closestDate = new Date(
-                            closest.voting_period_end
-                          ).getTime();
+                {proposals.length > 0 && (
+                  <div className="flex flex-row justify-center items-center mx-auto w-full transition-opacity  duration-300 ease-in-out animate-fadeIn h-16 border-b-4 border-b-base-200 border-r-4 border-r-base-200 rounded-md mt-3 bg-base-300">
+                    <div className="flex flex-col gap-1 justify-left w-1/4 items-center">
+                      <span className="text-sm  capitalize text-gray-400 hidden md:block">
+                        ACTIVE PROPOSALS
+                      </span>
+                      <span className="text-sm  capitalize text-gray-400 block md:hidden">
+                        ACTIVE
+                      </span>
+                      <span className="text-md ">{proposals.length}</span>
+                    </div>
+                    <div className="flex flex-col gap-1 justify-left w-1/4 items-center">
+                      <span className="text-sm  capitalize text-gray-400 hidden md:block">
+                        AWAITING EXECUTION
+                      </span>
+                      <span className="text-sm  capitalize text-gray-400 block md:hidden">
+                        EXECUTE
+                      </span>
+                      <span className="text-md">
+                        {
+                          proposals.filter(
+                            (proposal) =>
+                              proposal.executor_result ===
+                                "PROPOSAL_EXECUTOR_RESULT_NOT_RUN" &&
+                              new Date(proposal.voting_period_end) < new Date()
+                          ).length
+                        }
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-1 justify-center w-1/4 items-center">
+                      <span className="text-sm  capitalize text-gray-400 hidden md:block">
+                        NAUGHTY MEMBER
+                      </span>
+                      <span className="text-sm  capitalize text-gray-400 block md:hidden">
+                        NAUGHTY
+                      </span>
+                      <span className="block md:hidden truncate">
+                        {
+                          <TruncatedAddressWithCopy
+                            address={address ?? ""}
+                            slice={2}
+                          />
+                        }
+                      </span>
+                      <span className="hidden md:block">
+                        <TruncatedAddressWithCopy
+                          address={address ?? ""}
+                          slice={8}
+                        />
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-1 justify-left w-1/4 items-center">
+                      <span className="text-sm  capitalize text-gray-400 hidden md:block">
+                        ENDING SOON
+                      </span>
+                      <span className="text-sm  capitalize text-gray-400 block md:hidden">
+                        ENDING
+                      </span>
+                      <span className="text-md ">
+                        #
+                        {proposals
+                          .reduce((closest, proposal) => {
+                            const proposalDate = new Date(
+                              proposal.voting_period_end
+                            ).getTime();
+                            const closestDate = new Date(
+                              closest.voting_period_end
+                            ).getTime();
 
-                          return Math.abs(proposalDate - new Date().getTime()) <
-                            Math.abs(closestDate - new Date().getTime())
-                            ? proposal
-                            : closest;
-                        }, proposals[0])
-                        ?.id.toString() || "No proposal ending soon"}
-                    </span>
+                            return Math.abs(
+                              proposalDate - new Date().getTime()
+                            ) < Math.abs(closestDate - new Date().getTime())
+                              ? proposal
+                              : closest;
+                          }, proposals[0])
+                          ?.id.toString() || "No proposal ending soon"}
+                      </span>
+                    </div>
                   </div>
-                </div>
+                )}
               </>
             )}
           </div>

@@ -197,11 +197,11 @@ module.exports = {
       },
       {
         dark: {
-          primary: "#324D4B",
+          primary: "#4b7f7b",
           "primary-shadow": "#263c3add",
           "primary-focus": "#22444B",
           "primary-content": "#ffffff",
-          secondary: "#543842",
+          secondary: "#79495a",
           "secondary-focus": "#753B35",
           "secondary-content": "#ffffff",
           accent: "#324D4B",

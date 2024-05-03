@@ -6,6 +6,7 @@ import { useChain } from "@cosmos-kit/react";
 
 import Head from "next/head";
 import Link from "next/link";
+import React from "react";
 import { useState } from "react";
 import { chainName } from "../../config";
 import {
@@ -34,17 +35,31 @@ export default function Home() {
     (group) => group.policies[0].address === selectedPolicyAddress
   );
 
+  const Skeletons = React.memo(function Skeletons() {
+    return (
+      <div className="flex flex-col gap-4 w-full  mx-auto justify-center  items-center transition-opacity duration-300 ease-in-out animate-fadeIn">
+        <div className="flex flex-row w-full h-[46rem]  gap-4 ">
+          <div className="skeleton h-full w-1/3"></div>
+          <div className="skeleton h-full w-2/3"></div>
+        </div>
+        <div className="skeleton h-full w-full"></div>
+      </div>
+    );
+  });
+
+  console.log(isGroupByMemberLoading);
+
   return (
     <>
-      <div className="max-w-5xl relative py-[2rem] mx-auto lg:mx-auto">
+      <div className="max-w-5xl relative py-[2rem] mx-auto lg:mx-auto ">
         <Head>
           <title>Groups</title>
           <meta name="description" content="Interact with the groups module" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
-        <div className="-ml-4 -mt-2 px-0 sm:px-6 flex items-center justify-between sm:flex-nowrap">
+        <div className="-ml-4 -mt-2 flex items-center justify-between sm:flex-nowrap">
           <div className="ml-4 mt-2">
-            <h3 className="tracking-tight leading-none text-4xl xl:text-4xl">
+            <h3 className="tracking-tight leading-none text-4xl xl:text-4xl md:block hidden">
               groups
             </h3>
           </div>
@@ -76,9 +91,9 @@ export default function Home() {
               </div>
             </section>
           )}
-          {groupByMemberData?.groups?.length === 0 &&
-            isWalletConnected &&
-            !isGroupByMemberLoading && (
+          {isWalletConnected &&
+            !isGroupByMemberLoading &&
+            !groupByMemberData?.groups && (
               <section className=" transition-opacity duration-300 ease-in-out animate-fadeIn">
                 <div className="grid max-w-screen-xl bg-base-100 p-12 rounded-md border-r-base-300 border-r-8 border-b-8 border-b-base-300 mx-auto lg:gap-8 xl:gap-0  lg:grid-cols-12">
                   <div className="mr-auto place-self-center lg:col-span-7">

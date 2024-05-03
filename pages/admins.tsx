@@ -14,6 +14,7 @@ export default function Home() {
           <h1 className="mb-3 mt-32 text-3xl font-bold sm:text-4xl md:text-5xl">
             Cosmos Web App Template
           </h1>
+          <div className="skeleton h-4 w-12"></div>
         </div>
       </div>
     </>

@@ -72,10 +72,10 @@ export function Proposals({
             <div className="flex  gap-4 px-4   flex-row   py-4 rounded-md  ">
               <div className="flex flex-col   w-1/2 ">
                 <div className="flex flex-col gap-2 bg-base-300 p-4 rounded-md border-r-base-200 border-b-base-200 border-r-4 border-b-4 justify-left mb-6 items-left">
-                  <span className="text-sm  capitalize text-gray-400">
+                  <span className="text-sm  capitalize text-gray-400 truncate">
                     AUTHORS
                   </span>
-                  <span className="text-md ">
+                  <span className="text-md truncate">
                     {group?.ipfsMetadata.authors}
                   </span>
                 </div>
@@ -87,7 +87,7 @@ export function Proposals({
                   <span className="text-sm  capitalize text-gray-400 block md:hidden">
                     BALANCE
                   </span>
-                  <div className="flex flex-row gap-1 items-center justify-start">
+                  <div className="flex flex-row gap-1 items-center justify-start truncate">
                     <span className="text-md ">
                       {balance?.amount && shiftDigits(balance?.amount, -6)}
                     </span>
@@ -100,7 +100,7 @@ export function Proposals({
               </div>
               <div className="flex flex-col   w-1/2 ">
                 <div className="flex flex-col bg-base-300 p-4 rounded-md border-r-base-200 border-b-base-200 border-r-4 border-b-4  gap-2 justify-left mb-6 items-left">
-                  <span className="text-sm  capitalize text-gray-400">
+                  <span className="text-sm  capitalize text-gray-400 truncate">
                     POLICY ADDRESS
                   </span>
                   <p className="text-md  ">

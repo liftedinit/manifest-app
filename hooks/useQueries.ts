@@ -26,7 +26,7 @@ export interface ExtendedQueryGroupsByMemberResponseSDKType {
 export const useGroupsByMember = (address: string) => {
     const { lcdQueryClient } = useLcdQueryClient();
     const [extendedGroups, setExtendedGroups] = useState<ExtendedQueryGroupsByMemberResponseSDKType>({ groups: [] });
-    const [loading, setLoading] = useState(false);
+    const [allDataLoaded, setAllDataLoaded] = useState(false);
     const [error, setError] = useState<Error | null>(null);
 
     const groupQuery = useQuery({
@@ -39,7 +39,6 @@ export const useGroupsByMember = (address: string) => {
     useEffect(() => {
         const fetchAdditionalData = async () => {
             if (groupQuery.data?.groups && !groupQuery.isLoading) {
-                setLoading(true);
                 try {
                     const policyPromises = groupQuery.data.groups.map(group => 
                         lcdQueryClient?.cosmos.group.v1.groupPoliciesByGroup({ group_id: group.id }));
@@ -72,17 +71,18 @@ export const useGroupsByMember = (address: string) => {
                     console.error("Failed to fetch additional group data:", err);
                     setError(err as Error);
                 } finally {
-                    setLoading(false);
+                    setAllDataLoaded(true);
                 }
             }
         };
 
         fetchAdditionalData();
     }, [groupQuery.data, groupQuery.isLoading, lcdQueryClient?.cosmos.group.v1]);
+    
 
     return {
         groupByMemberData: extendedGroups,
-        isGroupByMemberLoading: loading || groupQuery.isLoading,
+        isGroupByMemberLoading: !allDataLoaded,
         isGroupByMemberError: error || groupQuery.isError,
         refetchGroupByMember: groupQuery.refetch,
     };

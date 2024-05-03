@@ -25,6 +25,7 @@ import {
   cosmosProtoRegistry,
   manifestProtoRegistry,
 } from "@chalabi/manifestjs";
+import MobileNav from "@/components/react/mobileNav";
 
 const manifestChain: Chain = {
   chain_name: "manifest",
@@ -250,6 +251,7 @@ function Template({ Component, pageProps }: AppProps) {
         <ThemeProvider>
           <ReactQueryDevtools initialIsOpen={false} />
           <SideNav />
+          <MobileNav />
           <div className="min-h-screen max-w-screen md:ml-20 sm:px-4 sm:py-2 bg-gradient-to-r from-base-100 from-10% via-20% to-40% via-base-200 to-base-300">
             <Component {...pageProps} />
             <SignModal

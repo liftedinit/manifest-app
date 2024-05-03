@@ -150,7 +150,7 @@ export default function SideNav() {
           aria-controls="secondary-sidenav"
           type="button"
           onClick={toggleDrawer}
-          className="inline-flex p-2  rounded-full cursor-pointer  border border-mint-300  hover:bg-mint-100 focus:ring-4 focus:ring-gray-100 "
+          className="inline-flex p-2  rounded-full cursor-pointer  border border-secondary text-secondary hover:bg-mint-100 focus:ring-4 focus:ring-secondary "
         >
           <svg
             className="w-6 h-6"
@@ -184,7 +184,7 @@ export default function SideNav() {
           aria-controls="secondary-sidenav"
           type="button"
           onClick={toggleDrawer}
-          className="inline-flex absolute bottom-7 left-28 p-2  cursor-pointer border border-mint-300 rounded-full hover:bg-mint-100 focus:ring-4 focus:ring-gray-100 "
+          className="inline-flex absolute bottom-7 left-28 p-2  cursor-pointer border border-secondary rounded-full hover:bg-mint-100 focus:ring-4 focus:ring-secondary "
         >
           <svg
             className="w-6 h-6"
