@@ -201,7 +201,7 @@ export default function ProposalsForPolicy({
                             >
                               <td className="">#{proposal.id.toString()}</td>
                               <td className="w-2/6 truncate">
-                                {proposal.title}
+                                {proposal.title.toLowerCase()}
                               </td>
                               <td className="w-1/6">
                                 {diff <= 0 &&
