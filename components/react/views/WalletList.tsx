@@ -73,8 +73,7 @@ export const WalletList = ({
 
         {/* Mobile Wallets Section */}
         <div className="md:hidden block">
-          <h4 className="font-medium text-left">Mobile Wallets</h4>
-          <div className="grid grid-cols-2 justify-center items-center mx-auto  rounded-xl mt-2 w-64 gap-4">
+          <div className="grid grid-cols-2 justify-center items-center mx-auto  rounded-xl -mt-6 w-64 gap-4">
             {mobile.map(({ walletInfo: { name, prettyName, logo } }) => (
               <button
                 key={name}

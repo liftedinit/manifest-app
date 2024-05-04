@@ -64,11 +64,8 @@ export function YourGroups({
                   walletAddress={group.created_at.toString() ?? ""}
                 />
                 <div className="ml-4  flex-grow">
-                  <h5 className="text-base font-medium">
-                    {truncateString(
-                      group.ipfsMetadata?.title ?? "Untitled Group",
-                      24
-                    )}
+                  <h5 className="text-base font-medium truncate">
+                    {group.ipfsMetadata?.title ?? "Untitled Group"}
                   </h5>
                 </div>
               </div>

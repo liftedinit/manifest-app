@@ -48,16 +48,19 @@ export default function Home() {
             <h3 className="tracking-tight leading-none text-4xl xl:text-4xl md:block hidden">
               groups
             </h3>
+            <h3 className="tracking-tight px-4 leading-none text-4xl xl:text-4xl md:hidden block">
+              groups
+            </h3>
           </div>
           {groupByMemberData?.groups?.length >= 1 && isWalletConnected && (
             <Link href="/groups/create" passHref>
-              <button className="relative inline-flex items-center btn btn-primary">
+              <button className="relative items-center btn btn-primary hidden md:inline-flex">
                 create new group
               </button>
             </Link>
           )}
         </div>
-        <div className="mt-6 p-4 gap-4 flex flex-col  md:flex-row sm:flex-col xs:flex-col rounded-md bg-base-200/20 blur-40 shadow-lg transition-opacity duration-300 ease-in-out animate-fadeIn">
+        <div className="mt-6 p-4 gap-4 flex flex-col  lg:flex-row md:flex-col sm:flex-col xs:flex-col rounded-md bg-base-200/20 blur-40 shadow-lg transition-opacity duration-300 ease-in-out animate-fadeIn">
           {!isWalletConnected && (
             <section className=" transition-opacity duration-300 ease-in-out animate-fadeIn">
               <div className="grid max-w-screen-xl bg-base-100 p-12 rounded-md border-r-base-300 border-r-8 border-b-8 border-b-base-300 mx-auto lg:gap-8 xl:gap-0  lg:grid-cols-12">
@@ -137,6 +140,14 @@ export default function Home() {
                 <ProposalsForPolicy
                   policyAddress={selectedPolicyAddress ?? ""}
                 />
+                {groupByMemberData?.groups?.length >= 1 &&
+                  isWalletConnected && (
+                    <Link href="/groups/create" passHref>
+                      <button className="relative items-center btn btn-primary block md:hidden w-full mt-6 mb-2">
+                        create new group
+                      </button>
+                    </Link>
+                  )}
               </div>
             )}
         </div>

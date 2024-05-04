@@ -100,7 +100,10 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
     const buttonData = buttons[status];
 
     return (
-      <button className="btn btn-primary btn-lg mx-auto" onClick={onClick}>
+      <button
+        className="btn btn-primary sm:btn-md md:btn-lg w-full md:w-auto mx-auto"
+        onClick={onClick}
+      >
         {buttonData.title}
       </button>
     );
