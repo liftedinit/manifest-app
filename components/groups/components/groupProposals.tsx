@@ -229,7 +229,7 @@ export default function ProposalsForPolicy({
                   )}
                 </div>
                 {proposals.length > 0 && (
-                  <div className="flex flex-row justify-center items-center mx-auto w-full transition-opacity  duration-300 ease-in-out animate-fadeIn h-16 border-b-4 border-b-base-200 border-r-4 border-r-base-200 rounded-md mt-3 bg-base-300">
+                  <div className=" flex-row justify-center items-center mx-auto w-full hidden md:flex transition-opacity  duration-300 ease-in-out animate-fadeIn h-16 border-4 border-base-200  rounded-md mt-3 ">
                     <div className="flex flex-col gap-1 justify-left w-1/4 items-center">
                       <span className="text-sm  capitalize text-gray-400 hidden md:block">
                         ACTIVE PROPOSALS

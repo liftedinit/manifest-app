@@ -117,7 +117,7 @@ export function GroupDetailsModal({
         <div className="px-4">
           <h3 className="text-lg font-semibold">Members</h3>
           <div className="divider divider-horizon"></div>
-          <div className="overflow-x-auto -mt-4 max-h-60">
+          <div className="overflow-x-auto -mt-4 max-h-52">
             <table className="table table-pin-rows w-full">
               <thead>
                 <tr>

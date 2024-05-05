@@ -63,9 +63,12 @@ export function YourGroups({
                 <ProfileAvatar
                   walletAddress={group.created_at.toString() ?? ""}
                 />
-                <div className="ml-4  flex-grow">
+                <div className="flex-grow">
                   <h5 className="text-base font-medium truncate">
-                    {group.ipfsMetadata?.title ?? "Untitled Group"}
+                    {truncateString(
+                      group.ipfsMetadata?.title ?? "Untitled Group",
+                      24
+                    )}
                   </h5>
                 </div>
               </div>
