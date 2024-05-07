@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { QueryGroupsByMemberResponseSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/query";
 
 import { useLcdQueryClient } from "./useLcdQueryClient";
@@ -165,6 +165,39 @@ export const useProposalsByPolicyAccount = (policyAccount: string) => {
         refetchProposals: proposalQuery.refetch,
     };
 }
+
+export const useProposalsByPolicyAccountAll = (policyAccounts: string[]) => {
+    const { lcdQueryClient } = useLcdQueryClient();
+  
+    const fetchGroupInfo = async (policyAccount: string) => {
+      if (!lcdQueryClient) {
+        throw new Error("LCD Client not ready");
+      }
+      return await lcdQueryClient.cosmos.group.v1.proposalsByGroupPolicy({ address: policyAccount });
+    };
+  
+    const proposalQueries = useQueries({
+      queries: policyAccounts.map((policyAccount) => ({
+        queryKey: ["proposalInfo", policyAccount],
+        queryFn: () => fetchGroupInfo(policyAccount),
+        enabled: !!lcdQueryClient && !!policyAccount,
+        staleTime: Infinity,
+      }))
+    });
+  
+    const result: Record<string, any> = {};
+  
+    proposalQueries.forEach((proposalQuery, index) => {
+      result[policyAccounts[index]] = proposalQuery.data?.proposals || [];
+    });
+  
+    return {
+      proposalsByPolicyAccount: result,
+      isProposalsLoading: proposalQueries.some(query => query.isLoading),
+      isProposalsError: proposalQueries.some(query => query.isError),
+      refetchProposals: () => proposalQueries.forEach(query => query.refetch()),
+    };
+  };
 
 export const useTallyCount = (proposalId: bigint) => {
     const { lcdQueryClient } = useLcdQueryClient();

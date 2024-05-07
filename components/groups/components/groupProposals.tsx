@@ -102,6 +102,19 @@ export default function ProposalsForPolicy({
     };
   }
 
+  type ChainMessageType =
+    | "/cosmos.bank.v1beta1.MsgSend"
+    | "/strangelove_ventures.poa.v1.MsgSetPower";
+
+  const typeRegistry: Record<ChainMessageType, string> = {
+    "/cosmos.bank.v1beta1.MsgSend": "Send",
+    "/strangelove_ventures.poa.v1.MsgSetPower": "Set Power",
+  };
+
+  function getHumanReadableType(type: ChainMessageType): string {
+    return typeRegistry[type] || "Unknown type";
+  }
+
   return (
     <section className="">
       <div className="flex flex-col  max-w-5xl mx-auto w-full  ">
@@ -134,7 +147,7 @@ export default function ProposalsForPolicy({
               <div className="py-2">Error loading proposals</div>
             ) : (
               <>
-                <div className="overflow-y-auto max-h-[13.8rem] min-h-[13.8rem]">
+                <div className="">
                   {proposals?.length === 0 && (
                     <div className="flex flex-col my-36 gap-4 w-full mx-auto justify-center items-center transition-opacity duration-300 ease-in-out animate-fadeIn">
                       <div className="text-center underline">
@@ -143,110 +156,121 @@ export default function ProposalsForPolicy({
                     </div>
                   )}
                   {proposals?.length > 0 && (
-                    <table className="table w-full table-pin-rows z-0 transition-opacity  duration-300 ease-in-out animate-fadeIn text-left">
-                      <thead>
-                        <tr className="w-full">
-                          <th className="w-1/6">#</th>
-                          <th className="w-1/6">title</th>
-                          <th className="w-1/6">time left</th>
-                          <th className="w-1/6">type</th>
-                          <th className="w-1/6">status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {proposals?.map((proposal, index) => {
-                          // Find the corresponding tally for this proposal
-                          const proposalTally = tallies.find(
-                            (t) => t.proposalId === proposal.id
-                          );
-                          const { isPassing = false } = proposalTally
-                            ? isProposalPassing(proposalTally.tally)
-                            : {};
-                          const endTime = new Date(proposal?.voting_period_end);
-                          const now = new Date();
-                          const msPerMinute = 1000 * 60;
-                          const msPerHour = msPerMinute * 60;
-                          const msPerDay = msPerHour * 24;
+                    <div className="bg-base-300 mt-4 flex p-4 rounded-md border-r-base-200 border-r-4 border-b-base-200 border-b-4 overflow-y-auto max-h-[15rem] min-h-[15rem] ">
+                      <table className="table w-full  z-0 transition-opacity -mt-4  duration-300 ease-in-out animate-fadeIn text-left">
+                        <thead className="bg-base-300 ">
+                          <tr className="w-full">
+                            <th className="w-1/6">#</th>
+                            <th className="w-1/6">title</th>
+                            <th className="w-1/6">time left</th>
+                            <th className="w-1/6">type</th>
+                            <th className="w-1/6">status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {proposals?.map((proposal, index) => {
+                            // Find the corresponding tally for this proposal
+                            const proposalTally = tallies.find(
+                              (t) => t.proposalId === proposal.id
+                            );
+                            const { isPassing = false } = proposalTally
+                              ? isProposalPassing(proposalTally.tally)
+                              : {};
+                            const endTime = new Date(
+                              proposal?.voting_period_end
+                            );
+                            const now = new Date();
+                            const msPerMinute = 1000 * 60;
+                            const msPerHour = msPerMinute * 60;
+                            const msPerDay = msPerHour * 24;
 
-                          const diff = endTime.getTime() - now.getTime();
+                            const diff = endTime.getTime() - now.getTime();
 
-                          let timeLeft: string;
+                            let timeLeft: string;
 
-                          if (diff <= 0) {
-                            timeLeft = "Execute";
-                          } else if (diff >= msPerDay) {
-                            const days = Math.floor(diff / msPerDay);
-                            timeLeft = `${days} day${days === 1 ? "" : "s"}`;
-                          } else if (diff >= msPerHour) {
-                            const hours = Math.floor(diff / msPerHour);
-                            timeLeft = `${hours} hour${hours === 1 ? "" : "s"}`;
-                          } else if (diff >= msPerMinute) {
-                            const minutes = Math.floor(diff / msPerMinute);
-                            timeLeft = `${minutes} minute${
-                              minutes === 1 ? "" : "s"
-                            }`;
-                          } else {
-                            timeLeft = "less than a minute";
-                          }
-                          return (
-                            <tr
-                              onClick={() => handleRowClick(proposal)}
-                              key={index}
-                              className={`w-full
+                            if (diff <= 0) {
+                              timeLeft = "Execute";
+                            } else if (diff >= msPerDay) {
+                              const days = Math.floor(diff / msPerDay);
+                              timeLeft = `${days} day${days === 1 ? "" : "s"}`;
+                            } else if (diff >= msPerHour) {
+                              const hours = Math.floor(diff / msPerHour);
+                              timeLeft = `${hours} hour${
+                                hours === 1 ? "" : "s"
+                              }`;
+                            } else if (diff >= msPerMinute) {
+                              const minutes = Math.floor(diff / msPerMinute);
+                              timeLeft = `${minutes} minute${
+                                minutes === 1 ? "" : "s"
+                              }`;
+                            } else {
+                              timeLeft = "less than a minute";
+                            }
+                            return (
+                              <tr
+                                onClick={() => handleRowClick(proposal)}
+                                key={index}
+                                className={`w-full
                             hover:bg-base-200 !important 
                             active:bg-base-100 
                             focus:bg-base-300 focus:shadow-inner 
                             transition-all duration-200 
                             cursor-pointer`}
-                            >
-                              <td className="">#{proposal.id.toString()}</td>
-                              <td className="w-2/6 truncate">
-                                {proposal.title.toLowerCase()}
-                              </td>
-                              <td className="w-1/6">
-                                {diff <= 0 &&
-                                proposal.executor_result ===
-                                  ("PROPOSAL_EXECUTOR_RESULT_NOT_RUN" as unknown as ProposalExecutorResult)
-                                  ? "Execute"
-                                  : timeLeft}
-                              </td>
-                              <td className="w-1/6"> Send</td>
-                              <td className="w-1/6">
-                                {isPassing ? "Passing" : "Failing"}
-                              </td>
-                              <Modal
-                                admin={admin}
-                                proposalId={proposal.id}
-                                members={members}
-                                proposal={proposal}
-                                updateTally={updateTally}
-                              />
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
+                              >
+                                <td className="">#{proposal.id.toString()}</td>
+                                <td className="w-2/6 truncate">
+                                  {proposal.title.toLowerCase()}
+                                </td>
+                                <td className="w-1/6">
+                                  {diff <= 0 &&
+                                  proposal.executor_result ===
+                                    ("PROPOSAL_EXECUTOR_RESULT_NOT_RUN" as unknown as ProposalExecutorResult)
+                                    ? "Execute"
+                                    : timeLeft}
+                                </td>
+                                <td className="w-1/6">
+                                  {" "}
+                                  {getHumanReadableType(
+                                    proposal.messages[0]["@type"]
+                                  )}
+                                </td>
+                                <td className="w-1/6">
+                                  {isPassing ? "Passing" : "Failing"}
+                                </td>
+                                <Modal
+                                  admin={admin}
+                                  proposalId={proposal.id}
+                                  members={members}
+                                  proposal={proposal}
+                                  updateTally={updateTally}
+                                />
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
                   )}
                 </div>
                 {proposals.length > 0 && (
-                  <div className=" flex-row justify-center items-center mx-auto w-full hidden md:flex transition-opacity  duration-300 ease-in-out animate-fadeIn h-16 border-4 border-base-200  rounded-md mt-3 ">
+                  <div className=" flex-row justify-center items-center mx-auto w-full hidden md:flex gap-4 transition-opacity  duration-300 ease-in-out animate-fadeIn h-16   rounded-md -mt-1 ">
                     <div className="flex flex-col gap-1 justify-left w-1/4 items-center">
-                      <span className="text-sm  capitalize text-gray-400 hidden md:block">
+                      <span className="text-xs  capitalize text-gray-400 hidden md:block">
                         ACTIVE PROPOSALS
                       </span>
-                      <span className="text-sm  capitalize text-gray-400 block md:hidden">
+                      <span className="text-xs  capitalize text-gray-400 block md:hidden">
                         ACTIVE
                       </span>
-                      <span className="text-md ">{proposals.length}</span>
+                      <span className="text-sm ">{proposals.length}</span>
                     </div>
-                    <div className="flex flex-col gap-1 justify-left w-1/4 items-center">
-                      <span className="text-sm  capitalize text-gray-400 hidden md:block">
+                    <div className="flex flex-col gap-1 justify-left w-1/4 items-center ">
+                      <span className="text-xs  capitalize text-gray-400 hidden md:block">
                         AWAITING EXECUTION
                       </span>
-                      <span className="text-sm  capitalize text-gray-400 block md:hidden">
+                      <span className="text-xs  capitalize text-gray-400 block md:hidden">
                         EXECUTE
                       </span>
-                      <span className="text-md">
+                      <span className="text-sm">
                         {
                           proposals.filter(
                             (proposal) =>
@@ -257,11 +281,11 @@ export default function ProposalsForPolicy({
                         }
                       </span>
                     </div>
-                    <div className="flex flex-col gap-1 justify-center w-1/4 items-center">
-                      <span className="text-sm  capitalize text-gray-400 hidden md:block">
+                    <div className="flex flex-col gap-1 justify-center w-1/4 items-center ">
+                      <span className="text-xs  capitalize text-gray-400 hidden md:block">
                         NAUGHTY MEMBER
                       </span>
-                      <span className="text-sm  capitalize text-gray-400 block md:hidden">
+                      <span className="text-xs  capitalize text-gray-400 block md:hidden">
                         NAUGHTY
                       </span>
                       <span className="block md:hidden truncate">
@@ -269,6 +293,7 @@ export default function ProposalsForPolicy({
                           <TruncatedAddressWithCopy
                             address={address ?? ""}
                             slice={2}
+                            size="small"
                           />
                         }
                       </span>
@@ -276,17 +301,18 @@ export default function ProposalsForPolicy({
                         <TruncatedAddressWithCopy
                           address={address ?? ""}
                           slice={8}
+                          size="small"
                         />
                       </span>
                     </div>
-                    <div className="flex flex-col gap-1 justify-left w-1/4 items-center">
-                      <span className="text-sm  capitalize text-gray-400 hidden md:block">
+                    <div className="flex flex-col gap-1 justify-left w-1/4 items-center ">
+                      <span className="text-xs  capitalize text-gray-400 hidden md:block">
                         ENDING SOON
                       </span>
-                      <span className="text-sm  capitalize text-gray-400 block md:hidden">
+                      <span className="text-xs capitalize text-gray-400 block md:hidden">
                         ENDING
                       </span>
-                      <span className="text-md ">
+                      <span className="text-sm ">
                         #
                         {proposals
                           .reduce((closest, proposal) => {

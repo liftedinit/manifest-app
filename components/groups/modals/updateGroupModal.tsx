@@ -196,7 +196,7 @@ export function UpdateGroupModal({
     const member = members[index];
     const updatedMember = {
       ...member,
-      isPolicyAdmin: !member.isPolicyAdmin,
+      isPolicyAdmin: !member?.isPolicyAdmin,
     };
     setMembers(
       members.map((mem, idx) => (idx === index ? updatedMember : mem))
@@ -218,7 +218,7 @@ export function UpdateGroupModal({
   console.log(inputState);
 
   useEffect(() => {
-    const extractedMembers = group.members.map((item) => item.member);
+    const extractedMembers = group?.members.map((item) => item.member);
     extractedMembers.map((member) => ({
       group_id: "",
       member,
@@ -231,31 +231,31 @@ export function UpdateGroupModal({
 
   const msgUpdateGroupAdmin = updateGroupAdmin({
     admin: group.admin,
-    group_id: BigInt(group.members[0].group_id),
-    new_admin: members.filter((member) => member.isAdmin)[0].member.address,
+    group_id: BigInt(group?.members[0]?.group_id),
+    new_admin: members?.filter((member) => member?.isAdmin)[0]?.member?.address,
   });
 
   const msgUpdateGroupMembers = updateGroupMembers({
     admin: group.admin,
-    group_id: BigInt(group.members[0].group_id),
-    member_updates: members.map((member) => ({
-      address: member.member.address,
-      metadata: member.member.metadata,
-      weight: member.member.weight,
-      added_at: member.member.added_at,
+    group_id: BigInt(group?.members[0]?.group_id),
+    member_updates: members?.map((member) => ({
+      address: member?.member.address,
+      metadata: member?.member.metadata,
+      weight: member?.member.weight,
+      added_at: member?.member.added_at,
     })),
   });
 
   const msgUpdateGroupMetadata = updateGroupMetadata({
-    admin: group.admin,
-    group_id: BigInt(group.members[0].group_id),
+    admin: group?.admin,
+    group_id: BigInt(group?.members[0]?.group_id),
     metadata: "",
   });
 
   const msgUpdateGroupPolicyAdmin = updateGroupPolicyAdmin({
-    address: group.policies[0].address,
-    admin: group.admin,
-    new_admin: members.filter((member) => member.isPolicyAdmin)[0].member
+    address: group?.policies[0].address,
+    admin: group?.admin,
+    new_admin: members?.filter((member) => member?.isPolicyAdmin)[0]?.member
       .address,
   });
 
@@ -293,8 +293,8 @@ export function UpdateGroupModal({
         </form>
         <h3 className="text-lg font-semibold ">Update Group</h3>
         <div className="divider divider-horizon "></div>
-        <div className="md:flex sm:grid sm:grid-cols-1 md:flex-row justify-start items-center">
-          <div className="relative p-4 sm:w-full md:w-1/2 max-w-6xl h-1/2">
+        <div className="md:flex sm:grid sm:grid-cols-1 md:flex-row justify-start items-center gap-4">
+          <div className="relative bg-base-300 rounded-md border-r-base-200 border-b-base-200 border-r-4 border-b-4  p-4 sm:w-full md:w-1/2 max-w-6xl h-1/2">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <div className="flex flex-row mb-2 gap-2 items-center">
@@ -435,8 +435,8 @@ export function UpdateGroupModal({
               </div>
             </div>
           </div>
-          <div className="relative p-4 sm:w-full md:w-1/2 max-w-6xl md:h-auto ">
-            <div className="flex flex-row justify-between items-center mb-2">
+          <div className="relative p-4 bg-base-300 rounded-md border-r-base-200 border-b-base-200 border-r-4 border-b-4 sm:w-full md:w-1/2 max-w-6xl md:h-[476.5px] ">
+            <div className="flex flex-row justify-between items-center mb-2 -mt-1">
               <label className="text-sm font-medium ">Members</label>
               <button
                 className="btn btn-xs btn-primary justify-center items-center"
@@ -452,52 +452,42 @@ export function UpdateGroupModal({
                   key={index}
                   className={`flex relative flex-col gap-2 px-4 py-2 rounded-md border-4 ${
                     member.isAdmin && member.isPolicyAdmin
-                      ? "border-r-primary border-b-primary border-l-[#684e84] border-t-[#684e84]"
+                      ? "border-r-primary border-b-primary border-l-secondary border-t-secondary"
                       : member.isAdmin
-                      ? "border-r-primary border-b-primary border-t-base-200 border-l-base-200"
+                      ? "border-r-primary border-b-primary border-t-transparent border-l-transparent"
                       : member.isPolicyAdmin
-                      ? "border-l-[#684e84] border-t-[#684e84] border-r-base-200 border-b-base-200"
-                      : "border-r-base-200 border-b-base-200 border-t-transparent border-l-transparent"
+                      ? "border-l-secondary border-t-secondary border-r-base-100 border-b-base-100 "
+                      : "border-r-base-100 border-b-base-100 border-t-transparent border-l-transparent"
                   } transition-all duration-200 max-h-[12.4rem] ${
-                    !member.isActive ? "bg-base-200" : "bg-base-300"
-                  } hover:border-r-primary hover:border-b-primary hover:border-l-[#684e84] hover:border-t-[#684e84] cursor-pointer`}
-                  onMouseDown={(e) => {
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    const xClicked = e.clientX - rect.left;
-                    if (xClicked < rect.width / 2) {
-                      handlePolicyAdminToggle(index);
-                    } else {
-                      handleAdminToggle(index);
-                    }
-                  }}
+                    !member.isActive ? "bg-base-100" : "bg-base-200"
+                  }  `}
                 >
-                  {member.isAdmin && member.isPolicyAdmin && (
-                    <div className="absolute top-4 right-16 text-xs ">
-                      MEGA ADMIN
-                    </div>
-                  )}
-
-                  {member.isAdmin && !member.isPolicyAdmin && (
-                    <div className="absolute top-4 right-16 text-xs text-primary">
-                      ADMIN
-                    </div>
-                  )}
-
-                  {member.isPolicyAdmin && !member.isAdmin && (
-                    <div className="absolute top-4 right-16 text-xs text-[#684e84]">
-                      POLICY ADMIN
-                    </div>
-                  )}
-
                   <div className="flex flex-row justify-between items-center">
                     <span className="text-light text-md"># {index + 1}</span>
+
+                    <div className="flex flex-row gap-2 justify-center items-center">
+                      <button
+                        onClick={() => handlePolicyAdminToggle(index)}
+                        className="btn btn-xs btn-secondary"
+                        disabled={!member?.isActive}
+                      >
+                        P
+                      </button>
+                      <button
+                        onClick={() => handleAdminToggle(index)}
+                        className="btn btn-xs btn-primary"
+                        disabled={!member?.isActive}
+                      >
+                        A
+                      </button>
+                    </div>
                     <button
+                      onClick={() => handleMemberRemoval(index)}
                       className={`btn btn-sm ${
                         member.isActive
                           ? "text-red-500 hover:bg-red-500"
-                          : "text-primary hover:bg-primary bg-base-300"
-                      }  hover:text-white`}
-                      onClick={() => handleMemberRemoval(index)}
+                          : "text-primary hover:bg-primary "
+                      }  hover:text-white bg-base-300`}
                     >
                       {member.isActive ? (
                         <PiTrashLight />
@@ -514,7 +504,7 @@ export function UpdateGroupModal({
                       onChange={(e) =>
                         handleChange(index, "metadata", e.target.value)
                       }
-                      className="input input-sm input-bordered w-full"
+                      className="input input-sm input-bordered w-full disabled:border-base-100"
                       placeholder={
                         member.isCoreMember ? member.member.metadata : "Name"
                       }
@@ -527,7 +517,7 @@ export function UpdateGroupModal({
                       onChange={(e) =>
                         handleChange(index, "address", e.target.value)
                       }
-                      className="input input-sm input-bordered w-full"
+                      className="input input-sm input-bordered w-full disabled:border-base-100"
                       placeholder={
                         member.isCoreMember ? member.member.address : "Address"
                       }
@@ -543,7 +533,7 @@ export function UpdateGroupModal({
                       onChange={(e) =>
                         handleChange(index, "weight", e.target.value)
                       }
-                      className="input input-sm input-bordered w-full"
+                      className="input input-sm input-bordered w-full disabled:border-base-100"
                       placeholder={
                         member.isCoreMember ? member.member.weight : "Weight"
                       }

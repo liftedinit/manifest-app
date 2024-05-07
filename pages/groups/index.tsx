@@ -3,6 +3,7 @@ import { Proposals } from "@/components/groups/components/groupInfo";
 import ProposalsForPolicy from "@/components/groups/components/groupProposals";
 import { YourGroups } from "@/components/groups/components/myGroups";
 import { useChain } from "@cosmos-kit/react";
+import { group } from "console";
 
 import Head from "next/head";
 import Link from "next/link";
@@ -12,6 +13,7 @@ import { chainName } from "../../config";
 import {
   useGroupsByMember,
   useProposalsByPolicyAccount,
+  useProposalsByPolicyAccountAll,
 } from "../../hooks/useQueries";
 
 export default function Home() {
@@ -32,8 +34,14 @@ export default function Home() {
   };
 
   const infoGroup = groupByMemberData?.groups?.find(
-    (group) => group.policies[0].address === selectedPolicyAddress
+    (group) => group?.policies[0]?.address === selectedPolicyAddress
   );
+
+  const groupPolicyAddresses =
+    groupByMemberData?.groups?.map((group) => group.policies[0].address) ?? [];
+
+  const { proposalsByPolicyAccount, isProposalsError, isProposalsLoading } =
+    useProposalsByPolicyAccountAll(groupPolicyAddresses ?? []);
 
   return (
     <>
@@ -125,6 +133,7 @@ export default function Home() {
                       groupByMemberDataLoading={isGroupByMemberLoading}
                       groupByMemberDataError={isGroupByMemberError}
                       onSelectGroup={handleGroupSelect}
+                      proposals={proposalsByPolicyAccount}
                     />
                   </div>
 

@@ -4,9 +4,11 @@ import { FiCopy, FiCheck } from "react-icons/fi";
 export const TruncatedAddressWithCopy = ({
   address,
   slice,
+  size,
 }: {
   address: string;
   slice: number;
+  size?: string;
 }) => {
   const [copied, setCopied] = useState(false);
 
@@ -19,6 +21,22 @@ export const TruncatedAddressWithCopy = ({
       console.error("Failed to copy: ", err);
     }
   };
+
+  if (size === "small") {
+    return (
+      <div
+        className="flex items-center space-x-2 text-xs min-w-22"
+        onClick={handleCopy}
+        style={{ cursor: "pointer" }}
+      >
+        <span className="truncate">{`${address?.slice(
+          0,
+          slice
+        )}...${address?.slice(-6)}`}</span>
+        {copied ? <FiCheck size="10" /> : <FiCopy size="10" />}
+      </div>
+    );
+  }
 
   return (
     <div

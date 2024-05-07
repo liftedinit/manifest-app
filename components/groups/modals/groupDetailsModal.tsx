@@ -16,6 +16,16 @@ export function GroupDetailsModal({
   group,
   modalId,
 }: Group & { modalId: string }) {
+  const isAdmin = (address: string) => {
+    const adminAddresses = [group.admin].filter(Boolean);
+    return adminAddresses.includes(address);
+  };
+
+  const isPolicyAdmin = (address: string) => {
+    const adminAddresses = [group.policies[0]?.admin].filter(Boolean);
+    return adminAddresses.includes(address);
+  };
+
   return (
     <dialog id={modalId} className="modal">
       <div className="modal-box absolute max-w-4xl mx-auto rounded-lg md:ml-20 shadow-lg">
@@ -124,6 +134,7 @@ export function GroupDetailsModal({
                   <th>#</th>
                   <th>Member Info</th>
                   <th>Address</th>
+                  <th>Admin</th>
                   <th>Weight</th>
                 </tr>
               </thead>
@@ -137,6 +148,16 @@ export function GroupDetailsModal({
                         address={member?.member?.address}
                         slice={12}
                       />
+                    </td>
+                    <td>
+                      {isPolicyAdmin(member?.member?.address) &&
+                      isAdmin(member?.member?.address)
+                        ? "Super Admin"
+                        : isPolicyAdmin(member?.member?.address)
+                        ? "Policy"
+                        : isAdmin(member?.member?.address)
+                        ? "Group"
+                        : ""}
                     </td>
                     <td>{member.member?.weight}</td>
                   </tr>

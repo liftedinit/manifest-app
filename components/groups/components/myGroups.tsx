@@ -10,12 +10,14 @@ export function YourGroups({
   groupByMemberDataError,
   refetchGroupByMember,
   onSelectGroup,
+  proposals,
 }: {
   groups: ExtendedQueryGroupsByMemberResponseSDKType;
   groupByMemberDataLoading: boolean;
   groupByMemberDataError: Error | null | boolean;
   refetchGroupByMember: () => void;
   onSelectGroup: (policyAddress: string) => void;
+  proposals: any;
 }) {
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
 
@@ -53,17 +55,25 @@ export function YourGroups({
             return (
               <div
                 key={index}
-                className={`flex flex-row justify-between rounded-md  mb-4 mt-2  items-center px-4 py-2  hover:cursor-pointer transition-all duration-200 ${
+                className={` relative flex flex-row justify-between rounded-md  mb-4 mt-2  items-center px-4 py-2  hover:cursor-pointer transition-all duration-200 ${
                   selectedGroup === policyAddress
                     ? "bg-primary border-r-4 border-r-[#263c3add] border-b-[#263c3add] border-b-4 "
                     : "bg-base-300 border-r-4 border-r-base-200 border-b-base-200 border-b-4 active:scale-95 hover:bg-base-200"
                 }`}
                 onClick={() => handleGroupSelect(policyAddress)}
               >
+                {proposals[group?.policies[0]?.address ?? ""]?.length > 0 && (
+                  <div className="absolute top-1 shadow-inner right-1 w-5 h-5 text-sm rounded-full bg-secondary flex justify-center items-center">
+                    <span className="text-center">
+                      {proposals[group?.policies[0]?.address ?? ""]?.length}
+                    </span>
+                  </div>
+                )}
+
                 <ProfileAvatar
                   walletAddress={group.created_at.toString() ?? ""}
                 />
-                <div className="flex-grow">
+                <div className="ml-2 flex-grow">
                   <h5 className="text-base font-medium truncate">
                     {truncateString(
                       group.ipfsMetadata?.title ?? "Untitled Group",
