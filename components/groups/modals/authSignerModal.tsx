@@ -19,7 +19,7 @@ const DisplayDataToSign = ({ data }: DisplayDataToSignProps) => {
   };
 
   return (
-    <div className="p-4">
+    <div className="p-4 z-[100]">
       <h3 className="text-lg font-medium text-gray-800">Data to Sign</h3>
       <pre className="bg-gray-100 p-4 rounded-md text-sm overflow-auto max-h-48 text-gray-700">
         {formatData(data)} {/* Format and display the data */}
@@ -45,7 +45,7 @@ const SignModal = ({
     <Transition.Root show={visible} as={Fragment}>
       <Dialog
         as="div"
-        className="fixed inset-0 z-50 overflow-y-auto"
+        className="fixed inset-0 z-[1000] overflow-y-auto"
         onClose={onClose}
       >
         <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">

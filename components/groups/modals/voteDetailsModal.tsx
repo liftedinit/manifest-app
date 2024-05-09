@@ -20,6 +20,7 @@ import { chainName } from "@/config";
 import { useTx } from "@/hooks/useTx";
 import { cosmos } from "@chalabi/manifestjs";
 import { useTheme } from "@/contexts/theme";
+import CountdownTimer from "../components/CountdownTimer";
 
 const Chart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
@@ -84,16 +85,18 @@ function VoteDetailsModal({
     [members]
   );
 
-  const executorResultMapping = {
+  const executorResultMapping: { [key: string]: string } = {
     PROPOSAL_EXECUTOR_RESULT_NOT_RUN: "execute",
     PROPOSAL_EXECUTOR_RESULT_SUCCESS: "success",
     PROPOSAL_EXECUTOR_RESULT_FAILURE: "failed",
   };
 
-  const votingStatusResultMapping = {
+  const votingStatusResultMapping: { [key: string]: string } = {
     PROPOSAL_STATUS_CLOSED: "closed",
     PROPOSAL_STATUS_SUBMITTED: "voting",
-    PROPOSAL_EXECUTOR_RESULT_FAILURE: "failed",
+    PROPOSAL_STATUS_ABORTED: "aborted",
+    PROPOSAL_STATUS_ACCEPTED: "accepted",
+    PROPOSAL_STATUS_REJECTED: "rejected",
   };
 
   const voteMapping: { [key: string]: string } = {
@@ -101,6 +104,14 @@ function VoteDetailsModal({
     VOTE_OPTION_NO: "no",
     VOTE_OPTION_NO_WITH_VETO: "veto",
     VOTE_OPTION_ABSTAIN: "abstain",
+  };
+
+  const getStatusLabel = (proposal: any) => {
+    if (proposal.executor_result === "PROPOSAL_EXECUTOR_RESULT_NOT_RUN") {
+      return votingStatusResultMapping[proposal.status] || "unknown status";
+    }
+
+    return executorResultMapping[proposal.executor_result] || "unknown status";
   };
 
   const options: ApexOptions = {
@@ -178,10 +189,16 @@ function VoteDetailsModal({
   const { tx } = useTx("manifest");
 
   const { exec } = cosmos.group.v1.MessageComposer.withTypeUrl;
+  const { withdrawProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
-  const msg = exec({
+  const msgExec = exec({
     proposal_id: proposal?.id,
     signer: address ?? "",
+  });
+
+  const msgWithdraw = withdrawProposal({
+    proposal_id: proposal?.id,
+    address: address ?? "",
   });
 
   const fee = {
@@ -196,7 +213,21 @@ function VoteDetailsModal({
 
   const executeProposal = async () => {
     try {
-      await tx([msg], {
+      await tx([msgExec], {
+        fee,
+        onSuccess: () => {
+          refetchTally();
+          refetchVotes();
+        },
+      });
+    } catch (error) {
+      console.error("Failed to execute proposal: ", error);
+    }
+  };
+
+  const executeWithdrawl = async () => {
+    try {
+      await tx([msgWithdraw], {
         fee,
         onSuccess: () => {
           refetchTally();
@@ -298,13 +329,9 @@ function VoteDetailsModal({
           <div className="flex flex-row justify-between items-center">
             <div className="flex flex-row gap-2">
               <p>#&nbsp;{proposal?.id.toString()}</p>
+
               <span className="badge badge-lg items-center shadow-lg justify-center badge-primary">
-                {proposal?.status !==
-                ("PROPOSAL_STATUS_SUBMITTED" as unknown as ProposalStatus)
-                  ? executorResultMapping[
-                      proposal?.executor_result as unknown as keyof typeof executorResultMapping
-                    ]
-                  : "active"}
+                {getStatusLabel(proposal)}
               </span>
             </div>
             {userHasVoted && (
@@ -390,54 +417,7 @@ function VoteDetailsModal({
 
           <div className="mb-4 hidden md:block w-full">
             <p className="text-xs font-light mt-4 ">VOTING COUNTDOWN</p>
-            <div className="grid grid-flow-col gap-5 mt-2 text-center auto-cols-max">
-              <div className="flex flex-col">
-                <span className="countdown  text-xl">
-                  <span
-                    style={
-                      { "--value": countdownValues.days } as React.CSSProperties
-                    }
-                  ></span>
-                </span>
-                days
-              </div>
-              <div className="flex flex-col ">
-                <span className="countdown  text-xl">
-                  <span
-                    style={
-                      {
-                        "--value": countdownValues.hours,
-                      } as React.CSSProperties
-                    }
-                  ></span>
-                </span>
-                hours
-              </div>
-              <div className="flex flex-col">
-                <span className="countdown  text-xl">
-                  <span
-                    style={
-                      {
-                        "--value": countdownValues.minutes,
-                      } as React.CSSProperties
-                    }
-                  ></span>
-                </span>
-                min
-              </div>
-              <div className="flex flex-col">
-                <span className="countdown  text-xl">
-                  <span
-                    style={
-                      {
-                        "--value": countdownValues.seconds,
-                      } as React.CSSProperties
-                    }
-                  ></span>
-                </span>
-                sec
-              </div>
-            </div>
+            <CountdownTimer endTime={new Date(proposal?.voting_period_end)} />
           </div>
         </div>
         <div className="divider divider-horizontal"></div>
@@ -485,61 +465,14 @@ function VoteDetailsModal({
             </table>
             <div className="mb-4 mt-8 md:hidden block ">
               <p className="text-xs font-light mt-4 ">VOTING COUNTDOWN</p>
-              <div className="grid grid-flow-col md:hidden gap-5 mt-2 text-center auto-cols-max">
-                <div className="flex flex-col">
-                  <span className="countdown  text-xl">
-                    <span
-                      style={
-                        {
-                          "--value": countdownValues.days,
-                        } as React.CSSProperties
-                      }
-                    ></span>
-                  </span>
-                  days
-                </div>
-                <div className="flex flex-col">
-                  <span className="countdown  text-xl">
-                    <span
-                      style={
-                        {
-                          "--value": countdownValues.hours,
-                        } as React.CSSProperties
-                      }
-                    ></span>
-                  </span>
-                  hours
-                </div>
-                <div className="flex flex-col">
-                  <span className="countdown  text-xl">
-                    <span
-                      style={
-                        {
-                          "--value": countdownValues.minutes,
-                        } as React.CSSProperties
-                      }
-                    ></span>
-                  </span>
-                  min
-                </div>
-                <div className="flex flex-col">
-                  <span className="countdown  text-xl">
-                    <span
-                      style={
-                        {
-                          "--value": countdownValues.seconds,
-                        } as React.CSSProperties
-                      }
-                    ></span>
-                  </span>
-                  sec
-                </div>
-              </div>
+              <CountdownTimer endTime={new Date(proposal?.voting_period_end)} />
             </div>
           </div>
           {proposal.executor_result ===
             ("PROPOSAL_EXECUTOR_RESULT_NOT_RUN" as unknown as ProposalExecutorResult) &&
-            proposalClosed && (
+            proposalClosed &&
+            proposal.status !==
+              ("PROPOSAL_STATUS_REJECTED" as unknown as ProposalStatus) && (
               <button
                 className="btn w-full btn-primary ml-auto mt-4"
                 disabled={address !== admin}
@@ -548,6 +481,18 @@ function VoteDetailsModal({
                 Execute
               </button>
             )}
+          {(proposal.status ===
+            ("PROPOSAL_STATUS_REJECTED" as unknown as ProposalStatus) ||
+            proposal.executor_result ===
+              ("PROPOSAL_EXECUTOR_RESULT_FAILURE" as unknown as ProposalExecutorResult)) && (
+            <button
+              className="btn w-full btn-primary ml-auto mt-4"
+              disabled={address !== admin}
+              onClick={executeWithdrawl}
+            >
+              Remove
+            </button>
+          )}
           {isGridVisible && (
             <VotingPopup
               proposalId={proposal.id}

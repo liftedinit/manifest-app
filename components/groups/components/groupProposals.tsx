@@ -13,6 +13,7 @@ import {
   MemberSDKType,
   ProposalExecutorResult,
   ProposalSDKType,
+  ProposalStatus,
 } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types";
 import Link from "next/link";
 import { truncateString } from "@/utils";
@@ -71,6 +72,8 @@ export default function ProposalsForPolicy({
 
   const { proposals, isProposalsLoading, isProposalsError, refetchProposals } =
     useProposalsByPolicyAccount(policyAddress ?? "");
+
+  console.log("proposals", proposals);
 
   const members =
     groupByMemberData?.groups.filter(
@@ -189,7 +192,7 @@ export default function ProposalsForPolicy({
                             let timeLeft: string;
 
                             if (diff <= 0) {
-                              timeLeft = "Execute";
+                              timeLeft = "none";
                             } else if (diff >= msPerDay) {
                               const days = Math.floor(diff / msPerDay);
                               timeLeft = `${days} day${days === 1 ? "" : "s"}`;
@@ -225,7 +228,7 @@ export default function ProposalsForPolicy({
                                   {diff <= 0 &&
                                   proposal.executor_result ===
                                     ("PROPOSAL_EXECUTOR_RESULT_NOT_RUN" as unknown as ProposalExecutorResult)
-                                    ? "Execute"
+                                    ? "none"
                                     : timeLeft}
                                 </td>
                                 <td className="w-1/6">
@@ -235,7 +238,24 @@ export default function ProposalsForPolicy({
                                   )}
                                 </td>
                                 <td className="w-1/6">
-                                  {isPassing ? "Passing" : "Failing"}
+                                  {isPassing &&
+                                  diff > 0 &&
+                                  proposal.executor_result ===
+                                    ("PROPOSAL_EXECUTOR_RESULT_NOT_RUN" as unknown as ProposalExecutorResult)
+                                    ? "Passing"
+                                    : isPassing &&
+                                      diff <= 0 &&
+                                      proposal.executor_result ===
+                                        ("PROPOSAL_EXECUTOR_RESULT_NOT_RUN" as unknown as ProposalExecutorResult)
+                                    ? "Passed"
+                                    : (diff > 0 &&
+                                        proposal.executor_result ===
+                                          ("PROPOSAL_EXECUTOR_RESULT_FAILURE" as unknown as ProposalExecutorResult)) ||
+                                      (diff > 0 &&
+                                        proposal.status ===
+                                          ("PROPOSAL_STATUS_REJECTED" as unknown as ProposalStatus))
+                                    ? "Failing"
+                                    : "Failed"}
                                 </td>
                                 <Modal
                                   admin={admin}

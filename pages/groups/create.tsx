@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useReducer } from "react";
-import { formDataReducer, FormData, Action } from "@/helpers/formReducer";
+import { formDataReducer, FormData } from "@/helpers/formReducer";
 import ConfirmationForm from "@/components/groups/forms/groups/ConfirmationForm";
 import GroupDetails from "@/components/groups/forms/groups/GroupDetailsForm";
 import GroupPolicyForm from "@/components/groups/forms/groups/GroupPolicyForm";
@@ -54,7 +54,6 @@ export default function CreateGroup() {
     setTimeout(callback, 200);
   };
 
-  console.log(formData);
   return (
     <div
       className={`flex justify-center items-center min-h-screen ${animation}`}
