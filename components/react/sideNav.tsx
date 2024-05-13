@@ -60,12 +60,12 @@ export default function SideNav() {
   };
 
   const SideNav: React.FC = () => (
-    <div className="overflow-y-auto z-30 py-5 px-3 w-20 bg-base-200 border-r border-primary mx-auto justify-center align-middle h-full transition-transform duration-300 ease-in-out items-center ">
+    <div className="overflow-y-auto z-30 py-5 px-3 w-20 bg-base-100 border-r border-primary mx-auto justify-center align-middle h-full transition-transform duration-300 ease-in-out items-center ">
       <Link href={"/#"} passHref legacyBehavior>
         <a href="#">
           <Image
-            src={"/darkLogo.png"}
-            className=" h-12 w-12 mx-auto rounded-full"
+            src={"/tli_logo.svg"}
+            className=" h-12 w-12 mx-auto"
             alt="Logo"
             height={264}
             width={264}
@@ -117,19 +117,19 @@ export default function SideNav() {
   const SideDrawer: React.FC = () => (
     <div
       id="secondary-sidenav"
-      className="overflow-y-auto relative py-5 px-3 w-64 h-full  border-primary bg-base-200 transition-transform duration-300 ease-in-out"
+      className="overflow-y-auto relative py-5 px-3 w-64 h-full  border-primary bg-base-100 transition-transform duration-300 ease-in-out"
     >
       <div className="flex ml-6 items-center row-span-1 mt-2">
-        <h1 className="mb-4 text-xl font-extrabold tracking-tight leading-none md:text-xl xl:text-xl bg-clip-text text-transparent bg-gradient-to-r from-black to-mint-light dark:from-white dark:to-mint-light">
+        <div className=" -mt-4 mr-6 w-10 h-10">
+          <img src={"/tli_logo.svg"} alt="mockup"/>
+        </div>
+        <h1 className="mb-4 text-xl font-extrabold tracking-tight leading-none md:text-xl xl:text-xl">
           Alberto
         </h1>
-        <div className=" -mt-4 ml-6 w-10 h-10">
-          <img src={"/darkLogo.png"} alt="mockup" />
-        </div>
       </div>
       <ul className="space-y-6 mt-4">
-        <NavDrawer label="Bank" />
-        <NavDrawer label="Groups" />
+        <NavDrawer label="Bank"/>
+        <NavDrawer label="Groups"/>
         <NavDrawer label="Admins" />
         <NavDrawer label="Factory" />
         <NavDrawer label="Governance" />

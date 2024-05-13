@@ -44,7 +44,6 @@ export default function Home() {
     useProposalsByPolicyAccountAll(groupPolicyAddresses ?? []);
 
   return (
-    <>
       <div className="max-w-5xl relative py-[2rem] mx-auto lg:mx-auto ">
         <Head>
           <title>Groups</title>
@@ -68,7 +67,7 @@ export default function Home() {
             </Link>
           )}
         </div>
-        <div className="mt-6 p-4 gap-4 flex flex-col  lg:flex-row md:flex-col sm:flex-col xs:flex-col rounded-md bg-base-200/20 blur-40 shadow-lg transition-opacity duration-300 ease-in-out animate-fadeIn">
+        <div className="mt-6 p-4 gap-4 flex flex-col  lg:flex-row md:flex-col sm:flex-col xs:flex-col">
           {!isWalletConnected && (
             <section className=" transition-opacity duration-300 ease-in-out animate-fadeIn">
               <div className="grid max-w-screen-xl bg-base-100 p-12 rounded-md border-r-base-300 border-r-8 border-b-8 border-b-base-300 mx-auto lg:gap-8 xl:gap-0  lg:grid-cols-12">
@@ -161,6 +160,5 @@ export default function Home() {
             )}
         </div>
       </div>
-    </>
   );
 }

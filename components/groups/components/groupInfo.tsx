@@ -35,7 +35,7 @@ export function Proposals({
   const { balance } = useBalance(group?.policies[0]?.address);
 
   return (
-    <div className="flex flex-col max-h-[23rem] relative shadow  min-h-[23rem] rounded-md bg-base-100 border-r-4 border-r-base-300 border-b-4 border-b-base-300 w-full p-4">
+    <div className="flex flex-col max-h-[23rem] relative shadow  min-h-[23rem] rounded-md bg-base-100 w-full p-4">
       <div className="w-full  rounded-md ">
         <div className="px-4 py-2 justify-between items-center border-b border-base-content">
           <div className="flex flex-row w-full justify-between items-center">
@@ -71,7 +71,7 @@ export function Proposals({
 
             <div className="flex  gap-4 px-4   flex-row   py-4 rounded-md  ">
               <div className="flex flex-col   w-1/2 ">
-                <div className="flex flex-col gap-2 bg-base-300 p-4 rounded-md border-r-base-200 border-b-base-200 border-r-4 border-b-4 justify-left mb-6 items-left">
+                <div className="flex flex-col gap-2 bg-base-300 p-4 rounded-md justify-left mb-6 items-left">
                   <span className="text-sm  capitalize text-gray-400 truncate">
                     AUTHORS
                   </span>
@@ -80,7 +80,7 @@ export function Proposals({
                   </span>
                 </div>
 
-                <div className="flex flex-col gap-2 bg-base-300 p-4 rounded-md border-r-base-200 border-b-base-200 border-r-4 border-b-4  justify-left items-left">
+                <div className="flex flex-col gap-2 bg-base-300 p-4 rounded-md  justify-left items-left">
                   <span className="text-sm  capitalize text-gray-400 md:block hidden">
                     POLICY BALANCE
                   </span>
@@ -99,7 +99,7 @@ export function Proposals({
                 </div>
               </div>
               <div className="flex flex-col   w-1/2 ">
-                <div className="flex flex-col bg-base-300 p-4 rounded-md border-r-base-200 border-b-base-200 border-r-4 border-b-4  gap-2 justify-left mb-6 items-left">
+                <div className="flex flex-col bg-base-300 p-4 rounded-md  gap-2 justify-left mb-6 items-left">
                   <span className="text-sm  capitalize text-gray-400 truncate">
                     POLICY ADDRESS
                   </span>
@@ -110,7 +110,7 @@ export function Proposals({
                     />
                   </p>
                 </div>
-                <div className="flex flex-col bg-base-300 p-4 rounded-md border-r-base-200 border-b-base-200 border-r-4 border-b-4  gap-2 justify-left items-left">
+                <div className="flex flex-col bg-base-300 p-4 rounded-md  gap-2 justify-left items-left">
                   <span className="text-sm  capitalize text-gray-400">
                     THRESHOLD
                   </span>
