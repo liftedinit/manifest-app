@@ -77,7 +77,7 @@ export default function SideNav() {
         <NavItem Icon={PiUsersFourThin} href="/groups" />
         <NavItem Icon={PiChalkboardTeacherThin} href="/admins" />
         <NavItem Icon={PiFactoryThin} href="/factory" />
-        <NavItem Icon={PiBankThin} href="/governance" />
+        {/* <NavItem Icon={PiBankThin} href="/governance" /> */}
       </ul>
       <div className="bottom-6 justify-center absolute space-y-4 p-3 mx-auto items-center">
         <div className="w-full mx-auto flex flex-col items-center justify-center">
@@ -128,7 +128,7 @@ export default function SideNav() {
         <NavDrawer label="Groups" />
         <NavDrawer label="Admins" />
         <NavDrawer label="Factory" />
-        <NavDrawer label="Governance" />
+        {/* <NavDrawer label="Governance" /> */}
       </ul>
       <div className="divider divider-horizontal"></div>
       <ul className="pt-5 mt-5 space-y-2 ">

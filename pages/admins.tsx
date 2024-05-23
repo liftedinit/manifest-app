@@ -1,20 +1,95 @@
+import { WalletSection } from "@/components";
+
+import { useChain } from "@cosmos-kit/react";
+
 import Head from "next/head";
+import Link from "next/link";
+import React from "react";
+import { useState } from "react";
+import { chainName } from "../../config";
 
 export default function Home() {
+  const { address, isWalletConnected } = useChain("manifest");
+
   return (
     <>
-      <div className="max-w-5xl py-10 mx-6 lg:mx-auto">
+      <div className="max-w-5xl relative py-[2rem] mx-auto lg:mx-auto ">
         <Head>
-          <title>Cosmos Web App Template</title>
-          <meta name="description" content="cosmos web app" />
+          <title>Admins</title>
+          <meta name="description" content="Interact with the PoA module" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
-        <div className="flex flex-row justify-end mb-4"></div>
-        <div className="text-center">
-          <h1 className="mb-3 mt-32 text-3xl font-bold sm:text-4xl md:text-5xl">
-            Cosmos Web App Template
-          </h1>
-          <div className="skeleton h-4 w-12"></div>
+        <div className="-ml-4 -mt-2 flex items-center justify-between sm:flex-nowrap">
+          <div className="ml-4 mt-2">
+            <h3 className="tracking-tight leading-none text-4xl xl:text-4xl md:block hidden">
+              admins
+            </h3>
+            <h3 className="tracking-tight px-4 leading-none text-4xl xl:text-4xl md:hidden block">
+              admins
+            </h3>
+          </div>
+        </div>
+        <div className="mt-6 p-4 gap-4 flex flex-col  lg:flex-row md:flex-col sm:flex-col xs:flex-col rounded-md bg-base-200/20 blur-40 shadow-lg transition-opacity duration-300 ease-in-out animate-fadeIn">
+          {!isWalletConnected && (
+            <section className=" transition-opacity duration-300 ease-in-out animate-fadeIn">
+              <div className="grid max-w-screen-xl bg-base-100 p-12 rounded-md  mx-auto lg:gap-8 xl:gap-0  lg:grid-cols-12">
+                <div className="mr-auto place-self-center lg:col-span-7">
+                  <h1 className="max-w-2xl mb-4 text-2xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl ">
+                    Connect your wallet!
+                  </h1>
+                  <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl t">
+                    Use the button below to connect your wallet and start
+                    changing parameters as an admin.
+                  </p>
+                  <WalletSection chainName="manifest" />
+                </div>
+                <div className="hidden lg:mt-0 lg:col-span-5 lg:flex">
+                  <img src="/groups.svg" alt="groups" />
+                </div>
+              </div>
+            </section>
+          )}
+          {/* {!isGroupByMemberLoading && groupByMemberData.groups.length === 0 && (
+            <section className=" transition-opacity duration-300 ease-in-out animate-fadeIn">
+              <div className="grid max-w-screen-xl bg-base-100 p-12 rounded-md border-r-base-300 border-r-8 border-b-8 border-b-base-300 mx-auto lg:gap-8 xl:gap-0  lg:grid-cols-12">
+                <div className="mr-auto place-self-center lg:col-span-7">
+                  <h1 className="max-w-2xl mb-4 text-2xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl ">
+                    On chain governance for collobrative decision making
+                  </h1>
+                  <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl t">
+                    Groups are sets of members who can submit and vote on
+                    proposals together. Proposals are composed of any message
+                    type. Create your first group and get started.
+                  </p>
+                  <Link href="/groups/create" passHref>
+                    <button className="mt-6 btn btn-primary btn-lg inline-flex items-center">
+                      Create A Group
+                    </button>
+                  </Link>
+                </div>
+                <div className="hidden lg:mt-0 lg:col-span-5 lg:flex">
+                  <img src="/groups.svg" alt="groups" />
+                </div>
+              </div>
+            </section>
+          )} */}
+          {/* {isGroupByMemberLoading && isWalletConnected && (
+            <div className="flex flex-col gap-4 w-full  mx-auto justify-center  items-center transition-opacity duration-300 ease-in-out animate-fadeIn">
+              <div className="flex flex-row w-full h-[46rem]  gap-4 ">
+                <div className="skeleton h-full w-1/3"></div>
+                <div className="skeleton h-full w-2/3"></div>
+              </div>
+              <div className="skeleton h-full w-full"></div>
+            </div>
+          )} */}
+
+          <div className="flex flex-col w-full">
+            <div className=" flex flex-col md:flex-row sm:flex-col xs:flex-col w-full gap-4 transition-opacity duration-300 ease-in-out animate-fadeIn">
+              <div className="flex flex-col justify-start items-center lg:w-1/3 md:w-full"></div>
+
+              <div className="flex flex-col justify-start gap-4 items-start  lg:w-2/3 md:w-full"></div>
+            </div>
+          </div>
         </div>
       </div>
     </>
