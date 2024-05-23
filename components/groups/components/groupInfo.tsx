@@ -37,7 +37,7 @@ export function Proposals({
   return (
     <div className="flex flex-col max-h-[23rem] relative shadow  min-h-[23rem] rounded-md bg-base-100  w-full p-4">
       <div className="w-full  rounded-md ">
-        <div className="px-4 py-2 justify-between items-center border-b border-base-content">
+        <div className="px-4 py-2 justify-between items-center border-base-content">
           <div className="flex flex-row w-full justify-between items-center">
             <h3 className="text-lg font-bold leading-6">info</h3>
             <button
@@ -52,15 +52,16 @@ export function Proposals({
               update
             </button>
           </div>
+          <div className="divider divider-horizon -mt-0"></div>
         </div>
         {!group && (
-          <div className="p-4 mt-6 py-24 underline  text-center">
+          <div className="p-4 py-24 -mt-4 underline  text-center">
             <p>No group Selected</p>
           </div>
         )}
         {group && (
           <div className="flex flex-col">
-            <div className="flex flex-col  gap-2 justify-left px-4 mb-2 mt-6 rounded-md   items-left">
+            <div className="flex flex-col  gap-2 justify-left px-4 mb-2 -mt-4 rounded-md   items-left">
               <span className="text-sm leading-3 capitalize text-gray-400">
                 TITLE
               </span>

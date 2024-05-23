@@ -123,7 +123,7 @@ export default function ProposalsForPolicy({
       <div className="flex flex-col  max-w-5xl mx-auto w-full  ">
         <div className="  rounded-md   w-full mt-4 justify-center  shadow  bg-base-200 items-center mx-auto transition-opacity duration-300 ease-in-out animate-fadeIn">
           <div className="rounded-md px-4 py-2 bg-base-100   max-h-[23rem]  min-h-[23rem]  ">
-            <div className="px-4 py-2 border-b flex flex-row justify-between items-center border-base-content">
+            <div className="px-4 py-2  flex flex-row justify-between items-center border-base-content">
               <h3 className="text-lg font-bold leading-6">proposals</h3>
 
               <Link href={`/groups/submit-proposal/${policyAddress}`} passHref>
@@ -135,6 +135,7 @@ export default function ProposalsForPolicy({
                 </button>
               </Link>
             </div>
+            <div className="divider divider-horizon -mt-2"></div>
             {isProposalsLoading ? (
               <div className="flex px-4 flex-col gap-4 w-full mx-auto justify-center mt-6 mb-[2.05rem]  items-center transition-opacity duration-300 ease-in-out animate-fadeIn">
                 <div className="skeleton h-4 w-full "></div>

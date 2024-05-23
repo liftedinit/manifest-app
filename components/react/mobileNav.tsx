@@ -49,8 +49,8 @@ export default function MobileNav() {
 
   return (
     <>
-      <div className=" top-4 left-4 p-3 bg-secondary/50 flex flex-row justify-between items-center  md:hidden ">
-        <Image src="/darkLogo.png" height={38} width={38} alt="manifest" />
+      <div className=" top-4 left-4 p-3 bg-base-300 flex flex-row justify-between items-center  md:hidden ">
+        <Image src="/logo.svg" height={38} width={38} alt="manifest" />
         <label
           htmlFor="my-drawer"
           className="btn btn-sm btn-primary drawer-button"

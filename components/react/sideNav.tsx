@@ -117,16 +117,12 @@ export default function SideNav() {
   const SideDrawer: React.FC = () => (
     <div
       id="secondary-sidenav"
-      className="overflow-y-auto relative py-5 px-3 w-64 h-full  border-primary bg-base-200 transition-transform duration-300 ease-in-out"
+      className="overflow-y-auto relative py-5 px-3 w-64 h-full  border-primary bg-base-300 border-r-primary border-r transition-transform duration-300 ease-in-out"
     >
-      <div className="flex ml-6 items-center row-span-1 mt-2">
-        <h1 className="mb-4 text-xl font-extrabold tracking-tight leading-none md:text-xl xl:text-xl bg-clip-text text-transparent bg-gradient-to-r from-black to-mint-light dark:from-white dark:to-mint-light">
-          Alberto
-        </h1>
-        <div className=" -mt-4 ml-6 w-10 h-10">
-          <img src={"/logo.svg"} alt="logo" />
-        </div>
+      <div className="flex ml-6 items-center flex-start row-span-1 mt-2">
+        <img src={"/logo.svg"} alt="logo" width={42} height={42} />
       </div>
+      <div className="divider divider-horizon"></div>
       <ul className="space-y-6 mt-4">
         <NavDrawer label="Bank" />
         <NavDrawer label="Groups" />
@@ -134,13 +130,9 @@ export default function SideNav() {
         <NavDrawer label="Factory" />
         <NavDrawer label="Governance" />
       </ul>
-      <ul className="pt-5 mt-5 space-y-2 border-t border-mint-100 dark:border-mint-400">
-        <NavDrawer label="Docs" />
-        <NavDrawer label="Components" />
-        <NavDrawer label="Help" />
-      </ul>
-      <ul className="pt-5 mt-5 space-y-2 border-t border-mint-100 dark:border-mint-400">
-        <div className="flex flex-col justify-center items-center h-full">
+      <div className="divider divider-horizontal"></div>
+      <ul className="pt-5 mt-5 space-y-2 ">
+        <div className="mx-auto w-full justify-center items-center h-full">
           <WalletSection chainName="manifest" />
         </div>
       </ul>
