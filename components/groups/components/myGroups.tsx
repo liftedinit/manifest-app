@@ -42,7 +42,7 @@ export function YourGroups({
   );
 
   return (
-    <div className="flex flex-col rounded-md max-h-[23rem]  min-h-[23rem] bg-base-100 border-r-4 border-r-base-300 border-b-4 border-b-base-300 shadow w-full p-4">
+    <div className="flex flex-col rounded-md max-h-[23rem]  min-h-[23rem] bg-base-100  shadow w-full p-4">
       <div className="w-full rounded-md ">
         <div className="px-4 py-2 border-b border-base-content">
           <h3 className="text-lg font-bold leading-6">my groups</h3>

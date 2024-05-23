@@ -147,10 +147,10 @@ module.exports = {
             50: "#004637",
           },
         },
-        backgroundImage: (theme) => ({
-          "gradient-to-r":
-            "linear-gradient(to right, var(--tw-gradient-stops))",
-        }),
+        // backgroundImage: (theme) => ({
+        //   "gradient-to-r":
+        //     "linear-gradient(to right, var(--tw-gradient-stops))",
+        // }),
       },
     },
   },
@@ -171,24 +171,24 @@ module.exports = {
     themes: [
       {
         light: {
-          primary: "#8DDFD4",
-          "primary-shadow": "#446c67DDFD4",
-
-          "primary-focus": "#dd9c80",
+          primary: "#38C7B4",
           "primary-content": "#ffffff",
+
           secondary: "#ab7781",
-          "secondary-focus": "#8a4325",
           "secondary-content": "#ffffff",
-          accent: "#684e84",
-          "accent-focus": "#54cfbf",
+
+          accent: "#38c7b4",
           "accent-content": "#ffffff",
-          neutral: "#452E33",
-          "neutral-focus": "#322622",
-          "neutral-content": "#ffffff",
-          "base-100": "#faf0ea",
-          "base-200": "#f8e9e0",
-          "base-300": "#efded5",
+
+          neutral: "#FAF0EA",
+          "neutral-content": "#452E33",
+
+          "base-100": "#ffffff",
+          "base-200": "#f7fafc",
+          "base-300": "#edf2f7",
+          "base-400": "#e2e8f0",
           "base-content": "#452E33",
+
           info: "#2094f3",
           success: "#009485",
           warning: "#ff9900",
@@ -198,22 +198,22 @@ module.exports = {
       {
         dark: {
           primary: "#4b7f7b",
-          "primary-shadow": "#263c3add",
-          "primary-focus": "#22444B",
           "primary-content": "#ffffff",
+
           secondary: "#79495a",
-          "secondary-focus": "#753B35",
           "secondary-content": "#ffffff",
-          accent: "#684e84",
-          "accent-focus": "#1A656D",
+
+          accent: "#4b7f7b",
           "accent-content": "#ffffff",
-          neutral: "#E0D1D4",
-          "neutral-focus": "#DDD4D0",
-          "neutral-content": "#452E33",
+
+          neutral: "#452e33",
+          "neutral-content": "#faf0ea",
+
           "base-100": "#2B2B2B",
           "base-200": "#252525",
           "base-300": "#202020",
-          "base-content": "#E0D1D4",
+          "base-content": "#faf0ea",
+
           info: "#3DA7DB",
           success: "#23C4A9",
           warning: "#E0A455",

@@ -252,7 +252,7 @@ function Template({ Component, pageProps }: AppProps) {
           <ReactQueryDevtools initialIsOpen={false} />
           <SideNav />
           <MobileNav />
-          <div className="min-h-screen max-w-screen md:ml-20 sm:px-4 sm:py-2 bg-gradient-to-r from-base-100 from-10% via-20% to-40% via-base-200 to-base-300">
+          <div className="min-h-screen max-w-screen md:ml-20 sm:px-4 sm:py-2 bg-base-200 ">
             <Component {...pageProps} />
             <SignModal
               visible={web3AuthPrompt !== undefined}

@@ -60,12 +60,12 @@ export default function SideNav() {
   };
 
   const SideNav: React.FC = () => (
-    <div className="overflow-y-auto z-30 py-5 px-3 w-20 bg-base-200 border-r border-primary mx-auto justify-center align-middle h-full transition-transform duration-300 ease-in-out items-center ">
+    <div className="overflow-y-auto z-30 py-5 px-3 w-20 bg-base-300 border-r border-primary mx-auto justify-center align-middle h-full transition-transform duration-300 ease-in-out items-center ">
       <Link href={"/#"} passHref legacyBehavior>
         <a href="#">
           <Image
-            src={"/darkLogo.png"}
-            className=" h-12 w-12 mx-auto rounded-full"
+            src={"/logo.svg"}
+            className=" h-12 w-12 mx-auto "
             alt="Logo"
             height={264}
             width={264}
@@ -124,7 +124,7 @@ export default function SideNav() {
           Alberto
         </h1>
         <div className=" -mt-4 ml-6 w-10 h-10">
-          <img src={"/darkLogo.png"} alt="mockup" />
+          <img src={"/logo.svg"} alt="logo" />
         </div>
       </div>
       <ul className="space-y-6 mt-4">

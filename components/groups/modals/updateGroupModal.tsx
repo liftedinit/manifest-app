@@ -294,7 +294,7 @@ export function UpdateGroupModal({
         <h3 className="text-lg font-semibold ">Update Group</h3>
         <div className="divider divider-horizon "></div>
         <div className="md:flex sm:grid sm:grid-cols-1 md:flex-row justify-start items-center gap-4">
-          <div className="relative bg-base-300 rounded-md border-r-base-200 border-b-base-200 border-r-4 border-b-4  p-4 sm:w-full md:w-1/2 max-w-6xl h-1/2">
+          <div className="relative bg-base-300 rounded-md  p-4 sm:w-full md:w-1/2 max-w-6xl h-1/2">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <div className="flex flex-row mb-2 gap-2 items-center">
@@ -435,7 +435,7 @@ export function UpdateGroupModal({
               </div>
             </div>
           </div>
-          <div className="relative p-4 bg-base-300 rounded-md border-r-base-200 border-b-base-200 border-r-4 border-b-4 sm:w-full md:w-1/2 max-w-6xl md:h-[476.5px] ">
+          <div className="relative p-4 bg-base-300 rounded-md sm:w-full md:w-1/2 max-w-6xl md:h-[476.5px] ">
             <div className="flex flex-row justify-between items-center mb-2 -mt-1">
               <label className="text-sm font-medium ">Members</label>
               <button
@@ -457,7 +457,7 @@ export function UpdateGroupModal({
                       ? "border-r-primary border-b-primary border-t-transparent border-l-transparent"
                       : member.isPolicyAdmin
                       ? "border-l-secondary border-t-secondary border-r-base-100 border-b-base-100 "
-                      : "border-r-base-100 border-b-base-100 border-t-transparent border-l-transparent"
+                      : "border-r-transparent border-b-transparent border-t-transparent border-l-transparent"
                   } transition-all duration-200 max-h-[12.4rem] ${
                     !member.isActive ? "bg-base-100" : "bg-base-200"
                   }  `}
