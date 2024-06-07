@@ -39,7 +39,7 @@ export function Proposals({
       <div className="w-full  rounded-md ">
         <div className="px-4 py-2 justify-between items-center border-base-content">
           <div className="flex flex-row w-full justify-between items-center">
-            <h3 className="text-lg font-bold leading-6">info</h3>
+            <h3 className="text-lg font-bold leading-6">Info</h3>
             <button
               onClick={() => {
                 const modal = document.getElementById(
@@ -49,7 +49,7 @@ export function Proposals({
               }}
               className="btn-xs btn btn-primary "
             >
-              update
+              Update
             </button>
           </div>
           <div className="divider divider-horizon -mt-0"></div>

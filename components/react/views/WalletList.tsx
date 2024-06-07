@@ -36,7 +36,7 @@ export const WalletList = ({
   return (
     <div className="mt-2 text-center sm:mt-0.5 sm:text-left">
       <div className="flex flex-row items-center mb-6 justify-between border-b-2 border-b-base-100 pl-3 pr-3">
-        <Dialog.Title as="h3" className="font-medium leading-6">
+        <Dialog.Title as="h1" className="text-2xl leading-6">
           Connect with...
         </Dialog.Title>
         <button type="button" className="p-2 rounded-full" onClick={onClose}>

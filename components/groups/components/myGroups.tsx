@@ -45,7 +45,7 @@ export function YourGroups({
     <div className="flex flex-col rounded-md max-h-[23rem]  min-h-[23rem] bg-base-100  shadow w-full p-4">
       <div className="w-full rounded-md ">
         <div className="px-4 py-2 border-base-content">
-          <h3 className="text-lg font-bold leading-6">my groups</h3>
+          <h3 className="text-lg font-bold leading-6">My Groups</h3>
         </div>
         <div className="divider divider-horizon -mt-2"></div>
         <div className="overflow-y-auto max-h-[17rem] -mt-4  mb-2 gap-4">

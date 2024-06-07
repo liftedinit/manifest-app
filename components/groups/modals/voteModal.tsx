@@ -6,9 +6,11 @@ import React from "react";
 function VotingPopup({
   proposalId,
   isGridVisible,
+  refetch,
 }: {
   proposalId: bigint;
   isGridVisible: boolean;
+  refetch: () => void;
 }) {
   const { tx, Toast, toastMessage, setToastMessage } = useTx("manifest");
   const { address } = useChain("manifest");
@@ -36,7 +38,9 @@ function VotingPopup({
     try {
       await tx([msg], {
         fee,
-        onSuccess: () => {},
+        onSuccess: () => {
+          refetch()
+        },
       });
     } catch (error) {
       console.error("Failed to vote: ", error);

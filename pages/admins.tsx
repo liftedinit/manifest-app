@@ -1,11 +1,12 @@
 import { WalletSection } from "@/components";
 
 import { useChain } from "@cosmos-kit/react";
-
+import ValidatorList from "@/components/admins/components/validatorList";
 import Head from "next/head";
 import Link from "next/link";
 import React from "react";
 import { useState } from "react";
+import { PiChalkboardTeacherDuotone } from "react-icons/pi";
 import { chainName } from "../../config";
 
 export default function Home() {
@@ -22,17 +23,17 @@ export default function Home() {
         <div className="-ml-4 -mt-2 flex items-center justify-between sm:flex-nowrap">
           <div className="ml-4 mt-2">
             <h3 className="tracking-tight leading-none text-4xl xl:text-4xl md:block hidden">
-              admins
+              Admins
             </h3>
             <h3 className="tracking-tight px-4 leading-none text-4xl xl:text-4xl md:hidden block">
-              admins
+              Admins
             </h3>
           </div>
         </div>
         <div className="mt-6 p-4 gap-4 flex flex-col  lg:flex-row md:flex-col sm:flex-col xs:flex-col rounded-md bg-base-200/20 blur-40 shadow-lg transition-opacity duration-300 ease-in-out animate-fadeIn">
           {!isWalletConnected && (
             <section className=" transition-opacity duration-300 ease-in-out animate-fadeIn">
-              <div className="grid max-w-screen-xl bg-base-100 p-12 rounded-md  mx-auto lg:gap-8 xl:gap-0  lg:grid-cols-12">
+              <div className="grid max-w-screen-xl bg-base-100 p-12 rounded-md w-full  mx-auto lg:gap-8 xl:gap-0  lg:grid-cols-12">
                 <div className="mr-auto place-self-center lg:col-span-7">
                   <h1 className="max-w-2xl mb-4 text-2xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl ">
                     Connect your wallet!
@@ -43,8 +44,8 @@ export default function Home() {
                   </p>
                   <WalletSection chainName="manifest" />
                 </div>
-                <div className="hidden lg:mt-0 lg:col-span-5 lg:flex">
-                  <img src="/groups.svg" alt="groups" />
+                <div className="hidden lg:mt-0 lg:ml-24 lg:col-span-5 lg:flex">
+                  <img src="/admin.svg" alt="groups" className=" h-60 w-60" />
                 </div>
               </div>
             </section>
@@ -82,14 +83,15 @@ export default function Home() {
               <div className="skeleton h-full w-full"></div>
             </div>
           )} */}
-
-          <div className="flex flex-col w-full">
-            <div className=" flex flex-col md:flex-row sm:flex-col xs:flex-col w-full gap-4 transition-opacity duration-300 ease-in-out animate-fadeIn">
-              <div className="flex flex-col justify-start items-center lg:w-1/3 md:w-full"></div>
-
-              <div className="flex flex-col justify-start gap-4 items-start  lg:w-2/3 md:w-full"></div>
+          {isWalletConnected && (
+            <div className="flex flex-col w-full">
+              <div className=" flex flex-col md:flex-row sm:flex-col xs:flex-col w-full gap-4 transition-opacity duration-300 ease-in-out animate-fadeIn">
+                <div className="flex flex-col gap-4 justify-between items-center">
+                  <ValidatorList />
+                </div>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </>

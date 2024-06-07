@@ -249,7 +249,6 @@ function Template({ Component, pageProps }: AppProps) {
         walletModal={TailwindModal}
       >
         <ThemeProvider>
-          <ReactQueryDevtools initialIsOpen={false} />
           <SideNav />
           <MobileNav />
           <div className="min-h-screen max-w-screen md:ml-20 sm:px-4 sm:py-2 bg-base-200 ">

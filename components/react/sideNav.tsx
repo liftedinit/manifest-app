@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  PiBankThin,
   PiUsersFourThin,
   PiFactoryThin,
   PiChalkboardTeacherThin,
@@ -103,31 +102,38 @@ export default function SideNav() {
     </div>
   );
 
-  const NavDrawer: React.FC<{ label: string }> = ({ label }) => (
-    <li>
-      <button
-        type="button"
-        className="flex items-center p-2 w-full text-base font-normal ease-in-out  rounded-lg transition duration-220 group"
-      >
-        <span className="flex-1 ml-3 text-left whitespace-nowrap">{label}</span>
-      </button>
-    </li>
-  );
+  const NavDrawer: React.FC<{ Icon: React.ElementType; href: string }> = ({
+    Icon,
+    href,
+  }) => {
+    return (
+      <li>
+        <Link href={href} legacyBehavior>
+          <div className="flex flex-row cursor-pointer hover:text-primary justify-start gap-4 items-center transition-all duration-300 ease-in-out">
+            <Icon className="w-8 h-8" />
+            <span className="text-2xl">{href.slice(0, 12)}</span>
+          </div>
+        </Link>
+      </li>
+    );
+  };
 
   const SideDrawer: React.FC = () => (
     <div
       id="secondary-sidenav"
       className="overflow-y-auto relative py-5 px-3 w-64 h-full  border-primary bg-base-300 border-r-primary border-r transition-transform duration-300 ease-in-out"
     >
-      <div className="flex ml-6 items-center flex-start row-span-1 mt-2">
+      <div className="flex flex-row gap-4 items-center ">
         <img src={"/logo.svg"} alt="logo" width={42} height={42} />
+        <span className="text-2xl leadin-tight text-balance ">Alberto</span>
       </div>
+
       <div className="divider divider-horizon"></div>
       <ul className="space-y-6 mt-4">
-        <NavDrawer label="Bank" />
-        <NavDrawer label="Groups" />
-        <NavDrawer label="Admins" />
-        <NavDrawer label="Factory" />
+        <NavDrawer href="bank" Icon={PiCoinsThin} />
+        <NavDrawer href="groups" Icon={PiUsersFourThin} />
+        <NavDrawer href="admins" Icon={PiChalkboardTeacherThin} />
+        <NavDrawer href="factory" Icon={PiFactoryThin} />
         {/* <NavDrawer label="Governance" /> */}
       </ul>
       <div className="divider divider-horizontal"></div>

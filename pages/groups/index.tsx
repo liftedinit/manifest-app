@@ -54,16 +54,16 @@ export default function Home() {
         <div className="-ml-4 -mt-2 flex items-center justify-between sm:flex-nowrap">
           <div className="ml-4 mt-2">
             <h3 className="tracking-tight leading-none text-4xl xl:text-4xl md:block hidden">
-              groups
+              Groups
             </h3>
             <h3 className="tracking-tight px-4 leading-none text-4xl xl:text-4xl md:hidden block">
-              groups
+              Groups
             </h3>
           </div>
           {groupByMemberData?.groups?.length >= 1 && isWalletConnected && (
             <Link href="/groups/create" passHref>
               <button className="relative items-center btn btn-primary hidden md:inline-flex">
-                create new group
+                Create New Group
               </button>
             </Link>
           )}
@@ -153,7 +153,7 @@ export default function Home() {
                   isWalletConnected && (
                     <Link href="/groups/create" passHref>
                       <button className="relative items-center btn btn-primary block md:hidden w-full mt-6 mb-2">
-                        create new group
+                        Create New Group
                       </button>
                     </Link>
                   )}

@@ -69,9 +69,13 @@ export default function MobileNav() {
           ></label>
           <ul className="menu p-4 w-80 min-h-full bg-base-200 space-y-3 text-base-content">
             <div className="flex flex-row justify-between items-center">
-              <span className="text-2xl leadin-tight text-balance ">
-                Alberto
-              </span>
+              <div className="flex flex-row gap-4 justify-between items-center">
+                <img src={"/logo.svg"} alt="logo" width={42} height={42} />
+                <span className="text-2xl leadin-tight text-balance ">
+                  Alberto
+                </span>
+              </div>
+
               <label className="swap swap-rotate hover:text-primary transition-all duration-300 ease-in-out">
                 <input
                   type="checkbox"
