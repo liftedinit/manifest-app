@@ -8,6 +8,8 @@ import React from "react";
 import { useState } from "react";
 import { PiChalkboardTeacherDuotone } from "react-icons/pi";
 import { chainName } from "../../config";
+import AdminOptions from "@/components/admins/components/adminOptions";
+import StakingParams from "@/components/admins/components/stakingParams";
 
 export default function Home() {
   const { address, isWalletConnected } = useChain("manifest");
@@ -86,8 +88,12 @@ export default function Home() {
           {isWalletConnected && (
             <div className="flex flex-col w-full">
               <div className=" flex flex-col md:flex-row sm:flex-col xs:flex-col w-full gap-4 transition-opacity duration-300 ease-in-out animate-fadeIn">
-                <div className="flex flex-col gap-4 justify-between items-center">
+                <div className="flex flex-col gap-4 justify-between items-center w-full">
                   <ValidatorList />
+                  <div className="flex flex-row gap-4 justify-between items-center w-full">
+                    <AdminOptions />
+                    <StakingParams />
+                  </div>
                 </div>
               </div>
             </div>

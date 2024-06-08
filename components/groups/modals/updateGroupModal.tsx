@@ -292,7 +292,7 @@ export function UpdateGroupModal({
           </button>
         </form>
         <h3 className="text-lg font-semibold ">Update Group</h3>
-        <div className="divider divider-horizon "></div>
+        <div className="divider divider-horizon -mt-0 "></div>
         <div className="md:flex sm:grid sm:grid-cols-1 md:flex-row justify-start items-center gap-4">
           <div className="relative bg-base-300 rounded-md  p-4 sm:w-full md:w-1/2 max-w-6xl h-1/2">
             <div className="grid gap-4 sm:grid-cols-2">

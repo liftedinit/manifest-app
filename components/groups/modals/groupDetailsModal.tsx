@@ -37,7 +37,7 @@ export function GroupDetailsModal({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
           <div>
             <h3 className="text-lg font-semibold">Group Details</h3>
-            <div className="divider divider-horizon"></div>
+            <div className="divider divider-horizon -mt-0"></div>
             <div>
               <p className="text-xs font-light mt-4 ">AUTHORS</p>
               <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
@@ -67,7 +67,7 @@ export function GroupDetailsModal({
           </div>
           <div>
             <h3 className="text-lg font-semibold">Policy Details</h3>
-            <div className="divider divider-horizon"></div>
+            <div className="divider divider-horizon -mt-0"></div>
             {group?.policies.map((policy, index) => (
               <div key={index} className="mb-2">
                 <div>
@@ -126,7 +126,7 @@ export function GroupDetailsModal({
         </div>
         <div className="px-4">
           <h3 className="text-lg font-semibold">Members</h3>
-          <div className="divider divider-horizon"></div>
+          <div className="divider divider-horizon -mt-0"></div>
           <div className="overflow-x-auto -mt-4 max-h-52">
             <table className="table table-pin-rows w-full">
               <thead>

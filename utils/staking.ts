@@ -10,15 +10,6 @@ import { Validator } from '@chalabi/manifestjs/dist/codegen/cosmos/staking/v1bet
 
 import { decodeUint8Arr, isGreaterThanZero, shiftDigits, toNumber } from '.';
 
-
-export function truncateString(str: string, num: number) {
-  if (str.length > num) {
-    return str.slice(0, num) + '...';
-  } else {
-    return str;
-  }
-}
-
 const DAY_TO_SECONDS = 24 * 60 * 60;
 const ZERO = '0';
 
