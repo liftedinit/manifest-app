@@ -10,10 +10,24 @@ import { PiChalkboardTeacherDuotone } from "react-icons/pi";
 import { chainName } from "../../config";
 import AdminOptions from "@/components/admins/components/adminOptions";
 import StakingParams from "@/components/admins/components/stakingParams";
+import {
+  usePendingValidators,
+  usePoaParams,
+  useStakingParams,
+  useValidators,
+} from "@/hooks";
 
 export default function Home() {
   const { address, isWalletConnected } = useChain("manifest");
 
+  const { poaParams } = usePoaParams();
+  const { pendingValidators } = usePendingValidators();
+
+  const { stakingParams } = useStakingParams();
+
+  const { validators } = useValidators();
+
+  console.log(stakingParams, pendingValidators, poaParams, validators);
   return (
     <>
       <div className="max-w-5xl relative py-[2rem] mx-auto lg:mx-auto ">

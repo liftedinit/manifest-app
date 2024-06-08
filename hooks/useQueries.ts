@@ -3,6 +3,7 @@ import { useQueries, useQuery } from "@tanstack/react-query";
 import { QueryGroupsByMemberResponseSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/query";
 
 import { useLcdQueryClient } from "./useLcdQueryClient";
+import { useManifestLcdQueryClient } from "./useManifestLcdQueryClient";
 
 export interface IPFSMetadata {
     title: string;
@@ -272,4 +273,136 @@ export const useBalance = (address: string) => {
         isBalanceError: balanceQuery.isError,
         refetchBalance: balanceQuery.refetch,
     };
+}
+
+export const usePoaParams = () => {
+    const { lcdQueryClient } = useManifestLcdQueryClient();
+
+    const fetchParams = async () => {
+        if (!lcdQueryClient) {
+            throw new Error("LCD Client not ready");
+        }
+        return await lcdQueryClient.strangelove_ventures.poa.v1.params({});
+    };
+
+    const paramsQuery = useQuery({
+        queryKey: ["paramsInfo"],
+        queryFn: fetchParams,
+        enabled: !!lcdQueryClient,
+        staleTime: Infinity,
+    });
+
+    return {
+        poaParams: paramsQuery.data?.params,
+        isParamsLoading: paramsQuery.isLoading,
+        isParamsError: paramsQuery.isError,
+        refetchParams: paramsQuery.refetch,
+    };
+    
+}
+
+export const usePendingValidators = () => {
+    const { lcdQueryClient } = useManifestLcdQueryClient();
+
+    const fetchParams = async () => {
+        if (!lcdQueryClient) {
+            throw new Error("LCD Client not ready");
+        }
+        return await lcdQueryClient.strangelove_ventures.poa.v1.pendingValidators({});
+    };
+
+    const paramsQuery = useQuery({
+        queryKey: ["pendingVals"],
+        queryFn: fetchParams,
+        enabled: !!lcdQueryClient,
+        staleTime: Infinity,
+    });
+
+    return {
+        pendingValidators: paramsQuery.data?.pending,
+        isParamsLoading: paramsQuery.isLoading,
+        isParamsError: paramsQuery.isError,
+        refetchParams: paramsQuery.refetch,
+    };
+    
+}
+
+export const useConsensusPower = (address: string) => {
+    const { lcdQueryClient } = useManifestLcdQueryClient();
+
+    const fetchParams = async () => {
+        if (!lcdQueryClient) {
+            throw new Error("LCD Client not ready");
+        }
+        return await lcdQueryClient.strangelove_ventures.poa.v1.consensusPower({validator_address: address});
+    };
+
+    const paramsQuery = useQuery({
+        queryKey: ["consensusPower", address],
+        queryFn: fetchParams,
+        enabled: !!lcdQueryClient && !!address,
+        staleTime: Infinity,
+    });
+
+    return {
+        consensusPower: paramsQuery.data?.consensus_power,
+        isParamsLoading: paramsQuery.isLoading,
+        isParamsError: paramsQuery.isError,
+        refetchParams: paramsQuery.refetch,
+    };
+    
+}
+
+export const useStakingParams = () => {
+    const { lcdQueryClient } = useLcdQueryClient();
+
+    const fetchParams = async () => {
+        if (!lcdQueryClient) {
+            throw new Error("LCD Client not ready");
+        }
+        return await lcdQueryClient.cosmos.staking.v1beta1.params({});
+    };
+
+    const paramsQuery = useQuery({
+        queryKey: ["stakingParams"],
+        queryFn: fetchParams,
+        enabled: !!lcdQueryClient,
+        staleTime: Infinity,
+    });
+
+    return {
+        stakingParams: paramsQuery.data?.params,
+        isParamsLoading: paramsQuery.isLoading,
+        isParamsError: paramsQuery.isError,
+        refetchParams: paramsQuery.refetch,
+    };
+    
+}
+
+export const useValidators = () => {
+    const { lcdQueryClient } = useLcdQueryClient();
+
+    const fetchParams = async () => {
+        if (!lcdQueryClient) {
+            throw new Error("LCD Client not ready");
+        }
+        return await lcdQueryClient.cosmos.staking.v1beta1.validators({
+            status: "BOND_STATUS_BONDED"
+        });
+    };
+
+    const paramsQuery = useQuery({
+        queryKey: ["validators"],
+        queryFn: fetchParams,
+        enabled: !!lcdQueryClient,
+        staleTime: Infinity,
+    });
+
+    return {
+        validators: paramsQuery.data?.validators,
+        isParamsLoading: paramsQuery.isLoading,
+        isParamsError: paramsQuery.isError,
+        refetchParams: paramsQuery.refetch,
+    };
+    
 }
