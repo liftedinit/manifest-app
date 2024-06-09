@@ -465,7 +465,7 @@ export function UpdateGroupModal({
                   <div className="flex flex-row justify-between items-center">
                     <span className="text-light text-md"># {index + 1}</span>
 
-                    <div className="flex flex-row gap-2 justify-center items-center">
+                    {/* <div className="flex flex-row gap-2 justify-center items-center">
                       <button
                         onClick={() => handlePolicyAdminToggle(index)}
                         className="btn btn-xs btn-secondary"
@@ -480,7 +480,7 @@ export function UpdateGroupModal({
                       >
                         A
                       </button>
-                    </div>
+                    </div> */}
                     <button
                       onClick={() => handleMemberRemoval(index)}
                       className={`btn btn-sm ${

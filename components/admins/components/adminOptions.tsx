@@ -31,7 +31,7 @@ export default function AdminOptions({ poaParams, group }: AdminOptionsProps) {
   };
 
   return (
-    <div className="w-1/2 mx-auto p-4 bg-base-100 rounded-md max-h-[352px]">
+    <div className="lg:w-1/2 w-full mx-auto p-4 bg-base-100 rounded-md lg:max-h-[352px]">
       <div className="px-4 py-2 border-base-content flex items-center justify-between">
         <h3 className="text-lg font-bold leading-6">Admin</h3>
       </div>
@@ -43,9 +43,11 @@ export default function AdminOptions({ poaParams, group }: AdminOptionsProps) {
             size={64}
           />
         </div>
-        <a className="text-2xl leading-6 -mt-2">{group?.ipfsMetadata?.title}</a>
+        <a className="lg:text-2xl text-xl leading-6 -mt-2">
+          {group?.ipfsMetadata?.title}
+        </a>
 
-        <a className="text-md leading-tight flex-wrap text-center text-neutral-content max-h-10 max-w-96 overflow-y-auto -mt-4">
+        <a className="text-sm leading-tight flex-wrap text-center text-neutral-content max-h-10 max-w-96 overflow-y-auto -mt-6">
           {group?.ipfsMetadata?.details}
         </a>
         <button
@@ -56,11 +58,27 @@ export default function AdminOptions({ poaParams, group }: AdminOptionsProps) {
         </button>
 
         <div className="flex flex-row gap-4 justify-center items-center -mt-2 w-full pb-3">
-          <button className="btn btn-primary btn-sm w-2/6" onClick={handleOpen}>
+          <button
+            className="btn block lg:hidden btn-primary btn-sm w-2/6"
+            onClick={handleOpen}
+          >
+            Update
+          </button>
+          <button
+            className="btn hidden lg:block btn-primary btn-sm w-2/6"
+            onClick={handleOpen}
+          >
             Update Admin
           </button>
           <button
-            className={`btn ${
+            className={`btn block lg:hidden ${
+              exitEnabled ? "btn-secondary" : "btn-primary"
+            } btn-sm w-2/6`}
+          >
+            {poaParams.allow_validator_self_exit ? "Disable " : "Enable "}
+          </button>
+          <button
+            className={`btn hidden lg:block ${
               exitEnabled ? "btn-secondary" : "btn-primary"
             } btn-sm w-2/6`}
           >

@@ -13,6 +13,7 @@ import {
   PiSunThin,
 } from "react-icons/pi";
 import { WalletSection } from "../wallet";
+import { RiMenuUnfoldFill } from "react-icons/ri";
 
 export default function MobileNav() {
   const NavItem: React.FC<{ Icon: React.ElementType; href: string }> = ({
@@ -55,7 +56,7 @@ export default function MobileNav() {
           htmlFor="my-drawer"
           className="btn btn-sm btn-primary drawer-button"
         >
-          <PiHamburgerLight fontSize={"24px"} />
+          <RiMenuUnfoldFill fontSize={"24px"} />
         </label>
       </div>
       <div className="drawer z-10">

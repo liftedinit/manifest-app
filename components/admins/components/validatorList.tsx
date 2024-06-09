@@ -62,7 +62,7 @@ export default function ValidatorList({
   console.log(activeValidators);
 
   return (
-    <div className="w-full mx-auto p-4 bg-base-100 rounded-md">
+    <div className="w-full mx-auto p-4 bg-base-100 rounded-md h-96">
       <div className="px-4 py-2 border-base-content flex items-center justify-between">
         <h3 className="text-lg font-bold leading-6">
           {active ? "Active Validators" : "Pending Validators"}
@@ -86,14 +86,14 @@ export default function ValidatorList({
         </div>
       </div>
       <div className="divider divider-horizon -mt-2 mb-1"></div>
-      <div className="overflow-x-auto shadow-md sm:rounded-lg bg-base-300 max-h-[16rem] min-h-[16rem]">
+      <div className="overflow-x-auto shadow-md sm:rounded-lg bg-base-300 lg:max-h-[18.9rem] lg:min-h-[18.9rem] max-h-[17rem]">
         <table className="table w-full table-fixed">
-          <thead className="sticky top-0 z-10 bg-base-300">
+          <thead className="sticky top-0 z-1 bg-base-300">
             <tr>
               <th className="px-6 py-3 w-1/4">Logo</th>
               <th className="px-6 py-3 w-1/4">Moniker</th>
               <th className="px-6 py-3 w-1/4">Power</th>
-              <th className="px-6 py-3 w-1/4">Remove</th>
+              <th className="px-4 lg:px-6 py-3 w-1/4 ">Remove</th>
             </tr>
           </thead>
           <tbody className="overflow-y-auto">
@@ -104,7 +104,7 @@ export default function ValidatorList({
                     className="hover:bg-base-200/10 cursor-pointer"
                     onClick={() => handleRowClick(validator)}
                   >
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-3">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10">
                           {validator.logo_url !== "" && (
@@ -123,15 +123,15 @@ export default function ValidatorList({
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm font-medium">
+                    <td className="px-6 py-3 text-sm font-medium">
                       <span className="block truncate max-w-[20ch]">
                         {validator.description.moniker}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm">
+                    <td className="px-6 py-3 text-sm">
                       {validator.consensus_power?.toString()}
                     </td>
-                    <td className="px-6 py-6 flex flex-row gap-4 justify-start items-center">
+                    <td className="px-4 lg:px-6 py-4 flex flex-row gap-4 lg:justify-start justify-start items-center">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
