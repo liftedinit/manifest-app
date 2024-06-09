@@ -3,7 +3,9 @@ import { useQueries, useQuery } from "@tanstack/react-query";
 import { QueryGroupsByMemberResponseSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/query";
 
 import { useLcdQueryClient } from "./useLcdQueryClient";
-import { useManifestLcdQueryClient } from "./useManifestLcdQueryClient";
+import { usePoaLcdQueryClient } from "./usePoaLcdQueryClient";
+import { getLogoUrls } from "@/utils";
+import { ExtendedValidatorSDKType } from "@/components";
 
 export interface IPFSMetadata {
     title: string;
@@ -14,7 +16,7 @@ export interface IPFSMetadata {
     voteOptionContext: string;
 }
 
-type ExtendedGroupType = QueryGroupsByMemberResponseSDKType['groups'][0] & {
+export type ExtendedGroupType = QueryGroupsByMemberResponseSDKType['groups'][0] & {
     ipfsMetadata: IPFSMetadata | null;
     policies: any[];
     members: any[];
@@ -86,6 +88,71 @@ export const useGroupsByMember = (address: string) => {
         isGroupByMemberLoading: !allDataLoaded,
         isGroupByMemberError: error || groupQuery.isError,
         refetchGroupByMember: groupQuery.refetch,
+    };
+};
+
+export const useGroupsByAdmin = (admin: string) => {
+    const { lcdQueryClient } = useLcdQueryClient();
+    const [extendedGroups, setExtendedGroups] = useState<ExtendedQueryGroupsByMemberResponseSDKType>({ groups: [] });
+    const [allDataLoaded, setAllDataLoaded] = useState(false);
+    const [error, setError] = useState<Error | null>(null);
+
+    const groupQuery = useQuery({
+        queryKey: ["groupInfo", admin],
+        queryFn: () => lcdQueryClient?.cosmos.group.v1.groupsByAdmin({ admin }),
+        enabled: !!lcdQueryClient && !!admin,
+        staleTime: Infinity,
+    });
+
+    useEffect(() => {
+        const fetchAdditionalData = async () => {
+            if (groupQuery.data?.groups && !groupQuery.isLoading) {
+                try {
+                    const policyPromises = groupQuery.data.groups.map(group => 
+                        lcdQueryClient?.cosmos.group.v1.groupPoliciesByGroup({ group_id: group.id }));
+                    const memberPromises = groupQuery.data.groups.map(group => 
+                        lcdQueryClient?.cosmos.group.v1.groupMembers({ group_id: group.id }));
+                    const ipfsPromises = groupQuery.data.groups.map(group => 
+                        fetch(`https://nodes.chandrastation.com/ipfs/gateway/${group.metadata}`)
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error(`HTTP error! Status: ${response.status}`);
+                                }
+                                return response.json() as Promise<IPFSMetadata>;
+                            }));
+
+                    const [policiesResults, membersResults, ipfsResults] = await Promise.all([
+                        Promise.all(policyPromises),
+                        Promise.all(memberPromises),
+                        Promise.all(ipfsPromises)
+                    ]);
+
+                    const groupsWithAllData = groupQuery.data.groups.map((group, index) => ({
+                        ...group,
+                        ipfsMetadata: ipfsResults[index],
+                        policies: policiesResults[index]?.group_policies || [],
+                        members: membersResults[index]?.members || []
+                    }));
+
+                    setExtendedGroups({ groups: groupsWithAllData });
+                } catch (err) {
+                    console.error("Failed to fetch additional group data:", err);
+                    setError(err as Error);
+                } finally {
+                    setAllDataLoaded(true);
+                }
+            }
+        };
+
+        fetchAdditionalData();
+    }, [groupQuery.data, groupQuery.isLoading, lcdQueryClient?.cosmos.group.v1]);
+    
+
+    return {
+        groupByAdmin: extendedGroups,
+        isGroupByAdminLoading: !allDataLoaded,
+        isGroupByAdminError: error || groupQuery.isError,
+        refetchGroupByAdmin: groupQuery.refetch,
     };
 };
 
@@ -276,7 +343,7 @@ export const useBalance = (address: string) => {
 }
 
 export const usePoaParams = () => {
-    const { lcdQueryClient } = useManifestLcdQueryClient();
+    const { lcdQueryClient } = usePoaLcdQueryClient();
 
     const fetchParams = async () => {
         if (!lcdQueryClient) {
@@ -294,15 +361,15 @@ export const usePoaParams = () => {
 
     return {
         poaParams: paramsQuery.data?.params,
-        isParamsLoading: paramsQuery.isLoading,
-        isParamsError: paramsQuery.isError,
-        refetchParams: paramsQuery.refetch,
+        isPoaParamsLoading: paramsQuery.isLoading,
+        isPoaParamsError: paramsQuery.isError,
+        refetchPoaParams: paramsQuery.refetch,
     };
     
 }
 
 export const usePendingValidators = () => {
-    const { lcdQueryClient } = useManifestLcdQueryClient();
+    const { lcdQueryClient } = usePoaLcdQueryClient();
 
     const fetchParams = async () => {
         if (!lcdQueryClient) {
@@ -320,15 +387,15 @@ export const usePendingValidators = () => {
 
     return {
         pendingValidators: paramsQuery.data?.pending,
-        isParamsLoading: paramsQuery.isLoading,
-        isParamsError: paramsQuery.isError,
-        refetchParams: paramsQuery.refetch,
+        isPendingValidatorsLoading: paramsQuery.isLoading,
+        isPendingValidatorsError: paramsQuery.isError,
+        refetchPendingValidators: paramsQuery.refetch,
     };
     
 }
 
 export const useConsensusPower = (address: string) => {
-    const { lcdQueryClient } = useManifestLcdQueryClient();
+    const { lcdQueryClient } = usePoaLcdQueryClient();
 
     const fetchParams = async () => {
         if (!lcdQueryClient) {
@@ -346,9 +413,9 @@ export const useConsensusPower = (address: string) => {
 
     return {
         consensusPower: paramsQuery.data?.consensus_power,
-        isParamsLoading: paramsQuery.isLoading,
-        isParamsError: paramsQuery.isError,
-        refetchParams: paramsQuery.refetch,
+        isConsensusLoading: paramsQuery.isLoading,
+        isConsensusError: paramsQuery.isError,
+        refetchConsensusPower: paramsQuery.refetch,
     };
     
 }
@@ -381,28 +448,51 @@ export const useStakingParams = () => {
 
 export const useValidators = () => {
     const { lcdQueryClient } = useLcdQueryClient();
-
-    const fetchParams = async () => {
-        if (!lcdQueryClient) {
-            throw new Error("LCD Client not ready");
-        }
-        return await lcdQueryClient.cosmos.staking.v1beta1.validators({
-            status: "BOND_STATUS_BONDED"
+    const { lcdQueryClient: poaLcdQueryCLient } = usePoaLcdQueryClient();
+    const fetchConsensusPower = async (validators: any[]) => {
+      if (!lcdQueryClient || !poaLcdQueryCLient) {
+        throw new Error("LCD Client not ready");
+      }
+  
+      const promises = validators.map(async (validator) => {
+        const consensusPowerResponse = await poaLcdQueryCLient.strangelove_ventures.poa.v1.consensusPower({
+          validator_address: validator.operator_address,
         });
+        const logoUrlResponse = await getLogoUrls(validator);
+        return {
+          ...validator,
+          consensus_power: consensusPowerResponse.consensus_power,
+          logo_url: logoUrlResponse,
+        };
+      });
+  
+      return await Promise.all(promises);
     };
-
+  
+    const fetchParams = async () => {
+      if (!lcdQueryClient) {
+        throw new Error("LCD Client not ready");
+      }
+      const validatorsResponse = await lcdQueryClient.cosmos.staking.v1beta1.validators({
+        status: "BOND_STATUS_BONDED",
+      });
+      const validatorsWithConsensusPower = await fetchConsensusPower(validatorsResponse.validators);
+      return validatorsWithConsensusPower;
+    };
+  
     const paramsQuery = useQuery({
-        queryKey: ["validators"],
-        queryFn: fetchParams,
-        enabled: !!lcdQueryClient,
-        staleTime: Infinity,
+      queryKey: ["validators"],
+      queryFn: fetchParams,
+      enabled: !!lcdQueryClient,
+      staleTime: Infinity,
     });
-
+  
     return {
-        validators: paramsQuery.data?.validators,
-        isParamsLoading: paramsQuery.isLoading,
-        isParamsError: paramsQuery.isError,
-        refetchParams: paramsQuery.refetch,
+      validators: paramsQuery.data,
+      isActiveValidatorsLoading: paramsQuery.isLoading,
+      isActiveValidatorsError: paramsQuery.isError,
+      refetchActiveValidatorss: paramsQuery.refetch,
     };
-    
-}
+  };
+  
+

@@ -6,7 +6,7 @@ interface WarningModalProps {
   address: string;
   moniker: string;
   modalId: string;
-  onAccept: () => void;
+  onAccept?: () => void;
 }
 
 export function WarningModal({
@@ -30,7 +30,7 @@ export function WarningModal({
           </p>
           <p className="text-center font-bold text-2xl mt-2">{moniker}</p>
           <p className="text-md text-center font-thin mt-2">
-            from the {isActive ? "active" : "pending"} list?
+            from the {isActive ? "active set" : "pending list"}?
           </p>
         </div>
 

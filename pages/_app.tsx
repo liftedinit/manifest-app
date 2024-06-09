@@ -133,7 +133,7 @@ const manifestAssets: AssetList = {
   ],
 };
 
-function Template({ Component, pageProps }: AppProps) {
+function ManifestApp({ Component, pageProps }: AppProps) {
   const signerOptions: SignerOptions = {
     signingStargate: (
       _chain: string | Chain
@@ -219,6 +219,7 @@ function Template({ Component, pageProps }: AppProps) {
 
   return (
     <QueryClientProvider client={client}>
+      <ReactQueryDevtools />
       <ChainProvider
         chains={[manifestChain]}
         assetLists={[manifestAssets]}
@@ -267,4 +268,4 @@ function Template({ Component, pageProps }: AppProps) {
   );
 }
 
-export default Template;
+export default ManifestApp;

@@ -1,33 +1,47 @@
 import { WalletSection } from "@/components";
-
+import { ParamsSDKType as PoaParamType } from "@chalabi/manifestjs/dist/codegen/strangelove_ventures/poa/v1/params";
 import { useChain } from "@cosmos-kit/react";
 import ValidatorList from "@/components/admins/components/validatorList";
 import Head from "next/head";
-import Link from "next/link";
+
 import React from "react";
-import { useState } from "react";
-import { PiChalkboardTeacherDuotone } from "react-icons/pi";
-import { chainName } from "../../config";
+
 import AdminOptions from "@/components/admins/components/adminOptions";
 import StakingParams from "@/components/admins/components/stakingParams";
 import {
+  useGroupsByAdmin,
   usePendingValidators,
   usePoaParams,
   useStakingParams,
   useValidators,
 } from "@/hooks";
+import {
+  ParamsSDKType,
+  ValidatorSDKType,
+} from "@chalabi/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking";
+import { PiWarning } from "react-icons/pi";
 
-export default function Home() {
+export default function Admins() {
   const { address, isWalletConnected } = useChain("manifest");
+  const { poaParams, isPoaParamsLoading, refetchPoaParams } = usePoaParams();
+  const {
+    pendingValidators,
+    isPendingValidatorsLoading,
+    refetchPendingValidators,
+  } = usePendingValidators();
+  const { stakingParams, isParamsLoading, refetchParams } = useStakingParams();
+  const { validators, isActiveValidatorsLoading, refetchActiveValidatorss } =
+    useValidators();
 
-  const { poaParams } = usePoaParams();
-  const { pendingValidators } = usePendingValidators();
+  const { groupByAdmin } = useGroupsByAdmin(
+    "manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj"
+  );
+  const group = groupByAdmin?.groups?.[0];
 
-  const { stakingParams } = useStakingParams();
+  const isMember = group?.members?.some(
+    (member) => member?.member?.address === address
+  );
 
-  const { validators } = useValidators();
-
-  console.log(stakingParams, pendingValidators, poaParams, validators);
   return (
     <>
       <div className="max-w-5xl relative py-[2rem] mx-auto lg:mx-auto ">
@@ -66,6 +80,7 @@ export default function Home() {
               </div>
             </section>
           )}
+
           {/* {!isGroupByMemberLoading && groupByMemberData.groups.length === 0 && (
             <section className=" transition-opacity duration-300 ease-in-out animate-fadeIn">
               <div className="grid max-w-screen-xl bg-base-100 p-12 rounded-md border-r-base-300 border-r-8 border-b-8 border-b-base-300 mx-auto lg:gap-8 xl:gap-0  lg:grid-cols-12">
@@ -99,14 +114,36 @@ export default function Home() {
               <div className="skeleton h-full w-full"></div>
             </div>
           )} */}
-          {isWalletConnected && (
+          {isWalletConnected && !isActiveValidatorsLoading && !isMember ? (
+            <div className="flex flex-row w-full bg-base-100 rounded-md p-4">
+              <div className="flex flex-col w-full h-full gap-4">
+                <PiWarning className="text-6xl mx-auto text-red-500" />
+                <a className="text-4xl mx-auto">Access Denied</a>
+                <p className="text-lg mx-auto text-center max-w-prose">
+                  You do not have permission to view this page. Only proof of
+                  authority administrators or members of a group that is a proof
+                  of authority admin may access this page.
+                </p>
+              </div>
+            </div>
+          ) : (
             <div className="flex flex-col w-full">
               <div className=" flex flex-col md:flex-row sm:flex-col xs:flex-col w-full gap-4 transition-opacity duration-300 ease-in-out animate-fadeIn">
                 <div className="flex flex-col gap-4 justify-between items-center w-full">
-                  <ValidatorList />
+                  <ValidatorList
+                    activeValidators={validators ?? ({} as ValidatorSDKType[])}
+                    pendingValidators={
+                      pendingValidators ?? ({} as ValidatorSDKType[])
+                    }
+                  />
                   <div className="flex flex-row gap-4 justify-between items-center w-full">
-                    <AdminOptions />
-                    <StakingParams />
+                    <AdminOptions
+                      group={group}
+                      poaParams={poaParams ?? ({} as PoaParamType)}
+                    />
+                    <StakingParams
+                      stakingParams={stakingParams ?? ({} as ParamsSDKType)}
+                    />
                   </div>
                 </div>
               </div>

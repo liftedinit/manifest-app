@@ -1,11 +1,14 @@
+import { ParamsSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking";
 import React from "react";
 
 interface UpdateStakingParamsModalProps {
   modalId: string;
+  stakingParams: ParamsSDKType;
 }
 
 export function UpdateStakingParamsModal({
   modalId,
+  stakingParams,
 }: UpdateStakingParamsModalProps) {
   return (
     <dialog id={modalId} className="modal">

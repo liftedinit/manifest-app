@@ -8,7 +8,7 @@ import { Coin } from "@cosmjs/stargate";
 import { MsgSend } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx";
 import { MsgSetPower } from "@chalabi/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx";
 
-export default function CreateGroup() {
+export default function SubmitProposal() {
   const msgSend: MsgSend = {
     from_address: "",
     to_address: "",

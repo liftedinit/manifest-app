@@ -16,7 +16,7 @@ import {
   useProposalsByPolicyAccountAll,
 } from "../../hooks/useQueries";
 
-export default function Home() {
+export default function Groups() {
   const { address, isWalletConnected } = useChain(chainName);
   const {
     groupByMemberData,

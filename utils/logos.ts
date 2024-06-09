@@ -1,4 +1,4 @@
-import { ExtendedValidator as Validator } from './staking';
+import { ExtendedValidatorSDKType } from "@/components";
 
 type ImageSource = {
   imageSource: 'cosmostation' | 'keybase';
@@ -78,12 +78,12 @@ export const getKeybaseUrl = (
 };
 
 export const addLogoUrlSource = async (
-  validator: Validator,
+  validator: ExtendedValidatorSDKType,
   chainName: string,
-): Promise<Validator & ImageSource> => {
+): Promise<ExtendedValidatorSDKType & ImageSource> => {
   const url = getCosmostationUrl(
     chainName,
-    validator.address,
+    validator.operator_address,
   );
   const isValid = await isUrlValid(url);
   return {
@@ -94,89 +94,30 @@ export const addLogoUrlSource = async (
   };
 };
 
-export const getLogoUrls = async (
-  validators: Validator[],
-  chainName: string,
-) => {
-  const validatorsWithImgSource =
-    await Promise.all(
-      validators.map((validator) =>
-        addLogoUrlSource(validator, chainName),
-      ),
-    );
 
-  // cosmostation urls
-  const cosmostationUrls = validatorsWithImgSource
-    .filter(
-      (validator) =>
-        validator.imageSource === 'cosmostation',
-    )
-    .map(({ address }) => {
-      return {
-        address,
-        url: getCosmostationUrl(
-          chainName,
-          address,
-        ),
-      };
-    });
 
-  // keybase urls
-  const keybaseIdentities =
-    validatorsWithImgSource
-      .filter(
-        (validator) =>
-          validator.imageSource === 'keybase',
-      )
-      .map(({ address, identity }) => ({
-        address,
-        identity,
-      }));
 
-  const chunkedIdentities = splitIntoChunks(
-    keybaseIdentities,
-    20,
-  );
-
-  let responses: any[] = [];
-
-  for (const chunk of chunkedIdentities) {
-    const logoUrlRequests = chunk.map(
-      ({ address, identity }) => {
-        if (!identity)
-          return { address, url: '' };
-
-        return fetch(getKeybaseUrl(identity))
-          .then((response) => response.json())
-          .then((res) => ({
-            address,
-            url:
-              res.them?.[0]?.pictures?.primary
-                .url || '',
-          }));
-      },
-    );
-    responses = [
-      ...responses,
-      await Promise.all(logoUrlRequests),
-    ];
-    await new Promise((resolve) =>
-      setTimeout(resolve, 500),
-    );
+export const getLogoUrlForValidator = async (
+  validator: ExtendedValidatorSDKType,
+): Promise<{ url: string }> => {
+  if (!validator.description?.identity) {
+    return {  url: '' };
   }
 
-  const keybaseUrls = responses.flat();
+  try {
+    const response = await fetch(getKeybaseUrl(validator.description.identity));
+    const res = await response.json();
+    const url = res.them?.[0]?.pictures?.primary.url || '';
+    return { url };
+  } catch (error) {
+    console.error('Failed to fetch Keybase URL:', error);
+    return { url: '' };
+  }
+};
 
-  const allUrls = [
-    ...cosmostationUrls,
-    ...keybaseUrls,
-  ].reduce(
-    (prev, cur) => ({
-      ...prev,
-      [cur.address]: cur.url,
-    }),
-    {},
-  );
-
-  return allUrls;
+export const getLogoUrls = async (
+  validator: ExtendedValidatorSDKType,
+): Promise<string> => {
+  const logoInfo = await getLogoUrlForValidator(validator);
+  return logoInfo.url;
 };

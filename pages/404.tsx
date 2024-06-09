@@ -35,7 +35,7 @@ const links = [
   },
 ];
 
-export default function Example() {
+export default function FourOFour() {
   return (
     <div className="">
       <main className="mx-auto w-full max-w-7xl px-6 pb-16 pt-10 sm:pb-24 lg:px-8">

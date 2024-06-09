@@ -1,6 +1,6 @@
 import Head from "next/head";
 
-export default function Home() {
+export default function Governance() {
   return (
     <>
       <div className="max-w-5xl py-10 mx-6 lg:mx-auto">

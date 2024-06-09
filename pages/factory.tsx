@@ -8,7 +8,7 @@ import React from "react";
 import { useState } from "react";
 import { chainName } from "../../config";
 
-export default function Home() {
+export default function Factory() {
   const { address, isWalletConnected } = useChain("manifest");
 
   return (
