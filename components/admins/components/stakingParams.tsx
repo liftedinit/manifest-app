@@ -4,9 +4,13 @@ import { UpdateStakingParamsModal } from "../modals/updateStakingParamsModal";
 
 interface StakingParamsProps {
   stakingParams: ParamsSDKType;
+  isLoading: boolean;
 }
 
-export default function StakingParams({ stakingParams }: StakingParamsProps) {
+export default function StakingParams({
+  stakingParams,
+  isLoading,
+}: StakingParamsProps) {
   const openParamsModal = () => {
     const modal = document.getElementById(
       `update-params-modal`
@@ -27,62 +31,66 @@ export default function StakingParams({ stakingParams }: StakingParamsProps) {
         </button>
       </div>
       <div className="divider divider-horizon -mt-2 mb-1"></div>
-      <div className="flex flex-col gap-8 justify-center items-center w-full">
-        <div className="flex flex-row gap-8 w-full justify-center items-center">
-          <div className="flex flex-col gap-2 w-1/2 rounded-md">
-            <span className="text-sm text-gray-400">UNBONDING TIME</span>
-            <span className="text-md bg-base-300 p-2 rounded-md">
-              <span>
-                {Number(
-                  BigInt(stakingParams.unbonding_time?.seconds ?? 1) /
-                    BigInt(86400)
-                ).toString()}
+      {isLoading && <div className="skeleton w-full h-auto"></div>}
+      {!isLoading && (
+        <div className="flex flex-col gap-8 justify-center items-center w-full">
+          <div className="flex flex-row gap-8 w-full justify-center items-center">
+            <div className="flex flex-col gap-2 w-1/2 rounded-md">
+              <span className="text-sm text-gray-400">UNBONDING TIME</span>
+              <span className="text-md bg-base-300 p-2 rounded-md">
+                <span>
+                  {Number(
+                    BigInt(stakingParams.unbonding_time?.seconds ?? 1) /
+                      BigInt(86400)
+                  ).toString()}
+                </span>
               </span>
-            </span>
+            </div>
+            <div className="flex flex-col gap-2 w-1/2 rounded-md">
+              <span className="text-sm text-gray-400">MAX VALIDATORS</span>
+              <span className="text-md bg-base-300 p-2 rounded-md">
+                {stakingParams.max_validators}
+              </span>
+            </div>
           </div>
-          <div className="flex flex-col gap-2 w-1/2 rounded-md">
-            <span className="text-sm text-gray-400">MAX VALIDATORS</span>
-            <span className="text-md bg-base-300 p-2 rounded-md">
-              {stakingParams.max_validators}
-            </span>
+          <div className="flex flex-row gap-8 w-full justify-center items-center">
+            <div className="flex flex-col gap-2 w-1/2 rounded-md">
+              <span className="text-sm text-gray-400 truncate">BOND DENOM</span>
+              <span className="text-md bg-base-300 p-2 rounded-md">
+                {stakingParams.bond_denom}
+              </span>
+            </div>
+            <div className="flex flex-col gap-2 w-1/2 rounded-md">
+              <span className="text-sm text-gray-400 truncate">
+                MINIMUM COMMISSION
+              </span>
+              <span className="text-md bg-base-300 p-2 rounded-md">
+                {(Number(stakingParams.min_commission_rate) * 100)
+                  .toFixed(0)
+                  .toString()}{" "}
+                %
+              </span>
+            </div>
+          </div>
+          <div className="flex flex-row gap-8 w-full justify-center items-center">
+            <div className="flex flex-col gap-2 w-1/2 rounded-md">
+              <span className="text-sm text-gray-400">MAX ENTRIES</span>
+              <span className="text-md bg-base-300 p-2 rounded-md">
+                {stakingParams.max_entries}
+              </span>
+            </div>
+            <div className="flex flex-col gap-2 w-1/2 rounded-md">
+              <span className="text-sm text-gray-400 truncate">
+                HISTORICAL ENTRIES
+              </span>
+              <span className="text-md bg-base-300 p-2 rounded-md">
+                {stakingParams.historical_entries}
+              </span>
+            </div>
           </div>
         </div>
-        <div className="flex flex-row gap-8 w-full justify-center items-center">
-          <div className="flex flex-col gap-2 w-1/2 rounded-md">
-            <span className="text-sm text-gray-400 truncate">BOND DENOM</span>
-            <span className="text-md bg-base-300 p-2 rounded-md">
-              {stakingParams.bond_denom}
-            </span>
-          </div>
-          <div className="flex flex-col gap-2 w-1/2 rounded-md">
-            <span className="text-sm text-gray-400 truncate">
-              MINIMUM COMMISSION
-            </span>
-            <span className="text-md bg-base-300 p-2 rounded-md">
-              {(Number(stakingParams.min_commission_rate) * 100)
-                .toFixed(0)
-                .toString()}{" "}
-              %
-            </span>
-          </div>
-        </div>
-        <div className="flex flex-row gap-8 w-full justify-center items-center">
-          <div className="flex flex-col gap-2 w-1/2 rounded-md">
-            <span className="text-sm text-gray-400">MAX ENTRIES</span>
-            <span className="text-md bg-base-300 p-2 rounded-md">
-              {stakingParams.max_entries}
-            </span>
-          </div>
-          <div className="flex flex-col gap-2 w-1/2 rounded-md">
-            <span className="text-sm text-gray-400 truncate">
-              HISTORICAL ENTRIES
-            </span>
-            <span className="text-md bg-base-300 p-2 rounded-md">
-              {stakingParams.historical_entries}
-            </span>
-          </div>
-        </div>
-      </div>
+      )}
+
       <UpdateStakingParamsModal
         stakingParams={stakingParams}
         modalId="update-params-modal"
