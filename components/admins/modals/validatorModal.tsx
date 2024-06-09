@@ -3,6 +3,8 @@ import React from "react";
 import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
 import { ExtendedValidatorSDKType } from "../components";
 import ProfileAvatar from "@/utils/identicon";
+import { BsThreeDots } from "react-icons/bs";
+import { DescriptionModal } from "./descriptionModal";
 export function ValidatorDetailsModal({
   validator,
   modalId,
@@ -16,6 +18,13 @@ export function ValidatorDetailsModal({
     if (!contact) return false;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(contact);
+  };
+
+  const handleDescription = () => {
+    const modal = document.getElementById(
+      `description-modal`
+    ) as HTMLDialogElement;
+    modal?.showModal();
   };
 
   return (
@@ -78,15 +87,31 @@ export function ValidatorDetailsModal({
             </span>
           </div>
           <div className="flex flex-col px-4 py-2 gap-2 bg-base-300 rounded-md">
-            <span className="text-sm text-gray-400">DETAILS</span>
+            <div className="flex flex-row justify-between items-center relative">
+              <span className="text-sm text-gray-400">DETAILS</span>
+              {validator.description.details.length > 20 && (
+                <button
+                  className="btn btn-sm btn-ghost hover:bg-transparent absolute -right-2 -top-2"
+                  onClick={handleDescription}
+                >
+                  <BsThreeDots />
+                </button>
+              )}
+            </div>
+
             <span className="text-md rounded-md">
               {validator.description.details
-                ? validator.description.details
+                ? validator.description.details.substring(0, 20) +
+                  (validator.description.details.length > 20 ? "..." : "")
                 : "No Details"}
             </span>
           </div>
         </div>
       </form>
+      <DescriptionModal
+        modalId="description-modal"
+        details={validator.description.details ?? "No Details"}
+      />
       <form method="dialog" className="modal-backdrop">
         <button>close</button>
       </form>

@@ -64,7 +64,7 @@ export default function ValidatorList({
   console.log(activeValidators);
 
   return (
-    <div className="w-full mx-auto p-4 bg-base-100 rounded-md h-96">
+    <div className="w-full mx-auto p-4 bg-base-100 rounded-md h-96 ">
       <div className="px-4 py-2 border-base-content flex items-center justify-between">
         <h3 className="text-lg font-bold leading-6 hidden lg:block">
           {active ? "Active Validators" : "Pending Validators"}
@@ -94,8 +94,8 @@ export default function ValidatorList({
       {isLoading && <div className="skeleton h-[18.9rem] w-full"></div>}
 
       {filteredValidators.length > 0 && !isLoading && (
-        <div className="overflow-x-auto shadow-md sm:rounded-lg bg-base-300 max-h-[18.9rem] min-h-[18.9rem]  relative">
-          <table className="table w-full table-fixed">
+        <div className="overflow-x-auto shadow-md rounded-lg bg-base-300 max-h-[18.9rem] min-h-[18.9rem]  relative transition-opacity duration-300 ease-in-out animate-fadeIn">
+          <table className="table w-full table-fixed rounded-md">
             <thead className="sticky top-0 z-1 bg-base-300">
               <tr>
                 <th className="px-6 py-3 w-1/4">Logo</th>

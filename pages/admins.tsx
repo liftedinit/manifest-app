@@ -32,9 +32,10 @@ export default function Admins() {
   const { validators, isActiveValidatorsLoading, refetchActiveValidatorss } =
     useValidators();
 
-  const { groupByAdmin, isGroupByAdminLoading } = useGroupsByAdmin(
-    "manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj"
-  );
+  const { groupByAdmin, isGroupByAdminLoading, refetchGroupByAdmin } =
+    useGroupsByAdmin(
+      "manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj"
+    );
   const group = groupByAdmin?.groups?.[0];
 
   const isMember = group?.members?.some(
@@ -104,32 +105,37 @@ export default function Admins() {
               </div>
             </div>
           ) : (
-            <div className="flex flex-col w-full">
-              <div className="flex flex-col sm:flex-col w-full gap-4 transition-opacity duration-300 ease-in-out animate-fadeIn">
-                <div className="flex flex-col gap-4 justify-between items-center w-full">
-                  <ValidatorList
-                    isLoading={
-                      isActiveValidatorsLoading || isPendingValidatorsLoading
-                    }
-                    activeValidators={validators ?? ({} as ValidatorSDKType[])}
-                    pendingValidators={
-                      pendingValidators ?? ({} as ValidatorSDKType[])
-                    }
-                  />
-                  <div className="flex flex-col md:flex-row gap-4 justify-between items-center w-full">
-                    <AdminOptions
-                      group={group}
-                      poaParams={poaParams ?? ({} as PoaParamType)}
-                      isLoading={isPoaParamsLoading || isGroupByAdminLoading}
+            isMember &&
+            isWalletConnected && (
+              <div className="flex flex-col w-full">
+                <div className="flex flex-col sm:flex-col w-full gap-4 transition-opacity duration-300 ease-in-out animate-fadeIn">
+                  <div className="flex flex-col gap-4 justify-between items-center w-full">
+                    <ValidatorList
+                      isLoading={
+                        isActiveValidatorsLoading || isPendingValidatorsLoading
+                      }
+                      activeValidators={
+                        validators ?? ({} as ValidatorSDKType[])
+                      }
+                      pendingValidators={
+                        pendingValidators ?? ({} as ValidatorSDKType[])
+                      }
                     />
-                    <StakingParams
-                      isLoading={isParamsLoading}
-                      stakingParams={stakingParams ?? ({} as ParamsSDKType)}
-                    />
+                    <div className="flex flex-col md:flex-row gap-4 justify-between items-center w-full">
+                      <AdminOptions
+                        group={group}
+                        poaParams={poaParams ?? ({} as PoaParamType)}
+                        isLoading={isPoaParamsLoading || isGroupByAdminLoading}
+                      />
+                      <StakingParams
+                        isLoading={isParamsLoading}
+                        stakingParams={stakingParams ?? ({} as ParamsSDKType)}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )
           )}
         </div>
       </div>
