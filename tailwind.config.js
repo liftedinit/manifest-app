@@ -18,6 +18,8 @@ module.exports = {
         fadeOut: "fadeOut 400ms ease-out",
         fadeSlideUp: "fadeSlideUp 400ms ease-in",
         fadeSlideDown: "fadeSlideDown 400ms ease-out",
+        slideFadeInLeft: "slideFadeInLeft 400ms ease-in",
+        slideFadeOutRight: "slideFadeOutRight 400ms ease-out",
       },
       keyframes: {
         fadeIn: {
@@ -25,8 +27,8 @@ module.exports = {
           "100%": { opacity: 1 },
         },
         fadeOut: {
-          "0%": { opacity: 1 },
-          "100%": { opacity: 0 },
+          "0%": { opacity: 0 },
+          "100%": { opacity: 1 },
         },
         fadeSlideUp: {
           "0%": { transform: "translateY(100%)", opacity: 0 },
@@ -37,6 +39,14 @@ module.exports = {
         fadeSlideDown: {
           "0%": { transform: "translateY(-100%)", opacity: 0 },
           "100%": { transform: "translateY(0)", opacity: 1 },
+        },
+        slideFadeInLeft: {
+          "0%": { opacity: 0, transform: "translateX(50%)" },
+          "100%": { opacity: 1, transform: "translateX(0%)" },
+        },
+        slideFadeOutRight: {
+          "0%": { opacity: 0, transform: "translateX(50%)" },
+          "100%": { opacity: 1, transform: "translateX(0%)" },
         },
       },
 
@@ -147,10 +157,6 @@ module.exports = {
             50: "#004637",
           },
         },
-        // backgroundImage: (theme) => ({
-        //   "gradient-to-r":
-        //     "linear-gradient(to right, var(--tw-gradient-stops))",
-        // }),
       },
     },
   },

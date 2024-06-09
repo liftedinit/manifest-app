@@ -99,6 +99,7 @@ export default function AdminOptions({
       <UpdateAdminModal modalId="update-admin-modal" />
 
       <DescriptionModal
+        type="group"
         modalId="description-modal"
         details={group?.ipfsMetadata?.details ?? ""}
       />

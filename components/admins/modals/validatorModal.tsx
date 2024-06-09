@@ -109,6 +109,7 @@ export function ValidatorDetailsModal({
         </div>
       </form>
       <DescriptionModal
+        type="validator"
         modalId="description-modal"
         details={validator.description.details ?? "No Details"}
       />
