@@ -1,42 +1,27 @@
+import React, { useState } from "react";
 import { useFeeEstimation } from "@/hooks/useFeeEstimation";
 import { uploadJsonToIPFS } from "@/hooks/useIpfs";
 import { useTx } from "@/hooks/useTx";
 import { cosmos } from "@chalabi/manifestjs";
 import { MsgSend } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx";
-
 import { Any } from "@chalabi/manifestjs/dist/codegen/google/protobuf/any";
 import { Coin } from "@cosmjs/stargate";
 import { useChain } from "@cosmos-kit/react";
-
 import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
+import { ProposalFormData, ProposalAction } from "@/helpers/formReducer";
 
-import { useState } from "react";
 export default function ConfirmationModal({
   policyAddress,
   nextStep,
   prevStep,
   formData,
+  dispatch,
 }: {
   policyAddress: string;
   nextStep: () => void;
   prevStep: () => void;
-  formData: {
-    title: string;
-    proposers: string;
-    summary: string;
-    messages: {
-      from_address: string;
-      to_address: string;
-      amount: Coin;
-      isVisible: boolean;
-    }[];
-    metadata: {
-      title: string;
-      authors: string;
-      summary: string;
-      details: string;
-    };
-  };
+  formData: ProposalFormData;
+  dispatch: React.Dispatch<ProposalAction>;
 }) {
   const { address } = useChain("manifest");
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
@@ -59,17 +44,16 @@ export default function ConfirmationModal({
 
   const uploadMetaDataToIPFS = async () => {
     const CID = await uploadJsonToIPFS(jsonString);
-    return setCID(CID);
+    setCID(CID);
   };
-  console.log(formData);
 
-  const messages = formData.messages.map((message) => {
-    return MsgSend.encode({
+  const messages = formData.messages.map((message) =>
+    MsgSend.encode({
       from_address: message.from_address,
       to_address: message.to_address,
-      amount: [{ denom: "mfx", amount: "1" }],
-    }).finish();
-  });
+      amount: [message.amount],
+    }).finish()
+  );
 
   const packedMsg = Any.encode({
     type_url: cosmos.bank.v1beta1.MsgSend.typeUrl,
@@ -117,9 +101,9 @@ export default function ConfirmationModal({
         <Toast toastMessage={toastMessage} setToastMessage={setToastMessage} />
         <div className="flex items-center mx-auto md:w-[42rem] px-4 md:px-8 xl:px-0">
           <div className="w-full">
-            <ol className="flex flex-wrap justify-between items-center text-md font-medium text-center  mb-10">
+            <ol className="flex flex-wrap justify-between items-center text-md font-medium text-center mb-10">
               <li className="flex-1">
-                <div className="flex items-center sm:block after:content-['/'] sm:after:hidden after:mx-2 after:font-light ">
+                <div className="flex items-center sm:block after:content-['/'] sm:after:hidden after:mx-2 after:font-light">
                   <svg
                     className="w-4 h-4 mr-2 sm:mb-2 sm:w-6 sm:h-6 sm:mx-auto"
                     fill="currentColor"
@@ -136,7 +120,7 @@ export default function ConfirmationModal({
                 </div>
               </li>
               <li className="flex-1">
-                <div className="flex items-center sm:block after:content-['/'] sm:after:hidden after:mx-2 after:font-light ">
+                <div className="flex items-center sm:block after:content-['/'] sm:after:hidden after:mx-2 after:font-light">
                   <svg
                     className="w-4 h-4 mr-2 sm:mb-2 sm:w-6 sm:h-6 sm:mx-auto"
                     fill="currentColor"
@@ -153,7 +137,7 @@ export default function ConfirmationModal({
                 </div>
               </li>
               <li className="flex-1">
-                <div className="flex items-center sm:block after:content-['/'] sm:after:hidden after:mx-2 after:font-light ">
+                <div className="flex items-center sm:block after:content-['/'] sm:after:hidden after:mx-2 after:font-light">
                   <svg
                     className="w-4 h-4 mr-2 sm:mb-2 sm:w-6 sm:h-6 sm:mx-auto"
                     fill="currentColor"
@@ -174,26 +158,26 @@ export default function ConfirmationModal({
                 <div>Confirmation</div>
               </li>
             </ol>
-            <h1 className="mb-4 text-2xl font-extrabold tracking-tight  sm:mb-6 leding-tight ">
+            <h1 className="mb-4 text-2xl font-extrabold tracking-tight sm:mb-6 leading-tight">
               Confirmation
             </h1>
-            <div className=" divider divider-vertical md:hidden block" />
-            <form className="min-h-[330px] sm:max-h-[394px] overflow-y-auto ">
-              <label className="block mb-2 text-xl font-light  ">DETAILS</label>
-              <div className="grid gap-5 mb-4 sm:grid-cols-2 bg-base-200 shadow rounded-lg p-4 ">
+            <div className="divider divider-vertical md:hidden block" />
+            <form className="min-h-[330px] sm:max-h-[394px] overflow-y-auto">
+              <label className="block mb-2 text-xl font-light">DETAILS</label>
+              <div className="grid gap-5 mb-4 sm:grid-cols-2 bg-base-200 shadow rounded-lg p-4">
                 <div>
                   <label
                     htmlFor="full-name"
-                    className="block mb-2 text-sm font-medium "
+                    className="block mb-2 text-sm font-medium"
                   >
                     Group Title
                   </label>
-                  <a className="font-medium mb-4 ">{formData.title}</a>
+                  <a className="font-medium mb-4">{formData.title}</a>
                 </div>
                 <div>
                   <label
                     htmlFor="email"
-                    className="block mb-2 text-sm font-medium "
+                    className="block mb-2 text-sm font-medium"
                   >
                     Authors
                   </label>
@@ -205,16 +189,14 @@ export default function ConfirmationModal({
                 <div>
                   <label
                     htmlFor="password"
-                    className="block mb-2 text-sm font-medium  "
+                    className="block mb-2 text-sm font-medium"
                   >
                     Summary
                   </label>
-                  <a className="font-medium mb-4 ">{formData.summary}</a>
+                  <a className="font-medium mb-4">{formData.summary}</a>
                 </div>
               </div>
-              <label className="block mb-2 text-xl font-light  ">
-                MESSAGES
-              </label>
+              <label className="block mb-2 text-xl font-light">MESSAGES</label>
               <div className="flex flex-col bg-base-200 shadow rounded-lg p-4">
                 {formData.messages.map((message, index) => (
                   <div
@@ -249,34 +231,30 @@ export default function ConfirmationModal({
                 METADATA
               </label>
               <div className="flex flex-col bg-base-200 shadow rounded-lg p-4">
-                <div className="grid grid-cols-2 gap-2 ">
+                <div className="grid grid-cols-2 gap-2">
                   <div className="flex flex-col">
                     <a className="text-sm font-light">AUTHORS</a>
-
-                    <a className="text-xl mt-2 ">{formData.metadata.authors}</a>
+                    <a className="text-xl mt-2">{formData.metadata.authors}</a>
                   </div>
-
                   <div className="flex flex-col">
                     <a className="text-sm font-light">TITLE</a>
-
-                    <a className="text-xl mt-2 ">{formData.metadata.title}</a>
+                    <a className="text-xl mt-2">{formData.metadata.title}</a>
                   </div>
                 </div>
                 <div className="flex flex-col mt-4">
                   <a className="text-sm font-light">DETAILS</a>
-                  <div className="max-h-24  mt-2 overflow-y-auto rounded-md bg-base-300 p-4">
-                    <a className="text-sm  ">{formData.metadata.details}</a>
+                  <div className="max-h-24 mt-2 overflow-y-auto rounded-md bg-base-300 p-4">
+                    <a className="text-sm">{formData.metadata.details}</a>
                   </div>
                 </div>
                 <div className="flex flex-col mt-4">
                   <a className="text-sm font-light">SUMMARY</a>
-                  <div className=" max-h-24 mt-2 overflow-y-auto rounded-md bg-base-300 p-4">
-                    <a className="text-sm  ">{formData.metadata.summary}</a>
+                  <div className="max-h-24 mt-2 overflow-y-auto rounded-md bg-base-300 p-4">
+                    <a className="text-sm">{formData.metadata.summary}</a>
                   </div>
                 </div>
               </div>
             </form>
-
             <div className="flex space-x-3 ga-4 mt-6">
               <button
                 onClick={prevStep}

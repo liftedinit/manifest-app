@@ -1,60 +1,39 @@
+import React from "react";
+import { ProposalFormData, ProposalAction } from "@/helpers/formReducer";
+
 export default function ProposalMetadataForm({
   nextStep,
   prevStep,
   formData,
-  onDataChange,
+  dispatch,
 }: {
   nextStep: () => void;
   prevStep: () => void;
-  formData: {
-    title: string;
-    proposers: string;
-    summary: string;
-    messages: {
-      from_address: string;
-      to_address: string;
-      amount: {
-        denom: string;
-        amount: string;
-      };
-      isVisible: boolean;
-    }[];
-    metadata: {
-      title: string;
-      authors: string;
-      summary: string;
-      details: string;
-    };
-  };
-  onDataChange: (newData: {
-    title: string;
-    proposers: string;
-    summary: string;
-    messages: {
-      from_address: string;
-      to_address: string;
-      amount: {
-        denom: string;
-        amount: string;
-      };
-      isVisible: boolean;
-    }[];
-    metadata: {
-      title: string;
-      authors: string;
-      summary: string;
-      details: string;
-    };
-  }) => void;
+  formData: ProposalFormData;
+  dispatch: React.Dispatch<ProposalAction>;
 }) {
+  const handleChange = (
+    field: keyof ProposalFormData["metadata"],
+    value: any
+  ) => {
+    dispatch({
+      type: "UPDATE_FIELD",
+      field: "metadata",
+      value: {
+        ...formData.metadata,
+        [field]: value,
+      },
+    });
+  };
+
   return (
     <section className="">
       <div className="lg:flex min-h-screen mx-auto">
-        <div className="flex items-center mx-auto md:w-[42rem]  px-4 md:px-8 xl:px-0">
+        <div className="flex items-center mx-auto md:w-[42rem] px-4 md:px-8 xl:px-0">
           <div className="w-full">
-            <ol className="flex flex-wrap justify-between items-center text-md font-medium text-center  mb-10">
+            <ol className="flex flex-wrap justify-between items-center text-md font-medium text-center mb-10">
               <li className="flex-1">
-                <div className="flex items-center sm:block after:content-['/'] sm:after:hidden after:mx-2 after:font-light ">
+                <div className="flex items-center sm:block after:content-['/'] sm:after:hidden after:mx-2 after:font-light">
                   <svg
                     className="w-4 h-4 mr-2 sm:mb-2 sm:w-6 sm:h-6 sm:mx-auto"
                     fill="currentColor"
@@ -71,7 +50,7 @@ export default function ProposalMetadataForm({
                 </div>
               </li>
               <li className="flex-1">
-                <div className="flex items-center sm:block after:content-['/'] sm:after:hidden after:mx-2 after:font-light ">
+                <div className="flex items-center sm:block after:content-['/'] sm:after:hidden after:mx-2 after:font-light">
                   <svg
                     className="w-4 h-4 mr-2 sm:mb-2 sm:w-6 sm:h-6 sm:mx-auto"
                     fill="currentColor"
@@ -96,15 +75,15 @@ export default function ProposalMetadataForm({
                 <div>Confirmation</div>
               </li>
             </ol>
-            <h1 className="mb-4 text-2xl font-extrabold tracking-tight  sm:mb-6 leding-tight ">
+            <h1 className="mb-4 text-2xl font-extrabold tracking-tight sm:mb-6 leading-tight">
               Proposal Metadata
             </h1>
-            <form className=" min-h-[330px]">
+            <form className="min-h-[330px]">
               <div className="grid gap-5 my-6 sm:grid-cols-2">
                 <div>
                   <label
-                    htmlFor="full-name"
-                    className="block mb-2 text-sm font-medium "
+                    htmlFor="title"
+                    className="block mb-2 text-sm font-medium"
                   >
                     Title
                   </label>
@@ -112,22 +91,14 @@ export default function ProposalMetadataForm({
                     type="text"
                     placeholder="Type here"
                     className="input input-bordered w-full max-w-xs"
-                    value={formData?.metadata?.title}
-                    onChange={(e) =>
-                      onDataChange({
-                        ...formData,
-                        metadata: {
-                          ...formData.metadata,
-                          title: e.target.value,
-                        },
-                      })
-                    }
+                    value={formData.metadata.title}
+                    onChange={(e) => handleChange("title", e.target.value)}
                   />
                 </div>
                 <div>
                   <label
-                    htmlFor="email"
-                    className="block mb-2 text-sm font-medium "
+                    htmlFor="authors"
+                    className="block mb-2 text-sm font-medium"
                   >
                     Authors
                   </label>
@@ -135,60 +106,36 @@ export default function ProposalMetadataForm({
                     type="text"
                     placeholder="Type here"
                     className="input input-bordered w-full max-w-xs"
-                    value={formData?.metadata?.authors}
-                    onChange={(e) =>
-                      onDataChange({
-                        ...formData,
-                        metadata: {
-                          ...formData.metadata,
-                          authors: e.target.value,
-                        },
-                      })
-                    }
+                    value={formData.metadata.authors}
+                    onChange={(e) => handleChange("authors", e.target.value)}
                   />
                 </div>
                 <div>
                   <label
-                    htmlFor="email"
-                    className="block mb-2 text-sm font-medium "
+                    htmlFor="summary"
+                    className="block mb-2 text-sm font-medium"
                   >
                     Summary
                   </label>
                   <textarea
                     className="textarea textarea-bordered w-full max-w-xs"
                     placeholder="Short Description"
-                    value={formData?.metadata?.summary}
-                    onChange={(e) =>
-                      onDataChange({
-                        ...formData,
-                        metadata: {
-                          ...formData.metadata,
-                          summary: e.target.value,
-                        },
-                      })
-                    }
+                    value={formData.metadata.summary}
+                    onChange={(e) => handleChange("summary", e.target.value)}
                   />
                 </div>
                 <div>
                   <label
-                    htmlFor="email"
-                    className="block mb-2 text-sm font-medium "
+                    htmlFor="details"
+                    className="block mb-2 text-sm font-medium"
                   >
                     Details
                   </label>
                   <textarea
                     className="textarea textarea-bordered w-full max-w-xs"
                     placeholder="Long Description"
-                    value={formData?.metadata?.details}
-                    onChange={(e) =>
-                      onDataChange({
-                        ...formData,
-                        metadata: {
-                          ...formData.metadata,
-                          details: e.target.value,
-                        },
-                      })
-                    }
+                    value={formData.metadata.details}
+                    onChange={(e) => handleChange("details", e.target.value)}
                   />
                 </div>
               </div>

@@ -13,8 +13,8 @@ export function DescriptionModal({
   type,
 }: DescriptionModalProps) {
   return (
-    <dialog id={modalId} className="modal">
-      <form method="dialog" className="modal-box">
+    <dialog id={modalId} className="modal max-w-md mx-auto">
+      <form method="dialog" className="modal-box ">
         <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
           ✕
         </button>

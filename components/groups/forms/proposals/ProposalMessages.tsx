@@ -1,5 +1,5 @@
-import { Coin } from "@cosmjs/stargate";
-import React, { useState } from "react";
+import React from "react";
+import { ProposalFormData, ProposalAction } from "@/helpers/formReducer";
 
 const initialMessage = {
   type: "",
@@ -11,80 +11,36 @@ const initialMessage = {
 
 export default function ProposalMessages({
   formData,
-  onDataChange,
+  dispatch,
   nextStep,
   prevStep,
 }: {
   nextStep: () => void;
   prevStep: () => void;
-  formData: {
-    title: string;
-    proposers: string;
-    summary: string;
-    messages: {
-      from_address: string;
-      to_address: string;
-      amount: {
-        denom: string;
-        amount: string;
-      };
-      isVisible: boolean;
-    }[];
-    metadata: {
-      title: string;
-      authors: string;
-      summary: string;
-      details: string;
-    };
-  };
-  onDataChange: (newData: {
-    title: string;
-    proposers: string;
-    summary: string;
-    messages: {
-      from_address: string;
-      to_address: string;
-      amount: {
-        denom: string;
-        amount: string;
-      };
-      isVisible: boolean;
-    }[];
-    metadata: {
-      title: string;
-      authors: string;
-      summary: string;
-      details: string;
-    };
-  }) => void;
+  formData: ProposalFormData;
+  dispatch: React.Dispatch<ProposalAction>;
 }) {
-  const [txMessages, setMessages] = useState([initialMessage]);
-
   const handleAddMessage = () => {
-    const newMessages = [...txMessages, { ...initialMessage }];
-
-    setMessages([...txMessages, { ...initialMessage }]);
-    onDataChange({ ...formData, messages: newMessages });
+    dispatch({ type: "ADD_MESSAGE", message: initialMessage });
   };
 
   const handleRemoveMessage = (index: number) => {
-    const newMessages = txMessages.filter((_, i) => i !== index);
-    setMessages(newMessages);
-    onDataChange({ ...formData, messages: newMessages });
+    const newMessages = formData.messages.filter((_, i) => i !== index);
+    dispatch({ type: "UPDATE_FIELD", field: "messages", value: newMessages });
   };
 
   const toggleVisibility = (index: number) => {
-    const newMessages = txMessages.map((message, i) => {
+    const newMessages = formData.messages.map((message, i) => {
       if (i === index) {
         return { ...message, isVisible: !message.isVisible };
       }
       return message;
     });
-    setMessages(newMessages);
+    dispatch({ type: "UPDATE_FIELD", field: "messages", value: newMessages });
   };
 
   const handleChangeMessage = (index: number, field: string, value: any) => {
-    const newMessages = txMessages.map((message, i) => {
+    const newMessages = formData.messages.map((message, i) => {
       if (i === index) {
         if (field === "amount") {
           return {
@@ -108,12 +64,10 @@ export default function ProposalMessages({
       }
       return message;
     });
-    onDataChange({ ...formData, messages: newMessages });
-    setMessages(newMessages);
+    dispatch({ type: "UPDATE_FIELD", field: "messages", value: newMessages });
   };
 
   const handleNextStep = () => {
-    onDataChange({ ...formData, messages: txMessages });
     nextStep();
   };
 
@@ -123,7 +77,7 @@ export default function ProposalMessages({
         <div className="flex items-center mx-auto md:w-[42rem] px-4 md:px-8 xl:px-0">
           <div className="w-full">
             <div className="w-full">
-              <ol className="flex flex-wrap justify-between items-center text-md font-medium text-center  mb-10">
+              <ol className="flex flex-wrap justify-between items-center text-md font-medium text-center mb-10">
                 <li className="flex-1">
                   <div className="flex items-center sm:block after:content-['/'] sm:after:hidden after:mx-2 after:font-light ">
                     <svg
@@ -155,7 +109,7 @@ export default function ProposalMessages({
                 </li>
               </ol>
               <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-extrabold tracking-tight  sm:mb-6 leading-tight e">
+                <h1 className="text-2xl font-extrabold tracking-tight sm:mb-6 leading-tight">
                   Messages
                 </h1>
                 <div className="flex gap-2 sm:mb-6">
@@ -177,13 +131,13 @@ export default function ProposalMessages({
                 </div>
               </div>
 
-              <div className=" min-h-[330px]">
+              <div className="min-h-[330px]">
                 <div className="overflow-y-scroll max-h-[330px] min-h-[330px]">
                   <div className="space-y-6">
-                    {txMessages.map((message, index) => (
+                    {formData.messages.map((message, index) => (
                       <div
                         key={index}
-                        className="bg-base-200 shadow opacity-0 transition-opacity ease-in animate-fadeIn rounded-lg mx-auto p-4 max-w-[40rem] mb-4"
+                        className={`bg-base-300 shadow rounded-lg mx-auto p-4 max-w-[40rem] mb-4 transition-opacity ease-in-out opacity-100`}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex flex-row items-center gap-4">
@@ -192,7 +146,7 @@ export default function ProposalMessages({
                             </span>
 
                             <select
-                              className="select select-bordered select-sm w-full h-sm  py-1 text-center text-sm"
+                              className="select select-bordered select-sm w-full h-sm py-1 text-center text-sm"
                               value={message.type}
                               onChange={(e) =>
                                 handleChangeMessage(
@@ -211,7 +165,7 @@ export default function ProposalMessages({
                           <div>
                             <button
                               type="button"
-                              className="btn btn-error btn-xs "
+                              className="btn btn-error btn-xs"
                               onClick={() => handleRemoveMessage(index)}
                             >
                               -
@@ -227,13 +181,7 @@ export default function ProposalMessages({
                           </div>
                         </div>
                         {message.isVisible && (
-                          <div
-                            className={`mt-4 transition-opacity ease-in-out ${
-                              message.isVisible
-                                ? "opacity-0 animate-fadeIn"
-                                : "opacity-100 animate-fadeOut"
-                            }`}
-                          >
+                          <div className="mt-4">
                             {message.type === "send" && (
                               <div className="grid grid-cols-1 gap-4">
                                 <input
@@ -317,7 +265,7 @@ export default function ProposalMessages({
               <div className="flex space-x-3 ga-4 mt-6">
                 <button
                   onClick={prevStep}
-                  className="text-center btn btn-neutral items-center w-1/2 py-2.5 sm:py-3.5 text-sm font-medium focus:outline-none  rounded-lg border "
+                  className="text-center btn btn-neutral items-center w-1/2 py-2.5 sm:py-3.5 text-sm font-medium focus:outline-none  rounded-lg border"
                 >
                   Prev: Proposal Details
                 </button>

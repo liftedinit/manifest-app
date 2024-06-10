@@ -1,38 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useReducer } from "react";
 import ConfirmationForm from "@/components/groups/forms/proposals/ConfirmationForm";
 import ProposalDetails from "@/components/groups/forms/proposals/ProposalDetailsForm";
 import ProposalMetadataForm from "@/components/groups/forms/proposals/ProposalMetadataForm";
 import ProposalMessages from "@/components/groups/forms/proposals/ProposalMessages";
 import { useRouter } from "next/router";
-import { Coin } from "@cosmjs/stargate";
-import { MsgSend } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx";
-import { MsgSetPower } from "@chalabi/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx";
+import {
+  ProposalFormData,
+  proposalFormDataReducer,
+  ProposalAction,
+} from "@/helpers/formReducer"; // Make sure to define the reducer and initial state in a separate file
 
 export default function SubmitProposal() {
-  const msgSend: MsgSend = {
-    from_address: "",
-    to_address: "",
-    amount: [
-      {
-        amount: "",
-        denom: "",
-      },
-    ],
-  };
-
-  const msgSetPower: MsgSetPower = {
-    sender: "",
-    validator_address: "",
-    power: BigInt(0),
-    unsafe: false,
-  };
-
   const [currentStep, setCurrentStep] = useState(1);
   const [animation, setAnimation] = useState("opacity-0");
   const router = useRouter();
   const { policyAddress } = router.query;
 
-  const [formData, setFormData] = useState({
+  const initialProposalFormData: ProposalFormData = {
     title: "",
     proposers: "",
     summary: "",
@@ -53,7 +37,14 @@ export default function SubmitProposal() {
       summary: "",
       details: "",
     },
-  });
+  };
+
+  const [formData, dispatch] = useReducer(
+    proposalFormDataReducer,
+    initialProposalFormData
+  );
+
+  console.log(formData);
 
   useEffect(() => {
     setAnimation("opacity-50");
@@ -80,31 +71,8 @@ export default function SubmitProposal() {
     }
   };
 
-  const handleDataChange = (newData: {
-    title: string;
-    proposers: string;
-    summary: string;
-    messages: {
-      from_address: string;
-      to_address: string;
-      amount: {
-        denom: string;
-        amount: string;
-      };
-      isVisible: boolean;
-    }[];
-    metadata: {
-      title: string;
-      authors: string;
-      summary: string;
-      details: string;
-    };
-  }) => {
-    setFormData((prev) => ({ ...prev, ...newData }));
-  };
-
-  const animateOut = (callback: { (): void; (): void; (): void }) => {
-    setAnimation("opacity-50  transition-opacity duration-300");
+  const animateOut = (callback: () => void) => {
+    setAnimation("opacity-50 transition-opacity duration-300");
     setTimeout(callback, 200);
   };
 
@@ -115,14 +83,14 @@ export default function SubmitProposal() {
       {currentStep === 1 && (
         <ProposalDetails
           formData={formData}
-          onDataChange={handleDataChange}
+          dispatch={dispatch}
           nextStep={nextStep}
         />
       )}
       {currentStep === 2 && (
         <ProposalMessages
           formData={formData}
-          onDataChange={handleDataChange}
+          dispatch={dispatch}
           nextStep={nextStep}
           prevStep={prevStep}
         />
@@ -130,7 +98,7 @@ export default function SubmitProposal() {
       {currentStep === 3 && (
         <ProposalMetadataForm
           formData={formData}
-          onDataChange={handleDataChange}
+          dispatch={dispatch}
           nextStep={nextStep}
           prevStep={prevStep}
         />

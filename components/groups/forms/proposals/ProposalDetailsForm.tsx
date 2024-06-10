@@ -1,59 +1,26 @@
-import { Coin } from "@cosmjs/stargate";
+import React from "react";
+import { ProposalFormData, ProposalAction } from "@/helpers/formReducer";
 import Link from "next/link";
 
 export default function ProposalDetails({
   nextStep,
   formData,
-  onDataChange,
+  dispatch,
 }: {
   nextStep: () => void;
-  formData: {
-    title: string;
-    proposers: string;
-    summary: string;
-    messages: {
-      from_address: string;
-      to_address: string;
-      amount: {
-        denom: string;
-        amount: string;
-      };
-      isVisible: boolean;
-    }[];
-    metadata: {
-      title: string;
-      authors: string;
-      summary: string;
-      details: string;
-    };
-  };
-  onDataChange: (newData: {
-    title: string;
-    proposers: string;
-    summary: string;
-    messages: {
-      from_address: string;
-      to_address: string;
-      amount: {
-        denom: string;
-        amount: string;
-      };
-      isVisible: boolean;
-    }[];
-    metadata: {
-      title: string;
-      authors: string;
-      summary: string;
-      details: string;
-    };
-  }) => void;
+  formData: ProposalFormData;
+  dispatch: React.Dispatch<ProposalAction>;
 }) {
+  const updateField = (field: keyof ProposalFormData, value: any) => {
+    dispatch({ type: "UPDATE_FIELD", field, value });
+  };
+
   return (
     <section className="">
       <div className="lg:flex min-h-screen mx-auto">
         <div className="flex items-center mx-auto md:w-[42rem] px-4 md:px-8 xl:px-0">
           <div className="w-full">
-            <ol className="flex flex-wrap justify-between items-center text-md font-medium text-center  mb-10">
+            <ol className="flex flex-wrap justify-between items-center text-md font-medium text-center mb-10">
               <li className="flex-1">
                 <div className="text-center mb-2">1</div>
                 <div>Info</div>
@@ -73,10 +40,10 @@ export default function ProposalDetails({
                 <div>Confirmation</div>
               </li>
             </ol>
-            <h1 className="mb-4 text-2xl font-extrabold tracking-tight  sm:mb-6 leding-tight ">
+            <h1 className="mb-4 text-2xl font-extrabold tracking-tight sm:mb-6 leading-tight ">
               Proposal
             </h1>
-            <form className=" min-h-[330px]">
+            <form className="min-h-[330px]">
               <div className="grid gap-5 my-6 sm:grid-cols-2">
                 <div>
                   <label
@@ -90,9 +57,7 @@ export default function ProposalDetails({
                     placeholder="Title"
                     className="input input-bordered w-full max-w-xs"
                     value={formData?.title}
-                    onChange={(e) =>
-                      onDataChange({ ...formData, title: e.target.value })
-                    }
+                    onChange={(e) => updateField("title", e.target.value)}
                   />
                 </div>
                 <div>
@@ -107,9 +72,7 @@ export default function ProposalDetails({
                     placeholder="e.g. manifest123, manifest456"
                     className="input input-bordered w-full max-w-xs"
                     value={formData?.proposers}
-                    onChange={(e) =>
-                      onDataChange({ ...formData, proposers: e.target.value })
-                    }
+                    onChange={(e) => updateField("proposers", e.target.value)}
                   />
                 </div>
                 <div>
@@ -123,9 +86,7 @@ export default function ProposalDetails({
                     className="textarea textarea-bordered w-full max-w-xs"
                     placeholder="Short Bio"
                     value={formData?.summary}
-                    onChange={(e) =>
-                      onDataChange({ ...formData, summary: e.target.value })
-                    }
+                    onChange={(e) => updateField("summary", e.target.value)}
                   ></textarea>
                 </div>
               </div>
@@ -133,7 +94,7 @@ export default function ProposalDetails({
 
             <button
               onClick={nextStep}
-              className="w-full  mt-4 btn px-5 py-2.5 sm:py-3.5 btn-primary"
+              className="w-full mt-4 btn px-5 py-2.5 sm:py-3.5 btn-primary"
               disabled={
                 !formData.title || !formData.proposers || !formData.summary
               }
@@ -142,7 +103,7 @@ export default function ProposalDetails({
             </button>
             <div className="flex space-x-3 ga-4 mt-6">
               <Link href={"/groups"} legacyBehavior>
-                <button className=" btn btn-neutral  py-2.5 sm:py-3.5  w-1/2 ">
+                <button className="btn btn-neutral py-2.5 sm:py-3.5 w-1/2 ">
                   Back: Groups Page
                 </button>
               </Link>

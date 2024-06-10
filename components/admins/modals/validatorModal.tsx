@@ -1,10 +1,10 @@
 import React from "react";
-
 import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
 import { ExtendedValidatorSDKType } from "../components";
 import ProfileAvatar from "@/utils/identicon";
 import { BsThreeDots } from "react-icons/bs";
 import { DescriptionModal } from "./descriptionModal";
+
 export function ValidatorDetailsModal({
   validator,
   modalId,
@@ -20,9 +20,11 @@ export function ValidatorDetailsModal({
     return emailRegex.test(contact);
   };
 
-  const handleDescription = () => {
+  const handleDescription = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
     const modal = document.getElementById(
-      `description-modal`
+      `validator-description-modal`
     ) as HTMLDialogElement;
     modal?.showModal();
   };
@@ -57,8 +59,8 @@ export function ValidatorDetailsModal({
           </div>
         </div>
 
-        <div className="p-4 grid rounded-md w-full grid-cols-2 justify-start items-start gap-6">
-          <div className="flex flex-col px-4 py-2 bg-base-300 rounded-md gap-2">
+        <div className="p-4 flex flex-col rounded-md w-full  justify-start items-start gap-6">
+          <div className="flex flex-col w-full px-4 py-2 bg-base-300 rounded-md gap-2">
             <span className="text-sm text-gray-400">SECURITY CONTACT</span>
             <span className="text-md rounded-md">
               {isEmail(validator.description.security_contact)
@@ -66,7 +68,7 @@ export function ValidatorDetailsModal({
                 : "No Security Contact"}
             </span>
           </div>
-          <div className="flex flex-col px-4 py-2 gap-2 bg-base-300 rounded-md">
+          <div className="flex flex-col w-full px-4 py-2 gap-2 bg-base-300 rounded-md">
             <span className="text-sm text-gray-400">POWER</span>
             <div className="flex flex-row gap-2 justify-between rounded-md items-center">
               <input
@@ -77,19 +79,19 @@ export function ValidatorDetailsModal({
               <button className="btn btn-xs btn-primary w-1/3">update</button>
             </div>
           </div>
-          <div className="flex flex-col px-4 py-2 gap-2 bg-base-300 rounded-md">
+          <div className="flex flex-col w-full px-4 py-2 gap-2 bg-base-300 rounded-md">
             <span className="text-sm text-gray-400">OPERATOR ADDRESS</span>
             <span className="text-md rounded-md">
               {TruncatedAddressWithCopy({
                 address: validator.operator_address,
-                slice: 8,
+                slice: 42,
               })}
             </span>
           </div>
-          <div className="flex flex-col px-4 py-2 gap-2 bg-base-300 rounded-md">
+          <div className="flex flex-col w-full px-4 py-2 gap-2 bg-base-300 rounded-md">
             <div className="flex flex-row justify-between items-center relative">
               <span className="text-sm text-gray-400">DETAILS</span>
-              {validator.description.details.length > 20 && (
+              {validator.description.details.length > 50 && (
                 <button
                   className="btn btn-sm btn-ghost hover:bg-transparent absolute -right-2 -top-2"
                   onClick={handleDescription}
@@ -101,8 +103,8 @@ export function ValidatorDetailsModal({
 
             <span className="text-md rounded-md">
               {validator.description.details
-                ? validator.description.details.substring(0, 20) +
-                  (validator.description.details.length > 20 ? "..." : "")
+                ? validator.description.details.substring(0, 50) +
+                  (validator.description.details.length > 50 ? "..." : "")
                 : "No Details"}
             </span>
           </div>
@@ -110,7 +112,7 @@ export function ValidatorDetailsModal({
       </form>
       <DescriptionModal
         type="validator"
-        modalId="description-modal"
+        modalId="validator-description-modal"
         details={validator.description.details ?? "No Details"}
       />
       <form method="dialog" className="modal-backdrop">
