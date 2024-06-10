@@ -50,6 +50,7 @@
     "cosmos-kit": "2.9.0",
     "daisyui": "^4.10.2",
     "dayjs": "^1.11.10",
+    "env-var": "^7.5.0",
     "framer-motion": "9.0.7",
     "identicon.js": "^2.3.3",
     "interchain": "^1.10.4",
