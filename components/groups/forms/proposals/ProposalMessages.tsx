@@ -1,13 +1,12 @@
-import React from "react";
-import { ProposalFormData, ProposalAction } from "@/helpers/formReducer";
+import React, { useState } from "react";
+import {
+  ProposalFormData,
+  ProposalAction,
+  Message,
+  MessageFields,
+} from "@/helpers/formReducer";
 
-const initialMessage = {
-  type: "",
-  from_address: "",
-  to_address: "",
-  amount: { denom: "", amount: "" },
-  isVisible: false,
-};
+import * as initialMessages from "./messages";
 
 export default function ProposalMessages({
   formData,
@@ -20,51 +19,231 @@ export default function ProposalMessages({
   formData: ProposalFormData;
   dispatch: React.Dispatch<ProposalAction>;
 }) {
+  const [visibleMessages, setVisibleMessages] = useState<boolean[]>(
+    formData.messages.map(() => true)
+  );
+
   const handleAddMessage = () => {
-    dispatch({ type: "ADD_MESSAGE", message: initialMessage });
+    dispatch({
+      type: "ADD_MESSAGE",
+      message: initialMessages.initialSendMessage,
+    });
+    setVisibleMessages([...visibleMessages, true]);
   };
 
   const handleRemoveMessage = (index: number) => {
-    const newMessages = formData.messages.filter((_, i) => i !== index);
-    dispatch({ type: "UPDATE_FIELD", field: "messages", value: newMessages });
+    dispatch({ type: "REMOVE_MESSAGE", index });
+    setVisibleMessages(visibleMessages.filter((_, i) => i !== index));
   };
 
   const toggleVisibility = (index: number) => {
-    const newMessages = formData.messages.map((message, i) => {
-      if (i === index) {
-        return { ...message, isVisible: !message.isVisible };
-      }
-      return message;
-    });
-    dispatch({ type: "UPDATE_FIELD", field: "messages", value: newMessages });
+    setVisibleMessages(
+      visibleMessages.map((visible, i) => (i === index ? !visible : visible))
+    );
   };
 
-  const handleChangeMessage = (index: number, field: string, value: any) => {
-    const newMessages = formData.messages.map((message, i) => {
-      if (i === index) {
-        if (field === "amount") {
-          return {
-            ...message,
-            amount: { denom: value.denom, amount: value.amount },
+  const handleChangeMessage = (
+    index: number,
+    field: MessageFields,
+    value: any
+  ) => {
+    let updatedMessage = { ...formData.messages[index] };
+
+    if (field === "type") {
+      switch (value) {
+        case "send":
+          updatedMessage = {
+            ...initialMessages.initialSendMessage,
+            type: value,
           };
-        } else {
-          if (field === "type" && value !== "" && message.type === "") {
-            return {
-              ...message,
-              [field]: value,
-              isVisible: true,
-            };
-          } else {
-            return {
-              ...message,
-              [field]: value,
-            };
-          }
-        }
+          break;
+        case "customMessage":
+          updatedMessage = {
+            ...initialMessages.initialCustomMessage,
+            type: value,
+          };
+          break;
+        case "removeValidator":
+          updatedMessage = {
+            ...initialMessages.initialRemoveValidatorMessage,
+            type: value,
+          };
+          break;
+        case "removePending":
+          updatedMessage = {
+            ...initialMessages.initialRemovePendingMessage,
+            type: value,
+          };
+          break;
+        case "updatePoaParams":
+          updatedMessage = {
+            ...initialMessages.initialUpdatePoaParamsMessage,
+            type: value,
+          };
+          break;
+        case "updateStakingParams":
+          updatedMessage = {
+            ...initialMessages.initialUpdateStakingParamsMessage,
+            type: value,
+          };
+          break;
+        case "setPower":
+          updatedMessage = {
+            ...initialMessages.initialSetPowerMessage,
+            type: value,
+          };
+          break;
+        case "updateManifestParams":
+          updatedMessage = {
+            ...initialMessages.initialUpdateManifestParamsMessage,
+            type: value,
+          };
+          break;
+        case "payoutStakeholders":
+          updatedMessage = {
+            ...initialMessages.initialPayoutStakeholdersMessage,
+            type: value,
+          };
+          break;
+        case "updateGroupAdmin":
+          updatedMessage = {
+            ...initialMessages.initialUpdateGroupAdminMessage,
+            type: value,
+          };
+          break;
+        case "updateGroupMembers":
+          updatedMessage = {
+            ...initialMessages.initialUpdateGroupMembersMessage,
+            type: value,
+          };
+          break;
+        case "updateGroupMetadata":
+          updatedMessage = {
+            ...initialMessages.initialUpdateGroupMetadataMessage,
+            type: value,
+          };
+          break;
+        case "updateGroupPolicyAdmin":
+          updatedMessage = {
+            ...initialMessages.initialUpdateGroupPolicyAdminMessage,
+            type: value,
+          };
+          break;
+        case "createGroupWithPolicy":
+          updatedMessage = {
+            ...initialMessages.initialCreateGroupWithPolicyMessage,
+            type: value,
+          };
+          break;
+        case "submitProposal":
+          updatedMessage = {
+            ...initialMessages.initialSubmitProposalMessage,
+            type: value,
+          };
+          break;
+        case "vote":
+          updatedMessage = {
+            ...initialMessages.initialVoteMessage,
+            type: value,
+          };
+          break;
+        case "withdrawProposal":
+          updatedMessage = {
+            ...initialMessages.initialWithdrawProposalMessage,
+            type: value,
+          };
+          break;
+        case "exec":
+          updatedMessage = {
+            ...initialMessages.initialExecMessage,
+            type: value,
+          };
+          break;
+        case "leaveGroup":
+          updatedMessage = {
+            ...initialMessages.initialLeaveGroupMessage,
+            type: value,
+          };
+          break;
+        default:
+          break;
       }
-      return message;
+    } else {
+      (updatedMessage as any)[field as string] = value;
+    }
+
+    dispatch({ type: "UPDATE_MESSAGE", index, message: updatedMessage });
+  };
+
+  const renderInputs = (
+    object: any,
+    handleChange: (field: string, value: any) => void,
+    path = ""
+  ) => {
+    return Object.keys(object).map((key) => {
+      const value = object[key];
+      const currentPath = path ? `${path}.${key}` : key;
+
+      if (
+        typeof value === "object" &&
+        value !== null &&
+        !Array.isArray(value)
+      ) {
+        return (
+          <div key={currentPath} className="grid grid-cols-1 gap-4">
+            {renderInputs(value, handleChange, currentPath)}
+          </div>
+        );
+      } else if (typeof value === "boolean") {
+        return (
+          <label key={currentPath} className="flex items-center">
+            <input
+              type="checkbox"
+              className="checkbox checkbox-sm"
+              checked={value}
+              onChange={(e) => handleChange(currentPath, e.target.checked)}
+            />
+            <span className="ml-2 capitalize">{key.replace(/_/g, " ")}</span>
+          </label>
+        );
+      } else {
+        return (
+          <input
+            key={currentPath}
+            type="text"
+            placeholder={key.replace(/_/g, " ")}
+            className="input input-bordered input-sm w-full"
+            value={value}
+            onChange={(e) => handleChange(currentPath, e.target.value)}
+          />
+        );
+      }
     });
-    dispatch({ type: "UPDATE_FIELD", field: "messages", value: newMessages });
+  };
+
+  const renderMessageFields = (message: Message, index: number) => {
+    interface Message {
+      [key: string]: any;
+    }
+
+    const handleChange = (field: string, value: any) => {
+      const fieldPath = field.split(".");
+      let updatedMessage: any = { ...formData.messages[index] };
+
+      let current = updatedMessage;
+      for (let i = 0; i < fieldPath.length - 1; i++) {
+        current = current[fieldPath[i]];
+      }
+      current[fieldPath[fieldPath.length - 1]] = value;
+
+      dispatch({ type: "UPDATE_MESSAGE", index, message: updatedMessage });
+    };
+
+    return (
+      <div className="grid grid-cols-1 gap-4">
+        {renderInputs(message, (field, value) => handleChange(field, value))}
+      </div>
+    );
   };
 
   const handleNextStep = () => {
@@ -79,7 +258,7 @@ export default function ProposalMessages({
             <div className="w-full">
               <ol className="flex flex-wrap justify-between items-center text-md font-medium text-center mb-10">
                 <li className="flex-1">
-                  <div className="flex items-center sm:block after:content-['/'] sm:after:hidden after:mx-2 after:font-light ">
+                  <div className="flex items-center sm:block after:content-['/'] sm:after:hidden after:mx-2 after:font-light">
                     <svg
                       className="w-4 h-4 mr-2 sm:mb-2 sm:w-6 sm:h-6 sm:mx-auto"
                       fill="currentColor"
@@ -88,7 +267,7 @@ export default function ProposalMessages({
                     >
                       <path
                         fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        d="M10 18a8 8 0 100-16 8 8 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                         clipRule="evenodd"
                       ></path>
                     </svg>
@@ -116,14 +295,6 @@ export default function ProposalMessages({
                   <button
                     type="button"
                     className="btn btn-sm"
-                    onClick={() => handleRemoveMessage(1)}
-                  >
-                    -
-                  </button>
-
-                  <button
-                    type="button"
-                    className="btn btn-sm"
                     onClick={handleAddMessage}
                   >
                     +
@@ -137,7 +308,7 @@ export default function ProposalMessages({
                     {formData.messages.map((message, index) => (
                       <div
                         key={index}
-                        className={`bg-base-300 shadow rounded-lg mx-auto p-4 max-w-[40rem] mb-4 transition-opacity ease-in-out opacity-100`}
+                        className={`bg-base-300 shadow rounded-lg mx-auto p-4 max-w-[40rem] mb-4 transition-opacity ease-in-out `}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex flex-row items-center gap-4">
@@ -152,14 +323,52 @@ export default function ProposalMessages({
                                 handleChangeMessage(
                                   index,
                                   "type",
-                                  e.target.value
+                                  e.target.value as keyof Message
                                 )
                               }
                             >
-                              <option disabled selected value="">
-                                Select Type
-                              </option>
                               <option value="send">Send</option>
+                              <option value="custom_message">
+                                Custom Message
+                              </option>
+                              <option value="updatePoaParams">
+                                Update PoA Params
+                              </option>
+                              <option value="removeValidator">
+                                Remove Validator
+                              </option>
+                              <option value="removePending">
+                                Remove Pending
+                              </option>
+                              <option value="updateStakingParams">
+                                Update Staking Params
+                              </option>
+                              <option value="setPower">Set Power</option>
+                              <option value="updateManifestParams">
+                                Update Manifest Params
+                              </option>
+                              <option value="payoutStakeholders">
+                                Payout Stakeholders
+                              </option>
+                              <option value="updateGroupAdmin">
+                                Update Group Admin
+                              </option>
+                              <option value="updateGroupMembers">
+                                Update Group Members
+                              </option>
+                              <option value="updateGroupMetadata">
+                                Update Group Metadata
+                              </option>
+                              <option value="updateGroupPolicyAdmin">
+                                Update Group Policy Admin
+                              </option>
+
+                              <option value="vote">Vote</option>
+                              <option value="withdrawProposal">
+                                Withdraw Proposal
+                              </option>
+
+                              <option value="leaveGroup">Leave Group</option>
                             </select>
                           </div>
                           <div>
@@ -174,70 +383,15 @@ export default function ProposalMessages({
                               type="button"
                               className="btn btn-xs btn-primary ml-2"
                               onClick={() => toggleVisibility(index)}
-                              disabled={message.type === ""}
+                              disabled={!message.type}
                             >
-                              {message.isVisible ? "⋀" : "⋁"}
+                              {visibleMessages[index] ? "⋀" : "⋁"}
                             </button>
                           </div>
                         </div>
-                        {message.isVisible && (
+                        {visibleMessages[index] && (
                           <div className="mt-4">
-                            {message.type === "send" && (
-                              <div className="grid grid-cols-1 gap-4">
-                                <input
-                                  type="text"
-                                  placeholder="From Address (e.g. manifest1...)"
-                                  className="input input-bordered input-sm w-full"
-                                  value={message.from_address}
-                                  onChange={(e) =>
-                                    handleChangeMessage(
-                                      index,
-                                      "from_address",
-                                      e.target.value
-                                    )
-                                  }
-                                />
-                                <input
-                                  type="text"
-                                  placeholder="To Address"
-                                  className="input input-bordered input-sm w-full"
-                                  value={message.to_address}
-                                  onChange={(e) =>
-                                    handleChangeMessage(
-                                      index,
-                                      "to_address",
-                                      e.target.value
-                                    )
-                                  }
-                                />
-                                <div className="flex gap-2">
-                                  <input
-                                    type="text"
-                                    placeholder="Denom"
-                                    className="input input-sm input-bordered w-1/2"
-                                    value={message.amount.denom}
-                                    onChange={(e) =>
-                                      handleChangeMessage(index, "amount", {
-                                        ...message.amount,
-                                        denom: e.target.value,
-                                      })
-                                    }
-                                  />
-                                  <input
-                                    type="text"
-                                    placeholder="Amount"
-                                    className="input input-sm input-bordered w-1/2"
-                                    value={message.amount.amount}
-                                    onChange={(e) =>
-                                      handleChangeMessage(index, "amount", {
-                                        ...message.amount,
-                                        amount: e.target.value,
-                                      })
-                                    }
-                                  />
-                                </div>
-                              </div>
-                            )}
+                            {renderMessageFields(message, index)}
                           </div>
                         )}
                       </div>
@@ -248,15 +402,7 @@ export default function ProposalMessages({
                 <button
                   onClick={handleNextStep}
                   className="btn mt-4 btn-primary w-full"
-                  disabled={
-                    !formData.messages.every(
-                      (m) =>
-                        m.from_address &&
-                        m.to_address &&
-                        m.amount.denom &&
-                        m.amount.amount
-                    ) || formData.messages.length === 0
-                  }
+                  disabled={formData.messages.length === 0}
                 >
                   Next: Group Policy
                 </button>

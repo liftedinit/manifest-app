@@ -22,13 +22,13 @@ export default function SubmitProposal() {
     summary: "",
     messages: [
       {
+        type: "send",
         from_address: "",
         to_address: "",
         amount: {
           denom: "",
           amount: "",
         },
-        isVisible: false,
       },
     ],
     metadata: {
@@ -105,6 +105,7 @@ export default function SubmitProposal() {
       )}
       {currentStep === 4 && (
         <ConfirmationForm
+          dispatch={dispatch}
           policyAddress={policyAddress as string}
           formData={formData}
           prevStep={prevStep}

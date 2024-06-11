@@ -47,33 +47,11 @@ export default function ConfirmationModal({
     setCID(CID);
   };
 
-  const messages = formData.messages.map((message) =>
-    MsgSend.encode({
-      from_address: message.from_address,
-      to_address: message.to_address,
-      amount: [message.amount],
-    }).finish()
-  );
-
-  const packedMsg = Any.encode({
-    type_url: cosmos.bank.v1beta1.MsgSend.typeUrl,
-    value: MsgSend.encode({
-      from_address: formData.messages[0].from_address,
-      to_address: formData.messages[0].to_address,
-      amount: [{ denom: "umfx", amount: "1" }],
-    }).finish(),
-  }).finish();
-
-  const msgSend = {
-    type_url: cosmos.bank.v1beta1.MsgSend.typeUrl,
-    value: packedMsg,
-  };
-
   const handleConfirm = async () => {
     await uploadMetaDataToIPFS();
     const msg = submitProposal({
       address: policyAddress ?? "",
-      messages: [msgSend],
+      messages: [],
       metadata: CID,
       proposers: [formData.proposers],
       exec: 1,
@@ -207,21 +185,7 @@ export default function ConfirmationModal({
                     <div className="grid sm:grid-cols-2 gap-6">
                       <div className="flex flex-col">
                         <a className="text-sm font-light">TYPE</a>
-                        <a className="text-md">/cosmos.bank.v1beta1.MsgSend</a>
-                      </div>
-                      <div className="flex flex-col">
-                        <a className="text-sm font-light">FROM</a>
-                        <TruncatedAddressWithCopy
-                          address={message.from_address}
-                          slice={14}
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <a className="text-sm font-light">TO</a>
-                        <TruncatedAddressWithCopy
-                          address={message.to_address}
-                          slice={14}
-                        />
+                        <a className="text-md">{message.type}</a>
                       </div>
                     </div>
                   </div>
