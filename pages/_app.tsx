@@ -196,8 +196,8 @@ function ManifestApp({ Component, pageProps }: AppProps) {
 
         client: {
           clientId:
-            "BBUtlzggdx-jVCLSRnyOD8sVc2-lwB4L7IdmQkOMaq5642jfuXQjh_5fMIyhydo0eQIxxyLiMRLQK4WzSUAmMcA",
-          web3AuthNetwork: "sapphire_devnet",
+            "BKj3lr6GfN2CnvO4CIKo5fuoCg_TpHsAPK7R8lbl6kUlz0CAH_5mFNswScEb7M6szV4hd1Tkwa2oPZ9KiXJB-44",
+          web3AuthNetwork: "testnet",
         },
 
         promptSign: async (_, signData) =>
