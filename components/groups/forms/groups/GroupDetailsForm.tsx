@@ -15,31 +15,9 @@ export default function GroupDetails({
   };
   return (
     <section className="">
-      <div className="lg:flex min-h-screen mx-auto">
+      <div className="lg:flex  mx-auto">
         <div className="flex items-center mx-auto md:w-[42rem] px-4 md:px-8 xl:px-0">
           <div className="w-full">
-            <ol className="flex flex-wrap justify-between items-center text-md font-medium text-center  mb-10">
-              <li className="flex-1">
-                <div className="text-center mb-2">1</div>
-                <div>
-                  Group <span>Info</span>
-                </div>
-              </li>
-              <li className="flex-1">
-                <div className="text-center mb-2">2</div>
-                <div>
-                  Group <span>Policy</span>
-                </div>
-              </li>
-              <li className="flex-1">
-                <div className="text-cente mb-2">3</div>
-                <div>Member Info</div>
-              </li>
-              <li className="flex-1">
-                <div className="text-center mb-2">4</div>
-                <div>Confirmation</div>
-              </li>
-            </ol>
             <h1 className="mb-4 text-2xl font-extrabold tracking-tight  sm:mb-6 leding-tight ">
               Group details
             </h1>

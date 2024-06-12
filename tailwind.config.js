@@ -17,7 +17,7 @@ module.exports = {
         fadeIn: "fadeIn 400ms ease-in",
         fadeOut: "fadeOut 400ms ease-out",
         fadeSlideUp: "fadeSlideUp 400ms ease-in",
-        fadeSlideDown: "fadeSlideDown 400ms ease-out",
+        fadeSlideDown: "fadeSlideDown 400ms ease-out forwards",
         slideFadeInLeft: "slideFadeInLeft 400ms ease-in",
         slideFadeOutRight: "slideFadeOutRight 400ms ease-out",
       },

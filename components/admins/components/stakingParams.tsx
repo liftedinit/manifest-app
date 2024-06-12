@@ -33,12 +33,12 @@ export default function StakingParams({
       <div className="divider divider-horizon -mt-2 mb-1"></div>
       {isLoading && <div className="skeleton w-full h-auto"></div>}
       {!isLoading && (
-        <div className="flex flex-col gap-8 justify-center items-center w-full">
-          <div className="flex flex-row gap-8 w-full justify-center items-center">
+        <div className="flex flex-col gap-[1.85rem] justify-center items-center w-full px-1">
+          <div className="flex flex-row gap-4 w-full justify-center items-center">
             <div className="flex flex-col gap-2 w-1/2 rounded-md">
               <span className="text-sm text-gray-400">UNBONDING TIME</span>
-              <span className="text-md bg-base-300 p-2 rounded-md">
-                <span>
+              <span className="text-md bg-base-300 py-2 rounded-md">
+                <span className="p-2">
                   {Number(
                     BigInt(stakingParams.unbonding_time?.seconds ?? 1) /
                       BigInt(86400)
@@ -48,43 +48,45 @@ export default function StakingParams({
             </div>
             <div className="flex flex-col gap-2 w-1/2 rounded-md">
               <span className="text-sm text-gray-400">MAX VALIDATORS</span>
-              <span className="text-md bg-base-300 p-2 rounded-md">
-                {stakingParams.max_validators}
+              <span className="text-md bg-base-300 py-2 rounded-md">
+                <span className="p-2">{stakingParams.max_validators}</span>
               </span>
             </div>
           </div>
-          <div className="flex flex-row gap-8 w-full justify-center items-center">
+          <div className="flex flex-row gap-4 w-full justify-center items-center">
             <div className="flex flex-col gap-2 w-1/2 rounded-md">
               <span className="text-sm text-gray-400 truncate">BOND DENOM</span>
-              <span className="text-md bg-base-300 p-2 rounded-md">
-                {stakingParams.bond_denom}
+              <span className="text-md bg-base-300 py-2 rounded-md">
+                <span className="p-2">{stakingParams.bond_denom}</span>
               </span>
             </div>
             <div className="flex flex-col gap-2 w-1/2 rounded-md">
               <span className="text-sm text-gray-400 truncate">
                 MINIMUM COMMISSION
               </span>
-              <span className="text-md bg-base-300 p-2 rounded-md">
-                {(Number(stakingParams.min_commission_rate) * 100)
-                  .toFixed(0)
-                  .toString()}{" "}
-                %
+              <span className="text-md bg-base-300 py-2 rounded-md">
+                <span className="p-2">
+                  {(Number(stakingParams.min_commission_rate) * 100)
+                    .toFixed(0)
+                    .toString()}{" "}
+                  %
+                </span>
               </span>
             </div>
           </div>
-          <div className="flex flex-row gap-8 w-full justify-center items-center">
+          <div className="flex flex-row gap-4 w-full justify-center items-center">
             <div className="flex flex-col gap-2 w-1/2 rounded-md">
               <span className="text-sm text-gray-400">MAX ENTRIES</span>
-              <span className="text-md bg-base-300 p-2 rounded-md">
-                {stakingParams.max_entries}
+              <span className="text-md bg-base-300 py-2 rounded-md">
+                <span className="p-2">{stakingParams.max_entries}</span>
               </span>
             </div>
             <div className="flex flex-col gap-2 w-1/2 rounded-md">
               <span className="text-sm text-gray-400 truncate">
                 HISTORICAL ENTRIES
               </span>
-              <span className="text-md bg-base-300 p-2 rounded-md">
-                {stakingParams.historical_entries}
+              <span className="text-md bg-base-300 py-2 rounded-md">
+                <span className="p-2">{stakingParams.historical_entries}</span>
               </span>
             </div>
           </div>

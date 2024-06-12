@@ -20,11 +20,10 @@ import SideNav from "../components/react/sideNav";
 import { AssetList, Chain } from "@chain-registry/types";
 import { SigningStargateClientOptions, AminoTypes } from "@cosmjs/stargate";
 import {
-  cosmosAminoConverters,
   manifestAminoConverters,
-  cosmosProtoRegistry,
   manifestProtoRegistry,
 } from "@chalabi/manifestjs";
+import { cosmosAminoConverters, cosmosProtoRegistry } from "interchain";
 import MobileNav from "@/components/react/mobileNav";
 
 const manifestChain: Chain = {

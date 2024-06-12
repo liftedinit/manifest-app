@@ -1,18 +1,18 @@
-import React, { useState, useEffect, useReducer } from "react";
+import React, { useState, useReducer } from "react";
+import { useRouter } from "next/router";
+import StepIndicator from "@/components/groups/components/StepIndicator";
 import ConfirmationForm from "@/components/groups/forms/proposals/ConfirmationForm";
 import ProposalDetails from "@/components/groups/forms/proposals/ProposalDetailsForm";
 import ProposalMetadataForm from "@/components/groups/forms/proposals/ProposalMetadataForm";
 import ProposalMessages from "@/components/groups/forms/proposals/ProposalMessages";
-import { useRouter } from "next/router";
 import {
   ProposalFormData,
   proposalFormDataReducer,
   ProposalAction,
-} from "@/helpers/formReducer"; // Make sure to define the reducer and initial state in a separate file
+} from "@/helpers/formReducer";
 
 export default function SubmitProposal() {
   const [currentStep, setCurrentStep] = useState(1);
-  const [animation, setAnimation] = useState("opacity-0");
   const router = useRouter();
   const { policyAddress } = router.query;
 
@@ -44,74 +44,70 @@ export default function SubmitProposal() {
     initialProposalFormData
   );
 
-  console.log(formData);
-
-  useEffect(() => {
-    setAnimation("opacity-50");
-
-    const timeoutId = setTimeout(
-      () =>
-        setAnimation(
-          "opacity-100 translate-y-0 transition-opacity duration-300"
-        ),
-      10
-    );
-    return () => clearTimeout(timeoutId);
-  }, [currentStep]);
-
   const nextStep = () => {
     if (currentStep < 4) {
-      animateOut(() => setCurrentStep(currentStep + 1));
+      setCurrentStep(currentStep + 1);
     }
   };
 
   const prevStep = () => {
     if (currentStep > 1) {
-      animateOut(() => setCurrentStep(currentStep - 1));
+      setCurrentStep(currentStep - 1);
     }
   };
 
-  const animateOut = (callback: () => void) => {
-    setAnimation("opacity-50 transition-opacity duration-300");
-    setTimeout(callback, 200);
-  };
+  const steps = [
+    { label: "Info", step: 1 },
+    { label: "Messages", step: 2 },
+    { label: "Metadata", step: 3 },
+    { label: "Confirmation", step: 4 },
+  ];
 
   return (
-    <div
-      className={`flex justify-center items-center min-h-screen ${animation}`}
-    >
-      {currentStep === 1 && (
-        <ProposalDetails
-          formData={formData}
-          dispatch={dispatch}
-          nextStep={nextStep}
-        />
-      )}
-      {currentStep === 2 && (
-        <ProposalMessages
-          formData={formData}
-          dispatch={dispatch}
-          nextStep={nextStep}
-          prevStep={prevStep}
-        />
-      )}
-      {currentStep === 3 && (
-        <ProposalMetadataForm
-          formData={formData}
-          dispatch={dispatch}
-          nextStep={nextStep}
-          prevStep={prevStep}
-        />
-      )}
-      {currentStep === 4 && (
-        <ConfirmationForm
-          dispatch={dispatch}
-          policyAddress={policyAddress as string}
-          formData={formData}
-          prevStep={prevStep}
-          nextStep={nextStep}
-        />
-      )}
+    <div className="flex flex-col items-center min-h-screen">
+      <div className="w-full flex flex-col gap-12 justify-between my-auto items-center animate-fadeIn max-w-4xl mt-10">
+        <StepIndicator steps={steps} currentStep={currentStep} />
+        {currentStep === 1 && (
+          <div className="transition-opacity duration-300 animate-fadeIn">
+            <ProposalDetails
+              formData={formData}
+              dispatch={dispatch}
+              nextStep={nextStep}
+            />
+          </div>
+        )}
+        {currentStep === 2 && (
+          <div className="transition-opacity duration-300 animate-fadeIn">
+            <ProposalMessages
+              formData={formData}
+              dispatch={dispatch}
+              nextStep={nextStep}
+              prevStep={prevStep}
+            />
+          </div>
+        )}
+        {currentStep === 3 && (
+          <div className="transition-opacity duration-300 animate-fadeIn">
+            <ProposalMetadataForm
+              formData={formData}
+              dispatch={dispatch}
+              nextStep={nextStep}
+              prevStep={prevStep}
+            />
+          </div>
+        )}
+        {currentStep === 4 && (
+          <div className="transition-opacity duration-300 animate-fadeIn">
+            <ConfirmationForm
+              dispatch={dispatch}
+              policyAddress={policyAddress as string}
+              formData={formData}
+              prevStep={prevStep}
+              nextStep={nextStep}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

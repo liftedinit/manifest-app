@@ -85,7 +85,7 @@ const msgSubmitProposal = submitProposal({
     proposers: [""],
     messages: [],
     metadata: "",
-    address: "",
+    group_policy_address: "",
     exec: 1
 });
 const msgVote = vote({

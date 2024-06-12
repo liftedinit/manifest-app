@@ -28,53 +28,9 @@ export default function ProposalMetadataForm({
 
   return (
     <section className="">
-      <div className="lg:flex min-h-screen mx-auto">
+      <div className="lg:flex  mx-auto">
         <div className="flex items-center mx-auto md:w-[42rem] px-4 md:px-8 xl:px-0">
           <div className="w-full">
-            <ol className="flex flex-wrap justify-between items-center text-md font-medium text-center mb-10">
-              <li className="flex-1">
-                <div className="flex items-center sm:block after:content-['/'] sm:after:hidden after:mx-2 after:font-light">
-                  <svg
-                    className="w-4 h-4 mr-2 sm:mb-2 sm:w-6 sm:h-6 sm:mx-auto"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    ></path>
-                  </svg>
-                  <span className="hidden sm:inline-flex">Info</span>
-                </div>
-              </li>
-              <li className="flex-1">
-                <div className="flex items-center sm:block after:content-['/'] sm:after:hidden after:mx-2 after:font-light">
-                  <svg
-                    className="w-4 h-4 mr-2 sm:mb-2 sm:w-6 sm:h-6 sm:mx-auto"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    ></path>
-                  </svg>
-                  <span className="hidden sm:inline-flex">Messages</span>
-                </div>
-              </li>
-              <li className="flex-1">
-                <div className="text-center mb-2">3</div>
-                <div>Metadata</div>
-              </li>
-              <li className="flex-1">
-                <div className="text-center mb-2">4</div>
-                <div>Confirmation</div>
-              </li>
-            </ol>
             <h1 className="mb-4 text-2xl font-extrabold tracking-tight sm:mb-6 leading-tight">
               Proposal Metadata
             </h1>
@@ -150,14 +106,14 @@ export default function ProposalMetadataForm({
                 !formData.metadata.details
               }
             >
-              Next: Member Info
+              Next: Confirmation
             </button>
             <div className="flex space-x-3 ga-4 mt-6">
               <button
                 onClick={prevStep}
                 className="text-center items-center w-1/2 py-2.5 sm:py-3.5 btn btn-neutral"
               >
-                Prev: Group Details
+                Prev: Messages
               </button>
             </div>
           </div>
