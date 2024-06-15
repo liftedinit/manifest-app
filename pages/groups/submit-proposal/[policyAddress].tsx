@@ -10,12 +10,15 @@ import {
   proposalFormDataReducer,
   ProposalAction,
 } from "@/helpers/formReducer";
+import Head from "next/head";
+import { chainName } from "@/config";
+import { useChain } from "@cosmos-kit/react";
 
 export default function SubmitProposal() {
   const [currentStep, setCurrentStep] = useState(1);
   const router = useRouter();
   const { policyAddress } = router.query;
-
+  const { address } = useChain(chainName);
   const initialProposalFormData: ProposalFormData = {
     title: "",
     proposers: "",
@@ -65,6 +68,58 @@ export default function SubmitProposal() {
 
   return (
     <div className="flex flex-col items-center min-h-screen">
+      <Head>
+        <title>Submit a proposal - Alberto</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta
+          name="description"
+          content="Alberto is the gateway to the Manifest Network"
+        />
+        <meta
+          name="keywords"
+          content="crypto, blockchain, application, Cosmos-SDK, Alberto, Manifest Network"
+        />
+        <meta name="author" content="Chandra Station" />
+        <link rel="icon" href="/favicon.ico" />
+
+        <meta property="og:title" content="Submit a proposal - Alberto" />
+        <meta
+          property="og:description"
+          content="Alberto is the gateway to the Manifest Network"
+        />
+        <meta property="og:url" content="https://" />
+        <meta property="og:image" content="https://" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Alberto" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Submit a proposal - Alberto" />
+        <meta
+          name="twitter:description"
+          content="Alberto is the gateway to the Manifest Network"
+        />
+        <meta name="twitter:image" content="https://" />
+        <meta name="twitter:site" content="@" />
+
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            name: "Submit a proposal - Alberto",
+            description: "Alberto is the gateway to the Manifest Network",
+            url: "https://",
+            image: "https://",
+            publisher: {
+              "@type": "Organization",
+              name: "Chandra Station",
+              logo: {
+                "@type": "ImageObject",
+                url: "https:///img/logo.png",
+              },
+            },
+          })}
+        </script>
+      </Head>
       <div className="w-full flex flex-col gap-12 justify-between my-auto items-center animate-fadeIn max-w-4xl mt-10">
         <StepIndicator steps={steps} currentStep={currentStep} />
         {currentStep === 1 && (
@@ -73,6 +128,7 @@ export default function SubmitProposal() {
               formData={formData}
               dispatch={dispatch}
               nextStep={nextStep}
+              address={address ?? ""}
             />
           </div>
         )}

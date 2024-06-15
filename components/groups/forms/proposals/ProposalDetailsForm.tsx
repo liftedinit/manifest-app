@@ -1,15 +1,18 @@
 import React from "react";
 import { ProposalFormData, ProposalAction } from "@/helpers/formReducer";
 import Link from "next/link";
+import { PiAddressBook } from "react-icons/pi";
 
 export default function ProposalDetails({
   nextStep,
   formData,
   dispatch,
+  address,
 }: {
   nextStep: () => void;
   formData: ProposalFormData;
   dispatch: React.Dispatch<ProposalAction>;
+  address: string;
 }) {
   const updateField = (field: keyof ProposalFormData, value: any) => {
     dispatch({ type: "UPDATE_FIELD", field, value });
@@ -47,13 +50,25 @@ export default function ProposalDetails({
                   >
                     Proposers
                   </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. manifest123, manifest456"
-                    className="input input-bordered w-full max-w-xs"
-                    value={formData?.proposers}
-                    onChange={(e) => updateField("proposers", e.target.value)}
-                  />
+                  <div className="flex flex-row justify-between items-center">
+                    {" "}
+                    <input
+                      type="text"
+                      placeholder="List of authors"
+                      className="input input-bordered rounded-l rounded-t rounded-b rounded-r-none w-full max-w-xs"
+                      value={formData.proposers}
+                      onChange={(e) => updateField("proposers", e.target.value)}
+                    />{" "}
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        updateField("proposers", address);
+                      }}
+                      className="btn btn-primary rounded-r rounded-l-none rounded-t rounded-b"
+                    >
+                      <PiAddressBook className="w-6 h-6" />
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <label

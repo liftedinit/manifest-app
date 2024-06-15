@@ -1,15 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { IPFSMetadata } from "@/hooks/useQueries";
-import {
-  PiGarageLight,
-  PiInfoLight,
-  PiPlusCircleThin,
-  PiRewindCircleThin,
-  PiTrashLight,
-} from "react-icons/pi";
 import { cosmos } from "@chalabi/manifestjs";
-import { truncateString } from "@/utils";
 import { Duration } from "cosmjs-types/google/protobuf/duration";
+import { PiTrashLight, PiPlusCircleThin, PiInfoLight } from "react-icons/pi";
+import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
 
 interface Member {
   address: string;
@@ -21,6 +15,7 @@ interface Member {
 }
 interface Group {
   group: {
+    id: string;
     admin: string;
     metadata: string;
     ipfsMetadata: IPFSMetadata | null;
@@ -42,14 +37,29 @@ export function UpdateGroupModal({
     updateGroupPolicyMetadata,
   } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
-  const [name, setName] = useState("");
-  const [authors, setAuthors] = useState("");
-  const [summary, setSummary] = useState("");
-  const [forum, setForum] = useState("");
-  const [description, setDescription] = useState("");
-  const [threshold, setThreshold] = useState("");
+  const [name, setName] = useState(group.ipfsMetadata?.title || "");
+  const [authors, setAuthors] = useState(group.ipfsMetadata?.authors || "");
+  const [summary, setSummary] = useState(group.ipfsMetadata?.summary || "");
+  const [forum, setForum] = useState(
+    group.ipfsMetadata?.proposalForumURL || ""
+  );
+  const [description, setDescription] = useState(
+    group.ipfsMetadata?.details || ""
+  );
+  const [threshold, setThreshold] = useState(
+    group.policies[0]?.decision_policy?.threshold || ""
+  );
   const [windowInput, setWindowInput] = useState("");
   const [votingUnit, setVotingUnit] = useState("days");
+
+  useEffect(() => {
+    setName(group.ipfsMetadata?.title || "");
+    setAuthors(group.ipfsMetadata?.authors || "");
+    setSummary(group.ipfsMetadata?.summary || "");
+    setForum(group.ipfsMetadata?.proposalForumURL || "");
+    setDescription(group.ipfsMetadata?.details || "");
+    setThreshold(group.policies[0]?.decision_policy?.threshold || "");
+  }, [group]);
 
   const convertToSeconds = (input: string, unit: string) => {
     const value = parseFloat(input);
@@ -138,6 +148,10 @@ export function UpdateGroupModal({
 
   const [members, setMembers] = useState(initializeMembers());
 
+  useEffect(() => {
+    setMembers(initializeMembers());
+  }, [group]);
+
   const addMember = () => {
     const newMember = {
       group_id: members[0].group_id,
@@ -158,7 +172,9 @@ export function UpdateGroupModal({
   const handleChange = (index: number, field: string, value: string) => {
     setMembers(
       members.map((member, idx) =>
-        idx === index ? { ...member, [field]: value } : member
+        idx === index
+          ? { ...member, member: { ...member.member, [field]: value } }
+          : member
       )
     );
   };
@@ -169,9 +185,7 @@ export function UpdateGroupModal({
       const updatedMember = {
         ...member,
         isActive: !member.isActive,
-        weight: member.isActive ? "0" : "1",
-        isAdmin: false,
-        isPolicyAdmin: false,
+        member: { ...member.member, weight: member.isActive ? "0" : "1" },
       };
       setMembers(
         members.map((mem, idx) => (idx === index ? updatedMember : mem))
@@ -293,8 +307,8 @@ export function UpdateGroupModal({
         </form>
         <h3 className="text-lg font-semibold ">Update Group</h3>
         <div className="divider divider-horizon -mt-0 "></div>
-        <div className="md:flex sm:grid sm:grid-cols-1 md:flex-row justify-start items-center gap-4">
-          <div className="relative bg-base-300 rounded-md  p-4 sm:w-full md:w-1/2 max-w-6xl h-1/2">
+        <div className="md:flex sm:grid sm:grid-cols-1 md:flex-row gap-4  justify-between items-center ">
+          <div className="relative bg-base-300 rounded-md p-4 sm:w-full md:w-1/2 max-w-6xl h-[480px] ">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <div className="flex flex-row mb-2 gap-2 items-center">
@@ -316,7 +330,9 @@ export function UpdateGroupModal({
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="input input-bordered w-full"
-                  placeholder={group?.ipfsMetadata?.title}
+                  placeholder={
+                    group?.ipfsMetadata?.title ?? "No title available"
+                  }
                   maxLength={24}
                 />
               </div>
@@ -334,7 +350,9 @@ export function UpdateGroupModal({
                   value={authors}
                   onChange={(e) => setAuthors(e.target.value)}
                   className="input input-bordered w-full"
-                  placeholder={group?.ipfsMetadata?.authors}
+                  placeholder={
+                    group?.ipfsMetadata?.authors ?? "No authors available"
+                  }
                 />
               </div>
               <div>
@@ -351,7 +369,9 @@ export function UpdateGroupModal({
                   value={summary}
                   onChange={(e) => setSummary(e.target.value)}
                   className="input input-bordered w-full"
-                  placeholder={group?.ipfsMetadata?.summary}
+                  placeholder={
+                    group?.ipfsMetadata?.summary ?? "No summary available"
+                  }
                 />
               </div>
               <div>
@@ -368,7 +388,10 @@ export function UpdateGroupModal({
                   value={threshold}
                   onChange={(e) => setThreshold(e.target.value)}
                   className="input input-bordered w-full"
-                  placeholder={group?.policies[0]?.decision_policy?.threshold}
+                  placeholder={
+                    group?.policies[0]?.decision_policy?.threshold ??
+                    "No threshold available"
+                  }
                 />
               </div>
               <div>
@@ -385,7 +408,10 @@ export function UpdateGroupModal({
                   value={forum}
                   onChange={(e) => setForum(e.target.value)}
                   className="input input-bordered w-full"
-                  placeholder={group?.ipfsMetadata?.proposalForumURL}
+                  placeholder={
+                    group?.ipfsMetadata?.proposalForumURL ??
+                    "No forum URL available"
+                  }
                 />
               </div>
               <div className="flex flex-col">
@@ -430,12 +456,14 @@ export function UpdateGroupModal({
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   className="textarea w-full textarea-bordered"
-                  placeholder={group?.ipfsMetadata?.details}
+                  placeholder={
+                    group?.ipfsMetadata?.details ?? "No description available"
+                  }
                 ></textarea>
               </div>
             </div>
           </div>
-          <div className="relative p-4 bg-base-300 rounded-md sm:w-full md:w-1/2 max-w-6xl md:h-[476.5px] ">
+          <div className="relative p-4 bg-base-300 rounded-md sm:w-full md:w-1/2 max-w-6xl h-[480px]   ">
             <div className="flex flex-row justify-between items-center mb-2 -mt-1">
               <label className="text-sm font-medium ">Members</label>
               <button
@@ -465,22 +493,6 @@ export function UpdateGroupModal({
                   <div className="flex flex-row justify-between items-center">
                     <span className="text-light text-md"># {index + 1}</span>
 
-                    {/* <div className="flex flex-row gap-2 justify-center items-center">
-                      <button
-                        onClick={() => handlePolicyAdminToggle(index)}
-                        className="btn btn-xs btn-secondary"
-                        disabled={!member?.isActive}
-                      >
-                        P
-                      </button>
-                      <button
-                        onClick={() => handleAdminToggle(index)}
-                        className="btn btn-xs btn-primary"
-                        disabled={!member?.isActive}
-                      >
-                        A
-                      </button>
-                    </div> */}
                     <button
                       onClick={() => handleMemberRemoval(index)}
                       className={`btn btn-sm ${

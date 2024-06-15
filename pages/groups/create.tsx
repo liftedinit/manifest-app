@@ -9,7 +9,8 @@ import StepIndicator from "@/components/groups/components/StepIndicator";
 import { useChain } from "@cosmos-kit/react";
 import { chainName } from "@/config";
 import { WalletSection } from "@/components";
-
+import Success from "@/components/groups/forms/groups/Success";
+import Head from "next/head";
 const initialFormData: FormData = {
   title: "",
   authors: "",
@@ -26,9 +27,9 @@ export default function CreateGroup() {
   const [currentStep, setCurrentStep] = useState(1);
 
   const [formData, dispatch] = useReducer(formDataReducer, initialFormData);
-
+  const { address } = useChain(chainName);
   const nextStep = () => {
-    if (currentStep < 4) {
+    if (currentStep < 5) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -50,6 +51,58 @@ export default function CreateGroup() {
 
   return (
     <div className="flex flex-col items-center min-h-screen">
+      <Head>
+        <title>Create a group - Alberto</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta
+          name="description"
+          content="Alberto is the gateway to the Manifest Network"
+        />
+        <meta
+          name="keywords"
+          content="crypto, blockchain, application, Cosmos-SDK, Alberto, Manifest Network"
+        />
+        <meta name="author" content="Chandra Station" />
+        <link rel="icon" href="/favicon.ico" />
+
+        <meta property="og:title" content="Create a group - Alberto" />
+        <meta
+          property="og:description"
+          content="Alberto is the gateway to the Manifest Network"
+        />
+        <meta property="og:url" content="https://" />
+        <meta property="og:image" content="https://" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Alberto" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Create a group - Alberto" />
+        <meta
+          name="twitter:description"
+          content="Alberto is the gateway to the Manifest Network"
+        />
+        <meta name="twitter:image" content="https://" />
+        <meta name="twitter:site" content="@" />
+
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            name: "Create a group - Alberto",
+            description: "Alberto is the gateway to the Manifest Network",
+            url: "https://",
+            image: "https://",
+            publisher: {
+              "@type": "Organization",
+              name: "Chandra Station",
+              logo: {
+                "@type": "ImageObject",
+                url: "https:///img/logo.png",
+              },
+            },
+          })}
+        </script>
+      </Head>
       {!isWalletConnected && (
         <div className="mt-24 p-4 gap-4 flex flex-col max-w-5xl  lg:flex-row md:flex-col sm:flex-col xs:flex-col rounded-md bg-base-200/20 blur-40 shadow-lg transition-opacity duration-300 ease-in-out animate-fadeIn">
           <section className=" transition-opacity duration-300 ease-in-out animate-fadeIn">
@@ -73,13 +126,17 @@ export default function CreateGroup() {
       )}
       {isWalletConnected && (
         <div className="w-full flex flex-col gap-12 justify-between my-auto items-center animate-fadeIn max-w-4xl mt-10">
-          <StepIndicator steps={steps} currentStep={currentStep} />
+          {currentStep != 5 && (
+            <StepIndicator steps={steps} currentStep={currentStep} />
+          )}
+
           {currentStep === 1 && (
             <div className="transition-opacity duration-300 animate-fadeIn">
               <GroupDetails
                 formData={formData}
                 dispatch={dispatch}
                 nextStep={nextStep}
+                address={address ?? ""}
               />
             </div>
           )}
@@ -96,6 +153,7 @@ export default function CreateGroup() {
           {currentStep === 3 && (
             <div className="transition-opacity duration-300 animate-fadeIn">
               <MemberInfoForm
+                address={address ?? ""}
                 formData={formData}
                 dispatch={dispatch}
                 nextStep={nextStep}
@@ -110,6 +168,11 @@ export default function CreateGroup() {
                 prevStep={prevStep}
                 nextStep={nextStep}
               />
+            </div>
+          )}
+          {currentStep === 5 && (
+            <div className="transition-opacity duration-300 animate-fadeIn">
+              <Success formData={formData} prevStep={prevStep} />
             </div>
           )}
         </div>

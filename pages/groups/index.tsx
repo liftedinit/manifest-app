@@ -1,5 +1,5 @@
 import { WalletSection } from "@/components";
-import { Proposals } from "@/components/groups/components/groupInfo";
+import { GroupInfo } from "@/components/groups/components/groupInfo";
 import ProposalsForPolicy from "@/components/groups/components/groupProposals";
 import { YourGroups } from "@/components/groups/components/myGroups";
 import { useChain } from "@cosmos-kit/react";
@@ -47,9 +47,59 @@ export default function Groups() {
     <>
       <div className="max-w-5xl relative py-[2rem] mx-auto lg:mx-auto ">
         <Head>
-          <title>Groups</title>
-          <meta name="description" content="Interact with the groups module" />
+          <title>Groups - Alberto</title>
+          <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+          />
+          <meta
+            name="description"
+            content="Alberto is the gateway to the Manifest Network"
+          />
+          <meta
+            name="keywords"
+            content="crypto, blockchain, application, Cosmos-SDK, Alberto, Manifest Network"
+          />
+          <meta name="author" content="Chandra Station" />
           <link rel="icon" href="/favicon.ico" />
+
+          <meta property="og:title" content="Groups - Alberto" />
+          <meta
+            property="og:description"
+            content="Alberto is the gateway to the Manifest Network"
+          />
+          <meta property="og:url" content="https://" />
+          <meta property="og:image" content="https://" />
+          <meta property="og:type" content="website" />
+          <meta property="og:site_name" content="Alberto" />
+
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content="Groups - Alberto" />
+          <meta
+            name="twitter:description"
+            content="Alberto is the gateway to the Manifest Network"
+          />
+          <meta name="twitter:image" content="https://" />
+          <meta name="twitter:site" content="@" />
+
+          <script type="application/ld+json">
+            {JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebPage",
+              name: "Groups - Alberto",
+              description: "Alberto is the gateway to the Manifest Network",
+              url: "https://",
+              image: "https://",
+              publisher: {
+                "@type": "Organization",
+                name: "Chandra Station",
+                logo: {
+                  "@type": "ImageObject",
+                  url: "https:///img/logo.png",
+                },
+              },
+            })}
+          </script>
         </Head>
         <div className="-ml-4 -mt-2 flex items-center justify-between sm:flex-nowrap">
           <div className="ml-4 mt-2">
@@ -68,7 +118,7 @@ export default function Groups() {
             </Link>
           )}
         </div>
-        <div className="mt-6 p-4 gap-4 flex flex-col  lg:flex-row md:flex-col sm:flex-col xs:flex-col rounded-md bg-base-200/20 blur-40 shadow-lg transition-opacity duration-300 ease-in-out animate-fadeIn">
+        <div className="mt-6 p-4 gap-4 flex flex-col  lg:flex-row md:flex-col sm:flex-col xs:flex-col rounded-md bg-base-300 blur-40 shadow-lg transition-opacity duration-300 ease-in-out animate-fadeIn">
           {!isWalletConnected && (
             <section className=" transition-opacity duration-300 ease-in-out animate-fadeIn">
               <div className="grid max-w-screen-xl bg-base-100 p-12 rounded-md  mx-auto lg:gap-8 xl:gap-0  lg:grid-cols-12">
@@ -138,7 +188,7 @@ export default function Groups() {
                   </div>
 
                   <div className="flex flex-col justify-start gap-4 items-start  lg:w-2/3 md:w-full">
-                    <Proposals
+                    <GroupInfo
                       refetchGroupByMember={refetchGroupByMember}
                       group={infoGroup}
                       groupByMemberDataLoading={isGroupByMemberLoading}

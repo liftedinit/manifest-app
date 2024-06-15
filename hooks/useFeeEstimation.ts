@@ -34,7 +34,7 @@ export const useFeeEstimation = (chainName: string) => {
 
     const fee = calculateFee(
       Math.round(gasEstimation * (modifier || 1.5)),
-      GasPrice.fromString(gasPrice + coin.base)
+      GasPrice.fromString(gasPrice + "umfx")
     );
 
     return fee;

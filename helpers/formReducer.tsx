@@ -1,4 +1,5 @@
 import { Duration } from "@chalabi/manifestjs/dist/codegen/google/protobuf/duration";
+import { Coin } from "@cosmjs/stargate";
 
 // Schemas for form data
 export type FormData = {
@@ -52,7 +53,7 @@ export type SendMessage = {
   type: "send";
   from_address: string;
   to_address: string;
-  amount: { denom: string; amount: string };
+  amount: Coin;
 };
 
 export type CustomMessage = {

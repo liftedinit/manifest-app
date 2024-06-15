@@ -43,18 +43,23 @@ export const useGroupsByMember = (address: string) => {
         const fetchAdditionalData = async () => {
             if (groupQuery.data?.groups && !groupQuery.isLoading) {
                 try {
-                    const policyPromises = groupQuery.data.groups.map(group => 
+                    const policyPromises = groupQuery.data.groups.map(group =>
                         lcdQueryClient?.cosmos.group.v1.groupPoliciesByGroup({ group_id: group.id }));
-                    const memberPromises = groupQuery.data.groups.map(group => 
+                    const memberPromises = groupQuery.data.groups.map(group =>
                         lcdQueryClient?.cosmos.group.v1.groupMembers({ group_id: group.id }));
-                    const ipfsPromises = groupQuery.data.groups.map(group => 
+                    const ipfsPromises = groupQuery.data.groups.map(group =>
                         fetch(`https://nodes.chandrastation.com/ipfs/gateway/${group.metadata}`)
                             .then(response => {
                                 if (!response.ok) {
                                     throw new Error(`HTTP error! Status: ${response.status}`);
                                 }
                                 return response.json() as Promise<IPFSMetadata>;
-                            }));
+                            })
+                            .catch(err => {
+                                console.error("Failed to fetch IPFS data:", err);
+                                return null; // Return null in case of an error
+                            })
+                    );
 
                     const [policiesResults, membersResults, ipfsResults] = await Promise.all([
                         Promise.all(policyPromises),
@@ -64,7 +69,7 @@ export const useGroupsByMember = (address: string) => {
 
                     const groupsWithAllData = groupQuery.data.groups.map((group, index) => ({
                         ...group,
-                        ipfsMetadata: ipfsResults[index],
+                        ipfsMetadata: ipfsResults[index], 
                         policies: policiesResults[index]?.group_policies || [],
                         members: membersResults[index]?.members || []
                     }));
@@ -81,7 +86,6 @@ export const useGroupsByMember = (address: string) => {
 
         fetchAdditionalData();
     }, [groupQuery.data, groupQuery.isLoading, lcdQueryClient?.cosmos.group.v1]);
-    
 
     return {
         groupByMemberData: extendedGroups,

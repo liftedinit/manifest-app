@@ -1,27 +1,16 @@
 import {
   ExtendedQueryGroupsByMemberResponseSDKType,
   useBalance,
-  useProposalsByPolicyAccount,
-  useTallyCount,
-  useVotesByProposal,
 } from "@/hooks/useQueries";
 import { GroupDetailsModal } from "../modals/groupDetailsModal";
-import ProfileAvatar from "@/utils/identicon";
-import VoteDetailsModal from "../modals/voteDetailsModal";
-import { QueryTallyResultResponseSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/query";
-import {
-  MemberSDKType,
-  ProposalSDKType,
-} from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types";
-
 import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
 import Link from "next/link";
 import { shiftDigits, truncateString } from "@/utils";
-import { useEffect, useState } from "react";
-import { PiArrowDownLight, PiArrowUpRightLight } from "react-icons/pi";
+import { Key, useEffect, useState } from "react";
+import { PiArrowUpRightLight } from "react-icons/pi";
 import { UpdateGroupModal } from "../modals/updateGroupModal";
 
-export function Proposals({
+export function GroupInfo({
   group,
   groupByMemberDataLoading,
   groupByMemberDataError,
@@ -32,7 +21,43 @@ export function Proposals({
   groupByMemberDataError: Error | null | boolean;
   refetchGroupByMember: () => void;
 }) {
-  const { balance } = useBalance(group?.policies[0]?.address);
+  const { balance } = useBalance(group?.policies?.[0]?.address);
+
+  const renderAuthors = () => {
+    if (group?.ipfsMetadata?.authors) {
+      if (group.ipfsMetadata.authors.startsWith("manifest")) {
+        return (
+          <TruncatedAddressWithCopy
+            address={group.ipfsMetadata.authors}
+            slice={14}
+          />
+        );
+      } else if (group.ipfsMetadata.authors.includes(",")) {
+        return (
+          <div className="flex flex-wrap gap-2">
+            {group.ipfsMetadata.authors
+              .split(",")
+              .map((author: string, index: Key | null | undefined) => (
+                <div key={index}>
+                  {author.trim().startsWith("manifest") ? (
+                    <TruncatedAddressWithCopy
+                      address={author.trim()}
+                      slice={14}
+                    />
+                  ) : (
+                    <span>{author.trim()}</span>
+                  )}
+                </div>
+              ))}
+          </div>
+        );
+      } else {
+        return <span>{group.ipfsMetadata.authors}</span>;
+      }
+    } else {
+      return <span>No authors available</span>;
+    }
+  };
 
   return (
     <div className="flex flex-col max-h-[23rem] relative shadow  min-h-[23rem] rounded-md bg-base-100  w-full p-4">
@@ -66,7 +91,7 @@ export function Proposals({
                 TITLE
               </span>
               <span className="text-xl leading-3 ">
-                {group?.ipfsMetadata.title}
+                {group?.ipfsMetadata?.title ?? "No title available"}
               </span>
             </div>
 
@@ -76,9 +101,7 @@ export function Proposals({
                   <span className="text-sm  capitalize text-gray-400 truncate">
                     AUTHORS
                   </span>
-                  <span className="text-md truncate">
-                    {group?.ipfsMetadata.authors}
-                  </span>
+                  <div className="text-md truncate">{renderAuthors()}</div>
                 </div>
 
                 <div className="flex flex-col gap-2 bg-base-300 p-4 rounded-md  justify-left items-left">
@@ -90,7 +113,8 @@ export function Proposals({
                   </span>
                   <div className="flex flex-row gap-1 items-center justify-start truncate">
                     <span className="text-md ">
-                      {balance?.amount && shiftDigits(balance?.amount, -6)}
+                      {(balance?.amount && shiftDigits(balance?.amount, -6)) ??
+                        "No balance available"}
                     </span>
                     {!balance?.amount && (
                       <div className="loading loading-sm"></div>
@@ -106,7 +130,9 @@ export function Proposals({
                   </span>
                   <p className="text-md  ">
                     <TruncatedAddressWithCopy
-                      address={group.policies[0].address}
+                      address={
+                        group?.policies?.[0]?.address ?? "No address available"
+                      }
                       slice={12}
                     />
                   </p>
@@ -117,8 +143,9 @@ export function Proposals({
                   </span>
                   <div className="flex flex-row justify-between items-start">
                     <span className="text-md">
-                      {group?.policies[0]?.decision_policy?.threshold} /{" "}
-                      {group?.total_weight}
+                      {group?.policies?.[0]?.decision_policy?.threshold ??
+                        "No threshold available"}{" "}
+                      / {group?.total_weight ?? "No total weight available"}
                     </span>
 
                     <div className="flex-row  justify-between items-center gap-2 hidden md:flex">

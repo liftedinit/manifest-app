@@ -1,20 +1,23 @@
 import { Action, FormData } from "@/helpers/formReducer";
 import React, { useState, useEffect } from "react";
-
-const initialMember = { address: "", name: "", weight: "" };
+import { PiAddressBook } from "react-icons/pi"; // Ensure you have this import for the icon
 
 export default function MemberInfoForm({
   formData,
   dispatch,
   nextStep,
   prevStep,
+  address,
 }: {
   formData: FormData;
   dispatch: (action: Action) => void;
   nextStep: () => void;
   prevStep: () => void;
+  address: string;
 }) {
-  const [numberOfMembers, setNumberOfMembers] = useState(2);
+  const [numberOfMembers, setNumberOfMembers] = useState(
+    formData.members.length
+  );
 
   const updateMembers = () => {
     const currentLength = formData.members.length;
@@ -26,20 +29,17 @@ export default function MemberInfoForm({
         });
       }
     } else if (numberOfMembers < currentLength) {
-      for (let i = 0; i < currentLength - numberOfMembers; i++) {
-        formData.members.pop();
-      }
+      const updatedMembers = formData.members.slice(0, numberOfMembers);
       dispatch({
         type: "UPDATE_FIELD",
         field: "members",
-        value: formData.members,
+        value: updatedMembers,
       });
     }
   };
 
   useEffect(() => {
     updateMembers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [numberOfMembers]);
 
   const handleChange = (
@@ -67,6 +67,11 @@ export default function MemberInfoForm({
     }
   };
 
+  const pasteAddress = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.preventDefault();
+    handleChange(0, "address", address);
+  };
+
   return (
     <section className="">
       <div className="lg:flex  mx-auto">
@@ -80,7 +85,7 @@ export default function MemberInfoForm({
                 <div className="flex sm:mb-6">
                   <button
                     type="button"
-                    className="btn btn-sm"
+                    className="btn btn-sm btn-secondary"
                     onClick={() =>
                       setNumberOfMembers(Math.max(0, numberOfMembers - 1))
                     }
@@ -89,13 +94,13 @@ export default function MemberInfoForm({
                   </button>
                   <input
                     className="input input-bordered mx-2 text-center input-sm w-[40px]"
-                    value={formData.members.length}
+                    value={numberOfMembers}
                     onChange={handleNumberChange}
                     min="0"
                   />
                   <button
                     type="button"
-                    className="btn btn-sm"
+                    className="btn btn-sm btn-primary"
                     onClick={() => setNumberOfMembers(numberOfMembers + 1)}
                   >
                     +
@@ -105,34 +110,42 @@ export default function MemberInfoForm({
 
               <form onSubmit={handleSubmit} className=" min-h-[330px]">
                 <div className="overflow-y-scroll max-h-[550px] min-h-[330px]">
-                  {(
-                    formData.members as unknown as {
-                      address: string;
-                      name: string;
-                      weight: string;
-                    }[]
-                  ).flatMap((member, index) => (
-                    <div key={index} className="grid grid-cols-3 gap-4 mb-4">
-                      <div>
+                  {formData.members.map((member, index) => (
+                    <div
+                      key={index}
+                      className="grid grid-cols-3 gap-4 mb-4 p-1"
+                    >
+                      <div className="relative">
                         <label
-                          htmlFor="full-name"
+                          htmlFor={`address-${index}`}
                           className="block mb-2 text-sm font-medium "
                         >
                           Address
                         </label>
-                        <input
-                          type="text"
-                          value={member.address}
-                          onChange={(e) =>
-                            handleChange(index, "address", e.target.value)
-                          }
-                          className="input input-bordered w-full"
-                          placeholder="manifest1..."
-                        />
+                        <div className="flex flex-row items-center justify-between">
+                          <input
+                            type="text"
+                            id={`address-${index}`}
+                            value={member.address}
+                            onChange={(e) =>
+                              handleChange(index, "address", e.target.value)
+                            }
+                            className="input input-bordered rounded-l rounded-t rounded-tr-none rounded-b rounded-r-none w-full "
+                            placeholder="manifest1..."
+                          />
+                          {index === 0 && (
+                            <button
+                              onClick={pasteAddress}
+                              className="btn btn-primary rounded-r rounded-l-none rounded-tl-none rounded-t rounded-b "
+                            >
+                              <PiAddressBook className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
                       </div>
                       <div>
                         <label
-                          htmlFor="name"
+                          htmlFor={`name-${index}`}
                           className="block mb-2 text-sm font-medium "
                         >
                           Name
@@ -140,6 +153,7 @@ export default function MemberInfoForm({
 
                         <input
                           type="text"
+                          id={`name-${index}`}
                           value={member.name}
                           onChange={(e) =>
                             handleChange(index, "name", e.target.value)
@@ -150,7 +164,7 @@ export default function MemberInfoForm({
                       </div>
                       <div>
                         <label
-                          htmlFor="weight"
+                          htmlFor={`weight-${index}`}
                           className="block mb-2 text-sm font-medium "
                         >
                           Weight
@@ -158,6 +172,7 @@ export default function MemberInfoForm({
 
                         <input
                           type="text"
+                          id={`weight-${index}`}
                           value={member.weight}
                           onChange={(e) =>
                             handleChange(index, "weight", e.target.value)
@@ -174,14 +189,9 @@ export default function MemberInfoForm({
                   onClick={handleSubmit}
                   className="btn btn-primary w-full"
                   disabled={
-                    !(
-                      formData.members as unknown as {
-                        address: string;
-                        name: string;
-                        weight: string;
-                      }[]
-                    ).every((m) => m.address && m.name && m.weight) ||
-                    numberOfMembers === 0
+                    !formData.members.every(
+                      (m) => m.address && m.name && m.weight
+                    ) || numberOfMembers === 0
                   }
                 >
                   Next: Group Policy

@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
 import { FormData } from "@/helpers/formReducer";
 import { useFeeEstimation } from "@/hooks/useFeeEstimation";
@@ -7,7 +8,6 @@ import { cosmos } from "interchain";
 import { ThresholdDecisionPolicy } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types";
 import { Duration } from "@chalabi/manifestjs/dist/codegen/google/protobuf/duration";
 import { useChain } from "@cosmos-kit/react";
-import { useState } from "react";
 
 export default function ConfirmationModal({
   nextStep,
@@ -20,9 +20,7 @@ export default function ConfirmationModal({
 }) {
   const { address } = useChain("manifest");
   const { createGroupWithPolicy } = cosmos.group.v1.MessageComposer.withTypeUrl;
-
-  const [CID, setCID] = useState<string>("");
-
+  const [isSigning, setIsSigning] = useState(false);
   const groupMetadata = {
     title: formData.title,
     authors: formData.authors,
@@ -40,12 +38,7 @@ export default function ConfirmationModal({
 
   const uploadMetaDataToIPFS = async () => {
     const CID = await uploadJsonToIPFS(jsonString);
-    return setCID(CID);
-  };
-
-  const votingPeriod: Duration = {
-    seconds: BigInt(3 * 24 * 60 * 60),
-    nanos: 0,
+    return CID;
   };
 
   const minExecutionPeriod: Duration = {
@@ -72,40 +65,60 @@ export default function ConfirmationModal({
   const typeUrl = cosmos.group.v1.ThresholdDecisionPolicy.typeUrl;
 
   const handleConfirm = async () => {
-    uploadMetaDataToIPFS();
-    const msg = createGroupWithPolicy({
-      admin: address ?? "",
-      members: formData.members.map((member) => ({
-        address: member.address,
-        weight: member.weight,
-        metadata: member.name,
-        added_at: new Date(),
-      })),
-      group_metadata: CID,
-      group_policy_metadata: "",
-      group_policy_as_admin: true,
-      decision_policy: {
-        threshold: formData.votingThreshold,
-        percentage: formData.votingThreshold,
-        value: threshholdPolicy,
-        type_url: typeUrl,
-      },
-    });
-    const fee = {
-      amount: [
-        {
-          denom: "mfx",
-          amount: "0.01",
+    setIsSigning(true);
+    try {
+      const CID = await uploadMetaDataToIPFS();
+      const msg = createGroupWithPolicy({
+        admin: address ?? "",
+        members: formData.members.map((member) => ({
+          address: member.address,
+          weight: member.weight,
+          metadata: member.name,
+          added_at: new Date(),
+        })),
+        groupMetadata: CID,
+        groupPolicyMetadata: "",
+        groupPolicyAsAdmin: true,
+        decisionPolicy: {
+          threshold: formData.votingThreshold,
+          percentage: formData.votingThreshold,
+          value: threshholdPolicy,
+          typeUrl: typeUrl,
         },
-      ],
-      gas: "200000",
-    };
-    await tx([msg], {
-      fee,
-      onSuccess: () => {
-        nextStep();
-      },
-    });
+      });
+      const fee = await estimateFee(address ?? "", [msg]);
+      await tx([msg], {
+        fee,
+        onSuccess: () => {
+          nextStep();
+        },
+      });
+    } catch (error) {
+      setIsSigning(false);
+      console.error("Error during transaction setup:", error);
+    } finally {
+      setIsSigning(false);
+    }
+  };
+
+  const renderAuthors = () => {
+    if (formData.authors.startsWith("manifest")) {
+      return <TruncatedAddressWithCopy address={formData.authors} slice={14} />;
+    } else if (formData.authors.includes(",")) {
+      return formData.authors
+        .split(",")
+        .map((author, index) => (
+          <div key={index}>
+            {author.trim().startsWith("manifest") ? (
+              <TruncatedAddressWithCopy address={author.trim()} slice={14} />
+            ) : (
+              <span>{author.trim()}</span>
+            )}
+          </div>
+        ));
+    } else {
+      return <span>{formData.authors}</span>;
+    }
   };
 
   return (
@@ -137,13 +150,10 @@ export default function ConfirmationModal({
                   <div className="flex flex-col gap-2">
                     <a className="text-sm font-light text-gray-400">AUTHORS</a>
                     <div className="max-h-24 h-full  overflow-y-auto rounded-md bg-base-100 p-4">
-                      <TruncatedAddressWithCopy
-                        address={formData.authors}
-                        slice={14}
-                      />
+                      {renderAuthors()}
                     </div>
                   </div>
-                  <div className="flex flex-col gap-2 ">
+                  <div className="flex flex-col gap-2 h-full ">
                     <a className="text-sm font-light text-gray-400">SUMMARY</a>
                     <div className="max-h-24  overflow-y-auto rounded-md bg-base-100 p-4">
                       <a className="text-sm">{formData.summary}</a>
@@ -224,7 +234,11 @@ export default function ConfirmationModal({
                 onClick={handleConfirm}
                 className="w-1/2 px-5 py-2.5 sm:py-3.5 btn btn-primary"
               >
-                Sign Transaction
+                {isSigning ? (
+                  <span className="loading loading-dots loading-sm"></span>
+                ) : (
+                  "Sign Transaction"
+                )}
               </button>
             </div>
           </div>

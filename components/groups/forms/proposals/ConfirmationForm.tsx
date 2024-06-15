@@ -4,9 +4,7 @@ import { uploadJsonToIPFS } from "@/hooks/useIpfs";
 import { useTx } from "@/hooks/useTx";
 import { manifest, strangelove_ventures } from "@chalabi/manifestjs";
 import { cosmos } from "interchain";
-import { MsgSend } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx";
-import { Any } from "@chalabi/manifestjs/dist/codegen/google/protobuf/any";
-import { Coin } from "@cosmjs/stargate";
+
 import { useChain } from "@cosmos-kit/react";
 import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
 import {
@@ -122,8 +120,8 @@ export default function ConfirmationModal({
     const fee = {
       amount: [
         {
-          denom: "mfx",
-          amount: "0.01",
+          denom: "umfx",
+          amount: "4000",
         },
       ],
       gas: "200000",

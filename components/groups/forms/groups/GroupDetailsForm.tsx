@@ -1,14 +1,17 @@
 import { Action, FormData } from "@/helpers/formReducer";
 import Link from "next/link";
+import { PiAddressBook } from "react-icons/pi";
 
 export default function GroupDetails({
   nextStep,
   formData,
   dispatch,
+  address,
 }: {
   nextStep: () => void;
   formData: FormData;
   dispatch: React.Dispatch<Action>;
+  address: string;
 }) {
   const updateField = (field: keyof FormData, value: any) => {
     dispatch({ type: "UPDATE_FIELD", field, value });
@@ -45,13 +48,25 @@ export default function GroupDetails({
                   >
                     Authors
                   </label>
-                  <input
-                    type="text"
-                    placeholder="List of authors"
-                    className="input input-bordered w-full max-w-xs"
-                    value={formData.authors}
-                    onChange={(e) => updateField("authors", e.target.value)}
-                  />
+                  <div className="flex flex-row justify-between items-center">
+                    {" "}
+                    <input
+                      type="text"
+                      placeholder="List of authors or address"
+                      className="input input-bordered rounded-l rounded-t rounded-b rounded-tr-none rounded-r-none w-full max-w-xs"
+                      value={formData.authors}
+                      onChange={(e) => updateField("authors", e.target.value)}
+                    />{" "}
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        updateField("authors", address);
+                      }}
+                      className="btn btn-primary rounded-r rounded-l-none rounded-tl-none rounded-t rounded-b"
+                    >
+                      <PiAddressBook className="w-6 h-6" />
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <label
@@ -106,8 +121,7 @@ export default function GroupDetails({
                 !formData.title ||
                 !formData.authors ||
                 !formData.summary ||
-                !formData.description ||
-                !formData.forumLink
+                !formData.description
               }
             >
               Next: Group Policy

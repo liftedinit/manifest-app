@@ -1,5 +1,6 @@
+import { useFeeEstimation } from "@/hooks";
 import { useTx } from "@/hooks/useTx";
-import { cosmos } from "@chalabi/manifestjs";
+import { cosmos } from "interchain";
 import { useChain } from "@cosmos-kit/react";
 import React from "react";
 
@@ -12,6 +13,7 @@ function VotingPopup({
   isGridVisible: boolean;
   refetch: () => void;
 }) {
+  const { estimateFee } = useFeeEstimation("manifest");
   const { tx, Toast, toastMessage, setToastMessage } = useTx("manifest");
   const { address } = useChain("manifest");
 
@@ -29,7 +31,7 @@ function VotingPopup({
 
   const handleVote = async (option: number) => {
     const msg = vote({
-      proposal_id: proposalId,
+      proposalId: proposalId,
       voter: address ?? "",
       option: option,
       metadata: "",
@@ -39,7 +41,7 @@ function VotingPopup({
       await tx([msg], {
         fee,
         onSuccess: () => {
-          refetch()
+          refetch();
         },
       });
     } catch (error) {

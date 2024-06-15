@@ -1,6 +1,7 @@
 import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
 import { IPFSMetadata } from "@/hooks/useQueries";
 import ProfileAvatar from "@/utils/identicon";
+import { PiXCircleLight } from "react-icons/pi";
 
 interface Group {
   group: {
@@ -41,26 +42,33 @@ export function GroupDetailsModal({
             <div>
               <p className="text-xs font-light mt-4 ">AUTHORS</p>
               <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
-                <p className="text-md ">{group?.ipfsMetadata?.authors}</p>
+                <p className="text-md ">
+                  {group?.ipfsMetadata?.authors ?? "No authors available"}
+                </p>
               </div>
             </div>
             <div>
               <p className="text-xs font-light mt-4 ">SUMMARY</p>
               <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
-                <p className="text-md ">{group?.ipfsMetadata?.summary}</p>
+                <p className="text-md ">
+                  {group?.ipfsMetadata?.summary ?? "No summary available"}
+                </p>
               </div>
             </div>
             <div>
               <p className="text-xs font-light mt-4 ">DETAILS</p>
-              <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
-                <p className="text-md ">{group?.ipfsMetadata?.details}</p>
+              <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2 max-h-[9.53rem] overflow-y-auto">
+                <p className="text-md text-wrap ">
+                  {group?.ipfsMetadata?.details ?? "No details available"}
+                </p>
               </div>
             </div>
             <div>
               <p className="text-xs font-light mt-4 ">FORUM</p>
               <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
                 <p className="text-md ">
-                  {group?.ipfsMetadata?.proposalForumURL}
+                  {group?.ipfsMetadata?.proposalForumURL ??
+                    "No forum URL available"}
                 </p>
               </div>
             </div>
@@ -75,7 +83,7 @@ export function GroupDetailsModal({
                   <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
                     {" "}
                     <TruncatedAddressWithCopy
-                      address={policy?.address}
+                      address={policy?.address ?? "No address available"}
                       slice={28}
                     />
                   </div>
@@ -84,15 +92,16 @@ export function GroupDetailsModal({
                   <p className="text-xs font-light mt-4 ">VOTING WINDOW</p>
                   <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
                     <p className="text-md ">
-                      {" "}
-                      {Math.floor(
-                        parseInt(
-                          policy.decision_policy.windows.voting_period.slice(
-                            0,
-                            -1
+                      {policy?.decision_policy?.windows?.voting_period
+                        ? Math.floor(
+                            parseInt(
+                              policy.decision_policy.windows.voting_period.slice(
+                                0,
+                                -1
+                              )
+                            ) / 86400
                           )
-                        ) / 86400
-                      )}{" "}
+                        : "No voting period available"}{" "}
                       days
                     </p>
                   </div>
@@ -101,23 +110,36 @@ export function GroupDetailsModal({
                   <p className="text-xs font-light mt-4 ">THRESHOLD</p>
                   <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
                     <p className="text-md ">
-                      {" "}
-                      {policy.decision_policy.threshold} /{" "}
-                      {group?.members.length}
+                      {policy?.decision_policy?.threshold ??
+                        "No threshold available"}{" "}
+                      /{group?.members.length ?? "No members available"}
                     </p>
                   </div>
                 </div>
                 <div>
                   <p className="text-xs font-light mt-4 ">CREATED</p>
                   <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
-                    {new Intl.DateTimeFormat(undefined, {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                      hour: "numeric",
-                      minute: "numeric",
-                      hour12: false,
-                    }).format(new Date(policy.created_at))}
+                    {policy?.created_at
+                      ? new Intl.DateTimeFormat(undefined, {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                          hour: "numeric",
+                          minute: "numeric",
+                          hour12: false,
+                        }).format(new Date(policy.created_at))
+                      : "No creation date available"}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs font-light mt-4 ">ADMIN</p>
+                  <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
+                    <p className="text-md ">
+                      <TruncatedAddressWithCopy
+                        address={group.admin ?? ""}
+                        slice={28}
+                      />{" "}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -142,24 +164,30 @@ export function GroupDetailsModal({
                 {group?.members.map((member, index) => (
                   <tr key={index}>
                     <td>{index + 1}</td>
-                    <td>{member.member?.metadata}</td>
+                    <td>
+                      {member?.member?.metadata ?? "No metadata available"}
+                    </td>
                     <td>
                       <TruncatedAddressWithCopy
-                        address={member?.member?.address}
+                        address={
+                          member?.member?.address ?? "No address available"
+                        }
                         slice={12}
                       />
                     </td>
                     <td>
                       {isPolicyAdmin(member?.member?.address) &&
-                      isAdmin(member?.member?.address)
-                        ? "Super Admin"
-                        : isPolicyAdmin(member?.member?.address)
-                        ? "Policy"
-                        : isAdmin(member?.member?.address)
-                        ? "Group"
-                        : ""}
+                      isAdmin(member?.member?.address) ? (
+                        "Super Admin"
+                      ) : isPolicyAdmin(member?.member?.address) ? (
+                        "Policy"
+                      ) : isAdmin(member?.member?.address) ? (
+                        "Group"
+                      ) : (
+                        <PiXCircleLight className="text-red-500 h-5 w-5" />
+                      )}
                     </td>
-                    <td>{member.member?.weight}</td>
+                    <td>{member?.member?.weight ?? "No weight available"}</td>
                   </tr>
                 ))}
               </tbody>
