@@ -12,24 +12,21 @@ import {
   ProposalAction,
   Message,
 } from "@/helpers/formReducer";
+import { chainName } from "@/config";
 
 export default function ConfirmationModal({
   policyAddress,
   nextStep,
   prevStep,
   formData,
-  dispatch,
 }: {
   policyAddress: string;
   nextStep: () => void;
   prevStep: () => void;
   formData: ProposalFormData;
-  dispatch: React.Dispatch<ProposalAction>;
 }) {
-  const { address } = useChain("manifest");
+  const { address } = useChain(chainName);
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
-
-  const [CID, setCID] = useState<string>("");
 
   const messageTypeToComposer: { [key: string]: (value: any) => any } = {
     send: cosmos.bank.v1beta1.MessageComposer.withTypeUrl.send,
@@ -44,8 +41,7 @@ export default function ConfirmationModal({
         .updateStakingParams,
     setPower: strangelove_ventures.poa.v1.MessageComposer.withTypeUrl.setPower,
     updateManifestParams: manifest.v1.MessageComposer.withTypeUrl.updateParams,
-    payoutStakeholders:
-      manifest.v1.MessageComposer.withTypeUrl.payoutStakeholders,
+    payoutStakeholders: manifest.v1.MessageComposer.withTypeUrl.payout,
     updateGroupAdmin:
       cosmos.group.v1.MessageComposer.withTypeUrl.updateGroupAdmin,
     updateGroupMembers:
@@ -99,22 +95,22 @@ export default function ConfirmationModal({
 
   const uploadMetaDataToIPFS = async () => {
     const CID = await uploadJsonToIPFS(jsonString);
-    setCID(CID);
+    return CID;
   };
 
   const handleConfirm = async () => {
-    await uploadMetaDataToIPFS();
+    const CID = await uploadMetaDataToIPFS();
     const messages: { typeUrl: string; value: any }[] = formData.messages.map(
       (message) => getMessageObject(message)
     );
-    console.log(formData, messages);
+
     const msg = submitProposal({
       groupPolicyAddress: policyAddress ?? "",
       messages: messages,
       metadata: CID,
       proposers: [formData.proposers],
       title: formData.title,
-      summary: formData.summary,
+      summary: formData.metadata.summary,
       exec: 1,
     });
     const fee = {

@@ -271,7 +271,7 @@ export default function ProposalMessages({
                 <div className="flex gap-2 sm:mb-6">
                   <button
                     type="button"
-                    className="btn btn-sm"
+                    className="btn btn-sm btn-primary"
                     onClick={handleAddMessage}
                   >
                     <span>
@@ -296,12 +296,15 @@ export default function ProposalMessages({
                             </span>
 
                             <div className="dropdown">
-                              <button tabIndex={0} className="btn m-1 btn-sm">
+                              <button
+                                tabIndex={0}
+                                className="btn m-1 btn-sm btn-neutral"
+                              >
                                 {message.type}
                               </button>
                               <ul
                                 tabIndex={0}
-                                className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 space-y-2"
+                                className="dropdown-content z-[1] menu p-2 shadow bg-neutral rounded-box w-52 space-y-2"
                               >
                                 <li>
                                   <button
@@ -338,14 +341,14 @@ export default function ProposalMessages({
                                     Leave Group
                                   </button>
                                 </li>
-                                {/* Add more options as needed */}
+                                {/* Add more options here */}
                               </ul>
                             </div>
                           </div>
                           <div>
                             <button
                               type="button"
-                              className="btn btn-error btn-xs"
+                              className="btn btn-secondary btn-xs"
                               onClick={() => handleRemoveMessage(index)}
                             >
                               <span>

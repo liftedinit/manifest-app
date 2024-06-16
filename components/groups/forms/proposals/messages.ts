@@ -37,7 +37,7 @@ const msgSetPower = setPower({
     unsafe: true
 });
 // Manifest Messages
-const { updateParams: updateManifestParams, payoutStakeholders  } = manifest.v1.MessageComposer.withTypeUrl;
+const { updateParams: updateManifestParams  } = manifest.v1.MessageComposer.withTypeUrl;
 const msgUpdateManifestParams = updateManifestParams({
     authority: "address",
     params: {
@@ -47,11 +47,7 @@ const msgUpdateManifestParams = updateManifestParams({
        
     }
 });
-const msgPayoutStakeholders = payoutStakeholders({
-    authority: "address",
-   payout: {denom: "", amount: ""}
-  
-});
+
 // Group Messages
 const {updateGroupAdmin, updateGroupMembers, updateGroupMetadata, updateGroupPolicyAdmin, createGroupWithPolicy, submitProposal, vote, withdrawProposal, exec, leaveGroup } = cosmos.group.v1.MessageComposer.withTypeUrl;
 const msgUpdateGroupAdmin = updateGroupAdmin({
@@ -85,7 +81,7 @@ const msgSubmitProposal = submitProposal({
     proposers: [""],
     messages: [],
     metadata: "",
-    group_policy_address: "",
+    address: "",
     exec: 1
 });
 const msgVote = vote({

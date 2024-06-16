@@ -358,22 +358,22 @@ function VoteDetailsModal({
             )}
           </div>
           <div className="flex flex-col justify-start  items-start">
-            <p className="text-xs font-light mt-6">TITLE</p>
+            <p className="text-md font-light mt-6   text-pretty">TITLE</p>
             <h1 className="text-3xl mb-4">{proposal?.title}</h1>
-            <span className="text-xs font-light mt-2">SUBMITTED</span>
+            <span className="text-md font-light mt-2  ">SUBMITTED</span>
             <span className="text-sm ">
               {new Date(proposal?.submit_time).toDateString().toLocaleString()}
             </span>
           </div>
           <div className="divider divider-vertical"></div>
           <div>
-            <p className="text-xs font-light ">SUMMARY</p>
+            <p className="text-md font-light  ">SUMMARY</p>
             <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
-              <p className="text-md ">{proposal?.summary}</p>
+              <p className="text-md text-pretty">{proposal?.summary}</p>
             </div>
           </div>
           <div>
-            <p className="text-xs font-light mt-4 ">MESSAGE</p>
+            <p className="text-md font-light mt-4  ">MESSAGE</p>
             {proposal.messages.map((message: any, index: number) => (
               <div
                 key={index}
@@ -416,17 +416,17 @@ function VoteDetailsModal({
           </div>
 
           <div className="mb-4 hidden md:block w-full">
-            <p className="text-xs font-light mt-4 ">VOTING COUNTDOWN</p>
+            <p className="text-md font-light mt-4  ">VOTING COUNTDOWN</p>
             <CountdownTimer endTime={new Date(proposal?.voting_period_end)} />
           </div>
         </div>
         <div className="divider divider-horizontal"></div>
         <div className="flex flex-col w-full relative flex-grow items-start justify-start">
-          <p className="text-xs font-light mt-2">TALLY</p>
+          <p className="text-md font-light mt-2  ">TALLY</p>
           <div className="w-full ">
             <Chart options={options} series={series} type="bar" height={200} />
           </div>
-          <p className="text-xs font-light mt-4">MEMBERS</p>
+          <p className="text-md font-light mt-4  ">MEMBERS</p>
           <div className="overflow-x-auto w-full min-h-96 max-h-96 rounded-md  overflow-y-auto">
             <table className="min-w-full table-pin-rows shadow mt-4 table-auto text-sm text-left">
               <thead className="text-xs rounded-t-md uppercase ">
@@ -464,7 +464,7 @@ function VoteDetailsModal({
               </tbody>
             </table>
             <div className="mb-4 mt-8 md:hidden block ">
-              <p className="text-xs font-light mt-4 ">VOTING COUNTDOWN</p>
+              <p className="text-md font-light mt-4  ">VOTING COUNTDOWN</p>
               <CountdownTimer endTime={new Date(proposal?.voting_period_end)} />
             </div>
           </div>

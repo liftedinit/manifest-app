@@ -1,0 +1,24 @@
+{
+  "account_number": "15",
+  "chain_id": "manifest-1",
+  "fee": {
+    "gas": "468338",
+    "amount": [
+      {
+        "amount": "94",
+        "denom": "umfx"
+      }
+    ]
+  },
+  "memo": "",
+  "msgs": [
+    {
+      "type": "osmosis/tokenfactory/create-denom",
+      "value": {
+        "sender": "manifest1uwqjtgjhjctjc45ugy7ev5prprhehc7wclherd",
+        "subdenom": "ucoolio"
+      }
+    }
+  ],
+  "sequence": "91"
+}

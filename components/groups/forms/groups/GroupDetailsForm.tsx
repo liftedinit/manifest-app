@@ -53,7 +53,7 @@ export default function GroupDetails({
                     <input
                       type="text"
                       placeholder="List of authors or address"
-                      className="input input-bordered rounded-l rounded-t rounded-b rounded-tr-none rounded-r-none w-full max-w-xs"
+                      className="input input-bordered rounded-tl-lg rounded-bl-lg rounded-tr-none rounded-br-none w-full max-w-xs "
                       value={formData.authors}
                       onChange={(e) => updateField("authors", e.target.value)}
                     />{" "}
@@ -62,7 +62,7 @@ export default function GroupDetails({
                         e.preventDefault();
                         updateField("authors", address);
                       }}
-                      className="btn btn-primary rounded-r rounded-l-none rounded-tl-none rounded-t rounded-b"
+                      className="btn btn-primary rounded-tr-lg rounded-br-lg  rounded-bl-none rounded-tl-none "
                     >
                       <PiAddressBook className="w-6 h-6" />
                     </button>

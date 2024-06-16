@@ -40,7 +40,7 @@ export function GroupDetailsModal({
             <h3 className="text-lg font-semibold">Group Details</h3>
             <div className="divider divider-horizon -mt-0"></div>
             <div>
-              <p className="text-xs font-light mt-4 ">AUTHORS</p>
+              <p className="text-sm font-light mt-4 ">AUTHORS</p>
               <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
                 <p className="text-md ">
                   {group?.ipfsMetadata?.authors ?? "No authors available"}
@@ -48,7 +48,7 @@ export function GroupDetailsModal({
               </div>
             </div>
             <div>
-              <p className="text-xs font-light mt-4 ">SUMMARY</p>
+              <p className="text-sm font-light mt-4 ">SUMMARY</p>
               <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
                 <p className="text-md ">
                   {group?.ipfsMetadata?.summary ?? "No summary available"}
@@ -56,7 +56,7 @@ export function GroupDetailsModal({
               </div>
             </div>
             <div>
-              <p className="text-xs font-light mt-4 ">DETAILS</p>
+              <p className="text-sm font-light mt-4 ">DETAILS</p>
               <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2 max-h-[9.53rem] overflow-y-auto">
                 <p className="text-md text-wrap ">
                   {group?.ipfsMetadata?.details ?? "No details available"}
@@ -64,7 +64,7 @@ export function GroupDetailsModal({
               </div>
             </div>
             <div>
-              <p className="text-xs font-light mt-4 ">FORUM</p>
+              <p className="text-sm font-light mt-4 ">FORUM</p>
               <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
                 <p className="text-md ">
                   {group?.ipfsMetadata?.proposalForumURL ??
@@ -79,7 +79,7 @@ export function GroupDetailsModal({
             {group?.policies.map((policy, index) => (
               <div key={index} className="mb-2">
                 <div>
-                  <p className="text-xs font-light mt-4 ">POLICY ADDRESS</p>
+                  <p className="text-sm font-light mt-4 ">POLICY ADDRESS</p>
                   <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
                     {" "}
                     <TruncatedAddressWithCopy
@@ -89,7 +89,7 @@ export function GroupDetailsModal({
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs font-light mt-4 ">VOTING WINDOW</p>
+                  <p className="text-sm font-light mt-4 ">VOTING WINDOW</p>
                   <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
                     <p className="text-md ">
                       {policy?.decision_policy?.windows?.voting_period
@@ -107,7 +107,7 @@ export function GroupDetailsModal({
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs font-light mt-4 ">THRESHOLD</p>
+                  <p className="text-sm font-light mt-4 ">THRESHOLD</p>
                   <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
                     <p className="text-md ">
                       {policy?.decision_policy?.threshold ??
@@ -117,7 +117,7 @@ export function GroupDetailsModal({
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs font-light mt-4 ">CREATED</p>
+                  <p className="text-sm font-light mt-4 ">CREATED</p>
                   <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
                     {policy?.created_at
                       ? new Intl.DateTimeFormat(undefined, {
@@ -132,7 +132,7 @@ export function GroupDetailsModal({
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs font-light mt-4 ">ADMIN</p>
+                  <p className="text-sm font-light mt-4 ">ADMIN</p>
                   <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
                     <p className="text-md ">
                       <TruncatedAddressWithCopy

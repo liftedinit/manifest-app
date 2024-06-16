@@ -2,9 +2,10 @@ import { WalletSection } from "@/components";
 import { GroupInfo } from "@/components/groups/components/groupInfo";
 import ProposalsForPolicy from "@/components/groups/components/groupProposals";
 import { YourGroups } from "@/components/groups/components/myGroups";
+import Notifications from "@/components/groups/components/Notifications";
 import { useChain } from "@cosmos-kit/react";
-import { group } from "console";
 
+import axios from "axios";
 import Head from "next/head";
 import Link from "next/link";
 import React from "react";
@@ -15,7 +16,7 @@ import {
   useProposalsByPolicyAccount,
   useProposalsByPolicyAccountAll,
 } from "../../hooks/useQueries";
-
+import Ably from "ably";
 export default function Groups() {
   const { address, isWalletConnected } = useChain(chainName);
   const {
@@ -43,9 +44,29 @@ export default function Groups() {
   const { proposalsByPolicyAccount, isProposalsError, isProposalsLoading } =
     useProposalsByPolicyAccountAll(groupPolicyAddresses ?? []);
 
+  // const proposal = {
+  //   title: "New Proposal",
+  //   description: "This is a new proposal",
+  //   createdAt: new Date().toISOString(),
+  // };
+
+  // const handleAbly = async () => {
+  //   if (!selectedPolicyAddress) return;
+  //   const ably = new Ably.Realtime(
+  //     process.env.NEXT_PUBLIC_ABLY_API_KEY as string
+  //   );
+  //   const channel = ably.channels.get(
+  //     `[?rewind=24h]group-${selectedPolicyAddress}`
+  //   );
+  //   await channel.publish("new-proposal", proposal);
+  // };
   return (
     <>
       <div className="max-w-5xl relative py-[2rem] mx-auto lg:mx-auto ">
+        {/* <Notifications groupPolicyAddress={selectedPolicyAddress ?? ""} />
+        <button onClick={handleAbly} className="btn btn-primary">
+          Notify
+        </button> */}
         <Head>
           <title>Groups - Alberto</title>
           <meta

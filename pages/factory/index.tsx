@@ -1,12 +1,49 @@
 import { WalletSection } from "@/components";
-
+import DenomInfo from "@/components/factory/components/DenomInfo";
+import MyDenoms from "@/components/factory/components/MyDenoms";
+import { useTokenFactoryDenoms, useTokenFactoryDenomsMetadata } from "@/hooks";
+import { MetadataSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
 import { useChain } from "@cosmos-kit/react";
 
 import Head from "next/head";
-import React from "react";
+import Link from "next/link";
+import React, { useState, useEffect } from "react";
 
 export default function Factory() {
   const { address, isWalletConnected } = useChain("manifest");
+  const { denoms, isDenomsLoading, isDenomsError, refetchDenoms } =
+    useTokenFactoryDenoms(address ?? "");
+  const { metadatas, isMetadatasLoading, isMetadatasError, refetchMetadatas } =
+    useTokenFactoryDenomsMetadata();
+
+  const [selectedDenom, setSelectedDenom] = useState<string | null>(null);
+  const [selectedDenomMetadata, setSelectedDenomMetadata] =
+    useState<MetadataSDKType | null>(null);
+  const [combinedData, setCombinedData] = useState<MetadataSDKType[]>([]);
+
+  console.log(denoms, metadatas);
+
+  useEffect(() => {
+    if (denoms && metadatas) {
+      const combined = denoms.denoms
+        .map((denom: string) => {
+          return (
+            metadatas.metadatas.find((meta) => meta.base === denom) || null
+          );
+        })
+        .filter(
+          (meta: MetadataSDKType | null) => meta !== null
+        ) as MetadataSDKType[];
+      setCombinedData(combined as MetadataSDKType[]);
+    }
+  }, [denoms, metadatas]);
+
+  const handleDenomSelect = (denom: MetadataSDKType) => {
+    setSelectedDenom(denom.base);
+    const metadata =
+      metadatas?.metadatas.find((meta) => meta.base === denom.base) || null;
+    setSelectedDenomMetadata(metadata);
+  };
 
   return (
     <>
@@ -75,6 +112,13 @@ export default function Factory() {
               Factory
             </h3>
           </div>
+          {isWalletConnected && (
+            <Link href="/factory/create" passHref>
+              <button className="relative items-center btn btn-primary hidden md:inline-flex">
+                Create New Token
+              </button>
+            </Link>
+          )}
         </div>
         <div className="mt-6 p-4 gap-4 flex flex-col lg:flex-row rounded-md bg-base-200/20 shadow-lg transition-opacity duration-300 ease-in-out animate-fadeIn">
           {!isWalletConnected ? (
@@ -99,7 +143,24 @@ export default function Factory() {
             isWalletConnected && (
               <div className="flex flex-col w-full">
                 <div className="flex flex-col sm:flex-col w-full gap-4 transition-opacity duration-300 ease-in-out animate-fadeIn">
-                  <div className="flex flex-col gap-4 justify-between items-center w-full"></div>
+                  <div className="flex flex-row gap-4 justify-between items-center w-full">
+                    <div className="w-1/3 h-full">
+                      <MyDenoms
+                        denoms={combinedData}
+                        isLoading={isDenomsLoading || isMetadatasLoading}
+                        isError={isDenomsError || isMetadatasError}
+                        refetchDenoms={refetchDenoms}
+                        onSelectDenom={handleDenomSelect}
+                      />
+                    </div>
+                    <div className="w-2/3 h-full">
+                      <DenomInfo
+                        denom={selectedDenomMetadata}
+                        address={address ?? ""}
+                        refetchDenoms={refetchDenoms}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             )

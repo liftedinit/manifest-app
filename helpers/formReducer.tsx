@@ -1,3 +1,4 @@
+import { DenomUnit } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
 import { Duration } from "@chalabi/manifestjs/dist/codegen/google/protobuf/duration";
 import { Coin } from "@cosmjs/stargate";
 
@@ -11,6 +12,39 @@ export type FormData = {
   votingPeriod: Duration;
   votingThreshold: string;
   members: { address: string; name: string; weight: string }[];
+};
+
+export type TokenFormData = {
+  subdenom: string;
+  symbol: string;
+  description: string;
+  exponent: string;
+  uri: string;
+  display: string;
+  label: string;
+  base: string;
+  name: string;
+  uri_hash: string;
+  denom_units: DenomUnit[];
+};
+
+export type TokenAction = {
+  type: "UPDATE_FIELD";
+  field: keyof TokenFormData;
+  value: any;
+};
+
+export const tokenFormDataReducer = (
+  state: TokenFormData,
+  action: TokenAction
+): TokenFormData => {
+  switch (action.type) {
+    case "UPDATE_FIELD":
+      return { ...state, [action.field]: action.value };
+
+    default:
+      throw new Error("Unknown action type");
+  }
 };
 
 // Actions for form data

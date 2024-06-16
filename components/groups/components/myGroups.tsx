@@ -1,8 +1,8 @@
 import { ExtendedQueryGroupsByMemberResponseSDKType } from "@/hooks/useQueries";
-
 import ProfileAvatar from "@/utils/identicon";
 import { truncateString } from "@/utils";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/router";
 
 export function YourGroups({
   groups,
@@ -20,42 +20,78 @@ export function YourGroups({
   proposals: any;
 }) {
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const router = useRouter();
+  const groupRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   useEffect(() => {
+    const policyAddressFromUrl = router.query.policyAddress as string;
+
     if (!selectedGroup && groups.groups.length > 0) {
-      setSelectedGroup(groups.groups[0].policies[0].address);
-      onSelectGroup(groups.groups[0].policies[0].address);
+      if (policyAddressFromUrl) {
+        setSelectedGroup(policyAddressFromUrl);
+        onSelectGroup(policyAddressFromUrl);
+        scrollToGroup(policyAddressFromUrl);
+      } else {
+        const defaultPolicyAddress = groups.groups[0].policies[0].address;
+        setSelectedGroup(defaultPolicyAddress);
+        onSelectGroup(defaultPolicyAddress);
+        router.push(`?policyAddress=${defaultPolicyAddress}`, undefined, {
+          shallow: true,
+        });
+      }
     }
   }, [groups]);
+
+  const scrollToGroup = (policyAddress: string) => {
+    const groupElement = groupRefs.current[policyAddress];
+    if (groupElement) {
+      groupElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  };
 
   const handleGroupSelect = (policyAddress: string) => {
     setSelectedGroup(policyAddress);
     onSelectGroup(policyAddress);
+    router.push(`?policyAddress=${policyAddress}`, undefined, {
+      shallow: true,
+    });
+    scrollToGroup(policyAddress);
   };
 
   const renderSkeleton = () => (
-    <>
-      <div className="py-8">
-        <div className="skeleton rounded-md mx-auto h-16 w-5/6"></div>
-      </div>
-    </>
+    <div className="py-8">
+      <div className="skeleton rounded-md mx-auto h-16 w-5/6"></div>
+    </div>
+  );
+
+  const filteredGroups = groups.groups.filter((group) =>
+    group.ipfsMetadata?.title?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
     <div className="flex flex-col rounded-md max-h-[23rem]  min-h-[23rem] bg-base-100  shadow w-full p-4">
       <div className="w-full rounded-md ">
-        <div className="px-4 py-2 border-base-content">
+        <div className="px-4 py-2 border-base-content flex justify-between items-center">
           <h3 className="text-lg font-bold leading-6">My Groups</h3>
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="input input-bordered input-sm w-1/3 max-w-xs"
+          />
         </div>
         <div className="divider divider-horizon -mt-2"></div>
         <div className="overflow-y-auto max-h-[17rem] -mt-4  mb-2 gap-4">
           {groupByMemberDataLoading ? renderSkeleton() : null}
-          {groups?.groups?.map((group, index) => {
+          {filteredGroups.map((group, index) => {
             const policyAddress = group.policies[0]?.address;
 
             return (
               <div
                 key={index}
+                ref={(el) => (groupRefs.current[policyAddress] = el)}
                 className={` relative flex flex-row justify-between rounded-md  mb-4 mt-2  items-center px-4 py-2  hover:cursor-pointer transition-all duration-200 ${
                   selectedGroup === policyAddress
                     ? "bg-primary border-r-4 border-r-[#263c3add] border-b-[#263c3add] border-b-4 "
@@ -87,7 +123,7 @@ export function YourGroups({
           })}
           {!groupByMemberDataLoading &&
             !groupByMemberDataError &&
-            groups?.groups?.length === 0 && (
+            filteredGroups.length === 0 && (
               <div className="text-center mt-6">No groups found</div>
             )}
         </div>

@@ -6,6 +6,8 @@ import { useLcdQueryClient } from "./useLcdQueryClient";
 import { usePoaLcdQueryClient } from "./usePoaLcdQueryClient";
 import { getLogoUrls } from "@/utils";
 import { ExtendedValidatorSDKType } from "@/components";
+import { useManifestLcdQueryClient } from "./useManifestLcdQueryClient";
+import { MetadataSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
 
 export interface IPFSMetadata {
     title: string;
@@ -346,6 +348,31 @@ export const useBalance = (address: string) => {
     };
 }
 
+export const useTokenFactoryBalance = (address: string, denom: string) => {
+    const { lcdQueryClient } = useLcdQueryClient();
+
+    const fetchBalance = async () => {
+        if (!lcdQueryClient) {
+            throw new Error("LCD Client not ready");
+        }
+        return await lcdQueryClient.cosmos.bank.v1beta1.balance({ denom, address});
+    };
+
+    const balanceQuery = useQuery({
+        queryKey: ["balanceInfo", address],
+        queryFn: fetchBalance,
+        enabled: !!lcdQueryClient && !!address,
+        staleTime: Infinity,
+    });
+
+    return {
+        balance: balanceQuery.data?.balance,
+        isBalanceLoading: balanceQuery.isLoading,
+        isBalanceError: balanceQuery.isError,
+        refetchBalance: balanceQuery.refetch,
+    };
+}
+
 export const usePoaParams = () => {
     const { lcdQueryClient } = usePoaLcdQueryClient();
 
@@ -500,3 +527,92 @@ export const useValidators = () => {
   };
   
 
+  export const useTokenFactoryDenoms = (creator: string) => {
+    const { lcdQueryClient } = useManifestLcdQueryClient();
+
+    const fetchDenoms = async () => {
+        if (!lcdQueryClient) {
+            throw new Error("LCD Client not ready");
+        }
+        if (!creator) {
+            throw new Error("Creator address not provided");
+        }
+        return await lcdQueryClient.osmosis.tokenfactory.v1beta1.denomsFromCreator({
+            creator: creator,
+        });
+    };
+
+    const denomsQuery = useQuery({
+        queryKey: ["denoms", creator],
+        queryFn: fetchDenoms,
+        enabled: !!lcdQueryClient && !!creator,
+        staleTime: Infinity,
+    });
+
+    return {
+        denoms: denomsQuery.data,
+        isDenomsLoading: denomsQuery.isLoading,
+        isDenomsError: denomsQuery.isError,
+        refetchDenoms: denomsQuery.refetch,
+    };
+};
+
+export const useTokenFactoryDenomMetadata = (denom: string) => {
+    const { lcdQueryClient } = useLcdQueryClient();
+
+    const fetchDenoms = async () => {
+        if (!lcdQueryClient) {
+            throw new Error("LCD Client not ready");
+        }
+        if (!denom) {
+            throw new Error("Creator address not provided");
+        }
+        return await lcdQueryClient.cosmos.bank.v1beta1.denomMetadataByQueryString({
+            denom: denom,
+        });
+    };
+
+    const denomsQuery = useQuery({
+        queryKey: ["metadata", denom],
+        queryFn: fetchDenoms,
+        enabled: !!lcdQueryClient && !!denom,
+        staleTime: Infinity,
+    });
+
+    return {
+        metadata: denomsQuery.data,
+        isMetadataLoading: denomsQuery.isLoading,
+        isMetadataError: denomsQuery.isError,
+        refetchMetadata: denomsQuery.refetch,
+    };
+
+}
+
+export const useTokenFactoryDenomsMetadata = () => {
+    const { lcdQueryClient } = useLcdQueryClient();
+
+    const fetchDenoms = async () => {
+        if (!lcdQueryClient) {
+            throw new Error("LCD Client not ready");
+        }
+   
+        return await lcdQueryClient.cosmos.bank.v1beta1.denomsMetadata({
+     
+        });
+    };
+
+    const denomsQuery = useQuery({
+        queryKey: ["metadatas"],
+        queryFn: fetchDenoms,
+        enabled: !!lcdQueryClient,
+        staleTime: Infinity,
+    });
+
+    return {
+        metadatas: denomsQuery.data,
+        isMetadatasLoading: denomsQuery.isLoading,
+        isMetadatasError: denomsQuery.isError,
+        refetchMetadatas: denomsQuery.refetch,
+    };
+
+}

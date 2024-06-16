@@ -130,15 +130,15 @@ export default function MemberInfoForm({
                             onChange={(e) =>
                               handleChange(index, "address", e.target.value)
                             }
-                            className="input input-bordered rounded-l rounded-t rounded-tr-none rounded-b rounded-r-none w-full "
+                            className="input input-bordered rounded-tl-lg rounded-bl-lg rounded-tr-none rounded-br-none w-full "
                             placeholder="manifest1..."
                           />
                           {index === 0 && (
                             <button
                               onClick={pasteAddress}
-                              className="btn btn-primary rounded-r rounded-l-none rounded-tl-none rounded-t rounded-b "
+                              className="btn btn-primary rounded-tr-lg rounded-br-lg  rounded-bl-none rounded-tl-none "
                             >
-                              <PiAddressBook className="w-4 h-4" />
+                              <PiAddressBook className="w-6 h-6" />
                             </button>
                           )}
                         </div>
