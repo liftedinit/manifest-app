@@ -4,7 +4,7 @@ import { FormData } from "@/helpers/formReducer";
 import { useFeeEstimation } from "@/hooks/useFeeEstimation";
 import { uploadJsonToIPFS } from "@/hooks/useIpfs";
 import { useTx } from "@/hooks/useTx";
-import { cosmos } from "interchain";
+import { cosmos } from "@chalabi/manifestjs";
 import { ThresholdDecisionPolicy } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types";
 import { Duration } from "@chalabi/manifestjs/dist/codegen/google/protobuf/duration";
 import { useChain } from "@cosmos-kit/react";
@@ -49,7 +49,7 @@ export default function ConfirmationModal({
   const thresholdMsg = {
     threshold: formData.votingThreshold,
     windows: {
-      voting_period: formData.votingPeriod,
+      votingPeriod: formData.votingPeriod,
       min_execution_period: minExecutionPeriod,
     },
     msg: cosmos.group.v1.ThresholdDecisionPolicy.typeUrl,

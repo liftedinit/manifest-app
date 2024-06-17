@@ -51,7 +51,7 @@ export default function Admins() {
       admins: [
         "manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj",
       ],
-      allow_validator_self_exit: true,
+      allowValidatorSelfExit: true,
     },
   });
 

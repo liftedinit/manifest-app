@@ -245,14 +245,14 @@ export function UpdateGroupModal({
 
   const msgUpdateGroupAdmin = updateGroupAdmin({
     admin: group.admin,
-    group_id: BigInt(group?.members[0]?.group_id),
-    new_admin: members?.filter((member) => member?.isAdmin)[0]?.member?.address,
+    groupId: BigInt(group?.members[0]?.group_id),
+    newAdmin: members?.filter((member) => member?.isAdmin)[0]?.member?.address,
   });
 
   const msgUpdateGroupMembers = updateGroupMembers({
     admin: group.admin,
-    group_id: BigInt(group?.members[0]?.group_id),
-    member_updates: members?.map((member) => ({
+    groupId: BigInt(group?.members[0]?.group_id),
+    memberUpdates: members?.map((member) => ({
       address: member?.member.address,
       metadata: member?.member.metadata,
       weight: member?.member.weight,
@@ -262,28 +262,29 @@ export function UpdateGroupModal({
 
   const msgUpdateGroupMetadata = updateGroupMetadata({
     admin: group?.admin,
-    group_id: BigInt(group?.members[0]?.group_id),
+    groupId: BigInt(group?.members[0]?.group_id),
     metadata: "",
   });
 
   const msgUpdateGroupPolicyAdmin = updateGroupPolicyAdmin({
-    address: group?.policies[0].address,
+    groupPolicyAddress: group?.policies[0].address,
     admin: group?.admin,
-    new_admin: members?.filter((member) => member?.isPolicyAdmin)[0]?.member
+    newAdmin: members?.filter((member) => member?.isPolicyAdmin)[0]?.member
       .address,
   });
 
   const msgUpdateGroupPolicyDecisionPolicy = updateGroupPolicyDecisionPolicy({
-    address: group.policies[0].address,
-    decision_policy: {
+    groupPolicyAddress: group.policies[0].address,
+    admin: group.admin,
+    decisionPolicy: {
       threshold: threshold,
       percentage: "",
       windows: {
-        voting_period: {
+        votingPeriod: {
           nanos: 0,
           seconds: BigInt(0),
         },
-        min_execution_period: {
+        minExecutionPeriod: {
           nanos: 0,
           seconds: BigInt(0),
         },
@@ -292,7 +293,7 @@ export function UpdateGroupModal({
   });
 
   const msgUpdateGroupPolicyMetadata = updateGroupPolicyMetadata({
-    address: group.policies[0].address,
+    groupPolicyAddress: group.policies[0].address,
     admin: group.admin,
     metadata: "",
   });

@@ -24,8 +24,8 @@ export type TokenFormData = {
   label: string;
   base: string;
   name: string;
-  uri_hash: string;
-  denom_units: DenomUnit[];
+  uriHash: string;
+  denomUnits: DenomUnit[];
 };
 
 export type TokenAction = {

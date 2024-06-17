@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { useFeeEstimation } from "@/hooks/useFeeEstimation";
 import { uploadJsonToIPFS } from "@/hooks/useIpfs";
 import { useTx } from "@/hooks/useTx";
-import { manifest, strangelove_ventures } from "@chalabi/manifestjs";
-import { cosmos } from "interchain";
+import { manifest, strangelove_ventures, cosmos } from "@chalabi/manifestjs";
 
 import { useChain } from "@cosmos-kit/react";
 import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";

@@ -64,10 +64,10 @@ const manifestChain: Chain = {
     fee_tokens: [
       {
         denom: "umfx",
-        fixed_min_gas_price: 0.0001,
-        low_gas_price: 0.0001,
-        average_gas_price: 0.0002,
-        high_gas_price: 0.0003,
+        fixed_min_gas_price: 0.001,
+        low_gas_price: 0.001,
+        average_gas_price: 0.001,
+        high_gas_price: 0.001,
       },
     ],
   },
@@ -225,60 +225,60 @@ function ManifestApp({ Component, pageProps }: AppProps) {
 
   const combinedWallets = [...web3AuthWallets, ...wallets];
 
-  const ablyClient = new Ably.Realtime({
-    key: process.env.NEXT_PUBLIC_ABLY_API_KEY,
-  });
+  // const ablyClient = new Ably.Realtime({
+  //   key: process.env.NEXT_PUBLIC_ABLY_API_KEY,
+  // });
 
   return (
-    <AblyProvider client={ablyClient}>
-      <QueryClientProvider client={client}>
-        <ReactQueryDevtools />
-        <ChainProvider
-          chains={[manifestChain]}
-          assetLists={[manifestAssets]}
-          wallets={combinedWallets}
-          logLevel="NONE"
-          endpointOptions={{
-            isLazy: true,
-            endpoints: {
-              manifest: {
-                rpc: ["https://nodes.chandrastation.com/rpc/manifest/"],
-                rest: ["https://nodes.chandrastation.com/api/manifest/"],
-              },
+    // <AblyProvider client={ablyClient}>
+    <QueryClientProvider client={client}>
+      <ReactQueryDevtools />
+      <ChainProvider
+        chains={[manifestChain]}
+        assetLists={[manifestAssets]}
+        wallets={combinedWallets}
+        logLevel="NONE"
+        endpointOptions={{
+          isLazy: true,
+          endpoints: {
+            manifest: {
+              rpc: ["https://nodes.chandrastation.com/rpc/manifest/"],
+              rest: ["https://nodes.chandrastation.com/api/manifest/"],
             },
-          }}
-          walletConnectOptions={{
-            signClient: {
-              projectId: "a8510432ebb71e6948cfd6cde54b70f7",
-              relayUrl: "wss://relay.walletconnect.org",
-              metadata: {
-                name: "CosmosKit Template",
-                description: "CosmosKit dapp template",
-                url: "https://docs.cosmology.zone/cosmos-kit/",
-                icons: [],
-              },
+          },
+        }}
+        walletConnectOptions={{
+          signClient: {
+            projectId: "a8510432ebb71e6948cfd6cde54b70f7",
+            relayUrl: "wss://relay.walletconnect.org",
+            metadata: {
+              name: "CosmosKit Template",
+              description: "CosmosKit dapp template",
+              url: "https://docs.cosmology.zone/cosmos-kit/",
+              icons: [],
             },
-          }}
-          signerOptions={signerOptions}
-          walletModal={TailwindModal}
-        >
-          <ThemeProvider>
-            <SideNav />
-            <MobileNav />
-            <div className="min-h-screen max-w-screen md:ml-20 sm:px-4 sm:py-2 bg-base-200 ">
-              <Component {...pageProps} />
-              <SignModal
-                visible={web3AuthPrompt !== undefined}
-                onClose={() => web3AuthPrompt?.resolve(false)}
-                data={{}}
-                approve={() => web3AuthPrompt?.resolve(true)}
-                reject={() => web3AuthPrompt?.resolve(false)}
-              />
-            </div>
-          </ThemeProvider>
-        </ChainProvider>
-      </QueryClientProvider>
-    </AblyProvider>
+          },
+        }}
+        signerOptions={signerOptions}
+        walletModal={TailwindModal}
+      >
+        <ThemeProvider>
+          <SideNav />
+          <MobileNav />
+          <div className="min-h-screen max-w-screen md:ml-20 sm:px-4 sm:py-2 bg-base-200 ">
+            <Component {...pageProps} />
+            <SignModal
+              visible={web3AuthPrompt !== undefined}
+              onClose={() => web3AuthPrompt?.resolve(false)}
+              data={{}}
+              approve={() => web3AuthPrompt?.resolve(true)}
+              reject={() => web3AuthPrompt?.resolve(false)}
+            />
+          </div>
+        </ThemeProvider>
+      </ChainProvider>
+    </QueryClientProvider>
+    // </AblyProvider>
   );
 }
 

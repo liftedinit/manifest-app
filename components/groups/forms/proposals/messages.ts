@@ -8,31 +8,31 @@ const msgUpdatePoaParams = updatePoaParams({
     sender: "address",
     params: {
         admins: [""],
-        allow_validator_self_exit: true,
+        allowValidatorSelfExit: true,
     }
 });
 const msgUpdateStakingParams = updateStakingParams({
     sender: "address",
     params: {
-       unbonding_time: {seconds: BigInt(0), nanos: 0},
-         max_validators: 0,
-            max_entries: 0,
-            historical_entries: 0,
-            bond_denom: "",
-            min_commission_rate: ""
+       unbondingTime: {seconds: BigInt(0), nanos: 0},
+         maxValidators: 0,
+            maxEntries: 0,
+            historicalEntries: 0,
+            bondDenom: "",
+            minCommissionRate: ""
     }
 });
 const msgRemoveValidator = removeValidator({
     sender: "address",
-    validator_address: ""
+    validatorAddress: ""
 });
 const msgRemovePending = removePending({
     sender: "address",
-    validator_address: ""
+    validatorAddress: ""
 });
 const msgSetPower = setPower({
     sender: "address",
-    validator_address: "",
+    validatorAddress: "",
     power: BigInt(0),
     unsafe: true
 });
@@ -58,7 +58,7 @@ const msgUpdateGroupAdmin = updateGroupAdmin({
 const msgUpdateGroupMembers = updateGroupMembers({
     group_id: BigInt(0),
     admin: "address",
-    member_updates: [{address: "", weight: "", metadata: "", added_at: {} as Date}]
+    member_updates: [{address: "", weight: "", metadata: ""}]
 });
 const msgUpdateGroupMetadata = updateGroupMetadata({
     group_id: BigInt(0),
@@ -68,21 +68,23 @@ const msgUpdateGroupMetadata = updateGroupMetadata({
 const msgUpdateGroupPolicyAdmin = updateGroupPolicyAdmin({
    new_admin: "address",
    admin: "address",
-   address: "address"
+   group_policy_address: "address"
 });
 const msgCreateGroupWithPolicy = createGroupWithPolicy({
     admin: "address",
     group_metadata: "",
     group_policy_as_admin: true,
     group_policy_metadata: "",
-    members: [{address: "", weight: "", metadata: "", added_at: {} as Date}],
+    members: [{address: "", weight: "", metadata: ""}],
 });
 const msgSubmitProposal = submitProposal({
     proposers: [""],
     messages: [],
     metadata: "",
-    address: "",
-    exec: 1
+    group_policy_address: "",
+    exec: 1,
+    title: "",
+    summary: ""
 });
 const msgVote = vote({
     voter: "address",
@@ -97,7 +99,7 @@ const msgWithdrawProposal = withdrawProposal({
 });
 const msgExec = exec({
     proposal_id: BigInt(0),
-   signer: "address"
+   executor: "address"
 });
 const msgLeaveGroup = leaveGroup({
     group_id: BigInt(0),
@@ -106,8 +108,8 @@ const msgLeaveGroup = leaveGroup({
 // Cosmos Messages
 const { send, multiSend } = cosmos.bank.v1beta1.MessageComposer.withTypeUrl;
 const msgSend = send({
-    from_address: "address",
-    to_address: "address",
+    fromAddress: "address",
+    toAddress: "address",
     amount: [{denom: "", amount: ""}]
 });
 const msgMultiSend = multiSend({

@@ -46,9 +46,9 @@ export const useGroupsByMember = (address: string) => {
             if (groupQuery.data?.groups && !groupQuery.isLoading) {
                 try {
                     const policyPromises = groupQuery.data.groups.map(group =>
-                        lcdQueryClient?.cosmos.group.v1.groupPoliciesByGroup({ group_id: group.id }));
+                        lcdQueryClient?.cosmos.group.v1.groupPoliciesByGroup({ groupId: group.id }));
                     const memberPromises = groupQuery.data.groups.map(group =>
-                        lcdQueryClient?.cosmos.group.v1.groupMembers({ group_id: group.id }));
+                        lcdQueryClient?.cosmos.group.v1.groupMembers({ groupId: group.id }));
                     const ipfsPromises = groupQuery.data.groups.map(group =>
                         fetch(`https://nodes.chandrastation.com/ipfs/gateway/${group.metadata}`)
                             .then(response => {
@@ -115,9 +115,9 @@ export const useGroupsByAdmin = (admin: string) => {
             if (groupQuery.data?.groups && !groupQuery.isLoading) {
                 try {
                     const policyPromises = groupQuery.data.groups.map(group => 
-                        lcdQueryClient?.cosmos.group.v1.groupPoliciesByGroup({ group_id: group.id }));
+                        lcdQueryClient?.cosmos.group.v1.groupPoliciesByGroup({ groupId: group.id }));
                     const memberPromises = groupQuery.data.groups.map(group => 
-                        lcdQueryClient?.cosmos.group.v1.groupMembers({ group_id: group.id }));
+                        lcdQueryClient?.cosmos.group.v1.groupMembers({ groupId: group.id }));
                     const ipfsPromises = groupQuery.data.groups.map(group => 
                         fetch(`https://nodes.chandrastation.com/ipfs/gateway/${group.metadata}`)
                             .then(response => {
@@ -170,7 +170,7 @@ export const usePoliciesById = (groupId: bigint) => {
         if (!lcdQueryClient) {
             throw new Error("LCD Client not ready");
         }
-        return await lcdQueryClient.cosmos.group.v1.groupPoliciesByGroup({ group_id: groupId});
+        return await lcdQueryClient.cosmos.group.v1.groupPoliciesByGroup({ groupId: groupId});
     };
 
     const policyQuery = useQuery({
@@ -196,7 +196,7 @@ export const useMembersById = (groupId: bigint) => {
         if (!lcdQueryClient) {
             throw new Error("LCD Client not ready");
         }
-        return await lcdQueryClient.cosmos.group.v1.groupMembers({ group_id: groupId});
+        return await lcdQueryClient.cosmos.group.v1.groupMembers({ groupId: groupId});
     };
 
     const memberQuery = useQuery({
@@ -280,7 +280,7 @@ export const useTallyCount = (proposalId: bigint) => {
         if (!lcdQueryClient) {
             throw new Error("LCD Client not ready");
         }
-        return await lcdQueryClient.cosmos.group.v1.tallyResult({ proposal_id: proposalId});
+        return await lcdQueryClient.cosmos.group.v1.tallyResult({ proposalId: proposalId});
     };
 
     const tallyQuery = useQuery({
@@ -305,7 +305,7 @@ export const useVotesByProposal = (proposalId: bigint) => {
         if (!lcdQueryClient) {
             throw new Error("LCD Client not ready");
         }
-        return await lcdQueryClient.cosmos.group.v1.votesByProposal({ proposal_id: proposalId});
+        return await lcdQueryClient.cosmos.group.v1.votesByProposal({ proposalId: proposalId});
     };
 
     const voteQuery = useQuery({
@@ -352,16 +352,16 @@ export const useTokenFactoryBalance = (address: string, denom: string) => {
     const { lcdQueryClient } = useLcdQueryClient();
 
     const fetchBalance = async () => {
-        if (!lcdQueryClient) {
+        if (!lcdQueryClient || !address || !denom) {
             throw new Error("LCD Client not ready");
         }
         return await lcdQueryClient.cosmos.bank.v1beta1.balance({ denom, address});
     };
 
     const balanceQuery = useQuery({
-        queryKey: ["balanceInfo", address],
+        queryKey: ["factoryBalance", address],
         queryFn: fetchBalance,
-        enabled: !!lcdQueryClient && !!address,
+        enabled: !!lcdQueryClient && !!address && !!denom,
         staleTime: Infinity,
     });
 
@@ -432,7 +432,7 @@ export const useConsensusPower = (address: string) => {
         if (!lcdQueryClient) {
             throw new Error("LCD Client not ready");
         }
-        return await lcdQueryClient.strangelove_ventures.poa.v1.consensusPower({validator_address: address});
+        return await lcdQueryClient.strangelove_ventures.poa.v1.consensusPower({validatorAddress: address});
     };
 
     const paramsQuery = useQuery({
@@ -487,7 +487,7 @@ export const useValidators = () => {
   
       const promises = validators.map(async (validator) => {
         const consensusPowerResponse = await poaLcdQueryCLient.strangelove_ventures.poa.v1.consensusPower({
-          validator_address: validator.operator_address,
+          validatorAddress: validator.operator_address,
         });
         const logoUrlResponse = await getLogoUrls(validator);
         return {
@@ -527,25 +527,25 @@ export const useValidators = () => {
   };
   
 
-  export const useTokenFactoryDenoms = (creator: string) => {
+  export const useTokenFactoryDenoms = (address: string) => {
     const { lcdQueryClient } = useManifestLcdQueryClient();
 
     const fetchDenoms = async () => {
         if (!lcdQueryClient) {
             throw new Error("LCD Client not ready");
         }
-        if (!creator) {
+        if (!address) {
             throw new Error("Creator address not provided");
         }
         return await lcdQueryClient.osmosis.tokenfactory.v1beta1.denomsFromCreator({
-            creator: creator,
+            creator: address,
         });
     };
 
     const denomsQuery = useQuery({
-        queryKey: ["denoms", creator],
+        queryKey: ["denoms", address],
         queryFn: fetchDenoms,
-        enabled: !!lcdQueryClient && !!creator,
+        enabled: !!lcdQueryClient && !!address,
         staleTime: Infinity,
     });
 
@@ -602,7 +602,7 @@ export const useTokenFactoryDenomsMetadata = () => {
     };
 
     const denomsQuery = useQuery({
-        queryKey: ["metadatas"],
+        queryKey: ["allMetadatas"],
         queryFn: fetchDenoms,
         enabled: !!lcdQueryClient,
         staleTime: Infinity,

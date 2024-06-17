@@ -105,6 +105,36 @@ export default function TokenDetails({
                 </div>
                 <div>
                   <label
+                    htmlFor="password"
+                    className="block mb-2 text-sm font-medium  "
+                  >
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="6"
+                    className="input input-bordered  w-full max-w-xs "
+                    value={formData.name}
+                    onChange={(e) => updateField("name", e.target.value)}
+                  />{" "}
+                </div>
+                <div>
+                  <label
+                    htmlFor="password"
+                    className="block mb-2 text-sm font-medium  "
+                  >
+                    Base
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="6"
+                    className="input input-bordered  w-full max-w-xs "
+                    value={formData.base}
+                    onChange={(e) => updateField("base", e.target.value)}
+                  />{" "}
+                </div>
+                <div>
+                  <label
                     htmlFor="confirm-password"
                     className="block mb-2 text-sm font-medium "
                   >
@@ -129,7 +159,8 @@ export default function TokenDetails({
                 !formData.label ||
                 !formData.description ||
                 !formData.uri ||
-                !formData.display
+                !formData.display ||
+                !formData.name
               }
             >
               Next: Confirmation

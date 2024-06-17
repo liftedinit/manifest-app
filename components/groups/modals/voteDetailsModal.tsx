@@ -43,7 +43,7 @@ function VoteDetailsModal({
   tallies: QueryTallyResultResponseSDKType;
   votes: VoteSDKType[];
   members: MemberSDKType[];
-  proposal: Proposal;
+  proposal: ProposalSDKType;
   admin: string;
   modalId: string;
   refetchVotes: () => void;
@@ -63,6 +63,8 @@ function VoteDetailsModal({
 
   const { theme } = useTheme();
 
+  console.log(proposal, votes, tallies, members, admin);
+
   const textColor = theme === "dark" ? "#E0D1D4" : "#2e2e2e";
 
   const series: ApexAxisChartSeries = [
@@ -80,11 +82,10 @@ function VoteDetailsModal({
     () =>
       members?.map((member) => ({
         ...member,
-        address: member?.address?.toLowerCase().trim(),
       })),
     [members]
   );
-
+  console.log({ normalizedMembers });
   const executorResultMapping: { [key: string]: string } = {
     PROPOSAL_EXECUTOR_RESULT_NOT_RUN: "execute",
     PROPOSAL_EXECUTOR_RESULT_SUCCESS: "success",
@@ -192,12 +193,12 @@ function VoteDetailsModal({
   const { withdrawProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
   const msgExec = exec({
-    proposal_id: proposal?.id,
-    signer: address ?? "",
+    proposalId: proposal?.id,
+    executor: address ?? "",
   });
 
   const msgWithdraw = withdrawProposal({
-    proposal_id: proposal?.id,
+    proposalId: proposal?.id,
     address: address ?? "",
   });
 
@@ -316,7 +317,7 @@ function VoteDetailsModal({
     : null;
 
   const userVotedStatus = useMemo(() => userHasVoted, [votes]);
-
+  console.log(proposal.voting_period_end);
   return (
     <dialog id={modalId} className="modal">
       <div className="modal-box relative max-w-4xl min-h-96  flex flex-col md:flex-row md:ml-20  rounded-lg shadow">
@@ -339,13 +340,14 @@ function VoteDetailsModal({
                 <span>your vote</span>
                 <span
                   className={`items-center justify-center badge badge-lg ${
-                    userVoteOption === "VOTE_OPTION_YES"
+                    userVoteOption?.toString() === "VOTE_OPTION_YES"
                       ? "bg-green-500/50"
-                      : userVoteOption === "VOTE_OPTION_NO"
+                      : userVoteOption?.toString() === "VOTE_OPTION_NO"
                       ? "bg-red-500/50"
-                      : userVoteOption === "VOTE_OPTION_NO_WITH_VETO"
+                      : userVoteOption?.toString() ===
+                        "VOTE_OPTION_NO_WITH_VETO"
                       ? "bg-yellow-500/50"
-                      : userVoteOption === "VOTE_OPTION_ABSTAIN"
+                      : userVoteOption?.toString() === "VOTE_OPTION_ABSTAIN"
                       ? "bg-purple-500/50"
                       : ""
                   }`}
@@ -445,16 +447,16 @@ function VoteDetailsModal({
               <tbody>
                 {/* Mapping over members */}
                 {normalizedMembers?.map((member, index) => {
-                  const memberVote = voteMap[member?.member?.address];
+                  const memberVote = voteMap[member?.member.address];
                   return (
                     <tr key={index}>
                       <td className="px-6 py-4">
                         <TruncatedAddressWithCopy
                           slice={8}
-                          address={member?.member?.address}
+                          address={member.member.address}
                         />
                       </td>
-                      <td className="px-6 py-4">{member?.member?.weight}</td>
+                      <td className="px-6 py-4">{member.member.weight}</td>
                       <td className="px-6 py-4">
                         {optionToVote(memberVote?.toString()) || "N/A"}
                       </td>
@@ -465,7 +467,7 @@ function VoteDetailsModal({
             </table>
             <div className="mb-4 mt-8 md:hidden block ">
               <p className="text-md font-light mt-4  ">VOTING COUNTDOWN</p>
-              <CountdownTimer endTime={new Date(proposal?.voting_period_end)} />
+              <CountdownTimer endTime={new Date(proposal.voting_period_end)} />
             </div>
           </div>
           {proposal.executor_result ===

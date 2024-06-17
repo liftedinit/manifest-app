@@ -235,7 +235,7 @@ export default function ProposalsForPolicy({
                                 <td className="w-1/6">
                                   {" "}
                                   {getHumanReadableType(
-                                    proposal.messages[0]["@type"]
+                                    proposal.messages[0]["@type"] as string
                                   )}
                                 </td>
                                 <td className="w-1/6">
@@ -295,7 +295,7 @@ export default function ProposalsForPolicy({
                         {
                           proposals.filter(
                             (proposal) =>
-                              proposal.executor_result ===
+                              proposal.executor_result.toString() ===
                                 "PROPOSAL_EXECUTOR_RESULT_NOT_RUN" &&
                               new Date(proposal.voting_period_end) < new Date()
                           ).length

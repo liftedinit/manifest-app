@@ -5,7 +5,7 @@ import {
   QueueListIcon,
   RssIcon,
 } from "@heroicons/react/24/solid";
-import { Head } from "next/document";
+import Head from "next/head";
 import Link from "next/link";
 import { SVGProps } from "react";
 

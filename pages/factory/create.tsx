@@ -22,8 +22,8 @@ const initialFormData: TokenFormData = {
   exponent: "",
   base: "",
   name: "",
-  uri_hash: "",
-  denom_units: [],
+  uriHash: "",
+  denomUnits: [],
 };
 
 export default function CreateToken() {

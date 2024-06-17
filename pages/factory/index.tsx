@@ -7,10 +7,12 @@ import { useChain } from "@cosmos-kit/react";
 
 import Head from "next/head";
 import Link from "next/link";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+
+import { chainName } from "@/config";
 
 export default function Factory() {
-  const { address, isWalletConnected } = useChain("manifest");
+  const { address, isWalletConnected } = useChain(chainName);
   const { denoms, isDenomsLoading, isDenomsError, refetchDenoms } =
     useTokenFactoryDenoms(address ?? "");
   const { metadatas, isMetadatasLoading, isMetadatasError, refetchMetadatas } =
@@ -19,13 +21,11 @@ export default function Factory() {
   const [selectedDenom, setSelectedDenom] = useState<string | null>(null);
   const [selectedDenomMetadata, setSelectedDenomMetadata] =
     useState<MetadataSDKType | null>(null);
-  const [combinedData, setCombinedData] = useState<MetadataSDKType[]>([]);
 
-  console.log(denoms, metadatas);
-
-  useEffect(() => {
+  // Combine denoms and metadatas
+  const combinedData = useMemo(() => {
     if (denoms && metadatas) {
-      const combined = denoms.denoms
+      return denoms.denoms
         .map((denom: string) => {
           return (
             metadatas.metadatas.find((meta) => meta.base === denom) || null
@@ -34,15 +34,13 @@ export default function Factory() {
         .filter(
           (meta: MetadataSDKType | null) => meta !== null
         ) as MetadataSDKType[];
-      setCombinedData(combined as MetadataSDKType[]);
     }
+    return [];
   }, [denoms, metadatas]);
 
   const handleDenomSelect = (denom: MetadataSDKType) => {
     setSelectedDenom(denom.base);
-    const metadata =
-      metadatas?.metadatas.find((meta) => meta.base === denom.base) || null;
-    setSelectedDenomMetadata(metadata);
+    setSelectedDenomMetadata(denom);
   };
 
   return (
@@ -106,10 +104,10 @@ export default function Factory() {
         <div className="flex items-center justify-between flex-wrap -ml-4 -mt-2 sm:flex-nowrap">
           <div className="ml-4 mt-2">
             <h3 className="tracking-tight leading-none text-4xl xl:text-4xl md:block hidden">
-              Factory
+              Factory{" "}
             </h3>
             <h3 className="tracking-tight px-4 leading-none text-4xl xl:text-4xl md:hidden block">
-              Factory
+              Factory{" "}
             </h3>
           </div>
           {isWalletConnected && (

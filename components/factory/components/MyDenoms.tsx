@@ -16,23 +16,25 @@ export default function MyDenoms({
   refetchDenoms: () => void;
   onSelectDenom: (denom: MetadataSDKType) => void;
 }) {
-  const [selectedDenom, setSelectedDenom] = useState<MetadataSDKType | null>(
-    null
-  );
+  const [selectedDenom, setSelectedDenom] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
   const denomRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   useEffect(() => {
-    if (denoms && denoms.length > 0) {
-      const { query } = router;
-      const denomFromQuery = query.denom as string | undefined;
-      const initialDenom =
-        denoms.find((denom) => denom.base === denomFromQuery) || denoms[0];
-      setSelectedDenom(initialDenom);
-      onSelectDenom(initialDenom);
-      if (!denomFromQuery) {
-        router.push(`?denom=${initialDenom.base}`, undefined, {
+    const denomFromUrl = router.query.denom as string;
+
+    if (!selectedDenom && denoms.length > 0 && !isLoading) {
+      if (denomFromUrl) {
+        setSelectedDenom(denomFromUrl);
+        const metadata = denoms.find((denom) => denom.base === denomFromUrl);
+        if (metadata) onSelectDenom(metadata);
+        scrollToDenom(denomFromUrl);
+      } else {
+        const defaultDenom = denoms[0].base;
+        setSelectedDenom(defaultDenom);
+        onSelectDenom(denoms[0]);
+        router.push(`?denom=${defaultDenom}`, undefined, {
           shallow: true,
         });
       }
@@ -40,14 +42,14 @@ export default function MyDenoms({
   }, [denoms]);
 
   const scrollToDenom = (denom: string) => {
-    const groupElement = denomRefs.current[denom];
-    if (groupElement) {
-      groupElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    const denomElement = denomRefs.current[denom];
+    if (denomElement) {
+      denomElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
   };
 
   const handleDenomSelect = (denom: MetadataSDKType) => {
-    setSelectedDenom(denom);
+    setSelectedDenom(denom.base);
     onSelectDenom(denom);
     router.push(`?denom=${denom.base}`, undefined, {
       shallow: true,
@@ -61,8 +63,8 @@ export default function MyDenoms({
     </div>
   );
 
-  const filteredDenoms = denoms.filter((denom) =>
-    denom.display.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredDenoms = denoms?.filter((denom) =>
+    denom?.display.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -81,13 +83,13 @@ export default function MyDenoms({
         <div className="divider divider-horizon -mt-2"></div>
         <div className="overflow-y-auto max-h-[17rem] -mt-4 mb-2 gap-4">
           {isLoading ? renderSkeleton() : null}
-          {filteredDenoms.map((denom, index) => {
+          {filteredDenoms?.map((denom, index) => {
             return (
               <div
                 key={index}
                 ref={(el) => (denomRefs.current[denom.base] = el)}
                 className={`relative flex flex-row justify-between rounded-md mb-4 mt-2 items-center px-4 py-2 hover:cursor-pointer transition-all duration-200 ${
-                  selectedDenom?.base === denom.base
+                  selectedDenom === denom.base
                     ? "bg-primary border-r-4 border-r-[#263c3add] border-b-[#263c3add] border-b-4"
                     : "bg-base-300 border-r-4 border-r-base-200 border-b-base-200 border-b-4 active:scale-95 hover:bg-base-200"
                 }`}
@@ -102,7 +104,7 @@ export default function MyDenoms({
               </div>
             );
           })}
-          {!isLoading && !isError && filteredDenoms.length === 0 && (
+          {!isLoading && !isError && filteredDenoms?.length === 0 && (
             <div className="text-center mt-6">No tokens found</div>
           )}
         </div>
