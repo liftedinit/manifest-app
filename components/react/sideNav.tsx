@@ -49,8 +49,8 @@ export default function SideNav() {
         <Link href={href} passHref legacyBehavior>
           <a className="group active:scale-95  hover:ring-2 hover:ring-primary flex justify-center p-1 items-center mt-8 rounded-lg transition-all duration-300 ease-in-out">
             <Icon className={iconClassName} />
-            <div className="tooltip absolute z-10 invisible ml-3 group-hover:visible inline-block px-3 left-[4.5rem] text-white py-2 text-sm font-medium rounded-lg shadow-sm opacity-0 group-hover:opacity-100 bg-primary transition-all duration-300 ease-in-out ">
-              {href}
+            <div className="tooltip absolute z-10 w-full invisible ml-3 group-hover:visible inline-block px-3 left-[4.5rem] text-white py-2 text-sm font-medium rounded-lg shadow-sm opacity-0 group-hover:opacity-100 bg-primary transition-all duration-300 ease-in-out ">
+              {href.split("/")}
             </div>
           </a>
         </Link>

@@ -1,6 +1,7 @@
 import {
   DeliverTxResponse,
   isDeliverTxSuccess,
+  SigningStargateClient,
   StdFee,
 } from "@cosmjs/stargate";
 import { useChain } from "@cosmos-kit/react";
@@ -27,6 +28,24 @@ export interface TxOptions {
   onSuccess?: () => void;
 }
 
+const convertBigIntToString = (obj: any): any => {
+  if (typeof obj === "bigint") {
+    return obj.toString();
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(convertBigIntToString);
+  }
+  if (typeof obj === "object" && obj !== null) {
+    return Object.fromEntries(
+      Object.entries(obj).map(([key, value]) => [
+        key,
+        convertBigIntToString(value),
+      ])
+    );
+  }
+  return obj;
+};
+
 export const useTx = (chainName: string) => {
   const { address, getSigningStargateClient, estimateFee } =
     useChain(chainName);
@@ -42,48 +61,50 @@ export const useTx = (chainName: string) => {
       return;
     }
 
-    let client;
+    let client: SigningStargateClient;
     try {
       client = await getSigningStargateClient();
-      const signed = await client.sign(
-        address,
-        msgs,
-        options.fee || (await estimateFee(msgs)),
-        options.memo || ""
-      );
+
+      // Convert BigInt values in msgs and options
+      const convertedMsgs = convertBigIntToString(msgs);
+      const convertedOptions = convertBigIntToString(options);
+
+      // Estimate fee if not provided
+      let fee = convertedOptions.fee;
+      if (!fee) {
+        const estimatedFee = await estimateFee(convertedMsgs);
+        fee = convertBigIntToString(estimatedFee) as StdFee;
+      }
+
       setToastMessage({
         type: "alert-info",
-        title: "Broadcasting",
-        description: "Transaction is signed and is being broadcasted...",
+        title: "Signing",
+        description: "Please sign the transaction in your wallet...",
       });
 
-      await client
-        .broadcastTx(Uint8Array.from(TxRaw.encode(signed).finish()))
-        .then((res: DeliverTxResponse) => {
-          if (isDeliverTxSuccess(res)) {
-            if (options.onSuccess) options.onSuccess();
-            setToastMessage({
-              type: "alert-success",
-              title: "Transaction Successful",
-              description: `Transaction completed with hash: ${res?.transactionHash}`,
-              link: `https://mintscan.io/${chainName}/tx/${res?.transactionHash}`,
-            });
-          } else {
-            setToastMessage({
-              type: "alert-error",
-              title: "Transaction Failed",
-              description: res?.rawLog || "Unknown error",
-            });
-          }
-        })
-        .catch((err: Error) => {
-          console.error("Failed to broadcast: ", err);
-          setToastMessage({
-            type: "alert-error",
-            title: "Transaction Failed",
-            description: err.message,
-          });
+      // Use the signAndBroadcast method which handles signing internally
+      const result = await client.signAndBroadcast(
+        address,
+        convertedMsgs,
+        fee as StdFee,
+        convertedOptions.memo || ""
+      );
+
+      if (isDeliverTxSuccess(result)) {
+        if (convertedOptions.onSuccess) convertedOptions.onSuccess();
+        setToastMessage({
+          type: "alert-success",
+          title: "Transaction Successful",
+          description: `Transaction completed with hash: ${result.transactionHash}`,
+          link: `https://mintscan.io/${chainName}/tx/${result.transactionHash}`,
         });
+      } else {
+        setToastMessage({
+          type: "alert-error",
+          title: "Transaction Failed",
+          description: result.rawLog || "Unknown error",
+        });
+      }
     } catch (e: any) {
       console.error("Failed to broadcast: ", e);
       setToastMessage({

@@ -175,7 +175,6 @@ function ManifestApp({ Component, pageProps }: AppProps) {
     () =>
       makeWeb3AuthWallets({
         loginMethods: [
-          // add whichever login methods you want to support
           {
             provider: "google",
             name: "Google",
@@ -204,8 +203,7 @@ function ManifestApp({ Component, pageProps }: AppProps) {
         ],
 
         client: {
-          clientId:
-            "BKj3lr6GfN2CnvO4CIKo5fuoCg_TpHsAPK7R8lbl6kUlz0CAH_5mFNswScEb7M6szV4hd1Tkwa2oPZ9KiXJB-44",
+          clientId: process.env.NEXT_PUBLIC_WEB3_CLIENT_ID ?? "",
           web3AuthNetwork: "testnet",
         },
 
@@ -249,12 +247,12 @@ function ManifestApp({ Component, pageProps }: AppProps) {
         }}
         walletConnectOptions={{
           signClient: {
-            projectId: "a8510432ebb71e6948cfd6cde54b70f7",
+            projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_KEY ?? "",
             relayUrl: "wss://relay.walletconnect.org",
             metadata: {
-              name: "CosmosKit Template",
-              description: "CosmosKit dapp template",
-              url: "https://docs.cosmology.zone/cosmos-kit/",
+              name: "Alberto",
+              description: "Manifest Network Web App",
+              url: "https://alberto.com",
               icons: [],
             },
           },
@@ -270,7 +268,7 @@ function ManifestApp({ Component, pageProps }: AppProps) {
             <SignModal
               visible={web3AuthPrompt !== undefined}
               onClose={() => web3AuthPrompt?.resolve(false)}
-              data={{}}
+              data={web3AuthPrompt?.signData ?? ({} as SignData)}
               approve={() => web3AuthPrompt?.resolve(true)}
               reject={() => web3AuthPrompt?.resolve(false)}
             />

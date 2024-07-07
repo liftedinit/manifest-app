@@ -50,9 +50,8 @@ export default function ConfirmationModal({
     threshold: formData.votingThreshold,
     windows: {
       votingPeriod: formData.votingPeriod,
-      min_execution_period: minExecutionPeriod,
+      minExecutionPeriod: minExecutionPeriod,
     },
-    msg: cosmos.group.v1.ThresholdDecisionPolicy.typeUrl,
   };
 
   const threshholdPolicyFromPartial =

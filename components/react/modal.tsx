@@ -141,6 +141,7 @@ export const TailwindModal = ({
       case ModalView.Error:
         return (
           <Error
+            currentWalletName={currentWalletName ?? ""}
             onClose={onCloseModal}
             onReturn={() => setCurrentView(ModalView.WalletList)}
             logo={currentWalletData?.logo!.toString() ?? ""}
