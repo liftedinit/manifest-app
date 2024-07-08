@@ -43,6 +43,10 @@ export default function Factory() {
     setSelectedDenom(denom.base);
     setSelectedDenomMetadata(denom);
   };
+  const refetch = () => {
+    refetchDenoms();
+    refetchMetadatas();
+  };
 
   return (
     <>
@@ -160,7 +164,11 @@ export default function Factory() {
                       />
                     </div>
                   </div>
-                  <MetaBox denom={selectedDenomMetadata} />
+                  <MetaBox
+                    refetch={refetch}
+                    address={address ?? ""}
+                    denom={selectedDenomMetadata}
+                  />
                 </div>
               </div>
             )

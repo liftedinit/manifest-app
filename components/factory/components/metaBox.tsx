@@ -4,7 +4,15 @@ import MintForm from "@/components/factory/forms/MintForm";
 import BurnForm from "@/components/factory/forms/BurnForm";
 import TransferForm from "@/components/factory/forms/TransferForm";
 
-export default function MetaBox({ denom }: { denom: MetadataSDKType | null }) {
+export default function MetaBox({
+  denom,
+  address,
+  refetch,
+}: {
+  denom: MetadataSDKType | null;
+  address: string;
+  refetch: () => void;
+}) {
   const [activeTab, setActiveTab] = useState<
     "admin" | "mint" | "burn" | "transfer"
   >("transfer");
@@ -12,9 +20,21 @@ export default function MetaBox({ denom }: { denom: MetadataSDKType | null }) {
   const renderContent = () => {
     switch (activeTab) {
       case "admin":
-        return <MintForm denom={denom ?? ({} as MetadataSDKType)} />;
+        return (
+          <MintForm
+            refetch={refetch}
+            address={address}
+            denom={denom ?? ({} as MetadataSDKType)}
+          />
+        );
       case "mint":
-        return <MintForm denom={denom ?? ({} as MetadataSDKType)} />;
+        return (
+          <MintForm
+            refetch={refetch}
+            address={address}
+            denom={denom ?? ({} as MetadataSDKType)}
+          />
+        );
       case "burn":
         return <BurnForm denom={denom ?? ({} as MetadataSDKType)} />;
       case "transfer":
@@ -37,7 +57,13 @@ export default function MetaBox({ denom }: { denom: MetadataSDKType | null }) {
   return (
     <div className="flex flex-col rounded-md max-h-[23rem] min-h-[23rem] bg-base-100 shadow w-full p-4 animate-fadeIn">
       <div className="rounded-md px-4 py-2 bg-base-200 max-h-[21rem] min-h-[21rem]">
-        <div className="px-4 flex flex-row justify-end items-center border-base-content">
+        <div className="px-4 flex flex-row justify-between items-center border-base-content">
+          <h2 className="text-xl font-semibold ">
+            {`${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} ${
+              denom.display
+            }`}
+          </h2>
+
           <div role="tablist" className="tabs tabs-lifted tabs-md -mr-4">
             <a
               role="tab"
