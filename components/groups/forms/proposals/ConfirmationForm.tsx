@@ -102,9 +102,9 @@ export default function ConfirmationModal({
     const messages: { typeUrl: string; value: any }[] = formData.messages.map(
       (message) => getMessageObject(message)
     );
-
+    console.log(policyAddress);
     const msg = submitProposal({
-      groupPolicyAddress: policyAddress ?? "",
+      groupPolicyAddress: policyAddress,
       messages: messages,
       metadata: CID,
       proposers: [formData.proposers],

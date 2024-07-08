@@ -1,1 +1,0 @@
-declare module '@cosmos-kit/leap-capsule-social-login';

@@ -21,12 +21,11 @@ export enum ModalView {
   Error,
   NotExist,
 }
-
-export const TailwindModal = ({
+export const TailwindModal: React.FC<WalletModalProps> = ({
   isOpen,
   setOpen,
   walletRepo,
-}: WalletModalProps) => {
+}) => {
   const router = useRouter();
 
   const [currentView, setCurrentView] = useState<ModalView>(

@@ -2,7 +2,7 @@ import ProfileAvatar from "@/utils/identicon";
 import { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { MetadataSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
-
+import { DenomImage } from "./DenomImage";
 export default function MyDenoms({
   denoms,
   isLoading,
@@ -95,7 +95,8 @@ export default function MyDenoms({
                 }`}
                 onClick={() => handleDenomSelect(denom)}
               >
-                <ProfileAvatar walletAddress={denom.base} />
+                <DenomImage denom={denom} />
+
                 <div className="ml-2 flex-grow">
                   <h5 className="text-base font-medium truncate">
                     {denom.display.length > 26

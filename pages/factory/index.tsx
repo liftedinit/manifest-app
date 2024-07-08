@@ -10,6 +10,7 @@ import Link from "next/link";
 import React, { useState, useEffect, useMemo } from "react";
 
 import { chainName } from "@/config";
+import MetaBox from "@/components/factory/components/metaBox";
 
 export default function Factory() {
   const { address, isWalletConnected } = useChain(chainName);
@@ -159,6 +160,7 @@ export default function Factory() {
                       />
                     </div>
                   </div>
+                  <MetaBox denom={selectedDenomMetadata} />
                 </div>
               </div>
             )
