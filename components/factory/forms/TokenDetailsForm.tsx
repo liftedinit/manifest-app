@@ -1,6 +1,7 @@
+import { chainName } from "@/config";
 import { TokenAction, TokenFormData } from "@/helpers/formReducer";
-import Link from "next/link";
-import { PiAddressBook } from "react-icons/pi";
+import { DenomUnit } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
+import { useState } from "react";
 
 export default function TokenDetails({
   nextStep,
@@ -18,163 +19,221 @@ export default function TokenDetails({
   const updateField = (field: keyof TokenFormData, value: any) => {
     dispatch({ type: "UPDATE_FIELD", field, value });
   };
-  return (
-    <section className="">
-      <div className="lg:flex  mx-auto">
-        <div className="flex items-center mx-auto md:w-[42rem] px-4 md:px-8 xl:px-0">
-          <div className="w-full">
-            <h1 className="mb-4 text-2xl font-extrabold tracking-tight  sm:mb-6 leding-tight ">
-              Token Metadata
-            </h1>
-            <form className=" min-h-[330px]">
-              <div className="grid gap-5 my-6 sm:grid-cols-2">
-                <div>
-                  <label
-                    htmlFor="full-name"
-                    className="block mb-2 text-sm font-medium"
-                  >
-                    Token Label
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="label"
-                    className="input input-bordered w-full max-w-xs"
-                    value={formData.label}
-                    onChange={(e) => updateField("label", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="block mb-2 text-sm font-medium "
-                  >
-                    Token Ticker
-                  </label>{" "}
-                  <input
-                    type="text"
-                    placeholder="Ticker"
-                    className="input input-bordered  w-full max-w-xs "
-                    value={formData.symbol}
-                    onChange={(e) => updateField("symbol", e.target.value)}
-                  />{" "}
-                </div>
-                <div>
-                  <label
-                    htmlFor="password"
-                    className="block mb-2 text-sm font-medium  "
-                  >
-                    Exponent
-                  </label>
-                  <input
-                    type="number"
-                    placeholder="6"
-                    className="input input-bordered  w-full max-w-xs "
-                    value={formData.exponent}
-                    onChange={(e) => updateField("exponent", e.target.value)}
-                  />{" "}
-                </div>
-                <div>
-                  <label
-                    htmlFor="password"
-                    className="block mb-2 text-sm font-medium  "
-                  >
-                    Logo URL
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="6"
-                    className="input input-bordered  w-full max-w-xs "
-                    value={formData.uri}
-                    onChange={(e) => updateField("uri", e.target.value)}
-                  />{" "}
-                </div>
-                <div>
-                  <label
-                    htmlFor="password"
-                    className="block mb-2 text-sm font-medium  "
-                  >
-                    Display
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="6"
-                    className="input input-bordered  w-full max-w-xs "
-                    value={formData.display}
-                    onChange={(e) => updateField("display", e.target.value)}
-                  />{" "}
-                </div>
-                <div>
-                  <label
-                    htmlFor="password"
-                    className="block mb-2 text-sm font-medium  "
-                  >
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="6"
-                    className="input input-bordered  w-full max-w-xs "
-                    value={formData.name}
-                    onChange={(e) => updateField("name", e.target.value)}
-                  />{" "}
-                </div>
-                <div>
-                  <label
-                    htmlFor="password"
-                    className="block mb-2 text-sm font-medium  "
-                  >
-                    Base
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="6"
-                    className="input input-bordered  w-full max-w-xs "
-                    value={formData.base}
-                    onChange={(e) => updateField("base", e.target.value)}
-                  />{" "}
-                </div>
-                <div>
-                  <label
-                    htmlFor="confirm-password"
-                    className="block mb-2 text-sm font-medium "
-                  >
-                    Description
-                  </label>
-                  <textarea
-                    className="textarea textarea-bordered w-full max-w-xs"
-                    placeholder="Description"
-                    value={formData.description}
-                    onChange={(e) => updateField("description", e.target.value)}
-                  ></textarea>
-                </div>
-              </div>
-            </form>
 
-            <button
-              onClick={nextStep}
-              className="w-full  btn px-5 py-2.5 sm:py-3.5 btn-primary"
-              disabled={
-                !formData.symbol ||
-                !formData.exponent ||
-                !formData.label ||
-                !formData.description ||
-                !formData.uri ||
-                !formData.display ||
-                !formData.name
-              }
-            >
-              Next: Confirmation
-            </button>
-            <div className="flex space-x-3 ga-4 mt-6">
-              <button
-                onClick={prevStep}
-                className="text-center items-center w-1/2 py-2.5 sm:py-3.5 btn btn-neutral"
-              >
-                Prev: Token Metadata
-              </button>
+  const updateDenomUnit = (
+    index: number,
+    field: keyof DenomUnit,
+    value: any
+  ) => {
+    const updatedDenomUnits = [...formData.denomUnits];
+    updatedDenomUnits[index] = { ...updatedDenomUnits[index], [field]: value };
+    updateField("denomUnits", updatedDenomUnits);
+  };
+
+  const isFormValid = () => {
+    return (
+      formData.subdenom &&
+      formData.display &&
+      formData.name &&
+      formData.description &&
+      formData.symbol &&
+      formData.denomUnits.length === 2 &&
+      formData.denomUnits[1].denom &&
+      [6, 9, 12, 18].includes(formData.denomUnits[1].exponent)
+    );
+  };
+
+  const fullDenom = `factory/${address}/${formData.subdenom}`;
+
+  // Ensure there are always two denom units
+  if (formData.denomUnits.length === 0) {
+    updateField("denomUnits", [
+      { denom: fullDenom, exponent: 0, aliases: [] },
+      { denom: "", exponent: 6, aliases: [] },
+    ]);
+  } else if (formData.denomUnits.length === 1) {
+    updateField("denomUnits", [
+      ...formData.denomUnits,
+      { denom: "", exponent: 6, aliases: [] },
+    ]);
+  }
+
+  return (
+    <section className="max-w-4xl mx-auto px-4 py-4">
+      <h1 className="text-2xl font-bold mb-4">Token Metadata</h1>
+      <form className="space-y-4">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="subdenom" className="block text-sm font-medium">
+              Subdenom{" "}
+              <span className="text-xs text-gray-500">(Unique identifier)</span>
+            </label>
+            <input
+              type="text"
+              id="subdenom"
+              className="input input-bordered w-full mt-1"
+              value={formData.subdenom}
+              onChange={(e) => updateField("subdenom", e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="display" className="block text-sm font-medium">
+              Display{" "}
+              <span className="text-xs text-gray-500">
+                (How it&apos;s shown)
+              </span>
+            </label>
+            <input
+              type="text"
+              id="display"
+              className="input input-bordered w-full mt-1"
+              value={formData.display}
+              onChange={(e) => updateField("display", e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium">
+              Name <span className="text-xs text-gray-500">(Full name)</span>
+            </label>
+            <input
+              type="text"
+              id="name"
+              className="input input-bordered w-full mt-1"
+              value={formData.name}
+              onChange={(e) => updateField("name", e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="symbol" className="block text-sm font-medium">
+              Symbol{" "}
+              <span className="text-xs text-gray-500">(Short symbol)</span>
+            </label>
+            <input
+              type="text"
+              id="symbol"
+              className="input input-bordered w-full mt-1"
+              value={formData.symbol}
+              onChange={(e) => updateField("symbol", e.target.value)}
+              required
+            />
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor="description" className="block text-sm font-medium">
+            Description{" "}
+            <span className="text-xs text-gray-500">(Brief description)</span>
+          </label>
+          <textarea
+            id="description"
+            className="textarea textarea-bordered w-full mt-1"
+            rows={2}
+            value={formData.description}
+            onChange={(e) => updateField("description", e.target.value)}
+            required
+          ></textarea>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="uri" className="block text-sm font-medium">
+              URI{" "}
+              <span className="text-xs text-gray-500">(Info/image link)</span>
+            </label>
+            <input
+              type="text"
+              id="uri"
+              className="input input-bordered w-full mt-1"
+              value={formData.uri}
+              onChange={(e) => updateField("uri", e.target.value)}
+            />
+          </div>
+          <div>
+            <label htmlFor="uriHash" className="block text-sm font-medium">
+              URI Hash{" "}
+              <span className="text-xs text-gray-500">(If applicable)</span>
+            </label>
+            <input
+              type="text"
+              id="uriHash"
+              className="input input-bordered w-full mt-1"
+              value={formData.uriHash}
+              onChange={(e) => updateField("uriHash", e.target.value)}
+            />
+          </div>
+        </div>
+
+        <div>
+          <h2 className="text-lg font-semibold mb-2">Denom Units</h2>
+          <div className="space-y-2">
+            <div>
+              <label className="block text-sm font-medium">
+                Base Denom{" "}
+                <span className="text-xs text-gray-500">
+                  (Cannot be changed)
+                </span>
+              </label>
+              <input
+                type="text"
+                className="input input-bordered w-full mt-1"
+                value={fullDenom}
+                disabled
+              />
+            </div>
+            <div className="flex space-x-2">
+              <div className="flex-grow">
+                <label className="block text-sm font-medium">
+                  Additional Denom{" "}
+                  <span className="text-xs text-gray-500">(Display denom)</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Denom"
+                  className="input input-bordered w-full mt-1"
+                  value={formData.denomUnits[1]?.denom || ""}
+                  onChange={(e) => updateDenomUnit(1, "denom", e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">
+                  Exponent{" "}
+                  <span className="text-xs text-gray-500">(Decimals)</span>
+                </label>
+                <select
+                  className="select select-bordered w-full mt-1"
+                  value={formData.denomUnits[1]?.exponent || 6}
+                  onChange={(e) =>
+                    updateDenomUnit(1, "exponent", parseInt(e.target.value))
+                  }
+                  required
+                >
+                  {[6, 9, 12, 18].map((exp) => (
+                    <option key={exp} value={exp}>
+                      {exp}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
         </div>
+      </form>
+
+      <div className="mt-6 flex space-x-4">
+        <button onClick={prevStep} className="btn btn-neutral flex-1">
+          Previous
+        </button>
+        <button
+          onClick={nextStep}
+          className="btn btn-primary flex-1"
+          disabled={!isFormValid()}
+        >
+          Next: Confirmation
+        </button>
       </div>
     </section>
   );

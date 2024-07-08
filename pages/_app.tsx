@@ -3,10 +3,10 @@ import "@interchain-ui/react/styles";
 import "@fontsource/rubik";
 
 import type { AppProps } from "next/app";
-
+import { createPortal } from "react-dom";
 import { PromptSign, SignData } from "@cosmos-kit/web3auth";
 import { makeWeb3AuthWallets } from "@cosmos-kit/web3auth/esm/index";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import SignModal from "@/components/groups/modals/authSignerModal";
 
 import { SignerOptions, wallets } from "cosmos-kit";
@@ -227,6 +227,12 @@ function ManifestApp({ Component, pageProps }: AppProps) {
   //   key: process.env.NEXT_PUBLIC_ABLY_API_KEY,
   // });
 
+  const [isBrowser, setIsBrowser] = useState(false);
+
+  useEffect(() => {
+    setIsBrowser(true);
+  }, []);
+
   return (
     // <AblyProvider client={ablyClient}>
     <QueryClientProvider client={client}>
@@ -265,14 +271,18 @@ function ManifestApp({ Component, pageProps }: AppProps) {
           <MobileNav />
           <div className="min-h-screen max-w-screen md:ml-20 sm:px-4 sm:py-2 bg-base-200 ">
             <Component {...pageProps} />
-            <SignModal
-              visible={web3AuthPrompt !== undefined}
-              onClose={() => web3AuthPrompt?.resolve(false)}
-              data={web3AuthPrompt?.signData ?? ({} as SignData)}
-              approve={() => web3AuthPrompt?.resolve(true)}
-              reject={() => web3AuthPrompt?.resolve(false)}
-            />
           </div>
+          {isBrowser &&
+            createPortal(
+              <SignModal
+                visible={web3AuthPrompt !== undefined}
+                onClose={() => web3AuthPrompt?.resolve(false)}
+                data={web3AuthPrompt?.signData ?? ({} as SignData)}
+                approve={() => web3AuthPrompt?.resolve(true)}
+                reject={() => web3AuthPrompt?.resolve(false)}
+              />,
+              document.body
+            )}
         </ThemeProvider>
       </ChainProvider>
     </QueryClientProvider>

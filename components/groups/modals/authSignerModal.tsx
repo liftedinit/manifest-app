@@ -123,33 +123,15 @@ const SignModal = ({
   const { address } = useChain("manifest");
   const walletIcon = wallet.wallet?.logo;
   const walletName = wallet.wallet?.prettyName;
+
   return (
     <Transition.Root show={visible} as={Fragment}>
       <Dialog
         as="div"
-        className="fixed inset-0 z-[1000] overflow-y-auto"
+        className="fixed inset-0 z-[9999] overflow-y-auto"
         onClose={onClose}
       >
-        <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" />
-          </Transition.Child>
-
-          <span
-            className="hidden sm:inline-block sm:align-middle sm:h-screen"
-            aria-hidden="true"
-          >
-            &#8203;
-          </span>
-
+        <div className="fixed top-0 right-0 p-4 max-w-md w-full">
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -159,10 +141,10 @@ const SignModal = ({
             leaveFrom="opacity-100 translate-y-0 sm:scale-100"
             leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
           >
-            <div className="inline-block align-bottom bg-base-300 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full ">
-              <div className="bg-base-300 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <Dialog.Panel className="bg-base-300 rounded-lg shadow-xl transform transition-all sm:max-w-lg sm:w-full">
+              <div className="bg-base-300 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-l border-r border-t border-1 border-base-200 rounded-tr-md rounded-tl-md">
                 <div className="sm:flex sm:items-start">
-                  <div className="sm:flex sm:flex-row sm:justify-between w-full border-1 border-b pb-2 border-gray-600">
+                  <div className="sm:flex sm:flex-row sm:justify-between w-full border-b pb-2 border-gray-600">
                     <Dialog.Title
                       as="h3"
                       className="text-lg leading-6 font-medium"
@@ -171,16 +153,15 @@ const SignModal = ({
                         <Image
                           src={walletIcon?.toString() ?? ""}
                           alt="Wallet type logo"
-                          width={44}
-                          height={44}
-                          className="flex-shrink-0  aspect-1"
+                          width={32}
+                          height={32}
+                          className="flex-shrink-0 aspect-1"
                         />
-                        <h3 className="leading-6 text-2xl">
+                        <h3 className="leading-6 text-xl">
                           {walletName?.toString()} Direct Signer
                         </h3>
                       </div>
                     </Dialog.Title>
-
                     <button
                       type="button"
                       className="text-gray-400 hover:text-gray-500"
@@ -190,14 +171,13 @@ const SignModal = ({
                     </button>
                   </div>
                 </div>
-                {/* Display data to sign */}
                 <DisplayDataToSign data={data} address={address ?? ""} />
               </div>
 
-              <div className="bg-base-100 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+              <div className="bg-base-100 py-3 px-6 flex flex-row-reverse justify-center gap-4 w-full border-l border-r border-b rounded-br-md rounded-bl-md border-1 border-base-200 items-center">
                 <button
                   type="button"
-                  className="mt-3 w-full inline-flex justify-center rounded-md border btn btn-primary shadow-sm   sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                  className="w-1/2  justify-center rounded-md border btn btn-primary shadow-sm  text-sm "
                   onClick={() => {
                     approve();
                     onClose();
@@ -207,7 +187,7 @@ const SignModal = ({
                 </button>
                 <button
                   type="button"
-                  className="mt-3 w-full inline-flex justify-center rounded-md border btn btn-secondary shadow-sm   sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                  className=" w-1/2  justify-center rounded-md border btn btn-secondary shadow-sm text-sm"
                   onClick={() => {
                     reject();
                     onClose();
@@ -216,7 +196,7 @@ const SignModal = ({
                   Reject
                 </button>
               </div>
-            </div>
+            </Dialog.Panel>
           </Transition.Child>
         </div>
       </Dialog>

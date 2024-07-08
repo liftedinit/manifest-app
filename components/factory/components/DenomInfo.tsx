@@ -4,7 +4,8 @@ import { shiftDigits } from "@/utils";
 import { MetadataSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
 import { PiArrowUpRightLight } from "react-icons/pi";
 import { useEffect } from "react";
-
+import { DenomInfoModal } from "../modals";
+import { UpdateDenomMetadataModal } from "../modals";
 export default function DenomInfo({
   denom,
   address,
@@ -55,7 +56,7 @@ export default function DenomInfo({
                 ) as HTMLDialogElement;
                 modal?.showModal();
               }}
-              className="btn-xs btn btn-primary"
+              className="btn btn-primary btn-sm"
             >
               Update
             </button>
@@ -98,7 +99,7 @@ export default function DenomInfo({
                     <span className="text-md">
                       {shiftDigits(
                         balance?.amount ?? "",
-                        -denom?.denom_units[1]?.exponent
+                        -denom?.denom_units[1]?.exponent ?? 6
                       )}
                       &nbsp;
                       {baseUnit?.toUpperCase().slice(1)}
@@ -116,24 +117,39 @@ export default function DenomInfo({
                 </div>
                 <div className="flex flex-col bg-base-300 p-4 rounded-md gap-2 justify-left items-left">
                   <span className="text-sm capitalize text-gray-400">
-                    THRESHOLD
+                    SYMBOL
                   </span>
                   <div className="flex flex-row justify-between items-start">
-                    {denom?.uri ?? "No Description"}
+                    {denom?.symbol ?? "No Description"}
                     <div className="flex-row justify-between items-center gap-2 hidden md:flex">
                       <button
-                        className="btn btn-xs btn-secondary"
                         onClick={() => {
                           const modal = document.getElementById(
-                            `group_modal_${denom.base}`
+                            `denom_info_${denom.base}`
                           ) as HTMLDialogElement;
                           modal?.showModal();
                         }}
+                        className="btn btn-secondary btn-xs"
                       >
-                        more info <PiArrowUpRightLight />
+                        More Info
                       </button>
                     </div>
                   </div>
+
+                  {denom && (
+                    <>
+                      <UpdateDenomMetadataModal
+                        denom={denom}
+                        address={address}
+                        modalId={`update_metadata_${denom.base}`}
+                        onSuccess={refetchDenoms}
+                      />
+                      <DenomInfoModal
+                        denom={denom}
+                        modalId={`denom_info_${denom.base}`}
+                      />
+                    </>
+                  )}
                 </div>
               </div>
             </div>

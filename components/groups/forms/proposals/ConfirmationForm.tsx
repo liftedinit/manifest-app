@@ -112,6 +112,7 @@ export default function ConfirmationModal({
       summary: formData.metadata.summary,
       exec: 1,
     });
+    console.log(msg);
     const fee = {
       amount: [
         {

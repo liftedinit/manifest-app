@@ -98,7 +98,9 @@ export default function MyDenoms({
                 <ProfileAvatar walletAddress={denom.base} />
                 <div className="ml-2 flex-grow">
                   <h5 className="text-base font-medium truncate">
-                    {denom.display}
+                    {denom.display.length > 26
+                      ? `${denom.display.substring(0, 26)}...`
+                      : denom.display}
                   </h5>
                 </div>
               </div>

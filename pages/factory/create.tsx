@@ -35,7 +35,7 @@ export default function CreateToken() {
   );
   const { address } = useChain(chainName);
   const nextStep = () => {
-    if (currentStep < 3) {
+    if (currentStep < 4) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -57,7 +57,7 @@ export default function CreateToken() {
   return (
     <div className="flex flex-col items-center min-h-screen">
       <Head>
-        <title>Create a group - Alberto</title>
+        <title>Create token - Alberto</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta
           name="description"
@@ -70,7 +70,7 @@ export default function CreateToken() {
         <meta name="author" content="Chandra Station" />
         <link rel="icon" href="/favicon.ico" />
 
-        <meta property="og:title" content="Create a group - Alberto" />
+        <meta property="og:title" content="Create a token - Alberto" />
         <meta
           property="og:description"
           content="Alberto is the gateway to the Manifest Network"
@@ -81,7 +81,7 @@ export default function CreateToken() {
         <meta property="og:site_name" content="Alberto" />
 
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Create a group - Alberto" />
+        <meta name="twitter:title" content="Create a token - Alberto" />
         <meta
           name="twitter:description"
           content="Alberto is the gateway to the Manifest Network"
@@ -93,7 +93,7 @@ export default function CreateToken() {
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "WebPage",
-            name: "Create a group - Alberto",
+            name: "Create a token - Alberto",
             description: "Alberto is the gateway to the Manifest Network",
             url: "https://",
             image: "https://",
@@ -147,11 +147,11 @@ export default function CreateToken() {
           {currentStep === 2 && (
             <div className="transition-opacity duration-300 animate-fadeIn">
               <TokenDetails
+                address={address ?? ""}
                 formData={formData}
                 dispatch={dispatch}
                 prevStep={prevStep}
                 nextStep={nextStep}
-                address={address ?? ""}
               />
             </div>
           )}
@@ -161,12 +161,13 @@ export default function CreateToken() {
                 formData={formData}
                 prevStep={prevStep}
                 nextStep={nextStep}
+                address={address ?? ""}
               />
             </div>
           )}
           {currentStep === 4 && (
             <div className="transition-opacity duration-300 animate-fadeIn">
-              <Success formData={formData} prevStep={prevStep} />
+              <Success formData={formData} address={address ?? ""} />
             </div>
           )}
         </div>
