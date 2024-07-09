@@ -69,7 +69,7 @@ export default function Factory() {
             </Link>
           )}
         </div>
-        <div className="mt-6 p-4 gap-4 flex flex-col lg:flex-row md:flex-col sm:flex-col xs:flex-col rounded-md bg-base-200/20 shadow-lg transition-opacity duration-300 ease-in-out animate-fadeIn">
+        <div className="mt-6 p-4 gap-4 flex flex-col lg:flex-row md:flex-col sm:flex-col xs:flex-col rounded-md bg-base-300 shadow-lg transition-opacity duration-300 ease-in-out animate-fadeIn">
           {!isWalletConnected ? (
             <section className="transition-opacity duration-300 ease-in-out animate-fadeIn w-full">
               <div className="grid max-w-screen-xl bg-base-100 p-12 rounded-md w-full mx-auto gap-8 lg:grid-cols-12">
