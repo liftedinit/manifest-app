@@ -13,9 +13,9 @@ export default function MetaBox({
   address: string;
   refetch: () => void;
 }) {
-  const [activeTab, setActiveTab] = useState<
-    "mint" | "burn" | "admin" | "transfer"
-  >("mint");
+  const [activeTab, setActiveTab] = useState<"transfer" | "burn" | "mint">(
+    "mint"
+  );
 
   if (!denom) {
     return (
@@ -30,81 +30,35 @@ export default function MetaBox({
   }
 
   return (
-    <div className="flex flex-col rounded-md max-h-[23rem] min-h-[23rem] bg-base-100 shadow w-full p-4 animate-fadeIn">
-      <h2 className="text-xl font-semibold mb-4">
-        {`${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} ${
-          denom.display
-        }`}
-      </h2>
-      <div role="tablist" className="tabs tabs-lifted bg-transparent">
-        <button
-          type="button"
-          role="tab"
-          className={`tab ${activeTab === "mint" ? "tab-active" : ""}`}
-          onClick={() => setActiveTab("mint")}
-          aria-selected={activeTab === "mint"}
-        >
-          Mint
-        </button>
-        <button
-          type="button"
-          role="tab"
-          className={`tab ${activeTab === "burn" ? "tab-active" : ""}`}
-          onClick={() => setActiveTab("burn")}
-          aria-selected={activeTab === "burn"}
-        >
-          Burn
-        </button>
-        <button
-          type="button"
-          role="tab"
-          className={`tab ${activeTab === "admin" ? "tab-active" : ""}`}
-          onClick={() => setActiveTab("admin")}
-          aria-selected={activeTab === "admin"}
-        >
-          Admin
-        </button>
-        <button
-          type="button"
-          role="tab"
-          className={`tab ${activeTab === "transfer" ? "tab-active" : ""}`}
-          onClick={() => setActiveTab("transfer")}
-          aria-selected={activeTab === "transfer"}
-        >
-          Transfer
-        </button>
+    <div className="flex flex-col gap-2 rounded-md max-h-[23rem] min-h-[23rem] bg-base-100 shadow w-full p-4 animate-fadeIn">
+      <div className="px-4 flex flex-row justify-between items-center border-base-content">
+        <div role="tablist" className="tabs tabs-lifted tabs-md">
+          {["transfer", "burn", "mint"].map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              role="tab"
+              className={`tab [--tab-bg:#202020] ${
+                activeTab === tab ? "tab-active" : ""
+              }`}
+              onClick={() => setActiveTab(tab as "transfer" | "burn" | "mint")}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
+          ))}
+        </div>
       </div>
-
-      {activeTab === "mint" && (
-        <div
-          role="tabpanel"
-          className="tab-content bg-base-100 border-base-300 rounded-box p-6"
-        >
-          <MintForm refetch={refetch} address={address} denom={denom} />
-        </div>
-      )}
-      {activeTab === "burn" && (
-        <div
-          role="tabpanel"
-          className="tab-content bg-base-100 border-base-300 rounded-box p-6"
-        >
+      <div className="animate-fadeIn p-4 -mt-2 rounded-tl-md rounded-br-md rounded-bl-md  border-r border-b border-l min-h-[19rem] max-h-[19rem] border-base-300 bg-base-300 overflow-auto">
+        {activeTab === "transfer" && (
+          <TransferForm refetch={refetch} address={address} denom={denom} />
+        )}
+        {activeTab === "burn" && (
           <BurnForm refetch={refetch} address={address} denom={denom} />
-        </div>
-      )}
-      {activeTab === "admin" && (
-        <div
-          role="tabpanel"
-          className="tab-content bg-base-100 border-base-300 rounded-box p-6"
-        ></div>
-      )}
-      {activeTab === "transfer" && (
-        <div
-          role="tabpanel"
-          className="tab-content bg-base-100 border-base-300 rounded-box p-6"
-        >
-          <TransferForm denom={denom} />
-        </div>
-      )}
+        )}
+        {activeTab === "mint" && (
+          <MintForm refetch={refetch} address={address} denom={denom} />
+        )}
+      </div>
     </div>
   );
 }

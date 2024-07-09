@@ -63,8 +63,8 @@ export default function MintForm({
 
   return (
     <div className="animate-fadeIn text-sm z-10 ">
-      <div className="rounded-lg mb-6">
-        <div className="grid grid-cols-2 gap-4">
+      <div className="rounded-lg mb-8">
+        <div className="grid grid-cols-2 gap-6">
           <div>
             <p className="text-sm text-gray-500">NAME</p>
             <p className="font-semibold text-md">{denom.name}</p>
@@ -121,7 +121,7 @@ export default function MintForm({
         </div>
       </div>
 
-      <div className="flex justify-end mt-4">
+      <div className="flex justify-end mt-8">
         <button
           onClick={handleMint}
           className="btn btn-primary btn-md w-full"
