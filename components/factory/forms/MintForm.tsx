@@ -121,7 +121,7 @@ export default function MintForm({
         </div>
       </div>
 
-      <div className="flex justify-end mt-8">
+      <div className="flex justify-end mt-6">
         <button
           onClick={handleMint}
           className="btn btn-primary btn-md w-full"

@@ -61,9 +61,9 @@ export default function BurnForm({
   };
 
   return (
-    <div className="animate-fadeIn text-sm -mt-1">
-      <div className="rounded-lg mb-6">
-        <div className="grid grid-cols-2 gap-4">
+    <div className="animate-fadeIn text-sm z-10 ">
+      <div className="rounded-lg mb-8">
+        <div className="grid grid-cols-2 gap-6">
           <div>
             <p className="text-sm text-gray-500">NAME</p>
             <p className="font-semibold text-md">{denom.name}</p>
@@ -120,7 +120,7 @@ export default function BurnForm({
         </div>
       </div>
 
-      <div className="flex justify-end mt-4">
+      <div className="flex justify-end mt-6">
         <button
           onClick={handleBurn}
           className="btn btn-secondary btn-md w-full"

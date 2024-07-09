@@ -103,6 +103,7 @@ export function UpdateDenomMetadataModal({
     <dialog id={modalId} className="modal z-[1000]">
       <div className="modal-box max-w-4xl">
         <h3 className="font-bold text-lg mb-4">Update Denom Metadata</h3>
+        <div className="divider divider-horizon -mt-1 -mb-0 "></div>
         <form method="dialog">
           <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
             ✕

@@ -229,8 +229,6 @@ export function UpdateGroupModal({
     members,
   };
 
-  console.log(inputState);
-
   useEffect(() => {
     const extractedMembers = group?.members.map((item) => item.member);
     extractedMembers.map((member) => ({

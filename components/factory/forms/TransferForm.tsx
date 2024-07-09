@@ -65,7 +65,7 @@ export default function TransferForm({
 
   return (
     <div className="animate-fadeIn text-sm z-10 ">
-      <div className="rounded-lg mb-3">
+      <div className="rounded-lg mb-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
             <p className="text-sm text-gray-500">YOUR BALANCE</p>
@@ -80,7 +80,7 @@ export default function TransferForm({
         </div>
       </div>
 
-      <div className="flex space-x-4 mb-3">
+      <div className="flex space-x-4 mb-6">
         <div className="flex-1">
           <label className="label p-0">
             <p className="text-md ">AMOUNT</p>
@@ -94,7 +94,7 @@ export default function TransferForm({
           />
         </div>
       </div>
-      <div className="flex space-x-4 mt-2 items-center">
+      <div className="flex space-x-4 mt-3 items-center">
         <div className="flex-1">
           <label className="label p-0">
             <p className="text-md ">FROM</p>
@@ -140,7 +140,7 @@ export default function TransferForm({
         </div>
       </div>
 
-      <div className="flex justify-end mt-4">
+      <div className="flex justify-end mt-6">
         <button
           onClick={handleTransfer}
           className="btn btn-primary btn-md w-full"

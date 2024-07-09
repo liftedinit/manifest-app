@@ -63,7 +63,7 @@ export function DenomInfoModal({
                 <div>
                   <p className="text-sm font-light mt-4">DENOM</p>
                   <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
-                    <p className="text-md">{unit.denom}</p>
+                    <p className="text-md truncate">{unit.denom}</p>
                   </div>
                 </div>
 

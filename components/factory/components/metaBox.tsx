@@ -32,13 +32,21 @@ export default function MetaBox({
   return (
     <div className="flex flex-col gap-2 rounded-md max-h-[23rem] min-h-[23rem] bg-base-100 shadow w-full p-4 animate-fadeIn">
       <div className="px-4 flex flex-row justify-between items-center border-base-content">
-        <div role="tablist" className="tabs tabs-lifted tabs-md">
+        <h2 className="text-xl font-semibold">
+          {`${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} ${
+            denom.display
+          }`}
+        </h2>
+        <div
+          role="tablist"
+          className="tabs tabs-lifted tabs-md -mr-4 items-end"
+        >
           {["transfer", "burn", "mint"].map((tab) => (
             <button
               key={tab}
               type="button"
               role="tab"
-              className={`tab [--tab-bg:#202020] ${
+              className={`tab [--tab-bg:#edf2f7] dark:[--tab-bg:#202020] [--tab-border-color:transparent] ${
                 activeTab === tab ? "tab-active" : ""
               }`}
               onClick={() => setActiveTab(tab as "transfer" | "burn" | "mint")}
@@ -48,7 +56,11 @@ export default function MetaBox({
           ))}
         </div>
       </div>
-      <div className="animate-fadeIn p-4 -mt-2 rounded-tl-md rounded-br-md rounded-bl-md  border-r border-b border-l min-h-[19rem] max-h-[19rem] border-base-300 bg-base-300 overflow-auto">
+      <div
+        className={`animate-fadeIn p-4 -mt-2 rounded-tl-md rounded-br-md rounded-bl-md ${
+          activeTab != "mint" ? "rounded-tr-md" : ""
+        }  min-h-[19rem] max-h-[19rem] border-base-300 bg-base-300 `}
+      >
         {activeTab === "transfer" && (
           <TransferForm refetch={refetch} address={address} denom={denom} />
         )}

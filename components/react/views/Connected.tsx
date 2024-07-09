@@ -1,5 +1,4 @@
 /* eslint-disable @next/next/no-img-element */
-import { useChain } from "@cosmos-kit/react";
 import { Dialog } from "@headlessui/react";
 import {
   XMarkIcon,
