@@ -17,6 +17,7 @@ const nextConfig = {
       "res.cloudinary.com",
       "images.unsplash.com",
       "media.giphy.com",
+      "media.istockphoto.com",
     ],
     remotePatterns: [
       {
@@ -58,6 +59,14 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "*.googleusercontent.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.istockphoto.com",
       },
     ],
   },

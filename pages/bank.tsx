@@ -1,5 +1,9 @@
 import { WalletSection } from "@/components";
+import SendBox from "@/components/bank/components/sendBox";
+import TokenList from "@/components/bank/components/tokenList";
 import { chainName } from "@/config";
+import { useTokenBalances, useTokenBalancesResolved } from "@/hooks";
+import { CoinSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/base/v1beta1/coin";
 
 import { useChain } from "@cosmos-kit/react";
 
@@ -8,7 +12,13 @@ import React from "react";
 
 export default function Bank() {
   const { address, isWalletConnected } = useChain(chainName);
+  const { balances, isBalancesLoading, refetchBalances } = useTokenBalances(
+    address ?? ""
+  );
+  const { balances: resolvedBalances, isBalancesLoading: resolvedLoading } =
+    useTokenBalancesResolved(address ?? "");
 
+  console.log(resolvedBalances);
   return (
     <>
       <div className="max-w-5xl relative py-8 mx-auto">
@@ -77,7 +87,7 @@ export default function Bank() {
             </h3>
           </div>
         </div>
-        <div className="mt-6 p-4 gap-4 flex flex-col lg:flex-row rounded-md bg-base-200/20 shadow-lg transition-opacity duration-300 ease-in-out animate-fadeIn">
+        <div className="mt-6 p-4 gap-4 flex flex-col lg:flex-row rounded-md bg-base-300 shadow-lg transition-opacity duration-300 ease-in-out animate-fadeIn">
           {!isWalletConnected ? (
             <section className="transition-opacity duration-300 ease-in-out animate-fadeIn w-full">
               <div className="grid max-w-screen-xl bg-base-100 p-12 rounded-md w-full mx-auto gap-8 lg:grid-cols-12">
@@ -99,8 +109,17 @@ export default function Bank() {
           ) : (
             isWalletConnected && (
               <div className="flex flex-col w-full">
-                <div className="flex flex-col sm:flex-col w-full gap-4 transition-opacity duration-300 ease-in-out animate-fadeIn">
-                  <div className="flex flex-col gap-4 justify-between items-center w-full"></div>
+                <div className="flex flex-row sm:flex-row gap-4 justify-between items-center w-full transition-opacity duration-300 ease-in-out animate-fadeIn">
+                  <SendBox
+                    balances={balances ?? ({} as CoinSDKType[])}
+                    isBalancesLoading={isBalancesLoading}
+                    refetchBalances={refetchBalances}
+                    address={address ?? ""}
+                  />
+                  <TokenList
+                    balances={resolvedBalances ?? ({} as CoinSDKType[])}
+                    isLoading={resolvedLoading}
+                  />
                 </div>
               </div>
             )

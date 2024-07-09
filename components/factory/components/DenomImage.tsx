@@ -13,6 +13,7 @@ const supportedDomains = [
   "res.cloudinary.com",
   "images.unsplash.com",
   "media.giphy.com",
+  "media.istockphoto.com",
 ];
 
 const supportedPatterns = [
@@ -26,6 +27,8 @@ const supportedPatterns = [
   /^https:\/\/.*\.giphy\.com/,
   /^https:\/\/.*\.dropboxusercontent\.com/,
   /^https:\/\/.*\.googleusercontent\.com/,
+  /^https:\/\/.*\.unsplash\.com/,
+  /^https:\/\/.*\.istockphoto\.com/,
 ];
 
 const isUrlSupported = (url: string) => {
