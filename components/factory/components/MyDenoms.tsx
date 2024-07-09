@@ -99,8 +99,8 @@ export default function MyDenoms({
 
                 <div className="ml-2 flex-grow">
                   <h5 className="text-base font-medium truncate">
-                    {denom.display.length > 26
-                      ? `${denom.display.substring(0, 26)}...`
+                    {denom.display.length > 24
+                      ? `${denom.display.substring(0, 24)}...`
                       : denom.display}
                   </h5>
                 </div>

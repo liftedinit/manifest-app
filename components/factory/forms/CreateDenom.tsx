@@ -26,7 +26,7 @@ export default function CreateDenom({
   const { createDenom } =
     osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
   const [isSigning, setIsSigning] = useState(false);
-  const { tx, Toast, toastMessage, setToastMessage } = useTx("manifest");
+  const { tx } = useTx("manifest");
   const { estimateFee } = useFeeEstimation("manifest");
 
   const validateSubdenom = (value: string) => {
@@ -81,7 +81,6 @@ export default function CreateDenom({
 
   return (
     <section className="">
-      <Toast toastMessage={toastMessage} setToastMessage={setToastMessage} />
       <div className="lg:flex mx-auto">
         <div className="flex items-center mx-auto md:w-[42rem] px-4 md:px-8 xl:px-0">
           <div className="w-full">

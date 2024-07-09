@@ -535,7 +535,7 @@ export const useValidators = () => {
             throw new Error("LCD Client not ready");
         }
         if (!address) {
-            throw new Error("Creator address not provided");
+            return { denoms: [] };
         }
         return await lcdQueryClient.osmosis.tokenfactory.v1beta1.denomsFromCreator({
             creator: address,
@@ -543,10 +543,12 @@ export const useValidators = () => {
     };
 
     const denomsQuery = useQuery({
-        queryKey: ["denoms", address],
+        queryKey: ["denoms"],
         queryFn: fetchDenoms,
         enabled: !!lcdQueryClient && !!address,
-        staleTime: Infinity,
+        staleTime: 0, 
+        refetchOnMount: true, 
+        refetchOnWindowFocus: true, 
     });
 
     return {
@@ -576,9 +578,10 @@ export const useTokenFactoryDenomMetadata = (denom: string) => {
         queryKey: ["metadata", denom],
         queryFn: fetchDenoms,
         enabled: !!lcdQueryClient && !!denom,
-        staleTime: Infinity,
+        staleTime: 0, 
+        refetchOnMount: true, 
+        refetchOnWindowFocus: true, 
     });
-
     return {
         metadata: denomsQuery.data,
         isMetadataLoading: denomsQuery.isLoading,

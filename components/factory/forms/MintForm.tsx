@@ -17,16 +17,12 @@ export default function MintForm({
   const [amount, setAmount] = useState("");
   const [recipient, setRecipient] = useState(address);
   const [isSigning, setIsSigning] = useState(false);
-  const { tx, Toast, setToastMessage, toastMessage } = useTx(chainName);
+  const { tx } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
   const { mint } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
 
   const handleMint = async () => {
     if (!amount || isNaN(Number(amount))) {
-      setToastMessage({
-        type: "error",
-        title: "Please enter a valid amount",
-      });
       return;
     }
     setIsSigning(true);
@@ -49,17 +45,12 @@ export default function MintForm({
       await tx([msg], {
         fee,
         onSuccess: () => {
-          setToastMessage({
-            type: "success",
-            title: "Tokens minted successfully",
-          });
           setAmount("");
           refetch();
         },
       });
     } catch (error) {
       console.error("Error during minting:", error);
-      setToastMessage({ type: "error", title: "Failed to mint tokens" });
     } finally {
       setIsSigning(false);
     }
@@ -71,9 +62,7 @@ export default function MintForm({
   };
 
   return (
-    <div className="animate-fadeIn text-sm -mt-1">
-      <Toast toastMessage={toastMessage} setToastMessage={setToastMessage} />
-
+    <div className="animate-fadeIn text-sm z-10 ">
       <div className="rounded-lg mb-6">
         <div className="grid grid-cols-2 gap-4">
           <div>

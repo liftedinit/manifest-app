@@ -32,7 +32,7 @@ export function UpdateDenomMetadataModal({
   });
 
   const [isSigning, setIsSigning] = useState(false);
-  const { tx, toastMessage, Toast, setToastMessage } = useTx(chainName);
+  const { tx } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
   const { setDenomMetadata } =
     osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
@@ -101,7 +101,6 @@ export function UpdateDenomMetadataModal({
 
   return (
     <dialog id={modalId} className="modal z-[1000]">
-      <Toast toastMessage={toastMessage} setToastMessage={setToastMessage} />
       <div className="modal-box max-w-4xl">
         <h3 className="font-bold text-lg mb-4">Update Denom Metadata</h3>
         <form method="dialog">

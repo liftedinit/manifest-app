@@ -17,7 +17,7 @@ export default function ConfirmationForm({
   address: string;
 }) {
   const [isSigning, setIsSigning] = useState(false);
-  const { tx, toastMessage, Toast, setToastMessage } = useTx(chainName);
+  const { tx } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
   const { setDenomMetadata } =
     osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
@@ -80,7 +80,6 @@ export default function ConfirmationForm({
 
   return (
     <section className="mx-auto w-full max-w-2xl px-4 py-6 min-h-screen flex flex-col">
-      <Toast toastMessage={toastMessage} setToastMessage={setToastMessage} />
       <h2 className="text-2xl font-bold mb-4">Token Information</h2>
       <div className="bg-base-300 rounded-lg p-4 mb-6 flex-grow overflow-auto max-h-[34rem]">
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">

@@ -44,7 +44,7 @@ const ProfileAvatar = ({
     <img
       src={avatarSrc}
       alt="Profile Avatar"
-      className="rounded-full mr-4"
+      className="rounded-full "
       style={{ height: imageSize, width: imageSize }}
     />
   );

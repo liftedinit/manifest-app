@@ -89,7 +89,7 @@ export default function ConfirmationModal({
 
   const jsonString = JSON.stringify(proposalMetadata);
 
-  const { tx, Toast, toastMessage, setToastMessage } = useTx("manifest");
+  const { tx } = useTx(chainName);
   const { estimateFee } = useFeeEstimation("manifest");
 
   const uploadMetaDataToIPFS = async () => {
@@ -133,7 +133,6 @@ export default function ConfirmationModal({
   return (
     <section className="">
       <div className="lg:flex  mx-auto">
-        <Toast toastMessage={toastMessage} setToastMessage={setToastMessage} />
         <div className="flex items-center mx-auto md:w-[42rem] px-4 md:px-8 xl:px-0">
           <div className="w-full">
             <h1 className="mb-4 text-2xl font-extrabold tracking-tight sm:mb-6 leading-tight">

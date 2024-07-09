@@ -27,6 +27,7 @@ import {
   cosmosAminoConverters,
   cosmosProtoRegistry,
 } from "@chalabi/manifestjs";
+import { ToastProvider } from "@/contexts";
 
 import MobileNav from "@/components/react/mobileNav";
 
@@ -169,23 +170,25 @@ function ManifestApp({ Component, pageProps }: AppProps) {
         walletModal={TailwindModal}
       >
         <ThemeProvider>
-          <SideNav />
-          <MobileNav />
-          <div className="min-h-screen max-w-screen md:ml-20 sm:px-4 sm:py-2 bg-base-200 ">
-            <Component {...pageProps} />
-          </div>
-          {/* this is for the web3auth signing modal */}
-          {isBrowser &&
-            createPortal(
-              <SignModal
-                visible={web3AuthPrompt !== undefined}
-                onClose={() => web3AuthPrompt?.resolve(false)}
-                data={web3AuthPrompt?.signData ?? ({} as SignData)}
-                approve={() => web3AuthPrompt?.resolve(true)}
-                reject={() => web3AuthPrompt?.resolve(false)}
-              />,
-              document.body
-            )}
+          <ToastProvider>
+            <SideNav />
+            <MobileNav />
+            <div className="min-h-screen max-w-screen md:ml-20 sm:px-4 sm:py-2 bg-base-200 ">
+              {isBrowser &&
+                createPortal(
+                  <SignModal
+                    visible={web3AuthPrompt !== undefined}
+                    onClose={() => web3AuthPrompt?.resolve(false)}
+                    data={web3AuthPrompt?.signData ?? ({} as SignData)}
+                    approve={() => web3AuthPrompt?.resolve(true)}
+                    reject={() => web3AuthPrompt?.resolve(false)}
+                  />,
+                  document.body
+                )}
+              <Component {...pageProps} />
+            </div>
+            {/* this is for the web3auth signing modal */}
+          </ToastProvider>
         </ThemeProvider>
       </ChainProvider>
     </QueryClientProvider>

@@ -14,33 +14,8 @@ export default function MetaBox({
   refetch: () => void;
 }) {
   const [activeTab, setActiveTab] = useState<
-    "admin" | "mint" | "burn" | "transfer"
-  >("transfer");
-
-  const renderContent = () => {
-    switch (activeTab) {
-      case "admin":
-        return (
-          <MintForm
-            refetch={refetch}
-            address={address}
-            denom={denom ?? ({} as MetadataSDKType)}
-          />
-        );
-      case "mint":
-        return (
-          <MintForm
-            refetch={refetch}
-            address={address}
-            denom={denom ?? ({} as MetadataSDKType)}
-          />
-        );
-      case "burn":
-        return <BurnForm denom={denom ?? ({} as MetadataSDKType)} />;
-      case "transfer":
-        return <TransferForm denom={denom ?? ({} as MetadataSDKType)} />;
-    }
-  };
+    "mint" | "burn" | "admin" | "transfer"
+  >("mint");
 
   if (!denom) {
     return (
@@ -56,49 +31,80 @@ export default function MetaBox({
 
   return (
     <div className="flex flex-col rounded-md max-h-[23rem] min-h-[23rem] bg-base-100 shadow w-full p-4 animate-fadeIn">
-      <div className="rounded-md px-4 py-2 bg-base-200 max-h-[21rem] min-h-[21rem]">
-        <div className="px-4 flex flex-row justify-between items-center border-base-content">
-          <h2 className="text-xl font-semibold ">
-            {`${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} ${
-              denom.display
-            }`}
-          </h2>
-
-          <div role="tablist" className="tabs tabs-lifted tabs-md -mr-4">
-            <a
-              role="tab"
-              className={`tab ${activeTab === "admin" ? "tab-active" : ""}`}
-              onClick={() => setActiveTab("admin")}
-            >
-              Admin
-            </a>
-            <a
-              role="tab"
-              className={`tab ${activeTab === "mint" ? "tab-active" : ""}`}
-              onClick={() => setActiveTab("mint")}
-            >
-              Mint
-            </a>
-            <a
-              role="tab"
-              className={`tab ${activeTab === "burn" ? "tab-active" : ""}`}
-              onClick={() => setActiveTab("burn")}
-            >
-              Burn
-            </a>
-            <a
-              role="tab"
-              className={`tab ${activeTab === "transfer" ? "tab-active" : ""}`}
-              onClick={() => setActiveTab("transfer")}
-            >
-              Transfer
-            </a>
-          </div>
-        </div>
-        <div className=" animate-fadeIn p-4 rounded-tl-md rounded-br-md rounded-bl-md bg-base-100 border-r border-b border-l min-h-[17.45rem] max-h-[17.45rem] border-base-300">
-          {renderContent()}
-        </div>
+      <h2 className="text-xl font-semibold mb-4">
+        {`${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} ${
+          denom.display
+        }`}
+      </h2>
+      <div role="tablist" className="tabs tabs-lifted bg-transparent">
+        <button
+          type="button"
+          role="tab"
+          className={`tab ${activeTab === "mint" ? "tab-active" : ""}`}
+          onClick={() => setActiveTab("mint")}
+          aria-selected={activeTab === "mint"}
+        >
+          Mint
+        </button>
+        <button
+          type="button"
+          role="tab"
+          className={`tab ${activeTab === "burn" ? "tab-active" : ""}`}
+          onClick={() => setActiveTab("burn")}
+          aria-selected={activeTab === "burn"}
+        >
+          Burn
+        </button>
+        <button
+          type="button"
+          role="tab"
+          className={`tab ${activeTab === "admin" ? "tab-active" : ""}`}
+          onClick={() => setActiveTab("admin")}
+          aria-selected={activeTab === "admin"}
+        >
+          Admin
+        </button>
+        <button
+          type="button"
+          role="tab"
+          className={`tab ${activeTab === "transfer" ? "tab-active" : ""}`}
+          onClick={() => setActiveTab("transfer")}
+          aria-selected={activeTab === "transfer"}
+        >
+          Transfer
+        </button>
       </div>
+
+      {activeTab === "mint" && (
+        <div
+          role="tabpanel"
+          className="tab-content bg-base-100 border-base-300 rounded-box p-6"
+        >
+          <MintForm refetch={refetch} address={address} denom={denom} />
+        </div>
+      )}
+      {activeTab === "burn" && (
+        <div
+          role="tabpanel"
+          className="tab-content bg-base-100 border-base-300 rounded-box p-6"
+        >
+          <BurnForm refetch={refetch} address={address} denom={denom} />
+        </div>
+      )}
+      {activeTab === "admin" && (
+        <div
+          role="tabpanel"
+          className="tab-content bg-base-100 border-base-300 rounded-box p-6"
+        ></div>
+      )}
+      {activeTab === "transfer" && (
+        <div
+          role="tabpanel"
+          className="tab-content bg-base-100 border-base-300 rounded-box p-6"
+        >
+          <TransferForm denom={denom} />
+        </div>
+      )}
     </div>
   );
 }
