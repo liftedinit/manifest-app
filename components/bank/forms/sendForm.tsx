@@ -77,7 +77,7 @@ export default function SendForm({
               tabIndex={0}
               className="btn btn-sm btn-base-300 w-full justify-between"
             >
-              {selectedToken.slice(0, 4)}
+              {selectedToken}
               <PiCaretDownBold className="ml-2" />
             </label>
             <ul
@@ -95,7 +95,7 @@ export default function SendForm({
                       onClick={() => setSelectedToken(token.denom)}
                       className="flex items-center"
                     >
-                      {token.denom.slice(0, 4)}...
+                      {token.denom}
                     </a>
                   </li>
                 ))

@@ -5,7 +5,7 @@ import { cosmos, ibc } from "@chalabi/manifestjs";
 
 import { getIbcInfo } from "@/utils";
 import { PiAddressBook, PiCaretDownBold } from "react-icons/pi";
-import { Coin } from "@chalabi/manifestjs/dist/codegen/cosmos/base/v1beta1/coin";
+import { CoinSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/base/v1beta1/coin";
 
 export default function IbcSendForm({
   address,
@@ -16,7 +16,7 @@ export default function IbcSendForm({
 }: {
   address: string;
   destinationChain: string;
-  balances: Coin[];
+  balances: CoinSDKType[];
   isBalancesLoading: boolean;
   refetchBalances: () => void;
 }) {
@@ -98,7 +98,7 @@ export default function IbcSendForm({
               tabIndex={0}
               className="btn btn-sm btn-base-300 w-full justify-between"
             >
-              {selectedToken.slice(0, 4)}
+              {selectedToken}
               <PiCaretDownBold className="ml-2" />
             </label>
             <ul
@@ -116,7 +116,7 @@ export default function IbcSendForm({
                       onClick={() => setSelectedToken(token.denom)}
                       className="flex items-center"
                     >
-                      {token.denom.slice(0, 4)}...
+                      {token.denom}
                     </a>
                   </li>
                 ))

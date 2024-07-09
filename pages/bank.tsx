@@ -15,8 +15,11 @@ export default function Bank() {
   const { balances, isBalancesLoading, refetchBalances } = useTokenBalances(
     address ?? ""
   );
-  const { balances: resolvedBalances, isBalancesLoading: resolvedLoading } =
-    useTokenBalancesResolved(address ?? "");
+  const {
+    balances: resolvedBalances,
+    isBalancesLoading: resolvedLoading,
+    refetchBalances: resolveRefetch,
+  } = useTokenBalancesResolved(address ?? "");
 
   console.log(resolvedBalances);
   return (
@@ -107,13 +110,14 @@ export default function Bank() {
               </div>
             </section>
           ) : (
-            isWalletConnected && (
+            isWalletConnected &&
+            resolvedBalances && (
               <div className="flex flex-col w-full">
                 <div className="flex flex-row sm:flex-row gap-4 justify-between items-center w-full transition-opacity duration-300 ease-in-out animate-fadeIn">
                   <SendBox
-                    balances={balances ?? ({} as CoinSDKType[])}
-                    isBalancesLoading={isBalancesLoading}
-                    refetchBalances={refetchBalances}
+                    balances={resolvedBalances ?? ({} as CoinSDKType[])}
+                    isBalancesLoading={resolvedLoading}
+                    refetchBalances={resolveRefetch}
                     address={address ?? ""}
                   />
                   <TokenList

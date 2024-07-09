@@ -89,7 +89,9 @@ export default function Factory() {
               </div>
             </section>
           ) : (
-            isWalletConnected && (
+            isWalletConnected &&
+            denoms &&
+            metadatas && (
               <div className="flex flex-col w-full">
                 <div className="flex flex-col lg:flex-row md:flex-col sm:flex-col xs:flex-col w-full gap-4 transition-opacity duration-300 ease-in-out animate-fadeIn">
                   <div className="lg:w-1/3 md:w-full">
