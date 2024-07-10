@@ -9,12 +9,14 @@ export interface ExtendedValidatorSDKType extends ValidatorSDKType {
   logo_url?: string;
 }
 interface ValidatorListProps {
+  admin: string;
   activeValidators: ExtendedValidatorSDKType[];
   pendingValidators: ExtendedValidatorSDKType[];
   isLoading: boolean;
 }
 
 export default function ValidatorList({
+  admin,
   activeValidators,
   pendingValidators,
   isLoading,
@@ -42,11 +44,6 @@ export default function ValidatorList({
     modal?.showModal();
   };
 
-  const handleRowClick = (validator: ExtendedValidatorSDKType) => {
-    setSelectedValidator(validator);
-    setModalId(`validator-modal-${validator.operator_address}`);
-  };
-
   const filteredValidators = active
     ? (Array.isArray(activeValidators) ? activeValidators : []).filter(
         (validator) =>
@@ -60,6 +57,21 @@ export default function ValidatorList({
             .toLowerCase()
             .includes(searchTerm.toLowerCase())
       );
+
+  const [modalKey, setModalKey] = useState(0);
+
+  useEffect(() => {
+    if (modalId) {
+      const modal = document.getElementById(modalId) as HTMLDialogElement;
+      modal?.showModal();
+    }
+  }, [modalId, modalKey]);
+
+  const handleRowClick = (validator: ExtendedValidatorSDKType) => {
+    setSelectedValidator(validator);
+    setModalKey((prevKey) => prevKey + 1);
+    setModalId(`validator-modal-${validator.operator_address}-${Date.now()}`);
+  };
 
   return (
     <div className="w-full mx-auto p-4 bg-base-100 rounded-md h-96">
@@ -173,10 +185,13 @@ export default function ValidatorList({
       )}
 
       <ValidatorDetailsModal
+        key={modalKey}
         validator={selectedValidator}
-        modalId={`validator-modal-${selectedValidator?.operator_address}`}
+        modalId={modalId || ""}
+        admin={admin}
       />
       <WarningModal
+        admin={admin}
         isActive={active}
         address={validatorToRemove?.operator_address || ""}
         moniker={validatorToRemove?.description.moniker || ""}

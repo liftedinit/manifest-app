@@ -1,17 +1,34 @@
-import React from "react";
+import React, { useState } from "react";
 import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
 import { ExtendedValidatorSDKType } from "../components";
 import ProfileAvatar from "@/utils/identicon";
 import { BsThreeDots } from "react-icons/bs";
 import { DescriptionModal } from "./descriptionModal";
+import { chainName } from "@/config";
+import { useTx, useFeeEstimation } from "@/hooks";
+import { strangelove_ventures } from "@chalabi/manifestjs";
+import { useChain } from "@cosmos-kit/react";
+import { cosmos } from "@chalabi/manifestjs";
 
 export function ValidatorDetailsModal({
   validator,
   modalId,
+  admin,
 }: {
   validator: ExtendedValidatorSDKType | null;
   modalId: string;
+  admin: string;
 }) {
+  const [power, setPowerInput] = useState(
+    validator?.consensus_power?.toString() || ""
+  );
+  const { tx } = useTx(chainName);
+  const { estimateFee } = useFeeEstimation(chainName);
+  const { address: userAddress } = useChain(chainName);
+
+  const { setPower } = strangelove_ventures.poa.v1.MessageComposer.withTypeUrl;
+  const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
+
   if (!validator) return null;
 
   const isEmail = (contact: string | undefined): boolean => {
@@ -27,6 +44,33 @@ export function ValidatorDetailsModal({
       `validator-description-modal`
     ) as HTMLDialogElement;
     modal?.showModal();
+  };
+
+  const handleUpdate = async () => {
+    const msgSetPower = setPower({
+      sender: userAddress ?? "",
+      validatorAddress: validator.operator_address,
+      power: BigInt(power),
+      unsafe: false,
+    });
+
+    const groupProposalMsg = submitProposal({
+      groupPolicyAddress: admin,
+      messages: [msgSetPower],
+      metadata: "",
+      proposers: [userAddress ?? ""],
+      title: `Update the Voting Power of ${validator.description.moniker}`,
+      summary: `This proposal will update the voting power of ${
+        validator.description.moniker
+      } to ${100}`,
+      exec: 1,
+    });
+
+    const fee = await estimateFee(userAddress ?? "", [groupProposalMsg]);
+    await tx([groupProposalMsg], {
+      fee,
+      onSuccess: () => {},
+    });
   };
 
   return (
@@ -72,20 +116,29 @@ export function ValidatorDetailsModal({
             <span className="text-sm text-gray-400">POWER</span>
             <div className="flex flex-row gap-2 justify-between rounded-md items-center">
               <input
-                placeholder={validator.consensus_power?.toString()}
+                value={power}
+                onChange={(e) => setPowerInput(e.target.value)}
+                placeholder={
+                  validator.consensus_power?.toString() ?? "Inactive"
+                }
                 className="input input-bordered input-xs w-2/3"
                 type="number"
               />
-              <button className="btn btn-xs btn-primary w-1/3">update</button>
+              <button
+                onClick={handleUpdate}
+                className="btn btn-xs btn-primary w-1/3"
+              >
+                update
+              </button>
             </div>
           </div>
           <div className="flex flex-col w-full px-4 py-2 gap-2 bg-base-300 rounded-md">
             <span className="text-sm text-gray-400">OPERATOR ADDRESS</span>
             <span className="text-md rounded-md">
-              {TruncatedAddressWithCopy({
-                address: validator.operator_address,
-                slice: 42,
-              })}
+              <TruncatedAddressWithCopy
+                address={validator.operator_address}
+                slice={42}
+              />
             </span>
           </div>
           <div className="flex flex-col w-full px-4 py-2 gap-2 bg-base-300 rounded-md">

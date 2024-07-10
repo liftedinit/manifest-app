@@ -173,6 +173,10 @@ export default function Admins() {
                       pendingValidators={
                         pendingValidators ?? ({} as ValidatorSDKType[])
                       }
+                      admin={
+                        poaParams?.admins[0] ??
+                        "manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj"
+                      }
                     />
                     <div className="flex flex-col md:flex-row gap-4 justify-between items-center w-full">
                       <AdminOptions
