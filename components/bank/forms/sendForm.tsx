@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { chainName } from "@/config";
-import { useFeeEstimation, useTx, useTokenBalances } from "@/hooks";
+import { useFeeEstimation, useTx } from "@/hooks";
 import { cosmos } from "@chalabi/manifestjs";
 import { PiAddressBook, PiCaretDownBold } from "react-icons/pi";
-
-import { CoinSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/base/v1beta1/coin";
+import { shiftDigits } from "@/utils";
+import { CombinedBalanceInfo } from "@/pages/bank";
+import { DenomImage } from "@/components/factory";
 
 export default function SendForm({
   address,
@@ -13,13 +14,14 @@ export default function SendForm({
   refetchBalances,
 }: {
   address: string;
-  balances: CoinSDKType[];
+  balances: CombinedBalanceInfo[];
   isBalancesLoading: boolean;
   refetchBalances: () => void;
 }) {
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
-  const [selectedToken, setSelectedToken] = useState("");
+  const [selectedToken, setSelectedToken] =
+    useState<CombinedBalanceInfo | null>(null);
   const [isSending, setIsSending] = useState(false);
 
   const { tx } = useTx(chainName);
@@ -28,7 +30,7 @@ export default function SendForm({
 
   useEffect(() => {
     if (balances && balances.length > 0 && !selectedToken) {
-      setSelectedToken(balances[0].denom);
+      setSelectedToken(balances[0]);
     }
   }, [balances, selectedToken]);
 
@@ -39,14 +41,16 @@ export default function SendForm({
 
     setIsSending(true);
     try {
-      const amountInBaseUnits = BigInt(
-        parseFloat(amount) * Math.pow(10, 6)
-      ).toString();
+      const exponent =
+        selectedToken.metadata?.denom_units.find(
+          (unit) => unit.denom === selectedToken.denom
+        )?.exponent ?? 6;
+      const amountInBaseUnits = shiftDigits(amount, exponent);
 
       const msg = send({
         fromAddress: address,
         toAddress: recipient,
-        amount: [{ denom: selectedToken, amount: amountInBaseUnits }],
+        amount: [{ denom: selectedToken.coreDenom, amount: amountInBaseUnits }],
       });
 
       const fee = await estimateFee(address, [msg]);
@@ -77,7 +81,7 @@ export default function SendForm({
               tabIndex={0}
               className="btn btn-sm bg-base-300 w-full justify-between"
             >
-              {selectedToken}
+              {selectedToken?.metadata?.display.toUpperCase() ?? "Select Token"}
               <PiCaretDownBold className="ml-2" />
             </label>
             <ul
@@ -90,12 +94,15 @@ export default function SendForm({
                 </li>
               ) : (
                 balances?.map((token) => (
-                  <li key={token.denom}>
-                    <a
-                      onClick={() => setSelectedToken(token.denom)}
-                      className="flex items-center"
-                    >
-                      {token.denom}
+                  <li
+                    key={token.coreDenom}
+                    onClick={() => setSelectedToken(token)}
+                    className="flex  justify-start "
+                  >
+                    <a className=" flex-row justify-start gap-3 items-center w-full">
+                      {" "}
+                      <DenomImage denom={token.metadata} />{" "}
+                      {token.metadata?.display.toUpperCase()}
                     </a>
                   </li>
                 ))

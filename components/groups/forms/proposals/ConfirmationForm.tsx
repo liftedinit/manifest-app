@@ -112,16 +112,8 @@ export default function ConfirmationModal({
       summary: formData.metadata.summary,
       exec: 1,
     });
-    console.log(msg);
-    const fee = {
-      amount: [
-        {
-          denom: "umfx",
-          amount: "4000",
-        },
-      ],
-      gas: "200000",
-    };
+
+    const fee = await estimateFee(address ?? "", messages);
     await tx([msg], {
       fee,
       onSuccess: () => {

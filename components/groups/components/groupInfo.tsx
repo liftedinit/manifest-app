@@ -15,11 +15,13 @@ export function GroupInfo({
   groupByMemberDataLoading,
   groupByMemberDataError,
   refetchGroupByMember,
+  address,
 }: {
   group: any;
   groupByMemberDataLoading: boolean;
   groupByMemberDataError: Error | null | boolean;
   refetchGroupByMember: () => void;
+  address: string;
 }) {
   const { balance } = useBalance(group?.policies?.[0]?.address);
 
@@ -169,6 +171,7 @@ export function GroupInfo({
             <UpdateGroupModal
               group={group}
               modalId={`update_group_${group?.id}`}
+              address={address}
             />
             <GroupDetailsModal
               group={group}

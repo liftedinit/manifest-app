@@ -3,9 +3,10 @@ import { CoinSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/base/v1beta
 import { DenomImage } from "@/components/factory";
 import Image from "next/image";
 import { shiftDigits } from "@/utils";
+import { CombinedBalanceInfo } from "@/pages/bank";
 
 interface TokenListProps {
-  balances: CoinSDKType[] | undefined;
+  balances: CombinedBalanceInfo[] | undefined;
   isLoading: boolean;
 }
 
@@ -41,9 +42,7 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
     <div className="w-full mx-auto p-4 bg-base-100 rounded-md max-h-[28.7rem] min-h-[28.7rem]">
       <div className="px-4 py-2 border-base-content flex items-center justify-between">
         <div className="relative">
-          <h3 className="text-lg font-bold leading-6 hidden lg:block">
-            Your Balances
-          </h3>
+          <h3 className="text-lg font-bold leading-6 ">Your Balances</h3>
         </div>
         <div className="flex flex-row items-center justify-between gap-2">
           <input
@@ -63,7 +62,8 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
             <thead className="sticky top-0 z-1 bg-base-300">
               <tr>
                 <th className="px-6 py-3 w-1/4">Icon</th>
-                <th className="px-6 py-3 w-2/4">Denom</th>
+                <th className="px-6 py-3 w-1/4">Name</th>
+                <th className="px-6 py-3 w-1/4">Alias</th>
                 <th className="px-6 py-3 w-1/4">Balance</th>
               </tr>
             </thead>
@@ -77,15 +77,21 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
                       </div>
                     </div>
                   </td>
+
                   <td className="px-6 py-3 text-sm font-medium">
                     <span className="block truncate max-w-[20ch]">
-                      {balance.denom}
+                      {balance.metadata?.display.toUpperCase()}
+                    </span>
+                  </td>
+                  <td className="px-6 py-3 text-sm font-medium">
+                    <span className="block truncate max-w-[20ch]">
+                      {balance.metadata?.denom_units[1]?.aliases[1]?.toUpperCase()}
                     </span>
                   </td>
                   <td className="px-6 py-3 text-sm">
                     {shiftDigits(
                       balance.amount,
-                      balance.denom === "MFX" ? -6 : 0
+                      -Number(balance.metadata?.denom_units[1]?.exponent) ?? 6
                     )}
                   </td>
                 </tr>

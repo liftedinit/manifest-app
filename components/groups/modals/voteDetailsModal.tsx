@@ -21,6 +21,7 @@ import { useTx } from "@/hooks/useTx";
 import { cosmos } from "@chalabi/manifestjs";
 import { useTheme } from "@/contexts/theme";
 import CountdownTimer from "../components/CountdownTimer";
+import { useFeeEstimation } from "@/hooks";
 
 const Chart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
@@ -62,8 +63,6 @@ function VoteDetailsModal({
   const { address } = useChain(chainName);
 
   const { theme } = useTheme();
-
-  console.log(proposal, votes, tallies, members, admin);
 
   const textColor = theme === "dark" ? "#E0D1D4" : "#2e2e2e";
 
@@ -187,7 +186,8 @@ function VoteDetailsModal({
       enabled: false,
     },
   };
-  const { tx } = useTx("manifest");
+  const { tx } = useTx(chainName);
+  const { estimateFee } = useFeeEstimation(chainName);
 
   const { exec } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const { withdrawProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
@@ -202,18 +202,9 @@ function VoteDetailsModal({
     address: address ?? "",
   });
 
-  const fee = {
-    amount: [
-      {
-        denom: "mfx",
-        amount: "0.01",
-      },
-    ],
-    gas: "200000",
-  };
-
   const executeProposal = async () => {
     try {
+      const fee = await estimateFee(address ?? "", [msgExec]);
       await tx([msgExec], {
         fee,
         onSuccess: () => {
@@ -228,6 +219,7 @@ function VoteDetailsModal({
 
   const executeWithdrawl = async () => {
     try {
+      const fee = await estimateFee(address ?? "", [msgWithdraw]);
       await tx([msgWithdraw], {
         fee,
         onSuccess: () => {

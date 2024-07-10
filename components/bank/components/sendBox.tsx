@@ -4,6 +4,7 @@ import IbcSendForm from "../forms/ibcSendForm";
 import { PiCaretDownBold } from "react-icons/pi";
 import Image from "next/image";
 import { CoinSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/base/v1beta1/coin";
+import { CombinedBalanceInfo } from "@/pages/bank";
 
 export default function SendBox({
   address,
@@ -12,7 +13,7 @@ export default function SendBox({
   refetchBalances,
 }: {
   address: string;
-  balances: CoinSDKType[];
+  balances: CombinedBalanceInfo[];
   isBalancesLoading: boolean;
   refetchBalances: () => void;
 }) {
@@ -27,7 +28,7 @@ export default function SendBox({
   ];
 
   return (
-    <div className="flex flex-col rounded-md max-h-[28.7rem] w-1/3 min-h-[28.7rem] bg-base-100 shadow px-6 py-4">
+    <div className="flex flex-col rounded-md max-h-[28.7rem] md:w-1/3 w-full min-h-[28.7rem] bg-base-100 shadow px-6 py-4">
       <div className="flex flex-col items-center mb-6">
         <div className="flex flex-row justify-between items-center w-full mb-4 ">
           <h2 className="text-xl font-semibold">

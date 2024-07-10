@@ -2,13 +2,24 @@ import { WalletSection } from "@/components";
 import SendBox from "@/components/bank/components/sendBox";
 import TokenList from "@/components/bank/components/tokenList";
 import { chainName } from "@/config";
-import { useTokenBalances, useTokenBalancesResolved } from "@/hooks";
+import {
+  useTokenBalances,
+  useTokenBalancesResolved,
+  useTokenFactoryDenoms,
+  useTokenFactoryDenomsMetadata,
+} from "@/hooks";
 import { CoinSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/base/v1beta1/coin";
-
+import { MetadataSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
 import { useChain } from "@cosmos-kit/react";
-
 import Head from "next/head";
-import React from "react";
+import React, { useMemo } from "react";
+
+export type CombinedBalanceInfo = {
+  denom: string;
+  coreDenom: string;
+  amount: string;
+  metadata: MetadataSDKType | null;
+};
 
 export default function Bank() {
   const { address, isWalletConnected } = useChain(chainName);
@@ -20,8 +31,37 @@ export default function Bank() {
     isBalancesLoading: resolvedLoading,
     refetchBalances: resolveRefetch,
   } = useTokenBalancesResolved(address ?? "");
+  const { denoms, isDenomsLoading } = useTokenFactoryDenoms(address ?? "");
+  const { metadatas, isMetadatasLoading } = useTokenFactoryDenomsMetadata();
 
-  console.log(resolvedBalances);
+  const combinedBalances = useMemo(() => {
+    if (!balances || !resolvedBalances || !metadatas) return [];
+
+    return balances.map((coreBalance): CombinedBalanceInfo => {
+      const resolvedBalance = resolvedBalances.find(
+        (rb) =>
+          rb.denom === coreBalance.denom ||
+          rb.denom === coreBalance.denom.split("/").pop()
+      );
+      const metadata = metadatas.metadatas.find(
+        (m) => m.base === coreBalance.denom
+      );
+
+      return {
+        denom: resolvedBalance?.denom || coreBalance.denom,
+        coreDenom: coreBalance.denom,
+        amount: coreBalance.amount,
+        metadata: metadata || null,
+      };
+    });
+  }, [balances, resolvedBalances, metadatas]);
+
+  const isLoading =
+    isBalancesLoading ||
+    resolvedLoading ||
+    isDenomsLoading ||
+    isMetadatasLoading;
+
   return (
     <>
       <div className="max-w-5xl relative py-8 mx-auto">
@@ -111,17 +151,17 @@ export default function Bank() {
             </section>
           ) : (
             isWalletConnected &&
-            resolvedBalances && (
+            combinedBalances && (
               <div className="flex flex-col w-full">
-                <div className="flex flex-row sm:flex-row gap-4 justify-between items-center w-full transition-opacity duration-300 ease-in-out animate-fadeIn">
+                <div className="flex md:flex-row flex-col gap-4 justify-between items-center w-full transition-opacity duration-300 ease-in-out animate-fadeIn">
                   <SendBox
-                    balances={resolvedBalances ?? ({} as CoinSDKType[])}
+                    balances={combinedBalances}
                     isBalancesLoading={resolvedLoading}
                     refetchBalances={resolveRefetch}
                     address={address ?? ""}
                   />
                   <TokenList
-                    balances={resolvedBalances ?? ({} as CoinSDKType[])}
+                    balances={combinedBalances}
                     isLoading={resolvedLoading}
                   />
                 </div>

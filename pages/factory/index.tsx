@@ -18,7 +18,7 @@ export default function Factory() {
     useTokenFactoryDenoms(address ?? "");
   const { metadatas, isMetadatasLoading, isMetadatasError, refetchMetadatas } =
     useTokenFactoryDenomsMetadata();
-
+  console.log(denoms, metadatas);
   const [selectedDenom, setSelectedDenom] = useState<string | null>(null);
   const [selectedDenomMetadata, setSelectedDenomMetadata] =
     useState<MetadataSDKType | null>(null);

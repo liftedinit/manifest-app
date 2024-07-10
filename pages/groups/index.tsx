@@ -214,6 +214,7 @@ export default function Groups() {
                       group={infoGroup}
                       groupByMemberDataLoading={isGroupByMemberLoading}
                       groupByMemberDataError={isGroupByMemberError}
+                      address={address ?? ""}
                     />
                   </div>
                 </div>

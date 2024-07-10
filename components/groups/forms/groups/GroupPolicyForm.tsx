@@ -78,10 +78,10 @@ export default function GroupPolicyForm({
                       value={votingAmount}
                       onChange={handleAmountChange}
                     />
-                    <div className="dropdown dropdown-end">
+                    <div className="dropdown dropdown-end w-full">
                       <label
                         tabIndex={0}
-                        className="btn m-1 bg-base-100 border border-zinc-700"
+                        className="btn m-1 bg-base-100 border w-full border-zinc-700"
                       >
                         {votingUnit.charAt(0).toUpperCase() +
                           votingUnit.slice(1)}
@@ -104,12 +104,17 @@ export default function GroupPolicyForm({
                 </div>
 
                 <div className="mt-1">
-                  <label className="block mb-2 text-sm font-medium">
-                    Voting Threshold
-                  </label>
+                  <div className="flex flex-row mb-2 gap-1 justify-between items-center">
+                    <label className="block  text-sm font-medium">
+                      Voting Threshold
+                    </label>
+                    <div className="text-sm text-gray-500">
+                      (number of total required votes)
+                    </div>
+                  </div>
 
                   <input
-                    type="text"
+                    type="number"
                     placeholder="e.g. (1)"
                     className="input input-bordered w-full"
                     value={formData.votingThreshold}

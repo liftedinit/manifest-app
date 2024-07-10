@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { IPFSMetadata } from "@/hooks/useQueries";
 import { cosmos } from "@chalabi/manifestjs";
-import { Duration } from "cosmjs-types/google/protobuf/duration";
 import { PiTrashLight, PiPlusCircleThin, PiInfoLight } from "react-icons/pi";
-import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
+import { useTx, useFeeEstimation } from "@/hooks";
+import { chainName } from "@/config";
 
 interface Member {
   address: string;
@@ -13,6 +13,7 @@ interface Member {
   isCoreMember: boolean;
   isActive: boolean;
 }
+
 interface Group {
   group: {
     id: string;
@@ -22,12 +23,17 @@ interface Group {
     members: { group_id: string; member: Member }[];
     policies: any[];
   };
+  address: string;
 }
 
 export function UpdateGroupModal({
   group,
   modalId,
+  address,
 }: Group & { modalId: string }) {
+  const { tx } = useTx(chainName);
+  const { estimateFee } = useFeeEstimation(chainName);
+
   const {
     updateGroupAdmin,
     updateGroupMembers,
@@ -51,6 +57,7 @@ export function UpdateGroupModal({
   );
   const [windowInput, setWindowInput] = useState("");
   const [votingUnit, setVotingUnit] = useState("days");
+  const [isSigning, setIsSigning] = useState(false);
 
   useEffect(() => {
     setName(group.ipfsMetadata?.title || "");
@@ -131,10 +138,6 @@ export function UpdateGroupModal({
     return adminAddresses.includes(address);
   };
 
-  const isMegaAdmin = (address: string) => {
-    return isAdmin(address) && isPolicyAdmin(address);
-  };
-
   const initializeMembers = () => {
     return group.members.map((member) => ({
       group_id: member.group_id,
@@ -195,107 +198,179 @@ export function UpdateGroupModal({
     }
   };
 
-  const handleAdminToggle = (index: number) => {
-    const member = members[index];
-    const updatedMember = {
-      ...member,
-      isAdmin: !member.isAdmin,
-    };
-    setMembers(
-      members.map((mem, idx) => (idx === index ? updatedMember : mem))
+  const hasStateChanged = (newValue: any, originalValue: any) => {
+    return (
+      newValue !== null && newValue !== undefined && newValue !== originalValue
     );
   };
 
-  const handlePolicyAdminToggle = (index: number) => {
-    const member = members[index];
-    const updatedMember = {
-      ...member,
-      isPolicyAdmin: !member?.isPolicyAdmin,
-    };
-    setMembers(
-      members.map((mem, idx) => (idx === index ? updatedMember : mem))
+  const buildMessages = () => {
+    const messages = [];
+
+    const newAdmin = members?.filter((member) => member?.isAdmin)[0]?.member
+      ?.address;
+    if (hasStateChanged(newAdmin, group.admin)) {
+      messages.push(
+        updateGroupAdmin({
+          admin: group.admin,
+          groupId: BigInt(group?.members[0]?.group_id),
+          newAdmin: newAdmin,
+        })
+      );
+    }
+
+    const membersChanged = members.some(
+      (member, index) =>
+        hasStateChanged(
+          member.member.address,
+          group.members[index]?.member.address
+        ) ||
+        hasStateChanged(
+          member.member.metadata,
+          group.members[index]?.member.metadata
+        ) ||
+        hasStateChanged(
+          member.member.weight,
+          group.members[index]?.member.weight
+        )
     );
+    if (membersChanged) {
+      messages.push(
+        updateGroupMembers({
+          admin: group.admin,
+          groupId: BigInt(group?.members[0]?.group_id),
+          memberUpdates: members?.map((member) => ({
+            address: member?.member.address,
+            metadata: member?.member.metadata,
+            weight: member?.member.weight,
+            added_at: member?.member.added_at,
+          })),
+        })
+      );
+    }
+
+    if (
+      hasStateChanged(name, group.ipfsMetadata?.title) ||
+      hasStateChanged(authors, group.ipfsMetadata?.authors) ||
+      hasStateChanged(summary, group.ipfsMetadata?.summary) ||
+      hasStateChanged(forum, group.ipfsMetadata?.proposalForumURL) ||
+      hasStateChanged(description, group.ipfsMetadata?.details)
+    ) {
+      messages.push(
+        updateGroupMetadata({
+          admin: group?.admin,
+          groupId: BigInt(group?.members[0]?.group_id),
+          metadata: JSON.stringify({
+            title: name,
+            authors: authors,
+            summary: summary,
+            proposalForumURL: forum,
+            details: description,
+          }),
+        })
+      );
+    }
+
+    const newPolicyAdmin = members?.filter((member) => member?.isPolicyAdmin)[0]
+      ?.member?.address;
+    if (hasStateChanged(newPolicyAdmin, group.policies[0]?.admin)) {
+      messages.push(
+        updateGroupPolicyAdmin({
+          groupPolicyAddress: group?.policies[0].address,
+          admin: group?.admin,
+          newAdmin: newPolicyAdmin,
+        })
+      );
+    }
+
+    if (
+      hasStateChanged(
+        threshold,
+        group.policies[0]?.decision_policy?.threshold
+      ) ||
+      hasStateChanged(
+        windowSeconds,
+        group.policies[0]?.decision_policy?.windows?.voting_period.seconds
+      )
+    ) {
+      messages.push(
+        updateGroupPolicyDecisionPolicy({
+          groupPolicyAddress: group.policies[0].address,
+          admin: group.admin,
+          decisionPolicy: {
+            threshold: threshold,
+            percentage: "",
+            windows: {
+              votingPeriod: {
+                nanos: 0,
+                seconds: BigInt(0),
+              },
+              minExecutionPeriod: {
+                nanos: 0,
+                seconds: BigInt(0),
+              },
+            },
+          },
+        })
+      );
+    }
+
+    if (
+      messages.includes(
+        updateGroupMetadata({
+          admin: group?.admin,
+          groupId: BigInt(group?.members[0]?.group_id),
+          metadata: JSON.stringify({
+            title: name,
+            authors: authors,
+            summary: summary,
+            proposalForumURL: forum,
+            details: description,
+          }),
+        })
+      )
+    ) {
+      messages.push(
+        updateGroupPolicyMetadata({
+          groupPolicyAddress: group.policies[0].address,
+          admin: group.admin,
+          metadata: JSON.stringify({
+            title: name,
+            authors: authors,
+            summary: summary,
+            proposalForumURL: forum,
+            details: description,
+          }),
+        })
+      );
+    }
+
+    return messages;
   };
 
-  const inputState = {
-    name,
-    authors,
-    summary,
-    forum,
-    description,
-    threshold,
-    windowSeconds,
-    votingUnit,
-    members,
+  const handleUpdate = async () => {
+    const messages = buildMessages();
+
+    if (messages.length === 0) {
+      console.log("No changes detected");
+      return;
+    }
+
+    setIsSigning(true);
+    try {
+      const fee = await estimateFee(address, messages);
+      await tx(messages, {
+        fee,
+        onSuccess: () => {
+          console.log("Update successful");
+        },
+      });
+    } catch (error) {
+      console.error("Error during update:", error);
+    } finally {
+      setIsSigning(false);
+    }
   };
-
-  useEffect(() => {
-    const extractedMembers = group?.members.map((item) => item.member);
-    extractedMembers.map((member) => ({
-      group_id: "",
-      member,
-      isCoreMember: false,
-      isActive: false,
-      isAdmin: isAdmin(member.address),
-      isPolicyAdmin: isPolicyAdmin(member.address),
-    }));
-  }, [group.members]);
-
-  const msgUpdateGroupAdmin = updateGroupAdmin({
-    admin: group.admin,
-    groupId: BigInt(group?.members[0]?.group_id),
-    newAdmin: members?.filter((member) => member?.isAdmin)[0]?.member?.address,
-  });
-
-  const msgUpdateGroupMembers = updateGroupMembers({
-    admin: group.admin,
-    groupId: BigInt(group?.members[0]?.group_id),
-    memberUpdates: members?.map((member) => ({
-      address: member?.member.address,
-      metadata: member?.member.metadata,
-      weight: member?.member.weight,
-      added_at: member?.member.added_at,
-    })),
-  });
-
-  const msgUpdateGroupMetadata = updateGroupMetadata({
-    admin: group?.admin,
-    groupId: BigInt(group?.members[0]?.group_id),
-    metadata: "",
-  });
-
-  const msgUpdateGroupPolicyAdmin = updateGroupPolicyAdmin({
-    groupPolicyAddress: group?.policies[0].address,
-    admin: group?.admin,
-    newAdmin: members?.filter((member) => member?.isPolicyAdmin)[0]?.member
-      .address,
-  });
-
-  const msgUpdateGroupPolicyDecisionPolicy = updateGroupPolicyDecisionPolicy({
-    groupPolicyAddress: group.policies[0].address,
-    admin: group.admin,
-    decisionPolicy: {
-      threshold: threshold,
-      percentage: "",
-      windows: {
-        votingPeriod: {
-          nanos: 0,
-          seconds: BigInt(0),
-        },
-        minExecutionPeriod: {
-          nanos: 0,
-          seconds: BigInt(0),
-        },
-      },
-    },
-  });
-
-  const msgUpdateGroupPolicyMetadata = updateGroupPolicyMetadata({
-    groupPolicyAddress: group.policies[0].address,
-    admin: group.admin,
-    metadata: "",
-  });
-
   return (
     <dialog id={modalId} className="modal">
       <div className="modal-box absolute max-w-6xl mx-auto rounded-lg md:ml-20 shadow-lg min-h-96">
@@ -321,7 +396,6 @@ export function UpdateGroupModal({
                     <PiInfoLight className="hover:group-[]" />
                   </div>
                 </div>
-
                 <input
                   type="text"
                   id="name"
@@ -554,6 +628,22 @@ export function UpdateGroupModal({
               ))}
             </div>
           </div>
+        </div>
+        <div className="modal-action">
+          <form method="dialog">
+            <button className="btn btn-neutral mr-2">Cancel</button>
+          </form>
+          <button
+            className="btn btn-primary max-w-[6rem] w-full"
+            onClick={handleUpdate}
+            disabled={isSigning || buildMessages().length === 0}
+          >
+            {isSigning ? (
+              <span className="loading loading-spinner"></span>
+            ) : (
+              "Update"
+            )}
+          </button>
         </div>
       </div>
       <form method="dialog" className="modal-backdrop">

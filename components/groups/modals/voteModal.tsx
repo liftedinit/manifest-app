@@ -14,20 +14,10 @@ function VotingPopup({
   refetch: () => void;
 }) {
   const { estimateFee } = useFeeEstimation("manifest");
-  const { tx, Toast, toastMessage, setToastMessage } = useTx("manifest");
+  const { tx } = useTx("manifest");
   const { address } = useChain("manifest");
 
   const { vote } = cosmos.group.v1.MessageComposer.withTypeUrl;
-
-  const fee = {
-    amount: [
-      {
-        denom: "umfx",
-        amount: "0.0001",
-      },
-    ],
-    gas: "200000",
-  };
 
   const handleVote = async (option: number) => {
     const msg = vote({
@@ -37,6 +27,7 @@ function VotingPopup({
       metadata: "",
       exec: 0,
     });
+    const fee = await estimateFee(address ?? "", [msg]);
     try {
       await tx([msg], {
         fee,
@@ -51,7 +42,6 @@ function VotingPopup({
 
   return (
     <>
-      <Toast toastMessage={toastMessage} setToastMessage={setToastMessage} />
       <div
         className={`mx-auto w-full bg-base-300 p-4 rounded-md border-r-4 border-r-base-200 border-b-4 border-b-base-200 absolute flex justify-center items-center bottom-14 mb-2 ${
           isGridVisible ? "animate-fadeSlideUp" : "animate-fadeSlideDown"
