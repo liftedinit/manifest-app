@@ -304,7 +304,7 @@ export default function ProposalMessages({
                               </button>
                               <ul
                                 tabIndex={0}
-                                className="dropdown-content z-[1] menu p-2 shadow bg-neutral rounded-box w-52 space-y-2"
+                                className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 space-y-2"
                               >
                                 <li>
                                   <button

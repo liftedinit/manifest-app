@@ -47,7 +47,7 @@ export default function SendBox({
             </label>
             <ul
               tabIndex={0}
-              className="dropdown-content z-[100] menu p-2 shadow bg-base-200 rounded-box w-64"
+              className="dropdown-content z-[100] menu p-2 shadow bg-base-300 rounded-lg w-[17rem] mt-[0.15rem]"
             >
               {ibcChains.map((chain) => (
                 <li key={chain.id}>
@@ -70,7 +70,7 @@ export default function SendBox({
           </div>
         </div>
         <div className="divider divider-horizon -mt-4 mb-1"></div>
-        <div className="relative  w-72 h-10 bg-base-300 rounded-full p-1 -mb-3">
+        <div className="relative  w-[17rem] h-10 bg-base-300 rounded-full p-1 -mb-3">
           <div
             className={`absolute top-1 bottom-1 w-[calc(50%-6px)] bg-primary rounded-full transition-all duration-300 ease-in-out ${
               isIbcTransfer ? "left-[calc(50%+0px)]" : "left-[6px]"

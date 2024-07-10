@@ -179,7 +179,9 @@ export default function TokenDetails({
               <input
                 type="text"
                 className="input input-bordered w-full mt-1"
-                value={fullDenom}
+                value={
+                  fullDenom.slice(0, 20) + "..." + fullDenom.slice(40, 100)
+                }
                 disabled
               />
             </div>
@@ -203,20 +205,40 @@ export default function TokenDetails({
                   Exponent{" "}
                   <span className="text-xs text-gray-500">(Decimals)</span>
                 </label>
-                <select
-                  className="select select-bordered w-full mt-1"
-                  value={formData.denomUnits[1]?.exponent || 6}
-                  onChange={(e) =>
-                    updateDenomUnit(1, "exponent", parseInt(e.target.value))
-                  }
-                  required
-                >
-                  {[6, 9, 12, 18].map((exp) => (
-                    <option key={exp} value={exp}>
-                      {exp}
-                    </option>
-                  ))}
-                </select>
+                <div className="dropdown mt-1 w-full">
+                  <label
+                    tabIndex={0}
+                    className="btn m-0 w-full input input-bordered flex justify-between items-center"
+                  >
+                    {formData.denomUnits[1]?.exponent || 6}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="w-4 h-4"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                      />
+                    </svg>
+                  </label>
+                  <ul
+                    tabIndex={0}
+                    className="dropdown-content menu p-2 shadow -mt-12 bg-base-100 rounded-box w-40 -ml-4"
+                  >
+                    {[6, 9, 12, 18].map((exp) => (
+                      <li key={exp}>
+                        <a onClick={() => updateDenomUnit(1, "exponent", exp)}>
+                          {exp}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </div>
           </div>

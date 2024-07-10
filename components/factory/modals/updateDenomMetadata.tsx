@@ -103,7 +103,7 @@ export function UpdateDenomMetadataModal({
     <dialog id={modalId} className="modal z-[1000]">
       <div className="modal-box max-w-4xl">
         <h3 className="font-bold text-lg mb-4">Update Denom Metadata</h3>
-        <div className="divider divider-horizon -mt-1 -mb-0 "></div>
+        <div className="divider divider-horizon -mt-4 -mb-0 "></div>
         <form method="dialog">
           <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
             ✕
@@ -241,20 +241,42 @@ export function UpdateDenomMetadataModal({
                     Exponent{" "}
                     <span className="text-xs text-gray-500">(Decimals)</span>
                   </label>
-                  <select
-                    className="select select-bordered w-full mt-1"
-                    value={formData.denomUnits[1]?.exponent || 6}
-                    onChange={(e) =>
-                      updateDenomUnit(1, "exponent", parseInt(e.target.value))
-                    }
-                    required
-                  >
-                    {[6, 9, 12, 18].map((exp) => (
-                      <option key={exp} value={exp}>
-                        {exp}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="dropdown dropdown-left mt-1 w-full">
+                    <label
+                      tabIndex={0}
+                      className="btn m-0 w-full input input-bordered flex justify-between items-center"
+                    >
+                      {formData.denomUnits[1]?.exponent || 6}
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="w-4 h-4"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                        />
+                      </svg>
+                    </label>
+                    <ul
+                      tabIndex={0}
+                      className="dropdown-content menu p-2 -mt-2 mr-2 shadow bg-base-300 rounded-lg w-full"
+                    >
+                      {[6, 9, 12, 18].map((exp) => (
+                        <li key={exp}>
+                          <a
+                            onClick={() => updateDenomUnit(1, "exponent", exp)}
+                          >
+                            {exp}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </div>
             </div>

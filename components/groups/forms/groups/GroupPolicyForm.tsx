@@ -1,5 +1,6 @@
 import { Action, FormData } from "@/helpers/formReducer";
 import { useEffect, useState } from "react";
+import { PiCaretDownBold } from "react-icons/pi";
 
 export default function GroupPolicyForm({
   nextStep,
@@ -43,8 +44,8 @@ export default function GroupPolicyForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [votingUnit, votingAmount]);
 
-  const handleUnitChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setVotingUnit(e.target.value);
+  const handleUnitChange = (unit: string) => {
+    setVotingUnit(unit);
   };
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,10 +57,10 @@ export default function GroupPolicyForm({
 
   return (
     <section className="">
-      <div className="lg:flex  mx-auto">
-        <div className="flex items-center mx-auto md:w-[42rem]  px-4 md:px-8 xl:px-0">
+      <div className="lg:flex mx-auto">
+        <div className="flex items-center mx-auto md:w-[42rem] px-4 md:px-8 xl:px-0">
           <div className="w-full">
-            <h1 className=" text-2xl font-extrabold tracking-tight   leding-tight ">
+            <h1 className="text-2xl font-extrabold tracking-tight leading-tight">
               Group Policy
             </h1>
 
@@ -72,25 +73,37 @@ export default function GroupPolicyForm({
                   <div className="flex flex-row items-center space-x-2">
                     <input
                       type="number"
-                      className="input input-bordered"
+                      className="input input-bordered flex-grow"
                       placeholder="Enter duration"
                       value={votingAmount}
                       onChange={handleAmountChange}
                     />
-                    <select
-                      className="select select-bordered"
-                      onChange={handleUnitChange}
-                      value={votingUnit}
-                    >
-                      <option value="hours">Hours</option>
-                      <option value="days">Days</option>
-                      <option value="weeks">Weeks</option>
-                      <option value="months">Months</option>
-                    </select>
+                    <div className="dropdown dropdown-end">
+                      <label
+                        tabIndex={0}
+                        className="btn m-1 bg-base-100 border border-zinc-700"
+                      >
+                        {votingUnit.charAt(0).toUpperCase() +
+                          votingUnit.slice(1)}
+                        <PiCaretDownBold className="ml-2" />
+                      </label>
+                      <ul
+                        tabIndex={0}
+                        className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 mt-1"
+                      >
+                        {["hours", "days", "weeks", "months"].map((unit) => (
+                          <li key={unit}>
+                            <a onClick={() => handleUnitChange(unit)}>
+                              {unit.charAt(0).toUpperCase() + unit.slice(1)}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
                 </div>
 
-                <div>
+                <div className="mt-1">
                   <label className="block mb-2 text-sm font-medium">
                     Voting Threshold
                   </label>
@@ -98,7 +111,7 @@ export default function GroupPolicyForm({
                   <input
                     type="text"
                     placeholder="e.g. (1)"
-                    className="input input-bordered"
+                    className="input input-bordered w-full"
                     value={formData.votingThreshold}
                     onChange={(e) =>
                       dispatch({
@@ -113,7 +126,7 @@ export default function GroupPolicyForm({
             </form>
             <button
               onClick={nextStep}
-              className="w-full  btn btn-primary"
+              className="w-full btn btn-primary"
               disabled={!formData?.votingPeriod || !formData?.votingThreshold}
             >
               Next: Member Info

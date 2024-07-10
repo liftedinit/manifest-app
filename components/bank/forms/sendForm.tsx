@@ -75,14 +75,14 @@ export default function SendForm({
           <div className="dropdown dropdown-end w-full ">
             <label
               tabIndex={0}
-              className="btn btn-sm btn-base-300 w-full justify-between"
+              className="btn btn-sm bg-base-300 w-full justify-between"
             >
               {selectedToken}
               <PiCaretDownBold className="ml-2" />
             </label>
             <ul
               tabIndex={0}
-              className="dropdown-content z-[100] menu p-2 shadow bg-base-200 rounded-box w-full"
+              className="dropdown-content z-[100] menu p-2 shadow bg-base-300 rounded-lg w-full mt-1"
             >
               {isBalancesLoading ? (
                 <li>
