@@ -34,7 +34,8 @@ export default function Admins() {
 
   const { groupByAdmin, isGroupByAdminLoading, refetchGroupByAdmin } =
     useGroupsByAdmin(
-      "manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj"
+      poaParams?.admins[0] ??
+        "manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj"
     );
   const group = groupByAdmin?.groups?.[0];
 
@@ -142,7 +143,9 @@ export default function Admins() {
                 </div>
               </div>
             </section>
-          ) : !isActiveValidatorsLoading && !isMember ? (
+          ) : !isGroupByAdminLoading &&
+            !isActiveValidatorsLoading &&
+            !isMember ? (
             <div className="flex flex-col w-full bg-base-100 rounded-md p-4 transition-opacity duration-300 ease-in-out animate-fadeIn">
               <div className="flex flex-col w-full h-full gap-4">
                 <PiWarning className="text-6xl mx-auto text-red-500" />

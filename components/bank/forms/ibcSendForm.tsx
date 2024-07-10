@@ -91,6 +91,13 @@ export default function IbcSendForm({
       setIsSending(false);
     }
   };
+
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredBalances = balances?.filter((token) =>
+    token.metadata?.display.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="text-sm">
       <div className="space-y-4">
@@ -98,7 +105,7 @@ export default function IbcSendForm({
           <label className="label">
             <span className="label-text text-sm font-medium">Token</span>
           </label>
-          <div className="dropdown dropdown-end w-full ">
+          <div className="dropdown dropdown-end w-full">
             <label
               tabIndex={0}
               className="btn btn-sm bg-base-300 w-full justify-between"
@@ -108,22 +115,46 @@ export default function IbcSendForm({
             </label>
             <ul
               tabIndex={0}
-              className="dropdown-content z-[100] menu p-2 shadow bg-base-300 rounded-lg w-full mt-1 max-h-52 min-h-52 overflow-y-auto"
+              className="dropdown-content z-[100] menu p-2 shadow bg-base-300 rounded-lg w-full mt-1 h-62 max-h-62 min-h-62 overflow-y-auto"
             >
+              <li className="sticky top-0 bg-base-300 z-10 hover:bg-transparent">
+                <div className="px-2 py-1">
+                  <input
+                    type="text"
+                    placeholder="Search tokens..."
+                    className="input input-sm w-full pr-8 focus:outline-none focus:ring-0 border-none bg-transparent"
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    style={{ boxShadow: "none" }}
+                  />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                </div>
+              </li>
               {isBalancesLoading ? (
                 <li>
                   <a>Loading tokens...</a>
                 </li>
               ) : (
-                balances?.map((token) => (
+                filteredBalances?.map((token) => (
                   <li
                     key={token.coreDenom}
                     onClick={() => setSelectedToken(token)}
-                    className="flex  justify-start "
+                    className="flex justify-start"
                   >
-                    <a className=" flex-row justify-start gap-3 items-center w-full">
-                      {" "}
-                      <DenomImage denom={token.metadata} />{" "}
+                    <a className="flex-row justify-start gap-3 items-center w-full">
+                      <DenomImage denom={token.metadata} />
                       {token.metadata?.display.toUpperCase()}
                     </a>
                   </li>

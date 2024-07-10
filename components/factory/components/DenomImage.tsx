@@ -63,11 +63,11 @@ export const DenomImage = ({ denom }: { denom: any }) => {
   if (denom.base.includes("umfx")) {
     return (
       <Image
-        width={32}
-        height={32}
+        width={0}
+        height={0}
         src="/logo.svg"
         alt="MFX Token Icon"
-        className="rounded-full w-[32px] h-[32px]"
+        className=" w-[28px] h-[28px] ml-1"
       />
     );
   }
