@@ -59,10 +59,25 @@ export const DenomImage = ({ denom }: { denom: any }) => {
     return <div className="skeleton w-8 h-8 rounded-full"></div>;
   }
 
+  // Check for MFX token first
+  if (denom.base.includes("umfx")) {
+    return (
+      <Image
+        width={32}
+        height={32}
+        src="/logo.svg"
+        alt="MFX Token Icon"
+        className="rounded-full w-[32px] h-[32px]"
+      />
+    );
+  }
+
+  // Then check for other conditions
   if (!denom.uri || !isSupported || imageError) {
     return <ProfileAvatar walletAddress={denom.base} />;
   }
 
+  // For all other cases, use the denom.uri
   return (
     <Image
       width={32}

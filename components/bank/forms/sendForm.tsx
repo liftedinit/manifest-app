@@ -86,7 +86,7 @@ export default function SendForm({
             </label>
             <ul
               tabIndex={0}
-              className="dropdown-content z-[100] menu p-2 shadow bg-base-300 rounded-lg w-full mt-1"
+              className="dropdown-content z-[100] menu p-2 shadow bg-base-300 rounded-lg w-full mt-1  max-h-52 min-h-52 overflow-y-au"
             >
               {isBalancesLoading ? (
                 <li>

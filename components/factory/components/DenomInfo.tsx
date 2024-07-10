@@ -6,20 +6,20 @@ import { PiArrowUpRightLight } from "react-icons/pi";
 import { useEffect } from "react";
 import { DenomInfoModal } from "../modals";
 import { UpdateDenomMetadataModal } from "../modals";
+import { CoinSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/base/v1beta1/coin";
 export default function DenomInfo({
   denom,
   address,
   refetchDenoms,
+  balance,
+  isBalanceLoading,
 }: {
   denom: MetadataSDKType | null;
   address: string;
   refetchDenoms: () => void;
+  balance: CoinSDKType | null;
+  isBalanceLoading: boolean;
 }) {
-  const { balance, refetchBalance } = useTokenFactoryBalance(
-    address,
-    denom?.base ?? ""
-  );
-
   const DenomConversion = ({ denom }: { denom: MetadataSDKType }) => {
     if (!denom || !denom.denom_units || denom.denom_units.length === 0) {
       return null;
@@ -38,10 +38,6 @@ export default function DenomInfo({
   };
 
   const baseUnit = denom?.denom_units[0].denom.split("/").pop();
-
-  useEffect(() => {
-    refetchBalance();
-  }, [denom]);
 
   return (
     <div className="flex flex-col max-h-[23rem] relative shadow min-h-[23rem] rounded-md bg-base-100 w-full p-4">
@@ -95,15 +91,22 @@ export default function DenomInfo({
                   <span className="text-sm capitalize text-gray-400 block md:hidden">
                     BALANCE
                   </span>
-                  <div className="flex flex-row gap-1 items-center justify-start truncate">
-                    <span className="text-md">
-                      {shiftDigits(
-                        balance?.amount ?? "",
-                        -denom?.denom_units[1]?.exponent ?? 6
-                      )}
-                      &nbsp;
-                      {baseUnit?.toUpperCase().slice(1)}
-                    </span>
+                  <div className="flex flex-row gap-1 animate-fadeIn items-center justify-start truncate">
+                    {isBalanceLoading ? (
+                      <span className="text-md animate-fadeIn">
+                        0 &nbsp;
+                        {baseUnit?.toUpperCase().slice(1)}
+                      </span>
+                    ) : (
+                      <span className="text-md animate-fadeIn">
+                        {shiftDigits(
+                          balance?.amount ?? "0",
+                          -denom?.denom_units[1]?.exponent ?? 6
+                        )}
+                        &nbsp;
+                        {baseUnit?.toUpperCase().slice(1)}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>

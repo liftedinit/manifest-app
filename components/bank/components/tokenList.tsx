@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import { CoinSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/base/v1beta1/coin";
 import { DenomImage } from "@/components/factory";
-import Image from "next/image";
 import { shiftDigits } from "@/utils";
 import { CombinedBalanceInfo } from "@/pages/bank";
+import { DenomInfoModal } from "@/components/factory"; // Make sure to import this
 
 interface TokenListProps {
   balances: CombinedBalanceInfo[] | undefined;
@@ -12,6 +11,7 @@ interface TokenListProps {
 
 export default function TokenList({ balances, isLoading }: TokenListProps) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedDenom, setSelectedDenom] = useState<any>(null);
 
   const filteredBalances = React.useMemo(() => {
     if (!Array.isArray(balances)) return [];
@@ -20,21 +20,13 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
     );
   }, [balances, searchTerm]);
 
-  const getTokenIcon = (denom: string) => {
-    if (denom.startsWith("factory/")) {
-      return <DenomImage denom={{ base: denom, uri: "" }} />;
-    } else if (denom === "MFX") {
-      return (
-        <Image
-          src="/logo.svg"
-          alt="MFX"
-          width={32}
-          height={32}
-          className="rounded-full max-h-fit"
-        />
-      );
-    } else {
-      return <DenomImage denom={{ base: denom, uri: "" }} />;
+  const openModal = (denom: any) => {
+    setSelectedDenom(denom);
+    const modal = document.getElementById(
+      "denom-info-modal"
+    ) as HTMLDialogElement;
+    if (modal) {
+      modal.showModal();
     }
   };
 
@@ -63,21 +55,24 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
               <tr>
                 <th className="px-6 py-3 w-1/4">Icon</th>
                 <th className="px-6 py-3 w-1/4">Name</th>
-                <th className="px-6 py-3 w-1/4">Alias</th>
+                <th className="px-6 py-3 w-1/4">Base</th>
                 <th className="px-6 py-3 w-1/4">Balance</th>
               </tr>
             </thead>
             <tbody className="overflow-y-auto">
               {filteredBalances.map((balance) => (
-                <tr key={balance.denom} className="hover:bg-base-200/10">
+                <tr
+                  key={balance.denom}
+                  className="hover:bg-base-200/10 cursor-pointer"
+                  onClick={() => openModal(balance.metadata)}
+                >
                   <td className="px-6 py-3">
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-10 w-10">
-                        {getTokenIcon(balance.denom)}
+                        <DenomImage denom={balance.metadata} />
                       </div>
                     </div>
                   </td>
-
                   <td className="px-6 py-3 text-sm font-medium">
                     <span className="block truncate max-w-[20ch]">
                       {balance.metadata?.display.toUpperCase()}
@@ -85,7 +80,9 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
                   </td>
                   <td className="px-6 py-3 text-sm font-medium">
                     <span className="block truncate max-w-[20ch]">
-                      {balance.metadata?.denom_units[1]?.aliases[1]?.toUpperCase()}
+                      {Number(balance.metadata?.base.length) < 10
+                        ? balance.metadata?.base
+                        : balance.metadata?.base.split("/").pop() ?? ""}
                     </span>
                   </td>
                   <td className="px-6 py-3 text-sm">
@@ -104,6 +101,11 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
         <div className="mx-auto items-center justify-center h-full underline text-center transition-opacity duration-300 ease-in-out animate-fadeIn">
           <p className="my-32">Your wallet is empty!</p>
         </div>
+      )}
+
+      {/* DenomInfoModal */}
+      {selectedDenom && (
+        <DenomInfoModal denom={selectedDenom} modalId="denom-info-modal" />
       )}
     </div>
   );

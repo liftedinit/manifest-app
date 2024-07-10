@@ -4,15 +4,18 @@ import { useFeeEstimation, useTx } from "@/hooks";
 import { osmosis } from "@chalabi/manifestjs";
 import { MetadataSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
 import { PiAddressBook } from "react-icons/pi";
+import { shiftDigits } from "@/utils";
 
 export default function MintForm({
   denom,
   address,
   refetch,
+  balance,
 }: {
   denom: MetadataSDKType;
   address: string;
   refetch: () => void;
+  balance: string;
 }) {
   const [amount, setAmount] = useState("");
   const [recipient, setRecipient] = useState(address);
@@ -20,16 +23,15 @@ export default function MintForm({
   const { tx } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
   const { mint } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
-
+  const exponent =
+    denom.denom_units.find((unit) => unit.denom === denom.display)?.exponent ||
+    0;
   const handleMint = async () => {
     if (!amount || isNaN(Number(amount))) {
       return;
     }
     setIsSigning(true);
     try {
-      const exponent =
-        denom.denom_units.find((unit) => unit.denom === denom.display)
-          ?.exponent || 0;
       const amountInBaseUnits = BigInt(
         parseFloat(amount) * Math.pow(10, exponent)
       ).toString();
@@ -71,7 +73,9 @@ export default function MintForm({
           </div>
           <div>
             <p className="text-sm text-gray-500">YOUR BALANCE</p>
-            <p className="font-semibold text-md">{denom.symbol}</p>
+            <p className="font-semibold text-md">
+              {shiftDigits(balance, -exponent)}
+            </p>
           </div>
           <div>
             <p className="text-md text-gray-500">EXPONENT</p>

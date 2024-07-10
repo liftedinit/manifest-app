@@ -8,10 +8,12 @@ export default function MetaBox({
   denom,
   address,
   refetch,
+  balance,
 }: {
   denom: MetadataSDKType | null;
   address: string;
   refetch: () => void;
+  balance: string;
 }) {
   const [activeTab, setActiveTab] = useState<"transfer" | "burn" | "mint">(
     "mint"
@@ -62,13 +64,28 @@ export default function MetaBox({
         }  min-h-[19rem] max-h-[19rem] border-base-300 bg-base-300 `}
       >
         {activeTab === "transfer" && (
-          <TransferForm refetch={refetch} address={address} denom={denom} />
+          <TransferForm
+            balance={balance}
+            refetch={refetch}
+            address={address}
+            denom={denom}
+          />
         )}
         {activeTab === "burn" && (
-          <BurnForm refetch={refetch} address={address} denom={denom} />
+          <BurnForm
+            balance={balance}
+            refetch={refetch}
+            address={address}
+            denom={denom}
+          />
         )}
         {activeTab === "mint" && (
-          <MintForm refetch={refetch} address={address} denom={denom} />
+          <MintForm
+            balance={balance}
+            refetch={refetch}
+            address={address}
+            denom={denom}
+          />
         )}
       </div>
     </div>

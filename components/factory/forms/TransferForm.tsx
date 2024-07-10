@@ -9,13 +9,16 @@ export default function TransferForm({
   denom,
   address,
   refetch,
+  balance,
 }: {
   denom: MetadataSDKType;
   address: string;
   refetch: () => void;
+  balance: string;
 }) {
   const [amount, setAmount] = useState("");
-  const [recipient, setRecipient] = useState(address);
+  const [fromAddress, setFromAddress] = useState(address);
+  const [toAddress, setToAddress] = useState("");
   const [isSigning, setIsSigning] = useState(false);
   const { tx } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
@@ -40,8 +43,8 @@ export default function TransferForm({
           amount: amountInBaseUnits,
           denom: denom.base,
         },
-        transferFromAddress: address,
-        transferToAddress: recipient,
+        transferFromAddress: fromAddress,
+        transferToAddress: toAddress,
       });
       const fee = await estimateFee(address ?? "", [msg]);
       await tx([msg], {
@@ -52,15 +55,25 @@ export default function TransferForm({
         },
       });
     } catch (error) {
-      console.error("Error during minting:", error);
+      console.error("Error during transfer:", error);
     } finally {
       setIsSigning(false);
     }
   };
 
-  const handleAddressBookClick = (e: React.MouseEvent) => {
+  const handleFromAddressBookClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    setRecipient(address);
+    setFromAddress(address);
+  };
+
+  const handleToAddressBookClick = (e: React.MouseEvent) => {
+    setToAddress(address);
+  };
+
+  const handleSwap = () => {
+    const temp = fromAddress;
+    setFromAddress(toAddress);
+    setToAddress(temp);
   };
 
   return (
@@ -68,7 +81,7 @@ export default function TransferForm({
       <div className="rounded-lg mb-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <p className="text-sm text-gray-500">YOUR BALANCE</p>
+            <p className="text-sm text-gray-500">CIRCULATING SUPPLY</p>
             <p className="font-semibold text-md">{denom.symbol}</p>
           </div>
           <div>
@@ -104,11 +117,11 @@ export default function TransferForm({
               type="text"
               placeholder="From address"
               className="input input-bordered input-sm h-10 rounded-tl-lg rounded-bl-lg rounded-tr-none rounded-br-none w-full "
-              value={recipient}
-              onChange={(e) => setRecipient(e.target.value)}
+              value={fromAddress}
+              onChange={(e) => setFromAddress(e.target.value)}
             />
             <button
-              onClick={handleAddressBookClick}
+              onClick={handleFromAddressBookClick}
               className="btn btn-primary btn-sm  h-10 rounded-tr-lg rounded-br-lg rounded-bl-none rounded-tl-none"
             >
               <PiAddressBook className="w-6 h-6" />
@@ -116,7 +129,9 @@ export default function TransferForm({
           </div>
         </div>
         <div>
-          <PiSwap className="w-6 h-6 mt-3" />
+          <button onClick={handleSwap} className="btn btn-ghost btn-circle">
+            <PiSwap className="w-6 h-6 mt-4" />
+          </button>
         </div>
         <div className="flex-1">
           <label className="label p-0">
@@ -127,11 +142,11 @@ export default function TransferForm({
               type="text"
               placeholder="To address"
               className="input input-bordered input-sm h-10 rounded-tl-lg rounded-bl-lg rounded-tr-none rounded-br-none w-full "
-              value={recipient}
-              onChange={(e) => setRecipient(e.target.value)}
+              value={toAddress}
+              onChange={(e) => setToAddress(e.target.value)}
             />
             <button
-              onClick={handleAddressBookClick}
+              onClick={handleToAddressBookClick}
               className="btn btn-primary btn-sm  h-10 rounded-tr-lg rounded-br-lg rounded-bl-none rounded-tl-none"
             >
               <PiAddressBook className="w-6 h-6" />

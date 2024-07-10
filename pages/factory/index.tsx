@@ -1,7 +1,11 @@
 import { WalletSection } from "@/components";
 import DenomInfo from "@/components/factory/components/DenomInfo";
 import MyDenoms from "@/components/factory/components/MyDenoms";
-import { useTokenFactoryDenoms, useTokenFactoryDenomsMetadata } from "@/hooks";
+import {
+  useTokenFactoryBalance,
+  useTokenFactoryDenoms,
+  useTokenFactoryDenomsMetadata,
+} from "@/hooks";
 import { MetadataSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
 import { useChain } from "@cosmos-kit/react";
 
@@ -11,6 +15,7 @@ import React, { useState, useEffect, useMemo } from "react";
 
 import { chainName } from "@/config";
 import MetaBox from "@/components/factory/components/metaBox";
+import { CoinSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/base/v1beta1/coin";
 
 export default function Factory() {
   const { address, isWalletConnected } = useChain(chainName);
@@ -18,10 +23,34 @@ export default function Factory() {
     useTokenFactoryDenoms(address ?? "");
   const { metadatas, isMetadatasLoading, isMetadatasError, refetchMetadatas } =
     useTokenFactoryDenomsMetadata();
-  console.log(denoms, metadatas);
+
   const [selectedDenom, setSelectedDenom] = useState<string | null>(null);
   const [selectedDenomMetadata, setSelectedDenomMetadata] =
     useState<MetadataSDKType | null>(null);
+
+  const [balance, setBalance] = useState<CoinSDKType | null>(null);
+  const [isBalanceLoading, setIsBalanceLoading] = useState(false);
+
+  const {
+    balance: fetchedBalance,
+    refetchBalance,
+    isBalanceLoading: isFetchingBalance,
+  } = useTokenFactoryBalance(address ?? "", selectedDenomMetadata?.base ?? "");
+
+  useEffect(() => {
+    if (selectedDenomMetadata) {
+      setIsBalanceLoading(true);
+      refetchBalance().then(() => {
+        setIsBalanceLoading(false);
+      });
+    }
+  }, [selectedDenomMetadata, refetchBalance]);
+
+  useEffect(() => {
+    if (fetchedBalance) {
+      setBalance(fetchedBalance);
+    }
+  }, [fetchedBalance]);
 
   // Combine denoms and metadatas
   const combinedData = useMemo(() => {
@@ -43,9 +72,13 @@ export default function Factory() {
     setSelectedDenom(denom.base);
     setSelectedDenomMetadata(denom);
   };
-  const refetch = () => {
+
+  const refetch = async () => {
     refetchDenoms();
     refetchMetadatas();
+    if (selectedDenomMetadata) {
+      refetchBalance();
+    }
   };
 
   return (
@@ -105,6 +138,8 @@ export default function Factory() {
                   </div>
                   <div className="lg:w-2/3 md:w-full">
                     <DenomInfo
+                      balance={balance}
+                      isBalanceLoading={isBalanceLoading}
                       denom={selectedDenomMetadata}
                       address={address ?? ""}
                       refetchDenoms={refetchDenoms}
@@ -113,6 +148,7 @@ export default function Factory() {
                 </div>
                 <div className="mt-4">
                   <MetaBox
+                    balance={balance?.amount ?? ""}
                     refetch={refetch}
                     address={address ?? ""}
                     denom={selectedDenomMetadata}
