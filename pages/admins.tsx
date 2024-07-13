@@ -18,7 +18,7 @@ import {
   ValidatorSDKType,
 } from "@chalabi/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking";
 import { PiWarning } from "react-icons/pi";
-import { strangelove_ventures } from "@chalabi/manifestjs";
+import { cosmos, strangelove_ventures } from "@chalabi/manifestjs";
 
 export default function Admins() {
   const { address, isWalletConnected } = useChain("manifest");
@@ -42,19 +42,6 @@ export default function Admins() {
   const isMember = group?.members?.some(
     (member) => member?.member?.address === address
   );
-
-  const { updateParams } =
-    strangelove_ventures.poa.v1.MessageComposer.withTypeUrl;
-
-  const msgUpdateParams = updateParams({
-    sender: address ?? "",
-    params: {
-      admins: [
-        "manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj",
-      ],
-      allowValidatorSelfExit: true,
-    },
-  });
 
   return (
     <>

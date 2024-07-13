@@ -60,9 +60,7 @@ export function ValidatorDetailsModal({
       metadata: "",
       proposers: [userAddress ?? ""],
       title: `Update the Voting Power of ${validator.description.moniker}`,
-      summary: `This proposal will update the voting power of ${
-        validator.description.moniker
-      } to ${100}`,
+      summary: `This proposal will update the voting power of ${validator.description.moniker} to ${power}`,
       exec: 1,
     });
 

@@ -160,7 +160,7 @@ export default function ProposalsForPolicy({
                     </div>
                   )}
                   {proposals?.length > 0 && (
-                    <div className="bg-base-300 mt-4 flex p-4 rounded-md base-200 overflow-y-auto max-h-[15rem] min-h-[15rem] ">
+                    <div className="bg-base-300 -mt-2 flex p-4 rounded-md base-200 overflow-y-auto max-h-[15rem] min-h-[15rem] ">
                       <table className="table w-full  z-0 transition-opacity -mt-4  duration-300 ease-in-out animate-fadeIn text-left">
                         <thead className="bg-base-300 ">
                           <tr className="w-full">
@@ -214,12 +214,13 @@ export default function ProposalsForPolicy({
                               <tr
                                 onClick={() => handleRowClick(proposal)}
                                 key={index}
+                                style={{ maxHeight: "3rem" }}
                                 className={`w-full
                             hover:bg-base-200 !important 
                             active:bg-base-100 
                             focus:bg-base-300 focus:shadow-inner 
                             transition-all duration-200 
-                            cursor-pointer`}
+                            cursor-pointer `}
                               >
                                 <td className="">#{proposal.id.toString()}</td>
                                 <td className="w-2/6 truncate">
