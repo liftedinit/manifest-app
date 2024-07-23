@@ -247,7 +247,7 @@ export default function ProposalMessages({
               <input
                 type="text"
                 placeholder={`Enter ${key.replace(/_/g, " ")}`}
-                className="w-2/3 focus:outline-none focus:ring-0 bg-transparent border-t-0 border-r-0 border-l-0  border-b-[0.01rem] border-gray-200"
+                className="w-2/3 focus:outline-none focus:ring-0 bg-transparent hover:bg-base-200/50 border-t-0 border-r-0 border-l-0  border-b-[0.01rem] focus:border-primary  border-gray-200"
                 value={value}
                 onChange={(e) => handleChange(currentPath, e.target.value)}
               />
