@@ -37,23 +37,25 @@ export default function Bank() {
   const combinedBalances = useMemo(() => {
     if (!balances || !resolvedBalances || !metadatas) return [];
 
-    return balances.map((coreBalance): CombinedBalanceInfo => {
-      const resolvedBalance = resolvedBalances.find(
-        (rb) =>
-          rb.denom === coreBalance.denom ||
-          rb.denom === coreBalance.denom.split("/").pop()
-      );
-      const metadata = metadatas.metadatas.find(
-        (m) => m.base === coreBalance.denom
-      );
+    return balances.map(
+      (coreBalance: { denom: string; amount: any }): CombinedBalanceInfo => {
+        const resolvedBalance = resolvedBalances.find(
+          (rb: { denom: string | undefined }) =>
+            rb.denom === coreBalance.denom ||
+            rb.denom === coreBalance.denom.split("/").pop()
+        );
+        const metadata = metadatas.metadatas.find(
+          (m: { base: string }) => m.base === coreBalance.denom
+        );
 
-      return {
-        denom: resolvedBalance?.denom || coreBalance.denom,
-        coreDenom: coreBalance.denom,
-        amount: coreBalance.amount,
-        metadata: metadata || null,
-      };
-    });
+        return {
+          denom: resolvedBalance?.denom || coreBalance.denom,
+          coreDenom: coreBalance.denom,
+          amount: coreBalance.amount,
+          metadata: metadata || null,
+        };
+      }
+    );
   }, [balances, resolvedBalances, metadatas]);
 
   const isLoading =

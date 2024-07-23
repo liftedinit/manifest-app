@@ -107,17 +107,53 @@ export default function ProposalsForPolicy({
 
   type ChainMessageType =
     | "/cosmos.bank.v1beta1.MsgSend"
-    | "/strangelove_ventures.poa.v1.MsgSetPower";
+    | "/strangelove_ventures.poa.v1.MsgSetPower"
+    | "/cosmos.group.v1.MsgCreateGroup"
+    | "/cosmos.group.v1.MsgUpdateGroupMembers"
+    | "/cosmos.group.v1.MsgUpdateGroupAdmin"
+    | "/cosmos.group.v1.MsgUpdateGroupMetadata"
+    | "/cosmos.group.v1.MsgCreateGroupPolicy"
+    | "/cosmos.group.v1.MsgCreateGroupWithPolicy"
+    | "/cosmos.group.v1.MsgSubmitProposal"
+    | "/cosmos.group.v1.MsgVote"
+    | "/cosmos.group.v1.MsgExec"
+    | "/cosmos.group.v1.MsgLeaveGroup"
+    | "/manifest.v1.MsgUpdateParams"
+    | "/manifest.v1.MsgPayout"
+    | "/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade"
+    | "/cosmos.upgrade.v1beta1.MsgCancelUpgrade";
 
   const typeRegistry: Record<ChainMessageType, string> = {
     "/cosmos.bank.v1beta1.MsgSend": "Send",
     "/strangelove_ventures.poa.v1.MsgSetPower": "Set Power",
+    "/cosmos.group.v1.MsgCreateGroup": "Create Group",
+    "/cosmos.group.v1.MsgUpdateGroupMembers": "Update Group Members",
+    "/cosmos.group.v1.MsgUpdateGroupAdmin": "Update Group Admin",
+    "/cosmos.group.v1.MsgUpdateGroupMetadata": "Update Group Metadata",
+    "/cosmos.group.v1.MsgCreateGroupPolicy": "Create Group Policy",
+    "/cosmos.group.v1.MsgCreateGroupWithPolicy": "Create Group With Policy",
+    "/cosmos.group.v1.MsgSubmitProposal": "Submit Proposal",
+    "/cosmos.group.v1.MsgVote": "Vote",
+    "/cosmos.group.v1.MsgExec": "Execute Proposal",
+    "/cosmos.group.v1.MsgLeaveGroup": "Leave Group",
+    "/manifest.v1.MsgUpdateParams": "Update Manifest Params",
+    "/manifest.v1.MsgPayout": "Payout",
+    "/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade": "Software Upgrade",
+    "/cosmos.upgrade.v1beta1.MsgCancelUpgrade": "Cancel Upgrade",
   };
 
-  function getHumanReadableType(type: ChainMessageType): string {
-    return typeRegistry[type] || "Unknown type";
+  function getHumanReadableType(type: string): string {
+    const registeredType = typeRegistry[type as ChainMessageType];
+    if (registeredType) {
+      return registeredType;
+    }
+    const parts = type.split(".");
+    const lastPart = parts[parts.length - 1];
+    return lastPart
+      .replace("Msg", "")
+      .replace(/([A-Z])/g, " $1")
+      .trim();
   }
-
   return (
     <section className="">
       <div className="flex flex-col  max-w-5xl mx-auto w-full  ">
@@ -161,14 +197,14 @@ export default function ProposalsForPolicy({
                   )}
                   {proposals?.length > 0 && (
                     <div className="bg-base-300 -mt-2 flex p-4 rounded-md base-200 overflow-y-auto max-h-[15rem] min-h-[15rem] ">
-                      <table className="table w-full  z-0 transition-opacity -mt-4  duration-300 ease-in-out animate-fadeIn text-left">
+                      <table className="table w-full  z-0 transition-opacity bg-base-300 duration-300 ease-in-out animate-fadeIn text-left ">
                         <thead className="bg-base-300 ">
                           <tr className="w-full">
-                            <th className="w-1/6">#</th>
-                            <th className="w-1/6">title</th>
-                            <th className="w-1/6">time left</th>
-                            <th className="w-1/6">type</th>
-                            <th className="w-1/6">status</th>
+                            <th className="w-1/6 bg-base-300">#</th>
+                            <th className="w-1/6 bg-base-300">Title</th>
+                            <th className="w-1/6 bg-base-300">Time Left</th>
+                            <th className="w-1/6 bg-base-300">Type</th>
+                            <th className="w-1/6 bg-base-300">Status</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -233,10 +269,9 @@ export default function ProposalsForPolicy({
                                     ? "none"
                                     : timeLeft}
                                 </td>
-                                <td className="w-1/6">
-                                  {" "}
+                                <td className="w-1/6 truncate ...">
                                   {getHumanReadableType(
-                                    proposal.messages[0]["@type"] as string
+                                    (proposal.messages[0] as any)["@type"]
                                   )}
                                 </td>
                                 <td className="w-1/6">

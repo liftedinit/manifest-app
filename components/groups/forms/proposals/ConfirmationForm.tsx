@@ -3,8 +3,8 @@ import { useFeeEstimation } from "@/hooks/useFeeEstimation";
 import { uploadJsonToIPFS } from "@/hooks/useIpfs";
 import { useTx } from "@/hooks/useTx";
 import { manifest, strangelove_ventures, cosmos } from "@chalabi/manifestjs";
-
-import { useChain } from "@cosmos-kit/react";
+import { Any } from "@chalabi/manifestjs/dist/codegen/google/protobuf/any";
+import { Cosmos_basev1beta1Msg_InterfaceDecoder } from "@chalabi/manifestjs/dist/codegen/cosmos/authz/v1beta1/tx";
 import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
 import {
   ProposalFormData,
@@ -12,22 +12,83 @@ import {
   Message,
 } from "@/helpers/formReducer";
 import { chainName } from "@/config";
+import {
+  MsgMultiSend,
+  MsgSend,
+} from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx";
+import {
+  MsgRemovePending,
+  MsgRemoveValidator,
+  MsgSetPower,
+  MsgUpdateStakingParams,
+  MsgUpdateParams as MsgUpdatePoaParams,
+} from "@chalabi/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx";
+import {
+  MsgCreateGroupWithPolicy,
+  MsgExec,
+  MsgLeaveGroup,
+  MsgSubmitProposal,
+  MsgUpdateGroupAdmin,
+  MsgUpdateGroupMembers,
+  MsgUpdateGroupMetadata,
+  MsgUpdateGroupPolicyAdmin,
+  MsgVote,
+  MsgWithdrawProposal,
+} from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/tx";
+import {
+  MsgPayout,
+  MsgUpdateParams as MsgUpdateManifestParams,
+} from "@chalabi/manifestjs/dist/codegen/manifest/v1/tx";
+import {
+  MsgSoftwareUpgrade,
+  MsgCancelUpgrade,
+} from "@chalabi/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx";
+import { Duration } from "@chalabi/manifestjs/dist/codegen/google/protobuf/duration";
+import { ThresholdDecisionPolicy } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types";
 
 export default function ConfirmationModal({
   policyAddress,
   nextStep,
   prevStep,
   formData,
+  address,
 }: {
   policyAddress: string;
   nextStep: () => void;
   prevStep: () => void;
   formData: ProposalFormData;
+  address: string;
 }) {
-  const { address } = useChain(chainName);
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
-  const messageTypeToComposer: { [key: string]: (value: any) => any } = {
+  type MessageTypeMap = {
+    send: MsgSend;
+    updatePoaParams: MsgUpdatePoaParams;
+    removeValidator: MsgRemoveValidator;
+    removePending: MsgRemovePending;
+    updateStakingParams: MsgUpdateStakingParams;
+    setPower: MsgSetPower;
+    updateManifestParams: MsgUpdateManifestParams;
+    payoutStakeholders: MsgPayout;
+    updateGroupAdmin: MsgUpdateGroupAdmin;
+    updateGroupMembers: MsgUpdateGroupMembers;
+    updateGroupMetadata: MsgUpdateGroupMetadata;
+    updateGroupPolicyAdmin: MsgUpdateGroupPolicyAdmin;
+    createGroupWithPolicy: MsgCreateGroupWithPolicy;
+    submitProposal: MsgSubmitProposal;
+    vote: MsgVote;
+    withdrawProposal: MsgWithdrawProposal;
+    exec: MsgExec;
+    leaveGroup: MsgLeaveGroup;
+    multiSend: MsgMultiSend;
+    softwareUpgrade: MsgSoftwareUpgrade;
+    cancelUpgrade: MsgCancelUpgrade;
+    customMessage: any;
+  };
+
+  const messageTypeToComposer: {
+    [K in keyof MessageTypeMap]: (value: MessageTypeMap[K]) => any;
+  } = {
     send: cosmos.bank.v1beta1.MessageComposer.withTypeUrl.send,
     updatePoaParams:
       strangelove_ventures.poa.v1.MessageComposer.withTypeUrl.updateParams,
@@ -55,6 +116,7 @@ export default function ConfirmationModal({
     vote: cosmos.group.v1.MessageComposer.withTypeUrl.vote,
     withdrawProposal:
       cosmos.group.v1.MessageComposer.withTypeUrl.withdrawProposal,
+    customMessage: cosmos.bank.v1beta1.MessageComposer.withTypeUrl.send,
     exec: cosmos.group.v1.MessageComposer.withTypeUrl.exec,
     leaveGroup: cosmos.group.v1.MessageComposer.withTypeUrl.leaveGroup,
     multiSend: cosmos.bank.v1beta1.MessageComposer.withTypeUrl.multiSend,
@@ -63,17 +125,159 @@ export default function ConfirmationModal({
     cancelUpgrade:
       cosmos.upgrade.v1beta1.MessageComposer.withTypeUrl.cancelUpgrade,
   };
+  const snakeToCamel = (str: string): string =>
+    str.replace(/([-_][a-z])/gi, ($1) =>
+      $1.toUpperCase().replace("-", "").replace("_", "")
+    );
 
-  const stripTypeField = (message: { [x: string]: any; type: any }) => {
-    const { type, ...rest } = message;
-    return rest;
+  const convertKeysToCamelCase = (obj: any): any => {
+    if (Array.isArray(obj)) {
+      return obj.map((v) => convertKeysToCamelCase(v));
+    } else if (obj !== null && typeof obj === "object") {
+      return Object.keys(obj).reduce((acc, key) => {
+        acc[snakeToCamel(key)] = convertKeysToCamelCase(obj[key]);
+        return acc;
+      }, {} as Record<string, any>);
+    }
+    return obj;
   };
 
-  const getMessageObject = (message: Message) => {
+  const getMessageObject = (
+    message: { type: keyof MessageTypeMap } & Record<string, any>
+  ): Any => {
+    console.log("Processing message:", JSON.stringify(message, null, 2));
     const composer = messageTypeToComposer[message.type];
     if (composer) {
-      const messageWithoutType = stripTypeField(message);
-      return composer(messageWithoutType);
+      let messageData = JSON.parse(JSON.stringify(message));
+      console.log("Message data:", messageData);
+      delete messageData.type;
+
+      messageData = convertKeysToCamelCase(messageData);
+      if (messageData.amount && !Array.isArray(messageData.amount)) {
+        messageData.amount = [messageData.amount];
+      }
+      const composedMessage = composer(
+        messageData as MessageTypeMap[typeof message.type]
+      );
+      console.log("Composed message:", composedMessage);
+
+      if (!composedMessage || !composedMessage.value) {
+        console.error(
+          "Composed message or its value is undefined:",
+          composedMessage
+        );
+        throw new Error(`Failed to compose message for type: ${message.type}`);
+      }
+
+      // Verify composedMessage structure
+      if (
+        !composedMessage.typeUrl ||
+        typeof composedMessage.value !== "object"
+      ) {
+        console.error("Invalid composedMessage structure:", composedMessage);
+        throw new Error(
+          `Invalid composedMessage structure for type: ${message.type}`
+        );
+      }
+
+      let encodeFunction;
+      switch (message.type) {
+        case "send":
+          encodeFunction = MsgSend.encode;
+          break;
+        case "updatePoaParams":
+          encodeFunction = MsgUpdatePoaParams.encode;
+          break;
+        case "removeValidator":
+          encodeFunction = MsgRemoveValidator.encode;
+          break;
+        case "removePending":
+          encodeFunction = MsgRemovePending.encode;
+          break;
+        case "updateStakingParams":
+          encodeFunction = MsgUpdateStakingParams.encode;
+          break;
+        case "setPower":
+          encodeFunction = MsgSetPower.encode;
+          break;
+        case "updateManifestParams":
+          encodeFunction = MsgUpdateManifestParams.encode;
+          break;
+        case "payoutStakeholders":
+          encodeFunction = MsgPayout.encode;
+          break;
+        case "updateGroupAdmin":
+          encodeFunction = MsgUpdateGroupAdmin.encode;
+          break;
+        case "updateGroupMembers":
+          encodeFunction = MsgUpdateGroupMembers.encode;
+          break;
+        case "updateGroupMetadata":
+          encodeFunction = MsgUpdateGroupMetadata.encode;
+          break;
+        case "updateGroupPolicyAdmin":
+          encodeFunction = MsgUpdateGroupPolicyAdmin.encode;
+          break;
+        case "createGroupWithPolicy":
+          encodeFunction = MsgCreateGroupWithPolicy.encode;
+          break;
+        case "submitProposal":
+          encodeFunction = MsgSubmitProposal.encode;
+          break;
+        case "vote":
+          encodeFunction = MsgVote.encode;
+          break;
+        case "withdrawProposal":
+          encodeFunction = MsgWithdrawProposal.encode;
+          break;
+        case "exec":
+          encodeFunction = MsgExec.encode;
+          break;
+        case "leaveGroup":
+          encodeFunction = MsgLeaveGroup.encode;
+          break;
+        case "multiSend":
+          encodeFunction = MsgMultiSend.encode;
+          break;
+        case "softwareUpgrade":
+          encodeFunction = MsgSoftwareUpgrade.encode;
+          break;
+        case "cancelUpgrade":
+          encodeFunction = MsgCancelUpgrade.encode;
+          break;
+        case "customMessage":
+          encodeFunction = MsgSend.encode;
+          break;
+        default:
+          throw new Error(
+            `No encode function found for message type: ${message.type}`
+          );
+      }
+
+      if (!encodeFunction) {
+        throw new Error(
+          `Encode function not set for message type: ${message.type}`
+        );
+      }
+
+      try {
+        console.log("Composed message value:", composedMessage.value);
+        const encodedValue = encodeFunction(composedMessage.value).finish();
+
+        console.log("Encoded value:", encodedValue);
+
+        const anyMessage = Any.fromPartial({
+          typeUrl: composedMessage.typeUrl,
+          value: encodedValue,
+        });
+
+        return anyMessage;
+      } catch (error) {
+        console.error("Error encoding message:", error);
+        console.error("Message type:", message.type);
+        console.error("Composed message:", composedMessage);
+        throw error;
+      }
     }
     throw new Error(`Unknown message type: ${message.type}`);
   };
@@ -99,10 +303,11 @@ export default function ConfirmationModal({
 
   const handleConfirm = async () => {
     const CID = await uploadMetaDataToIPFS();
-    const messages: { typeUrl: string; value: any }[] = formData.messages.map(
-      (message) => getMessageObject(message)
+    //TODO: messages are not being processed correctly. Message info is not being passed to getMessageObject
+    const messages: Any[] = formData.messages.map((message) =>
+      getMessageObject(message)
     );
-    console.log(policyAddress);
+
     const msg = submitProposal({
       groupPolicyAddress: policyAddress,
       messages: messages,
@@ -110,10 +315,10 @@ export default function ConfirmationModal({
       proposers: [formData.proposers],
       title: formData.title,
       summary: formData.metadata.summary,
-      exec: 1,
+      exec: 0,
     });
 
-    const fee = await estimateFee(address ?? "", messages);
+    const fee = await estimateFee(address ?? "", [msg]);
     await tx([msg], {
       fee,
       onSuccess: () => {

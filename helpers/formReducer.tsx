@@ -278,7 +278,10 @@ export type Message =
   | WithdrawProposalMessage
   | ExecMessage
   | LeaveGroupMessage
-  | RemoveValidatorMessage;
+  | RemoveValidatorMessage
+  | MultiSendMessage
+  | SoftwareUpgradeMessage
+  | CancelUpgradeMessage;
 
 export type MessageFields =
   | keyof SendMessage

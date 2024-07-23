@@ -22,6 +22,7 @@ import { cosmos } from "@chalabi/manifestjs";
 import { useTheme } from "@/contexts/theme";
 import CountdownTimer from "../components/CountdownTimer";
 import { useFeeEstimation } from "@/hooks";
+import ScrollableFade from "@/components/react/scrollableFade";
 
 const Chart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
@@ -210,6 +211,7 @@ function VoteDetailsModal({
         onSuccess: () => {
           refetchTally();
           refetchVotes();
+          setIsGridVisible(false);
         },
       });
     } catch (error) {
@@ -309,7 +311,90 @@ function VoteDetailsModal({
     : null;
 
   const userVotedStatus = useMemo(() => userHasVoted, [votes]);
-  console.log(proposal.voting_period_end);
+
+  const importantFields: { [key: string]: string[] } = {
+    "/cosmos.bank.v1beta1.MsgSend": ["from_address", "to_address", "amount"],
+    "/cosmos.group.v1.MsgCreateGroup": ["admin", "members", "metadata"],
+    "/cosmos.group.v1.MsgUpdateGroupMembers": [
+      "admin",
+      "group_id",
+      "member_updates",
+    ],
+    "/cosmos.group.v1.MsgUpdateGroupAdmin": ["group_id", "admin", "new_admin"],
+    "/cosmos.group.v1.MsgUpdateGroupMetadata": [
+      "admin",
+      "group_id",
+      "metadata",
+    ],
+    "/cosmos.group.v1.MsgCreateGroupPolicy": [
+      "admin",
+      "group_id",
+      "metadata",
+      "decision_policy",
+    ],
+    "/cosmos.group.v1.MsgCreateGroupWithPolicy": [
+      "admin",
+      "members",
+      "group_metadata",
+      "group_policy_metadata",
+      "decision_policy",
+    ],
+    "/cosmos.group.v1.MsgSubmitProposal": [
+      "group_policy_address",
+      "proposers",
+      "metadata",
+      "messages",
+    ],
+    "/cosmos.group.v1.MsgVote": ["proposal_id", "voter", "option", "metadata"],
+    "/cosmos.group.v1.MsgExec": ["proposal_id", "executor"],
+    "/cosmos.group.v1.MsgLeaveGroup": ["address", "group_id"],
+    // Add more message types and their important fields here
+  };
+
+  // Default fields to show if the message type is not in the mapping
+  const defaultFields = ["@type"];
+
+  const renderMessageField = (
+    key: string,
+    value: any,
+    depth: number = 0
+  ): JSX.Element => {
+    if (typeof value === "object" && value !== null) {
+      if (Array.isArray(value)) {
+        return (
+          <div key={key} style={{ marginLeft: `${depth * 20}px` }}>
+            <h4 className="font-medium">{key}:</h4>
+            {value.map((item, index) => (
+              <div key={index} className="ml-4">
+                {renderMessageField(`Item ${index + 1}`, item, depth + 1)}
+              </div>
+            ))}
+          </div>
+        );
+      } else {
+        return (
+          <div key={key} style={{ marginLeft: `${depth * 20}px` }}>
+            <h4 className="font-medium">{key}:</h4>
+            {Object.entries(value).map(([subKey, subValue]) =>
+              renderMessageField(subKey, subValue, depth + 1)
+            )}
+          </div>
+        );
+      }
+    } else {
+      return (
+        <div key={key} style={{ marginLeft: `${depth * 20}px` }}>
+          <h4 className="font-large text-md">{key}:</h4>
+          {typeof value === "string" && value.match(/^[a-zA-Z0-9]{40,}$/) ? (
+            <TruncatedAddressWithCopy slice={14} address={value} />
+          ) : (
+            <p>{String(value)}</p>
+          )}
+        </div>
+      );
+    }
+  };
+
   return (
     <dialog id={modalId} className="modal">
       <div className="modal-box relative max-w-4xl min-h-96  flex flex-col md:flex-row md:ml-20  rounded-lg shadow">
@@ -366,48 +451,30 @@ function VoteDetailsModal({
               <p className="text-md text-pretty">{proposal?.summary}</p>
             </div>
           </div>
-          <div>
-            <p className="text-md font-light mt-4  ">MESSAGE</p>
-            {proposal.messages.map((message: any, index: number) => (
-              <div
-                key={index}
-                className="bg-base-200 shadow  rounded-lg p-4 mt-2 mb-2"
-              >
-                <h3 className="text-lg font-semibold mb-4">
-                  {message["@type"] === "/cosmos.bank.v1beta1.MsgSend"
-                    ? "Message Send"
-                    : message["@type"]}
-                </h3>
-                {message["@type"] === "/cosmos.bank.v1beta1.MsgSend" && (
-                  <div className="grid grid-rows-3 gap-4">
-                    <div>
-                      <h4 className="font-medium">From:</h4>
-                      <TruncatedAddressWithCopy
-                        slice={14}
-                        address={message?.from_address}
-                      />
-                    </div>
-                    <div>
-                      <h4 className="font-medium">To:</h4>
-                      <TruncatedAddressWithCopy
-                        slice={14}
-                        address={message?.to_address}
-                      />
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Amount:</h4>
-                      {message?.amount?.map((amount: any, idx: number) => (
-                        <p key={idx}>
-                          {shiftDigits(amount?.amount, -6)}{" "}
-                          {amount?.denom.slice(1).toUpperCase()}
-                        </p>
-                      ))}
-                    </div>
+          <p className="text-md font-light mt-4">MESSAGES</p>
+          <ScrollableFade>
+            {proposal.messages.map((message: any, index: number) => {
+              const messageType = message["@type"];
+              const fieldsToShow =
+                importantFields[messageType] || defaultFields;
+
+              return (
+                <div
+                  key={index}
+                  className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2"
+                >
+                  <h3 className="text-lg font-semibold mb-4">
+                    {messageType.split(".").pop().replace("Msg", "")}
+                  </h3>
+                  <div>
+                    {fieldsToShow.map((field) =>
+                      renderMessageField(field, message[field])
+                    )}
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
+                </div>
+              );
+            })}
+          </ScrollableFade>
 
           <div className="mb-4 hidden md:block w-full">
             <p className="text-md font-light mt-4  ">VOTING COUNTDOWN</p>
@@ -462,31 +529,38 @@ function VoteDetailsModal({
               <CountdownTimer endTime={new Date(proposal.voting_period_end)} />
             </div>
           </div>
-          {proposal.executor_result ===
-            ("PROPOSAL_EXECUTOR_RESULT_NOT_RUN" as unknown as ProposalExecutorResult) &&
-            proposalClosed &&
-            proposal.status !==
-              ("PROPOSAL_STATUS_REJECTED" as unknown as ProposalStatus) && (
-              <button
-                className="btn w-full btn-primary ml-auto mt-4"
-                disabled={address !== admin}
-                onClick={executeProposal}
-              >
-                Execute
-              </button>
-            )}
-          {(proposal.status ===
+          {proposal.status ===
             ("PROPOSAL_STATUS_REJECTED" as unknown as ProposalStatus) ||
-            proposal.executor_result ===
-              ("PROPOSAL_EXECUTOR_RESULT_FAILURE" as unknown as ProposalExecutorResult)) && (
+          proposal.executor_result ===
+            ("PROPOSAL_EXECUTOR_RESULT_FAILURE" as unknown as ProposalExecutorResult) ? (
             <button
               className="btn w-full btn-primary ml-auto mt-4"
-              disabled={address !== admin}
               onClick={executeWithdrawl}
             >
               Remove
             </button>
-          )}
+          ) : proposal.executor_result ===
+              ("PROPOSAL_EXECUTOR_RESULT_NOT_RUN" as unknown as ProposalExecutorResult) &&
+            proposalClosed &&
+            proposal.status !==
+              ("PROPOSAL_STATUS_REJECTED" as unknown as ProposalStatus) ? (
+            <button
+              className="btn w-full btn-primary ml-auto mt-4"
+              onClick={executeProposal}
+            >
+              Execute
+            </button>
+          ) : proposal.status !==
+              ("PROPOSAL_STATUS_CLOSED" as unknown as ProposalStatus) &&
+            !proposalClosed ? (
+            <button
+              disabled={!address || userVotedStatus}
+              className="btn w-full btn-primary ml-auto mt-4 border-r-4 border-r-primaryShadow border-b-4 border-b-primaryShadow"
+              onClick={handleButtonClick}
+            >
+              Vote
+            </button>
+          ) : null}
           {isGridVisible && (
             <VotingPopup
               proposalId={proposal.id}
@@ -494,17 +568,6 @@ function VoteDetailsModal({
               refetch={refetchVotes || refetchTally}
             />
           )}
-          {proposal.status !==
-            ("PROPOSAL_STATUS_CLOSED" as unknown as ProposalStatus) &&
-            !proposalClosed && (
-              <button
-                disabled={!address || userVotedStatus}
-                className="btn w-full btn-primary ml-auto mt-4 border-r-4 border-r-primaryShadow border-b-4 border-b-primaryShadow"
-                onClick={handleButtonClick}
-              >
-                Vote
-              </button>
-            )}
         </div>
       </div>
       <form method="dialog" className="modal-backdrop">

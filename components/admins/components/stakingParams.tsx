@@ -5,11 +5,15 @@ import { UpdateStakingParamsModal } from "../modals/updateStakingParamsModal";
 interface StakingParamsProps {
   stakingParams: ParamsSDKType;
   isLoading: boolean;
+  address: string;
+  admin: string;
 }
 
 export default function StakingParams({
   stakingParams,
   isLoading,
+  address,
+  admin,
 }: StakingParamsProps) {
   const openParamsModal = () => {
     const modal = document.getElementById(
@@ -94,6 +98,8 @@ export default function StakingParams({
       )}
 
       <UpdateStakingParamsModal
+        address={address}
+        admin={admin}
         stakingParams={stakingParams}
         modalId="update-params-modal"
       />

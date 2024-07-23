@@ -68,6 +68,8 @@ export default function ProposalMessages({
           updatedMessage = {
             ...initialMessages.initialRemoveValidatorMessage,
             type: value,
+            sender: "",
+            validator_address: "",
           };
           break;
         case "removePending":
@@ -166,6 +168,24 @@ export default function ProposalMessages({
             type: value,
           };
           break;
+        case "multiSend":
+          updatedMessage = {
+            ...initialMessages.initialMultiSendMessage,
+            type: value,
+          };
+          break;
+        case "softwareUpgrade":
+          updatedMessage = {
+            ...initialMessages.initialSoftwareUpgradeMessage,
+            type: value,
+          };
+          break;
+        case "cancelUpgrade":
+          updatedMessage = {
+            ...initialMessages.initialCancelUpgradeMessage,
+            type: value,
+          };
+          break;
         default:
           break;
       }
@@ -193,36 +213,48 @@ export default function ProposalMessages({
         !Array.isArray(value)
       ) {
         return (
-          <div key={currentPath} className="grid grid-cols-2 gap-4">
-            {renderInputs(value, handleChange, currentPath)}
+          <div key={currentPath} className="mb-4">
+            <h3 className="font-semibold mb-2 capitalize">
+              {key.replace(/_/g, " ")}
+            </h3>
+            <div className="pl-4 border-l-2 border-gray-200">
+              {renderInputs(value, handleChange, currentPath)}
+            </div>
           </div>
         );
       } else if (typeof value === "boolean") {
         return (
-          <label key={currentPath} className="flex items-center">
+          <label key={currentPath} className="flex items-center mb-2">
             <input
               type="checkbox"
-              className="checkbox checkbox-sm"
+              className="checkbox checkbox-sm mr-2"
               checked={value}
               onChange={(e) => handleChange(currentPath, e.target.checked)}
             />
-            <span className="ml-2 capitalize">{key.replace(/_/g, " ")}</span>
+            <span className="capitalize">{key.replace(/_/g, " ")}</span>
+            <p className="text-xs text-gray-500 mt-1 ml-4">
+              Switch on to turn {key.replace(/_/g, " ")} to true
+            </p>
           </label>
         );
       } else {
         return (
-          <div key={currentPath} className="">
-            <div>
-              <span className="ml-2 capitalize">{key.replace(/_/g, " ")}</span>
+          <div key={currentPath} className="mb-4  pb-2">
+            <div className="flex items-center h-full justify-between">
+              <span className="w-1/3 capitalize pb-2 mt-2 font-medium border-b border-b-[0.01rem] border-gray-200">
+                {key.replace(/_/g, " ")}
+              </span>
               <input
-                key={currentPath}
                 type="text"
-                placeholder={key.replace(/_/g, " ")}
-                className="input input-bordered input-sm w-full"
+                placeholder={`Enter ${key.replace(/_/g, " ")}`}
+                className="w-2/3 focus:outline-none focus:ring-0 bg-transparent border-t-0 border-r-0 border-l-0  border-b-[0.01rem] border-gray-200"
                 value={value}
                 onChange={(e) => handleChange(currentPath, e.target.value)}
               />
             </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Tip: Enter the {key.replace(/_/g, " ")} here
+            </p>
           </div>
         );
       }
@@ -248,7 +280,7 @@ export default function ProposalMessages({
     };
 
     return (
-      <div className="grid grid-cols-2 gap-4 ">
+      <div className="bg-base-100 p-6 rounded-lg shadow-inner">
         {renderInputs(message, (field, value) => handleChange(field, value))}
       </div>
     );
@@ -258,13 +290,39 @@ export default function ProposalMessages({
     nextStep();
   };
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const filteredMessageTypes = [
+    "send",
+    "customMessage",
+    "removeValidator",
+    "removePending",
+    "updatePoaParams",
+    "updateStakingParams",
+    "setPower",
+    "updateManifestParams",
+    "payoutStakeholders",
+    "updateGroupAdmin",
+    "updateGroupMembers",
+    "updateGroupMetadata",
+    "updateGroupPolicyAdmin",
+    "createGroupWithPolicy",
+    "submitProposal",
+    "vote",
+    "withdrawProposal",
+    "exec",
+    "leaveGroup",
+    "multiSend",
+    "softwareUpgrade",
+    "cancelUpgrade",
+  ].filter((type) => type.toLowerCase().includes(searchTerm.toLowerCase()));
+
   return (
     <section className="">
       <div className="lg:flex mx-auto">
         <div className="flex items-center mx-auto md:w-[42rem] px-4 md:px-8 xl:px-0">
           <div className="w-full">
             <div className="w-full">
-              <div className="flex flex-row  justify-between items-center">
+              <div className="flex flex-row justify-between items-center">
                 <h1 className="text-2xl font-extrabold tracking-tight sm:mb-6 leading-tight">
                   Messages
                 </h1>
@@ -282,12 +340,12 @@ export default function ProposalMessages({
               </div>
 
               <div className="min-h-[330px]">
-                <div className="overflow-y-scroll max-h-[550px] min-h-[330px]">
+                <div className="overflow-y-auto max-h-[550px] min-h-[330px]">
                   <div className="space-y-6">
                     {formData.messages.map((message, index) => (
                       <div
                         key={index}
-                        className={`bg-base-300 shadow rounded-lg p-4 mb-4 animate-fadeIn `}
+                        className={`bg-base-300 shadow rounded-lg p-4 mb-4 animate-fadeIn`}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex flex-row items-center gap-4">
@@ -304,44 +362,46 @@ export default function ProposalMessages({
                               </button>
                               <ul
                                 tabIndex={0}
-                                className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 space-y-2"
+                                className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-[26.5rem] max-h-56 overflow-y-auto"
                               >
-                                <li>
-                                  <button
-                                    onClick={() =>
-                                      handleChangeMessage(index, "type", "send")
-                                    }
-                                  >
-                                    Send
-                                  </button>
+                                <li className="sticky top-0 bg-base-100 z-10 hover:bg-transparent">
+                                  <div className="px-2 py-1">
+                                    <input
+                                      type="text"
+                                      placeholder="Search Messages"
+                                      className="input input-sm w-full pr-8 focus:outline-none focus:ring-0 border-none bg-transparent"
+                                      onChange={(e) =>
+                                        setSearchTerm(e.target.value)
+                                      }
+                                      style={{ boxShadow: "none" }}
+                                    />
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      className="h-5 w-5 absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      stroke="currentColor"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                                      />
+                                    </svg>
+                                  </div>
                                 </li>
-                                <li>
-                                  <button
-                                    onClick={() =>
-                                      handleChangeMessage(
-                                        index,
-                                        "type",
-                                        "withdrawProposal"
-                                      )
-                                    }
-                                  >
-                                    Withdraw Proposal
-                                  </button>
-                                </li>
-                                <li>
-                                  <button
-                                    onClick={() =>
-                                      handleChangeMessage(
-                                        index,
-                                        "type",
-                                        "leaveGroup"
-                                      )
-                                    }
-                                  >
-                                    Leave Group
-                                  </button>
-                                </li>
-                                {/* Add more options here */}
+                                {filteredMessageTypes.map((type) => (
+                                  <li key={type}>
+                                    <button
+                                      onClick={() =>
+                                        handleChangeMessage(index, "type", type)
+                                      }
+                                    >
+                                      {type.replace(/([A-Z])/g, " $1").trim()}
+                                    </button>
+                                  </li>
+                                ))}
                               </ul>
                             </div>
                           </div>
@@ -357,7 +417,7 @@ export default function ProposalMessages({
                             </button>
                             <button
                               type="button"
-                              className="btn btn-xs btn-primary ml-2 "
+                              className="btn btn-xs btn-primary ml-2"
                               onClick={() => toggleVisibility(index)}
                               disabled={!message.type}
                             >
@@ -395,7 +455,7 @@ export default function ProposalMessages({
               <div className="flex space-x-3 ga-4 mt-6">
                 <button
                   onClick={prevStep}
-                  className="text-center btn btn-neutral items-center w-1/2 py-2.5 sm:py-3.5 text-sm font-medium focus:outline-none  rounded-lg border"
+                  className="text-center btn btn-neutral items-center w-1/2 py-2.5 sm:py-3.5 text-sm font-medium focus:outline-none rounded-lg border"
                 >
                   Prev: Proposal Details
                 </button>

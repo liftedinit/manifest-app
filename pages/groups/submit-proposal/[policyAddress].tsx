@@ -13,6 +13,7 @@ import {
 import Head from "next/head";
 import { chainName } from "@/config";
 import { useChain } from "@cosmos-kit/react";
+import Success from "@/components/groups/forms/proposals/SuccessForm";
 
 export default function SubmitProposal() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -48,7 +49,7 @@ export default function SubmitProposal() {
   );
 
   const nextStep = () => {
-    if (currentStep < 4) {
+    if (currentStep < 5) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -121,7 +122,10 @@ export default function SubmitProposal() {
         </script>
       </Head>
       <div className="w-full flex flex-col gap-12 justify-between my-auto items-center animate-fadeIn max-w-4xl mt-10">
-        <StepIndicator steps={steps} currentStep={currentStep} />
+        {currentStep != 5 && (
+          <StepIndicator steps={steps} currentStep={currentStep} />
+        )}
+
         {currentStep === 1 && (
           <div className="transition-opacity duration-300 animate-fadeIn">
             <ProposalDetails
@@ -155,11 +159,17 @@ export default function SubmitProposal() {
         {currentStep === 4 && (
           <div className="transition-opacity duration-300 animate-fadeIn">
             <ConfirmationForm
+              address={address ?? ""}
               policyAddress={policyAddress as string}
               formData={formData}
               prevStep={prevStep}
               nextStep={nextStep}
             />
+          </div>
+        )}
+        {currentStep === 5 && (
+          <div className="transition-opacity duration-300 animate-fadeIn">
+            <Success formData={formData} prevStep={prevStep} />
           </div>
         )}
       </div>

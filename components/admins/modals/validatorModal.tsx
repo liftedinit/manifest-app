@@ -9,6 +9,8 @@ import { useTx, useFeeEstimation } from "@/hooks";
 import { strangelove_ventures } from "@chalabi/manifestjs";
 import { useChain } from "@cosmos-kit/react";
 import { cosmos } from "@chalabi/manifestjs";
+import { Any } from "@chalabi/manifestjs/dist/codegen/google/protobuf/any";
+import { MsgSetPower } from "@chalabi/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx";
 
 export function ValidatorDetailsModal({
   validator,
@@ -48,20 +50,25 @@ export function ValidatorDetailsModal({
 
   const handleUpdate = async () => {
     const msgSetPower = setPower({
-      sender: userAddress ?? "",
+      sender: admin ?? "",
       validatorAddress: validator.operator_address,
       power: BigInt(power),
       unsafe: false,
     });
 
+    const anyMessage = Any.fromPartial({
+      typeUrl: msgSetPower.typeUrl,
+      value: MsgSetPower.encode(msgSetPower.value).finish(),
+    });
+
     const groupProposalMsg = submitProposal({
       groupPolicyAddress: admin,
-      messages: [msgSetPower],
+      messages: [anyMessage],
       metadata: "",
       proposers: [userAddress ?? ""],
       title: `Update the Voting Power of ${validator.description.moniker}`,
       summary: `This proposal will update the voting power of ${validator.description.moniker} to ${power}`,
-      exec: 1,
+      exec: 0,
     });
 
     const fee = await estimateFee(userAddress ?? "", [groupProposalMsg]);

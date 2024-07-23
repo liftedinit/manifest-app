@@ -1,22 +1,31 @@
-import React, { useState } from "react";
-import { ExtendedGroupType } from "@/hooks";
+import React, { useEffect, useState } from "react";
+import { ExtendedGroupType, useFeeEstimation, useTx } from "@/hooks";
 import { ParamsSDKType } from "@chalabi/manifestjs/dist/codegen/strangelove_ventures/poa/v1/params";
 import { UpdateAdminModal } from "../modals/updateAdminModal";
 
 import { BsThreeDots } from "react-icons/bs";
 import { DescriptionModal } from "../modals/descriptionModal";
 import ProfileAvatar from "@/utils/identicon";
-import { GroupInfo } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types";
+
+import { chainName } from "@/config";
+import { strangelove_ventures, cosmos } from "@chalabi/manifestjs";
+import { MsgUpdateParams } from "@chalabi/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx";
+import { Any } from "@chalabi/manifestjs/dist/codegen/google/protobuf/any";
+
 interface AdminOptionsProps {
   poaParams: ParamsSDKType;
   group: ExtendedGroupType;
   isLoading: boolean;
+  address: string;
+  admin: string;
 }
 
 export default function AdminOptions({
   poaParams,
   group,
   isLoading,
+  address,
+  admin,
 }: AdminOptionsProps) {
   const exitEnabled = true;
 
@@ -34,6 +43,45 @@ export default function AdminOptions({
     modal?.showModal();
   };
 
+  const { estimateFee } = useFeeEstimation(chainName);
+  const { tx } = useTx(chainName);
+  const { updateParams } =
+    strangelove_ventures.poa.v1.MessageComposer.withTypeUrl;
+  const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
+
+  const handleUpdate = async () => {
+    const msgUpdateAdmin = updateParams({
+      sender: admin ?? "",
+      params: {
+        admins: poaParams.admins,
+        allowValidatorSelfExit:
+          poaParams.allow_validator_self_exit === true ? false : true,
+      },
+    });
+
+    const anyMessage = Any.fromPartial({
+      typeUrl: msgUpdateAdmin.typeUrl,
+      value: MsgUpdateParams.encode(msgUpdateAdmin.value).finish(),
+    });
+
+    const groupProposalMsg = submitProposal({
+      groupPolicyAddress: admin,
+      messages: [anyMessage],
+      metadata: "",
+      proposers: [address ?? ""],
+      title: `Update Self Exit`,
+      summary: `This proposal will ${
+        poaParams.allow_validator_self_exit === true ? "enable" : "disable"
+      } the ability to leave the active set.`,
+      exec: 0,
+    });
+
+    const fee = await estimateFee(address ?? "", [groupProposalMsg]);
+    await tx([groupProposalMsg], {
+      fee,
+      onSuccess: () => {},
+    });
+  };
   return (
     <div className="lg:w-1/2 w-full mx-auto p-4 bg-base-100 rounded-md lg:max-h-[352px]">
       <div className="px-4 py-2 border-base-content flex items-center justify-between">
@@ -77,6 +125,7 @@ export default function AdminOptions({
               Update Admin
             </button>
             <button
+              onClick={handleUpdate}
               className={`btn block lg:hidden ${
                 exitEnabled ? "btn-secondary" : "btn-primary"
               } btn-sm w-2/6`}
@@ -84,6 +133,7 @@ export default function AdminOptions({
               {poaParams.allow_validator_self_exit ? "Disable " : "Enable "}
             </button>
             <button
+              onClick={handleUpdate}
               className={`btn hidden lg:block ${
                 exitEnabled ? "btn-secondary" : "btn-primary"
               } btn-sm w-2/6`}
@@ -96,7 +146,12 @@ export default function AdminOptions({
         </div>
       )}
 
-      <UpdateAdminModal modalId="update-admin-modal" />
+      <UpdateAdminModal
+        userAddress={address ?? ""}
+        modalId="update-admin-modal"
+        admin={admin ?? ""}
+        allowExit={poaParams.allow_validator_self_exit}
+      />
 
       <DescriptionModal
         type="group"

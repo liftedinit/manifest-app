@@ -1,6 +1,8 @@
 import { chainName } from "@/config";
 import { useFeeEstimation, useTx } from "@/hooks";
 import { cosmos, strangelove_ventures } from "@chalabi/manifestjs";
+import { Any } from "@chalabi/manifestjs/dist/codegen/google/protobuf/any";
+import { MsgRemoveValidator } from "@chalabi/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx";
 import { useChain } from "@cosmos-kit/react";
 import React from "react";
 import { PiWarning } from "react-icons/pi";
@@ -29,25 +31,32 @@ export function WarningModal({
 
   const handleAccept = async () => {
     const msgRemoveActive = removeValidator({
-      sender: userAddress ?? "",
+      sender: admin ?? "",
       validatorAddress: address,
     });
 
     const msgRemovePending = removePending({
-      sender: userAddress ?? "",
+      sender: admin ?? "",
       validatorAddress: address,
+    });
+
+    const anyMessage = Any.fromPartial({
+      typeUrl: isActive ? msgRemoveActive.typeUrl : msgRemovePending.typeUrl,
+      value: isActive
+        ? MsgRemoveValidator.encode(msgRemoveActive.value).finish()
+        : MsgRemoveValidator.encode(msgRemovePending.value).finish(),
     });
 
     const groupProposalMsg = submitProposal({
       groupPolicyAddress: admin,
-      messages: isActive ? [msgRemoveActive] : [msgRemovePending],
+      messages: [anyMessage],
       metadata: "",
       proposers: [userAddress ?? ""],
       title: `Remove ${isActive ? "Active" : "Pending"} Validator ${moniker}`,
       summary: `Proposal to remove ${moniker} from the ${
         isActive ? "active" : "pending"
       } set.`,
-      exec: 1,
+      exec: 0,
     });
 
     const fee = await estimateFee(userAddress ?? "", [groupProposalMsg]);

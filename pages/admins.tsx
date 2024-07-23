@@ -167,11 +167,21 @@ export default function Admins() {
                     />
                     <div className="flex flex-col md:flex-row gap-4 justify-between items-center w-full">
                       <AdminOptions
+                        address={address ?? ""}
+                        admin={
+                          poaParams?.admins[0] ??
+                          "manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj"
+                        }
                         group={group}
                         poaParams={poaParams ?? ({} as PoaParamType)}
                         isLoading={isPoaParamsLoading || isGroupByAdminLoading}
                       />
                       <StakingParams
+                        address={address ?? ""}
+                        admin={
+                          poaParams?.admins[0] ??
+                          "manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj"
+                        }
                         isLoading={isParamsLoading}
                         stakingParams={stakingParams ?? ({} as ParamsSDKType)}
                       />

@@ -31,3 +31,16 @@
     border-color: #222;
   }
 }
+
+.scrollable-fade {
+  mask-image: linear-gradient(
+    to bottom,
+    black calc(100% - 20px),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    black calc(100% - 20px),
+    transparent 100%
+  );
+}

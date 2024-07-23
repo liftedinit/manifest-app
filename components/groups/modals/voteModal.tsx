@@ -43,7 +43,7 @@ function VotingPopup({
   return (
     <>
       <div
-        className={`mx-auto w-full bg-base-300 p-4 rounded-md border-r-4 border-r-base-200 border-b-4 border-b-base-200 absolute flex justify-center items-center bottom-14 mb-2 ${
+        className={`mx-auto w-full bg-base-300 p-4 rounded-md border-r-4 border-r-base-200 border-b-4 border-b-base-200 absolute flex justify-center items-center bottom-14 mb-4 ${
           isGridVisible ? "animate-fadeSlideUp" : "animate-fadeSlideDown"
         } transition-opacity duration-300`}
       >

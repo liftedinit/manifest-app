@@ -1,11 +1,71 @@
-import React from "react";
+import { chainName } from "@/config";
+import { useFeeEstimation, useTx } from "@/hooks";
+import { cosmos, strangelove_ventures } from "@chalabi/manifestjs";
+import { Any } from "@chalabi/manifestjs/dist/codegen/google/protobuf/any";
+import { MsgUpdateParams } from "@chalabi/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx";
+import React, { useState, useEffect } from "react";
 import { PiWarning } from "react-icons/pi";
 
 interface UpdateModalProps {
   modalId: string;
+  admin: string;
+  userAddress: string | undefined;
+  allowExit: boolean | undefined;
 }
 
-export function UpdateAdminModal({ modalId }: UpdateModalProps) {
+export function UpdateAdminModal({
+  modalId,
+  admin,
+  userAddress,
+  allowExit,
+}: UpdateModalProps) {
+  const [newAdmin, setNewAdmin] = useState("");
+  const [isValidAddress, setIsValidAddress] = useState(false);
+
+  const { estimateFee } = useFeeEstimation(chainName);
+  const { tx } = useTx(chainName);
+  const { updateParams } =
+    strangelove_ventures.poa.v1.MessageComposer.withTypeUrl;
+  const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
+
+  useEffect(() => {
+    const isValid = /^manifest1[a-zA-Z0-9]{38}$/.test(newAdmin);
+    setIsValidAddress(isValid);
+  }, [newAdmin]);
+
+  const handleUpdate = async () => {
+    if (!isValidAddress) return;
+
+    const msgUpdateAdmin = updateParams({
+      sender: admin ?? "",
+      params: {
+        admins: [newAdmin],
+        allowValidatorSelfExit: allowExit ?? false,
+      },
+    });
+
+    const anyMessage = Any.fromPartial({
+      typeUrl: msgUpdateAdmin.typeUrl,
+      value: MsgUpdateParams.encode(msgUpdateAdmin.value).finish(),
+    });
+
+    const groupProposalMsg = submitProposal({
+      groupPolicyAddress: admin,
+      messages: [anyMessage],
+      metadata: "",
+      proposers: [userAddress ?? ""],
+      title: `Update PoA Admin`,
+      summary: `This proposal will update the administrator of the PoA module to ${newAdmin}`,
+      exec: 0,
+    });
+
+    const fee = await estimateFee(userAddress ?? "", [groupProposalMsg]);
+    await tx([groupProposalMsg], {
+      fee,
+      onSuccess: () => {},
+    });
+  };
+
   return (
     <dialog id={modalId} className="modal">
       <form method="dialog" className="modal-box">
@@ -31,12 +91,26 @@ export function UpdateAdminModal({ modalId }: UpdateModalProps) {
             <input
               type="text"
               placeholder="manifest123..."
-              className="input input-bordered input-md w-full"
+              className={`input input-bordered input-md w-full ${
+                newAdmin && !isValidAddress ? "input-error" : ""
+              }`}
+              value={newAdmin}
+              onChange={(e) => setNewAdmin(e.target.value)}
             />
+            {newAdmin && !isValidAddress && (
+              <p className="text-error text-sm">
+                Please enter a valid manifest1 address
+              </p>
+            )}
           </div>
         </div>
         <div className="modal-action">
-          <button type="button" className="btn w-full btn-primary">
+          <button
+            type="button"
+            className="btn w-full btn-primary"
+            onClick={handleUpdate}
+            disabled={!isValidAddress || !newAdmin}
+          >
             Update
           </button>
         </div>
