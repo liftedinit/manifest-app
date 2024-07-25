@@ -154,6 +154,16 @@ export default function ProposalsForPolicy({
       .replace(/([A-Z])/g, " $1")
       .trim();
   }
+
+  const filterProposals = (proposals: ProposalSDKType[]) => {
+    return proposals.filter(
+      (proposal) =>
+        proposal.status !== "PROPOSAL_STATUS_ACCEPTED" &&
+        proposal.status !== "PROPOSAL_STATUS_REJECTED" &&
+        proposal.status !== "PROPOSAL_STATUS_WITHDRAWN"
+    );
+  };
+
   return (
     <section className="">
       <div className="flex flex-col  max-w-5xl mx-auto w-full  ">
@@ -188,14 +198,14 @@ export default function ProposalsForPolicy({
             ) : (
               <>
                 <div className="">
-                  {proposals?.length === 0 && (
+                  {filterProposals(proposals)?.length === 0 && (
                     <div className="flex flex-col my-36 gap-4 w-full mx-auto justify-center items-center transition-opacity duration-300 ease-in-out animate-fadeIn">
                       <div className="text-center underline">
                         No proposals found for this policy
                       </div>
                     </div>
                   )}
-                  {proposals?.length > 0 && (
+                  {filterProposals(proposals)?.length > 0 && (
                     <div className="bg-base-300 -mt-2 flex p-4 rounded-md base-200 overflow-y-auto max-h-[15rem] min-h-[15rem] ">
                       <table className="table w-full  z-0 transition-opacity bg-base-300 duration-300 ease-in-out animate-fadeIn text-left ">
                         <thead className="bg-base-300 ">
@@ -208,102 +218,109 @@ export default function ProposalsForPolicy({
                           </tr>
                         </thead>
                         <tbody>
-                          {proposals?.map((proposal, index) => {
-                            // Find the corresponding tally for this proposal
-                            const proposalTally = tallies.find(
-                              (t) => t.proposalId === proposal.id
-                            );
-                            const { isPassing = false } = proposalTally
-                              ? isProposalPassing(proposalTally.tally)
-                              : {};
-                            const endTime = new Date(
-                              proposal?.voting_period_end
-                            );
-                            const now = new Date();
-                            const msPerMinute = 1000 * 60;
-                            const msPerHour = msPerMinute * 60;
-                            const msPerDay = msPerHour * 24;
+                          {filterProposals(proposals)?.map(
+                            (proposal, index) => {
+                              // Find the corresponding tally for this proposal
+                              const proposalTally = tallies.find(
+                                (t) => t.proposalId === proposal.id
+                              );
+                              const { isPassing = false } = proposalTally
+                                ? isProposalPassing(proposalTally.tally)
+                                : {};
+                              const endTime = new Date(
+                                proposal?.voting_period_end
+                              );
+                              const now = new Date();
+                              const msPerMinute = 1000 * 60;
+                              const msPerHour = msPerMinute * 60;
+                              const msPerDay = msPerHour * 24;
 
-                            const diff = endTime.getTime() - now.getTime();
+                              const diff = endTime.getTime() - now.getTime();
 
-                            let timeLeft: string;
+                              let timeLeft: string;
 
-                            if (diff <= 0) {
-                              timeLeft = "none";
-                            } else if (diff >= msPerDay) {
-                              const days = Math.floor(diff / msPerDay);
-                              timeLeft = `${days} day${days === 1 ? "" : "s"}`;
-                            } else if (diff >= msPerHour) {
-                              const hours = Math.floor(diff / msPerHour);
-                              timeLeft = `${hours} hour${
-                                hours === 1 ? "" : "s"
-                              }`;
-                            } else if (diff >= msPerMinute) {
-                              const minutes = Math.floor(diff / msPerMinute);
-                              timeLeft = `${minutes} minute${
-                                minutes === 1 ? "" : "s"
-                              }`;
-                            } else {
-                              timeLeft = "less than a minute";
-                            }
-                            return (
-                              <tr
-                                onClick={() => handleRowClick(proposal)}
-                                key={index}
-                                style={{ maxHeight: "3rem" }}
-                                className={`w-full
+                              if (diff <= 0) {
+                                timeLeft = "none";
+                              } else if (diff >= msPerDay) {
+                                const days = Math.floor(diff / msPerDay);
+                                timeLeft = `${days} day${
+                                  days === 1 ? "" : "s"
+                                }`;
+                              } else if (diff >= msPerHour) {
+                                const hours = Math.floor(diff / msPerHour);
+                                timeLeft = `${hours} hour${
+                                  hours === 1 ? "" : "s"
+                                }`;
+                              } else if (diff >= msPerMinute) {
+                                const minutes = Math.floor(diff / msPerMinute);
+                                timeLeft = `${minutes} minute${
+                                  minutes === 1 ? "" : "s"
+                                }`;
+                              } else {
+                                timeLeft = "less than a minute";
+                              }
+                              return (
+                                <tr
+                                  onClick={() => handleRowClick(proposal)}
+                                  key={index}
+                                  style={{ maxHeight: "3rem" }}
+                                  className={`w-full
                             hover:bg-base-200 !important 
                             active:bg-base-100 
                             focus:bg-base-300 focus:shadow-inner 
                             transition-all duration-200 
                             cursor-pointer `}
-                              >
-                                <td className="">#{proposal.id.toString()}</td>
-                                <td className="w-2/6 truncate">
-                                  {proposal.title.toLowerCase()}
-                                </td>
-                                <td className="w-1/6">
-                                  {diff <= 0 &&
-                                  proposal.executor_result ===
-                                    ("PROPOSAL_EXECUTOR_RESULT_NOT_RUN" as unknown as ProposalExecutorResult)
-                                    ? "none"
-                                    : timeLeft}
-                                </td>
-                                <td className="w-1/6 truncate ...">
-                                  {getHumanReadableType(
-                                    (proposal.messages[0] as any)["@type"]
-                                  )}
-                                </td>
-                                <td className="w-1/6">
-                                  {isPassing &&
-                                  diff > 0 &&
-                                  proposal.executor_result ===
-                                    ("PROPOSAL_EXECUTOR_RESULT_NOT_RUN" as unknown as ProposalExecutorResult)
-                                    ? "Passing"
-                                    : isPassing &&
-                                      diff <= 0 &&
-                                      proposal.executor_result ===
-                                        ("PROPOSAL_EXECUTOR_RESULT_NOT_RUN" as unknown as ProposalExecutorResult)
-                                    ? "Passed"
-                                    : (diff > 0 &&
+                                >
+                                  <td className="">
+                                    #{proposal.id.toString()}
+                                  </td>
+                                  <td className="w-2/6 truncate">
+                                    {proposal.title.toLowerCase()}
+                                  </td>
+                                  <td className="w-1/6">
+                                    {diff <= 0 &&
+                                    proposal.executor_result ===
+                                      ("PROPOSAL_EXECUTOR_RESULT_NOT_RUN" as unknown as ProposalExecutorResult)
+                                      ? "none"
+                                      : timeLeft}
+                                  </td>
+                                  <td className="w-1/6 truncate ...">
+                                    {getHumanReadableType(
+                                      (proposal.messages[0] as any)["@type"]
+                                    )}
+                                  </td>
+                                  <td className="w-1/6">
+                                    {isPassing &&
+                                    diff > 0 &&
+                                    proposal.executor_result ===
+                                      ("PROPOSAL_EXECUTOR_RESULT_NOT_RUN" as unknown as ProposalExecutorResult)
+                                      ? "Passing"
+                                      : isPassing &&
+                                        diff <= 0 &&
                                         proposal.executor_result ===
-                                          ("PROPOSAL_EXECUTOR_RESULT_FAILURE" as unknown as ProposalExecutorResult)) ||
-                                      (diff > 0 &&
-                                        proposal.status ===
-                                          ("PROPOSAL_STATUS_REJECTED" as unknown as ProposalStatus))
-                                    ? "Failing"
-                                    : "Failed"}
-                                </td>
-                                <Modal
-                                  admin={admin}
-                                  proposalId={proposal.id}
-                                  members={members}
-                                  proposal={proposal}
-                                  updateTally={updateTally}
-                                />
-                              </tr>
-                            );
-                          })}
+                                          ("PROPOSAL_EXECUTOR_RESULT_NOT_RUN" as unknown as ProposalExecutorResult)
+                                      ? "Passed"
+                                      : (diff > 0 &&
+                                          proposal.executor_result ===
+                                            ("PROPOSAL_EXECUTOR_RESULT_FAILURE" as unknown as ProposalExecutorResult)) ||
+                                        (diff > 0 &&
+                                          proposal.status ===
+                                            ("PROPOSAL_STATUS_REJECTED" as unknown as ProposalStatus))
+                                      ? "Failed"
+                                      : "Failing"}
+                                  </td>
+                                  <Modal
+                                    admin={admin}
+                                    proposalId={proposal.id}
+                                    members={members}
+                                    proposal={proposal}
+                                    updateTally={updateTally}
+                                    refetchProposals={refetchProposals}
+                                  />
+                                </tr>
+                              );
+                            }
+                          )}
                         </tbody>
                       </table>
                     </div>
@@ -406,6 +423,7 @@ function Modal({
   proposal,
   admin,
   updateTally,
+  refetchProposals,
 }: {
   proposalId: bigint;
   members: MemberSDKType[];
@@ -415,6 +433,7 @@ function Modal({
     proposalId: bigint,
     tally: QueryTallyResultResponseSDKType
   ) => void;
+  refetchProposals: () => void;
 }) {
   const { tally, isTallyLoading, isTallyError, refetchTally } =
     useTallyCount(proposalId);
@@ -437,6 +456,7 @@ function Modal({
       modalId={`vote_modal_${proposal?.id}`}
       refetchVotes={refetchVotes}
       refetchTally={refetchTally}
+      refetchProposals={refetchProposals}
     />
   );
 }

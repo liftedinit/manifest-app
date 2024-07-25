@@ -293,7 +293,8 @@ export default function ConfirmationModal({
 
   const jsonString = JSON.stringify(proposalMetadata);
 
-  const { tx } = useTx(chainName);
+  const { tx, isSigning, setIsSigning } = useTx(chainName);
+
   const { estimateFee } = useFeeEstimation("manifest");
 
   const uploadMetaDataToIPFS = async () => {
@@ -302,6 +303,7 @@ export default function ConfirmationModal({
   };
 
   const handleConfirm = async () => {
+    setIsSigning(true);
     const CID = await uploadMetaDataToIPFS();
     //TODO: messages are not being processed correctly. Message info is not being passed to getMessageObject
     const messages: Any[] = formData.messages.map((message) =>
@@ -422,18 +424,23 @@ export default function ConfirmationModal({
                 </div>
               </div>
             </form>
-            <div className="flex space-x-3 ga-4 mt-6">
+            <div className="flex flex-row  justify-between w-full max-w-[41rem] gap-4 mt-6">
               <button
                 onClick={prevStep}
-                className="text-center items-center w-1/2 py-2.5 sm:py-3.5 btn btn-neutral"
+                className="w-1/2 py-2.5 sm:py-3.5 btn btn-neutral"
               >
                 Prev: Metadata
               </button>
               <button
                 onClick={handleConfirm}
-                className="w-1/2 px-5 py-2.5 sm:py-3.5 btn btn-primary"
+                disabled={isSigning || !address}
+                className="w-1/2  py-2.5 sm:py-3.5 btn btn-primary"
               >
-                Sign Transaction
+                {isSigning ? (
+                  <span className="loading loading-dots loading-sm"></span>
+                ) : (
+                  "Sign Transaction"
+                )}
               </button>
             </div>
           </div>

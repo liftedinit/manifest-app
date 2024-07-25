@@ -6,6 +6,7 @@ import {
 import { useChain } from "@cosmos-kit/react";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { useToast } from "@/contexts/toastContext";
+import { useState } from "react";
 
 interface Msg {
   typeUrl: string;
@@ -22,6 +23,7 @@ export const useTx = (chainName: string) => {
   const { address, getSigningStargateClient, estimateFee } =
     useChain(chainName);
   const { setToastMessage } = useToast();
+  const [isSigning, setIsSigning] = useState(false);
 
   const tx = async (msgs: Msg[], options: TxOptions) => {
     if (!address) {
@@ -33,7 +35,7 @@ export const useTx = (chainName: string) => {
       });
       return;
     }
-
+    setIsSigning(true);
     let client;
     try {
       client = await getSigningStargateClient();
@@ -49,12 +51,13 @@ export const useTx = (chainName: string) => {
         description: "Transaction is signed and is being broadcasted...",
         bgColor: "#3498db",
       });
-
+      setIsSigning(true);
       await client
         .broadcastTx(Uint8Array.from(TxRaw.encode(signed).finish()))
         .then((res: DeliverTxResponse) => {
           if (isDeliverTxSuccess(res)) {
             if (options.onSuccess) options.onSuccess();
+            setIsSigning(false);
             setToastMessage({
               type: "alert-success",
               title: "Transaction Successful",
@@ -63,6 +66,7 @@ export const useTx = (chainName: string) => {
               bgColor: "#2ecc71",
             });
           } else {
+            setIsSigning(false);
             setToastMessage({
               type: "alert-error",
               title: "Transaction Failed",
@@ -73,6 +77,7 @@ export const useTx = (chainName: string) => {
         })
         .catch((err: Error) => {
           console.error("Failed to broadcast: ", err);
+          setIsSigning(false);
           setToastMessage({
             type: "alert-error",
             title: "Transaction Failed",
@@ -82,14 +87,17 @@ export const useTx = (chainName: string) => {
         });
     } catch (e: any) {
       console.error("Failed to broadcast: ", e);
+      setIsSigning(false);
       setToastMessage({
         type: "alert-error",
         title: "Transaction Failed",
         description: e.message,
         bgColor: "#e74c3c",
       });
+    } finally {
+      setIsSigning(false);
     }
   };
 
-  return { tx };
+  return { tx, isSigning, setIsSigning };
 };

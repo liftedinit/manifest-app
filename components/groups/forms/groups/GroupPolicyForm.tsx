@@ -70,15 +70,15 @@ export default function GroupPolicyForm({
                   <label className="block mb-2 text-sm font-medium">
                     Voting Period
                   </label>
-                  <div className="flex flex-row items-center space-x-2">
+                  <div className="flex flex-row items-center space-x-2 justify-between">
                     <input
                       type="number"
-                      className="input input-bordered flex-grow"
+                      className="input input-bordered flex-grow w-1/3"
                       placeholder="Enter duration"
                       value={votingAmount}
                       onChange={handleAmountChange}
                     />
-                    <div className="dropdown dropdown-end w-full">
+                    <div className="dropdown dropdown-end w-1/3">
                       <label
                         tabIndex={0}
                         className="btn m-1 bg-base-100 border w-full border-zinc-700"
@@ -103,7 +103,7 @@ export default function GroupPolicyForm({
                   </div>
                 </div>
 
-                <div className="mt-1">
+                <div className="mt-1 w-full">
                   <div className="flex flex-row mb-2 gap-1 justify-between items-center">
                     <label className="block  text-sm font-medium">
                       Voting Threshold

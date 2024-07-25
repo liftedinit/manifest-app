@@ -7,12 +7,17 @@ import { DenomInfoModal } from "@/components/factory"; // Make sure to import th
 interface TokenListProps {
   balances: CombinedBalanceInfo[] | undefined;
   isLoading: boolean;
+  admin: string;
 }
 
-export default function TokenList({ balances, isLoading }: TokenListProps) {
+export default function TokenList({
+  balances,
+  isLoading,
+  admin,
+}: TokenListProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDenom, setSelectedDenom] = useState<any>(null);
-
+  const [isMFX, setIsMFX] = useState<boolean>(false);
   const filteredBalances = React.useMemo(() => {
     if (!Array.isArray(balances)) return [];
     return balances.filter((balance) =>
@@ -22,6 +27,7 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
 
   const openModal = (denom: any) => {
     setSelectedDenom(denom);
+    setIsMFX(denom?.base?.includes("mfx"));
     const modal = document.getElementById(
       "denom-info-modal"
     ) as HTMLDialogElement;
@@ -105,7 +111,12 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
 
       {/* DenomInfoModal */}
       {selectedDenom && (
-        <DenomInfoModal denom={selectedDenom} modalId="denom-info-modal" />
+        <DenomInfoModal
+          admin={admin}
+          isMFX={isMFX}
+          denom={selectedDenom}
+          modalId="denom-info-modal"
+        />
       )}
     </div>
   );

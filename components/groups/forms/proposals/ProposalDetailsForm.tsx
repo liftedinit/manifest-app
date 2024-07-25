@@ -99,7 +99,8 @@ export default function ProposalDetails({
             <div className="flex space-x-3 ga-4 mt-6">
               <Link href={"/groups"} legacyBehavior>
                 <button className="btn btn-neutral py-2.5 sm:py-3.5 w-1/2 ">
-                  Back: Groups Page
+                  <span className="hidden sm:inline">Back: Groups Page</span>
+                  <span className="sm:hidden">Back: Groups</span>
                 </button>
               </Link>
             </div>

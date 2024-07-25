@@ -63,7 +63,7 @@ export default function CreateDenom({
         sender: address ?? "",
         subdenom: formData.subdenom,
       });
-      console.log(msg);
+
       const fee = await estimateFee(address ?? "", [msg]);
       await tx([msg], {
         fee,

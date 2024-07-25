@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ProposalFormData,
   ProposalAction,
@@ -20,9 +20,34 @@ export default function ProposalMessages({
   formData: ProposalFormData;
   dispatch: React.Dispatch<ProposalAction>;
 }) {
+  const [isFormValid, setIsFormValid] = useState(false);
   const [visibleMessages, setVisibleMessages] = useState<boolean[]>(
     formData.messages.map(() => false)
   );
+
+  const isMessageValid = (message: Message): boolean => {
+    const checkFields = (obj: any): boolean => {
+      for (const key in obj) {
+        if (typeof obj[key] === "object" && obj[key] !== null) {
+          if (!checkFields(obj[key])) return false;
+        } else if (obj[key] === "" || obj[key] === undefined) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    return checkFields(message);
+  };
+
+  const checkFormValidity = () => {
+    const valid = formData.messages.every(isMessageValid);
+    setIsFormValid(valid);
+  };
+
+  useEffect(() => {
+    checkFormValidity();
+  }, [formData.messages]);
 
   const handleAddMessage = () => {
     dispatch({
@@ -30,11 +55,13 @@ export default function ProposalMessages({
       message: initialMessages.initialSendMessage,
     });
     setVisibleMessages([...visibleMessages, false]);
+    checkFormValidity();
   };
 
   const handleRemoveMessage = (index: number) => {
     dispatch({ type: "REMOVE_MESSAGE", index });
     setVisibleMessages(visibleMessages.filter((_, i) => i !== index));
+    checkFormValidity();
   };
 
   const toggleVisibility = (index: number) => {
@@ -192,8 +219,8 @@ export default function ProposalMessages({
     } else {
       (updatedMessage as any)[field as string] = value;
     }
-
     dispatch({ type: "UPDATE_MESSAGE", index, message: updatedMessage });
+    checkFormValidity();
   };
 
   const renderInputs = (
@@ -214,7 +241,7 @@ export default function ProposalMessages({
       ) {
         return (
           <div key={currentPath} className="mb-4">
-            <h3 className="font-semibold mb-2 capitalize">
+            <h3 className="font-semibold mb-2 capitalize ">
               {key.replace(/_/g, " ")}
             </h3>
             <div className="pl-4 border-l-2 border-gray-200">
@@ -241,7 +268,7 @@ export default function ProposalMessages({
         return (
           <div key={currentPath} className="mb-4  pb-2">
             <div className="flex items-center h-full justify-between">
-              <span className="w-1/3 capitalize pb-2 mt-2 font-medium border-b border-b-[0.01rem] border-gray-200">
+              <span className="w-1/3 capitalize pb-2 mt-2 font-medium border-b-[0.01rem] border-gray-200 truncate">
                 {key.replace(/_/g, " ")}
               </span>
               <input
@@ -317,16 +344,16 @@ export default function ProposalMessages({
   ].filter((type) => type.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
-    <section className="">
+    <section className="w-full px-4 sm:px-0">
       <div className="lg:flex mx-auto">
-        <div className="flex items-center mx-auto md:w-[42rem] px-4 md:px-8 xl:px-0">
+        <div className="flex items-center mx-auto w-screen px-6 md:px-0 md:w-[42rem] xl:px-0">
           <div className="w-full">
             <div className="w-full">
-              <div className="flex flex-row justify-between items-center">
-                <h1 className="text-2xl font-extrabold tracking-tight sm:mb-6 leading-tight">
+              <div className="flex flex-row justify-between items-center mb-6">
+                <h1 className="text-2xl font-extrabold tracking-tight  leading-tight">
                   Messages
                 </h1>
-                <div className="flex gap-2 sm:mb-6">
+                <div className="flex gap-2  ">
                   <button
                     type="button"
                     className="btn btn-sm btn-primary"
@@ -446,7 +473,7 @@ export default function ProposalMessages({
                 <button
                   onClick={handleNextStep}
                   className="btn mt-4 btn-primary w-full"
-                  disabled={formData.messages.length === 0}
+                  disabled={formData.messages.length === 0 || !isFormValid}
                 >
                   Next: Proposal Metadata
                 </button>
@@ -457,7 +484,10 @@ export default function ProposalMessages({
                   onClick={prevStep}
                   className="text-center btn btn-neutral items-center w-1/2 py-2.5 sm:py-3.5 text-sm font-medium focus:outline-none rounded-lg border"
                 >
-                  Prev: Proposal Details
+                  <span className="hidden sm:inline">
+                    Prev: Proposal Details
+                  </span>
+                  <span className="sm:hidden"> Prev: Info</span>
                 </button>
                 <a className="text-center items-center w-1/2 py-2.5 sm:py-3.5 text-sm font-medium"></a>
               </div>

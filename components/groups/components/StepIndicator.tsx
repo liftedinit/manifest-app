@@ -1,11 +1,11 @@
-import React from "react";
+import React, { ReactNode } from "react";
 
 export default function StepIndicator({
   currentStep,
   steps,
 }: {
   currentStep: number;
-  steps: { label: string; step: number }[];
+  steps: { label: ReactNode; step: number }[];
 }) {
   return (
     <ul className="steps w-full">

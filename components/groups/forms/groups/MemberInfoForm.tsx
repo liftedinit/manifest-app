@@ -78,11 +78,11 @@ export default function MemberInfoForm({
         <div className="flex items-center mx-auto md:w-[42rem] px-4 md:px-8 xl:px-0">
           <div className="w-full">
             <div className="w-full">
-              <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-extrabold tracking-tight  sm:mb-6 leading-tight e">
+              <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-extrabold tracking-tight leading-tight e">
                   Member Info
                 </h1>
-                <div className="flex sm:mb-6">
+                <div className="flex ">
                   <button
                     type="button"
                     className="btn btn-sm btn-secondary"
@@ -130,7 +130,11 @@ export default function MemberInfoForm({
                             onChange={(e) =>
                               handleChange(index, "address", e.target.value)
                             }
-                            className="input input-bordered rounded-tl-lg rounded-bl-lg rounded-tr-none rounded-br-none w-full "
+                            className={`input input-bordered ${
+                              index === 0
+                                ? "rounded-tl-lg rounded-bl-lg rounded-tr-none rounded-br-none"
+                                : ""
+                            } w-full `}
                             placeholder="manifest1..."
                           />
                           {index === 0 && (

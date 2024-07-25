@@ -41,6 +41,7 @@ function VoteDetailsModal({
   modalId,
   refetchVotes,
   refetchTally,
+  refetchProposals,
 }: {
   tallies: QueryTallyResultResponseSDKType;
   votes: VoteSDKType[];
@@ -50,6 +51,7 @@ function VoteDetailsModal({
   modalId: string;
   refetchVotes: () => void;
   refetchTally: () => void;
+  refetchProposals: () => void;
 }) {
   const voteMap = useMemo(
     () =>
@@ -67,17 +69,6 @@ function VoteDetailsModal({
 
   const textColor = theme === "dark" ? "#E0D1D4" : "#2e2e2e";
 
-  const series: ApexAxisChartSeries = [
-    {
-      data: [
-        parseInt(tallies?.tally?.yes_count ?? ""),
-        parseInt(tallies?.tally?.no_count ?? ""),
-        parseInt(tallies?.tally?.no_with_veto_count ?? ""),
-        parseInt(tallies?.tally?.abstain_count ?? ""),
-      ],
-    },
-  ];
-
   const normalizedMembers = useMemo(
     () =>
       members?.map((member) => ({
@@ -85,7 +76,7 @@ function VoteDetailsModal({
       })),
     [members]
   );
-  console.log({ normalizedMembers });
+
   const executorResultMapping: { [key: string]: string } = {
     PROPOSAL_EXECUTOR_RESULT_NOT_RUN: "execute",
     PROPOSAL_EXECUTOR_RESULT_SUCCESS: "success",
@@ -114,6 +105,17 @@ function VoteDetailsModal({
 
     return executorResultMapping[proposal.executor_result] || "unknown status";
   };
+
+  const [chartData, setChartData] = useState<number[]>([0, 0, 0, 0]);
+
+  useEffect(() => {
+    const yesCount = parseInt(tallies?.tally?.yes_count ?? "0");
+    const noCount = parseInt(tallies?.tally?.no_count ?? "0");
+    const vetoCount = parseInt(tallies?.tally?.no_with_veto_count ?? "0");
+    const abstainCount = parseInt(tallies?.tally?.abstain_count ?? "0");
+
+    setChartData([yesCount, noCount, vetoCount, abstainCount]);
+  }, [tallies, votes]);
 
   const options: ApexOptions = {
     chart: {
@@ -181,8 +183,12 @@ function VoteDetailsModal({
     fill: {
       opacity: 1,
     },
-    series: series,
-    colors: ["#78f59599", "#fcd4779a", "#fe6565b0", "#a885f8a1"],
+    series: [
+      {
+        data: chartData,
+      },
+    ],
+    colors: ["#78f59599", "#fe6565b0", "#fcd4779a", "#a885f8a1"],
     tooltip: {
       enabled: false,
     },
@@ -211,6 +217,7 @@ function VoteDetailsModal({
         onSuccess: () => {
           refetchTally();
           refetchVotes();
+          refetchProposals();
           setIsGridVisible(false);
         },
       });
@@ -227,6 +234,7 @@ function VoteDetailsModal({
         onSuccess: () => {
           refetchTally();
           refetchVotes();
+          refetchProposals();
         },
       });
     } catch (error) {
@@ -485,7 +493,12 @@ function VoteDetailsModal({
         <div className="flex flex-col w-full relative flex-grow items-start justify-start">
           <p className="text-md font-light mt-2  ">TALLY</p>
           <div className="w-full ">
-            <Chart options={options} series={series} type="bar" height={200} />
+            <Chart
+              options={options}
+              series={[{ data: chartData }]}
+              type="bar"
+              height={200}
+            />
           </div>
           <p className="text-md font-light mt-4  ">MEMBERS</p>
           <div className="overflow-x-auto w-full min-h-96 max-h-96 rounded-md  overflow-y-auto">
@@ -529,43 +542,73 @@ function VoteDetailsModal({
               <CountdownTimer endTime={new Date(proposal.voting_period_end)} />
             </div>
           </div>
-          {proposal.status ===
-            ("PROPOSAL_STATUS_REJECTED" as unknown as ProposalStatus) ||
-          proposal.executor_result ===
-            ("PROPOSAL_EXECUTOR_RESULT_FAILURE" as unknown as ProposalExecutorResult) ? (
-            <button
-              className="btn w-full btn-primary ml-auto mt-4"
-              onClick={executeWithdrawl}
-            >
-              Remove
-            </button>
-          ) : proposal.executor_result ===
-              ("PROPOSAL_EXECUTOR_RESULT_NOT_RUN" as unknown as ProposalExecutorResult) &&
-            proposalClosed &&
-            proposal.status !==
-              ("PROPOSAL_STATUS_REJECTED" as unknown as ProposalStatus) ? (
-            <button
-              className="btn w-full btn-primary ml-auto mt-4"
-              onClick={executeProposal}
-            >
-              Execute
-            </button>
-          ) : proposal.status !==
-              ("PROPOSAL_STATUS_CLOSED" as unknown as ProposalStatus) &&
-            !proposalClosed ? (
-            <button
-              disabled={!address || userVotedStatus}
-              className="btn w-full btn-primary ml-auto mt-4 border-r-4 border-r-primaryShadow border-b-4 border-b-primaryShadow"
-              onClick={handleButtonClick}
-            >
-              Vote
-            </button>
-          ) : null}
-          {isGridVisible && (
+          <div className="w-full relative">
+            {proposal.status ===
+              ("PROPOSAL_STATUS_ACCEPTED" as unknown as ProposalStatus) &&
+            proposal.executor_result ===
+              ("PROPOSAL_EXECUTOR_RESULT_NOT_RUN" as unknown as ProposalExecutorResult) ? (
+              <button
+                className="btn w-full btn-primary ml-auto mt-4"
+                onClick={executeProposal}
+              >
+                Execute
+              </button>
+            ) : proposal.executor_result ===
+                ("PROPOSAL_EXECUTOR_RESULT_NOT_RUN" as unknown as ProposalExecutorResult) &&
+              proposalClosed &&
+              proposal.status !==
+                ("PROPOSAL_STATUS_REJECTED" as unknown as ProposalStatus) ? (
+              <button
+                className="btn w-full btn-primary ml-auto mt-4"
+                onClick={executeProposal}
+              >
+                Execute
+              </button>
+            ) : proposal.status !==
+                ("PROPOSAL_STATUS_CLOSED" as unknown as ProposalStatus) &&
+              !proposalClosed &&
+              userHasVoted === false ? (
+              <>
+                <button
+                  disabled={!address || userVotedStatus}
+                  className="btn w-full btn-primary ml-auto mt-4 border-r-4 border-r-primaryShadow border-b-4 border-b-primaryShadow"
+                  onClick={handleButtonClick}
+                >
+                  Vote
+                </button>
+                {proposal.proposers.includes(address ?? "") && (
+                  <button
+                    className=" absolute top-3 right-[0.3rem] btn btn-xs w-1/8 mx-auto btn-secondary ml-auto mt-2"
+                    onClick={executeWithdrawl}
+                  >
+                    X
+                  </button>
+                )}
+              </>
+            ) : proposal.status ===
+                ("PROPOSAL_STATUS_REJECTED" as unknown as ProposalStatus) ||
+              proposal.executor_result ===
+                ("PROPOSAL_EXECUTOR_RESULT_FAILURE" as unknown as ProposalExecutorResult) ||
+              (userHasVoted === true &&
+                proposal.status !=
+                  ("PROPOSAL_STATUS_REJECTED" as unknown as ProposalStatus)) ||
+              proposal.executor_result !=
+                ("PROPOSAL_EXECUTOR_RESULT_FAILURE" as unknown as ProposalExecutorResult) ? (
+              <button
+                disabled={!proposal.proposers.includes(address ?? "")}
+                className="btn w-full btn-primary ml-auto mt-4"
+                onClick={executeWithdrawl}
+              >
+                Remove
+              </button>
+            ) : null}
+          </div>
+
+          {isGridVisible && !userHasVoted && (
             <VotingPopup
               proposalId={proposal.id}
               isGridVisible={isGridVisible}
-              refetch={refetchVotes || refetchTally}
+              refetch={refetchVotes || refetchTally || refetchProposals}
             />
           )}
         </div>

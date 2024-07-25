@@ -230,6 +230,7 @@ export default function ConfirmationModal({
               </button>
               <button
                 onClick={handleConfirm}
+                disabled={isSigning || !address}
                 className="w-1/2 px-5 py-2.5 sm:py-3.5 btn btn-primary"
               >
                 {isSigning ? (

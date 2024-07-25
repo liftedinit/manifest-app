@@ -215,6 +215,7 @@ export default function Groups() {
                       groupByMemberDataLoading={isGroupByMemberLoading}
                       groupByMemberDataError={isGroupByMemberError}
                       address={address ?? ""}
+                      policyAddress={selectedPolicyAddress ?? ""}
                     />
                   </div>
                 </div>

@@ -4,6 +4,8 @@ import { cosmos } from "@chalabi/manifestjs";
 import { PiTrashLight, PiPlusCircleThin, PiInfoLight } from "react-icons/pi";
 import { useTx, useFeeEstimation } from "@/hooks";
 import { chainName } from "@/config";
+import { ThresholdDecisionPolicy } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types";
+import { Any } from "@chalabi/manifestjs/dist/codegen/google/protobuf/any";
 
 interface Member {
   address: string;
@@ -30,7 +32,8 @@ export function UpdateGroupModal({
   group,
   modalId,
   address,
-}: Group & { modalId: string }) {
+  policyAddress,
+}: Group & { modalId: string; policyAddress: string }) {
   const { tx } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
 
@@ -205,20 +208,26 @@ export function UpdateGroupModal({
   };
 
   const buildMessages = () => {
-    const messages = [];
+    const messages: Any[] = [];
 
-    const newAdmin = members?.filter((member) => member?.isAdmin)[0]?.member
+    // Update Group Admin
+    const newAdmin = members?.find((member) => member?.isAdmin)?.member
       ?.address;
     if (hasStateChanged(newAdmin, group.admin)) {
+      const msg = updateGroupAdmin({
+        admin: group.admin,
+        groupId: BigInt(group?.members[0]?.group_id),
+        newAdmin: newAdmin ?? "",
+      });
       messages.push(
-        updateGroupAdmin({
-          admin: group.admin,
-          groupId: BigInt(group?.members[0]?.group_id),
-          newAdmin: newAdmin,
+        Any.fromPartial({
+          typeUrl: cosmos.group.v1.MsgUpdateGroupAdmin.typeUrl,
+          value: cosmos.group.v1.MsgUpdateGroupAdmin.encode(msg.value).finish(),
         })
       );
     }
 
+    // Update Group Members
     const membersChanged = members.some(
       (member, index) =>
         hasStateChanged(
@@ -235,20 +244,26 @@ export function UpdateGroupModal({
         )
     );
     if (membersChanged) {
+      const msg = updateGroupMembers({
+        admin: group.admin,
+        groupId: BigInt(group?.members[0]?.group_id),
+        memberUpdates: members.map((member) => ({
+          address: member.member.address,
+          metadata: member.member.metadata,
+          weight: member.member.weight,
+        })),
+      });
       messages.push(
-        updateGroupMembers({
-          admin: group.admin,
-          groupId: BigInt(group?.members[0]?.group_id),
-          memberUpdates: members?.map((member) => ({
-            address: member?.member.address,
-            metadata: member?.member.metadata,
-            weight: member?.member.weight,
-            added_at: member?.member.added_at,
-          })),
+        Any.fromPartial({
+          typeUrl: cosmos.group.v1.MsgUpdateGroupMembers.typeUrl,
+          value: cosmos.group.v1.MsgUpdateGroupMembers.encode(
+            msg.value
+          ).finish(),
         })
       );
     }
 
+    // Update Group Metadata
     if (
       hasStateChanged(name, group.ipfsMetadata?.title) ||
       hasStateChanged(authors, group.ipfsMetadata?.authors) ||
@@ -256,33 +271,62 @@ export function UpdateGroupModal({
       hasStateChanged(forum, group.ipfsMetadata?.proposalForumURL) ||
       hasStateChanged(description, group.ipfsMetadata?.details)
     ) {
+      const newMetadata = JSON.stringify({
+        title: name,
+        authors: authors,
+        summary: summary,
+        proposalForumURL: forum,
+        details: description,
+      });
+      const msgGroupMetadata = updateGroupMetadata({
+        admin: group.admin,
+        groupId: BigInt(group?.members[0]?.group_id),
+        metadata: newMetadata,
+      });
       messages.push(
-        updateGroupMetadata({
-          admin: group?.admin,
-          groupId: BigInt(group?.members[0]?.group_id),
-          metadata: JSON.stringify({
-            title: name,
-            authors: authors,
-            summary: summary,
-            proposalForumURL: forum,
-            details: description,
-          }),
+        Any.fromPartial({
+          typeUrl: cosmos.group.v1.MsgUpdateGroupMetadata.typeUrl,
+          value: cosmos.group.v1.MsgUpdateGroupMetadata.encode(
+            msgGroupMetadata.value
+          ).finish(),
+        })
+      );
+
+      const msgPolicyMetadata = updateGroupPolicyMetadata({
+        groupPolicyAddress: group.policies[0].address,
+        admin: group.admin,
+        metadata: newMetadata,
+      });
+      messages.push(
+        Any.fromPartial({
+          typeUrl: cosmos.group.v1.MsgUpdateGroupPolicyMetadata.typeUrl,
+          value: cosmos.group.v1.MsgUpdateGroupPolicyMetadata.encode(
+            msgPolicyMetadata.value
+          ).finish(),
         })
       );
     }
 
-    const newPolicyAdmin = members?.filter((member) => member?.isPolicyAdmin)[0]
+    // Update Group Policy Admin
+    const newPolicyAdmin = members?.find((member) => member?.isPolicyAdmin)
       ?.member?.address;
     if (hasStateChanged(newPolicyAdmin, group.policies[0]?.admin)) {
+      const msg = updateGroupPolicyAdmin({
+        groupPolicyAddress: group.policies[0].address,
+        admin: group.admin,
+        newAdmin: newPolicyAdmin ?? "",
+      });
       messages.push(
-        updateGroupPolicyAdmin({
-          groupPolicyAddress: group?.policies[0].address,
-          admin: group?.admin,
-          newAdmin: newPolicyAdmin,
+        Any.fromPartial({
+          typeUrl: cosmos.group.v1.MsgUpdateGroupPolicyAdmin.typeUrl,
+          value: cosmos.group.v1.MsgUpdateGroupPolicyAdmin.encode(
+            msg.value
+          ).finish(),
         })
       );
     }
 
+    // Update Group Policy Decision Policy
     if (
       hasStateChanged(
         threshold,
@@ -293,54 +337,36 @@ export function UpdateGroupModal({
         group.policies[0]?.decision_policy?.windows?.voting_period.seconds
       )
     ) {
-      messages.push(
-        updateGroupPolicyDecisionPolicy({
-          groupPolicyAddress: group.policies[0].address,
-          admin: group.admin,
-          decisionPolicy: {
-            threshold: threshold,
-            percentage: "",
-            windows: {
-              votingPeriod: {
-                nanos: 0,
-                seconds: BigInt(0),
-              },
-              minExecutionPeriod: {
-                nanos: 0,
-                seconds: BigInt(0),
-              },
-            },
-          },
-        })
-      );
-    }
+      const thresholdMsg = {
+        threshold: threshold,
+        windows: {
+          votingPeriod: { seconds: BigInt(0), nanos: 0 },
+          minExecutionPeriod: { seconds: BigInt(0), nanos: 0 },
+        },
+      };
 
-    if (
-      messages.includes(
-        updateGroupMetadata({
-          admin: group?.admin,
-          groupId: BigInt(group?.members[0]?.group_id),
-          metadata: JSON.stringify({
-            title: name,
-            authors: authors,
-            summary: summary,
-            proposalForumURL: forum,
-            details: description,
-          }),
-        })
-      )
-    ) {
+      const threshholdPolicyFromPartial =
+        ThresholdDecisionPolicy.fromPartial(thresholdMsg);
+      const threshholdPolicy = ThresholdDecisionPolicy.encode(
+        threshholdPolicyFromPartial
+      ).finish();
+
+      const msg = updateGroupPolicyDecisionPolicy({
+        groupPolicyAddress: group.policies[0].address,
+        admin: group.admin,
+        decisionPolicy: {
+          threshold: threshold,
+          percentage: threshold,
+          value: threshholdPolicy,
+          typeUrl: cosmos.group.v1.ThresholdDecisionPolicy.typeUrl,
+        },
+      });
       messages.push(
-        updateGroupPolicyMetadata({
-          groupPolicyAddress: group.policies[0].address,
-          admin: group.admin,
-          metadata: JSON.stringify({
-            title: name,
-            authors: authors,
-            summary: summary,
-            proposalForumURL: forum,
-            details: description,
-          }),
+        Any.fromPartial({
+          typeUrl: cosmos.group.v1.MsgUpdateGroupPolicyDecisionPolicy.typeUrl,
+          value: cosmos.group.v1.MsgUpdateGroupPolicyDecisionPolicy.encode(
+            msg.value
+          ).finish(),
         })
       );
     }
@@ -348,28 +374,28 @@ export function UpdateGroupModal({
     return messages;
   };
 
-  const handleUpdate = async () => {
-    const messages = buildMessages();
-
-    if (messages.length === 0) {
-      console.log("No changes detected");
-      return;
-    }
-
+  const handleConfirm = async () => {
     setIsSigning(true);
-    try {
-      const fee = await estimateFee(address, messages);
-      await tx(messages, {
-        fee,
-        onSuccess: () => {
-          console.log("Update successful");
-        },
-      });
-    } catch (error) {
-      console.error("Error during update:", error);
-    } finally {
-      setIsSigning(false);
-    }
+
+    const encodedMessages = buildMessages();
+    const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
+    const msg = submitProposal({
+      groupPolicyAddress: policyAddress,
+      proposers: [address],
+      metadata: "",
+      messages: encodedMessages,
+      exec: 0,
+      title: "Update Group",
+      summary: "Update Group",
+    });
+
+    const fee = await estimateFee(address, [msg]);
+    await tx([msg], {
+      fee,
+      onSuccess: () => {
+        setIsSigning(false);
+      },
+    });
   };
   return (
     <dialog id={modalId} className="modal">
@@ -629,13 +655,12 @@ export function UpdateGroupModal({
             </div>
           </div>
         </div>
-        <div className="modal-action">
-          <form method="dialog">
-            <button className="btn btn-neutral mr-2">Cancel</button>
-          </form>
+        <div className="modal-action w-full flex flex-row  items-center justify-between">
+          <button className="btn btn-neutral w-[49.5%]">Cancel</button>
+
           <button
-            className="btn btn-primary max-w-[6rem] w-full"
-            onClick={handleUpdate}
+            className="btn btn-primary w-[49%] "
+            onClick={handleConfirm}
             disabled={isSigning || buildMessages().length === 0}
           >
             {isSigning ? (
@@ -646,6 +671,7 @@ export function UpdateGroupModal({
           </button>
         </div>
       </div>
+
       <form method="dialog" className="modal-backdrop">
         <button>close</button>
       </form>

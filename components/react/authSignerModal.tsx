@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { SignData } from "@cosmos-kit/web3auth";
 import { SignDoc } from "@chalabi/manifestjs/dist/codegen/cosmos/tx/v1beta1/tx";
@@ -124,83 +124,63 @@ const SignModal = ({
   const walletIcon = wallet.wallet?.logo;
   const walletName = wallet.wallet?.prettyName;
 
-  return (
-    <Transition.Root show={visible} as={Fragment}>
-      <Dialog
-        as="div"
-        className="fixed inset-0 z-[9999] overflow-y-auto"
-        onClose={onClose}
-      >
-        <div className="fixed top-0 right-0 p-4 max-w-md w-full">
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-            enterTo="opacity-100 translate-y-0 sm:scale-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-            leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-          >
-            <Dialog.Panel className="bg-base-300 rounded-lg shadow-xl transform transition-all sm:max-w-lg sm:w-full">
-              <div className="bg-base-300 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-l border-r border-t border-1 border-base-200 rounded-tr-md rounded-tl-md">
-                <div className="sm:flex sm:items-start">
-                  <div className="sm:flex sm:flex-row sm:justify-between w-full border-b pb-2 border-gray-600">
-                    <Dialog.Title
-                      as="h3"
-                      className="text-lg leading-6 font-medium"
-                    >
-                      <div className="flex flex-row justify-between w-full items-center gap-3">
-                        <Image
-                          src={walletIcon?.toString() ?? ""}
-                          alt="Wallet type logo"
-                          width={32}
-                          height={32}
-                          className="flex-shrink-0 aspect-1"
-                        />
-                        <h3 className="leading-6 text-xl">
-                          {walletName?.toString()} Direct Signer
-                        </h3>
-                      </div>
-                    </Dialog.Title>
-                    <button
-                      type="button"
-                      className="text-gray-400 hover:text-gray-500"
-                      onClick={onClose}
-                    >
-                      X
-                    </button>
-                  </div>
-                </div>
-                <DisplayDataToSign data={data} address={address ?? ""} />
-              </div>
+  useEffect(() => {
+    const modal = document.getElementById("sign-modal") as HTMLDialogElement;
+    if (visible) {
+      modal.showModal();
+    } else {
+      modal.close();
+    }
+  }, [visible]);
 
-              <div className="bg-base-100 py-3 px-6 flex flex-row-reverse justify-center gap-4 w-full border-l border-r border-b rounded-br-md rounded-bl-md border-1 border-base-200 items-center">
-                <button
-                  type="button"
-                  className="w-1/2  justify-center rounded-md border btn btn-primary shadow-sm  text-sm "
-                  onClick={() => {
-                    approve();
-                    onClose();
-                  }}
-                >
-                  Approve
-                </button>
-                <button
-                  type="button"
-                  className=" w-1/2  justify-center rounded-md border btn btn-secondary shadow-sm text-sm"
-                  onClick={() => {
-                    reject();
-                    onClose();
-                  }}
-                >
-                  Reject
-                </button>
-              </div>
-            </Dialog.Panel>
-          </Transition.Child>
+  return (
+    <dialog id="sign-modal" className="modal top-0 right-0">
+      <div className="modal-box max-w-md w-full">
+        <div className="flex justify-between items-center border-b pb-2 border-gray-600">
+          <div className="flex items-center gap-3">
+            <Image
+              src={walletIcon?.toString() ?? ""}
+              alt="Wallet type logo"
+              width={32}
+              height={32}
+              className="flex-shrink-0 aspect-1"
+            />
+            <h3 className="text-xl font-medium">
+              {walletName?.toString()} Direct Signer
+            </h3>
+          </div>
+          <button className="btn btn-sm btn-circle btn-ghost" onClick={onClose}>
+            ✕
+          </button>
         </div>
-      </Dialog>
-    </Transition.Root>
+
+        <DisplayDataToSign data={data} address={address ?? ""} />
+
+        <div className="modal-action px-8 -mt-0 justify-center gap-4">
+          <button
+            className="btn btn-secondary w-1/2"
+            onClick={() => {
+              reject();
+              onClose();
+            }}
+          >
+            Reject
+          </button>
+          <button
+            className="btn btn-primary w-1/2"
+            onClick={() => {
+              approve();
+              onClose();
+            }}
+          >
+            Approve
+          </button>
+        </div>
+      </div>
+      <form method="dialog" className="modal-backdrop">
+        <button onClick={onClose}>close</button>
+      </form>
+    </dialog>
   );
 };
 

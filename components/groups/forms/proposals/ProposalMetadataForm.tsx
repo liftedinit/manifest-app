@@ -113,7 +113,8 @@ export default function ProposalMetadataForm({
                 onClick={prevStep}
                 className="text-center items-center w-1/2 py-2.5 sm:py-3.5 btn btn-neutral"
               >
-                Prev: Messages
+                <span className="hidden sm:inline">Prev: Messages</span>
+                <span className="sm:hidden"> Prev: TXs</span>
               </button>
             </div>
           </div>
