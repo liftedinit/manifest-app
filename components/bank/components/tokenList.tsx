@@ -8,12 +8,14 @@ interface TokenListProps {
   balances: CombinedBalanceInfo[] | undefined;
   isLoading: boolean;
   admin: string;
+  isMember: boolean;
 }
 
 export default function TokenList({
   balances,
   isLoading,
   admin,
+  isMember,
 }: TokenListProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDenom, setSelectedDenom] = useState<any>(null);
@@ -112,6 +114,7 @@ export default function TokenList({
       {/* DenomInfoModal */}
       {selectedDenom && (
         <DenomInfoModal
+          isMember={isMember}
           admin={admin}
           isMFX={isMFX}
           denom={selectedDenom}

@@ -24,11 +24,13 @@ export function DenomInfoModal({
   modalId,
   isMFX,
   admin,
+  isMember,
 }: {
   denom: any;
   modalId: string;
   isMFX?: boolean;
   admin?: string;
+  isMember?: boolean;
 }) {
   const { payout, burnHeldBalance } = manifest.v1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
@@ -338,10 +340,11 @@ export function DenomInfoModal({
           ) : (
             <div className="px-4">
               <button
+                disabled={!isMember}
                 className="btn btn-primary w-full mt-4"
                 onClick={toggleManifestControls}
               >
-                Open Manifest Module Controls
+                MFX Controls
               </button>
             </div>
           )}
@@ -359,23 +362,20 @@ export function DenomInfoModal({
                   ✕
                 </button>
               </form>
-              <h3 className="font-bold text-lg mb-4">
-                Manifest Module Controls
-              </h3>
-              <div className="divider"></div>
+              <h3 className="font-bold text-lg">Mint & Burn MFX</h3>
+              <div className="divider mt-0 mb-1"></div>
               <div className="flex flex-col w-full items-center justify-between gap-2">
-                <div
-                  role="tablist"
-                  className="tabs tabs-lifted tabs-lg w-full items-end mb-4"
-                >
+                <div role="tablist" className="tabs tabs-lg w-full items-end">
                   {["payout", "burn"].map((tab) => (
                     <button
                       key={tab}
                       type="button"
                       role="tab"
-                      className={`tab tab-lg flex-1 ${
-                        activeTab === tab ? "tab-active bg-base-300" : ""
-                      }`}
+                      className={`tab tab-lg flex-1  ${
+                        activeTab === tab
+                          ? "tab-active shadow-inner bg-base-200 "
+                          : " "
+                      } rounded-tl-lg rounded-tr-lg`}
                       onClick={() => setActiveTab(tab as MessageType)}
                     >
                       {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -383,9 +383,13 @@ export function DenomInfoModal({
                   ))}
                 </div>
 
-                <div className="relative w-full">
+                <div className="relative w-full -mt-2">
                   <div
-                    className={`animate-fadeIn p-6 rounded-lg shadow-inner
+                    className={`animate-fadeIn p-6 ${
+                      activeTab === "payout"
+                        ? "rounded-tr-lg rounded-br-lg rounded-bl-lg"
+                        : "rounded-br-lg rounded-bl-lg rounded-tl-lg"
+                    } shadow-inner
                   bg-base-200 w-full overflow-auto min-h-[28rem] max-h-[28rem]`}
                   >
                     {activeTab === "payout" && <PayoutPairsInputs />}
@@ -413,8 +417,7 @@ export function DenomInfoModal({
                   </button>
                 </div>
 
-                <div className="divider my-2"></div>
-                <div className="w-full px-6">
+                <div className="w-full px-6 mt-2">
                   <button
                     className="btn btn-primary w-full"
                     onClick={handleSubmitProposal}
