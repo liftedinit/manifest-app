@@ -2,7 +2,7 @@ import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
 import { chainName } from "@/config";
 import { useFeeEstimation, useTx } from "@/hooks";
 import { cosmos, manifest } from "@chalabi/manifestjs";
-import { Coin } from "@chalabi/manifestjs/dist/codegen/cosmos/base/v1beta1/coin";
+
 import { Any } from "@chalabi/manifestjs/dist/codegen/google/protobuf/any";
 import {
   MsgBurnHeldBalance,
