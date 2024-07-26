@@ -326,7 +326,7 @@ export default function ProposalsForPolicy({
                     </div>
                   )}
                 </div>
-                {proposals.length > 0 && (
+                {filterProposals(proposals).length > 0 && (
                   <div className=" flex-row justify-center items-center mx-auto w-full hidden md:flex gap-4 transition-opacity  duration-300 ease-in-out animate-fadeIn h-16   rounded-md -mt-1 ">
                     <div className="flex flex-col gap-1 justify-left w-1/4 items-center">
                       <span className="text-xs  capitalize text-gray-400 hidden md:block">
@@ -335,7 +335,9 @@ export default function ProposalsForPolicy({
                       <span className="text-xs  capitalize text-gray-400 block md:hidden">
                         ACTIVE
                       </span>
-                      <span className="text-sm ">{proposals.length}</span>
+                      <span className="text-sm ">
+                        {filterProposals(proposals).length}
+                      </span>
                     </div>
                     <div className="flex flex-col gap-1 justify-left w-1/4 items-center ">
                       <span className="text-xs  capitalize text-gray-400 hidden md:block">
@@ -346,7 +348,7 @@ export default function ProposalsForPolicy({
                       </span>
                       <span className="text-sm">
                         {
-                          proposals.filter(
+                          filterProposals(proposals).filter(
                             (proposal) =>
                               proposal.executor_result.toString() ===
                                 "PROPOSAL_EXECUTOR_RESULT_NOT_RUN" &&
@@ -387,23 +389,37 @@ export default function ProposalsForPolicy({
                         ENDING
                       </span>
                       <span className="text-sm ">
-                        #
-                        {proposals
-                          .reduce((closest, proposal) => {
-                            const proposalDate = new Date(
-                              proposal.voting_period_end
-                            ).getTime();
-                            const closestDate = new Date(
-                              closest.voting_period_end
-                            ).getTime();
+                        {(() => {
+                          const activeProposals = filterProposals(proposals);
+                          const now = new Date().getTime();
+                          const futureActiveProposals = activeProposals.filter(
+                            (proposal) =>
+                              new Date(proposal.voting_period_end).getTime() >
+                              now
+                          );
 
-                            return Math.abs(
-                              proposalDate - new Date().getTime()
-                            ) < Math.abs(closestDate - new Date().getTime())
-                              ? proposal
-                              : closest;
-                          }, proposals[0])
-                          ?.id.toString() || "No proposal ending soon"}
+                          if (futureActiveProposals.length === 0) {
+                            return "No active proposals ending soon";
+                          }
+
+                          const closestEndingProposal =
+                            futureActiveProposals.reduce(
+                              (closest, proposal) => {
+                                const proposalDate = new Date(
+                                  proposal.voting_period_end
+                                ).getTime();
+                                const closestDate = new Date(
+                                  closest.voting_period_end
+                                ).getTime();
+
+                                return proposalDate - now < closestDate - now
+                                  ? proposal
+                                  : closest;
+                              }
+                            );
+
+                          return `#${closestEndingProposal.id.toString()}`;
+                        })()}
                       </span>
                     </div>
                   </div>
