@@ -3,6 +3,7 @@ import { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { MetadataSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
 import { DenomImage } from "./DenomImage";
+
 export default function MyDenoms({
   denoms,
   isLoading,

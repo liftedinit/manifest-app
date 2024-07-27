@@ -49,14 +49,22 @@ export const DenomImage = ({ denom }: { denom: any }) => {
   const [isSupported, setIsSupported] = useState(false);
 
   useEffect(() => {
-    if (denom.uri) {
-      setIsSupported(isUrlSupported(denom.uri));
-    }
-    setIsLoading(false);
+    const checkUri = async () => {
+      if (denom.uri) {
+        setIsSupported(isUrlSupported(denom.uri));
+        // Simulate a delay to show the loading state
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+      setIsLoading(false);
+    };
+
+    checkUri();
   }, [denom.uri]);
 
   if (isLoading) {
-    return <div className="skeleton w-8 h-8 rounded-full"></div>;
+    return (
+      <div className="skeleton w-8 h-8 rounded-full animate-pulse bg-gray-300"></div>
+    );
   }
 
   // Check for MFX token first
@@ -67,7 +75,7 @@ export const DenomImage = ({ denom }: { denom: any }) => {
         height={0}
         src="/logo.svg"
         alt="MFX Token Icon"
-        className=" w-[28px] h-[28px] ml-1"
+        className="w-[28px] h-[28px] ml-1"
       />
     );
   }

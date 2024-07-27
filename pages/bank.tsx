@@ -177,12 +177,8 @@ export default function Bank() {
                     address={address ?? ""}
                   />
                   <TokenList
-                    admin={
-                      "manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj"
-                    }
                     balances={combinedBalances}
                     isLoading={resolvedLoading}
-                    isMember={isMember}
                   />
                 </div>
               </div>

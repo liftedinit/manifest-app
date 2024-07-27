@@ -2,6 +2,8 @@ import { WalletSection } from "@/components";
 import DenomInfo from "@/components/factory/components/DenomInfo";
 import MyDenoms from "@/components/factory/components/MyDenoms";
 import {
+  useBalance,
+  useTokenBalances,
   useTokenFactoryBalance,
   useTokenFactoryDenoms,
   useTokenFactoryDenomsMetadata,
@@ -18,11 +20,26 @@ import MetaBox from "@/components/factory/components/metaBox";
 import { CoinSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/base/v1beta1/coin";
 
 export default function Factory() {
+  const MFX_TOKEN_DATA: MetadataSDKType = {
+    description: "The native token of the Manifest Chain",
+    denom_units: [
+      { denom: "umfx", exponent: 0, aliases: [] },
+      { denom: "mfx", exponent: 6, aliases: [] },
+    ],
+    base: "umfx",
+    display: "mfx",
+    name: "Manifest",
+    symbol: "MFX",
+    uri: "",
+    uri_hash: "",
+  };
+
   const { address, isWalletConnected } = useChain(chainName);
   const { denoms, isDenomsLoading, isDenomsError, refetchDenoms } =
     useTokenFactoryDenoms(address ?? "");
   const { metadatas, isMetadatasLoading, isMetadatasError, refetchMetadatas } =
     useTokenFactoryDenomsMetadata();
+  const { balance: mfxBalance } = useBalance(address ?? "");
 
   const [selectedDenom, setSelectedDenom] = useState<string | null>(null);
   const [selectedDenomMetadata, setSelectedDenomMetadata] =
@@ -54,8 +71,10 @@ export default function Factory() {
 
   // Combine denoms and metadatas
   const combinedData = useMemo(() => {
+    let result: MetadataSDKType[] = [MFX_TOKEN_DATA]; // Start with MFX data
+
     if (denoms && metadatas) {
-      return denoms.denoms
+      const tokenFactoryDenoms = denoms.denoms
         .map((denom: string) => {
           return (
             metadatas.metadatas.find((meta) => meta.base === denom) || null
@@ -64,8 +83,11 @@ export default function Factory() {
         .filter(
           (meta: MetadataSDKType | null) => meta !== null
         ) as MetadataSDKType[];
+
+      result = [...result, ...tokenFactoryDenoms];
     }
-    return [];
+
+    return result;
   }, [denoms, metadatas]);
 
   const handleDenomSelect = (denom: MetadataSDKType) => {
@@ -84,7 +106,6 @@ export default function Factory() {
   return (
     <>
       <div className="max-w-5xl relative py-8 mx-auto lg:mx-auto">
-        <Head>{/* ... (keep the existing Head content) ... */}</Head>
         <div className="flex items-center justify-between flex-wrap -ml-4 -mt-2 sm:flex-nowrap">
           <div className="ml-4 mt-2">
             <h3 className="tracking-tight leading-none text-4xl xl:text-4xl md:block hidden">

@@ -22,7 +22,12 @@ export default function DenomInfo({
 }) {
   const DenomConversion = ({ denom }: { denom: MetadataSDKType }) => {
     if (!denom || !denom.denom_units || denom.denom_units.length === 0) {
-      return null;
+      return (
+        <div className="text-md">
+          1&nbsp;{0}&nbsp;=&nbsp;{1}
+          &nbsp;{1}
+        </div>
+      );
     }
 
     const displayUnit = denom.display;

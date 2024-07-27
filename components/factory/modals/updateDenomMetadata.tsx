@@ -27,8 +27,8 @@ export function UpdateDenomMetadataModal({
     uri: denom.uri,
     uriHash: denom.uri_hash,
     subdenom: denom.base.split("/").pop() || "",
-    exponent: denom.denom_units[1].exponent.toString(),
-    label: denom.denom_units[1].denom,
+    exponent: denom?.denom_units[1]?.exponent?.toString() ?? "6",
+    label: denom?.denom_units[1]?.denom ?? "mfx",
   });
 
   const [isSigning, setIsSigning] = useState(false);

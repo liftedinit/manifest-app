@@ -73,9 +73,9 @@ export function YourGroups({
   const filterProposals = (proposals: ProposalSDKType[]) => {
     return proposals.filter(
       (proposal) =>
-        proposal.status !== "PROPOSAL_STATUS_ACCEPTED" &&
-        proposal.status !== "PROPOSAL_STATUS_REJECTED" &&
-        proposal.status !== "PROPOSAL_STATUS_WITHDRAWN"
+        proposal.status.toString() !== "PROPOSAL_STATUS_ACCEPTED" &&
+        proposal.status.toString() !== "PROPOSAL_STATUS_REJECTED" &&
+        proposal.status.toString() !== "PROPOSAL_STATUS_WITHDRAWN"
     );
   };
 

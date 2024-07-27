@@ -3,6 +3,7 @@ import { MetadataSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1
 import MintForm from "@/components/factory/forms/MintForm";
 import BurnForm from "@/components/factory/forms/BurnForm";
 import TransferForm from "@/components/factory/forms/TransferForm";
+import { usePoaParams } from "@/hooks";
 
 export default function MetaBox({
   denom,
@@ -15,9 +16,11 @@ export default function MetaBox({
   refetch: () => void;
   balance: string;
 }) {
+  const { poaParams } = usePoaParams();
   const [activeTab, setActiveTab] = useState<"transfer" | "burn" | "mint">(
     "mint"
   );
+  const admin = poaParams?.admins[0];
 
   if (!denom) {
     return (
@@ -43,7 +46,11 @@ export default function MetaBox({
           role="tablist"
           className="tabs tabs-lifted tabs-md -mr-4 items-end"
         >
-          {["transfer", "burn", "mint"].map((tab) => (
+          {[
+            ...(denom.base.includes("mfx") ? [] : ["transfer"]),
+            "burn",
+            "mint",
+          ].map((tab) => (
             <button
               key={tab}
               type="button"
@@ -63,7 +70,7 @@ export default function MetaBox({
           activeTab != "mint" ? "rounded-tr-md" : ""
         }  min-h-[19rem] max-h-[19rem] border-base-300 bg-base-300 `}
       >
-        {activeTab === "transfer" && (
+        {!denom.base.includes("mfx") && activeTab === "transfer" && (
           <TransferForm
             balance={balance}
             refetch={refetch}
@@ -73,6 +80,7 @@ export default function MetaBox({
         )}
         {activeTab === "burn" && (
           <BurnForm
+            admin={admin ?? ""}
             balance={balance}
             refetch={refetch}
             address={address}
@@ -81,6 +89,7 @@ export default function MetaBox({
         )}
         {activeTab === "mint" && (
           <MintForm
+            admin={admin ?? ""}
             balance={balance}
             refetch={refetch}
             address={address}
