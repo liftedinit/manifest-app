@@ -8,7 +8,7 @@ import { getLogoUrls } from "@/utils";
 import { ExtendedValidatorSDKType } from "@/components";
 import { useManifestLcdQueryClient } from "./useManifestLcdQueryClient";
 import { MetadataSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
-
+import axios from "axios";
 export interface IPFSMetadata {
     title: string;
     authors: string;
@@ -669,3 +669,72 @@ export const useTokenBalancesResolved = (address: string) => {
         refetchBalances: balancesQuery.refetch,
     };
 }
+
+export const useSendTxQuery = () => {
+    const fetchTransactions = async () => {
+        const url = "http://localhost:9000/transactions/send";
+        const response = await axios.get(url);
+        return response.data;
+      };
+      const sendQuery = useQuery({
+        queryKey: ["sendTx"],
+        queryFn: fetchTransactions,
+        enabled: true,
+      });
+    
+      return {
+        sendTxs: sendQuery.data,
+        isLoading: sendQuery.isLoading,
+        isError: sendQuery.isError,
+        error: sendQuery.error,
+      };
+    };
+
+export const useIbcTransferTxQuery = () => {
+        const fetchTransactions = async () => {
+            const url = "http://localhost:9000/transactions/ibc_transfer";
+            const response = await axios.get(url);
+            return response.data;
+          };
+          const sendQuery = useQuery({
+            queryKey: ["transferTx"],
+            queryFn: fetchTransactions,
+            enabled: true,
+          });
+        
+          return {
+            sendTxs: sendQuery.data,
+            isLoading: sendQuery.isLoading,
+            isError: sendQuery.isError,
+            error: sendQuery.error,
+          };
+        };
+    
+
+        export const useSendTxIncludingAddressQuery = (address: string, direction?: 'send' | 'receive') => {
+            const fetchTransactions = async () => {
+              let url = `http://localhost:9000/transactions/send/${address}`;
+              
+              if (direction) {
+                url += `/${direction}`;
+              }
+              
+              const response = await axios.get(url);
+              return response.data;
+            };
+          
+            const queryKey = ['sendTx', address, direction];
+          
+            const sendQuery = useQuery({
+              queryKey,
+              queryFn: fetchTransactions,
+              enabled: !!address, 
+            });
+          
+            return {
+              sendTxs: sendQuery.data,
+              isLoading: sendQuery.isLoading,
+              isError: sendQuery.isError,
+              error: sendQuery.error,
+            };
+          };

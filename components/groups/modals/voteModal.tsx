@@ -1,6 +1,6 @@
 import { useFeeEstimation } from "@/hooks";
 import { useTx } from "@/hooks/useTx";
-import { cosmos } from "interchain";
+import { cosmos } from "@chalabi/manifestjs";
 import { useChain } from "@cosmos-kit/react";
 import React from "react";
 

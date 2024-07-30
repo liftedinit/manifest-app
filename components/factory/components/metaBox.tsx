@@ -1,26 +1,30 @@
-import { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { MetadataSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
 import MintForm from "@/components/factory/forms/MintForm";
 import BurnForm from "@/components/factory/forms/BurnForm";
 import TransferForm from "@/components/factory/forms/TransferForm";
-import { usePoaParams } from "@/hooks";
+import { useGroupsByAdmin, usePoaParams } from "@/hooks";
 
 export default function MetaBox({
   denom,
   address,
   refetch,
   balance,
+  isAdmin,
+  isLoading,
+  admin,
 }: {
   denom: MetadataSDKType | null;
   address: string;
   refetch: () => void;
   balance: string;
+  isAdmin: boolean;
+  isLoading: boolean;
+  admin: string;
 }) {
-  const { poaParams } = usePoaParams();
   const [activeTab, setActiveTab] = useState<"transfer" | "burn" | "mint">(
     "mint"
   );
-  const admin = poaParams?.admins[0];
 
   if (!denom) {
     return (
@@ -37,14 +41,14 @@ export default function MetaBox({
   return (
     <div className="flex flex-col gap-2 rounded-md max-h-[23rem] min-h-[23rem] bg-base-100 shadow w-full p-4 animate-fadeIn">
       <div className="px-4 flex flex-row justify-between items-center border-base-content">
-        <h2 className="text-xl font-semibold">
+        <h2 className="text-xl font-semibold max-w-[20ch] truncate">
           {`${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} ${
             denom.display
           }`}
         </h2>
         <div
           role="tablist"
-          className="tabs tabs-lifted tabs-md -mr-4 items-end"
+          className="tabs tabs-lifted tabs-md -mr-4 items-end "
         >
           {[
             ...(denom.base.includes("mfx") ? [] : ["transfer"]),
@@ -70,31 +74,42 @@ export default function MetaBox({
           activeTab != "mint" ? "rounded-tr-md" : ""
         }  min-h-[19rem] max-h-[19rem] border-base-300 bg-base-300 `}
       >
-        {!denom.base.includes("mfx") && activeTab === "transfer" && (
-          <TransferForm
-            balance={balance}
-            refetch={refetch}
-            address={address}
-            denom={denom}
-          />
+        {isLoading && !denom && (
+          <div className="w-full h-full flex flex-col">
+            <div className="skeleton h-[17rem] max-h-72 w-full"></div>
+          </div>
         )}
-        {activeTab === "burn" && (
-          <BurnForm
-            admin={admin ?? ""}
-            balance={balance}
-            refetch={refetch}
-            address={address}
-            denom={denom}
-          />
-        )}
-        {activeTab === "mint" && (
-          <MintForm
-            admin={admin ?? ""}
-            balance={balance}
-            refetch={refetch}
-            address={address}
-            denom={denom}
-          />
+        {denom && (
+          <>
+            {!denom.base.includes("mfx") && activeTab === "transfer" && (
+              <TransferForm
+                balance={balance}
+                refetch={refetch}
+                address={address}
+                denom={denom}
+              />
+            )}
+            {activeTab === "burn" && (
+              <BurnForm
+                isAdmin={isAdmin ?? false}
+                admin={admin ?? ""}
+                balance={balance}
+                refetch={refetch}
+                address={address}
+                denom={denom}
+              />
+            )}
+            {activeTab === "mint" && (
+              <MintForm
+                isAdmin={isAdmin ?? false}
+                admin={admin ?? ""}
+                balance={balance}
+                refetch={refetch}
+                address={address}
+                denom={denom}
+              />
+            )}
+          </>
         )}
       </div>
     </div>

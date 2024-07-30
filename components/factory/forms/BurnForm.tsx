@@ -15,12 +15,14 @@ interface BurnPair {
 }
 
 export default function BurnForm({
+  isAdmin,
   admin,
   denom,
   address,
   refetch,
   balance,
 }: {
+  isAdmin: boolean;
   admin: string;
   denom: MetadataSDKType;
   address: string;
@@ -176,7 +178,9 @@ export default function BurnForm({
         <div className="grid grid-cols-2 gap-6">
           <div>
             <p className="text-sm text-gray-500">NAME</p>
-            <p className="font-semibold text-md">{denom.name}</p>
+            <p className="font-semibold text-md max-w-[20ch] truncate">
+              {denom.name}
+            </p>
           </div>
           <div>
             <p className="text-sm text-gray-500">YOUR BALANCE</p>
@@ -191,8 +195,10 @@ export default function BurnForm({
             </p>
           </div>
           <div>
-            <p className="text-md text-gray-500">CIRCULATING SUPPLY</p>
-            <p className="font-semibold text-md">{denom.display}</p>
+            <p className="text-md text-gray-500 ">CIRCULATING SUPPLY</p>
+            <p className="font-semibold text-md max-w-[20ch] truncate">
+              {denom.display}
+            </p>
           </div>
         </div>
       </div>

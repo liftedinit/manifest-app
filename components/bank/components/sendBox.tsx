@@ -28,10 +28,10 @@ export default function SendBox({
   ];
 
   return (
-    <div className="flex flex-col rounded-md max-h-[28.7rem] md:w-1/3 w-full min-h-[28.7rem] bg-base-100 shadow px-6 py-4">
+    <div className="flex flex-col rounded-md max-h-[28rem] md:w-1/3 w-full min-h-[28rem] bg-base-100 shadow px-6 py-4">
       <div className="flex flex-col items-center mb-6">
-        <div className="flex flex-row justify-between items-center w-full mb-4 ">
-          <h2 className="text-xl font-semibold">
+        <div className="flex flex-row justify-between items-center w-full mb-2 ">
+          <h2 className="text-lg font-semibold leading-6">
             {isIbcTransfer ? "IBC Transfer" : "Send Tokens"}
           </h2>
 

@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@chain-registry/assets": "^1.42.1",
-    "@chalabi/manifestjs": "1.2.0",
+    "@chalabi/manifestjs": "1.2.1",
     "@cosmjs/cosmwasm-stargate": "0.32.3",
     "@cosmjs/stargate": "0.32.3",
     "@cosmos-kit/react": "2.18.0",
@@ -50,7 +50,6 @@
     "dayjs": "^1.11.10",
     "framer-motion": "9.0.7",
     "identicon.js": "^2.3.3",
-    "interchain": "^1.10.4",
     "next": "^14.1.0",
     "postcss": "^8.4.35",
     "qrcode.react": "^3.1.0",

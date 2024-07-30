@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { chainName } from "@/config";
-import { useFeeEstimation, useTx } from "@/hooks";
+import { useFeeEstimation, useGroupsByAdmin, useTx } from "@/hooks";
 import { cosmos, manifest, osmosis } from "@chalabi/manifestjs";
 import { MetadataSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
 import { PiAddressBook, PiPlusCircle, PiMinusCircle } from "react-icons/pi";
@@ -20,12 +20,14 @@ export default function MintForm({
   address,
   refetch,
   balance,
+  isAdmin,
 }: {
   admin: string;
   denom: MetadataSDKType;
   address: string;
   refetch: () => void;
   balance: string;
+  isAdmin: boolean;
 }) {
   const [amount, setAmount] = useState("");
   const [recipient, setRecipient] = useState(address);
@@ -129,8 +131,8 @@ export default function MintForm({
           },
         })),
       });
-      const encodedMessage = Any.fromPartial({
-        typeUrl: payoutMsg.typeUrl,
+      const encodedMessage = Any.fromAmino({
+        type: payoutMsg.typeUrl,
         value: MsgPayout.encode(payoutMsg.value).finish(),
       });
       const msg = submitProposal({
@@ -176,95 +178,107 @@ export default function MintForm({
   return (
     <div className="animate-fadeIn text-sm z-10">
       <div className="rounded-lg mb-8">
-        <div className="grid grid-cols-2 gap-6">
-          <div>
-            <p className="text-sm text-gray-500">NAME</p>
-            <p className="font-semibold text-md">{denom.name}</p>
+        {isMFX && !isAdmin ? (
+          <div className="w-full p-2 justify-center items-center my-auto h-full mt-24 leading-tight text-xl flex flex-col font-medium text-pretty">
+            <span>You are not affiliated with any PoA Admin entity.</span>
           </div>
-          <div>
-            <p className="text-sm text-gray-500">YOUR BALANCE</p>
-            <p className="font-semibold text-md">
-              {shiftDigits(balance, -exponent)}
-            </p>
-          </div>
-          <div>
-            <p className="text-md text-gray-500">EXPONENT</p>
-            <p className="font-semibold text-md">
-              {denom?.denom_units[1]?.exponent}
-            </p>
-          </div>
-          <div>
-            <p className="text-md text-gray-500">CIRCULATING SUPPLY</p>
-            <p className="font-semibold text-md">{denom.display}</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex space-x-4">
-        <div className="flex-1">
-          <label className="label p-0">
-            <p className="text-md">AMOUNT</p>
-          </label>
-          <input
-            type="text"
-            placeholder="Enter amount"
-            className="input input-bordered h-10 input-sm w-full"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-          />
-        </div>
-        <div className="flex-1">
-          <label className="label p-0">
-            <p className="text-md">RECIPIENT</p>
-          </label>
-          <div className="flex flex-row items-center">
-            <input
-              type="text"
-              placeholder="Recipient address"
-              className="input input-bordered input-sm h-10 rounded-tl-lg rounded-bl-lg rounded-tr-none rounded-br-none w-full"
-              value={recipient}
-              onChange={(e) => setRecipient(e.target.value)}
-            />
-            <button
-              onClick={() => setRecipient(address)}
-              className="btn btn-primary btn-sm h-10 rounded-tr-lg rounded-br-lg rounded-bl-none rounded-tl-none"
-            >
-              <PiAddressBook className="w-6 h-6" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex justify-end mt-6 space-x-2">
-        <button
-          onClick={handleMint}
-          className="btn btn-primary btn-md flex-grow"
-          disabled={isSigning}
-        >
-          {isSigning ? (
-            <span className="loading loading-dots loading-xs"></span>
-          ) : (
-            "Mint"
-          )}
-        </button>
-        {isMFX && (
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="btn btn-primary btn-md"
-          >
-            Multi Mint
-          </button>
+        ) : (
+          <>
+            <>
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <p className="text-sm text-gray-500">NAME</p>
+                  <p className="font-semibold text-md max-w-[20ch] truncate">
+                    {denom.name}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">YOUR BALANCE</p>
+                  <p className="font-semibold text-md">
+                    {shiftDigits(balance, -exponent)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-md text-gray-500">EXPONENT</p>
+                  <p className="font-semibold text-md">
+                    {denom?.denom_units[1]?.exponent}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-md text-gray-500">CIRCULATING SUPPLY</p>
+                  <p className="font-semibold text-md max-w-[20ch] truncate">
+                    {denom.display}
+                  </p>
+                </div>
+              </div>
+              <div className="flex space-x-4 mt-8 ">
+                <div className="flex-1">
+                  <label className="label p-0">
+                    <p className="text-md">AMOUNT</p>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Enter amount"
+                    className="input input-bordered h-10 input-sm w-full"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                  />
+                </div>
+                <div className="flex-1 ">
+                  <label className="label p-0">
+                    <p className="text-md">RECIPIENT</p>
+                  </label>
+                  <div className="flex flex-row items-center">
+                    <input
+                      type="text"
+                      placeholder="Recipient address"
+                      className="input input-bordered input-sm h-10 rounded-tl-lg rounded-bl-lg rounded-tr-none rounded-br-none w-full"
+                      value={recipient}
+                      onChange={(e) => setRecipient(e.target.value)}
+                    />
+                    <button
+                      onClick={() => setRecipient(address)}
+                      className="btn btn-primary btn-sm h-10 rounded-tr-lg rounded-br-lg rounded-bl-none rounded-tl-none"
+                    >
+                      <PiAddressBook className="w-6 h-6" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </>
+            <div className="flex justify-end mt-6 space-x-2">
+              <button
+                onClick={handleMint}
+                className="btn btn-primary btn-md flex-grow"
+                disabled={isSigning}
+              >
+                {isSigning ? (
+                  <span className="loading loading-dots loading-xs"></span>
+                ) : (
+                  "Mint"
+                )}
+              </button>
+              {isMFX && (
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="btn btn-primary btn-md"
+                >
+                  Multi Mint
+                </button>
+              )}
+              <MultiMintModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                payoutPairs={payoutPairs}
+                updatePayoutPair={updatePayoutPair}
+                addPayoutPair={addPayoutPair}
+                removePayoutPair={removePayoutPair}
+                handleMultiMint={handleMultiMint}
+                isSigning={isSigning}
+              />
+            </div>
+          </>
         )}
-        <MultiMintModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          payoutPairs={payoutPairs}
-          updatePayoutPair={updatePayoutPair}
-          addPayoutPair={addPayoutPair}
-          removePayoutPair={removePayoutPair}
-          handleMultiMint={handleMultiMint}
-          isSigning={isSigning}
-        />
       </div>
     </div>
   );

@@ -32,7 +32,7 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
   };
 
   return (
-    <div className="w-full mx-auto p-4 bg-base-100 rounded-md max-h-[28.7rem] min-h-[28.7rem]">
+    <div className="w-full mx-auto p-4 bg-base-100 rounded-md max-h-[28rem] min-h-[28rem]">
       <div className="px-4 py-2 border-base-content flex items-center justify-between">
         <div className="relative">
           <h3 className="text-lg font-bold leading-6 ">Your Balances</h3>
@@ -50,8 +50,8 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
       <div className="divider divider-horizon -mt-2 mb-1"></div>
       {isLoading && <div className="skeleton h-[18.9rem] w-full"></div>}
       {filteredBalances.length > 0 && !isLoading && (
-        <div className="overflow-x-auto shadow-md rounded-lg bg-base-300 max-h-[23.5rem] min-h-[23.5rem] relative transition-opacity duration-300 ease-in-out animate-fadeIn">
-          <table className="table w-full table-fixed rounded-md">
+        <div className="overflow-x-auto shadow-md rounded-lg bg-base-300 max-h-[22.2rem] min-h-[22.2rem] relative transition-opacity duration-300 ease-in-out animate-fadeIn">
+          <table className="table w-full table-fixed  rounded-md">
             <thead className="sticky top-0 z-1 bg-base-300">
               <tr>
                 <th className="px-6 py-3 w-1/4">Icon</th>

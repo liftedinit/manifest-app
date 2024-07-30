@@ -89,7 +89,7 @@ export function YourGroups({
             placeholder="Search..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="input input-bordered input-sm w-1/3 max-w-xs"
+            className="input input-bordered input-xs  w-1/3 max-w-xs"
           />
         </div>
         <div className="divider divider-horizon -mt-2"></div>
