@@ -10,21 +10,27 @@ export default function MetaBox({
   address,
   refetch,
   balance,
-  isAdmin,
-  isLoading,
-  admin,
 }: {
   denom: MetadataSDKType | null;
   address: string;
   refetch: () => void;
   balance: string;
-  isAdmin: boolean;
-  isLoading: boolean;
-  admin: string;
 }) {
   const [activeTab, setActiveTab] = useState<"transfer" | "burn" | "mint">(
     "mint"
   );
+
+  const { poaParams, isPoaParamsLoading, refetchPoaParams, isPoaParamsError } =
+    usePoaParams();
+  const admin = poaParams?.admins[0];
+  const { groupByAdmin, isGroupByAdminLoading, refetchGroupByAdmin } =
+    useGroupsByAdmin(admin ?? "");
+
+  const members = groupByAdmin?.groups?.[0]?.members;
+  const isAdmin = members?.some(
+    (member) => member?.member?.address === address
+  );
+  const isLoading = isPoaParamsLoading || isGroupByAdminLoading;
 
   if (!denom) {
     return (

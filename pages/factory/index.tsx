@@ -42,11 +42,6 @@ export default function Factory() {
   const { metadatas, isMetadatasLoading, isMetadatasError, refetchMetadatas } =
     useTokenFactoryDenomsMetadata();
 
-  const { poaParams, isPoaParamsLoading, refetchPoaParams } = usePoaParams();
-  const admin = poaParams?.admins[0];
-  const { groupByAdmin, isGroupByAdminLoading, refetchGroupByAdmin } =
-    useGroupsByAdmin(admin ?? "");
-
   const [selectedDenom, setSelectedDenom] = useState<string | null>(null);
   const [selectedDenomMetadata, setSelectedDenomMetadata] =
     useState<MetadataSDKType | null>(null);
@@ -59,12 +54,6 @@ export default function Factory() {
     refetchBalance,
     isBalanceLoading: isFetchingBalance,
   } = useTokenFactoryBalance(address ?? "", selectedDenomMetadata?.base ?? "");
-
-  const members = groupByAdmin?.groups?.[0]?.members;
-  const isAdmin = members?.some(
-    (member) => member?.member?.address === address
-  );
-  const isLoading = isPoaParamsLoading || isGroupByAdminLoading;
 
   useEffect(() => {
     if (selectedDenomMetadata) {
@@ -83,7 +72,7 @@ export default function Factory() {
 
   // Combine denoms and metadatas
   const combinedData = useMemo(() => {
-    let result: MetadataSDKType[] = [MFX_TOKEN_DATA]; // Start with MFX data
+    let result: MetadataSDKType[] = [MFX_TOKEN_DATA];
 
     if (denoms && metadatas) {
       const tokenFactoryDenoms = denoms.denoms
@@ -110,8 +99,7 @@ export default function Factory() {
   const refetch = async () => {
     refetchDenoms();
     refetchMetadatas();
-    refetchGroupByAdmin();
-    refetchPoaParams();
+
     if (selectedDenomMetadata) {
       refetchBalance();
     }
@@ -183,9 +171,6 @@ export default function Factory() {
                 </div>
                 <div className="mt-4">
                   <MetaBox
-                    admin={admin ?? ""}
-                    isAdmin={isAdmin ?? false}
-                    isLoading={isLoading}
                     balance={balance?.amount ?? ""}
                     refetch={refetch}
                     address={address ?? ""}

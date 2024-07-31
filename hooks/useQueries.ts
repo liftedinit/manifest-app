@@ -736,5 +736,6 @@ export const useIbcTransferTxQuery = () => {
               isLoading: sendQuery.isLoading,
               isError: sendQuery.isError,
               error: sendQuery.error,
+              refetch: sendQuery.refetch,
             };
           };

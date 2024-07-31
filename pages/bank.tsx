@@ -77,7 +77,7 @@ export default function Bank() {
     isMetadatasLoading ||
     isPoaParamsLoading;
 
-  const { sendTxs } = useSendTxIncludingAddressQuery(address ?? "");
+  const { sendTxs, refetch } = useSendTxIncludingAddressQuery(address ?? "");
 
   return (
     <>
@@ -174,7 +174,7 @@ export default function Bank() {
                   <SendBox
                     balances={combinedBalances}
                     isBalancesLoading={resolvedLoading}
-                    refetchBalances={resolveRefetch}
+                    refetchBalances={resolveRefetch || refetch}
                     address={address ?? ""}
                   />
                   <TokenList

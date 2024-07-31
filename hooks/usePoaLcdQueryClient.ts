@@ -9,7 +9,6 @@ import { chainName } from "../config";
 
 const createLcdQueryClient = strangelove_ventures.ClientFactory.createLCDClient;
 
-
 export const usePoaLcdQueryClient = () => {
   const { getRestEndpoint } = useChain(chainName);
   const [resolvedRestEndpoint, setResolvedRestEndpoint] = useState<
