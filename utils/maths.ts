@@ -9,12 +9,30 @@ export const isGreaterThanZero = (
 export const shiftDigits = (
   num: string | number,
   places: number,
-  decimalPlaces?: number,
-) => {
-  return new BigNumber(num)
-    .shiftedBy(places)
-    .decimalPlaces(decimalPlaces || 6)
-    .toString();
+  decimalPlaces?: number
+): string => {
+
+  if (num === '' || num === null || num === undefined || Number.isNaN(Number(num))) {
+    console.warn(`Invalid number passed to shiftDigits: ${num}`);
+    return '0'; 
+  }
+
+  try {
+    const result = new BigNumber(num)
+      .shiftedBy(places)
+      .decimalPlaces(decimalPlaces ?? 6, BigNumber.ROUND_DOWN);
+
+  
+    if (result.isNaN()) {
+      console.warn(`Calculation resulted in NaN: ${num}, ${places}`);
+      return '0'; 
+    }
+
+    return result.toString();
+  } catch (error) {
+    console.error(`Error in shiftDigits: ${error}`);
+    return '0'; 
+  }
 };
 
 export const toNumber = (

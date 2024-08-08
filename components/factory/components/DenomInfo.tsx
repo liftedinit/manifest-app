@@ -22,7 +22,12 @@ export default function DenomInfo({
 }) {
   const DenomConversion = ({ denom }: { denom: MetadataSDKType }) => {
     if (!denom || !denom.denom_units || denom.denom_units.length === 0) {
-      return null;
+      return (
+        <div className="text-md">
+          1&nbsp;{0}&nbsp;=&nbsp;{1}
+          &nbsp;{1}
+        </div>
+      );
     }
 
     const displayUnit = denom.display;
@@ -30,7 +35,7 @@ export default function DenomInfo({
     const conversionFactor = 10 ** denom.denom_units[1]?.exponent;
 
     return (
-      <div className="text-md">
+      <div className="text-md max-w-[20ch] truncate">
         1&nbsp;{displayUnit}&nbsp;=&nbsp;{conversionFactor.toLocaleString()}
         &nbsp;{baseUnit?.toUpperCase()}
       </div>
@@ -43,16 +48,17 @@ export default function DenomInfo({
     <div className="flex flex-col max-h-[23rem] relative shadow min-h-[23rem] rounded-md bg-base-100 w-full p-4">
       <div className="w-full rounded-md">
         <div className="px-4 py-2 justify-between items-center border-base-content">
-          <div className="flex flex-row w-full justify-between items-center">
+          <div className="flex flex-row w-full justify-between -mt-[0.1rem] items-center">
             <h3 className="text-lg font-bold leading-6">Metadata</h3>
             <button
               onClick={() => {
                 const modal = document.getElementById(
-                  `update_metadata_${denom?.base}`
+                  `update_metadata_${denom?.base}_${denom?.name}`
                 ) as HTMLDialogElement;
                 modal?.showModal();
               }}
-              className="btn btn-primary btn-sm"
+              className="btn btn-primary btn-xs"
+              disabled={denom?.base.includes("mfx")}
             >
               Update
             </button>
@@ -66,11 +72,11 @@ export default function DenomInfo({
         )}
         {denom && (
           <div className="flex flex-col">
-            <div className="flex flex-col gap-3 justify-left px-4 mb-2 -mt-4 rounded-md items-left">
+            <div className="flex flex-col gap-3 justify-left px-4 -mt-4 rounded-md items-left">
               <span className="text-sm leading-3 capitalize text-gray-400">
                 TICKER
               </span>
-              <span className="text-xl leading-3">
+              <span className="text-xl  max-w-[30ch] truncate">
                 {denom?.display ?? "No Ticker available"}
               </span>
             </div>
@@ -122,7 +128,7 @@ export default function DenomInfo({
                   <span className="text-sm capitalize text-gray-400">
                     SYMBOL
                   </span>
-                  <div className="flex flex-row justify-between items-start">
+                  <div className="flex flex-row justify-between items-start max-w-[30ch] truncate">
                     {denom?.symbol ?? "No Description"}
                     <div className="flex-row justify-between items-center gap-2 hidden md:flex">
                       <button
@@ -142,14 +148,15 @@ export default function DenomInfo({
                   {denom && (
                     <>
                       <UpdateDenomMetadataModal
+                        key={`update_modal_${denom?.base}_${denom?.name}`}
                         denom={denom}
                         address={address}
-                        modalId={`update_metadata_${denom.base}`}
+                        modalId={`update_metadata_${denom?.base}_${denom?.name}`}
                         onSuccess={refetchDenoms}
                       />
                       <DenomInfoModal
                         denom={denom}
-                        modalId={`denom_info_${denom.base}`}
+                        modalId={`denom_info_${denom?.base}`}
                       />
                     </>
                   )}

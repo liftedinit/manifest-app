@@ -656,7 +656,17 @@ export function UpdateGroupModal({
           </div>
         </div>
         <div className="modal-action w-full flex flex-row  items-center justify-between">
-          <button className="btn btn-neutral w-[49.5%]">Cancel</button>
+          <button
+            onClick={() => {
+              const modal = document.getElementById(
+                `update_group_${group?.id}`
+              ) as HTMLDialogElement;
+              modal?.close();
+            }}
+            className="btn btn-neutral w-[49.5%]"
+          >
+            Cancel
+          </button>
 
           <button
             className="btn btn-primary w-[49%] "

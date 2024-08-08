@@ -4,6 +4,7 @@ import {
   BookOpenIcon,
   QueueListIcon,
   RssIcon,
+  MagnifyingGlassCircleIcon,
 } from "@heroicons/react/24/solid";
 import Head from "next/head";
 import Link from "next/link";
@@ -11,21 +12,23 @@ import { SVGProps } from "react";
 
 const links = [
   {
-    name: "Documentation",
+    name: "Docs",
     href: "#",
-    description: "Learn how to integrate our tools with your app.",
+    description:
+      "Learn how to sync nodes, query data, and use the Manifest Network.",
     icon: BookOpenIcon,
   },
   {
-    name: "API Reference",
+    name: "Explorer",
     href: "#",
-    description: "A complete API reference for our libraries.",
-    icon: QueueListIcon,
+    description: "Search for transactions, wallets, and other chain data.",
+    icon: MagnifyingGlassCircleIcon,
   },
   {
-    name: "Guides",
+    name: "FAQ",
     href: "#",
-    description: "Installation guides that cover popular setups.",
+    description:
+      "The most common questions and answers about the Manifest Network.",
     icon: BookmarkSquareIcon,
   },
   {
@@ -36,7 +39,7 @@ const links = [
   },
 ];
 
-export default function FourOFour() {
+export default function FourOhFour() {
   return (
     <div className="">
       <Head>

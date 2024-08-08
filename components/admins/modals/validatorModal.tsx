@@ -11,6 +11,10 @@ import { useChain } from "@cosmos-kit/react";
 import { cosmos } from "@chalabi/manifestjs";
 import { Any } from "@chalabi/manifestjs/dist/codegen/google/protobuf/any";
 import { MsgSetPower } from "@chalabi/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx";
+import {
+  Cosmos_basev1beta1Msg_ToAmino,
+  Cosmos_basev1beta1Msg_InterfaceDecoder,
+} from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/tx";
 
 export function ValidatorDetailsModal({
   validator,
