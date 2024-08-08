@@ -27,9 +27,14 @@ import {
   cosmosAminoConverters,
   cosmosProtoRegistry,
 } from "@chalabi/manifestjs";
-import { ToastProvider } from "@/contexts";
+import {
+  AdvancedModeProvider,
+  ToastProvider,
+  useAdvancedMode,
+} from "@/contexts";
 
 import MobileNav from "@/components/react/mobileNav";
+import { EndpointSelector } from "@/components/react/endpointSelector";
 
 // websocket stuff might delete
 // import * as Ably from "ably";
@@ -171,24 +176,27 @@ function ManifestApp({ Component, pageProps }: AppProps) {
       >
         <ThemeProvider>
           <ToastProvider>
-            <SideNav />
-            <MobileNav />
-            <div className="min-h-screen max-w-screen md:ml-20 sm:px-4 sm:py-2 bg-base-200 ">
-              <Component {...pageProps} />
-            </div>
+            <AdvancedModeProvider>
+              <SideNav />
+              <MobileNav />
+              <div className="relative min-h-screen max-w-screen md:ml-20 sm:px-4 sm:py-2 bg-base-200 ">
+                <EndpointSelector />
+                <Component {...pageProps} />
+              </div>
 
-            {/* this is for the web3auth signing modal */}
-            {isBrowser &&
-              createPortal(
-                <SignModal
-                  visible={web3AuthPrompt !== undefined}
-                  onClose={() => web3AuthPrompt?.resolve(false)}
-                  data={web3AuthPrompt?.signData ?? ({} as SignData)}
-                  approve={() => web3AuthPrompt?.resolve(true)}
-                  reject={() => web3AuthPrompt?.resolve(false)}
-                />,
-                document.body
-              )}
+              {/* this is for the web3auth signing modal */}
+              {isBrowser &&
+                createPortal(
+                  <SignModal
+                    visible={web3AuthPrompt !== undefined}
+                    onClose={() => web3AuthPrompt?.resolve(false)}
+                    data={web3AuthPrompt?.signData ?? ({} as SignData)}
+                    approve={() => web3AuthPrompt?.resolve(true)}
+                    reject={() => web3AuthPrompt?.resolve(false)}
+                  />,
+                  document.body
+                )}
+            </AdvancedModeProvider>
           </ToastProvider>
         </ThemeProvider>
       </ChainProvider>

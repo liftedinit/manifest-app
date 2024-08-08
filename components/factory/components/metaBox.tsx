@@ -36,6 +36,12 @@ export default function MetaBox({
   const isLoading = isPoaParamsLoading || isGroupByAdminLoading;
   console.log({ isAdmin }, { members }, admin);
 
+  useEffect(() => {
+    if (denom?.base.includes("mfx")) {
+      setActiveTab("mint");
+    }
+  }, [denom]);
+
   if (!denom) {
     return (
       <div className="flex flex-col rounded-md max-h-[23rem] min-h-[23rem] bg-base-100 shadow w-full p-4 animate-fadeIn">

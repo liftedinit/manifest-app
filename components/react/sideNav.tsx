@@ -1,4 +1,4 @@
-import { PiSunThin, PiMoonThin } from "react-icons/pi";
+import { PiSunThin, PiMoonThin, PiGearSixThin } from "react-icons/pi";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -11,13 +11,16 @@ import {
 import { useRouter } from "next/router";
 import { IconWallet, WalletSection } from "../wallet";
 import { useTheme } from "@/contexts/theme";
+import { useAdvancedMode } from "@/contexts";
+import SettingsModal from "./settingsModal";
 
 export default function SideNav() {
   const [isDrawerVisible, setDrawerVisible] = useState(false);
-
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isdark, setIsdark] = useState(false);
 
   const { toggleTheme } = useTheme();
+  const { isAdvancedMode, toggleAdvancedMode } = useAdvancedMode();
 
   useEffect(() => {
     const storedIsDark = localStorage.getItem("isdark");
@@ -82,6 +85,12 @@ export default function SideNav() {
         <div className="w-full mx-auto flex flex-col items-center justify-center">
           <IconWallet chainName="manifest" />
         </div>
+        <button
+          onClick={() => setIsSettingsModalOpen(true)}
+          className="w-full mx-auto flex items-center justify-center hover:text-primary transition-all duration-300 ease-in-out pb-2"
+        >
+          <PiGearSixThin className="w-8 h-8" />
+        </button>
         <label className="swap swap-rotate mx-auto hover:text-primary transition-all duration-300 ease-in-out">
           <input
             type="checkbox"
@@ -207,6 +216,10 @@ export default function SideNav() {
       >
         <SideDrawer />
       </aside>
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+      />
     </>
   );
 }

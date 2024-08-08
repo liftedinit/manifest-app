@@ -53,7 +53,7 @@ export default function DenomInfo({
             <button
               onClick={() => {
                 const modal = document.getElementById(
-                  `update_metadata_${denom?.base}`
+                  `update_metadata_${denom?.base}_${denom?.name}`
                 ) as HTMLDialogElement;
                 modal?.showModal();
               }}
@@ -148,14 +148,15 @@ export default function DenomInfo({
                   {denom && (
                     <>
                       <UpdateDenomMetadataModal
+                        key={`update_modal_${denom?.base}_${denom?.name}`}
                         denom={denom}
                         address={address}
-                        modalId={`update_metadata_${denom.base}`}
+                        modalId={`update_metadata_${denom?.base}_${denom?.name}`}
                         onSuccess={refetchDenoms}
                       />
                       <DenomInfoModal
                         denom={denom}
-                        modalId={`denom_info_${denom.base}`}
+                        modalId={`denom_info_${denom?.base}`}
                       />
                     </>
                   )}

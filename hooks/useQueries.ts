@@ -375,7 +375,7 @@ export const useTokenFactoryBalance = (address: string, denom: string) => {
 
 export const usePoaParams = () => {
     const { lcdQueryClient } = usePoaLcdQueryClient();
-    console.log(lcdQueryClient)
+   
     const fetchParams = async () => {
         if (!lcdQueryClient) {
             throw new Error("LCD Client not ready");
