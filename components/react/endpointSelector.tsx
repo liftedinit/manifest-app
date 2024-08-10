@@ -1,10 +1,10 @@
-// components/EndpointSelector.tsx
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAdvancedMode } from "@/contexts";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useEndpoint } from "@/contexts/endpointContext";
+import dynamic from "next/dynamic";
 
 interface Endpoint {
   rpc: string;
@@ -12,7 +12,7 @@ interface Endpoint {
   provider: string;
   isHealthy: boolean;
   network: "mainnet" | "testnet";
-  custom?: boolean;
+  custom: boolean;
 }
 
 const predefinedEndpoints: Endpoint[] = [
@@ -22,6 +22,7 @@ const predefinedEndpoints: Endpoint[] = [
     provider: "Mainnet",
     isHealthy: true,
     network: "mainnet",
+    custom: false,
   },
   {
     rpc: process.env.NEXT_PUBLIC_TESTNET_RPC_URL || "",
@@ -29,6 +30,7 @@ const predefinedEndpoints: Endpoint[] = [
     provider: "Testnet",
     isHealthy: true,
     network: "testnet",
+    custom: false,
   },
 ];
 
@@ -37,7 +39,8 @@ const validateRPCEndpoint = async (url: string): Promise<boolean> => {
     const response = await fetch(`${url}status`);
     const data = await response.json();
     const networkMatches =
-      data.result.node_info.network === process.env.NEXT_PUBLIC_CHAIN_ID;
+      data.result.node_info.network === process.env.NEXT_PUBLIC_CHAIN_ID ||
+      "manifest-ledger-beta";
     const isNotCatchingUp = !data.result.sync_info.catching_up;
     return networkMatches && isNotCatchingUp;
   } catch (error) {
@@ -59,7 +62,7 @@ const validateAPIEndpoint = async (url: string): Promise<boolean> => {
   }
 };
 
-export const EndpointSelector: React.FC = () => {
+const EndpointSelector: React.FC = () => {
   const { isAdvancedMode } = useAdvancedMode();
   const [customEndpoints, setCustomEndpoints] = useLocalStorage<Endpoint[]>(
     "customEndpoints",
@@ -67,36 +70,32 @@ export const EndpointSelector: React.FC = () => {
   );
   const [selectedEndpointKey, setSelectedEndpointKey] = useLocalStorage<string>(
     "selectedEndpoint",
-    "mainnet"
+    "Mainnet"
   );
 
-  const [endpoints, setEndpoints] = useState<Endpoint[]>(predefinedEndpoints);
+  const { setSelectedEndpoint } = useEndpoint();
+  const [localEndpoints, setLocalEndpoints] = useState<Endpoint[]>([]);
+
+  const allEndpoints = useMemo(() => {
+    return [...predefinedEndpoints, ...customEndpoints];
+  }, [predefinedEndpoints, customEndpoints]);
 
   useEffect(() => {
-    const updatedEndpoints = [
-      ...predefinedEndpoints,
-      ...customEndpoints.map((endpoint) => ({
-        ...endpoint,
-        provider: `Custom (${endpoint.network})`,
-        custom: true,
-      })),
-    ];
-    setEndpoints(updatedEndpoints);
-  }, [customEndpoints]);
+    const selectedEndpoint =
+      allEndpoints.find((e) => e.provider === selectedEndpointKey) ||
+      allEndpoints[0];
 
-  const [selectedEndpoint, setSelectedEndpoint] = useState<Endpoint>(
-    predefinedEndpoints[0]
-  );
-
-  useEffect(() => {
-    const found = endpoints.find((e) => e.provider === selectedEndpointKey);
-    if (found) {
-      setSelectedEndpoint(found);
-    } else if (endpoints.length > 0) {
-      setSelectedEndpoint(endpoints[0]);
-      setSelectedEndpointKey(endpoints[0].provider);
+    if (selectedEndpoint && selectedEndpoint.provider !== selectedEndpointKey) {
+      setSelectedEndpoint(selectedEndpoint);
+      setSelectedEndpointKey(selectedEndpoint.provider);
     }
-  }, [endpoints, selectedEndpointKey]);
+  }, [
+    selectedEndpointKey,
+    allEndpoints,
+    setSelectedEndpoint,
+    setSelectedEndpointKey,
+  ]);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newRPCEndpoint, setNewRPCEndpoint] = useState("");
   const [newAPIEndpoint, setNewAPIEndpoint] = useState("");
@@ -105,7 +104,7 @@ export const EndpointSelector: React.FC = () => {
     queryKey: ["checkEndpoints"],
     queryFn: async () => {
       const updatedEndpoints = await Promise.all(
-        endpoints.map(async (endpoint) => ({
+        localEndpoints.map(async (endpoint) => ({
           ...endpoint,
           isHealthy:
             (await validateRPCEndpoint(endpoint.rpc)) &&
@@ -124,20 +123,11 @@ export const EndpointSelector: React.FC = () => {
 
   useEffect(() => {
     if (data) {
-      setEndpoints((prevEndpoints) => {
-        const updatedEndpoints = prevEndpoints.map((endpoint) => {
-          const matchingEndpoint = data.find(
-            (e) => e.rpc === endpoint.rpc && e.api === endpoint.api
-          );
-          return matchingEndpoint || endpoint;
-        });
-        return updatedEndpoints;
-      });
+      setLocalEndpoints(data);
     }
   }, [data]);
 
   const handleEndpointChange = (endpoint: Endpoint) => {
-    setSelectedEndpoint(endpoint);
     setSelectedEndpointKey(endpoint.provider);
   };
 
@@ -159,7 +149,8 @@ export const EndpointSelector: React.FC = () => {
         const rpcResponse = await fetch(`${rpcUrl}status`);
         const rpcData = await rpcResponse.json();
         const network =
-          rpcData.result.node_info.network === process.env.NEXT_PUBLIC_CHAIN_ID
+          rpcData.result.node_info.network ===
+            process.env.NEXT_PUBLIC_CHAIN_ID || "manifest-ledger-beta"
             ? "mainnet"
             : "testnet";
 
@@ -188,6 +179,23 @@ export const EndpointSelector: React.FC = () => {
     }
   };
 
+  const handleRemoveEndpoint = (endpointToRemove: Endpoint) => {
+    setSelectedEndpoint(predefinedEndpoints[0]);
+    if (endpointToRemove.custom) {
+      const updatedCustomEndpoints = customEndpoints.filter(
+        (endpoint) => endpoint !== endpointToRemove
+      );
+      setCustomEndpoints(updatedCustomEndpoints);
+
+      if (selectedEndpointKey === endpointToRemove.provider) {
+        const newSelectedEndpoint =
+          localEndpoints.find((e) => !e.custom) || localEndpoints[0];
+        setSelectedEndpoint(newSelectedEndpoint);
+        setSelectedEndpointKey(newSelectedEndpoint.provider);
+      }
+    }
+  };
+
   const truncateUrl = (url: string) => {
     try {
       const ipRegex = /^(?:\d{1,3}\.){3}\d{1,3}(?::\d+)?$/;
@@ -208,18 +216,7 @@ export const EndpointSelector: React.FC = () => {
     }
   };
 
-  const handleRemoveEndpoint = (endpointToRemove: Endpoint) => {
-    setCustomEndpoints((prev: Endpoint[]) =>
-      prev.filter((endpoint) => endpoint !== endpointToRemove)
-    );
-
-    if (selectedEndpoint === endpointToRemove) {
-      const newSelectedEndpoint =
-        endpoints.find((e) => !e.custom) || endpoints[0];
-      setSelectedEndpoint(newSelectedEndpoint);
-      setSelectedEndpointKey(newSelectedEndpoint.provider);
-    }
-  };
+  const isCustomEndpoint = (endpoint: Endpoint) => endpoint.custom;
 
   return (
     <div
@@ -234,10 +231,13 @@ export const EndpointSelector: React.FC = () => {
         <div className="flex items-center">
           <div
             className={`w-3 h-3 rounded-full mr-2 ${
-              selectedEndpoint.isHealthy ? "bg-primary" : "bg-secondary"
+              allEndpoints.find((e) => e.provider === selectedEndpointKey)
+                ?.isHealthy
+                ? "bg-primary"
+                : "bg-secondary"
             }`}
           ></div>
-          <span className="text-white">{selectedEndpoint.provider}</span>
+          <span className="text-white">{selectedEndpointKey}</span>
         </div>
         <ChevronDownIcon className="w-5 h-5 ml-2" />
       </label>
@@ -252,11 +252,11 @@ export const EndpointSelector: React.FC = () => {
           <p>Error checking endpoints</p>
         ) : (
           <ul className="space-y-4">
-            {endpoints.map((endpoint, index) => (
+            {allEndpoints.map((endpoint, index) => (
               <li
                 key={index}
                 className={`flex flex-col p-2 rounded-lg cursor-pointer bg-base-300 ${
-                  selectedEndpoint === endpoint
+                  selectedEndpointKey === endpoint.provider
                     ? "bg-base-200"
                     : "hover:bg-base-200"
                 }`}
@@ -264,7 +264,11 @@ export const EndpointSelector: React.FC = () => {
               >
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-md font-semibold">{endpoint.provider}</p>
+                    <p className="text-md font-semibold">
+                      {endpoint.custom
+                        ? `Custom (${endpoint.network})`
+                        : endpoint.provider}
+                    </p>
                     <p className="text-sm text-gray-500">
                       Provider: {truncateUrl(endpoint.rpc)}
                     </p>
@@ -275,7 +279,7 @@ export const EndpointSelector: React.FC = () => {
                         endpoint.isHealthy ? "bg-primary" : "bg-secondary"
                       }`}
                     ></div>
-                    {endpoint.custom && (
+                    {isCustomEndpoint(endpoint) && (
                       <button
                         className="ml-2 text-secondary hover:text-secondary-focus"
                         onClick={(e) => {
@@ -358,3 +362,10 @@ export const EndpointSelector: React.FC = () => {
     </div>
   );
 };
+
+export const DynamicEndpointSelector = dynamic(
+  () => Promise.resolve(EndpointSelector),
+  {
+    ssr: false,
+  }
+);

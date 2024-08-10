@@ -1,9 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
-import { useChain } from "@cosmos-kit/react";
+
 import { Dialog } from "@headlessui/react";
 import { XMarkIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
 import { ChevronLeftIcon } from "@heroicons/react/20/solid";
-
+import Image from "next/image";
 export const Error = ({
   currentWalletName,
   onClose,
@@ -45,10 +45,12 @@ export const Error = ({
       </div>
       <div className="flex flex-col w-full h-full py-6 mt-4 sm:px-8">
         <div className="p-3 border rounded-full border-red-600 mx-auto aspect-1 flex-shrink-0">
-          <img
+          <Image
             src={logo}
             alt="Wallet type logo"
             className="flex-shrink-0 w-16 h-16 aspect-1"
+            width={16}
+            height={16}
           />
         </div>
         <p className="mt-3 font-medium text-black dark:text-white">

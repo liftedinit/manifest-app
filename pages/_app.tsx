@@ -27,14 +27,12 @@ import {
   cosmosAminoConverters,
   cosmosProtoRegistry,
 } from "@chalabi/manifestjs";
-import {
-  AdvancedModeProvider,
-  ToastProvider,
-  useAdvancedMode,
-} from "@/contexts";
+import { AdvancedModeProvider, ToastProvider } from "@/contexts";
 
 import MobileNav from "@/components/react/mobileNav";
-import { EndpointSelector } from "@/components/react/endpointSelector";
+import { DynamicEndpointSelector } from "@/components/react/endpointSelector";
+import { EndpointProvider, useEndpoint } from "@/contexts/endpointContext";
+import { useRouter } from "next/router";
 
 // websocket stuff might delete
 // import * as Ably from "ably";
@@ -44,7 +42,21 @@ import { EndpointSelector } from "@/components/react/endpointSelector";
 //   key: process.env.NEXT_PUBLIC_ABLY_API_KEY,
 // });
 
-function ManifestApp({ Component, pageProps }: AppProps) {
+type ManifestAppProps = AppProps & {
+  Component: AppProps["Component"];
+  pageProps: AppProps["pageProps"];
+};
+
+function ManifestAppWrapper(props: AppProps) {
+  return (
+    <EndpointProvider>
+      <ManifestApp {...props} />
+    </EndpointProvider>
+  );
+}
+
+function ManifestApp({ Component, pageProps }: ManifestAppProps) {
+  const { selectedEndpoint } = useEndpoint();
   // signer options to support amino signing for all the different modules we use
   const signerOptions: SignerOptions = {
     signingStargate: (
@@ -139,8 +151,22 @@ function ManifestApp({ Component, pageProps }: AppProps) {
     setIsBrowser(true);
   }, []);
 
+  const endpointOptions = useMemo(
+    () => ({
+      isLazy: true,
+      endpoints: {
+        manifest: {
+          rpc: [selectedEndpoint.rpc],
+          rest: [selectedEndpoint.api],
+        },
+      },
+    }),
+    [selectedEndpoint]
+  );
+
   return (
     // <AblyProvider client={ablyClient}>
+
     <QueryClientProvider client={client}>
       <ReactQueryDevtools />
       <ChainProvider
@@ -149,15 +175,7 @@ function ManifestApp({ Component, pageProps }: AppProps) {
         // @ts-ignore
         wallets={combinedWallets}
         logLevel="NONE"
-        endpointOptions={{
-          isLazy: true,
-          endpoints: {
-            manifest: {
-              rpc: ["https://nodes.chandrastation.com/rpc/manifest/"],
-              rest: ["https://nodes.chandrastation.com/api/manifest/"],
-            },
-          },
-        }}
+        endpointOptions={endpointOptions}
         walletConnectOptions={{
           signClient: {
             projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_KEY ?? "",
@@ -180,7 +198,7 @@ function ManifestApp({ Component, pageProps }: AppProps) {
               <SideNav />
               <MobileNav />
               <div className="relative min-h-screen max-w-screen md:ml-20 sm:px-4 sm:py-2 bg-base-200 ">
-                <EndpointSelector />
+                <DynamicEndpointSelector />
                 <Component {...pageProps} />
               </div>
 
@@ -201,8 +219,9 @@ function ManifestApp({ Component, pageProps }: AppProps) {
         </ThemeProvider>
       </ChainProvider>
     </QueryClientProvider>
+
     // </AblyProvider>
   );
 }
 
-export default ManifestApp;
+export default ManifestAppWrapper;

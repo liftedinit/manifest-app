@@ -4,7 +4,7 @@ import { QueryGroupsByMemberResponseSDKType } from "@chalabi/manifestjs/dist/cod
 
 import { useLcdQueryClient } from "./useLcdQueryClient";
 import { usePoaLcdQueryClient } from "./usePoaLcdQueryClient";
-import { getLogoUrls } from "@/utils";
+import { getLogoUrls, isValidIPFSCID } from "@/utils";
 import { ExtendedValidatorSDKType } from "@/components";
 import { useManifestLcdQueryClient } from "./useManifestLcdQueryClient";
 import { MetadataSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
@@ -49,19 +49,24 @@ export const useGroupsByMember = (address: string) => {
                         lcdQueryClient?.cosmos.group.v1.groupPoliciesByGroup({ groupId: group.id }));
                     const memberPromises = groupQuery.data.groups.map(group =>
                         lcdQueryClient?.cosmos.group.v1.groupMembers({ groupId: group.id }));
-                    const ipfsPromises = groupQuery.data.groups.map(group =>
-                        fetch(`https://nodes.chandrastation.com/ipfs/gateway/${group.metadata}`)
-                            .then(response => {
-                                if (!response.ok) {
+                        const ipfsPromises = groupQuery.data.groups.map(group => {
+                            if (isValidIPFSCID(group.metadata)) {
+                              return fetch(`https://nodes.chandrastation.com/ipfs/gateway/${group.metadata}`)
+                                .then(response => {
+                                  if (!response.ok) {
                                     throw new Error(`HTTP error! Status: ${response.status}`);
-                                }
-                                return response.json() as Promise<IPFSMetadata>;
-                            })
-                            .catch(err => {
-                                console.error("Failed to fetch IPFS data:", err);
-                                return null; // Return null in case of an error
-                            })
-                    );
+                                  }
+                                  return response.json() as Promise<IPFSMetadata>;
+                                })
+                                .catch(err => {
+                                  console.error(`Invalid IPFS CID for group #${group?.id}`, err);
+                                  return null;
+                                });
+                            } else {
+                              console.warn(`Invalid IPFS CID for group #${group?.id}`);
+                              return Promise.resolve(null);
+                            }
+                          });
 
                     const [policiesResults, membersResults, ipfsResults] = await Promise.all([
                         Promise.all(policyPromises),
