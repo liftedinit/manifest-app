@@ -31,8 +31,8 @@ import { AdvancedModeProvider, ToastProvider } from "@/contexts";
 
 import MobileNav from "@/components/react/mobileNav";
 import { DynamicEndpointSelector } from "@/components/react/endpointSelector";
-import { EndpointProvider, useEndpoint } from "@/contexts/endpointContext";
-import { useRouter } from "next/router";
+
+import { useEndpointStore } from "@/store/endpointStore";
 
 // websocket stuff might delete
 // import * as Ably from "ably";
@@ -47,16 +47,7 @@ type ManifestAppProps = AppProps & {
   pageProps: AppProps["pageProps"];
 };
 
-function ManifestAppWrapper(props: AppProps) {
-  return (
-    <EndpointProvider>
-      <ManifestApp {...props} />
-    </EndpointProvider>
-  );
-}
-
 function ManifestApp({ Component, pageProps }: ManifestAppProps) {
-  const { selectedEndpoint } = useEndpoint();
   // signer options to support amino signing for all the different modules we use
   const signerOptions: SignerOptions = {
     signingStargate: (
@@ -79,6 +70,8 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
       };
     },
   };
+
+  const { selectedEndpoint } = useEndpointStore();
 
   // tanstack query client
   const client = new QueryClient();
@@ -156,8 +149,14 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
       isLazy: true,
       endpoints: {
         manifest: {
-          rpc: [selectedEndpoint.rpc],
-          rest: [selectedEndpoint.api],
+          rpc: [
+            selectedEndpoint?.rpc ??
+              "https://nodes.chandrastation.com/rpc/manifest/",
+          ],
+          rest: [
+            selectedEndpoint?.api ??
+              "https://nodes.chandrastation.com/api/manifest/",
+          ],
         },
       },
     }),
@@ -224,4 +223,4 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
   );
 }
 
-export default ManifestAppWrapper;
+export default ManifestApp;

@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAdvancedMode } from "@/contexts";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { useEndpoint } from "@/contexts/endpointContext";
+
 import dynamic from "next/dynamic";
+import { useEndpointStore } from "@/store/endpointStore";
 
 interface Endpoint {
   rpc: string;
@@ -15,123 +15,49 @@ interface Endpoint {
   custom: boolean;
 }
 
-const predefinedEndpoints: Endpoint[] = [
-  {
-    rpc: process.env.NEXT_PUBLIC_MAINNET_RPC_URL || "",
-    api: process.env.NEXT_PUBLIC_MAINNET_API_URL || "",
-    provider: "Mainnet",
-    isHealthy: true,
-    network: "mainnet",
-    custom: false,
-  },
-  {
-    rpc: process.env.NEXT_PUBLIC_TESTNET_RPC_URL || "",
-    api: process.env.NEXT_PUBLIC_TESTNET_API_URL || "",
-    provider: "Testnet",
-    isHealthy: true,
-    network: "testnet",
-    custom: false,
-  },
-];
-
-const validateRPCEndpoint = async (url: string): Promise<boolean> => {
-  try {
-    const response = await fetch(`${url}status`);
-    const data = await response.json();
-    const networkMatches =
-      data.result.node_info.network === process.env.NEXT_PUBLIC_CHAIN_ID ||
-      "manifest-ledger-beta";
-    const isNotCatchingUp = !data.result.sync_info.catching_up;
-    return networkMatches && isNotCatchingUp;
-  } catch (error) {
-    console.error("Error validating RPC endpoint:", error);
-    return false;
-  }
-};
-
-const validateAPIEndpoint = async (url: string): Promise<boolean> => {
-  try {
-    const response = await fetch(
-      `${url}cosmos/base/tendermint/v1beta1/syncing`
-    );
-    const data = await response.json();
-    return !data.syncing;
-  } catch (error) {
-    console.error("Error validating API endpoint:", error);
-    return false;
-  }
-};
-
 const EndpointSelector: React.FC = () => {
   const { isAdvancedMode } = useAdvancedMode();
-  const [customEndpoints, setCustomEndpoints] = useLocalStorage<Endpoint[]>(
-    "customEndpoints",
-    []
-  );
-  const [selectedEndpointKey, setSelectedEndpointKey] = useLocalStorage<string>(
-    "selectedEndpoint",
-    "Mainnet"
-  );
-
-  const { setSelectedEndpoint } = useEndpoint();
-  const [localEndpoints, setLocalEndpoints] = useState<Endpoint[]>([]);
-
-  const allEndpoints = useMemo(() => {
-    return [...predefinedEndpoints, ...customEndpoints];
-  }, [predefinedEndpoints, customEndpoints]);
-
-  useEffect(() => {
-    const selectedEndpoint =
-      allEndpoints.find((e) => e.provider === selectedEndpointKey) ||
-      allEndpoints[0];
-
-    if (selectedEndpoint && selectedEndpoint.provider !== selectedEndpointKey) {
-      setSelectedEndpoint(selectedEndpoint);
-      setSelectedEndpointKey(selectedEndpoint.provider);
-    }
-  }, [
+  const {
+    endpoints,
     selectedEndpointKey,
-    allEndpoints,
-    setSelectedEndpoint,
+    selectedEndpoint,
     setSelectedEndpointKey,
-  ]);
+    addEndpoint,
+    removeEndpoint,
+    updateEndpointHealth,
+  } = useEndpointStore((state) => ({
+    endpoints: state.endpoints,
+    selectedEndpointKey: state.selectedEndpointKey,
+    selectedEndpoint: state.selectedEndpoint,
+    setSelectedEndpointKey: state.setSelectedEndpointKey,
+    addEndpoint: state.addEndpoint,
+    removeEndpoint: state.removeEndpoint,
+    updateEndpointHealth: state.updateEndpointHealth,
+  }));
+
+  const handleEndpointChange = useCallback(
+    (endpoint: Endpoint) => {
+      setSelectedEndpointKey(endpoint.provider);
+    },
+    [setSelectedEndpointKey]
+  );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newRPCEndpoint, setNewRPCEndpoint] = useState("");
   const [newAPIEndpoint, setNewAPIEndpoint] = useState("");
+  const [endpointToRemove, setEndpointToRemove] = useState<string | null>(null);
 
-  const { isLoading, error, data, refetch } = useQuery({
-    queryKey: ["checkEndpoints"],
-    queryFn: async () => {
-      const updatedEndpoints = await Promise.all(
-        localEndpoints.map(async (endpoint) => ({
-          ...endpoint,
-          isHealthy:
-            (await validateRPCEndpoint(endpoint.rpc)) &&
-            (await validateAPIEndpoint(endpoint.api)),
-        }))
-      );
-      return updatedEndpoints;
-    },
+  const { isLoading, error, refetch, data } = useQuery({
+    queryKey: ["checkEndpoints", endpoints],
+    queryFn: updateEndpointHealth,
     refetchInterval: 30000,
-    enabled: false,
+    enabled: true,
   });
 
-  useEffect(() => {
-    refetch();
-  }, [refetch]);
-
-  useEffect(() => {
-    if (data) {
-      setLocalEndpoints(data);
-    }
-  }, [data]);
-
-  const handleEndpointChange = (endpoint: Endpoint) => {
-    setSelectedEndpointKey(endpoint.provider);
-  };
-
-  const handleCustomEndpointSubmit = async () => {
+  const handleCustomEndpointSubmit = async (e: {
+    stopPropagation: () => void;
+  }) => {
+    e.stopPropagation();
     if (!newRPCEndpoint || !newAPIEndpoint) return;
 
     const rpcUrl = newRPCEndpoint.startsWith("http")
@@ -141,73 +67,26 @@ const EndpointSelector: React.FC = () => {
       ? newAPIEndpoint
       : `https://${newAPIEndpoint}`;
 
-    const isRPCValid = await validateRPCEndpoint(rpcUrl);
-    const isAPIValid = await validateAPIEndpoint(apiUrl);
-
-    if (isRPCValid && isAPIValid) {
-      try {
-        const rpcResponse = await fetch(`${rpcUrl}status`);
-        const rpcData = await rpcResponse.json();
-        const network =
-          rpcData.result.node_info.network ===
-            process.env.NEXT_PUBLIC_CHAIN_ID || "manifest-ledger-beta"
-            ? "mainnet"
-            : "testnet";
-
-        const newEndpoint: Endpoint = {
-          rpc: rpcUrl,
-          api: apiUrl,
-          provider: `Custom (${network})`,
-          isHealthy: true,
-          network,
-          custom: true,
-        };
-
-        setCustomEndpoints((prev: Endpoint[]) => [...prev, newEndpoint]);
-        setSelectedEndpointKey(newEndpoint.provider);
-        setNewRPCEndpoint("");
-        setNewAPIEndpoint("");
-        setIsModalOpen(false);
-      } catch (error) {
-        console.error("Error adding custom endpoint:", error);
-        alert(
-          "An error occurred while adding the custom endpoint. Please try again."
-        );
-      }
-    } else {
-      alert("Invalid endpoint(s). Please check the URLs and try again.");
-    }
-  };
-
-  const handleRemoveEndpoint = (endpointToRemove: Endpoint) => {
-    setSelectedEndpoint(predefinedEndpoints[0]);
-    if (endpointToRemove.custom) {
-      const updatedCustomEndpoints = customEndpoints.filter(
-        (endpoint) => endpoint !== endpointToRemove
+    try {
+      await addEndpoint(rpcUrl, apiUrl);
+      setNewRPCEndpoint("");
+      setNewAPIEndpoint("");
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Error adding custom endpoint:", error);
+      alert(
+        error instanceof Error
+          ? error.message
+          : "An error occurred while adding the custom endpoint. Please try again."
       );
-      setCustomEndpoints(updatedCustomEndpoints);
-
-      if (selectedEndpointKey === endpointToRemove.provider) {
-        const newSelectedEndpoint =
-          localEndpoints.find((e) => !e.custom) || localEndpoints[0];
-        setSelectedEndpoint(newSelectedEndpoint);
-        setSelectedEndpointKey(newSelectedEndpoint.provider);
-      }
     }
   };
-
   const truncateUrl = (url: string) => {
     try {
       const ipRegex = /^(?:\d{1,3}\.){3}\d{1,3}(?::\d+)?$/;
-
       if (!url.startsWith("http://") && !url.startsWith("https://")) {
-        if (ipRegex.test(url)) {
-          url = "http://" + url;
-        } else {
-          url = "https://" + url;
-        }
+        url = ipRegex.test(url) ? `http://${url}` : `https://${url}`;
       }
-
       const parsedUrl = new URL(url);
       return `${parsedUrl.host}/...`;
     } catch (error) {
@@ -231,10 +110,7 @@ const EndpointSelector: React.FC = () => {
         <div className="flex items-center">
           <div
             className={`w-3 h-3 rounded-full mr-2 ${
-              allEndpoints.find((e) => e.provider === selectedEndpointKey)
-                ?.isHealthy
-                ? "bg-primary"
-                : "bg-secondary"
+              selectedEndpoint?.isHealthy ? "bg-primary" : "bg-secondary"
             }`}
           ></div>
           <span className="text-white">{selectedEndpointKey}</span>
@@ -252,7 +128,7 @@ const EndpointSelector: React.FC = () => {
           <p>Error checking endpoints</p>
         ) : (
           <ul className="space-y-4">
-            {allEndpoints.map((endpoint, index) => (
+            {endpoints.map((endpoint: Endpoint, index: number) => (
               <li
                 key={index}
                 className={`flex flex-col p-2 rounded-lg cursor-pointer bg-base-300 ${
@@ -260,7 +136,7 @@ const EndpointSelector: React.FC = () => {
                     ? "bg-base-200"
                     : "hover:bg-base-200"
                 }`}
-                onClick={() => handleEndpointChange(endpoint)}
+                onClick={() => setSelectedEndpointKey(endpoint.provider)}
               >
                 <div className="flex justify-between items-start">
                   <div>
@@ -279,31 +155,49 @@ const EndpointSelector: React.FC = () => {
                         endpoint.isHealthy ? "bg-primary" : "bg-secondary"
                       }`}
                     ></div>
-                    {isCustomEndpoint(endpoint) && (
-                      <button
-                        className="ml-2 text-secondary hover:text-secondary-focus"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRemoveEndpoint(endpoint);
-                        }}
+                  </div>
+                  {isCustomEndpoint(endpoint) && (
+                    <button
+                      className={`btn btn-xs btn-circle absolute bottom-2 right-4 bg-[#1110] text-secondary hover:bg-[#1110] transition-all duration-300 z-[9999] ${
+                        endpointToRemove === endpoint.provider
+                          ? "rotate-90"
+                          : ""
+                      }`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (endpointToRemove === endpoint.provider) {
+                          removeEndpoint(endpoint.provider);
+                          setEndpointToRemove(null);
+                        } else {
+                          setEndpointToRemove(endpoint.provider);
+                        }
+                      }}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
+                        {endpointToRemove === endpoint.provider ? (
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        ) : (
                           <path
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth={2}
                             d="M20 12H4"
                           />
-                        </svg>
-                      </button>
-                    )}
-                  </div>
+                        )}
+                      </svg>
+                    </button>
+                  )}
                 </div>
               </li>
             ))}
@@ -312,7 +206,10 @@ const EndpointSelector: React.FC = () => {
         <div className="divider"></div>
         <button
           className="btn btn-primary w-full"
-          onClick={() => setIsModalOpen(true)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsModalOpen(true);
+          }}
         >
           Add Custom Endpoints
         </button>
@@ -365,7 +262,5 @@ const EndpointSelector: React.FC = () => {
 
 export const DynamicEndpointSelector = dynamic(
   () => Promise.resolve(EndpointSelector),
-  {
-    ssr: false,
-  }
+  { ssr: false }
 );

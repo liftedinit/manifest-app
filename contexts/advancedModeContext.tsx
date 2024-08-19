@@ -1,4 +1,10 @@
-import React, { createContext, useState, useContext, ReactNode } from "react";
+import React, {
+  createContext,
+  useState,
+  useContext,
+  ReactNode,
+  useEffect,
+} from "react";
 
 interface AdvancedModeContextType {
   isAdvancedMode: boolean;
@@ -26,10 +32,20 @@ interface AdvancedModeProviderProps {
 export const AdvancedModeProvider: React.FC<AdvancedModeProviderProps> = ({
   children,
 }) => {
-  const [isAdvancedMode, setIsAdvancedMode] = useState(false);
+  const [isAdvancedMode, setIsAdvancedMode] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("isAdvancedMode");
+      return saved !== null ? JSON.parse(saved) : false;
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("isAdvancedMode", JSON.stringify(isAdvancedMode));
+  }, [isAdvancedMode]);
 
   const toggleAdvancedMode = () => {
-    setIsAdvancedMode((prev) => !prev);
+    setIsAdvancedMode((prev: any) => !prev);
   };
 
   return (

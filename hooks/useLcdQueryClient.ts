@@ -3,7 +3,8 @@ import { cosmos } from "@chalabi/manifestjs";
 import { useQuery } from "@tanstack/react-query";
 import { useChain } from "@cosmos-kit/react";
 import { chainName } from "../config";
-import { useEndpoint } from "@/contexts/endpointContext";
+import { useEndpointStore } from "@/store/endpointStore";
+
 
 const createLcdQueryClient = cosmos.ClientFactory.createLCDClient;
 
@@ -27,13 +28,13 @@ export const useLcdQueryClient = () => {
     resolveEndpoint();
   }, [getRestEndpoint]);
 
-  const {selectedEndpoint} = useEndpoint();
-  console.log(selectedEndpoint.rpc)
+  const {selectedEndpoint} = useEndpointStore();
+  console.log(selectedEndpoint)
   const lcdQueryClient = useQuery({
-    queryKey: ["lcdQueryClient", resolvedRestEndpoint],
+    queryKey: ["lcdQueryClient", selectedEndpoint?.api],
     queryFn: () =>
       createLcdQueryClient({
-        restEndpoint: resolvedRestEndpoint || "",
+        restEndpoint: selectedEndpoint?.api || "",
       }),
     enabled: !!resolvedRestEndpoint,
     staleTime: Infinity,
