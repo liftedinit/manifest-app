@@ -173,105 +173,110 @@ export default function BurnForm({
   };
 
   return (
-    <div className="animate-fadeIn text-sm z-10 ">
+    <div className="animate-fadeIn text-sm z-10">
       <div className="rounded-lg mb-8">
-        <div className="grid grid-cols-2 gap-6">
-          <div>
-            <p className="text-sm text-gray-500">NAME</p>
-            <p className="font-semibold text-md max-w-[20ch] truncate">
-              {denom.name}
-            </p>
+        {isMFX && !isAdmin ? (
+          <div className="w-full p-2 justify-center items-center my-auto h-full mt-24 leading-tight text-xl flex flex-col font-medium text-pretty">
+            <span>You are not affiliated with any PoA Admin entity.</span>
           </div>
-          <div>
-            <p className="text-sm text-gray-500">YOUR BALANCE</p>
-            <p className="font-semibold text-md">
-              {shiftDigits(balance, -exponent)}
-            </p>
-          </div>
-          <div>
-            <p className="text-md text-gray-500">EXPONENT</p>
-            <p className="font-semibold text-md">
-              {denom?.denom_units[1]?.exponent}
-            </p>
-          </div>
-          <div>
-            <p className="text-md text-gray-500 ">CIRCULATING SUPPLY</p>
-            <p className="font-semibold text-md max-w-[20ch] truncate">
-              {denom.display}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex space-x-4">
-        <div className="flex-1">
-          <label className="label p-0">
-            <p className="text-md ">AMOUNT</p>
-          </label>
-          <input
-            type="text"
-            placeholder="Enter amount"
-            className="input input-bordered h-10 input-sm w-full"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-          />
-        </div>
-        <div className="flex-1">
-          <label className="label p-0">
-            <p className="text-md ">TARGET</p>
-          </label>
-          <div className="flex flex-row items-center">
-            <input
-              type="text"
-              placeholder="Target address"
-              className="input input-bordered input-sm h-10 rounded-tl-lg rounded-bl-lg rounded-tr-none rounded-br-none w-full "
-              value={recipient}
-              onChange={(e) => setRecipient(e.target.value)}
-            />
-            <button
-              onClick={handleAddressBookClick}
-              className="btn btn-secondary btn-sm  h-10 rounded-tr-lg rounded-br-lg rounded-bl-none rounded-tl-none"
-            >
-              <PiAddressBook className="w-6 h-6" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex justify-end mt-6 space-x-2">
-        <button
-          onClick={handleBurn}
-          className="btn btn-secondary btn-md flex-grow"
-          disabled={isSigning}
-        >
-          {isSigning ? (
-            <span className="loading loading-dots loading-xs"></span>
-          ) : (
-            "Burn"
-          )}
-        </button>
-        {isMFX && (
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="btn btn-secondary btn-md"
-          >
-            Multi Burn
-          </button>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <p className="text-sm text-gray-500">NAME</p>
+                <p className="font-semibold text-md max-w-[20ch] truncate">
+                  {denom.name}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">YOUR BALANCE</p>
+                <p className="font-semibold text-md">
+                  {shiftDigits(balance, -exponent)}
+                </p>
+              </div>
+              <div>
+                <p className="text-md text-gray-500">EXPONENT</p>
+                <p className="font-semibold text-md">
+                  {denom?.denom_units[1]?.exponent}
+                </p>
+              </div>
+              <div>
+                <p className="text-md text-gray-500">CIRCULATING SUPPLY</p>
+                <p className="font-semibold text-md max-w-[20ch] truncate">
+                  {denom.display}
+                </p>
+              </div>
+            </div>
+            <div className="flex space-x-4 mt-8">
+              <div className="flex-1">
+                <label className="label p-0">
+                  <p className="text-md">AMOUNT</p>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter amount"
+                  className="input input-bordered h-10 input-sm w-full"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                />
+              </div>
+              <div className="flex-1">
+                <label className="label p-0">
+                  <p className="text-md">TARGET</p>
+                </label>
+                <div className="flex flex-row items-center">
+                  <input
+                    type="text"
+                    placeholder="Target address"
+                    className="input input-bordered input-sm h-10 rounded-tl-lg rounded-bl-lg rounded-tr-none rounded-br-none w-full"
+                    value={recipient}
+                    onChange={(e) => setRecipient(e.target.value)}
+                  />
+                  <button
+                    onClick={handleAddressBookClick}
+                    className="btn btn-secondary btn-sm h-10 rounded-tr-lg rounded-br-lg rounded-bl-none rounded-tl-none"
+                  >
+                    <PiAddressBook className="w-6 h-6" />
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end mt-6 space-x-2">
+              <button
+                onClick={handleBurn}
+                className="btn btn-secondary btn-md flex-grow"
+                disabled={isSigning}
+              >
+                {isSigning ? (
+                  <span className="loading loading-dots loading-xs"></span>
+                ) : (
+                  "Burn"
+                )}
+              </button>
+              {isMFX && (
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="btn btn-secondary btn-md"
+                >
+                  Multi Burn
+                </button>
+              )}
+            </div>
+            {isMFX && (
+              <MultiBurnModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                burnPairs={burnPairs}
+                updateBurnPair={updateBurnPair}
+                addBurnPair={addBurnPair}
+                removeBurnPair={removeBurnPair}
+                handleMultiBurn={handleMultiBurn}
+                isSigning={isSigning}
+              />
+            )}
+          </>
         )}
       </div>
-
-      {isMFX && (
-        <MultiBurnModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          burnPairs={burnPairs}
-          updateBurnPair={updateBurnPair}
-          addBurnPair={addBurnPair}
-          removeBurnPair={removeBurnPair}
-          handleMultiBurn={handleMultiBurn}
-          isSigning={isSigning}
-        />
-      )}
     </div>
   );
 }

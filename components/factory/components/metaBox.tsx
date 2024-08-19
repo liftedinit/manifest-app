@@ -34,7 +34,6 @@ export default function MetaBox({
     (member) => member?.member?.address === address
   );
   const isLoading = isPoaParamsLoading || isGroupByAdminLoading;
-  console.log({ isAdmin }, { members }, admin);
 
   useEffect(() => {
     if (denom?.base.includes("mfx")) {

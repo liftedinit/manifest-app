@@ -44,12 +44,7 @@ export function DenomInfoModal({
                   </p>
                 </div>
               </div>
-              <div>
-                <p className="text-sm font-light mt-4">URI</p>
-                <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
-                  <p className="text-md">{denom.uri ?? "No URI available"}</p>
-                </div>
-              </div>
+
               <div>
                 <p className="text-sm font-light mt-4">EXPONENT</p>
                 <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
@@ -100,14 +95,6 @@ export function DenomInfoModal({
                 <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
                   <p className="text-md">
                     {denom.display ?? "No display available"}
-                  </p>
-                </div>
-              </div>
-              <div>
-                <p className="text-sm font-light mt-4">URI HASH</p>
-                <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
-                  <p className="text-md">
-                    {denom.uri_hash ?? "No URI hash available"}
                   </p>
                 </div>
               </div>

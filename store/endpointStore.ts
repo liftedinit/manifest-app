@@ -85,10 +85,6 @@ export const useEndpointStore = create(
       setSelectedEndpointKey: (key) => {
         const endpoint = get().endpoints.find((e) => e.provider === key);
         set({ selectedEndpointKey: key, selectedEndpoint: endpoint || null });
-        
-        if (typeof window !== 'undefined') {
-          window.location.reload();
-        }
       },
       addEndpoint: async (rpc: string, api: string) => {
         try {
