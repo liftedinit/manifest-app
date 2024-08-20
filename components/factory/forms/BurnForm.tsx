@@ -8,6 +8,7 @@ import { shiftDigits } from "@/utils";
 import { Any } from "@chalabi/manifestjs/dist/codegen/google/protobuf/any";
 import { MsgBurnHeldBalance } from "@chalabi/manifestjs/dist/codegen/manifest/v1/tx";
 import { MultiBurnModal } from "../modals/multiMfxBurnModal";
+import { useToast } from "@/contexts";
 
 interface BurnPair {
   address: string;
@@ -42,7 +43,7 @@ export default function BurnForm({
   const { burn } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
   const { burnHeldBalance } = manifest.v1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
-
+  const { setToastMessage } = useToast();
   const exponent =
     denom?.denom_units?.find((unit) => unit.denom === denom.display)
       ?.exponent || 0;
@@ -109,7 +110,12 @@ export default function BurnForm({
         (pair) => !pair.address || !pair.amount || isNaN(Number(pair.amount))
       )
     ) {
-      alert("Please fill in all fields with valid values.");
+      setToastMessage({
+        type: "alert-error",
+        title: "Missing fields",
+        description: "Please fill in all fields with valid values.",
+        bgColor: "#e74c3c",
+      });
       return;
     }
     setIsSigning(true);

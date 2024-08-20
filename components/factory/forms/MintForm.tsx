@@ -8,6 +8,7 @@ import { shiftDigits } from "@/utils";
 import { Any } from "@chalabi/manifestjs/dist/codegen/google/protobuf/any";
 import { MsgPayout } from "@chalabi/manifestjs/dist/codegen/manifest/v1/tx";
 import { MultiMintModal } from "../modals/multiMfxMintModal";
+import { useToast } from "@/contexts";
 
 interface PayoutPair {
   address: string;
@@ -36,7 +37,7 @@ export default function MintForm({
   const [payoutPairs, setPayoutPairs] = useState<PayoutPair[]>([
     { address: "", amount: "" },
   ]);
-
+  const { setToastMessage } = useToast();
   const { tx } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
   const { mint } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
@@ -114,7 +115,12 @@ export default function MintForm({
         (pair) => !pair.address || !pair.amount || isNaN(Number(pair.amount))
       )
     ) {
-      alert("Please fill in all fields with valid values.");
+      setToastMessage({
+        type: "alert-error",
+        title: "Missing fields",
+        description: "Please fill in all fields with valid values.",
+        bgColor: "#e74c3c",
+      });
       return;
     }
     setIsSigning(true);

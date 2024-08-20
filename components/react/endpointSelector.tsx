@@ -2,7 +2,7 @@ import React, { useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAdvancedMode } from "@/contexts";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
-
+import { useToast } from "@/contexts";
 import dynamic from "next/dynamic";
 import { useEndpointStore } from "@/store/endpointStore";
 
@@ -34,7 +34,7 @@ const EndpointSelector: React.FC = () => {
     removeEndpoint: state.removeEndpoint,
     updateEndpointHealth: state.updateEndpointHealth,
   }));
-
+  const { setToastMessage } = useToast();
   const handleEndpointChange = useCallback(
     (endpoint: Endpoint) => {
       setSelectedEndpointKey(endpoint.provider);
@@ -58,7 +58,15 @@ const EndpointSelector: React.FC = () => {
     stopPropagation: () => void;
   }) => {
     e.stopPropagation();
-    if (!newRPCEndpoint || !newAPIEndpoint) return;
+    if (!newRPCEndpoint || !newAPIEndpoint) {
+      setToastMessage({
+        type: "alert-error",
+        title: "Error adding custom endpoint",
+        description: "Both RPC and API endpoints are required.",
+        bgColor: "#e74c3c",
+      });
+      return;
+    }
 
     const rpcUrl = newRPCEndpoint.startsWith("http")
       ? newRPCEndpoint
@@ -72,15 +80,40 @@ const EndpointSelector: React.FC = () => {
       setNewRPCEndpoint("");
       setNewAPIEndpoint("");
       setIsModalOpen(false);
+      setToastMessage({
+        type: "alert-success",
+        title: "Custom endpoint added",
+        description: "The new endpoint has been successfully added.",
+        bgColor: "#2ecc71",
+      });
     } catch (error) {
       console.error("Error adding custom endpoint:", error);
-      alert(
-        error instanceof Error
-          ? error.message
-          : "An error occurred while adding the custom endpoint. Please try again."
-      );
+      let errorMessage = "An unknown error occurred while adding the endpoint.";
+
+      if (error instanceof Error) {
+        if (error.message.includes("Invalid URL")) {
+          errorMessage =
+            "Invalid URL format. Please check both RPC and API URLs.";
+        } else if (error.message.includes("Network error")) {
+          errorMessage =
+            "Network error. Please check your internet connection and try again.";
+        } else if (error.message.includes("Timeout")) {
+          errorMessage =
+            "Connection timeout. The endpoint might be unreachable.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      setToastMessage({
+        type: "alert-error",
+        title: "Error adding custom endpoint",
+        description: errorMessage,
+        bgColor: "#e74c3c",
+      });
     }
   };
+
   const truncateUrl = (url: string) => {
     try {
       const ipRegex = /^(?:\d{1,3}\.){3}\d{1,3}(?::\d+)?$/;
