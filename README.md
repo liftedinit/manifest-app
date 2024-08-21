@@ -4,6 +4,8 @@ This is a web app that allows users to interact with the Manifest Network and it
 
 For more information on the Manifest Network and its modules, please visit the [Manifest Network GitHub](https://github.com/liftedinit/manifest-ledger).
 
+[![codecov](https://codecov.io/gh/chalabi2/manifest-app/branch/main/graph/badge.svg)](https://codecov.io/gh/chalabi2/manifest-app)
+
 ## Getting Started
 
 ### Installation
