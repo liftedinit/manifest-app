@@ -75,4 +75,16 @@ describe("TokenList", () => {
     fireEvent.click(balanceRow);
     expect(screen.getByText("TOKEN 1")).toBeInTheDocument();
   });
+
+  test("displays correct balance for each token", () => {
+    render(<TokenList balances={mockBalances} isLoading={false} />);
+    expect(screen.getByText("0.001")).toBeInTheDocument();
+    expect(screen.getByText("0.002")).toBeInTheDocument();
+  });
+
+  test("displays correct base denomination for each token", () => {
+    render(<TokenList balances={mockBalances} isLoading={false} />);
+    expect(screen.getByText("token1")).toBeInTheDocument();
+    expect(screen.getByText("token2")).toBeInTheDocument();
+  });
 });
