@@ -8,7 +8,12 @@ import { SignData } from "@cosmos-kit/web3auth";
 import { makeWeb3AuthWallets } from "@cosmos-kit/web3auth/esm/index";
 import { useEffect, useMemo, useRef, useState } from "react";
 import SignModal from "@/components/react/authSignerModal";
-import { manifestAssets, manifestChain } from "@/config";
+import {
+  manifestAssets,
+  manifestChain,
+  manifestTestnetChain,
+  manifestTestnetAssets,
+} from "@/config";
 import { SignerOptions, wallets } from "cosmos-kit";
 import { ChainProvider } from "@cosmos-kit/react";
 import { Registry } from "@cosmjs/proto-signing";
@@ -194,8 +199,16 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
       ) : (
         <ChainProvider
           key={endpointKey}
-          chains={[manifestChain]}
-          assetLists={[manifestAssets]}
+          chains={
+            selectedEndpoint?.network === "testnet"
+              ? [manifestTestnetChain]
+              : [manifestChain]
+          }
+          assetLists={
+            selectedEndpoint?.network === "testnet"
+              ? [manifestTestnetAssets]
+              : [manifestAssets]
+          }
           // @ts-ignore
           wallets={combinedWallets}
           logLevel="NONE"

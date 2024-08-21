@@ -174,7 +174,9 @@ export default function Bank() {
                   <SendBox
                     balances={combinedBalances}
                     isBalancesLoading={resolvedLoading}
-                    refetchBalances={resolveRefetch || refetch}
+                    refetchBalances={
+                      resolveRefetch || refetch || refetchBalances
+                    }
                     address={address ?? ""}
                   />
                   <TokenList
