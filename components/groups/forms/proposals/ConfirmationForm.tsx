@@ -145,11 +145,10 @@ export default function ConfirmationModal({
   const getMessageObject = (
     message: { type: keyof MessageTypeMap } & Record<string, any>
   ): Any => {
-    console.log("Processing message:", JSON.stringify(message, null, 2));
     const composer = messageTypeToComposer[message.type];
     if (composer) {
       let messageData = JSON.parse(JSON.stringify(message));
-      console.log("Message data:", messageData);
+
       delete messageData.type;
 
       messageData = convertKeysToCamelCase(messageData);
@@ -159,7 +158,6 @@ export default function ConfirmationModal({
       const composedMessage = composer(
         messageData as MessageTypeMap[typeof message.type]
       );
-      console.log("Composed message:", composedMessage);
 
       if (!composedMessage || !composedMessage.value) {
         console.error(
@@ -261,10 +259,7 @@ export default function ConfirmationModal({
       }
 
       try {
-        console.log("Composed message value:", composedMessage.value);
         const encodedValue = encodeFunction(composedMessage.value).finish();
-
-        console.log("Encoded value:", encodedValue);
 
         const anyMessage = Any.fromPartial({
           typeUrl: composedMessage.typeUrl,

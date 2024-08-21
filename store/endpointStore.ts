@@ -25,18 +25,18 @@ const validateRPCEndpoint = async (rpc: string): Promise<boolean> => {
   try {
     const url = new URL('status', rpc.trim());
     const response = await fetch(url.toString());
-    console.log('RPC response status:', response.status);
+
     const data = await response.json();
-    console.log('RPC response data:', data);
+
 
   
     if (data.result && data.result.node_info && data.result.sync_info) {
       const networkMatches = data.result.node_info.network === (process.env.NEXT_PUBLIC_CHAIN_ID || process.env.NEXT_PUBLIC_TESTNET_CHAIN_ID);
       const isNotCatchingUp = !data.result.sync_info.catching_up;
-      console.log('Network matches:', networkMatches, 'Not catching up:', isNotCatchingUp);
+
       return true; 
     } else {
-      console.log('Unexpected RPC response structure');
+
       return false;
     }
   } catch (error) {
@@ -91,12 +91,12 @@ export const useEndpointStore = create(
           const isRPCValid = await validateRPCEndpoint(rpc);
           const isAPIValid = await validateAPIEndpoint(api);
           
-          console.log('RPC validation:', isRPCValid, 'API validation:', isAPIValid);
+
       
           if (isRPCValid && isAPIValid) {
             const rpcResponse = await fetch(`${rpc.trim()}status`);
             const rpcData = await rpcResponse.json();
-            console.log('RPC data:', rpcData);
+       
       
             const network = rpcData.result.node_info.network === (process.env.NEXT_PUBLIC_CHAIN_ID || process.env.NEXT_PUBLIC_TESTNET_CHAIN_ID) ? "mainnet" : "testnet";
             
