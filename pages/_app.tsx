@@ -79,7 +79,9 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
   const { selectedEndpoint } = useEndpointStore();
   const [isLoading, setIsLoading] = useState(false);
   const [endpointKey, setEndpointKey] = useState(0);
-  const previousEndpointRef = useRef();
+  const previousEndpointRef = useRef<typeof selectedEndpoint | undefined>(
+    undefined
+  );
 
   useEffect(() => {
     if (

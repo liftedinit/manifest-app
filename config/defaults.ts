@@ -2,8 +2,8 @@ import { AssetList, Chain } from "@chain-registry/types";
 export const chainName = process.env.NEXT_PUBLIC_CHAIN ?? 'manifest';;
 const mainNetRPC = process.env.NEXT_PUBLIC_MAINNET_RPC ?? 'https://nodes.chandrastation.com/rpc/manifest/';
 const mainNetAPI = process.env.NEXT_PUBLIC_MAINNET_API ?? 'https://nodes.chandrastation.com/api/manifest/';
-const testNetRPC = process.env.NEXT_PUBLIC_TESTNET_RPC ?? 'https://nodes.chandrastation.com/rpc/manifest/';
-const testNetAPI = process.env.NEXT_PUBLIC_TESTNET_API ?? 'https://nodes.chandrastation.com/api/manifest/';
+const testNetRPC = process.env.NEXT_PUBLIC_TESTNET_RPC ?? 'https://manifest-beta-rpc.liftedinit.tech/ ';
+const testNetAPI = process.env.NEXT_PUBLIC_TESTNET_API ?? 'https://manifest-beta-rest.liftedinit.tech/ ';
 
 export const manifestChain: Chain = {
     chain_name: "manifest",
@@ -11,7 +11,7 @@ export const manifestChain: Chain = {
     network_type: "testnet",
     website: "",
     pretty_name: "Manifest Testnet",
-    chain_id: "manifest-1",
+    chain_id: process.env.NEXT_PUBLIC_CHAIN_ID ?? "manifest-1",
     bech32_prefix: "manifest",
     daemon_name: "manifest",
     node_home: "$HOME/.manifest",
@@ -117,7 +117,7 @@ export const manifestAssets: AssetList = {
     network_type: "testnet",
     website: "",
     pretty_name: "Manifest Testnet",
-    chain_id: "manifest-ledger-beta",
+    chain_id: process.env.NEXT_PUBLIC_TESTNET_CHAIN_ID ?? "manifest-ledger-beta",
     bech32_prefix: "manifest",
     daemon_name: "manifest",
     node_home: "$HOME/.manifest",

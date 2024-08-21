@@ -31,7 +31,7 @@ const validateRPCEndpoint = async (rpc: string): Promise<boolean> => {
 
   
     if (data.result && data.result.node_info && data.result.sync_info) {
-      const networkMatches = data.result.node_info.network === (process.env.NEXT_PUBLIC_CHAIN_ID || "manifest-ledger-beta");
+      const networkMatches = data.result.node_info.network === (process.env.NEXT_PUBLIC_CHAIN_ID || process.env.NEXT_PUBLIC_TESTNET_CHAIN_ID);
       const isNotCatchingUp = !data.result.sync_info.catching_up;
       console.log('Network matches:', networkMatches, 'Not catching up:', isNotCatchingUp);
       return true; 
@@ -98,7 +98,7 @@ export const useEndpointStore = create(
             const rpcData = await rpcResponse.json();
             console.log('RPC data:', rpcData);
       
-            const network = rpcData.result.node_info.network === (process.env.NEXT_PUBLIC_CHAIN_ID || "manifest-ledger-beta") ? "mainnet" : "testnet";
+            const network = rpcData.result.node_info.network === (process.env.NEXT_PUBLIC_CHAIN_ID || process.env.NEXT_PUBLIC_TESTNET_CHAIN_ID) ? "mainnet" : "testnet";
             
             const newEndpoint: Endpoint = {
               rpc: rpc.trim(),
