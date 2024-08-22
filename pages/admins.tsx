@@ -31,7 +31,7 @@ export default function Admins() {
   const { stakingParams, isParamsLoading, refetchParams } = useStakingParams();
   const { validators, isActiveValidatorsLoading, refetchActiveValidatorss } =
     useValidators();
-  console.log(poaParams);
+
   const { groupByAdmin, isGroupByAdminLoading, refetchGroupByAdmin } =
     useGroupsByAdmin(
       poaParams?.admins[0] ??

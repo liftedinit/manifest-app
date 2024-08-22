@@ -73,8 +73,6 @@ export default function ProposalsForPolicy({
   const { proposals, isProposalsLoading, isProposalsError, refetchProposals } =
     useProposalsByPolicyAccount(policyAddress ?? "");
 
-  console.log("proposals", proposals);
-
   const members =
     groupByMemberData?.groups.filter(
       (group) => group.policies[0]?.address === policyAddress

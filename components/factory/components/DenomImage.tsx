@@ -14,6 +14,15 @@ const supportedDomains = [
   "images.unsplash.com",
   "media.giphy.com",
   "media.istockphoto.com",
+  "imgix.net",
+  "staticflickr.com",
+  "twimg.com",
+  "pinimg.com",
+  "giphy.com",
+  "dropboxusercontent.com",
+  "googleusercontent.com",
+  "unsplash.com",
+  "istockphoto.com",
 ];
 
 const supportedPatterns = [
@@ -29,6 +38,15 @@ const supportedPatterns = [
   /^https:\/\/.*\.googleusercontent\.com/,
   /^https:\/\/.*\.unsplash\.com/,
   /^https:\/\/.*\.istockphoto\.com/,
+  /^https:\/\/.*\.media\.giphy\.com/,
+  /^https:\/\/.*\.media\.istockphoto\.com/,
+  /^https:\/\/.*\.images\.unsplash\.com/,
+  /^https:\/\/.*\.media\.istockphoto\.com/,
+  /^https:\/\/.*\.imgix\.net/,
+  /^https:\/\/.*\.staticflickr\.com/,
+  /^https:\/\/.*\.twimg\.com/,
+  /^https:\/\/.*\.pinimg\.com/,
+  /^https:\/\/.*\.giphy\.com/,
 ];
 
 const isUrlSupported = (url: string) => {
@@ -50,7 +68,7 @@ export const DenomImage = ({ denom }: { denom: any }) => {
 
   useEffect(() => {
     const checkUri = async () => {
-      if (denom.uri) {
+      if (denom?.uri) {
         setIsSupported(isUrlSupported(denom.uri));
         // Simulate a delay to show the loading state
         await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -59,7 +77,7 @@ export const DenomImage = ({ denom }: { denom: any }) => {
     };
 
     checkUri();
-  }, [denom.uri]);
+  }, [denom?.uri]);
 
   if (isLoading) {
     return (
