@@ -18,7 +18,6 @@ const renderWithProps = (props = {}) => {
   return renderWithChainProvider(<SendBox {...defaultProps} {...props} />);
 };
 
-// TODO: ALL FAILING
 describe("SendBox", () => {
   afterEach(() => {
     cleanup();

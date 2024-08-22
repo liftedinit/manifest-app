@@ -1,7 +1,41 @@
 import {Chain} from "@chain-registry/types";
 import {BondStatus} from "@chalabi/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking";
-import {ExtendedValidatorSDKType} from "@/components";
+import {ExtendedValidatorSDKType, TransactionGroup} from "@/components";
 import {CombinedBalanceInfo} from "@/pages/bank";
+
+export const mockBalances: CombinedBalanceInfo[] = [
+  {
+    denom: "token1",
+    coreDenom: "utoken1",
+    amount: "1000",
+    metadata: {
+      description: "My First Token",
+      name: "Token 1",
+      symbol: "TK1",
+      uri: "",
+      uri_hash: "",
+      display: "Token 1",
+      base: "token1",
+      denom_units: [{ denom: "utoken1", exponent: 0, aliases: ["utoken1"] }, { denom: "token1", exponent: 6, aliases: ["token1"] }],
+    },
+  },
+  {
+    denom: "token2",
+    coreDenom: "utoken2",
+    amount: "2000",
+    metadata: {
+      description: "My Second Token",
+      name: "Token 2",
+      symbol: "TK2",
+      uri: "",
+      uri_hash: "",
+      display: "Token 2",
+      base: "token2",
+      denom_units: [{ denom: "utoken2", exponent: 0, aliases: ["utoken2"] }, { denom: "token2", exponent: 6, aliases: ["token2"] }],
+    },
+  },
+];
+
 
 export const mockActiveValidators: ExtendedValidatorSDKType[] = [
   {
@@ -116,23 +150,25 @@ export const defaultChain: Chain = {
   },
 }
 
-export const mockBalances: CombinedBalanceInfo[] = [
+export const mockTransactions: TransactionGroup[] = [
   {
-    denom: "token1",
-    coreDenom: "utoken1",
-    amount: "1000",
-    metadata: {
-      description: "My First Token",
-      name: "Token 1",
-      symbol: "TK1",
-      uri: "",
-      uri_hash: "",
-      display: "Token 1",
-      base: "token1",
-      denom_units: [
-        { denom: "utoken1", exponent: 0, aliases: ["utoken1"] },
-        { denom: "token1", exponent: 6, aliases: ["token1"] },
-      ],
+    tx_hash: "hash1",
+    block_number: 1,
+    formatted_date: "2023-05-01T12:00:00Z",
+    data: {
+      from_address: "address1",
+      to_address: "address2",
+      amount: [{ amount: "1000000", denom: "utoken" }],
+    },
+  },
+  {
+    tx_hash: "hash2",
+    block_number: 2,
+    formatted_date: "2023-05-02T12:00:00Z",
+    data: {
+      from_address: "address2",
+      to_address: "address1",
+      amount: [{ amount: "2000000", denom: "utoken" }],
     },
   },
 ];
