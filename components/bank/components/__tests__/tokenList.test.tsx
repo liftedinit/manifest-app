@@ -3,42 +3,9 @@ import React from "react";
 import matchers from '@testing-library/jest-dom/matchers';
 import {fireEvent, render, screen, cleanup} from "@testing-library/react";
 import TokenList from "@/components/bank/components/tokenList";
-import { CombinedBalanceInfo } from "@/pages/bank";
+import {mockBalances} from "@/tests/mock";
 
 expect.extend(matchers);
-
-const mockBalances: CombinedBalanceInfo[] = [
-  {
-    denom: "token1",
-    coreDenom: "utoken1",
-    amount: "1000",
-    metadata: {
-      description: "My First Token",
-      name: "Token 1",
-      symbol: "TK1",
-      uri: "",
-      uri_hash: "",
-      display: "Token 1",
-      base: "token1",
-      denom_units: [{ denom: "utoken1", exponent: 0, aliases: ["utoken1"] }, { denom: "token1", exponent: 6, aliases: ["token1"] }],
-    },
-  },
-  {
-    denom: "token2",
-    coreDenom: "utoken2",
-    amount: "2000",
-    metadata: {
-      description: "My Second Token",
-      name: "Token 2",
-      symbol: "TK2",
-      uri: "",
-      uri_hash: "",
-      display: "Token 2",
-      base: "token2",
-      denom_units: [{ denom: "utoken2", exponent: 0, aliases: ["utoken2"] }, { denom: "token2", exponent: 6, aliases: ["token2"] }],
-    },
-  },
-];
 
 describe("TokenList", () => {
   afterEach(() => {
@@ -74,5 +41,17 @@ describe("TokenList", () => {
     if (!balanceRow) throw new Error("Balance row not found");
     fireEvent.click(balanceRow);
     expect(screen.getByText("TOKEN 1")).toBeInTheDocument();
+  });
+
+  test("displays correct balance for each token", () => {
+    render(<TokenList balances={mockBalances} isLoading={false} />);
+    expect(screen.getByText("0.001")).toBeInTheDocument();
+    expect(screen.getByText("0.002")).toBeInTheDocument();
+  });
+
+  test("displays correct base denomination for each token", () => {
+    render(<TokenList balances={mockBalances} isLoading={false} />);
+    expect(screen.getByText("token1")).toBeInTheDocument();
+    expect(screen.getByText("token2")).toBeInTheDocument();
   });
 });

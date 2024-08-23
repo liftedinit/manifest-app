@@ -1,36 +1,11 @@
 import { test, expect, afterEach, describe } from "bun:test";
 import React from "react";
 import matchers from "@testing-library/jest-dom/matchers";
-import { fireEvent, render, screen, cleanup } from "@testing-library/react";
-import {
-  HistoryBox,
-  TransactionGroup,
-} from "@/components/bank/components/historyBox";
+import {render, screen, cleanup, waitFor, fireEvent, within} from "@testing-library/react";
+import {HistoryBox} from "@/components/bank/components/historyBox";
+import {mockTransactions} from "@/tests/mock";
 
 expect.extend(matchers);
-
-const mockTransactions: TransactionGroup[] = [
-  {
-    tx_hash: "hash1",
-    block_number: 1,
-    formatted_date: "2023-05-01T12:00:00Z",
-    data: {
-      from_address: "address1",
-      to_address: "address2",
-      amount: [{ amount: "1000000", denom: "utoken" }],
-    },
-  },
-  {
-    tx_hash: "hash2",
-    block_number: 2,
-    formatted_date: "2023-05-02T12:00:00Z",
-    data: {
-      from_address: "address2",
-      to_address: "address1",
-      amount: [{ amount: "2000000", denom: "utoken" }],
-    },
-  },
-];
 
 describe("HistoryBox", () => {
   afterEach(() => {
@@ -67,7 +42,7 @@ describe("HistoryBox", () => {
     ).toBeInTheDocument();
   });
 
-  test("opens modal when clicking on a transaction", () => {
+  test("opens modal when clicking on a transaction", async () => {
     render(
       <HistoryBox
         isLoading={false}
@@ -76,7 +51,15 @@ describe("HistoryBox", () => {
       />
     );
     fireEvent.click(screen.getByText("Send"));
-    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByLabelText("tx info")).toBeInTheDocument()
+      expect(screen.getByText("Transaction Details")).toBeInTheDocument();
+
+      const fromContainer = screen.getByLabelText("from");
+      expect(within(fromContainer).getByText("addres...dress1")).toBeInTheDocument();
+      const toContainer = screen.getByLabelText("to");
+      expect(within(toContainer).getByText("addres...dress2")).toBeInTheDocument();
+    });
   });
 
   test("formats date correctly", () => {

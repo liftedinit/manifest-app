@@ -63,7 +63,8 @@ export default function MetaBox({
         </h2>
         <div
           role="tablist"
-          className="tabs tabs-lifted tabs-md -mr-4 items-end "
+          className="tabs tabs-lifted tabs-md -mr-4 items-end"
+          aria-label="tabs"
         >
           {[
             ...(denom.base.includes("mfx") ? [] : ["transfer"]),

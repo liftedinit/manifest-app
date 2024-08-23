@@ -60,7 +60,7 @@ export default function MyDenoms({
 
   const renderSkeleton = () => (
     <div className="py-8">
-      <div className="skeleton rounded-md mx-auto h-16 w-5/6"></div>
+      <div className="skeleton rounded-md mx-auto h-16 w-5/6" aria-label="skeleton"></div>
     </div>
   );
 
