@@ -81,7 +81,7 @@ export const DenomImage = ({ denom }: { denom: any }) => {
 
   if (isLoading) {
     return (
-      <div className="skeleton w-8 h-8 rounded-full animate-pulse bg-gray-300"></div>
+      <div className="skeleton w-8 h-8 rounded-full animate-pulse bg-gray-300" aria-label="denom image skeleton"></div>
     );
   }
 
