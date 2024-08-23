@@ -97,16 +97,17 @@ export default function AdminOptions({
               size={64}
             />
           </div>
-          <a className="lg:text-2xl text-xl leading-6 -mt-2">
+          <a className="lg:text-2xl text-xl leading-6 -mt-2" aria-label="title">
             {group?.ipfsMetadata?.title}
           </a>
 
-          <a className="text-sm leading-tight flex-wrap text-center text-neutral-content max-h-10 max-w-96 overflow-y-auto -mt-6">
+          <a className="text-sm leading-tight flex-wrap text-center text-neutral-content max-h-10 max-w-96 overflow-y-auto -mt-6" aria-label="details">
             {group?.ipfsMetadata?.details}
           </a>
           <button
             className="btn btn-sm btn-ghost absolute right-2 bottom-17"
             onClick={handleDescription}
+            aria-label="three-dots"
           >
             <BsThreeDots />
           </button>
@@ -121,6 +122,7 @@ export default function AdminOptions({
             <button
               className="btn hidden lg:block btn-primary btn-sm w-2/6"
               onClick={handleOpen}
+              aria-label="update admin"
             >
               Update Admin
             </button>

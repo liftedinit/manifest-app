@@ -2,6 +2,7 @@ import {Chain} from "@chain-registry/types";
 import {BondStatus, ParamsSDKType} from "@chalabi/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking";
 import {ExtendedValidatorSDKType, TransactionGroup} from "@/components";
 import {CombinedBalanceInfo} from "@/pages/bank";
+import {ExtendedGroupType} from "@/hooks";
 
 export const mockBalances: CombinedBalanceInfo[] = [
   {
@@ -180,5 +181,30 @@ export const mockStakingParams: ParamsSDKType = {
   min_commission_rate: "0.05",
   max_entries: 7,
   historical_entries: 200,
+};
+
+// TODO: Not compatible with alpha.12 as poaParams is not defined in the current version
+export const mockPoaParams = {
+  admins: ["admin1"],
+  allow_validator_self_exit: true,
+};
+
+export const mockGroup : ExtendedGroupType = {
+  id: 1n,
+  admin: "admin1",
+  metadata: "metadata1",
+  version: 1n,
+  created_at: new Date(),
+  ipfsMetadata: {
+    title: "title1",
+    summary: "summary1",
+    details: "details1",
+    authors: "author1",
+    proposalForumURL: "forum1.com",
+    voteOptionContext: "context1",
+  },
+  total_weight: "456",
+  policies: ["policy1"],
+  members: ["foo", "bar"],
 };
 
