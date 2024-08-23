@@ -1,5 +1,5 @@
 import {Chain} from "@chain-registry/types";
-import {BondStatus} from "@chalabi/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking";
+import {BondStatus, ParamsSDKType} from "@chalabi/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking";
 import {ExtendedValidatorSDKType, TransactionGroup} from "@/components";
 import {CombinedBalanceInfo} from "@/pages/bank";
 
@@ -172,4 +172,13 @@ export const mockTransactions: TransactionGroup[] = [
     },
   },
 ];
+
+export const mockStakingParams: ParamsSDKType = {
+  unbonding_time: { seconds: 86400n, nanos: 0 },
+  max_validators: 100,
+  bond_denom: "upoa",
+  min_commission_rate: "0.05",
+  max_entries: 7,
+  historical_entries: 200,
+};
 
