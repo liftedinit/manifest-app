@@ -28,7 +28,7 @@ export default function TxInfoModal({ tx, isOpen, onClose }: TxInfoModalProps) {
       id={`tx_modal_${tx.tx_hash}`}
       className={`modal ${isOpen ? "modal-open" : ""}`}
     >
-      <div className="modal-box absolute max-w-4xl mx-auto rounded-lg md:ml-20 shadow-lg">
+      <div className="modal-box absolute max-w-4xl mx-auto rounded-lg md:ml-20 shadow-lg" aria-label="tx info">
         <form method="dialog">
           <button
             className="btn btn-sm btn-circle btn-ghost absolute right-1 top-1"
@@ -71,7 +71,7 @@ export default function TxInfoModal({ tx, isOpen, onClose }: TxInfoModalProps) {
             </div>
           </div>
           <div>
-            <div>
+            <div aria-label="from">
               <p className="text-md font-bold mt-4">FROM</p>
               <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
                 <div className="flex items-center">
@@ -90,7 +90,7 @@ export default function TxInfoModal({ tx, isOpen, onClose }: TxInfoModalProps) {
                 </div>
               </div>
             </div>
-            <div>
+            <div aria-label="to">
               <p className="text-md font-bold mt-4">TO</p>
               <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
                 <div className="flex items-center">

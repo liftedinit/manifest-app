@@ -1,7 +1,7 @@
 import { test, expect, afterEach, describe } from "bun:test";
 import React from "react";
 import matchers from "@testing-library/jest-dom/matchers";
-import {screen, cleanup, waitFor, fireEvent} from "@testing-library/react";
+import {screen, cleanup, waitFor, fireEvent, within} from "@testing-library/react";
 import SendBox from "@/components/bank/components/sendBox";
 import {mockBalances} from "@/tests/mock";
 import {renderWithChainProvider} from "@/tests/render";
@@ -28,14 +28,18 @@ describe("SendBox", () => {
     expect(screen.getByText("Send Tokens")).toBeInTheDocument();
   });
 
-  // TODO: Failing
-  // test("toggles between Send and IBC Transfer", () => {
-  //   renderWithProps();
-  //   expect(screen.getByText("Send Tokens")).toBeInTheDocument();
-  //
-  //   fireEvent.click(screen.getByText("IBC Transfer"));
-  //   expect(screen.getByText("IBC Transfer")).toBeInTheDocument();
-  // });
+  test("toggles between Send and IBC Transfer", async () => {
+    renderWithProps();
+    const buttonContainer = screen.getByLabelText("buttons");
+    expect(within(buttonContainer).getByText("Send")).toBeInTheDocument();
+    expect(within(buttonContainer).getByText("IBC Transfer")).toBeInTheDocument();
+
+    const tabsContainer = screen.getByLabelText("tabs");
+    expect(within(tabsContainer).getByText("Send Tokens")).toBeInTheDocument();
+
+    fireEvent.click(within(buttonContainer).getByText("IBC Transfer"));
+    await waitFor(() => expect(within(tabsContainer).getByText("IBC Transfer")).toBeInTheDocument());
+  });
 
   test("displays chain selection dropdown when in IBC Transfer mode", async () => {
     renderWithProps();
@@ -43,14 +47,13 @@ describe("SendBox", () => {
     await waitFor(() => expect(screen.getByText("Chain")).toBeInTheDocument());
   });
 
-  // TODO: Failing
-  // test("selects a chain in IBC Transfer mode", async () => {
-  //   renderWithProps();
-  //
-  //   fireEvent.click(screen.getByText("IBC Transfer"));
-  //   fireEvent.click(screen.getByText("Chain"));
-  //   fireEvent.click(screen.getByText("Osmosis"));
-  //
-  //   await waitFor(() => expect(screen.getByText("Osmosis")).toBeInTheDocument());
-  // });
+  test("selects a chain in IBC Transfer mode", async () => {
+    renderWithProps();
+    const buttonContainer = screen.getByLabelText("buttons");
+    expect(within(buttonContainer).getByText("IBC Transfer")).toBeInTheDocument();
+    fireEvent.click(within(buttonContainer).getByText("IBC Transfer"));
+    fireEvent.click(screen.getByText("Chain"));
+    fireEvent.click(screen.getByLabelText("Osmosis"));
+    await waitFor(() => expect(screen.getByAltText("Osmosis")).toBeInTheDocument());
+  });
 });

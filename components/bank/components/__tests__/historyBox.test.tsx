@@ -1,7 +1,7 @@
 import { test, expect, afterEach, describe } from "bun:test";
 import React from "react";
 import matchers from "@testing-library/jest-dom/matchers";
-import {render, screen, cleanup} from "@testing-library/react";
+import {render, screen, cleanup, waitFor, fireEvent, within} from "@testing-library/react";
 import {HistoryBox} from "@/components/bank/components/historyBox";
 import {mockTransactions} from "@/tests/mock";
 
@@ -42,18 +42,25 @@ describe("HistoryBox", () => {
     ).toBeInTheDocument();
   });
 
-  // TODO: Failing
-  // test("opens modal when clicking on a transaction", async () => {
-  //   render(
-  //     <HistoryBox
-  //       isLoading={false}
-  //       send={mockTransactions}
-  //       address="address1"
-  //     />
-  //   );
-  //   fireEvent.click(screen.getByText("Send"));
-  //   await waitFor(() => expect(screen.getByRole("dialog")).toBeInTheDocument());
-  // });
+  test("opens modal when clicking on a transaction", async () => {
+    render(
+      <HistoryBox
+        isLoading={false}
+        send={mockTransactions}
+        address="address1"
+      />
+    );
+    fireEvent.click(screen.getByText("Send"));
+    await waitFor(() => {
+      expect(screen.getByLabelText("tx info")).toBeInTheDocument()
+      expect(screen.getByText("Transaction Details")).toBeInTheDocument();
+
+      const fromContainer = screen.getByLabelText("from");
+      expect(within(fromContainer).getByText("addres...dress1")).toBeInTheDocument();
+      const toContainer = screen.getByLabelText("to");
+      expect(within(toContainer).getByText("addres...dress2")).toBeInTheDocument();
+    });
+  });
 
   test("formats date correctly", () => {
     render(
