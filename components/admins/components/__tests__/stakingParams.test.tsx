@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import React from "react";
-import { screen, cleanup, within } from "@testing-library/react";
+import {screen, cleanup, within, fireEvent} from "@testing-library/react";
 import StakingParams from "@/components/admins/components/stakingParams";
 import matchers from "@testing-library/jest-dom/matchers";
 import {mockStakingParams} from "@/tests/mock";
@@ -48,8 +48,7 @@ describe("StakingParams", () => {
   test("opens update modal on button click", () => {
     renderWithProps();
     const stakingParamsContainer = screen.getByLabelText("Skeleton Staking Params");
-    const updateButton = within(stakingParamsContainer).getByText("Update");
-    updateButton.click();
+    fireEvent.click(within(stakingParamsContainer).getByText("Update"));
     const modal = document.getElementById("update-params-modal") as HTMLDialogElement;
     expect(modal).toBeInTheDocument();
     expect(modal.open).toBe(true);

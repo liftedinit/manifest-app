@@ -1,7 +1,7 @@
 import { test, expect, afterEach, describe } from "bun:test";
 import React from "react";
 import matchers from "@testing-library/jest-dom/matchers";
-import {fireEvent, screen, cleanup, waitFor} from "@testing-library/react";
+import {screen, cleanup, waitFor, fireEvent} from "@testing-library/react";
 import SendBox from "@/components/bank/components/sendBox";
 import {mockBalances} from "@/tests/mock";
 import {renderWithChainProvider} from "@/tests/render";

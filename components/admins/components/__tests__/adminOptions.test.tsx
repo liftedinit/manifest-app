@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import React from "react";
-import { screen, cleanup, within } from "@testing-library/react";
+import {screen, cleanup, within, fireEvent} from "@testing-library/react";
 import AdminOptions from "@/components/admins/components/adminOptions";
 import matchers from "@testing-library/jest-dom/matchers";
 import { renderWithChainProvider } from "@/tests/render";
@@ -40,8 +40,7 @@ describe("AdminOptions", () => {
   test("opens update modal on button click", () => {
     renderWithProps();
     const updateAdminButtonContainer = screen.getByLabelText("update admin");
-    const updateButton = within(updateAdminButtonContainer).getByText("Update Admin");
-    updateButton.click();
+    fireEvent.click(within(updateAdminButtonContainer).getByText("Update Admin"));
     const modal = document.getElementById("update-admin-modal") as HTMLDialogElement;
     expect(modal).toBeInTheDocument();
     expect(modal.open).toBe(true);
@@ -49,8 +48,7 @@ describe("AdminOptions", () => {
 
   test("opens description modal on button click", () => {
     renderWithProps();
-    const descriptionButton = screen.getByLabelText("three-dots");
-    descriptionButton.click();
+    fireEvent.click(screen.getByLabelText("three-dots"));
     const modal = document.getElementById("description-modal") as HTMLDialogElement;
     expect(modal).toBeInTheDocument();
     expect(modal.open).toBe(true);

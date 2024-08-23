@@ -59,6 +59,7 @@ export default function DenomInfo({
               }}
               className="btn btn-primary btn-xs"
               disabled={denom?.base.includes("mfx")}
+              aria-label="update metadata"
             >
               Update
             </button>
@@ -76,7 +77,7 @@ export default function DenomInfo({
               <span className="text-sm leading-3 capitalize text-gray-400">
                 TICKER
               </span>
-              <span className="text-xl  max-w-[30ch] truncate">
+              <span className="text-xl  max-w-[30ch] truncate" aria-label="ticker">
                 {denom?.display ?? "No Ticker available"}
               </span>
             </div>
@@ -87,7 +88,9 @@ export default function DenomInfo({
                   <span className="text-sm capitalize text-gray-400 truncate">
                     BASE DENOM
                   </span>
-                  <TruncatedAddressWithCopy address={denom.base} slice={14} />
+                  <div aria-label="base denom">
+                    <TruncatedAddressWithCopy address={denom.base} slice={14} />
+                  </div>
                 </div>
 
                 <div className="flex flex-col gap-2 bg-base-300 p-4 rounded-md justify-left items-left">
@@ -128,8 +131,8 @@ export default function DenomInfo({
                   <span className="text-sm capitalize text-gray-400">
                     SYMBOL
                   </span>
-                  <div className="flex flex-row justify-between items-start max-w-[30ch] truncate">
-                    {denom?.symbol ?? "No Description"}
+                  <div className="flex flex-row justify-between items-start max-w-[30ch] truncate" aria-label="symbol">
+                      {denom?.symbol ?? "No Description"}
                     <div className="flex-row justify-between items-center gap-2 hidden md:flex">
                       <button
                         onClick={() => {

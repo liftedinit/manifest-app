@@ -208,3 +208,16 @@ export const mockGroup : ExtendedGroupType = {
   members: ["foo", "bar"],
 };
 
+export const mockDenom = {
+  base: "TTT",
+  display: "TEST",
+  denom_units: [{ denom: "utest1", exponent: 0, aliases: ["utest1"] }, { denom: "test1", exponent: 6, aliases: ["test1"] }],
+  symbol: "TST",
+}
+
+export const mockMfxDenom = {
+  base: "umfx",
+  display: "MFX",
+  denom_units: [{ denom: "umfx", exponent: 0, aliases: ["umfx"] }, { denom: "mfx", exponent: 6, aliases: ["mfx"] }],
+  symbol: "umfx"
+}
