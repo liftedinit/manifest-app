@@ -3,6 +3,11 @@ import {BondStatus, ParamsSDKType} from "@chalabi/manifestjs/dist/codegen/cosmos
 import {ExtendedValidatorSDKType, TransactionGroup} from "@/components";
 import {CombinedBalanceInfo} from "@/pages/bank";
 import {ExtendedGroupType} from "@/hooks";
+import {
+  ProposalExecutorResult,
+  ProposalSDKType,
+  ProposalStatus
+} from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types";
 
 export const mockBalances: CombinedBalanceInfo[] = [
   {
@@ -199,13 +204,92 @@ export const mockGroup : ExtendedGroupType = {
     title: "title1",
     summary: "summary1",
     details: "details1",
-    authors: "author1",
+    authors: "author1, author2",
     proposalForumURL: "forum1.com",
     voteOptionContext: "context1",
   },
-  total_weight: "456",
-  policies: ["policy1"],
-  members: ["foo", "bar"],
+  total_weight: "10",
+  policies: [
+    {
+      address: "test_policy_address",
+      decision_policy: {
+        threshold: "5",
+      },
+    },
+  ],
+  members: [
+    {
+      group_id: 1,
+      member: {
+        address: "test_address1",
+        weight: "5",
+        metadata: "test_metadata1",
+        added_at: Date.now(),
+        isCoreMember: true,
+        isActive: true,
+      },
+    },
+    {
+      group_id: 1,
+      member: {
+        address: "test_address2",
+        weight: "5",
+        metadata: "test_metadata2",
+        added_at: Date.now(),
+        isCoreMember: true,
+        isActive: true,
+      },
+    }
+  ],
+};
+
+export const mockGroup2 : ExtendedGroupType = {
+  id: 2n,
+  admin: "admin2",
+  metadata: "metadata2",
+  version: 1n,
+  created_at: new Date(),
+  ipfsMetadata: {
+    title: "title2",
+    summary: "summary2",
+    details: "details2",
+    authors: "author2, author3",
+    proposalForumURL: "forum2.com",
+    voteOptionContext: "context2",
+  },
+  total_weight: "10",
+  policies: [
+    {
+      address: "test_policy_address2",
+      decision_policy: {
+        threshold: "5",
+      },
+    },
+  ],
+  members: [
+    {
+      group_id: 2,
+      member: {
+        address: "test_address2",
+        weight: "5",
+        metadata: "test_metadata2",
+        added_at: Date.now(),
+        isCoreMember: true,
+        isActive: true,
+      },
+    },
+    {
+      group_id: 2,
+      member: {
+        address: "test_address3",
+        weight: "5",
+        metadata: "test_metadata3",
+        added_at: Date.now(),
+        isCoreMember: true,
+        isActive: true,
+      },
+    }
+  ],
 };
 
 export const mockDenom = {
@@ -221,3 +305,96 @@ export const mockMfxDenom = {
   denom_units: [{ denom: "umfx", exponent: 0, aliases: ["umfx"] }, { denom: "mfx", exponent: 6, aliases: ["mfx"] }],
   symbol: "umfx"
 }
+
+export const mockProposals: { [key: string]: ProposalSDKType[] } = {
+  // The key should match the policy address from `mockGroup`
+  test_policy_address: [
+    {
+      id: 1n,
+      title: "title1",
+      group_policy_address: "policy1",
+      summary: "summary1",
+      metadata: "metadata1",
+      proposers: ["proposer1"],
+      submit_time: new Date(),
+      group_version: 1n,
+      group_policy_version: 1n,
+      status: ProposalStatus.PROPOSAL_STATUS_SUBMITTED,
+      final_tally_result: {
+        yes_count: "1",
+        abstain_count: "0",
+        no_count: "0",
+        no_with_veto_count: "0",
+      },
+      voting_period_end: new Date(),
+      executor_result: ProposalExecutorResult.PROPOSAL_EXECUTOR_RESULT_NOT_RUN,
+      messages: [],
+    },
+    {
+      id: 2n,
+      title: "title2",
+      group_policy_address: "policy2",
+      summary: "summary2",
+      metadata: "metadata2",
+      proposers: ["proposer2"],
+      submit_time: new Date(),
+      group_version: 1n,
+      group_policy_version: 1n,
+      status: ProposalStatus.PROPOSAL_STATUS_ACCEPTED,
+      final_tally_result: {
+        yes_count: "1",
+        abstain_count: "0",
+        no_count: "0",
+        no_with_veto_count: "0",
+      },
+      voting_period_end: new Date(),
+      executor_result: ProposalExecutorResult.PROPOSAL_EXECUTOR_RESULT_SUCCESS,
+      messages: [],
+    },
+  ],
+  // The key should match the policy address from `mockGroup2`
+  test_policy_address2: [
+    {
+      id: 3n,
+      title: "title3",
+      group_policy_address: "policy3",
+      summary: "summary3",
+      metadata: "metadata3",
+      proposers: ["proposer3"],
+      submit_time: new Date(),
+      group_version: 1n,
+      group_policy_version: 1n,
+      status: ProposalStatus.PROPOSAL_STATUS_REJECTED,
+      final_tally_result: {
+        yes_count: "0",
+        abstain_count: "0",
+        no_count: "1",
+        no_with_veto_count: "0",
+      },
+      voting_period_end: new Date(),
+      executor_result: ProposalExecutorResult.PROPOSAL_EXECUTOR_RESULT_FAILURE,
+      messages: [],
+    },
+    {
+      id: 4n,
+      title: "title4",
+      group_policy_address: "policy4",
+      summary: "summary4",
+      metadata: "metadata4",
+      proposers: ["proposer4"],
+      submit_time: new Date(),
+      group_version: 1n,
+      group_policy_version: 1n,
+      status: ProposalStatus.PROPOSAL_STATUS_WITHDRAWN,
+      final_tally_result: {
+        yes_count: "1",
+        abstain_count: "0",
+        no_count: "0",
+        no_with_veto_count: "0",
+      },
+      voting_period_end: new Date(),
+      executor_result: ProposalExecutorResult.PROPOSAL_EXECUTOR_RESULT_NOT_RUN,
+      messages: [],
+    }
+  ]
+};

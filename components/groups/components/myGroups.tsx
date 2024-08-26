@@ -12,14 +12,14 @@ export function YourGroups({
   refetchGroupByMember,
   onSelectGroup,
   proposals,
-}: {
+}: Readonly<{
   groups: ExtendedQueryGroupsByMemberResponseSDKType;
   groupByMemberDataLoading: boolean;
   groupByMemberDataError: Error | null | boolean;
   refetchGroupByMember: () => void;
   onSelectGroup: (policyAddress: string) => void;
-  proposals: any;
-}) {
+  proposals: any; // TODO: Define type
+}>) {
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();

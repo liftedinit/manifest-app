@@ -61,7 +61,6 @@ export default function Groups() {
   //   await channel.publish("new-proposal", proposal);
   // };
   return (
-    <>
       <div className="max-w-5xl relative py-[2rem] mx-auto lg:mx-auto ">
         {/* <Notifications groupPolicyAddress={selectedPolicyAddress ?? ""} />
         <button onClick={handleAbly} className="btn btn-primary">
@@ -234,6 +233,5 @@ export default function Groups() {
             )}
         </div>
       </div>
-    </>
   );
 }

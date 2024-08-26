@@ -33,6 +33,7 @@ export default function CountdownTimer({ endTime }: { endTime: Date }) {
           <span className="countdown  text-xl">
             <span
               style={{ "--value": timeLeft.days } as React.CSSProperties}
+              aria-label="days"
             ></span>
           </span>
           days
@@ -45,6 +46,7 @@ export default function CountdownTimer({ endTime }: { endTime: Date }) {
                   "--value": timeLeft.hours,
                 } as React.CSSProperties
               }
+              aria-label="hours"
             ></span>
           </span>
           hours
@@ -57,6 +59,7 @@ export default function CountdownTimer({ endTime }: { endTime: Date }) {
                   "--value": timeLeft.min,
                 } as React.CSSProperties
               }
+              aria-label="mins"
             ></span>
           </span>
           min
@@ -69,6 +72,7 @@ export default function CountdownTimer({ endTime }: { endTime: Date }) {
                   "--value": timeLeft.sec,
                 } as React.CSSProperties
               }
+              aria-label="secs"
             ></span>
           </span>
           sec
