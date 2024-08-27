@@ -46,7 +46,7 @@ export const mockBalances: CombinedBalanceInfo[] = [
 export const mockActiveValidators: ExtendedValidatorSDKType[] = [
   {
     operator_address: "validator1",
-    description: { moniker: "Validator One", identity: "identity1", details: "details1", website: "website1.com", security_contact: "security1" },
+    description: { moniker: "Validator One", identity: "identity1", details: "details1", website: "website1.com", security_contact: "security1@foobar.com" },
     consensus_power: BigInt(1000),
     logo_url: "",
     jailed: false,

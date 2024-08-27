@@ -20,11 +20,11 @@ export function ValidatorDetailsModal({
   validator,
   modalId,
   admin,
-}: {
+}: Readonly<{
   validator: ExtendedValidatorSDKType | null;
   modalId: string;
   admin: string;
-}) {
+}>) {
   const [power, setPowerInput] = useState(
     validator?.consensus_power?.toString() || ""
   );
@@ -163,7 +163,7 @@ export function ValidatorDetailsModal({
               )}
             </div>
 
-            <span className="text-md rounded-md">
+            <span className="text-md rounded-md" aria-label="details">
               {validator.description.details
                 ? validator.description.details.substring(0, 50) +
                   (validator.description.details.length > 50 ? "..." : "")
