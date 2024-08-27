@@ -2,6 +2,9 @@ import {describe, test, expect, afterEach} from "bun:test"
 import React from 'react';
 import { render, screen, cleanup } from '@testing-library/react';
 import StepIndicator from '@/components/groups/components/StepIndicator';
+import matchers from "@testing-library/jest-dom/matchers";
+
+expect.extend(matchers);
 
 describe('StepIndicator Component', () => {
   afterEach(cleanup)

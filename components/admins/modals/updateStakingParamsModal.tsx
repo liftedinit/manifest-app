@@ -18,7 +18,7 @@ export function UpdateStakingParamsModal({
   stakingParams,
   admin,
   address,
-}: UpdateStakingParamsModalProps) {
+}: Readonly<UpdateStakingParamsModalProps>) {
   const [unbondingTime, setUnbondingTime] = useState<string>("");
   const [maxValidators, setMaxValidators] = useState<string>("");
   const [bondDenom, setBondDenom] = useState<string>("");
@@ -103,7 +103,8 @@ export function UpdateStakingParamsModal({
     value: string,
     setter: React.Dispatch<React.SetStateAction<string>>,
     tip: string,
-    type: string = "text"
+    placeholder: string,
+    type: string = "text",
   ) => (
     <div className="flex flex-col gap-2 w-1/2 rounded-md">
       <span className="text-sm text-gray-400">{label}</span>
@@ -112,9 +113,7 @@ export function UpdateStakingParamsModal({
         type={type}
         value={value}
         onChange={(e) => setter(e.target.value)}
-        placeholder={
-          (stakingParams as any)[label.toLowerCase().replace(/\s/g, "_")] || ""
-        }
+        placeholder={placeholder}
       />
       <span className="text-xs text-gray-500">{tip}</span>
     </div>
@@ -136,6 +135,7 @@ export function UpdateStakingParamsModal({
                 unbondingTime,
                 setUnbondingTime,
                 "Enter time in days",
+                "1",
                 "number"
               )}
               {renderInput(
@@ -143,6 +143,7 @@ export function UpdateStakingParamsModal({
                 maxValidators,
                 setMaxValidators,
                 "Maximum number of validators",
+                stakingParams.max_validators.toString(),
                 "number"
               )}
             </div>
@@ -151,13 +152,15 @@ export function UpdateStakingParamsModal({
                 "BOND DENOM",
                 bondDenom,
                 setBondDenom,
-                "Token denomination for bonding"
+                "Token denomination for bonding",
+                stakingParams.bond_denom
               )}
               {renderInput(
                 "MINIMUM COMMISSION",
                 minCommissionRate,
                 setMinCommissionRate,
-                "Commission rate (e.g., 0.05 for 5%)"
+                "Commission rate (e.g., 0.05 for 5%)",
+                stakingParams.min_commission_rate,
               )}
             </div>
             <div className="flex flex-row gap-8 w-full justify-center items-center">
@@ -166,6 +169,7 @@ export function UpdateStakingParamsModal({
                 maxEntries,
                 setMaxEntries,
                 "Maximum entries for either unbonding delegation or redelegation",
+                stakingParams.max_entries.toString(),
                 "number"
               )}
               {renderInput(
@@ -173,6 +177,7 @@ export function UpdateStakingParamsModal({
                 historicalEntries,
                 setHistoricalEntries,
                 "Number of historical entries to persist",
+                stakingParams.historical_entries.toString(),
                 "number"
               )}
             </div>
