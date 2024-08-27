@@ -12,12 +12,12 @@ export default function SendForm({
   balances,
   isBalancesLoading,
   refetchBalances,
-}: {
+}: Readonly<{
   address: string;
   balances: CombinedBalanceInfo[];
   isBalancesLoading: boolean;
   refetchBalances: () => void;
-}) {
+}>) {
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
   const [selectedToken, setSelectedToken] =
@@ -86,6 +86,7 @@ export default function SendForm({
             <label
               tabIndex={0}
               className="btn btn-sm bg-base-300 w-full justify-between"
+              aria-label={"dropdown-label"}
             >
               {selectedToken?.metadata?.display.toUpperCase() ?? "Select Token"}
               <PiCaretDownBold className="ml-2" />
@@ -129,6 +130,7 @@ export default function SendForm({
                     key={token.coreDenom}
                     onClick={() => setSelectedToken(token)}
                     className="flex justify-start"
+                    aria-label={token.metadata?.display}
                   >
                     <a className="flex-row justify-start gap-3 items-center w-full">
                       <DenomImage denom={token.metadata} />

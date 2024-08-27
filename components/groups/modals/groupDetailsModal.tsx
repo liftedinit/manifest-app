@@ -133,13 +133,11 @@ export function GroupDetailsModal({
                 </div>
                 <div>
                   <p className="text-sm font-light mt-4 ">ADMIN</p>
-                  <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
-                    <p className="text-md ">
+                  <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2 text-md">
                       <TruncatedAddressWithCopy
                         address={group.admin ?? ""}
                         slice={28}
                       />{" "}
-                    </p>
                   </div>
                 </div>
               </div>

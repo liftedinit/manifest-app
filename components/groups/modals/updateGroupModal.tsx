@@ -23,7 +23,7 @@ interface Group {
     metadata: string;
     ipfsMetadata: IPFSMetadata | null;
     members: { group_id: string; member: Member }[];
-    policies: any[];
+    policies: any[]; // TODO: Define type
   };
   address: string;
 }
@@ -37,6 +37,18 @@ export function UpdateGroupModal({
   const { tx } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
 
+  const maybeIpfsMetadata = group?.ipfsMetadata;
+  const maybeTitle = maybeIpfsMetadata?.title;
+  const maybeAuthors = maybeIpfsMetadata?.authors;
+  const maybeSummary = maybeIpfsMetadata?.summary;
+  const maybeProposalForumURL = maybeIpfsMetadata?.proposalForumURL;
+  const maybeDetails = maybeIpfsMetadata?.details;
+  const maybePolicies = group?.policies?.[0];
+  const maybeDecisionPolicy = maybePolicies?.decision_policy;
+  const maybeThreshold = maybeDecisionPolicy?.threshold;
+  const maybeVotingPeriod = maybeDecisionPolicy?.windows?.voting_period;
+  const maybeMembers = group?.members;
+
   const {
     updateGroupAdmin,
     updateGroupMembers,
@@ -46,29 +58,22 @@ export function UpdateGroupModal({
     updateGroupPolicyMetadata,
   } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
-  const [name, setName] = useState(group.ipfsMetadata?.title || "");
-  const [authors, setAuthors] = useState(group.ipfsMetadata?.authors || "");
-  const [summary, setSummary] = useState(group.ipfsMetadata?.summary || "");
-  const [forum, setForum] = useState(
-    group.ipfsMetadata?.proposalForumURL || ""
-  );
-  const [description, setDescription] = useState(
-    group.ipfsMetadata?.details || ""
-  );
-  const [threshold, setThreshold] = useState(
-    group.policies[0]?.decision_policy?.threshold || ""
-  );
+  const [name, setName] = useState(maybeTitle ?? "");
+  const [authors, setAuthors] = useState(maybeAuthors ?? "");
+  const [summary, setSummary] = useState(maybeSummary ?? "");
+  const [forum, setForum] = useState(maybeProposalForumURL ?? "");
+  const [description, setDescription] = useState(maybeDetails ?? "");
+  const [threshold, setThreshold] = useState(maybeThreshold ?? "");
   const [windowInput, setWindowInput] = useState("");
   const [votingUnit, setVotingUnit] = useState("days");
   const [isSigning, setIsSigning] = useState(false);
 
   useEffect(() => {
-    setName(group.ipfsMetadata?.title || "");
-    setAuthors(group.ipfsMetadata?.authors || "");
-    setSummary(group.ipfsMetadata?.summary || "");
-    setForum(group.ipfsMetadata?.proposalForumURL || "");
-    setDescription(group.ipfsMetadata?.details || "");
-    setThreshold(group.policies[0]?.decision_policy?.threshold || "");
+    setAuthors(maybeAuthors ?? "");
+    setSummary(maybeSummary ?? "");
+    setForum(maybeProposalForumURL ?? "");
+    setDescription(maybeDetails ?? "");
+    setThreshold(maybeThreshold ?? "");
   }, [group]);
 
   const convertToSeconds = (input: string, unit: string) => {
@@ -110,7 +115,7 @@ export function UpdateGroupModal({
   };
 
   const votingWindow = parseFloat(
-    group?.policies[0]?.decision_policy?.windows?.voting_period.slice(0, -1)
+    maybeVotingPeriod?.slice(0, -1)
   );
 
   let formattedVotingWindow;
@@ -137,12 +142,12 @@ export function UpdateGroupModal({
   };
 
   const isPolicyAdmin = (address: string) => {
-    const adminAddresses = [group.policies[0]?.admin].filter(Boolean);
+    const adminAddresses = [maybePolicies?.admin].filter(Boolean);
     return adminAddresses.includes(address);
   };
 
   const initializeMembers = () => {
-    return group.members.map((member) => ({
+    return maybeMembers?.map((member) => ({
       group_id: member.group_id,
       member: member.member,
       isCoreMember: true,
@@ -216,7 +221,7 @@ export function UpdateGroupModal({
     if (hasStateChanged(newAdmin, group.admin)) {
       const msg = updateGroupAdmin({
         admin: group.admin,
-        groupId: BigInt(group?.members[0]?.group_id),
+        groupId: BigInt(maybeMembers?.[0]?.group_id),
         newAdmin: newAdmin ?? "",
       });
       messages.push(
@@ -246,7 +251,7 @@ export function UpdateGroupModal({
     if (membersChanged) {
       const msg = updateGroupMembers({
         admin: group.admin,
-        groupId: BigInt(group?.members[0]?.group_id),
+        groupId: BigInt(maybeMembers?.[0]?.group_id),
         memberUpdates: members.map((member) => ({
           address: member.member.address,
           metadata: member.member.metadata,
@@ -265,11 +270,11 @@ export function UpdateGroupModal({
 
     // Update Group Metadata
     if (
-      hasStateChanged(name, group.ipfsMetadata?.title) ||
-      hasStateChanged(authors, group.ipfsMetadata?.authors) ||
-      hasStateChanged(summary, group.ipfsMetadata?.summary) ||
-      hasStateChanged(forum, group.ipfsMetadata?.proposalForumURL) ||
-      hasStateChanged(description, group.ipfsMetadata?.details)
+      hasStateChanged(name, maybeTitle) ||
+      hasStateChanged(authors, maybeAuthors) ||
+      hasStateChanged(summary, maybeSummary) ||
+      hasStateChanged(forum, maybeProposalForumURL) ||
+      hasStateChanged(description, maybeDetails)
     ) {
       const newMetadata = JSON.stringify({
         title: name,
@@ -280,7 +285,7 @@ export function UpdateGroupModal({
       });
       const msgGroupMetadata = updateGroupMetadata({
         admin: group.admin,
-        groupId: BigInt(group?.members[0]?.group_id),
+        groupId: BigInt(maybeMembers?.[0]?.group_id),
         metadata: newMetadata,
       });
       messages.push(
@@ -293,7 +298,7 @@ export function UpdateGroupModal({
       );
 
       const msgPolicyMetadata = updateGroupPolicyMetadata({
-        groupPolicyAddress: group.policies[0].address,
+        groupPolicyAddress: maybePolicies?.address,
         admin: group.admin,
         metadata: newMetadata,
       });
@@ -310,9 +315,9 @@ export function UpdateGroupModal({
     // Update Group Policy Admin
     const newPolicyAdmin = members?.find((member) => member?.isPolicyAdmin)
       ?.member?.address;
-    if (hasStateChanged(newPolicyAdmin, group.policies[0]?.admin)) {
+    if (hasStateChanged(newPolicyAdmin, maybePolicies?.admin)) {
       const msg = updateGroupPolicyAdmin({
-        groupPolicyAddress: group.policies[0].address,
+        groupPolicyAddress: maybePolicies?.address,
         admin: group.admin,
         newAdmin: newPolicyAdmin ?? "",
       });
@@ -330,11 +335,11 @@ export function UpdateGroupModal({
     if (
       hasStateChanged(
         threshold,
-        group.policies[0]?.decision_policy?.threshold
+        maybeThreshold
       ) ||
       hasStateChanged(
         windowSeconds,
-        group.policies[0]?.decision_policy?.windows?.voting_period.seconds
+        maybeVotingPeriod?.seconds
       )
     ) {
       const thresholdMsg = {
@@ -352,7 +357,7 @@ export function UpdateGroupModal({
       ).finish();
 
       const msg = updateGroupPolicyDecisionPolicy({
-        groupPolicyAddress: group.policies[0].address,
+        groupPolicyAddress: maybePolicies?.address,
         admin: group.admin,
         decisionPolicy: {
           threshold: threshold,
@@ -487,9 +492,7 @@ export function UpdateGroupModal({
                   value={threshold}
                   onChange={(e) => setThreshold(e.target.value)}
                   className="input input-bordered w-full"
-                  placeholder={
-                    group?.policies[0]?.decision_policy?.threshold ??
-                    "No threshold available"
+                  placeholder={maybeThreshold ?? "No threshold available"
                   }
                 />
               </div>
@@ -507,9 +510,7 @@ export function UpdateGroupModal({
                   value={forum}
                   onChange={(e) => setForum(e.target.value)}
                   className="input input-bordered w-full"
-                  placeholder={
-                    group?.ipfsMetadata?.proposalForumURL ??
-                    "No forum URL available"
+                  placeholder={maybeProposalForumURL ?? "No forum URL available"
                   }
                 />
               </div>

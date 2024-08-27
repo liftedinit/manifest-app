@@ -15,13 +15,13 @@ export default function IbcSendForm({
   balances,
   isBalancesLoading,
   refetchBalances,
-}: {
+}: Readonly<{
   address: string;
   destinationChain: string;
   balances: CombinedBalanceInfo[];
   isBalancesLoading: boolean;
   refetchBalances: () => void;
-}) {
+}>) {
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
   const [selectedToken, setSelectedToken] =
@@ -105,10 +105,11 @@ export default function IbcSendForm({
           <label className="label">
             <span className="label-text text-sm font-medium">Token</span>
           </label>
-          <div className="dropdown dropdown-end w-full">
+          <div className="dropdown dropdown-end w-full" aria-label="dropdown">
             <label
               tabIndex={0}
               className="btn btn-sm bg-base-300 w-full justify-between"
+              aria-label="dropdown-label"
             >
               {selectedToken?.metadata?.display.toUpperCase() ?? "Select Token"}
               <PiCaretDownBold className="ml-2" />
@@ -152,6 +153,7 @@ export default function IbcSendForm({
                     key={token.coreDenom}
                     onClick={() => setSelectedToken(token)}
                     className="flex justify-start"
+                    aria-label={token.metadata?.display}
                   >
                     <a className="flex-row justify-start gap-3 items-center w-full">
                       <DenomImage denom={token.metadata} />
@@ -202,6 +204,7 @@ export default function IbcSendForm({
             onClick={handleSend}
             className="btn btn-primary w-full"
             disabled={isSending}
+            aria-label="send-btn"
           >
             {isSending ? (
               <span className="loading loading-dots loading-xs"></span>

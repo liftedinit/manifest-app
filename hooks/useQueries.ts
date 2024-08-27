@@ -20,8 +20,8 @@ export interface IPFSMetadata {
 
 export type ExtendedGroupType = QueryGroupsByMemberResponseSDKType['groups'][0] & {
     ipfsMetadata: IPFSMetadata | null;
-    policies: any[];
-    members: any[];
+    policies: any[]; // TODO: Define type
+    members: any[]; // TODO: Define type
 };
 
 export interface ExtendedQueryGroupsByMemberResponseSDKType {
