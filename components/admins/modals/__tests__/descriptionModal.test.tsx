@@ -1,6 +1,6 @@
 import {describe, test, afterEach, expect} from "bun:test";
 import React from 'react';
-import { render, screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
+import { render, screen, cleanup } from '@testing-library/react';
 import { DescriptionModal } from '@/components/admins/modals/descriptionModal';
 import matchers from "@testing-library/jest-dom/matchers";
 

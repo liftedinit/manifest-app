@@ -1,6 +1,6 @@
 import { describe, test, afterEach, expect } from 'bun:test';
 import React from 'react';
-import { render, screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
+import { screen, fireEvent, cleanup } from '@testing-library/react';
 import { UpdateAdminModal } from '@/components/admins/modals/updateAdminModal';
 import matchers from '@testing-library/jest-dom/matchers';
 import {renderWithChainProvider} from "@/tests/render";

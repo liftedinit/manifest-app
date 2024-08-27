@@ -1,6 +1,6 @@
 import { describe, test, afterEach, expect } from 'bun:test';
 import React from 'react';
-import {render, screen, fireEvent, cleanup, waitFor, within} from '@testing-library/react';
+import {screen, fireEvent, cleanup, within} from '@testing-library/react';
 import { ValidatorDetailsModal } from '@/components/admins/modals/validatorModal';
 import matchers from '@testing-library/jest-dom/matchers';
 import {mockActiveValidators} from "@/tests/mock";
