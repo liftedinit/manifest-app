@@ -22,14 +22,14 @@ export default function BurnForm({
   address,
   refetch,
   balance,
-}: {
+}: Readonly<{
   isAdmin: boolean;
   admin: string;
   denom: MetadataSDKType;
   address: string;
   refetch: () => void;
   balance: string;
-}) {
+}>) {
   const [amount, setAmount] = useState("");
   const [recipient, setRecipient] = useState(address);
   const [isSigning, setIsSigning] = useState(false);
@@ -263,6 +263,7 @@ export default function BurnForm({
                 <button
                   onClick={() => setIsModalOpen(true)}
                   className="btn btn-secondary btn-md"
+                  aria-label={"multi-burn-btn"}
                 >
                   Multi Burn
                 </button>

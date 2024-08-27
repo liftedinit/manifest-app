@@ -8,37 +8,42 @@ import {
   ProposalSDKType,
   ProposalStatus
 } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types";
+import {MetadataSDKType} from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
+
+export const mockDenomMeta1: MetadataSDKType = {
+  description: "My First Token",
+  name: "Token 1",
+  symbol: "TK1",
+  uri: "",
+  uri_hash: "",
+  display: "Token 1",
+  base: "token1",
+  denom_units: [{ denom: "utoken1", exponent: 0, aliases: ["utoken1"] }, { denom: "token1", exponent: 6, aliases: ["token1"] }],
+}
+
+export const mockDenomMeta2: MetadataSDKType = {
+  description: "My Second Token",
+  name: "Token 2",
+  symbol: "TK2",
+  uri: "",
+  uri_hash: "",
+  display: "Token 2",
+  base: "token2",
+  denom_units: [{ denom: "utoken2", exponent: 0, aliases: ["utoken2"] }, { denom: "token2", exponent: 6, aliases: ["token2"] }],
+}
 
 export const mockBalances: CombinedBalanceInfo[] = [
   {
     denom: "token1",
     coreDenom: "utoken1",
     amount: "1000",
-    metadata: {
-      description: "My First Token",
-      name: "Token 1",
-      symbol: "TK1",
-      uri: "",
-      uri_hash: "",
-      display: "Token 1",
-      base: "token1",
-      denom_units: [{ denom: "utoken1", exponent: 0, aliases: ["utoken1"] }, { denom: "token1", exponent: 6, aliases: ["token1"] }],
-    },
+    metadata: mockDenomMeta1,
   },
   {
     denom: "token2",
     coreDenom: "utoken2",
     amount: "2000",
-    metadata: {
-      description: "My Second Token",
-      name: "Token 2",
-      symbol: "TK2",
-      uri: "",
-      uri_hash: "",
-      display: "Token 2",
-      base: "token2",
-      denom_units: [{ denom: "utoken2", exponent: 0, aliases: ["utoken2"] }, { denom: "token2", exponent: 6, aliases: ["token2"] }],
-    },
+    metadata: mockDenomMeta2,
   },
 ];
 
