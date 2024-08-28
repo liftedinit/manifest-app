@@ -10,12 +10,12 @@ export default function MetaBox({
   address,
   refetch,
   balance,
-}: {
+}: Readonly<{
   denom: MetadataSDKType | null;
   address: string;
   refetch: () => void;
   balance: string;
-}) {
+}>) {
   const [activeTab, setActiveTab] = useState<"transfer" | "burn" | "mint">(
     "mint",
   );

@@ -1,4 +1,12 @@
-import { afterEach, describe, expect, jest, test } from "bun:test";
+import {
+  afterEach,
+  describe,
+  expect,
+  jest,
+  test,
+  mock,
+  afterAll,
+} from "bun:test";
 import React from "react";
 import { cleanup, fireEvent, screen } from "@testing-library/react";
 import ConfirmationModal from "@/components/groups/forms/proposals/ConfirmationForm";
@@ -7,6 +15,25 @@ import { renderWithChainProvider } from "@/tests/render";
 import { mockProposalFormData } from "@/tests/mock";
 
 expect.extend(matchers);
+
+// Mock useFeeEstimation
+mock.module("@/hooks/useFeeEstimation", () => ({
+  useFeeEstimation: jest.fn().mockReturnValue({
+    estimateFee: jest.fn().mockResolvedValue({
+      amount: [{ amount: "5000", denom: "umfx" }],
+      gas: "200000",
+    }),
+  }),
+}));
+
+mock.module("@/hooks/useIpfs", () => ({
+  useIPFSFetch: jest.fn().mockReturnValue({
+    data: "mocked data",
+    loading: false,
+    error: null,
+  }),
+  uploadJsonToIPFS: jest.fn(),
+}));
 
 const mockProps = {
   policyAddress: "manifest1policy",
@@ -18,6 +45,9 @@ const mockProps = {
 
 describe("ConfirmationModal Component", () => {
   afterEach(cleanup);
+  afterAll(() => {
+    mock.restore();
+  });
 
   test("renders component with correct details", () => {
     renderWithChainProvider(<ConfirmationModal {...mockProps} />);
@@ -32,9 +62,15 @@ describe("ConfirmationModal Component", () => {
     expect(screen.getByText("MESSAGES")).toBeInTheDocument();
     expect(screen.getByText("METADATA")).toBeInTheDocument();
     expect(screen.getByLabelText("meta-details")).toBeInTheDocument();
-    expect(screen.getByText(mockProposalFormData.metadata.title)).toBeInTheDocument();
-    expect(screen.getByText(mockProposalFormData.metadata.summary)).toBeInTheDocument();
-    expect(screen.getByText(mockProposalFormData.metadata.details)).toBeInTheDocument();
+    expect(
+      screen.getByText(mockProposalFormData.metadata.title),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(mockProposalFormData.metadata.summary),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(mockProposalFormData.metadata.details),
+    ).toBeInTheDocument();
   });
 
   test('calls prevStep when "Prev: Metadata" button is clicked', () => {

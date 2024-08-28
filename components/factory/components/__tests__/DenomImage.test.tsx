@@ -1,4 +1,13 @@
-import { afterEach, describe, expect, test, fireEvent, mock } from "bun:test";
+import {
+  afterEach,
+  describe,
+  expect,
+  test,
+  fireEvent,
+  mock,
+  afterAll,
+  jest,
+} from "bun:test";
 import React from "react";
 import { screen, cleanup, waitFor } from "@testing-library/react";
 import { DenomImage } from "@/components/factory/components/DenomImage";
@@ -31,6 +40,9 @@ const renderWithProps = (props = {}) => {
 
 describe("DenomImage", () => {
   afterEach(cleanup);
+  afterAll(() => {
+    mock.restore();
+  });
 
   test("renders loading state correctly", () => {
     renderWithProps();

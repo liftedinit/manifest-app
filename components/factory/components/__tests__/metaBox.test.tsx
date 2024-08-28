@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, fireEvent, jest } from "bun:test";
+import { afterEach, describe, expect, test, jest, mock } from "bun:test";
 import React from "react";
 import { screen, cleanup, waitFor, within } from "@testing-library/react";
 import MetaBox from "@/components/factory/components/metaBox";
@@ -7,6 +7,23 @@ import { renderWithChainProvider } from "@/tests/render";
 import { mockDenom, mockMfxDenom } from "@/tests/mock";
 
 expect.extend(matchers);
+
+// Mock usePoaParams and useGroupsByAdmin hooks
+mock.module("@/hooks", () => ({
+  usePoaParams: jest.fn().mockReturnValue({
+    poaParams: { admins: ["mockAdmin"] },
+    isPoaParamsLoading: false,
+    refetchPoaParams: jest.fn(),
+    isPoaParamsError: false,
+  }),
+  useGroupsByAdmin: jest.fn().mockReturnValue({
+    groupByAdmin: {
+      groups: [{ members: [{ member: { address: "mockAddress" } }] }],
+    },
+    isGroupByAdminLoading: false,
+    refetchGroupByAdmin: jest.fn(),
+  }),
+}));
 
 const renderWithProps = (props = {}) => {
   const defaultProps = {
