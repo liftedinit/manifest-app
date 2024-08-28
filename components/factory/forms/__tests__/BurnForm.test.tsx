@@ -1,6 +1,6 @@
 import { describe, test, afterEach, expect, jest, mock } from 'bun:test';
 import React from 'react';
-import { render, screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
+import { screen, fireEvent, cleanup } from '@testing-library/react';
 import BurnForm from '@/components/factory/forms/BurnForm';
 import matchers from '@testing-library/jest-dom/matchers';
 import {mockDenomMeta1, mockMfxDenom} from "@/tests/mock";
