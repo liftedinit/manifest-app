@@ -56,7 +56,7 @@ export default function MintForm({
     setIsSigning(true);
     try {
       const amountInBaseUnits = BigInt(
-        parseFloat(amount) * Math.pow(10, exponent)
+        parseFloat(amount) * Math.pow(10, exponent),
       ).toString();
 
       let msg;
@@ -112,7 +112,7 @@ export default function MintForm({
   const handleMultiMint = async () => {
     if (
       payoutPairs.some(
-        (pair) => !pair.address || !pair.amount || isNaN(Number(pair.amount))
+        (pair) => !pair.address || !pair.amount || isNaN(Number(pair.amount)),
       )
     ) {
       setToastMessage({
@@ -132,7 +132,7 @@ export default function MintForm({
           coin: {
             denom: denom.base,
             amount: BigInt(
-              parseFloat(pair.amount) * Math.pow(10, exponent)
+              parseFloat(pair.amount) * Math.pow(10, exponent),
             ).toString(),
           },
         })),
@@ -174,7 +174,7 @@ export default function MintForm({
   const updatePayoutPair = (
     index: number,
     field: "address" | "amount",
-    value: string
+    value: string,
   ) => {
     const newPairs = [...payoutPairs];
     newPairs[index][field] = value;

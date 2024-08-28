@@ -36,7 +36,7 @@ export type TokenAction = {
 
 export const tokenFormDataReducer = (
   state: TokenFormData,
-  action: TokenAction
+  action: TokenAction,
 ): TokenFormData => {
   switch (action.type) {
     case "UPDATE_FIELD":
@@ -68,7 +68,7 @@ export const formDataReducer = (state: FormData, action: Action): FormData => {
       return {
         ...state,
         members: state.members.map((m, i) =>
-          i === action.index ? { ...m, [action.field]: action.value } : m
+          i === action.index ? { ...m, [action.field]: action.value } : m,
         ),
       };
 
@@ -326,7 +326,7 @@ export type ProposalAction =
 
 export const proposalFormDataReducer = (
   state: ProposalFormData,
-  action: ProposalAction
+  action: ProposalAction,
 ): ProposalFormData => {
   switch (action.type) {
     case "UPDATE_FIELD":
@@ -336,7 +336,7 @@ export const proposalFormDataReducer = (
       return {
         ...state,
         messages: state.messages.map((m, i) =>
-          i === action.index ? action.message : m
+          i === action.index ? action.message : m,
         ),
       };
 

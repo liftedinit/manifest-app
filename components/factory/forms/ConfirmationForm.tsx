@@ -101,7 +101,7 @@ export default function ConfirmationForm({
             {renderField("Full Denom", fullDenom)}
             {renderField(
               "Full Denom Exponent",
-              formData.denomUnits[1].exponent.toString()
+              formData.denomUnits[1].exponent.toString(),
             )}
           </div>
         </div>

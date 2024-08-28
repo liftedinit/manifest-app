@@ -5,13 +5,10 @@ import { useChain } from "@cosmos-kit/react";
 import { chainName } from "../config";
 import { useEndpointStore } from "@/store/endpointStore";
 
-
 const createLcdQueryClient = cosmos.ClientFactory.createLCDClient;
 
 export const useLcdQueryClient = () => {
- 
-
-  const {selectedEndpoint} = useEndpointStore();
+  const { selectedEndpoint } = useEndpointStore();
 
   const lcdQueryClient = useQuery({
     queryKey: ["lcdQueryClient", selectedEndpoint?.api],

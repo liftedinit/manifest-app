@@ -16,7 +16,7 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
   const filteredBalances = React.useMemo(() => {
     if (!Array.isArray(balances)) return [];
     return balances.filter((balance) =>
-      balance.denom.toLowerCase().includes(searchTerm.toLowerCase())
+      balance.denom.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [balances, searchTerm]);
 
@@ -24,7 +24,7 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
     setSelectedDenom(denom);
 
     const modal = document.getElementById(
-      "denom-info-modal"
+      "denom-info-modal",
     ) as HTMLDialogElement;
     if (modal) {
       modal.showModal();
@@ -83,13 +83,13 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
                     <span className="block truncate max-w-[20ch]">
                       {Number(balance.metadata?.base.length) < 10
                         ? balance.metadata?.base
-                        : balance.metadata?.base.split("/").pop() ?? ""}
+                        : (balance.metadata?.base.split("/").pop() ?? "")}
                     </span>
                   </td>
                   <td className="px-6 py-3 text-sm">
                     {shiftDigits(
                       balance.amount,
-                      -Number(balance.metadata?.denom_units[1]?.exponent) ?? 6
+                      -Number(balance.metadata?.denom_units[1]?.exponent) ?? 6,
                     )}
                   </td>
                 </tr>

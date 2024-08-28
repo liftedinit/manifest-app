@@ -1,15 +1,23 @@
-import { afterEach, describe, expect, test, jest, mock, beforeAll } from "bun:test";
+import {
+  afterEach,
+  describe,
+  expect,
+  test,
+  jest,
+  mock,
+  beforeAll,
+} from "bun:test";
 import React from "react";
 import { screen, cleanup, fireEvent } from "@testing-library/react";
-import {GroupInfo} from "@/components/groups/components/groupInfo";
+import { GroupInfo } from "@/components/groups/components/groupInfo";
 import matchers from "@testing-library/jest-dom/matchers";
-import {renderWithChainProvider} from "@/tests/render";
-import {mockGroup} from "@/tests/mock";
+import { renderWithChainProvider } from "@/tests/render";
+import { mockGroup } from "@/tests/mock";
 
 expect.extend(matchers);
 
 // Mock the useBalance hook
-const m = jest.fn()
+const m = jest.fn();
 mock.module("@/hooks/useQueries", () => ({
   useBalance: m,
 }));
@@ -19,7 +27,6 @@ const defaultProps = {
   address: "test_address",
   policyAddress: "test_policy_address",
 };
-
 
 const renderWithProps = (props = {}) => {
   // Not passing
@@ -47,7 +54,7 @@ describe("GroupInfo", () => {
   });
 
   test("renders 'No group Selected' when no group is provided", () => {
-    renderWithProps({group: null});
+    renderWithProps({ group: null });
     expect(screen.getByText("No group Selected")).toBeInTheDocument();
   });
 
@@ -60,8 +67,8 @@ describe("GroupInfo", () => {
           authors: "",
         },
       },
-    }
-    renderWithProps({...props});
+    };
+    renderWithProps({ ...props });
     expect(screen.getByText("No authors available")).toBeInTheDocument();
   });
 
@@ -105,7 +112,7 @@ describe("GroupInfo", () => {
         ],
       },
     };
-    renderWithProps({...props});
+    renderWithProps({ ...props });
     expect(screen.getByText("No threshold available")).toBeInTheDocument();
   });
 
@@ -117,7 +124,7 @@ describe("GroupInfo", () => {
         total_weight: "",
       },
     };
-    renderWithProps({...props});
+    renderWithProps({ ...props });
     expect(screen.getByText("No total weight available")).toBeInTheDocument();
   });
 
@@ -125,7 +132,9 @@ describe("GroupInfo", () => {
     renderWithProps();
     const updateButton = screen.getByLabelText("update-btn");
     fireEvent.click(updateButton);
-    const modal = document.getElementById(`update_group_${defaultProps.group.id}`) as HTMLDialogElement;
+    const modal = document.getElementById(
+      `update_group_${defaultProps.group.id}`,
+    ) as HTMLDialogElement;
     expect(modal).toBeInTheDocument();
     expect(screen.getByText("Update Group")).toBeInTheDocument();
   });
@@ -134,7 +143,9 @@ describe("GroupInfo", () => {
     renderWithProps();
     const moreInfoButton = screen.getByText("more info");
     fireEvent.click(moreInfoButton);
-    const modal = document.getElementById(`group_modal_${defaultProps.group.id}`) as HTMLDialogElement;
+    const modal = document.getElementById(
+      `group_modal_${defaultProps.group.id}`,
+    ) as HTMLDialogElement;
     expect(modal).toBeInTheDocument();
     expect(screen.getByText("Group Details")).toBeInTheDocument();
   });

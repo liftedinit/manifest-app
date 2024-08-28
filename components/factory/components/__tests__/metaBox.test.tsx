@@ -4,7 +4,7 @@ import { screen, cleanup, waitFor, within } from "@testing-library/react";
 import MetaBox from "@/components/factory/components/metaBox";
 import matchers from "@testing-library/jest-dom/matchers";
 import { renderWithChainProvider } from "@/tests/render";
-import {mockDenom, mockMfxDenom} from "@/tests/mock";
+import { mockDenom, mockMfxDenom } from "@/tests/mock";
 
 expect.extend(matchers);
 
@@ -23,7 +23,9 @@ describe("MetaBox", () => {
 
   test("renders 'Select a token to view options' message when no denom is provided", () => {
     renderWithProps();
-    expect(screen.getByText("Select a token to view options")).toBeInTheDocument();
+    expect(
+      screen.getByText("Select a token to view options"),
+    ).toBeInTheDocument();
   });
 
   test("sets active tab to 'mint' for MFX tokens", () => {
@@ -33,7 +35,9 @@ describe("MetaBox", () => {
 
   test("renders loading state correctly", () => {
     renderWithProps({ denom: null, isLoading: true });
-    expect(screen.getByText("Select a token to view options")).toBeInTheDocument();
+    expect(
+      screen.getByText("Select a token to view options"),
+    ).toBeInTheDocument();
   });
 
   test("renders TransferForm when active tab is 'transfer'", async () => {
@@ -41,10 +45,11 @@ describe("MetaBox", () => {
     const transferTab = screen.getByText("Transfer");
     expect(transferTab).toBeInTheDocument();
     expect(transferTab).toBeEnabled();
-    transferTab.click()
-    await waitFor(() => expect(screen.getByText("Transfer TEST")).toBeInTheDocument());
+    transferTab.click();
+    await waitFor(() =>
+      expect(screen.getByText("Transfer TEST")).toBeInTheDocument(),
+    );
   });
-
 
   test("renders BurnForm when active tab is 'burn'", async () => {
     renderWithProps({ denom: mockDenom });
@@ -52,7 +57,9 @@ describe("MetaBox", () => {
     expect(burnTab).toBeInTheDocument();
     expect(burnTab).toBeEnabled();
     burnTab.click();
-    await waitFor(() => expect(screen.getByText("Burn TEST")).toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.getByText("Burn TEST")).toBeInTheDocument(),
+    );
   });
 
   test("renders MintForm when active tab is 'mint'", async () => {
@@ -62,6 +69,8 @@ describe("MetaBox", () => {
     expect(mintTab).toBeInTheDocument();
     expect(mintTab).toBeEnabled();
     mintTab.click();
-    await waitFor(() => expect(screen.getByText("Mint TEST")).toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.getByText("Mint TEST")).toBeInTheDocument(),
+    );
   });
 });

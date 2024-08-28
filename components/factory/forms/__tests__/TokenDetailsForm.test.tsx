@@ -1,10 +1,10 @@
-import { describe, test, afterEach, expect, jest } from 'bun:test';
-import React from 'react';
-import { screen, cleanup } from '@testing-library/react';
-import TokenDetailsForm from '@/components/factory/forms/TokenDetailsForm';
-import matchers from '@testing-library/jest-dom/matchers';
-import { renderWithChainProvider } from '@/tests/render';
-import {mockTokenFormData} from "@/tests/mock";
+import { describe, test, afterEach, expect, jest } from "bun:test";
+import React from "react";
+import { screen, cleanup } from "@testing-library/react";
+import TokenDetailsForm from "@/components/factory/forms/TokenDetailsForm";
+import matchers from "@testing-library/jest-dom/matchers";
+import { renderWithChainProvider } from "@/tests/render";
+import { mockTokenFormData } from "@/tests/mock";
 
 expect.extend(matchers);
 
@@ -13,21 +13,21 @@ const mockProps = {
   prevStep: jest.fn(),
   formData: mockTokenFormData,
   dispatch: jest.fn(),
-  address: 'cosmos1address',
+  address: "cosmos1address",
 };
 
-describe('TokenDetailsForm Component', () => {
+describe("TokenDetailsForm Component", () => {
   afterEach(cleanup);
 
-  test('renders form with correct details', () => {
+  test("renders form with correct details", () => {
     renderWithChainProvider(<TokenDetailsForm {...mockProps} />);
-    expect(screen.getByText('Subdenom')).toBeInTheDocument();
-    expect(screen.getByText('Display')).toBeInTheDocument();
-    expect(screen.getByText('Name')).toBeInTheDocument();
-    expect(screen.getByText('Symbol')).toBeInTheDocument();
-    expect(screen.getByText('Description')).toBeInTheDocument();
-    expect(screen.getByText('URI')).toBeInTheDocument();
-    expect(screen.getByText('URI Hash')).toBeInTheDocument();
+    expect(screen.getByText("Subdenom")).toBeInTheDocument();
+    expect(screen.getByText("Display")).toBeInTheDocument();
+    expect(screen.getByText("Name")).toBeInTheDocument();
+    expect(screen.getByText("Symbol")).toBeInTheDocument();
+    expect(screen.getByText("Description")).toBeInTheDocument();
+    expect(screen.getByText("URI")).toBeInTheDocument();
+    expect(screen.getByText("URI Hash")).toBeInTheDocument();
   });
 
   // TODO: Make this test pass. Why is the input not being updated?
@@ -62,16 +62,18 @@ describe('TokenDetailsForm Component', () => {
   //   expect(uriHashInput).toHaveValue('newurihash');
   // });
 
-  test('next button is disabled when form is invalid', () => {
-    const invalidFormData = { ...mockTokenFormData, subdenom: '' };
-    renderWithChainProvider(<TokenDetailsForm {...mockProps} formData={invalidFormData} />);
-    const nextButton = screen.getByText('Next: Confirmation');
+  test("next button is disabled when form is invalid", () => {
+    const invalidFormData = { ...mockTokenFormData, subdenom: "" };
+    renderWithChainProvider(
+      <TokenDetailsForm {...mockProps} formData={invalidFormData} />,
+    );
+    const nextButton = screen.getByText("Next: Confirmation");
     expect(nextButton).toBeDisabled();
   });
 
-  test('next button is enabled when form is valid', () => {
+  test("next button is enabled when form is valid", () => {
     renderWithChainProvider(<TokenDetailsForm {...mockProps} />);
-    const nextButton = screen.getByText('Next: Confirmation');
+    const nextButton = screen.getByText("Next: Confirmation");
     expect(nextButton).toBeEnabled();
   });
 });

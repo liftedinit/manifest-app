@@ -56,7 +56,7 @@ export default function BurnForm({
     setIsSigning(true);
     try {
       const amountInBaseUnits = BigInt(
-        parseFloat(amount) * Math.pow(10, exponent)
+        parseFloat(amount) * Math.pow(10, exponent),
       ).toString();
 
       let msg;
@@ -107,7 +107,7 @@ export default function BurnForm({
   const handleMultiBurn = async () => {
     if (
       burnPairs.some(
-        (pair) => !pair.address || !pair.amount || isNaN(Number(pair.amount))
+        (pair) => !pair.address || !pair.amount || isNaN(Number(pair.amount)),
       )
     ) {
       setToastMessage({
@@ -125,7 +125,7 @@ export default function BurnForm({
         burnCoins: burnPairs.map((pair) => ({
           denom: denom.base,
           amount: BigInt(
-            parseFloat(pair.amount) * Math.pow(10, exponent)
+            parseFloat(pair.amount) * Math.pow(10, exponent),
           ).toString(),
         })),
       });
@@ -166,7 +166,7 @@ export default function BurnForm({
   const updateBurnPair = (
     index: number,
     field: "address" | "amount",
-    value: string
+    value: string,
   ) => {
     const newPairs = [...burnPairs];
     newPairs[index][field] = value;

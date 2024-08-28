@@ -17,7 +17,7 @@ export default function MetaBox({
   balance: string;
 }) {
   const [activeTab, setActiveTab] = useState<"transfer" | "burn" | "mint">(
-    "mint"
+    "mint",
   );
 
   const { poaParams, isPoaParamsLoading, refetchPoaParams, isPoaParamsError } =
@@ -26,12 +26,12 @@ export default function MetaBox({
   const { groupByAdmin, isGroupByAdminLoading, refetchGroupByAdmin } =
     useGroupsByAdmin(
       admin ??
-        "manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj"
+        "manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj",
     );
 
   const members = groupByAdmin?.groups?.[0]?.members;
   const isAdmin = members?.some(
-    (member) => member?.member?.address === address
+    (member) => member?.member?.address === address,
   );
   const isLoading = isPoaParamsLoading || isGroupByAdminLoading;
 

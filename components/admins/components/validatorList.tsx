@@ -49,13 +49,13 @@ export default function ValidatorList({
         (validator) =>
           validator.description.moniker
             .toLowerCase()
-            .includes(searchTerm.toLowerCase())
+            .includes(searchTerm.toLowerCase()),
       )
     : (Array.isArray(pendingValidators) ? pendingValidators : []).filter(
         (validator) =>
           validator.description.moniker
             .toLowerCase()
-            .includes(searchTerm.toLowerCase())
+            .includes(searchTerm.toLowerCase()),
       );
 
   const [modalKey, setModalKey] = useState(0);

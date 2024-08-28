@@ -22,7 +22,7 @@ export default function ProposalMessages({
 }) {
   const [isFormValid, setIsFormValid] = useState(false);
   const [visibleMessages, setVisibleMessages] = useState<boolean[]>(
-    formData.messages.map(() => false)
+    formData.messages.map(() => false),
   );
 
   const isMessageValid = (message: Message): boolean => {
@@ -66,14 +66,14 @@ export default function ProposalMessages({
 
   const toggleVisibility = (index: number) => {
     setVisibleMessages(
-      visibleMessages.map((visible, i) => (i === index ? !visible : visible))
+      visibleMessages.map((visible, i) => (i === index ? !visible : visible)),
     );
   };
 
   const handleChangeMessage = (
     index: number,
     field: MessageFields,
-    value: any
+    value: any,
   ) => {
     let updatedMessage = { ...formData.messages[index] };
 
@@ -226,7 +226,7 @@ export default function ProposalMessages({
   const renderInputs = (
     object: any,
     handleChange: (field: string, value: any) => void,
-    path = ""
+    path = "",
   ) => {
     return Object.keys(object).map((key) => {
       if (key === "type") return null;

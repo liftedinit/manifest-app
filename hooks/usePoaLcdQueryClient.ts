@@ -1,5 +1,3 @@
-
-
 import { useState, useEffect } from "react";
 import { manifest, strangelove_ventures } from "@chalabi/manifestjs";
 
@@ -11,7 +9,7 @@ import { useEndpointStore } from "@/store/endpointStore";
 const createLcdQueryClient = strangelove_ventures.ClientFactory.createLCDClient;
 
 export const usePoaLcdQueryClient = () => {
-  const {selectedEndpoint} = useEndpointStore();
+  const { selectedEndpoint } = useEndpointStore();
 
   const lcdQueryClient = useQuery({
     queryKey: ["lcdQueryClient", selectedEndpoint?.api],

@@ -14,7 +14,7 @@ interface MultiMintModalProps {
   updatePayoutPair: (
     index: number,
     field: "address" | "amount",
-    value: string
+    value: string,
   ) => void;
   addPayoutPair: () => void;
   removePayoutPair: (index: number) => void;

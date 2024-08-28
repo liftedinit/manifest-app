@@ -1,15 +1,18 @@
-import {Chain} from "@chain-registry/types";
-import {BondStatus, ParamsSDKType} from "@chalabi/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking";
-import {ExtendedValidatorSDKType, TransactionGroup} from "@/components";
-import {CombinedBalanceInfo} from "@/pages/bank";
-import {ExtendedGroupType} from "@/hooks";
+import { Chain } from "@chain-registry/types";
+import {
+  BondStatus,
+  ParamsSDKType,
+} from "@chalabi/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking";
+import { ExtendedValidatorSDKType, TransactionGroup } from "@/components";
+import { CombinedBalanceInfo } from "@/pages/bank";
+import { ExtendedGroupType } from "@/hooks";
 import {
   ProposalExecutorResult,
   ProposalSDKType,
-  ProposalStatus
+  ProposalStatus,
 } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types";
-import {MetadataSDKType} from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
-import {FormData} from "@/helpers";
+import { MetadataSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
+import { FormData } from "@/helpers";
 
 export const mockDenomMeta1: MetadataSDKType = {
   description: "My First Token",
@@ -19,8 +22,11 @@ export const mockDenomMeta1: MetadataSDKType = {
   uri_hash: "",
   display: "Token 1",
   base: "token1",
-  denom_units: [{ denom: "utoken1", exponent: 0, aliases: ["utoken1"] }, { denom: "token1", exponent: 6, aliases: ["token1"] }],
-}
+  denom_units: [
+    { denom: "utoken1", exponent: 0, aliases: ["utoken1"] },
+    { denom: "token1", exponent: 6, aliases: ["token1"] },
+  ],
+};
 
 export const mockDenomMeta2: MetadataSDKType = {
   description: "My Second Token",
@@ -30,8 +36,11 @@ export const mockDenomMeta2: MetadataSDKType = {
   uri_hash: "",
   display: "Token 2",
   base: "token2",
-  denom_units: [{ denom: "utoken2", exponent: 0, aliases: ["utoken2"] }, { denom: "token2", exponent: 6, aliases: ["token2"] }],
-}
+  denom_units: [
+    { denom: "utoken2", exponent: 0, aliases: ["utoken2"] },
+    { denom: "token2", exponent: 6, aliases: ["token2"] },
+  ],
+};
 
 export const mockBalances: CombinedBalanceInfo[] = [
   {
@@ -48,11 +57,16 @@ export const mockBalances: CombinedBalanceInfo[] = [
   },
 ];
 
-
 export const mockActiveValidators: ExtendedValidatorSDKType[] = [
   {
     operator_address: "validator1",
-    description: { moniker: "Validator One", identity: "identity1", details: "details1", website: "website1.com", security_contact: "security1@foobar.com" },
+    description: {
+      moniker: "Validator One",
+      identity: "identity1",
+      details: "details1",
+      website: "website1.com",
+      security_contact: "security1@foobar.com",
+    },
     consensus_power: BigInt(1000),
     logo_url: "",
     jailed: false,
@@ -75,7 +89,13 @@ export const mockActiveValidators: ExtendedValidatorSDKType[] = [
   },
   {
     operator_address: "validator2",
-    description: { moniker: "Validator Two", identity: "identity2", details: "details2", website: "website2.com", security_contact: "security2" },
+    description: {
+      moniker: "Validator Two",
+      identity: "identity2",
+      details: "details2",
+      website: "website2.com",
+      security_contact: "security2",
+    },
     consensus_power: BigInt(2000),
     logo_url: "",
     jailed: false,
@@ -101,7 +121,13 @@ export const mockActiveValidators: ExtendedValidatorSDKType[] = [
 export const mockPendingValidators: ExtendedValidatorSDKType[] = [
   {
     operator_address: "validator3",
-    description: { moniker: "Validator Three", identity: "identity2", details: "details2", website: "website2.com", security_contact: "security2" },
+    description: {
+      moniker: "Validator Three",
+      identity: "identity2",
+      details: "details2",
+      website: "website2.com",
+      security_contact: "security2",
+    },
     consensus_power: BigInt(3000),
     logo_url: "",
     jailed: false,
@@ -133,10 +159,8 @@ export const defaultAssetLists = [
         display: "umfx",
         base: "umfx",
         symbol: "umfx",
-        denom_units: [
-          { denom: "umfx", exponent: 0, aliases: ["umfx"] },
-        ]
-      }
+        denom_units: [{ denom: "umfx", exponent: 0, aliases: ["umfx"] }],
+      },
     ],
   },
 ];
@@ -160,7 +184,7 @@ export const defaultChain: Chain = {
       },
     ],
   },
-}
+};
 
 export const mockTransactions: TransactionGroup[] = [
   {
@@ -200,7 +224,7 @@ export const mockPoaParams = {
   allow_validator_self_exit: true,
 };
 
-export const mockGroup : ExtendedGroupType = {
+export const mockGroup: ExtendedGroupType = {
   id: 1n,
   admin: "admin1",
   metadata: "metadata1",
@@ -245,11 +269,11 @@ export const mockGroup : ExtendedGroupType = {
         isCoreMember: true,
         isActive: true,
       },
-    }
+    },
   ],
 };
 
-export const mockGroup2 : ExtendedGroupType = {
+export const mockGroup2: ExtendedGroupType = {
   id: 2n,
   admin: "admin2",
   metadata: "metadata2",
@@ -294,23 +318,29 @@ export const mockGroup2 : ExtendedGroupType = {
         isCoreMember: true,
         isActive: true,
       },
-    }
+    },
   ],
 };
 
 export const mockDenom = {
   base: "TTT",
   display: "TEST",
-  denom_units: [{ denom: "utest1", exponent: 0, aliases: ["utest1"] }, { denom: "test1", exponent: 6, aliases: ["test1"] }],
+  denom_units: [
+    { denom: "utest1", exponent: 0, aliases: ["utest1"] },
+    { denom: "test1", exponent: 6, aliases: ["test1"] },
+  ],
   symbol: "TST",
-}
+};
 
 export const mockMfxDenom = {
   base: "umfx",
   display: "MFX",
-  denom_units: [{ denom: "umfx", exponent: 0, aliases: ["umfx"] }, { denom: "mfx", exponent: 6, aliases: ["mfx"] }],
-  symbol: "umfx"
-}
+  denom_units: [
+    { denom: "umfx", exponent: 0, aliases: ["umfx"] },
+    { denom: "mfx", exponent: 6, aliases: ["mfx"] },
+  ],
+  symbol: "umfx",
+};
 
 export const mockProposals: { [key: string]: ProposalSDKType[] } = {
   // The key should match the policy address from `mockGroup`
@@ -401,38 +431,38 @@ export const mockProposals: { [key: string]: ProposalSDKType[] } = {
       voting_period_end: new Date(),
       executor_result: ProposalExecutorResult.PROPOSAL_EXECUTOR_RESULT_NOT_RUN,
       messages: [],
-    }
-  ]
+    },
+  ],
 };
 
 // TODO: Re-use mockDenomMeta1 here
 export const mockTokenFormData = {
-  name: 'Name Test Token',
-  symbol: 'STT',
-  display: 'Display Test Token',
-  subdenom: 'subtesttoken',
-  description: 'This is a test token',
+  name: "Name Test Token",
+  symbol: "STT",
+  display: "Display Test Token",
+  subdenom: "subtesttoken",
+  description: "This is a test token",
   denomUnits: [
-    {denom: 'testtoken', exponent: 0, aliases: []},
-    {denom: 'tt', exponent: 6, aliases: []},
+    { denom: "testtoken", exponent: 0, aliases: [] },
+    { denom: "tt", exponent: 6, aliases: [] },
   ],
-  uri: 'www.someuri.com',
-  uriHash: 's0m3h4sh',
+  uri: "www.someuri.com",
+  uriHash: "s0m3h4sh",
   exponent: "6",
   label: "LabelTT",
-  base: "BaseTT"
+  base: "BaseTT",
 };
 
 export const mockGroupFormData: FormData = {
-  title: 'Test Group',
-  authors: 'manifest1author',
-  summary: 'This is a test group',
-  description: 'Detailed description of the test group',
-  forumLink: 'http://forumlink.com',
-  votingPeriod: {seconds: BigInt(3600), nanos: 0},
+  title: "Test Group",
+  authors: "manifest1author",
+  summary: "This is a test group",
+  description: "Detailed description of the test group",
+  forumLink: "http://forumlink.com",
+  votingPeriod: { seconds: BigInt(3600), nanos: 0 },
   votingThreshold: "2",
   members: [
-    {address: 'manifest1member1', name: 'Member 1', weight: '1'},
-    {address: 'manifest1member2', name: 'Member 2', weight: '2'},
+    { address: "manifest1member1", name: "Member 1", weight: "1" },
+    { address: "manifest1member2", name: "Member 2", weight: "2" },
   ],
 };

@@ -41,7 +41,7 @@ export function UpdateStakingParamsModal({
         bondDenom !== "" ||
         minCommissionRate !== "" ||
         maxEntries !== "" ||
-        historicalEntries !== ""
+        historicalEntries !== "",
     );
   }, [
     unbondingTime,
@@ -77,7 +77,7 @@ export function UpdateStakingParamsModal({
     const anyMessage = Any.fromPartial({
       typeUrl: msgUpdateStakingParams.typeUrl,
       value: MsgUpdateStakingParams.encode(
-        msgUpdateStakingParams.value
+        msgUpdateStakingParams.value,
       ).finish(),
     });
 
@@ -136,7 +136,7 @@ export function UpdateStakingParamsModal({
                 setUnbondingTime,
                 "Enter time in days",
                 "1",
-                "number"
+                "number",
               )}
               {renderInput(
                 "MAX VALIDATORS",
@@ -144,7 +144,7 @@ export function UpdateStakingParamsModal({
                 setMaxValidators,
                 "Maximum number of validators",
                 stakingParams.max_validators.toString(),
-                "number"
+                "number",
               )}
             </div>
             <div className="flex flex-row gap-8 w-full justify-center items-center">
@@ -153,7 +153,7 @@ export function UpdateStakingParamsModal({
                 bondDenom,
                 setBondDenom,
                 "Token denomination for bonding",
-                stakingParams.bond_denom
+                stakingParams.bond_denom,
               )}
               {renderInput(
                 "MINIMUM COMMISSION",
@@ -170,7 +170,7 @@ export function UpdateStakingParamsModal({
                 setMaxEntries,
                 "Maximum entries for either unbonding delegation or redelegation",
                 stakingParams.max_entries.toString(),
-                "number"
+                "number",
               )}
               {renderInput(
                 "HISTORICAL ENTRIES",
@@ -178,7 +178,7 @@ export function UpdateStakingParamsModal({
                 setHistoricalEntries,
                 "Number of historical entries to persist",
                 stakingParams.historical_entries.toString(),
-                "number"
+                "number",
               )}
             </div>
           </div>

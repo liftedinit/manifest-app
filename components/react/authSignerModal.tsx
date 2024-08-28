@@ -73,13 +73,13 @@ const DisplayDataToSign = ({ data, address }: DisplayDataToSignProps) => {
         return JSON.stringify(
           decodedValue,
           (_, v) => (typeof v === "bigint" ? v.toString() : v),
-          2
+          2,
         );
       }
       return JSON.stringify(
         value,
         (_, v) => (typeof v === "bigint" ? v.toString() : v),
-        2
+        2,
       );
     }
     if (typeof value === "bigint") {

@@ -15,7 +15,10 @@ export function DescriptionModal({
   return (
     <dialog id={modalId} className="modal max-w-md mx-auto">
       <form method="dialog" className="modal-box ">
-        <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" aria-label="x-close">
+        <button
+          className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+          aria-label="x-close"
+        >
           ✕
         </button>
         <h3 className="font-bold text-lg">

@@ -31,7 +31,7 @@ export default function CreateToken() {
 
   const [formData, dispatch] = useReducer(
     tokenFormDataReducer,
-    initialFormData
+    initialFormData,
   );
   const { address } = useChain(chainName);
   const nextStep = () => {

@@ -10,7 +10,7 @@ describe("CountdownTimer", () => {
   afterEach(cleanup);
 
   test("renders initial state correctly", () => {
-    jest.useFakeTimers()
+    jest.useFakeTimers();
     jest.setSystemTime(new Date("1992-01-01T00:00:00.000Z"));
     const oneSecond = 1000;
     const oneMinute = oneSecond * 60;
@@ -18,7 +18,9 @@ describe("CountdownTimer", () => {
     const oneDay = oneHour * 24;
 
     // Now + 2 days - 1 hour - 2 minutes - 1 second
-    const endTime = new Date(Date.now() + ( 2 * oneDay) - oneHour - (2 * oneMinute) - oneSecond);
+    const endTime = new Date(
+      Date.now() + 2 * oneDay - oneHour - 2 * oneMinute - oneSecond,
+    );
     render(<CountdownTimer endTime={endTime} />);
 
     expect(screen.getByText("days")).toBeInTheDocument();

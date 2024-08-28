@@ -16,7 +16,7 @@ export default function MemberInfoForm({
   address: string;
 }>) {
   const [numberOfMembers, setNumberOfMembers] = useState(
-    formData.members.length
+    formData.members.length,
   );
 
   const updateMembers = () => {
@@ -45,7 +45,7 @@ export default function MemberInfoForm({
   const handleChange = (
     index: number,
     field: keyof FormData["members"][0],
-    value: string
+    value: string,
   ) => {
     dispatch({
       type: "UPDATE_MEMBER",
@@ -93,7 +93,7 @@ export default function MemberInfoForm({
                     -
                   </button>
                   <input
-                    aria-label={'member-count'}
+                    aria-label={"member-count"}
                     className="input input-bordered mx-2 text-center input-sm w-[40px]"
                     value={numberOfMembers}
                     onChange={handleNumberChange}
@@ -198,7 +198,7 @@ export default function MemberInfoForm({
                   className="btn btn-primary w-full"
                   disabled={
                     !formData.members.every(
-                      (m) => m.address && m.name && m.weight
+                      (m) => m.address && m.name && m.weight,
                     ) || numberOfMembers === 0
                   }
                 >

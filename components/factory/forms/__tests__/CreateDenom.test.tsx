@@ -1,10 +1,10 @@
-import { describe, test, afterEach, expect, jest } from 'bun:test';
-import React from 'react';
-import { screen, cleanup } from '@testing-library/react';
-import CreateDenom from '@/components/factory/forms/CreateDenom';
-import matchers from '@testing-library/jest-dom/matchers';
-import { renderWithChainProvider } from '@/tests/render';
-import {mockTokenFormData} from "@/tests/mock";
+import { describe, test, afterEach, expect, jest } from "bun:test";
+import React from "react";
+import { screen, cleanup } from "@testing-library/react";
+import CreateDenom from "@/components/factory/forms/CreateDenom";
+import matchers from "@testing-library/jest-dom/matchers";
+import { renderWithChainProvider } from "@/tests/render";
+import { mockTokenFormData } from "@/tests/mock";
 
 expect.extend(matchers);
 
@@ -12,16 +12,16 @@ const mockProps = {
   nextStep: jest.fn(),
   formData: mockTokenFormData,
   dispatch: jest.fn(),
-  address: 'cosmos1address',
+  address: "cosmos1address",
 };
 
-describe('CreateDenom Component', () => {
+describe("CreateDenom Component", () => {
   afterEach(cleanup);
 
-  test('renders form with correct details', () => {
+  test("renders form with correct details", () => {
     renderWithChainProvider(<CreateDenom {...mockProps} />);
-    expect(screen.getByText('Create Denom')).toBeInTheDocument();
-    expect(screen.getByText('Token Sub Denom')).toBeInTheDocument();
+    expect(screen.getByText("Create Denom")).toBeInTheDocument();
+    expect(screen.getByText("Token Sub Denom")).toBeInTheDocument();
   });
 
   // TODO: Make this test pass. Why is the input not being updated?

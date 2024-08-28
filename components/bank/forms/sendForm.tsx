@@ -43,7 +43,7 @@ export default function SendForm({
     try {
       const exponent =
         selectedToken.metadata?.denom_units.find(
-          (unit) => unit.denom === selectedToken.denom
+          (unit) => unit.denom === selectedToken.denom,
         )?.exponent ?? 6;
       const amountInBaseUnits = shiftDigits(amount, exponent);
 
@@ -72,7 +72,7 @@ export default function SendForm({
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredBalances = balances?.filter((token) =>
-    token.metadata?.display.toLowerCase().includes(searchTerm.toLowerCase())
+    token.metadata?.display.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (

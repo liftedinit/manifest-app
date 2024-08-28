@@ -39,7 +39,7 @@ const EndpointSelector: React.FC = () => {
     (endpoint: Endpoint) => {
       setSelectedEndpointKey(endpoint.provider);
     },
-    [setSelectedEndpointKey]
+    [setSelectedEndpointKey],
   );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -295,5 +295,5 @@ const EndpointSelector: React.FC = () => {
 
 export const DynamicEndpointSelector = dynamic(
   () => Promise.resolve(EndpointSelector),
-  { ssr: false }
+  { ssr: false },
 );

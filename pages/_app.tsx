@@ -56,7 +56,7 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
   // signer options to support amino signing for all the different modules we use
   const signerOptions: SignerOptions = {
     signingStargate: (
-      _chain: string | Chain
+      _chain: string | Chain,
     ): SigningStargateClientOptions | undefined => {
       const mergedRegistry = new Registry([
         ...manifestProtoRegistry,
@@ -80,7 +80,7 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [endpointKey, setEndpointKey] = useState(0);
   const previousEndpointRef = useRef<typeof selectedEndpoint | undefined>(
-    undefined
+    undefined,
   );
 
   useEffect(() => {
@@ -153,10 +153,10 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
                 setWeb3AuthPrompt(undefined);
                 resolve(approved);
               },
-            })
+            }),
           ),
       }),
-    []
+    [],
   );
 
   // combine the web3auth wallets with the other wallets
@@ -185,7 +185,7 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
         },
       },
     }),
-    [selectedEndpoint]
+    [selectedEndpoint],
   );
 
   return (
@@ -251,7 +251,7 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
                       approve={() => web3AuthPrompt?.resolve(true)}
                       reject={() => web3AuthPrompt?.resolve(false)}
                     />,
-                    document.body
+                    document.body,
                   )}
               </AdvancedModeProvider>
             </ToastProvider>

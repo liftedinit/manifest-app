@@ -58,7 +58,7 @@ export default function ConfirmationModal({
     ThresholdDecisionPolicy.fromPartial(thresholdMsg);
 
   const threshholdPolicy = ThresholdDecisionPolicy.encode(
-    threshholdPolicyFromPartial
+    threshholdPolicyFromPartial,
   ).finish();
 
   const typeUrl = cosmos.group.v1.ThresholdDecisionPolicy.typeUrl;

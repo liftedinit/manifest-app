@@ -14,7 +14,7 @@ export default function ProposalMetadataForm({
 }) {
   const handleChange = (
     field: keyof ProposalFormData["metadata"],
-    value: any
+    value: any,
   ) => {
     dispatch({
       type: "UPDATE_FIELD",

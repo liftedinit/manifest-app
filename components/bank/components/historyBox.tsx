@@ -82,8 +82,8 @@ export function HistoryBox({
                           .map(
                             (amt) =>
                               `${shiftDigits(amt.amount, -6)} ${formatDenom(
-                                amt.denom
-                              )}`
+                                amt.denom,
+                              )}`,
                           )
                           .join(", ")}
                       </td>

@@ -29,7 +29,7 @@ export type CombinedBalanceInfo = {
 export default function Bank() {
   const { address, isWalletConnected } = useChain(chainName);
   const { balances, isBalancesLoading, refetchBalances } = useTokenBalances(
-    address ?? ""
+    address ?? "",
   );
   const {
     balances: resolvedBalances,
@@ -42,7 +42,7 @@ export default function Bank() {
   const { groupByAdmin, isGroupByAdminLoading, refetchGroupByAdmin } =
     useGroupsByAdmin(
       poaParams?.admins[0] ??
-        "manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj"
+        "manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj",
     );
   const group = groupByAdmin?.groups?.[0];
 
@@ -54,10 +54,10 @@ export default function Bank() {
         const resolvedBalance = resolvedBalances.find(
           (rb: { denom: string | undefined }) =>
             rb.denom === coreBalance.denom ||
-            rb.denom === coreBalance.denom.split("/").pop()
+            rb.denom === coreBalance.denom.split("/").pop(),
         );
         const metadata = metadatas.metadatas.find(
-          (m: { base: string }) => m.base === coreBalance.denom
+          (m: { base: string }) => m.base === coreBalance.denom,
         );
 
         return {
@@ -66,7 +66,7 @@ export default function Bank() {
           amount: coreBalance.amount,
           metadata: metadata || null,
         };
-      }
+      },
     );
   }, [balances, resolvedBalances, metadatas]);
 
