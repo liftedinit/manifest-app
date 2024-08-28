@@ -47,7 +47,7 @@ export default function SubmitProposal() {
 
   const [formData, dispatch] = useReducer(
     proposalFormDataReducer,
-    initialProposalFormData
+    initialProposalFormData,
   );
 
   const nextStep = () => {

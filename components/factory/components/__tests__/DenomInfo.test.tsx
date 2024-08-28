@@ -1,10 +1,16 @@
-import { afterEach, describe, expect, test, jest} from "bun:test";
+import { afterEach, describe, expect, test, jest } from "bun:test";
 import React from "react";
-import {screen, cleanup, waitFor, within, fireEvent} from "@testing-library/react";
+import {
+  screen,
+  cleanup,
+  waitFor,
+  within,
+  fireEvent,
+} from "@testing-library/react";
 import DenomInfo from "@/components/factory/components/DenomInfo";
 import matchers from "@testing-library/jest-dom/matchers";
 import { renderWithChainProvider } from "@/tests/render";
-import {mockDenom, mockMfxDenom} from "@/tests/mock";
+import { mockDenom, mockMfxDenom } from "@/tests/mock";
 
 expect.extend(matchers);
 
@@ -35,7 +41,9 @@ describe("DenomInfo", () => {
     expect(within(tickerContainer).getByText("TEST")).toBeInTheDocument();
     expect(screen.getByText("BASE DENOM")).toBeInTheDocument();
     const baseDenomContainer = screen.getByLabelText("base denom");
-    expect(within(baseDenomContainer).getByText("TTT...TTT")).toBeInTheDocument();
+    expect(
+      within(baseDenomContainer).getByText("TTT...TTT"),
+    ).toBeInTheDocument();
     const symbolContainer = screen.getByLabelText("symbol");
     expect(within(symbolContainer).getByText("TST")).toBeInTheDocument();
   });
@@ -66,7 +74,9 @@ describe("DenomInfo", () => {
   test("renders and triggers 'More Info' button", async () => {
     renderWithProps({ denom: mockDenom });
     fireEvent.click(screen.getByText("More Info"));
-    const modal = await waitFor(() => document.getElementById(`denom_info_${mockDenom.base}`));
+    const modal = await waitFor(() =>
+      document.getElementById(`denom_info_${mockDenom.base}`),
+    );
     expect(modal).toBeVisible();
   });
 });

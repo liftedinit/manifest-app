@@ -12,14 +12,14 @@ interface AdvancedModeContextType {
 }
 
 const AdvancedModeContext = createContext<AdvancedModeContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export const useAdvancedMode = () => {
   const context = useContext(AdvancedModeContext);
   if (!context) {
     throw new Error(
-      "useAdvancedMode must be used within an AdvancedModeProvider"
+      "useAdvancedMode must be used within an AdvancedModeProvider",
     );
   }
   return context;

@@ -35,7 +35,7 @@ export default function TransferForm({
         denom?.denom_units?.find((unit) => unit.denom === denom.display)
           ?.exponent || 0;
       const amountInBaseUnits = BigInt(
-        parseFloat(amount) * Math.pow(10, exponent)
+        parseFloat(amount) * Math.pow(10, exponent),
       ).toString();
       const msg = forceTransfer({
         sender: address,

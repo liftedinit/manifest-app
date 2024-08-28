@@ -99,7 +99,7 @@ export function UpdateGroupModal({
   };
 
   const [windowSeconds, setWindowSeconds] = useState(() =>
-    convertToSeconds(windowInput, votingUnit)
+    convertToSeconds(windowInput, votingUnit),
   );
 
   const handleUnitChange = (e: { target: { value: any } }) => {
@@ -114,9 +114,7 @@ export function UpdateGroupModal({
     setWindowSeconds(convertToSeconds(newValue, votingUnit));
   };
 
-  const votingWindow = parseFloat(
-    maybeVotingPeriod?.slice(0, -1)
-  );
+  const votingWindow = parseFloat(maybeVotingPeriod?.slice(0, -1));
 
   let formattedVotingWindow;
   switch (votingUnit) {
@@ -185,8 +183,8 @@ export function UpdateGroupModal({
       members.map((member, idx) =>
         idx === index
           ? { ...member, member: { ...member.member, [field]: value } }
-          : member
-      )
+          : member,
+      ),
     );
   };
 
@@ -199,7 +197,7 @@ export function UpdateGroupModal({
         member: { ...member.member, weight: member.isActive ? "0" : "1" },
       };
       setMembers(
-        members.map((mem, idx) => (idx === index ? updatedMember : mem))
+        members.map((mem, idx) => (idx === index ? updatedMember : mem)),
       );
     } else {
       setMembers(members.filter((_, idx) => idx !== index));
@@ -228,7 +226,7 @@ export function UpdateGroupModal({
         Any.fromPartial({
           typeUrl: cosmos.group.v1.MsgUpdateGroupAdmin.typeUrl,
           value: cosmos.group.v1.MsgUpdateGroupAdmin.encode(msg.value).finish(),
-        })
+        }),
       );
     }
 
@@ -237,16 +235,16 @@ export function UpdateGroupModal({
       (member, index) =>
         hasStateChanged(
           member.member.address,
-          group.members[index]?.member.address
+          group.members[index]?.member.address,
         ) ||
         hasStateChanged(
           member.member.metadata,
-          group.members[index]?.member.metadata
+          group.members[index]?.member.metadata,
         ) ||
         hasStateChanged(
           member.member.weight,
-          group.members[index]?.member.weight
-        )
+          group.members[index]?.member.weight,
+        ),
     );
     if (membersChanged) {
       const msg = updateGroupMembers({
@@ -262,9 +260,9 @@ export function UpdateGroupModal({
         Any.fromPartial({
           typeUrl: cosmos.group.v1.MsgUpdateGroupMembers.typeUrl,
           value: cosmos.group.v1.MsgUpdateGroupMembers.encode(
-            msg.value
+            msg.value,
           ).finish(),
-        })
+        }),
       );
     }
 
@@ -292,9 +290,9 @@ export function UpdateGroupModal({
         Any.fromPartial({
           typeUrl: cosmos.group.v1.MsgUpdateGroupMetadata.typeUrl,
           value: cosmos.group.v1.MsgUpdateGroupMetadata.encode(
-            msgGroupMetadata.value
+            msgGroupMetadata.value,
           ).finish(),
-        })
+        }),
       );
 
       const msgPolicyMetadata = updateGroupPolicyMetadata({
@@ -306,9 +304,9 @@ export function UpdateGroupModal({
         Any.fromPartial({
           typeUrl: cosmos.group.v1.MsgUpdateGroupPolicyMetadata.typeUrl,
           value: cosmos.group.v1.MsgUpdateGroupPolicyMetadata.encode(
-            msgPolicyMetadata.value
+            msgPolicyMetadata.value,
           ).finish(),
-        })
+        }),
       );
     }
 
@@ -325,22 +323,16 @@ export function UpdateGroupModal({
         Any.fromPartial({
           typeUrl: cosmos.group.v1.MsgUpdateGroupPolicyAdmin.typeUrl,
           value: cosmos.group.v1.MsgUpdateGroupPolicyAdmin.encode(
-            msg.value
+            msg.value,
           ).finish(),
-        })
+        }),
       );
     }
 
     // Update Group Policy Decision Policy
     if (
-      hasStateChanged(
-        threshold,
-        maybeThreshold
-      ) ||
-      hasStateChanged(
-        windowSeconds,
-        maybeVotingPeriod?.seconds
-      )
+      hasStateChanged(threshold, maybeThreshold) ||
+      hasStateChanged(windowSeconds, maybeVotingPeriod?.seconds)
     ) {
       const thresholdMsg = {
         threshold: threshold,
@@ -353,7 +345,7 @@ export function UpdateGroupModal({
       const threshholdPolicyFromPartial =
         ThresholdDecisionPolicy.fromPartial(thresholdMsg);
       const threshholdPolicy = ThresholdDecisionPolicy.encode(
-        threshholdPolicyFromPartial
+        threshholdPolicyFromPartial,
       ).finish();
 
       const msg = updateGroupPolicyDecisionPolicy({
@@ -370,9 +362,9 @@ export function UpdateGroupModal({
         Any.fromPartial({
           typeUrl: cosmos.group.v1.MsgUpdateGroupPolicyDecisionPolicy.typeUrl,
           value: cosmos.group.v1.MsgUpdateGroupPolicyDecisionPolicy.encode(
-            msg.value
+            msg.value,
           ).finish(),
-        })
+        }),
       );
     }
 
@@ -492,8 +484,7 @@ export function UpdateGroupModal({
                   value={threshold}
                   onChange={(e) => setThreshold(e.target.value)}
                   className="input input-bordered w-full"
-                  placeholder={maybeThreshold ?? "No threshold available"
-                  }
+                  placeholder={maybeThreshold ?? "No threshold available"}
                 />
               </div>
               <div>
@@ -510,7 +501,8 @@ export function UpdateGroupModal({
                   value={forum}
                   onChange={(e) => setForum(e.target.value)}
                   className="input input-bordered w-full"
-                  placeholder={maybeProposalForumURL ?? "No forum URL available"
+                  placeholder={
+                    maybeProposalForumURL ?? "No forum URL available"
                   }
                 />
               </div>
@@ -582,10 +574,10 @@ export function UpdateGroupModal({
                     member.isAdmin && member.isPolicyAdmin
                       ? "border-r-primary border-b-primary border-l-secondary border-t-secondary"
                       : member.isAdmin
-                      ? "border-r-primary border-b-primary border-t-transparent border-l-transparent"
-                      : member.isPolicyAdmin
-                      ? "border-l-secondary border-t-secondary border-r-base-100 border-b-base-100 "
-                      : "border-r-transparent border-b-transparent border-t-transparent border-l-transparent"
+                        ? "border-r-primary border-b-primary border-t-transparent border-l-transparent"
+                        : member.isPolicyAdmin
+                          ? "border-l-secondary border-t-secondary border-r-base-100 border-b-base-100 "
+                          : "border-r-transparent border-b-transparent border-t-transparent border-l-transparent"
                   } transition-all duration-200 max-h-[12.4rem] ${
                     !member.isActive ? "bg-base-100" : "bg-base-200"
                   }  `}
@@ -660,7 +652,7 @@ export function UpdateGroupModal({
           <button
             onClick={() => {
               const modal = document.getElementById(
-                `update_group_${group?.id}`
+                `update_group_${group?.id}`,
               ) as HTMLDialogElement;
               modal?.close();
             }}

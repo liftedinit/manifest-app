@@ -31,14 +31,14 @@ export default function AdminOptions({
 
   const handleOpen = () => {
     const modal = document.getElementById(
-      `update-admin-modal`
+      `update-admin-modal`,
     ) as HTMLDialogElement;
     modal?.showModal();
   };
 
   const handleDescription = () => {
     const modal = document.getElementById(
-      `description-modal`
+      `description-modal`,
     ) as HTMLDialogElement;
     modal?.showModal();
   };
@@ -101,7 +101,10 @@ export default function AdminOptions({
             {group?.ipfsMetadata?.title}
           </a>
 
-          <a className="text-sm leading-tight flex-wrap text-center text-neutral-content max-h-10 max-w-96 overflow-y-auto -mt-6" aria-label="details">
+          <a
+            className="text-sm leading-tight flex-wrap text-center text-neutral-content max-h-10 max-w-96 overflow-y-auto -mt-6"
+            aria-label="details"
+          >
             {group?.ipfsMetadata?.details}
           </a>
           <button

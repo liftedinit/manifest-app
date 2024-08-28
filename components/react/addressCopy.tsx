@@ -30,7 +30,7 @@ export const TruncatedAddressWithCopy = ({
   };
 
   const truncatedAddress = `${address?.slice(0, slice)}...${address?.slice(
-    -6
+    -6,
   )}`;
   const iconSize = size === "small" ? 10 : 16;
 

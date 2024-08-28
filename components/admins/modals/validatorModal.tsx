@@ -26,7 +26,7 @@ export function ValidatorDetailsModal({
   admin: string;
 }>) {
   const [power, setPowerInput] = useState(
-    validator?.consensus_power?.toString() || ""
+    validator?.consensus_power?.toString() || "",
   );
   const { tx } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
@@ -47,7 +47,7 @@ export function ValidatorDetailsModal({
     event.preventDefault();
     event.stopPropagation();
     const modal = document.getElementById(
-      `validator-description-modal`
+      `validator-description-modal`,
     ) as HTMLDialogElement;
     modal?.showModal();
   };

@@ -1,2 +1,2 @@
-export * from './denomInfo'
-export * from './updateDenomMetadata'
+export * from "./denomInfo";
+export * from "./updateDenomMetadata";

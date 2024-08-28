@@ -77,7 +77,7 @@ export function UpdateDenomMetadataModal({
   const updateDenomUnit = (
     index: number,
     field: keyof DenomUnit,
-    value: any
+    value: any,
   ) => {
     const updatedDenomUnits = [...formData.denomUnits];
     updatedDenomUnits[index] = { ...updatedDenomUnits[index], [field]: value };

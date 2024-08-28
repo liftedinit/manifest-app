@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
-import { Dialog } from '@headlessui/react';
-import { XMarkIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
-import { ChevronLeftIcon } from '@heroicons/react/20/solid';
+import { Dialog } from "@headlessui/react";
+import { XMarkIcon, ArrowDownTrayIcon } from "@heroicons/react/24/outline";
+import { ChevronLeftIcon } from "@heroicons/react/20/solid";
 
 export const NotExist = ({
   onClose,

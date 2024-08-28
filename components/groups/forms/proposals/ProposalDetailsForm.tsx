@@ -8,12 +8,12 @@ export default function ProposalDetails({
   formData,
   dispatch,
   address,
-}: {
+}: Readonly<{
   nextStep: () => void;
   formData: ProposalFormData;
   dispatch: React.Dispatch<ProposalAction>;
   address: string;
-}) {
+}>) {
   const updateField = (field: keyof ProposalFormData, value: any) => {
     dispatch({ type: "UPDATE_FIELD", field, value });
   };
@@ -60,6 +60,7 @@ export default function ProposalDetails({
                       onChange={(e) => updateField("proposers", e.target.value)}
                     />{" "}
                     <button
+                      aria-label={"address-btn"}
                       onClick={(e) => {
                         e.preventDefault();
                         updateField("proposers", address);

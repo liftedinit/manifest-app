@@ -22,14 +22,14 @@ export default function MintForm({
   refetch,
   balance,
   isAdmin,
-}: {
+}: Readonly<{
   admin: string;
   denom: MetadataSDKType;
   address: string;
   refetch: () => void;
   balance: string;
   isAdmin: boolean;
-}) {
+}>) {
   const [amount, setAmount] = useState("");
   const [recipient, setRecipient] = useState(address);
   const [isSigning, setIsSigning] = useState(false);
@@ -56,7 +56,7 @@ export default function MintForm({
     setIsSigning(true);
     try {
       const amountInBaseUnits = BigInt(
-        parseFloat(amount) * Math.pow(10, exponent)
+        parseFloat(amount) * Math.pow(10, exponent),
       ).toString();
 
       let msg;
@@ -112,7 +112,7 @@ export default function MintForm({
   const handleMultiMint = async () => {
     if (
       payoutPairs.some(
-        (pair) => !pair.address || !pair.amount || isNaN(Number(pair.amount))
+        (pair) => !pair.address || !pair.amount || isNaN(Number(pair.amount)),
       )
     ) {
       setToastMessage({
@@ -132,7 +132,7 @@ export default function MintForm({
           coin: {
             denom: denom.base,
             amount: BigInt(
-              parseFloat(pair.amount) * Math.pow(10, exponent)
+              parseFloat(pair.amount) * Math.pow(10, exponent),
             ).toString(),
           },
         })),
@@ -174,7 +174,7 @@ export default function MintForm({
   const updatePayoutPair = (
     index: number,
     field: "address" | "amount",
-    value: string
+    value: string,
   ) => {
     const newPairs = [...payoutPairs];
     newPairs[index][field] = value;
@@ -223,6 +223,7 @@ export default function MintForm({
                     <p className="text-md">AMOUNT</p>
                   </label>
                   <input
+                    aria-label={"mint-amount-input"}
                     type="text"
                     placeholder="Enter amount"
                     className="input input-bordered h-10 input-sm w-full"
@@ -236,6 +237,7 @@ export default function MintForm({
                   </label>
                   <div className="flex flex-row items-center">
                     <input
+                      aria-label={"mint-recipient-input"}
                       type="text"
                       placeholder="Recipient address"
                       className="input input-bordered input-sm h-10 rounded-tl-lg rounded-bl-lg rounded-tr-none rounded-br-none w-full"

@@ -14,14 +14,14 @@ export const WalletList = ({
 }) => {
   const social = wallets.filter((wallet) =>
     ["Google", "Twitter", "Apple", "Discord"].includes(
-      wallet.walletInfo.prettyName
-    )
+      wallet.walletInfo.prettyName,
+    ),
   );
 
   const browser = wallets.filter((wallet) =>
     ["Keplr", "Cosmostation", "Leap", "Station"].includes(
-      wallet.walletInfo.prettyName
-    )
+      wallet.walletInfo.prettyName,
+    ),
   );
 
   const mobile = wallets.filter((wallet) =>
@@ -30,7 +30,7 @@ export const WalletList = ({
       "Keplr Mobile",
       "Cosmostation Mobile",
       "Leap Mobile",
-    ].includes(wallet.walletInfo.prettyName)
+    ].includes(wallet.walletInfo.prettyName),
   );
 
   return (

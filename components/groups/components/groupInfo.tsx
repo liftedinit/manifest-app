@@ -1,6 +1,4 @@
-import {
-  useBalance,
-} from "@/hooks/useQueries";
+import { useBalance } from "@/hooks/useQueries";
 import { GroupDetailsModal, UpdateGroupModal } from "@/components";
 import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
 import { shiftDigits } from "@/utils";
@@ -24,19 +22,15 @@ export function GroupInfo({
   const maybeAuthors = group?.ipfsMetadata?.authors;
   const maybePolicies = group?.policies?.[0];
 
-  const threshold = maybePolicies?.decision_policy?.threshold ?? "No threshold available";
+  const threshold =
+    maybePolicies?.decision_policy?.threshold ?? "No threshold available";
 
   const { balance } = useBalance(maybePolicies?.address);
 
   const renderAuthors = () => {
     if (maybeAuthors) {
       if (maybeAuthors.startsWith("manifest")) {
-        return (
-          <TruncatedAddressWithCopy
-            address={maybeAuthors}
-            slice={14}
-          />
-        );
+        return <TruncatedAddressWithCopy address={maybeAuthors} slice={14} />;
       } else if (maybeAuthors.includes(",")) {
         return (
           <div className="flex flex-wrap gap-2">
@@ -73,7 +67,7 @@ export function GroupInfo({
             <button
               onClick={() => {
                 const modal = document.getElementById(
-                  `update_group_${group?.id}`
+                  `update_group_${group?.id}`,
                 ) as HTMLDialogElement;
                 modal?.showModal();
               }}
@@ -149,11 +143,12 @@ export function GroupInfo({
                   </span>
                   <div className="flex flex-row justify-between items-start">
                     <span className="text-md">
-                      {maybePolicies.decision_policy?.threshold && group?.total_weight
-                      ? `${maybePolicies.decision_policy.threshold} / ${group.total_weight}`
-                      : maybePolicies.decision_policy?.threshold
-                      ? "No total weight available"
-                      : "No threshold available"}
+                      {maybePolicies.decision_policy?.threshold &&
+                      group?.total_weight
+                        ? `${maybePolicies.decision_policy.threshold} / ${group.total_weight}`
+                        : maybePolicies.decision_policy?.threshold
+                          ? "No total weight available"
+                          : "No threshold available"}
                     </span>
 
                     <div className="flex-row  justify-between items-center gap-2 hidden md:flex">
@@ -161,7 +156,7 @@ export function GroupInfo({
                         className="btn btn-xs btn-secondary "
                         onClick={() => {
                           const modal = document.getElementById(
-                            `group_modal_${group?.id}`
+                            `group_modal_${group?.id}`,
                           ) as HTMLDialogElement;
                           modal?.showModal();
                         }}

@@ -13,7 +13,7 @@ interface MultiBurnModalProps {
   updateBurnPair: (
     index: number,
     field: "address" | "amount",
-    value: string
+    value: string,
   ) => void;
   addBurnPair: () => void;
   removeBurnPair: (index: number) => void;

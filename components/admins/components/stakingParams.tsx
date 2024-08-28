@@ -17,7 +17,7 @@ export default function StakingParams({
 }: StakingParamsProps) {
   const openParamsModal = () => {
     const modal = document.getElementById(
-      `update-params-modal`
+      `update-params-modal`,
     ) as HTMLDialogElement;
     modal?.showModal();
   };
@@ -51,7 +51,7 @@ export default function StakingParams({
                 <span className="p-2">
                   {Number(
                     BigInt(stakingParams.unbonding_time?.seconds ?? 1) /
-                      BigInt(86400)
+                      BigInt(86400),
                   ).toString()}
                 </span>
               </span>

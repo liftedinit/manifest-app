@@ -25,9 +25,9 @@ import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
 
 export default function ProposalsForPolicy({
   policyAddress,
-}: {
+}: Readonly<{
   policyAddress: string;
-}) {
+}>) {
   const { address } = useChain("manifest");
 
   const [tallies, setTallies] = useState<
@@ -36,11 +36,11 @@ export default function ProposalsForPolicy({
 
   const updateTally = (
     proposalId: bigint,
-    newTally: QueryTallyResultResponseSDKType
+    newTally: QueryTallyResultResponseSDKType,
   ) => {
     setTallies((prevTallies) => {
       const existingTallyIndex = prevTallies.findIndex(
-        (item) => item.proposalId === proposalId
+        (item) => item.proposalId === proposalId,
       );
 
       if (existingTallyIndex >= 0) {
@@ -58,7 +58,7 @@ export default function ProposalsForPolicy({
   const handleRowClick = (proposal: any) => {
     setSelectedProposal(proposal);
     const modal = document.getElementById(
-      `vote_modal_${proposal.id}`
+      `vote_modal_${proposal.id}`,
     ) as HTMLDialogElement;
     modal?.showModal();
   };
@@ -75,15 +75,15 @@ export default function ProposalsForPolicy({
 
   const members =
     groupByMemberData?.groups.filter(
-      (group) => group.policies[0]?.address === policyAddress
+      (group) => group.policies[0]?.address === policyAddress,
     )[0]?.members ?? [];
   const admin =
     groupByMemberData.groups.filter(
-      (group) => group.policies[0]?.address === policyAddress
+      (group) => group.policies[0]?.address === policyAddress,
     )[0]?.admin ?? "";
   const groupName =
     groupByMemberData.groups.filter(
-      (group) => group.policies[0]?.address === policyAddress
+      (group) => group.policies[0]?.address === policyAddress,
     )[0]?.ipfsMetadata?.title ?? "";
 
   function isProposalPassing(tally: QueryTallyResultResponseSDKType) {
@@ -158,7 +158,7 @@ export default function ProposalsForPolicy({
       (proposal) =>
         proposal.status.toString() !== "PROPOSAL_STATUS_ACCEPTED" &&
         proposal.status.toString() !== "PROPOSAL_STATUS_REJECTED" &&
-        proposal.status.toString() !== "PROPOSAL_STATUS_WITHDRAWN"
+        proposal.status.toString() !== "PROPOSAL_STATUS_WITHDRAWN",
     );
   };
 
@@ -181,7 +181,10 @@ export default function ProposalsForPolicy({
             </div>
             <div className="divider divider-horizon -mt-2"></div>
             {isProposalsLoading ? (
-              <div className="flex px-4 flex-col gap-4 w-full mx-auto justify-center mt-6 mb-[2.05rem]  items-center transition-opacity duration-300 ease-in-out animate-fadeIn">
+              <div
+                className="flex px-4 flex-col gap-4 w-full mx-auto justify-center mt-6 mb-[2.05rem]  items-center transition-opacity duration-300 ease-in-out animate-fadeIn"
+                aria-label={"loading"}
+              >
                 <div className="skeleton h-4 w-full "></div>
                 <div className="skeleton h-4 w-full "></div>
                 <div className="skeleton h-4 w-full "></div>
@@ -220,13 +223,13 @@ export default function ProposalsForPolicy({
                             (proposal, index) => {
                               // Find the corresponding tally for this proposal
                               const proposalTally = tallies.find(
-                                (t) => t.proposalId === proposal.id
+                                (t) => t.proposalId === proposal.id,
                               );
                               const { isPassing = false } = proposalTally
                                 ? isProposalPassing(proposalTally.tally)
                                 : {};
                               const endTime = new Date(
-                                proposal?.voting_period_end
+                                proposal?.voting_period_end,
                               );
                               const now = new Date();
                               const msPerMinute = 1000 * 60;
@@ -284,7 +287,7 @@ export default function ProposalsForPolicy({
                                   </td>
                                   <td className="w-1/6 truncate ...">
                                     {getHumanReadableType(
-                                      (proposal.messages[0] as any)["@type"]
+                                      (proposal.messages[0] as any)["@type"],
                                     )}
                                   </td>
                                   <td className="w-1/6">
@@ -294,18 +297,18 @@ export default function ProposalsForPolicy({
                                       ("PROPOSAL_EXECUTOR_RESULT_NOT_RUN" as unknown as ProposalExecutorResult)
                                       ? "Passing"
                                       : isPassing &&
-                                        diff <= 0 &&
-                                        proposal.executor_result ===
-                                          ("PROPOSAL_EXECUTOR_RESULT_NOT_RUN" as unknown as ProposalExecutorResult)
-                                      ? "Passed"
-                                      : (diff > 0 &&
+                                          diff <= 0 &&
                                           proposal.executor_result ===
-                                            ("PROPOSAL_EXECUTOR_RESULT_FAILURE" as unknown as ProposalExecutorResult)) ||
-                                        (diff > 0 &&
-                                          proposal.status ===
-                                            ("PROPOSAL_STATUS_REJECTED" as unknown as ProposalStatus))
-                                      ? "Failed"
-                                      : "Failing"}
+                                            ("PROPOSAL_EXECUTOR_RESULT_NOT_RUN" as unknown as ProposalExecutorResult)
+                                        ? "Passed"
+                                        : (diff > 0 &&
+                                              proposal.executor_result ===
+                                                ("PROPOSAL_EXECUTOR_RESULT_FAILURE" as unknown as ProposalExecutorResult)) ||
+                                            (diff > 0 &&
+                                              proposal.status ===
+                                                ("PROPOSAL_STATUS_REJECTED" as unknown as ProposalStatus))
+                                          ? "Failed"
+                                          : "Failing"}
                                   </td>
                                   <Modal
                                     admin={admin}
@@ -317,7 +320,7 @@ export default function ProposalsForPolicy({
                                   />
                                 </tr>
                               );
-                            }
+                            },
                           )}
                         </tbody>
                       </table>
@@ -350,7 +353,7 @@ export default function ProposalsForPolicy({
                             (proposal) =>
                               proposal.executor_result.toString() ===
                                 "PROPOSAL_EXECUTOR_RESULT_NOT_RUN" &&
-                              new Date(proposal.voting_period_end) < new Date()
+                              new Date(proposal.voting_period_end) < new Date(),
                           ).length
                         }
                       </span>
@@ -393,7 +396,7 @@ export default function ProposalsForPolicy({
                           const futureActiveProposals = activeProposals.filter(
                             (proposal) =>
                               new Date(proposal.voting_period_end).getTime() >
-                              now
+                              now,
                           );
 
                           if (futureActiveProposals.length === 0) {
@@ -404,16 +407,16 @@ export default function ProposalsForPolicy({
                             futureActiveProposals.reduce(
                               (closest, proposal) => {
                                 const proposalDate = new Date(
-                                  proposal.voting_period_end
+                                  proposal.voting_period_end,
                                 ).getTime();
                                 const closestDate = new Date(
-                                  closest.voting_period_end
+                                  closest.voting_period_end,
                                 ).getTime();
 
                                 return proposalDate - now < closestDate - now
                                   ? proposal
                                   : closest;
-                              }
+                              },
                             );
 
                           return `#${closestEndingProposal.id.toString()}`;
@@ -445,7 +448,7 @@ function Modal({
   admin: string;
   updateTally: (
     proposalId: bigint,
-    tally: QueryTallyResultResponseSDKType
+    tally: QueryTallyResultResponseSDKType,
   ) => void;
   refetchProposals: () => void;
 }) {

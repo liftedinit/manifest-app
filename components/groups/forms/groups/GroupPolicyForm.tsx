@@ -7,12 +7,12 @@ export default function GroupPolicyForm({
   prevStep,
   formData,
   dispatch,
-}: {
+}: Readonly<{
   formData: FormData;
   dispatch: React.Dispatch<Action>;
   nextStep: () => void;
   prevStep: () => void;
-}) {
+}>) {
   const [votingUnit, setVotingUnit] = useState("days");
   const [votingAmount, setVotingAmount] = useState(1);
 

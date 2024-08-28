@@ -13,11 +13,11 @@ export default function ConfirmationModal({
   nextStep,
   prevStep,
   formData,
-}: {
+}: Readonly<{
   nextStep: () => void;
   prevStep: () => void;
   formData: FormData;
-}) {
+}>) {
   const { address } = useChain("manifest");
   const { createGroupWithPolicy } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const [isSigning, setIsSigning] = useState(false);
@@ -58,7 +58,7 @@ export default function ConfirmationModal({
     ThresholdDecisionPolicy.fromPartial(thresholdMsg);
 
   const threshholdPolicy = ThresholdDecisionPolicy.encode(
-    threshholdPolicyFromPartial
+    threshholdPolicyFromPartial,
   ).finish();
 
   const typeUrl = cosmos.group.v1.ThresholdDecisionPolicy.typeUrl;

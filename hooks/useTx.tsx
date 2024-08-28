@@ -43,7 +43,7 @@ export const useTx = (chainName: string) => {
         address,
         msgs,
         options.fee || (await estimateFee(msgs)),
-        options.memo || ""
+        options.memo || "",
       );
       setToastMessage({
         type: "alert-info",

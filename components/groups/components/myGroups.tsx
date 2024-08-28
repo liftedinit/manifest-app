@@ -67,7 +67,9 @@ export function YourGroups({
   );
 
   const filteredGroups = groups.groups.filter((group) =>
-    group.ipfsMetadata?.title?.toLowerCase().includes(searchQuery.toLowerCase())
+    group.ipfsMetadata?.title
+      ?.toLowerCase()
+      .includes(searchQuery.toLowerCase()),
   );
 
   const filterProposals = (proposals: ProposalSDKType[]) => {
@@ -75,7 +77,7 @@ export function YourGroups({
       (proposal) =>
         proposal.status.toString() !== "PROPOSAL_STATUS_ACCEPTED" &&
         proposal.status.toString() !== "PROPOSAL_STATUS_REJECTED" &&
-        proposal.status.toString() !== "PROPOSAL_STATUS_WITHDRAWN"
+        proposal.status.toString() !== "PROPOSAL_STATUS_WITHDRAWN",
     );
   };
 
@@ -115,7 +117,7 @@ export function YourGroups({
                     <span className="text-center">
                       {
                         filterProposals(
-                          proposals[group?.policies[0]?.address ?? ""]
+                          proposals[group?.policies[0]?.address ?? ""],
                         )?.length
                       }
                     </span>
@@ -129,7 +131,7 @@ export function YourGroups({
                   <h5 className="text-base font-medium truncate">
                     {truncateString(
                       group.ipfsMetadata?.title ?? "Untitled Group",
-                      24
+                      24,
                     )}
                   </h5>
                 </div>

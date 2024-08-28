@@ -4,23 +4,23 @@ import { screen, cleanup, fireEvent } from "@testing-library/react";
 import MyDenoms from "@/components/factory/components/MyDenoms";
 import matchers from "@testing-library/jest-dom/matchers";
 import { renderWithChainProvider } from "@/tests/render";
-import {mockDenom, mockMfxDenom} from "@/tests/mock";
+import { mockDenom, mockMfxDenom } from "@/tests/mock";
 
 expect.extend(matchers);
 
 // Mock next/router
-const m = jest.fn()
-mock.module('next/router', () => ({
+const m = jest.fn();
+mock.module("next/router", () => ({
   useRouter: m.mockReturnValue({
     query: {},
     push: jest.fn(),
-  })
-}))
+  }),
+}));
 
 // TODO: Mock DenomImage until we can fix the URL parsing issue
-mock.module('@/components/factory/components/DenomImage', () => ({
+mock.module("@/components/factory/components/DenomImage", () => ({
   DenomImage: () => <div>DenomImage</div>,
-}))
+}));
 
 const renderWithProps = (props = {}) => {
   const defaultProps = {

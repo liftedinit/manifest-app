@@ -82,7 +82,7 @@ export default function Factory() {
           );
         })
         .filter(
-          (meta: MetadataSDKType | null) => meta !== null
+          (meta: MetadataSDKType | null) => meta !== null,
         ) as MetadataSDKType[];
 
       result = [...result, ...tokenFactoryDenoms];

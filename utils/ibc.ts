@@ -1,19 +1,19 @@
-import { asset_lists as assetLists } from '@chain-registry/assets';
-import { Asset, AssetList } from '@chain-registry/types';
-import { assets, ibc } from 'chain-registry';
-import { Coin } from '@chalabi/manifestjs/dist/codegen/cosmos/base/v1beta1/coin';
+import { asset_lists as assetLists } from "@chain-registry/assets";
+import { Asset, AssetList } from "@chain-registry/types";
+import { assets, ibc } from "chain-registry";
+import { Coin } from "@chalabi/manifestjs/dist/codegen/cosmos/base/v1beta1/coin";
 
-import { shiftDigits } from './maths';
+import { shiftDigits } from "./maths";
 
 export const truncateDenom = (denom: string) => {
-  return denom.slice(0, 10) + '...' + denom.slice(-6);
+  return denom.slice(0, 10) + "..." + denom.slice(-6);
 };
 
 const filterAssets = (chainName: string, assetList: AssetList[]): Asset[] => {
   return (
     assetList
       .find(({ chain_name }) => chain_name === chainName)
-      ?.assets?.filter(({ type_asset }) => type_asset !== 'ics20') || []
+      ?.assets?.filter(({ type_asset }) => type_asset !== "ics20") || []
   );
 };
 
@@ -53,23 +53,23 @@ export const getIbcInfo = (fromChainName: string, toChainName: string) => {
   let ibcInfo = ibc.find(
     (i) =>
       i.chain_1.chain_name === fromChainName &&
-      i.chain_2.chain_name === toChainName
+      i.chain_2.chain_name === toChainName,
   );
 
   if (!ibcInfo) {
     ibcInfo = ibc.find(
       (i) =>
         i.chain_1.chain_name === toChainName &&
-        i.chain_2.chain_name === fromChainName
+        i.chain_2.chain_name === fromChainName,
     );
     flipped = true;
   }
 
   if (!ibcInfo) {
-    throw new Error('cannot find IBC info');
+    throw new Error("cannot find IBC info");
   }
 
-  const key = flipped ? 'chain_2' : 'chain_1';
+  const key = flipped ? "chain_2" : "chain_1";
   const source_port = ibcInfo.channels[0][key].port_id;
   const source_channel = ibcInfo.channels[0][key].channel_id;
 

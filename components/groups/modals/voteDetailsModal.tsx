@@ -60,7 +60,7 @@ function VoteDetailsModal({
         acc[voterKey] = vote?.option;
         return acc;
       }, {}),
-    [votes]
+    [votes],
   );
 
   const { address } = useChain(chainName);
@@ -74,7 +74,7 @@ function VoteDetailsModal({
       members?.map((member) => ({
         ...member,
       })),
-    [members]
+    [members],
   );
 
   const executorResultMapping: { [key: string]: string } = {
@@ -276,7 +276,7 @@ function VoteDetailsModal({
       if (timeDiff > 0) {
         const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
         const hours = Math.floor(
-          (timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+          (timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
         );
         const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
@@ -311,7 +311,7 @@ function VoteDetailsModal({
     0;
 
   const userHasVoted = votes.some(
-    (vote) => vote.voter.toLowerCase().trim() === address
+    (vote) => vote.voter.toLowerCase().trim() === address,
   );
 
   const userVoteOption = userHasVoted
@@ -365,7 +365,7 @@ function VoteDetailsModal({
   const renderMessageField = (
     key: string,
     value: any,
-    depth: number = 0
+    depth: number = 0,
   ): JSX.Element => {
     if (typeof value === "object" && value !== null) {
       if (Array.isArray(value)) {
@@ -384,7 +384,7 @@ function VoteDetailsModal({
           <div key={key} style={{ marginLeft: `${depth * 20}px` }}>
             <h4 className="font-medium">{key}:</h4>
             {Object.entries(value).map(([subKey, subValue]) =>
-              renderMessageField(subKey, subValue, depth + 1)
+              renderMessageField(subKey, subValue, depth + 1),
             )}
           </div>
         );
@@ -428,13 +428,13 @@ function VoteDetailsModal({
                     userVoteOption?.toString() === "VOTE_OPTION_YES"
                       ? "bg-green-500/50"
                       : userVoteOption?.toString() === "VOTE_OPTION_NO"
-                      ? "bg-red-500/50"
-                      : userVoteOption?.toString() ===
-                        "VOTE_OPTION_NO_WITH_VETO"
-                      ? "bg-yellow-500/50"
-                      : userVoteOption?.toString() === "VOTE_OPTION_ABSTAIN"
-                      ? "bg-purple-500/50"
-                      : ""
+                        ? "bg-red-500/50"
+                        : userVoteOption?.toString() ===
+                            "VOTE_OPTION_NO_WITH_VETO"
+                          ? "bg-yellow-500/50"
+                          : userVoteOption?.toString() === "VOTE_OPTION_ABSTAIN"
+                            ? "bg-purple-500/50"
+                            : ""
                   }`}
                 >
                   {userVoteOption !== null
@@ -476,7 +476,7 @@ function VoteDetailsModal({
                   </h3>
                   <div>
                     {fieldsToShow.map((field) =>
-                      renderMessageField(field, message[field])
+                      renderMessageField(field, message[field]),
                     )}
                   </div>
                 </div>

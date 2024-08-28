@@ -1,10 +1,10 @@
-import {afterEach, describe, expect, test} from "bun:test";
+import { afterEach, describe, expect, test } from "bun:test";
 import React from "react";
 import ValidatorList from "@/components/admins/components/validatorList";
-import {fireEvent, screen, cleanup, waitFor} from "@testing-library/react";
-import matchers from '@testing-library/jest-dom/matchers';
-import {mockActiveValidators, mockPendingValidators} from "@/tests/mock";
-import {renderWithChainProvider} from "@/tests/render";
+import { fireEvent, screen, cleanup, waitFor } from "@testing-library/react";
+import matchers from "@testing-library/jest-dom/matchers";
+import { mockActiveValidators, mockPendingValidators } from "@/tests/mock";
+import { renderWithChainProvider } from "@/tests/render";
 
 expect.extend(matchers);
 
@@ -15,7 +15,9 @@ const renderWithProps = (props = {}) => {
     pendingValidators: mockPendingValidators,
     isLoading: false,
   };
-  return renderWithChainProvider(<ValidatorList {...defaultProps} {...props} />);
+  return renderWithChainProvider(
+    <ValidatorList {...defaultProps} {...props} />,
+  );
 };
 
 describe("ValidatorList", () => {
@@ -54,6 +56,10 @@ describe("ValidatorList", () => {
     renderWithProps();
     const allRemoveButtons = screen.getAllByText("Remove");
     fireEvent.click(allRemoveButtons[0]);
-    await waitFor(() => expect(screen.getByText("Are you sure you want to remove the validator")).toBeInTheDocument());
+    await waitFor(() =>
+      expect(
+        screen.getByText("Are you sure you want to remove the validator"),
+      ).toBeInTheDocument(),
+    );
   });
 });

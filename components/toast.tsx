@@ -58,7 +58,7 @@ export const Toast: React.FC<ToastProps> = ({
   if (!toastMessage) {
     return null;
   }
- 
+
   const getGradientColor = (type: string) => {
     switch (type) {
       case "alert-success":

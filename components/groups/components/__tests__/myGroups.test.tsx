@@ -1,17 +1,17 @@
-import { describe, expect, test, jest, mock, afterEach } from "bun:test"
+import { describe, expect, test, jest, mock, afterEach } from "bun:test";
 import { screen, cleanup, waitFor, fireEvent } from "@testing-library/react";
 import { YourGroups } from "@/components/groups/components/myGroups";
-import {mockGroup, mockGroup2, mockProposals} from "@/tests/mock";
-import {renderWithChainProvider} from "@/tests/render";
+import { mockGroup, mockGroup2, mockProposals } from "@/tests/mock";
+import { renderWithChainProvider } from "@/tests/render";
 
 // Mock useRouter
-const m = jest.fn()
-mock.module('next/router', () => ({
+const m = jest.fn();
+mock.module("next/router", () => ({
   useRouter: m.mockReturnValue({
     query: {},
     push: jest.fn(),
-  })
-}))
+  }),
+}));
 
 const mockOnSelectGroup = jest.fn();
 
@@ -29,10 +29,10 @@ function renderWithProps(props = {}) {
 }
 
 describe("YourGroups Component", () => {
-  afterEach(cleanup)
+  afterEach(cleanup);
 
   test("renders empty group state correctly", () => {
-    renderWithProps({groups: { groups: []}});
+    renderWithProps({ groups: { groups: [] } });
     expect(screen.getByText("My Groups")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Search...")).toBeInTheDocument();
     expect(screen.getByText("No groups found")).toBeInTheDocument();
@@ -46,7 +46,6 @@ describe("YourGroups Component", () => {
     expect(screen.getByText("title2")).toBeInTheDocument();
   });
 
-
   test("search functionality works correctly", () => {
     renderWithProps();
 
@@ -58,11 +57,13 @@ describe("YourGroups Component", () => {
   });
 
   test("group selection works correctly", async () => {
-    mockOnSelectGroup.mockClear()
+    mockOnSelectGroup.mockClear();
 
     renderWithProps();
     const group1 = screen.getByText("title1");
     fireEvent.click(group1);
-    await waitFor(() => expect(mockOnSelectGroup).toHaveBeenLastCalledWith("test_policy_address"));
+    await waitFor(() =>
+      expect(mockOnSelectGroup).toHaveBeenLastCalledWith("test_policy_address"),
+    );
   });
 });

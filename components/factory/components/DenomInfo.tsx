@@ -53,7 +53,7 @@ export default function DenomInfo({
             <button
               onClick={() => {
                 const modal = document.getElementById(
-                  `update_metadata_${denom?.base}_${denom?.name}`
+                  `update_metadata_${denom?.base}_${denom?.name}`,
                 ) as HTMLDialogElement;
                 modal?.showModal();
               }}
@@ -77,7 +77,10 @@ export default function DenomInfo({
               <span className="text-sm leading-3 capitalize text-gray-400">
                 TICKER
               </span>
-              <span className="text-xl  max-w-[30ch] truncate" aria-label="ticker">
+              <span
+                className="text-xl  max-w-[30ch] truncate"
+                aria-label="ticker"
+              >
                 {denom?.display ?? "No Ticker available"}
               </span>
             </div>
@@ -110,7 +113,7 @@ export default function DenomInfo({
                       <span className="text-md animate-fadeIn">
                         {shiftDigits(
                           balance?.amount ?? "0",
-                          -denom?.denom_units[1]?.exponent ?? 6
+                          -denom?.denom_units[1]?.exponent ?? 6,
                         )}
                         &nbsp;
                         {baseUnit?.toUpperCase().slice(1)}
@@ -131,13 +134,16 @@ export default function DenomInfo({
                   <span className="text-sm capitalize text-gray-400">
                     SYMBOL
                   </span>
-                  <div className="flex flex-row justify-between items-start max-w-[30ch] truncate" aria-label="symbol">
-                      {denom?.symbol ?? "No Description"}
+                  <div
+                    className="flex flex-row justify-between items-start max-w-[30ch] truncate"
+                    aria-label="symbol"
+                  >
+                    {denom?.symbol ?? "No Description"}
                     <div className="flex-row justify-between items-center gap-2 hidden md:flex">
                       <button
                         onClick={() => {
                           const modal = document.getElementById(
-                            `denom_info_${denom.base}`
+                            `denom_info_${denom.base}`,
                           ) as HTMLDialogElement;
                           modal?.showModal();
                         }}
