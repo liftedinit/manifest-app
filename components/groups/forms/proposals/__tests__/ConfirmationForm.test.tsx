@@ -1,38 +1,18 @@
-import { describe, test, afterEach, expect, jest } from "bun:test";
+import { afterEach, describe, expect, jest, test } from "bun:test";
 import React from "react";
-import { screen, fireEvent, cleanup } from "@testing-library/react";
+import { cleanup, fireEvent, screen } from "@testing-library/react";
 import ConfirmationModal from "@/components/groups/forms/proposals/ConfirmationForm";
 import matchers from "@testing-library/jest-dom/matchers";
-import { ProposalFormData } from "@/helpers/formReducer";
 import { renderWithChainProvider } from "@/tests/render";
+import { mockProposalFormData } from "@/tests/mock";
 
 expect.extend(matchers);
-
-const mockFormData: ProposalFormData = {
-  title: "Test Proposal",
-  proposers: "manifest1proposer",
-  summary: "This is a test proposal",
-  metadata: {
-    title: "Test Metadata Title",
-    authors: "manifest1author",
-    summary: "This is a test summary",
-    details: "Detailed description of the test proposal",
-  },
-  messages: [
-    {
-      type: "send",
-      amount: { denom: "umfx", amount: "100" },
-      to_address: "manifest1recipient",
-      from_address: "manifest1from",
-    },
-  ],
-};
 
 const mockProps = {
   policyAddress: "manifest1policy",
   nextStep: jest.fn(),
   prevStep: jest.fn(),
-  formData: mockFormData,
+  formData: mockProposalFormData,
   address: "cosmos1address",
 };
 
@@ -43,7 +23,7 @@ describe("ConfirmationModal Component", () => {
     renderWithChainProvider(<ConfirmationModal {...mockProps} />);
     expect(screen.getByText("Confirmation")).toBeInTheDocument();
     expect(screen.getByLabelText("proposal-details")).toBeInTheDocument();
-    expect(screen.getByText(mockFormData.title)).toBeInTheDocument();
+    expect(screen.getByText(mockProposalFormData.title)).toBeInTheDocument();
     expect(screen.getByText("manifest1propo...oposer")).toBeInTheDocument();
 
     // TODO: This is never displayed in the component
@@ -52,9 +32,9 @@ describe("ConfirmationModal Component", () => {
     expect(screen.getByText("MESSAGES")).toBeInTheDocument();
     expect(screen.getByText("METADATA")).toBeInTheDocument();
     expect(screen.getByLabelText("meta-details")).toBeInTheDocument();
-    expect(screen.getByText(mockFormData.metadata.title)).toBeInTheDocument();
-    expect(screen.getByText(mockFormData.metadata.summary)).toBeInTheDocument();
-    expect(screen.getByText(mockFormData.metadata.details)).toBeInTheDocument();
+    expect(screen.getByText(mockProposalFormData.metadata.title)).toBeInTheDocument();
+    expect(screen.getByText(mockProposalFormData.metadata.summary)).toBeInTheDocument();
+    expect(screen.getByText(mockProposalFormData.metadata.details)).toBeInTheDocument();
   });
 
   test('calls prevStep when "Prev: Metadata" button is clicked', () => {

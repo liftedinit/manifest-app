@@ -14,12 +14,12 @@ export default function ProposalMessages({
   dispatch,
   nextStep,
   prevStep,
-}: {
+}: Readonly<{
   nextStep: () => void;
   prevStep: () => void;
   formData: ProposalFormData;
   dispatch: React.Dispatch<ProposalAction>;
-}) {
+}>) {
   const [isFormValid, setIsFormValid] = useState(false);
   const [visibleMessages, setVisibleMessages] = useState<boolean[]>(
     formData.messages.map(() => false),
@@ -358,6 +358,7 @@ export default function ProposalMessages({
                     type="button"
                     className="btn btn-sm btn-primary"
                     onClick={handleAddMessage}
+                    aria-label={"add-message-btn"}
                   >
                     <span>
                       <FiPlusCircle className="text-lg text-white" />
@@ -421,6 +422,7 @@ export default function ProposalMessages({
                                 {filteredMessageTypes.map((type) => (
                                   <li key={type}>
                                     <button
+                                      aria-label={`message-type-btn-${type}`}
                                       onClick={() =>
                                         handleChangeMessage(index, "type", type)
                                       }
@@ -437,6 +439,7 @@ export default function ProposalMessages({
                               type="button"
                               className="btn btn-secondary btn-xs"
                               onClick={() => handleRemoveMessage(index)}
+                              aria-label={"remove-message-btn"}
                             >
                               <span>
                                 <FiMinusCircle className="text-xs text-white" />

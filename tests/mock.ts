@@ -1,18 +1,15 @@
 import { Chain } from "@chain-registry/types";
-import {
-  BondStatus,
-  ParamsSDKType,
-} from "@chalabi/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking";
+import { BondStatus, ParamsSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking";
 import { ExtendedValidatorSDKType, TransactionGroup } from "@/components";
 import { CombinedBalanceInfo } from "@/pages/bank";
 import { ExtendedGroupType } from "@/hooks";
 import {
   ProposalExecutorResult,
   ProposalSDKType,
-  ProposalStatus,
+  ProposalStatus
 } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types";
 import { MetadataSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
-import { FormData } from "@/helpers";
+import { FormData, ProposalFormData } from "@/helpers";
 
 export const mockDenomMeta1: MetadataSDKType = {
   description: "My First Token",
@@ -465,4 +462,23 @@ export const mockGroupFormData: FormData = {
     { address: "manifest1member1", name: "Member 1", weight: "1" },
     { address: "manifest1member2", name: "Member 2", weight: "2" },
   ],
+};
+export const mockProposalFormData: ProposalFormData = {
+  title: "Test Proposal",
+  proposers: "manifest1proposer",
+  summary: "This is a test proposal",
+  metadata: {
+    title: "Test Metadata Title",
+    authors: "manifest1author",
+    summary: "This is a test summary",
+    details: "Detailed description of the test proposal"
+  },
+  messages: [
+    {
+      type: "send",
+      amount: { denom: "umfx", amount: "100" },
+      to_address: "manifest1recipient",
+      from_address: "manifest1from"
+    }
+  ]
 };
