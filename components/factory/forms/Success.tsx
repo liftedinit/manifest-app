@@ -5,10 +5,10 @@ import Link from "next/link";
 export default function Success({
   formData,
   address,
-}: {
+}: Readonly<{
   formData: TokenFormData;
   address: string;
-}) {
+}>) {
   const fullDenom = `factory/${address}/${formData.subdenom}`;
 
   return (
@@ -22,12 +22,16 @@ export default function Success({
           You can now mint, burn, or change the admin of your tokens and send
           them to other wallets.
         </p>
-        <p className="text-md text-gray-300 mb-6 text-pretty">
+        {/*
+          TODO: Verify the render is correct.
+                I changed the <p> to a <div> here because <div> (in TruncatedAddressWithCopy) cannot be a descendant of <p>
+        */}
+        <div className="text-md text-gray-300 mb-6 text-pretty">
           The full denom of your token is:{" "}
           <span className="font-semibold">
             <TruncatedAddressWithCopy address={fullDenom} slice={24} />
           </span>
-        </p>
+        </div>
         <div className="border-t border-gray-700 pt-4">
           <h2 className="text-2xl font-semibold mb-4">Token Details</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
