@@ -1,12 +1,15 @@
 import { Chain } from "@chain-registry/types";
-import { BondStatus, ParamsSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking";
+import {
+  BondStatus,
+  ParamsSDKType,
+} from "@chalabi/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking";
 import { ExtendedValidatorSDKType, TransactionGroup } from "@/components";
 import { CombinedBalanceInfo } from "@/pages/bank";
 import { ExtendedGroupType } from "@/hooks";
 import {
   ProposalExecutorResult,
   ProposalSDKType,
-  ProposalStatus
+  ProposalStatus,
 } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types";
 import { MetadataSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
 import { FormData, ProposalFormData } from "@/helpers";
@@ -471,14 +474,14 @@ export const mockProposalFormData: ProposalFormData = {
     title: "Test Metadata Title",
     authors: "manifest1author",
     summary: "This is a test summary",
-    details: "Detailed description of the test proposal"
+    details: "Detailed description of the test proposal",
   },
   messages: [
     {
       type: "send",
       amount: { denom: "umfx", amount: "100" },
       to_address: "manifest1recipient",
-      from_address: "manifest1from"
-    }
-  ]
+      from_address: "manifest1from",
+    },
+  ],
 };
