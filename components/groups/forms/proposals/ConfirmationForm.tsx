@@ -52,13 +52,13 @@ export default function ConfirmationModal({
   prevStep,
   formData,
   address,
-}: {
+}: Readonly<{
   policyAddress: string;
   nextStep: () => void;
   prevStep: () => void;
   formData: ProposalFormData;
   address: string;
-}) {
+}>) {
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
   type MessageTypeMap = {
@@ -338,7 +338,7 @@ export default function ConfirmationModal({
               <div className="flex flex-row justify-between items-start gap-5">
                 {/* Proposal Details */}
                 <div className="flex w-1/2 flex-col gap-2 justify-between items-start">
-                  <label className="block  text-lg font-light">DETAILS</label>
+                  <label className="block  text-lg font-light" aria-label={"proposal-details"}>DETAILS</label>
                   <div className="grid gap-5 mb-4 sm:grid-cols-1 bg-base-300 h-40 shadow w-full rounded-lg p-4">
                     <div>
                       <label
@@ -411,7 +411,7 @@ export default function ConfirmationModal({
                 </div>
                 <div className="flex flex-col mt-4">
                   <a className="text-sm font-light text-gray-400">DETAILS</a>
-                  <div className="max-h-24 mt-2 overflow-y-auto rounded-md bg-base-100 p-4">
+                  <div className="max-h-24 mt-2 overflow-y-auto rounded-md bg-base-100 p-4" aria-label={"meta-details"}>
                     <a className="text-sm text-pretty">
                       {formData.metadata.details}
                     </a>
