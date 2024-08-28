@@ -7,12 +7,12 @@ export default function GroupDetails({
   formData,
   dispatch,
   address,
-}: {
+}: Readonly<{
   nextStep: () => void;
   formData: FormData;
   dispatch: React.Dispatch<Action>;
   address: string;
-}) {
+}>) {
   const updateField = (field: keyof FormData, value: any) => {
     dispatch({ type: "UPDATE_FIELD", field, value });
   };

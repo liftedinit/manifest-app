@@ -8,13 +8,13 @@ export default function MemberInfoForm({
   nextStep,
   prevStep,
   address,
-}: {
+}: Readonly<{
   formData: FormData;
   dispatch: (action: Action) => void;
   nextStep: () => void;
   prevStep: () => void;
   address: string;
-}) {
+}>) {
   const [numberOfMembers, setNumberOfMembers] = useState(
     formData.members.length
   );
@@ -93,6 +93,7 @@ export default function MemberInfoForm({
                     -
                   </button>
                   <input
+                    aria-label={'member-count'}
                     className="input input-bordered mx-2 text-center input-sm w-[40px]"
                     value={numberOfMembers}
                     onChange={handleNumberChange}
@@ -125,6 +126,7 @@ export default function MemberInfoForm({
                         <div className="flex flex-row items-center justify-between">
                           <input
                             type="text"
+                            aria-label={`address-${index}`}
                             id={`address-${index}`}
                             value={member.address}
                             onChange={(e) =>
@@ -157,6 +159,7 @@ export default function MemberInfoForm({
 
                         <input
                           type="text"
+                          aria-label={`name-${index}`}
                           id={`name-${index}`}
                           value={member.name}
                           onChange={(e) =>
@@ -176,6 +179,7 @@ export default function MemberInfoForm({
 
                         <input
                           type="text"
+                          aria-label={`weight-${index}`}
                           id={`weight-${index}`}
                           value={member.weight}
                           onChange={(e) =>

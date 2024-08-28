@@ -13,11 +13,11 @@ export default function ConfirmationModal({
   nextStep,
   prevStep,
   formData,
-}: {
+}: Readonly<{
   nextStep: () => void;
   prevStep: () => void;
   formData: FormData;
-}) {
+}>) {
   const { address } = useChain("manifest");
   const { createGroupWithPolicy } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const [isSigning, setIsSigning] = useState(false);

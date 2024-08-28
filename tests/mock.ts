@@ -9,6 +9,7 @@ import {
   ProposalStatus
 } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types";
 import {MetadataSDKType} from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
+import {FormData} from "@/helpers";
 
 export const mockDenomMeta1: MetadataSDKType = {
   description: "My First Token",
@@ -420,4 +421,18 @@ export const mockTokenFormData = {
   exponent: "6",
   label: "LabelTT",
   base: "BaseTT"
+};
+
+export const mockGroupFormData: FormData = {
+  title: 'Test Group',
+  authors: 'manifest1author',
+  summary: 'This is a test group',
+  description: 'Detailed description of the test group',
+  forumLink: 'http://forumlink.com',
+  votingPeriod: {seconds: BigInt(3600), nanos: 0},
+  votingThreshold: "2",
+  members: [
+    {address: 'manifest1member1', name: 'Member 1', weight: '1'},
+    {address: 'manifest1member2', name: 'Member 2', weight: '2'},
+  ],
 };
