@@ -6,9 +6,14 @@ import type { AppProps } from "next/app";
 import { createPortal } from "react-dom";
 import { SignData } from "@cosmos-kit/web3auth";
 import { makeWeb3AuthWallets } from "@cosmos-kit/web3auth/esm/index";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import SignModal from "@/components/react/authSignerModal";
-import { manifestAssets, manifestChain } from "@/config";
+import {
+  manifestAssets,
+  manifestChain,
+  manifestTestnetChain,
+  manifestTestnetAssets,
+} from "@/config";
 import { SignerOptions, wallets } from "cosmos-kit";
 import { ChainProvider } from "@cosmos-kit/react";
 import { Registry } from "@cosmjs/proto-signing";
@@ -27,9 +32,12 @@ import {
   cosmosAminoConverters,
   cosmosProtoRegistry,
 } from "@chalabi/manifestjs";
-import { ToastProvider } from "@/contexts";
+import { AdvancedModeProvider, ToastProvider } from "@/contexts";
 
 import MobileNav from "@/components/react/mobileNav";
+import { DynamicEndpointSelector } from "@/components/react/endpointSelector";
+
+import { useEndpointStore } from "@/store/endpointStore";
 
 // websocket stuff might delete
 // import * as Ably from "ably";
@@ -39,11 +47,16 @@ import MobileNav from "@/components/react/mobileNav";
 //   key: process.env.NEXT_PUBLIC_ABLY_API_KEY,
 // });
 
-function ManifestApp({ Component, pageProps }: AppProps) {
+type ManifestAppProps = AppProps & {
+  Component: AppProps["Component"];
+  pageProps: AppProps["pageProps"];
+};
+
+function ManifestApp({ Component, pageProps }: ManifestAppProps) {
   // signer options to support amino signing for all the different modules we use
   const signerOptions: SignerOptions = {
     signingStargate: (
-      _chain: string | Chain
+      _chain: string | Chain,
     ): SigningStargateClientOptions | undefined => {
       const mergedRegistry = new Registry([
         ...manifestProtoRegistry,
@@ -62,6 +75,28 @@ function ManifestApp({ Component, pageProps }: AppProps) {
       };
     },
   };
+
+  const { selectedEndpoint } = useEndpointStore();
+  const [isLoading, setIsLoading] = useState(false);
+  const [endpointKey, setEndpointKey] = useState(0);
+  const previousEndpointRef = useRef<typeof selectedEndpoint | undefined>(
+    undefined,
+  );
+
+  useEffect(() => {
+    if (
+      previousEndpointRef.current &&
+      previousEndpointRef.current !== selectedEndpoint
+    ) {
+      setIsLoading(true);
+      const timer = setTimeout(() => {
+        setEndpointKey((prev) => prev + 1);
+        setIsLoading(false);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+    previousEndpointRef.current = selectedEndpoint;
+  }, [selectedEndpoint]);
 
   // tanstack query client
   const client = new QueryClient();
@@ -118,10 +153,10 @@ function ManifestApp({ Component, pageProps }: AppProps) {
                 setWeb3AuthPrompt(undefined);
                 resolve(approved);
               },
-            })
+            }),
           ),
       }),
-    []
+    [],
   );
 
   // combine the web3auth wallets with the other wallets
@@ -134,65 +169,97 @@ function ManifestApp({ Component, pageProps }: AppProps) {
     setIsBrowser(true);
   }, []);
 
+  const endpointOptions = useMemo(
+    () => ({
+      isLazy: true,
+      endpoints: {
+        manifest: {
+          rpc: [
+            selectedEndpoint?.rpc ??
+              "https://nodes.chandrastation.com/rpc/manifest/",
+          ],
+          rest: [
+            selectedEndpoint?.api ??
+              "https://nodes.chandrastation.com/api/manifest/",
+          ],
+        },
+      },
+    }),
+    [selectedEndpoint],
+  );
+
   return (
     // <AblyProvider client={ablyClient}>
+
     <QueryClientProvider client={client}>
       <ReactQueryDevtools />
-      <ChainProvider
-        chains={[manifestChain]}
-        assetLists={[manifestAssets]}
-        // @ts-ignore
-        wallets={combinedWallets}
-        logLevel="NONE"
-        endpointOptions={{
-          isLazy: true,
-          endpoints: {
-            manifest: {
-              rpc: ["https://nodes.chandrastation.com/rpc/manifest/"],
-              rest: ["https://nodes.chandrastation.com/api/manifest/"],
+      {isLoading ? (
+        <div className="fixed inset-0 flex flex-col items-center justify-center bg-base-200 bg-opacity-75 z-50">
+          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-primary mb-4"></div>
+          <p className="text-xl font-semibold">Swapping endpoints...</p>
+        </div>
+      ) : (
+        <ChainProvider
+          key={endpointKey}
+          chains={
+            selectedEndpoint?.network === "testnet"
+              ? [manifestTestnetChain]
+              : [manifestChain]
+          }
+          assetLists={
+            selectedEndpoint?.network === "testnet"
+              ? [manifestTestnetAssets]
+              : [manifestAssets]
+          }
+          // @ts-ignore
+          wallets={combinedWallets}
+          logLevel="NONE"
+          endpointOptions={endpointOptions}
+          walletConnectOptions={{
+            signClient: {
+              projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_KEY ?? "",
+              relayUrl: "wss://relay.walletconnect.org",
+              metadata: {
+                name: "Alberto",
+                description: "Manifest Network Web App",
+                url: "https://alberto.com",
+                icons: [],
+              },
             },
-          },
-        }}
-        walletConnectOptions={{
-          signClient: {
-            projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_KEY ?? "",
-            relayUrl: "wss://relay.walletconnect.org",
-            metadata: {
-              name: "Alberto",
-              description: "Manifest Network Web App",
-              url: "https://alberto.com",
-              icons: [],
-            },
-          },
-        }}
-        signerOptions={signerOptions}
-        // @ts-ignore
-        walletModal={TailwindModal}
-      >
-        <ThemeProvider>
-          <ToastProvider>
-            <SideNav />
-            <MobileNav />
-            <div className="min-h-screen max-w-screen md:ml-20 sm:px-4 sm:py-2 bg-base-200 ">
-              <Component {...pageProps} />
-            </div>
+          }}
+          signerOptions={signerOptions}
+          // @ts-ignore
+          walletModal={TailwindModal}
+        >
+          <ThemeProvider>
+            <ToastProvider>
+              <AdvancedModeProvider>
+                <SideNav />
+                <MobileNav />
+                <div className="relative min-h-screen max-w-screen md:ml-20 sm:px-4 sm:py-2 bg-base-200 ">
+                  <DynamicEndpointSelector />
+                  <Component {...pageProps} />
+                </div>
 
-            {/* this is for the web3auth signing modal */}
-            {isBrowser &&
-              createPortal(
-                <SignModal
-                  visible={web3AuthPrompt !== undefined}
-                  onClose={() => web3AuthPrompt?.resolve(false)}
-                  data={web3AuthPrompt?.signData ?? ({} as SignData)}
-                  approve={() => web3AuthPrompt?.resolve(true)}
-                  reject={() => web3AuthPrompt?.resolve(false)}
-                />,
-                document.body
-              )}
-          </ToastProvider>
-        </ThemeProvider>
-      </ChainProvider>
+                {/* this is for the web3auth signing modal */}
+                {isBrowser &&
+                  createPortal(
+                    <SignModal
+                      visible={web3AuthPrompt !== undefined}
+                      onClose={() => web3AuthPrompt?.resolve(false)}
+                      data={web3AuthPrompt?.signData ?? ({} as SignData)}
+                      approve={() => web3AuthPrompt?.resolve(true)}
+                      reject={() => web3AuthPrompt?.resolve(false)}
+                    />,
+                    document.body,
+                  )}
+              </AdvancedModeProvider>
+            </ToastProvider>
+          </ThemeProvider>
+        </ChainProvider>
+      )}
     </QueryClientProvider>
+
     // </AblyProvider>
   );
 }

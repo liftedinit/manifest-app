@@ -10,12 +10,12 @@ export default function ConfirmationForm({
   prevStep,
   formData,
   address,
-}: {
+}: Readonly<{
   nextStep: () => void;
   prevStep: () => void;
   formData: TokenFormData;
   address: string;
-}) {
+}>) {
   const [isSigning, setIsSigning] = useState(false);
   const { tx } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
@@ -25,6 +25,8 @@ export default function ConfirmationForm({
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const fullDenom = `factory/${address}/${formData.subdenom}`;
+
+  // TODO: Verify `formData.denomUnits` is an array with at least 2 elements
 
   const handleConfirm = async () => {
     setIsSigning(true);
@@ -99,7 +101,7 @@ export default function ConfirmationForm({
             {renderField("Full Denom", fullDenom)}
             {renderField(
               "Full Denom Exponent",
-              formData.denomUnits[1].exponent.toString()
+              formData.denomUnits[1].exponent.toString(),
             )}
           </div>
         </div>

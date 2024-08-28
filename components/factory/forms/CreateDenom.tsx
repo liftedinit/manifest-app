@@ -9,12 +9,12 @@ export default function CreateDenom({
   formData,
   dispatch,
   address,
-}: {
+}: Readonly<{
   nextStep: () => void;
   formData: TokenFormData;
   dispatch: React.Dispatch<TokenAction>;
   address: string;
-}) {
+}>) {
   const [error, setError] = useState<string | null>(null);
   const [touched, setTouched] = useState(false);
 
@@ -30,6 +30,7 @@ export default function CreateDenom({
   const { estimateFee } = useFeeEstimation("manifest");
 
   const validateSubdenom = (value: string) => {
+    console.log("Validating subdenom", value);
     if (value.length === 0) {
       return "Subdenom is required";
     }
@@ -98,6 +99,7 @@ export default function CreateDenom({
                   </label>
                   <input
                     type="text"
+                    aria-label={"denom-input"}
                     placeholder="udenom"
                     className={`input input-bordered w-full max-w-xs ${
                       touched && error ? "input-error" : ""
@@ -107,7 +109,9 @@ export default function CreateDenom({
                     onBlur={() => setTouched(true)}
                   />
                   {touched && error && (
-                    <p className="mt-2 text-sm text-error">{error}</p>
+                    <p className="mt-2 text-sm text-error" aria-label={"error"}>
+                      {error}
+                    </p>
                   )}
                   <p className="mt-2 text-sm text-gray-500">
                     We recommend starting with &apos;u&apos; (e.g.,

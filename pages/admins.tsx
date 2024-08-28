@@ -35,12 +35,12 @@ export default function Admins() {
   const { groupByAdmin, isGroupByAdminLoading, refetchGroupByAdmin } =
     useGroupsByAdmin(
       poaParams?.admins[0] ??
-        "manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj"
+        "manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj",
     );
   const group = groupByAdmin?.groups?.[0];
 
   const isMember = group?.members?.some(
-    (member) => member?.member?.address === address
+    (member) => member?.member?.address === address,
   );
 
   return (

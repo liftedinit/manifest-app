@@ -28,10 +28,10 @@ export default function SendBox({
   ];
 
   return (
-    <div className="flex flex-col rounded-md max-h-[28.7rem] md:w-1/3 w-full min-h-[28.7rem] bg-base-100 shadow px-6 py-4">
+    <div className="flex flex-col rounded-md max-h-[28rem] md:w-1/3 w-full min-h-[28rem] bg-base-100 shadow px-6 py-4">
       <div className="flex flex-col items-center mb-6">
-        <div className="flex flex-row justify-between items-center w-full mb-4 ">
-          <h2 className="text-xl font-semibold">
+        <div className="flex flex-row justify-between items-center w-full mb-2 ">
+          <h2 className="text-lg font-semibold leading-6" aria-label="tabs">
             {isIbcTransfer ? "IBC Transfer" : "Send Tokens"}
           </h2>
 
@@ -55,6 +55,7 @@ export default function SendBox({
                   <a
                     onClick={() => setSelectedChain(chain.id)}
                     className="flex items-center"
+                    aria-label={chain.name}
                   >
                     <Image
                       src={chain.icon}
@@ -77,7 +78,7 @@ export default function SendBox({
               isIbcTransfer ? "left-[calc(50%+0px)]" : "left-[6px]"
             }`}
           ></div>
-          <div className="relative flex h-full">
+          <div className="relative flex h-full" aria-label="buttons">
             <button
               className={`flex-1 text-sm font-light z-10 transition-colors duration-300 ${
                 !isIbcTransfer ? "text-base-content" : "text-gray-600"

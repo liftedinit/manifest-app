@@ -11,18 +11,22 @@ import { useChain } from "@cosmos-kit/react";
 import { cosmos } from "@chalabi/manifestjs";
 import { Any } from "@chalabi/manifestjs/dist/codegen/google/protobuf/any";
 import { MsgSetPower } from "@chalabi/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx";
+import {
+  Cosmos_basev1beta1Msg_ToAmino,
+  Cosmos_basev1beta1Msg_InterfaceDecoder,
+} from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/tx";
 
 export function ValidatorDetailsModal({
   validator,
   modalId,
   admin,
-}: {
+}: Readonly<{
   validator: ExtendedValidatorSDKType | null;
   modalId: string;
   admin: string;
-}) {
+}>) {
   const [power, setPowerInput] = useState(
-    validator?.consensus_power?.toString() || ""
+    validator?.consensus_power?.toString() || "",
   );
   const { tx } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
@@ -43,7 +47,7 @@ export function ValidatorDetailsModal({
     event.preventDefault();
     event.stopPropagation();
     const modal = document.getElementById(
-      `validator-description-modal`
+      `validator-description-modal`,
     ) as HTMLDialogElement;
     modal?.showModal();
   };
@@ -159,7 +163,7 @@ export function ValidatorDetailsModal({
               )}
             </div>
 
-            <span className="text-md rounded-md">
+            <span className="text-md rounded-md" aria-label="details">
               {validator.description.details
                 ? validator.description.details.substring(0, 50) +
                   (validator.description.details.length > 50 ? "..." : "")

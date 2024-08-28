@@ -1,4 +1,4 @@
-import { PiSunThin, PiMoonThin } from "react-icons/pi";
+import { PiSunThin, PiMoonThin, PiGearSixThin } from "react-icons/pi";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -11,13 +11,16 @@ import {
 import { useRouter } from "next/router";
 import { IconWallet, WalletSection } from "../wallet";
 import { useTheme } from "@/contexts/theme";
+import { useAdvancedMode } from "@/contexts";
+import SettingsModal from "./settingsModal";
 
 export default function SideNav() {
   const [isDrawerVisible, setDrawerVisible] = useState(false);
-
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isdark, setIsdark] = useState(false);
 
   const { toggleTheme } = useTheme();
+  const { isAdvancedMode, toggleAdvancedMode } = useAdvancedMode();
 
   useEffect(() => {
     const storedIsDark = localStorage.getItem("isdark");
@@ -32,26 +35,27 @@ export default function SideNav() {
   }, [isdark]);
 
   const toggleDrawer = () => setDrawerVisible(!isDrawerVisible);
+
   const NavItem: React.FC<{ Icon: React.ElementType; href: string }> = ({
     Icon,
     href,
   }) => {
     const { pathname } = useRouter();
-
     const isActive = pathname === href;
-
-    const iconClassName = `w-8 h-8 transition-all duration-300 ease-in-out ${
-      isActive ? "text-primary scale-105" : "hover:text-primary"
-    }`;
+    const tooltipText = href.split("/")[1] || href;
 
     return (
-      <li>
+      <li className="relative group z-50">
         <Link href={href} passHref legacyBehavior>
-          <a className="group active:scale-95  hover:ring-2 hover:ring-primary flex justify-center p-1 items-center mt-8 rounded-lg transition-all duration-300 ease-in-out">
-            <Icon className={iconClassName} />
-            <div className="tooltip absolute z-10 w-full invisible ml-3 group-hover:visible inline-block px-3 left-[4.5rem] text-white py-2 text-sm font-medium rounded-lg shadow-sm opacity-0 group-hover:opacity-100 bg-primary transition-all duration-300 ease-in-out ">
-              {href.split("/")}
-            </div>
+          <a className="group active:scale-95 hover:ring-2 hover:ring-primary flex justify-center p-1 items-center mt-8 rounded-lg transition-all duration-300 ease-in-out">
+            <Icon
+              className={`w-8 h-8 transition-all duration-300 ease-in-out ${
+                isActive ? "text-primary scale-105" : "hover:text-primary"
+              }`}
+            />
+            <span className="tooltip absolute z-50 left-full ml-2 px-3 py-2 bg-primary text-white text-sm font-medium rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-in-out whitespace-nowrap">
+              {tooltipText}
+            </span>
           </a>
         </Link>
       </li>
@@ -82,6 +86,12 @@ export default function SideNav() {
         <div className="w-full mx-auto flex flex-col items-center justify-center">
           <IconWallet chainName="manifest" />
         </div>
+        <button
+          onClick={() => setIsSettingsModalOpen(true)}
+          className="w-full mx-auto flex items-center justify-center hover:text-primary transition-all duration-300 ease-in-out pb-2"
+        >
+          <PiGearSixThin className="w-8 h-8" />
+        </button>
         <label className="swap swap-rotate mx-auto hover:text-primary transition-all duration-300 ease-in-out">
           <input
             type="checkbox"
@@ -207,6 +217,10 @@ export default function SideNav() {
       >
         <SideDrawer />
       </aside>
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+      />
     </>
   );
 }

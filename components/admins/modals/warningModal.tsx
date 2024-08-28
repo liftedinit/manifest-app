@@ -21,7 +21,7 @@ export function WarningModal({
   modalId,
   address,
   isActive,
-}: WarningModalProps) {
+}: Readonly<WarningModalProps>) {
   const { tx } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
   const { address: userAddress } = useChain(chainName);

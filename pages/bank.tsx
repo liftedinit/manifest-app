@@ -5,6 +5,8 @@ import { chainName } from "@/config";
 import {
   useGroupsByAdmin,
   usePoaParams,
+  useSendTxIncludingAddressQuery,
+  useSendTxQuery,
   useTokenBalances,
   useTokenBalancesResolved,
   useTokenFactoryDenoms,
@@ -15,6 +17,7 @@ import { MetadataSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1
 import { useChain } from "@cosmos-kit/react";
 import Head from "next/head";
 import React, { useMemo } from "react";
+import { HistoryBox } from "@/components";
 
 export type CombinedBalanceInfo = {
   denom: string;
@@ -26,7 +29,7 @@ export type CombinedBalanceInfo = {
 export default function Bank() {
   const { address, isWalletConnected } = useChain(chainName);
   const { balances, isBalancesLoading, refetchBalances } = useTokenBalances(
-    address ?? ""
+    address ?? "",
   );
   const {
     balances: resolvedBalances,
@@ -39,13 +42,9 @@ export default function Bank() {
   const { groupByAdmin, isGroupByAdminLoading, refetchGroupByAdmin } =
     useGroupsByAdmin(
       poaParams?.admins[0] ??
-        "manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj"
+        "manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj",
     );
   const group = groupByAdmin?.groups?.[0];
-
-  const isMember = group?.members?.some(
-    (member) => member?.member?.address === address
-  );
 
   const combinedBalances = useMemo(() => {
     if (!balances || !resolvedBalances || !metadatas) return [];
@@ -55,10 +54,10 @@ export default function Bank() {
         const resolvedBalance = resolvedBalances.find(
           (rb: { denom: string | undefined }) =>
             rb.denom === coreBalance.denom ||
-            rb.denom === coreBalance.denom.split("/").pop()
+            rb.denom === coreBalance.denom.split("/").pop(),
         );
         const metadata = metadatas.metadatas.find(
-          (m: { base: string }) => m.base === coreBalance.denom
+          (m: { base: string }) => m.base === coreBalance.denom,
         );
 
         return {
@@ -67,7 +66,7 @@ export default function Bank() {
           amount: coreBalance.amount,
           metadata: metadata || null,
         };
-      }
+      },
     );
   }, [balances, resolvedBalances, metadatas]);
 
@@ -77,6 +76,8 @@ export default function Bank() {
     isDenomsLoading ||
     isMetadatasLoading ||
     isPoaParamsLoading;
+
+  const { sendTxs, refetch } = useSendTxIncludingAddressQuery(address ?? "");
 
   return (
     <>
@@ -173,16 +174,21 @@ export default function Bank() {
                   <SendBox
                     balances={combinedBalances}
                     isBalancesLoading={resolvedLoading}
-                    refetchBalances={resolveRefetch}
+                    refetchBalances={
+                      resolveRefetch || refetch || refetchBalances
+                    }
                     address={address ?? ""}
                   />
                   <TokenList
-                    admin={
-                      "manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj"
-                    }
                     balances={combinedBalances}
                     isLoading={resolvedLoading}
-                    isMember={isMember}
+                  />
+                </div>
+                <div className="flex flex-col w-full gap-4 mt-4">
+                  <HistoryBox
+                    address={address ?? ""}
+                    send={sendTxs ?? []}
+                    isLoading={resolvedLoading}
                   />
                 </div>
               </div>

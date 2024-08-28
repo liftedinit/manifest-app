@@ -5,10 +5,10 @@ import Link from "next/link";
 export default function ProposalSuccess({
   formData,
   prevStep,
-}: {
+}: Readonly<{
   formData: ProposalFormData;
   prevStep: () => void;
-}) {
+}>) {
   const renderProposers = () => {
     if (formData.proposers.startsWith("manifest")) {
       return (
@@ -58,7 +58,11 @@ export default function ProposalSuccess({
             </div>
             <div>
               <h3 className="text-md font-light text-gray-400">PROPOSER(S)</h3>
-              <p className="text-lg font-medium">{renderProposers()}</p>
+              {/*
+                TODO: Verify the render is correct.
+                      I changed the <p> to a <div> here because <div> (in TruncatedAddressWithCopy) cannot be a descendant of <p>
+              */}
+              <div className="text-lg font-medium">{renderProposers()}</div>
             </div>
             <div className="col-span-1 md:col-span-2">
               <h3 className="text-md font-light text-gray-400">SUMMARY</h3>

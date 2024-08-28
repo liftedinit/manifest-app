@@ -3,6 +3,7 @@ import ProfileAvatar from "@/utils/identicon";
 import { truncateString } from "@/utils";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
+import { ProposalSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types";
 
 export function YourGroups({
   groups,
@@ -11,14 +12,14 @@ export function YourGroups({
   refetchGroupByMember,
   onSelectGroup,
   proposals,
-}: {
+}: Readonly<{
   groups: ExtendedQueryGroupsByMemberResponseSDKType;
   groupByMemberDataLoading: boolean;
   groupByMemberDataError: Error | null | boolean;
   refetchGroupByMember: () => void;
   onSelectGroup: (policyAddress: string) => void;
-  proposals: any;
-}) {
+  proposals: any; // TODO: Define type
+}>) {
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
@@ -66,8 +67,19 @@ export function YourGroups({
   );
 
   const filteredGroups = groups.groups.filter((group) =>
-    group.ipfsMetadata?.title?.toLowerCase().includes(searchQuery.toLowerCase())
+    group.ipfsMetadata?.title
+      ?.toLowerCase()
+      .includes(searchQuery.toLowerCase()),
   );
+
+  const filterProposals = (proposals: ProposalSDKType[]) => {
+    return proposals.filter(
+      (proposal) =>
+        proposal.status.toString() !== "PROPOSAL_STATUS_ACCEPTED" &&
+        proposal.status.toString() !== "PROPOSAL_STATUS_REJECTED" &&
+        proposal.status.toString() !== "PROPOSAL_STATUS_WITHDRAWN",
+    );
+  };
 
   return (
     <div className="flex flex-col rounded-md max-h-[23rem]  min-h-[23rem] bg-base-100  shadow w-full p-4">
@@ -79,7 +91,7 @@ export function YourGroups({
             placeholder="Search..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="input input-bordered input-sm w-1/3 max-w-xs"
+            className="input input-bordered input-xs  w-1/3 max-w-xs"
           />
         </div>
         <div className="divider divider-horizon -mt-2"></div>
@@ -99,10 +111,15 @@ export function YourGroups({
                 }`}
                 onClick={() => handleGroupSelect(policyAddress)}
               >
-                {proposals[group?.policies[0]?.address ?? ""]?.length > 0 && (
+                {filterProposals(proposals[group?.policies[0]?.address ?? ""])
+                  .length > 0 && (
                   <div className="absolute top-1 shadow-inner right-1 w-5 h-5 text-sm rounded-full bg-secondary flex justify-center items-center">
                     <span className="text-center">
-                      {proposals[group?.policies[0]?.address ?? ""]?.length}
+                      {
+                        filterProposals(
+                          proposals[group?.policies[0]?.address ?? ""],
+                        )?.length
+                      }
                     </span>
                   </div>
                 )}
@@ -114,7 +131,7 @@ export function YourGroups({
                   <h5 className="text-base font-medium truncate">
                     {truncateString(
                       group.ipfsMetadata?.title ?? "Untitled Group",
-                      24
+                      24,
                     )}
                   </h5>
                 </div>

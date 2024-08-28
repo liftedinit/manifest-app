@@ -1,45 +1,40 @@
-import {
-  ExtendedQueryGroupsByMemberResponseSDKType,
-  useBalance,
-} from "@/hooks/useQueries";
-import { GroupDetailsModal } from "../modals/groupDetailsModal";
+import { useBalance } from "@/hooks/useQueries";
+import { GroupDetailsModal, UpdateGroupModal } from "@/components";
 import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
-import Link from "next/link";
-import { shiftDigits, truncateString } from "@/utils";
-import { Key, useEffect, useState } from "react";
+import { shiftDigits } from "@/utils";
+import { Key } from "react";
 import { PiArrowUpRightLight } from "react-icons/pi";
-import { UpdateGroupModal } from "../modals/updateGroupModal";
 
 export function GroupInfo({
   group,
-  groupByMemberDataLoading,
-  groupByMemberDataError,
-  refetchGroupByMember,
   address,
   policyAddress,
-}: {
-  group: any;
+}: Readonly<{
+  group: any; // TODO: Define type
   groupByMemberDataLoading: boolean;
   groupByMemberDataError: Error | null | boolean;
   refetchGroupByMember: () => void;
   address: string;
   policyAddress: string;
-}) {
-  const { balance } = useBalance(group?.policies?.[0]?.address);
+}>) {
+  // TODO: The policy address is passed to this component but we still use `group.policies?.[0]?.address` to get the policy address
+
+  const maybeAuthors = group?.ipfsMetadata?.authors;
+  const maybePolicies = group?.policies?.[0];
+
+  const threshold =
+    maybePolicies?.decision_policy?.threshold ?? "No threshold available";
+
+  const { balance } = useBalance(maybePolicies?.address);
 
   const renderAuthors = () => {
-    if (group?.ipfsMetadata?.authors) {
-      if (group.ipfsMetadata.authors.startsWith("manifest")) {
-        return (
-          <TruncatedAddressWithCopy
-            address={group.ipfsMetadata.authors}
-            slice={14}
-          />
-        );
-      } else if (group.ipfsMetadata.authors.includes(",")) {
+    if (maybeAuthors) {
+      if (maybeAuthors.startsWith("manifest")) {
+        return <TruncatedAddressWithCopy address={maybeAuthors} slice={14} />;
+      } else if (maybeAuthors.includes(",")) {
         return (
           <div className="flex flex-wrap gap-2">
-            {group.ipfsMetadata.authors
+            {maybeAuthors
               .split(",")
               .map((author: string, index: Key | null | undefined) => (
                 <div key={index}>
@@ -56,7 +51,7 @@ export function GroupInfo({
           </div>
         );
       } else {
-        return <span>{group.ipfsMetadata.authors}</span>;
+        return <span>{maybeAuthors}</span>;
       }
     } else {
       return <span>No authors available</span>;
@@ -72,11 +67,12 @@ export function GroupInfo({
             <button
               onClick={() => {
                 const modal = document.getElementById(
-                  `update_group_${group?.id}`
+                  `update_group_${group?.id}`,
                 ) as HTMLDialogElement;
                 modal?.showModal();
               }}
               className="btn-xs btn btn-primary "
+              aria-label="update-btn"
             >
               Update
             </button>
@@ -132,14 +128,14 @@ export function GroupInfo({
                   <span className="text-sm  capitalize text-gray-400 truncate">
                     POLICY ADDRESS
                   </span>
-                  <p className="text-md  ">
+                  <span className="text-md  ">
                     <TruncatedAddressWithCopy
                       address={
                         group?.policies?.[0]?.address ?? "No address available"
                       }
                       slice={12}
                     />
-                  </p>
+                  </span>
                 </div>
                 <div className="flex flex-col bg-base-300 p-4 rounded-md  gap-2 justify-left items-left">
                   <span className="text-sm  capitalize text-gray-400">
@@ -147,9 +143,12 @@ export function GroupInfo({
                   </span>
                   <div className="flex flex-row justify-between items-start">
                     <span className="text-md">
-                      {group?.policies?.[0]?.decision_policy?.threshold ??
-                        "No threshold available"}{" "}
-                      / {group?.total_weight ?? "No total weight available"}
+                      {maybePolicies.decision_policy?.threshold &&
+                      group?.total_weight
+                        ? `${maybePolicies.decision_policy.threshold} / ${group.total_weight}`
+                        : maybePolicies.decision_policy?.threshold
+                          ? "No total weight available"
+                          : "No threshold available"}
                     </span>
 
                     <div className="flex-row  justify-between items-center gap-2 hidden md:flex">
@@ -157,7 +156,7 @@ export function GroupInfo({
                         className="btn btn-xs btn-secondary "
                         onClick={() => {
                           const modal = document.getElementById(
-                            `group_modal_${group?.id}`
+                            `group_modal_${group?.id}`,
                           ) as HTMLDialogElement;
                           modal?.showModal();
                         }}

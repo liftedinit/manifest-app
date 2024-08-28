@@ -3,6 +3,7 @@ import { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { MetadataSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
 import { DenomImage } from "./DenomImage";
+
 export default function MyDenoms({
   denoms,
   isLoading,
@@ -59,12 +60,15 @@ export default function MyDenoms({
 
   const renderSkeleton = () => (
     <div className="py-8">
-      <div className="skeleton rounded-md mx-auto h-16 w-5/6"></div>
+      <div
+        className="skeleton rounded-md mx-auto h-16 w-5/6"
+        aria-label="skeleton"
+      ></div>
     </div>
   );
 
   const filteredDenoms = denoms?.filter((denom) =>
-    denom?.display.toLowerCase().includes(searchQuery.toLowerCase())
+    denom?.display.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
@@ -77,7 +81,7 @@ export default function MyDenoms({
             placeholder="Search..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="input input-bordered input-sm w-1/3 max-w-xs"
+            className="input input-bordered input-xs w-1/3 max-w-xs"
           />
         </div>
         <div className="divider divider-horizon -mt-2"></div>

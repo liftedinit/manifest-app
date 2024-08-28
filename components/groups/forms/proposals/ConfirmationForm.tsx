@@ -52,13 +52,13 @@ export default function ConfirmationModal({
   prevStep,
   formData,
   address,
-}: {
+}: Readonly<{
   policyAddress: string;
   nextStep: () => void;
   prevStep: () => void;
   formData: ProposalFormData;
   address: string;
-}) {
+}>) {
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
   type MessageTypeMap = {
@@ -127,29 +127,31 @@ export default function ConfirmationModal({
   };
   const snakeToCamel = (str: string): string =>
     str.replace(/([-_][a-z])/gi, ($1) =>
-      $1.toUpperCase().replace("-", "").replace("_", "")
+      $1.toUpperCase().replace("-", "").replace("_", ""),
     );
 
   const convertKeysToCamelCase = (obj: any): any => {
     if (Array.isArray(obj)) {
       return obj.map((v) => convertKeysToCamelCase(v));
     } else if (obj !== null && typeof obj === "object") {
-      return Object.keys(obj).reduce((acc, key) => {
-        acc[snakeToCamel(key)] = convertKeysToCamelCase(obj[key]);
-        return acc;
-      }, {} as Record<string, any>);
+      return Object.keys(obj).reduce(
+        (acc, key) => {
+          acc[snakeToCamel(key)] = convertKeysToCamelCase(obj[key]);
+          return acc;
+        },
+        {} as Record<string, any>,
+      );
     }
     return obj;
   };
 
   const getMessageObject = (
-    message: { type: keyof MessageTypeMap } & Record<string, any>
+    message: { type: keyof MessageTypeMap } & Record<string, any>,
   ): Any => {
-    console.log("Processing message:", JSON.stringify(message, null, 2));
     const composer = messageTypeToComposer[message.type];
     if (composer) {
       let messageData = JSON.parse(JSON.stringify(message));
-      console.log("Message data:", messageData);
+
       delete messageData.type;
 
       messageData = convertKeysToCamelCase(messageData);
@@ -157,14 +159,13 @@ export default function ConfirmationModal({
         messageData.amount = [messageData.amount];
       }
       const composedMessage = composer(
-        messageData as MessageTypeMap[typeof message.type]
+        messageData as MessageTypeMap[typeof message.type],
       );
-      console.log("Composed message:", composedMessage);
 
       if (!composedMessage || !composedMessage.value) {
         console.error(
           "Composed message or its value is undefined:",
-          composedMessage
+          composedMessage,
         );
         throw new Error(`Failed to compose message for type: ${message.type}`);
       }
@@ -176,7 +177,7 @@ export default function ConfirmationModal({
       ) {
         console.error("Invalid composedMessage structure:", composedMessage);
         throw new Error(
-          `Invalid composedMessage structure for type: ${message.type}`
+          `Invalid composedMessage structure for type: ${message.type}`,
         );
       }
 
@@ -250,21 +251,18 @@ export default function ConfirmationModal({
           break;
         default:
           throw new Error(
-            `No encode function found for message type: ${message.type}`
+            `No encode function found for message type: ${message.type}`,
           );
       }
 
       if (!encodeFunction) {
         throw new Error(
-          `Encode function not set for message type: ${message.type}`
+          `Encode function not set for message type: ${message.type}`,
         );
       }
 
       try {
-        console.log("Composed message value:", composedMessage.value);
         const encodedValue = encodeFunction(composedMessage.value).finish();
-
-        console.log("Encoded value:", encodedValue);
 
         const anyMessage = Any.fromPartial({
           typeUrl: composedMessage.typeUrl,
@@ -307,7 +305,7 @@ export default function ConfirmationModal({
     const CID = await uploadMetaDataToIPFS();
     //TODO: messages are not being processed correctly. Message info is not being passed to getMessageObject
     const messages: Any[] = formData.messages.map((message) =>
-      getMessageObject(message)
+      getMessageObject(message),
     );
 
     const msg = submitProposal({
@@ -343,7 +341,12 @@ export default function ConfirmationModal({
               <div className="flex flex-row justify-between items-start gap-5">
                 {/* Proposal Details */}
                 <div className="flex w-1/2 flex-col gap-2 justify-between items-start">
-                  <label className="block  text-lg font-light">DETAILS</label>
+                  <label
+                    className="block  text-lg font-light"
+                    aria-label={"proposal-details"}
+                  >
+                    DETAILS
+                  </label>
                   <div className="grid gap-5 mb-4 sm:grid-cols-1 bg-base-300 h-40 shadow w-full rounded-lg p-4">
                     <div>
                       <label
@@ -416,7 +419,10 @@ export default function ConfirmationModal({
                 </div>
                 <div className="flex flex-col mt-4">
                   <a className="text-sm font-light text-gray-400">DETAILS</a>
-                  <div className="max-h-24 mt-2 overflow-y-auto rounded-md bg-base-100 p-4">
+                  <div
+                    className="max-h-24 mt-2 overflow-y-auto rounded-md bg-base-100 p-4"
+                    aria-label={"meta-details"}
+                  >
                     <a className="text-sm text-pretty">
                       {formData.metadata.details}
                     </a>

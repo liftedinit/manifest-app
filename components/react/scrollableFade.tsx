@@ -10,7 +10,7 @@ const ScrollableFade: React.FC<{ children: React.ReactNode }> = ({
     if (scrollRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
       setShowFade(
-        scrollHeight > clientHeight && scrollTop < scrollHeight - clientHeight
+        scrollHeight > clientHeight && scrollTop < scrollHeight - clientHeight,
       );
     }
   };

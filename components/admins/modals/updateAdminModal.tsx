@@ -18,7 +18,7 @@ export function UpdateAdminModal({
   admin,
   userAddress,
   allowExit,
-}: UpdateModalProps) {
+}: Readonly<UpdateModalProps>) {
   const [newAdmin, setNewAdmin] = useState("");
   const [isValidAddress, setIsValidAddress] = useState(false);
 

@@ -29,7 +29,7 @@ export const TailwindModal: React.FC<WalletModalProps> = ({
   const router = useRouter();
 
   const [currentView, setCurrentView] = useState<ModalView>(
-    ModalView.WalletList
+    ModalView.WalletList,
   );
   const [qrWallet, setQRWallet] = useState<ChainWalletBase | undefined>();
 
@@ -77,7 +77,7 @@ export const TailwindModal: React.FC<WalletModalProps> = ({
         }
       }, 1);
     },
-    [walletRepo]
+    [walletRepo],
   );
 
   const onCloseModal = useCallback(() => {

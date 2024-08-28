@@ -14,6 +14,15 @@ const supportedDomains = [
   "images.unsplash.com",
   "media.giphy.com",
   "media.istockphoto.com",
+  "imgix.net",
+  "staticflickr.com",
+  "twimg.com",
+  "pinimg.com",
+  "giphy.com",
+  "dropboxusercontent.com",
+  "googleusercontent.com",
+  "unsplash.com",
+  "istockphoto.com",
 ];
 
 const supportedPatterns = [
@@ -29,6 +38,15 @@ const supportedPatterns = [
   /^https:\/\/.*\.googleusercontent\.com/,
   /^https:\/\/.*\.unsplash\.com/,
   /^https:\/\/.*\.istockphoto\.com/,
+  /^https:\/\/.*\.media\.giphy\.com/,
+  /^https:\/\/.*\.media\.istockphoto\.com/,
+  /^https:\/\/.*\.images\.unsplash\.com/,
+  /^https:\/\/.*\.media\.istockphoto\.com/,
+  /^https:\/\/.*\.imgix\.net/,
+  /^https:\/\/.*\.staticflickr\.com/,
+  /^https:\/\/.*\.twimg\.com/,
+  /^https:\/\/.*\.pinimg\.com/,
+  /^https:\/\/.*\.giphy\.com/,
 ];
 
 const isUrlSupported = (url: string) => {
@@ -49,14 +67,25 @@ export const DenomImage = ({ denom }: { denom: any }) => {
   const [isSupported, setIsSupported] = useState(false);
 
   useEffect(() => {
-    if (denom.uri) {
-      setIsSupported(isUrlSupported(denom.uri));
-    }
-    setIsLoading(false);
-  }, [denom.uri]);
+    const checkUri = async () => {
+      if (denom?.uri) {
+        setIsSupported(isUrlSupported(denom.uri));
+        // Simulate a delay to show the loading state
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+      setIsLoading(false);
+    };
+
+    checkUri();
+  }, [denom?.uri]);
 
   if (isLoading) {
-    return <div className="skeleton w-8 h-8 rounded-full"></div>;
+    return (
+      <div
+        className="skeleton w-8 h-8 rounded-full animate-pulse bg-gray-300"
+        aria-label="denom image skeleton"
+      ></div>
+    );
   }
 
   // Check for MFX token first
@@ -67,7 +96,7 @@ export const DenomImage = ({ denom }: { denom: any }) => {
         height={0}
         src="/logo.svg"
         alt="MFX Token Icon"
-        className=" w-[28px] h-[28px] ml-1"
+        className="w-[28px] h-[28px] ml-1"
       />
     );
   }

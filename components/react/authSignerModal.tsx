@@ -73,13 +73,13 @@ const DisplayDataToSign = ({ data, address }: DisplayDataToSignProps) => {
         return JSON.stringify(
           decodedValue,
           (_, v) => (typeof v === "bigint" ? v.toString() : v),
-          2
+          2,
         );
       }
       return JSON.stringify(
         value,
         (_, v) => (typeof v === "bigint" ? v.toString() : v),
-        2
+        2,
       );
     }
     if (typeof value === "bigint") {
@@ -133,16 +133,16 @@ const SignModal = ({
     }
   }, [visible]);
 
+  const walletIconString = walletIcon?.toString() ?? "";
+
   return (
     <dialog id="sign-modal" className="modal top-0 right-0">
       <div className="modal-box max-w-md w-full">
         <div className="flex justify-between items-center border-b pb-2 border-gray-600">
           <div className="flex items-center gap-3">
-            <Image
-              src={walletIcon?.toString() ?? ""}
+            <img
+              src={walletIconString}
               alt="Wallet type logo"
-              width={32}
-              height={32}
               className="flex-shrink-0 aspect-1"
             />
             <h3 className="text-xl font-medium">

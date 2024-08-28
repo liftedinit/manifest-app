@@ -5,10 +5,10 @@ import Link from "next/link";
 export default function Success({
   formData,
   prevStep,
-}: {
+}: Readonly<{
   formData: FormData;
   prevStep: () => void;
-}) {
+}>) {
   const renderAuthors = () => {
     if (formData.authors.startsWith("manifest")) {
       return <TruncatedAddressWithCopy address={formData.authors} slice={14} />;
@@ -42,12 +42,16 @@ export default function Success({
           You may now interact with your group by adding members, submitting or
           voting on proposals, and changing group parameters.
         </p>
-        <p className="text-md text-gray-300 mb-6 text-pretty">
+        {/*
+          TODO: Verify the render is correct.
+                I changed the <p> to a <div> here because <div> (in TruncatedAddressWithCopy) cannot be a descendant of <p>
+        */}
+        <div className="text-md text-gray-300 mb-6 text-pretty">
           Remember to fund your group by sending tokens to the policy address{" "}
           <span>
             <TruncatedAddressWithCopy address="address" slice={24} />
           </span>
-        </p>
+        </div>
         <div className="border-t border-gray-700 pt-4">
           <h2 className="text-2xl font-semibold mb-4">Group Details</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -57,7 +61,11 @@ export default function Success({
             </div>
             <div>
               <h3 className="text-md font-light text-gray-400">AUTHORS</h3>
-              <p className="text-lg font-medium">{renderAuthors()}</p>
+              {/*
+                TODO: Verify the render is correct.
+                      I changed the <p> to a <div> here because <div> (in TruncatedAddressWithCopy) cannot be a descendant of <p>
+              */}
+              <div className="text-lg font-medium">{renderAuthors()}</div>
             </div>
             <div className="col-span-1 md:col-span-2">
               <h3 className="text-md font-light text-gray-400">SUMMARY</h3>

@@ -32,10 +32,10 @@ export default function TransferForm({
     setIsSigning(true);
     try {
       const exponent =
-        denom.denom_units.find((unit) => unit.denom === denom.display)
+        denom?.denom_units?.find((unit) => unit.denom === denom.display)
           ?.exponent || 0;
       const amountInBaseUnits = BigInt(
-        parseFloat(amount) * Math.pow(10, exponent)
+        parseFloat(amount) * Math.pow(10, exponent),
       ).toString();
       const msg = forceTransfer({
         sender: address,
@@ -82,12 +82,14 @@ export default function TransferForm({
         <div className="grid grid-cols-2 gap-4">
           <div>
             <p className="text-sm text-gray-500">CIRCULATING SUPPLY</p>
-            <p className="font-semibold text-md">{denom.symbol}</p>
+            <p className="font-semibold text-md max-w-[20ch] truncate">
+              {denom.symbol}
+            </p>
           </div>
           <div>
             <p className="text-md text-gray-500">EXPONENT</p>
             <p className="font-semibold text-md">
-              {denom.denom_units[1].exponent}
+              {denom?.denom_units[1]?.exponent}
             </p>
           </div>
         </div>

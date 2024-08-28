@@ -23,7 +23,7 @@ interface Group {
     metadata: string;
     ipfsMetadata: IPFSMetadata | null;
     members: { group_id: string; member: Member }[];
-    policies: any[];
+    policies: any[]; // TODO: Define type
   };
   address: string;
 }
@@ -37,6 +37,18 @@ export function UpdateGroupModal({
   const { tx } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
 
+  const maybeIpfsMetadata = group?.ipfsMetadata;
+  const maybeTitle = maybeIpfsMetadata?.title;
+  const maybeAuthors = maybeIpfsMetadata?.authors;
+  const maybeSummary = maybeIpfsMetadata?.summary;
+  const maybeProposalForumURL = maybeIpfsMetadata?.proposalForumURL;
+  const maybeDetails = maybeIpfsMetadata?.details;
+  const maybePolicies = group?.policies?.[0];
+  const maybeDecisionPolicy = maybePolicies?.decision_policy;
+  const maybeThreshold = maybeDecisionPolicy?.threshold;
+  const maybeVotingPeriod = maybeDecisionPolicy?.windows?.voting_period;
+  const maybeMembers = group?.members;
+
   const {
     updateGroupAdmin,
     updateGroupMembers,
@@ -46,29 +58,22 @@ export function UpdateGroupModal({
     updateGroupPolicyMetadata,
   } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
-  const [name, setName] = useState(group.ipfsMetadata?.title || "");
-  const [authors, setAuthors] = useState(group.ipfsMetadata?.authors || "");
-  const [summary, setSummary] = useState(group.ipfsMetadata?.summary || "");
-  const [forum, setForum] = useState(
-    group.ipfsMetadata?.proposalForumURL || ""
-  );
-  const [description, setDescription] = useState(
-    group.ipfsMetadata?.details || ""
-  );
-  const [threshold, setThreshold] = useState(
-    group.policies[0]?.decision_policy?.threshold || ""
-  );
+  const [name, setName] = useState(maybeTitle ?? "");
+  const [authors, setAuthors] = useState(maybeAuthors ?? "");
+  const [summary, setSummary] = useState(maybeSummary ?? "");
+  const [forum, setForum] = useState(maybeProposalForumURL ?? "");
+  const [description, setDescription] = useState(maybeDetails ?? "");
+  const [threshold, setThreshold] = useState(maybeThreshold ?? "");
   const [windowInput, setWindowInput] = useState("");
   const [votingUnit, setVotingUnit] = useState("days");
   const [isSigning, setIsSigning] = useState(false);
 
   useEffect(() => {
-    setName(group.ipfsMetadata?.title || "");
-    setAuthors(group.ipfsMetadata?.authors || "");
-    setSummary(group.ipfsMetadata?.summary || "");
-    setForum(group.ipfsMetadata?.proposalForumURL || "");
-    setDescription(group.ipfsMetadata?.details || "");
-    setThreshold(group.policies[0]?.decision_policy?.threshold || "");
+    setAuthors(maybeAuthors ?? "");
+    setSummary(maybeSummary ?? "");
+    setForum(maybeProposalForumURL ?? "");
+    setDescription(maybeDetails ?? "");
+    setThreshold(maybeThreshold ?? "");
   }, [group]);
 
   const convertToSeconds = (input: string, unit: string) => {
@@ -94,7 +99,7 @@ export function UpdateGroupModal({
   };
 
   const [windowSeconds, setWindowSeconds] = useState(() =>
-    convertToSeconds(windowInput, votingUnit)
+    convertToSeconds(windowInput, votingUnit),
   );
 
   const handleUnitChange = (e: { target: { value: any } }) => {
@@ -109,9 +114,7 @@ export function UpdateGroupModal({
     setWindowSeconds(convertToSeconds(newValue, votingUnit));
   };
 
-  const votingWindow = parseFloat(
-    group?.policies[0]?.decision_policy?.windows?.voting_period.slice(0, -1)
-  );
+  const votingWindow = parseFloat(maybeVotingPeriod?.slice(0, -1));
 
   let formattedVotingWindow;
   switch (votingUnit) {
@@ -137,12 +140,12 @@ export function UpdateGroupModal({
   };
 
   const isPolicyAdmin = (address: string) => {
-    const adminAddresses = [group.policies[0]?.admin].filter(Boolean);
+    const adminAddresses = [maybePolicies?.admin].filter(Boolean);
     return adminAddresses.includes(address);
   };
 
   const initializeMembers = () => {
-    return group.members.map((member) => ({
+    return maybeMembers?.map((member) => ({
       group_id: member.group_id,
       member: member.member,
       isCoreMember: true,
@@ -180,8 +183,8 @@ export function UpdateGroupModal({
       members.map((member, idx) =>
         idx === index
           ? { ...member, member: { ...member.member, [field]: value } }
-          : member
-      )
+          : member,
+      ),
     );
   };
 
@@ -194,7 +197,7 @@ export function UpdateGroupModal({
         member: { ...member.member, weight: member.isActive ? "0" : "1" },
       };
       setMembers(
-        members.map((mem, idx) => (idx === index ? updatedMember : mem))
+        members.map((mem, idx) => (idx === index ? updatedMember : mem)),
       );
     } else {
       setMembers(members.filter((_, idx) => idx !== index));
@@ -216,14 +219,14 @@ export function UpdateGroupModal({
     if (hasStateChanged(newAdmin, group.admin)) {
       const msg = updateGroupAdmin({
         admin: group.admin,
-        groupId: BigInt(group?.members[0]?.group_id),
+        groupId: BigInt(maybeMembers?.[0]?.group_id),
         newAdmin: newAdmin ?? "",
       });
       messages.push(
         Any.fromPartial({
           typeUrl: cosmos.group.v1.MsgUpdateGroupAdmin.typeUrl,
           value: cosmos.group.v1.MsgUpdateGroupAdmin.encode(msg.value).finish(),
-        })
+        }),
       );
     }
 
@@ -232,21 +235,21 @@ export function UpdateGroupModal({
       (member, index) =>
         hasStateChanged(
           member.member.address,
-          group.members[index]?.member.address
+          group.members[index]?.member.address,
         ) ||
         hasStateChanged(
           member.member.metadata,
-          group.members[index]?.member.metadata
+          group.members[index]?.member.metadata,
         ) ||
         hasStateChanged(
           member.member.weight,
-          group.members[index]?.member.weight
-        )
+          group.members[index]?.member.weight,
+        ),
     );
     if (membersChanged) {
       const msg = updateGroupMembers({
         admin: group.admin,
-        groupId: BigInt(group?.members[0]?.group_id),
+        groupId: BigInt(maybeMembers?.[0]?.group_id),
         memberUpdates: members.map((member) => ({
           address: member.member.address,
           metadata: member.member.metadata,
@@ -257,19 +260,19 @@ export function UpdateGroupModal({
         Any.fromPartial({
           typeUrl: cosmos.group.v1.MsgUpdateGroupMembers.typeUrl,
           value: cosmos.group.v1.MsgUpdateGroupMembers.encode(
-            msg.value
+            msg.value,
           ).finish(),
-        })
+        }),
       );
     }
 
     // Update Group Metadata
     if (
-      hasStateChanged(name, group.ipfsMetadata?.title) ||
-      hasStateChanged(authors, group.ipfsMetadata?.authors) ||
-      hasStateChanged(summary, group.ipfsMetadata?.summary) ||
-      hasStateChanged(forum, group.ipfsMetadata?.proposalForumURL) ||
-      hasStateChanged(description, group.ipfsMetadata?.details)
+      hasStateChanged(name, maybeTitle) ||
+      hasStateChanged(authors, maybeAuthors) ||
+      hasStateChanged(summary, maybeSummary) ||
+      hasStateChanged(forum, maybeProposalForumURL) ||
+      hasStateChanged(description, maybeDetails)
     ) {
       const newMetadata = JSON.stringify({
         title: name,
@@ -280,20 +283,20 @@ export function UpdateGroupModal({
       });
       const msgGroupMetadata = updateGroupMetadata({
         admin: group.admin,
-        groupId: BigInt(group?.members[0]?.group_id),
+        groupId: BigInt(maybeMembers?.[0]?.group_id),
         metadata: newMetadata,
       });
       messages.push(
         Any.fromPartial({
           typeUrl: cosmos.group.v1.MsgUpdateGroupMetadata.typeUrl,
           value: cosmos.group.v1.MsgUpdateGroupMetadata.encode(
-            msgGroupMetadata.value
+            msgGroupMetadata.value,
           ).finish(),
-        })
+        }),
       );
 
       const msgPolicyMetadata = updateGroupPolicyMetadata({
-        groupPolicyAddress: group.policies[0].address,
+        groupPolicyAddress: maybePolicies?.address,
         admin: group.admin,
         metadata: newMetadata,
       });
@@ -301,18 +304,18 @@ export function UpdateGroupModal({
         Any.fromPartial({
           typeUrl: cosmos.group.v1.MsgUpdateGroupPolicyMetadata.typeUrl,
           value: cosmos.group.v1.MsgUpdateGroupPolicyMetadata.encode(
-            msgPolicyMetadata.value
+            msgPolicyMetadata.value,
           ).finish(),
-        })
+        }),
       );
     }
 
     // Update Group Policy Admin
     const newPolicyAdmin = members?.find((member) => member?.isPolicyAdmin)
       ?.member?.address;
-    if (hasStateChanged(newPolicyAdmin, group.policies[0]?.admin)) {
+    if (hasStateChanged(newPolicyAdmin, maybePolicies?.admin)) {
       const msg = updateGroupPolicyAdmin({
-        groupPolicyAddress: group.policies[0].address,
+        groupPolicyAddress: maybePolicies?.address,
         admin: group.admin,
         newAdmin: newPolicyAdmin ?? "",
       });
@@ -320,22 +323,16 @@ export function UpdateGroupModal({
         Any.fromPartial({
           typeUrl: cosmos.group.v1.MsgUpdateGroupPolicyAdmin.typeUrl,
           value: cosmos.group.v1.MsgUpdateGroupPolicyAdmin.encode(
-            msg.value
+            msg.value,
           ).finish(),
-        })
+        }),
       );
     }
 
     // Update Group Policy Decision Policy
     if (
-      hasStateChanged(
-        threshold,
-        group.policies[0]?.decision_policy?.threshold
-      ) ||
-      hasStateChanged(
-        windowSeconds,
-        group.policies[0]?.decision_policy?.windows?.voting_period.seconds
-      )
+      hasStateChanged(threshold, maybeThreshold) ||
+      hasStateChanged(windowSeconds, maybeVotingPeriod?.seconds)
     ) {
       const thresholdMsg = {
         threshold: threshold,
@@ -348,11 +345,11 @@ export function UpdateGroupModal({
       const threshholdPolicyFromPartial =
         ThresholdDecisionPolicy.fromPartial(thresholdMsg);
       const threshholdPolicy = ThresholdDecisionPolicy.encode(
-        threshholdPolicyFromPartial
+        threshholdPolicyFromPartial,
       ).finish();
 
       const msg = updateGroupPolicyDecisionPolicy({
-        groupPolicyAddress: group.policies[0].address,
+        groupPolicyAddress: maybePolicies?.address,
         admin: group.admin,
         decisionPolicy: {
           threshold: threshold,
@@ -365,9 +362,9 @@ export function UpdateGroupModal({
         Any.fromPartial({
           typeUrl: cosmos.group.v1.MsgUpdateGroupPolicyDecisionPolicy.typeUrl,
           value: cosmos.group.v1.MsgUpdateGroupPolicyDecisionPolicy.encode(
-            msg.value
+            msg.value,
           ).finish(),
-        })
+        }),
       );
     }
 
@@ -487,10 +484,7 @@ export function UpdateGroupModal({
                   value={threshold}
                   onChange={(e) => setThreshold(e.target.value)}
                   className="input input-bordered w-full"
-                  placeholder={
-                    group?.policies[0]?.decision_policy?.threshold ??
-                    "No threshold available"
-                  }
+                  placeholder={maybeThreshold ?? "No threshold available"}
                 />
               </div>
               <div>
@@ -508,8 +502,7 @@ export function UpdateGroupModal({
                   onChange={(e) => setForum(e.target.value)}
                   className="input input-bordered w-full"
                   placeholder={
-                    group?.ipfsMetadata?.proposalForumURL ??
-                    "No forum URL available"
+                    maybeProposalForumURL ?? "No forum URL available"
                   }
                 />
               </div>
@@ -581,10 +574,10 @@ export function UpdateGroupModal({
                     member.isAdmin && member.isPolicyAdmin
                       ? "border-r-primary border-b-primary border-l-secondary border-t-secondary"
                       : member.isAdmin
-                      ? "border-r-primary border-b-primary border-t-transparent border-l-transparent"
-                      : member.isPolicyAdmin
-                      ? "border-l-secondary border-t-secondary border-r-base-100 border-b-base-100 "
-                      : "border-r-transparent border-b-transparent border-t-transparent border-l-transparent"
+                        ? "border-r-primary border-b-primary border-t-transparent border-l-transparent"
+                        : member.isPolicyAdmin
+                          ? "border-l-secondary border-t-secondary border-r-base-100 border-b-base-100 "
+                          : "border-r-transparent border-b-transparent border-t-transparent border-l-transparent"
                   } transition-all duration-200 max-h-[12.4rem] ${
                     !member.isActive ? "bg-base-100" : "bg-base-200"
                   }  `}
@@ -656,7 +649,17 @@ export function UpdateGroupModal({
           </div>
         </div>
         <div className="modal-action w-full flex flex-row  items-center justify-between">
-          <button className="btn btn-neutral w-[49.5%]">Cancel</button>
+          <button
+            onClick={() => {
+              const modal = document.getElementById(
+                `update_group_${group?.id}`,
+              ) as HTMLDialogElement;
+              modal?.close();
+            }}
+            className="btn btn-neutral w-[49.5%]"
+          >
+            Cancel
+          </button>
 
           <button
             className="btn btn-primary w-[49%] "
