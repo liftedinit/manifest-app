@@ -13,6 +13,10 @@ import {
 } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types";
 import { MetadataSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
 import { FormData, ProposalFormData } from "@/helpers";
+import { cosmos } from "@chalabi/manifestjs";
+import { Any } from "@chalabi/manifestjs/dist/codegen/google/protobuf/any";
+import { MsgUpdateParams } from "@chalabi/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx";
+import { MsgSend } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx";
 
 export const mockDenomMeta1: MetadataSDKType = {
   description: "My First Token",
@@ -342,6 +346,17 @@ export const mockMfxDenom = {
   symbol: "umfx",
 };
 
+const { send } = cosmos.bank.v1beta1.MessageComposer.withTypeUrl;
+const msg = send({
+  fromAddress: "fromaddress123",
+  toAddress: "toaddress321",
+  amount: [{ denom: "ufoof", amount: "42" }],
+});
+const anyMessage = Any.fromPartial({
+  typeUrl: msg.typeUrl,
+  value: MsgSend.encode(msg.value).finish(),
+});
+
 export const mockProposals: { [key: string]: ProposalSDKType[] } = {
   // The key should match the policy address from `mockGroup`
   test_policy_address: [
@@ -364,7 +379,7 @@ export const mockProposals: { [key: string]: ProposalSDKType[] } = {
       },
       voting_period_end: new Date(),
       executor_result: ProposalExecutorResult.PROPOSAL_EXECUTOR_RESULT_NOT_RUN,
-      messages: [],
+      messages: [{ ...anyMessage, type_url: "/cosmos.bank.v1beta1.MsgSend" }],
     },
     {
       id: 2n,

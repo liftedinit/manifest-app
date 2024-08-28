@@ -25,9 +25,9 @@ import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
 
 export default function ProposalsForPolicy({
   policyAddress,
-}: {
+}: Readonly<{
   policyAddress: string;
-}) {
+}>) {
   const { address } = useChain("manifest");
 
   const [tallies, setTallies] = useState<
@@ -181,7 +181,10 @@ export default function ProposalsForPolicy({
             </div>
             <div className="divider divider-horizon -mt-2"></div>
             {isProposalsLoading ? (
-              <div className="flex px-4 flex-col gap-4 w-full mx-auto justify-center mt-6 mb-[2.05rem]  items-center transition-opacity duration-300 ease-in-out animate-fadeIn">
+              <div
+                className="flex px-4 flex-col gap-4 w-full mx-auto justify-center mt-6 mb-[2.05rem]  items-center transition-opacity duration-300 ease-in-out animate-fadeIn"
+                aria-label={"loading"}
+              >
                 <div className="skeleton h-4 w-full "></div>
                 <div className="skeleton h-4 w-full "></div>
                 <div className="skeleton h-4 w-full "></div>
