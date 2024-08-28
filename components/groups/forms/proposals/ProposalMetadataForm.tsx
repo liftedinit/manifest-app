@@ -6,12 +6,12 @@ export default function ProposalMetadataForm({
   prevStep,
   formData,
   dispatch,
-}: {
+}: Readonly<{
   nextStep: () => void;
   prevStep: () => void;
   formData: ProposalFormData;
   dispatch: React.Dispatch<ProposalAction>;
-}) {
+}>) {
   const handleChange = (
     field: keyof ProposalFormData["metadata"],
     value: any,
@@ -44,6 +44,7 @@ export default function ProposalMetadataForm({
                     Title
                   </label>
                   <input
+                    aria-label={"title-input"}
                     type="text"
                     placeholder="Type here"
                     className="input input-bordered w-full max-w-xs"
@@ -59,6 +60,7 @@ export default function ProposalMetadataForm({
                     Authors
                   </label>
                   <input
+                    aria-label={"authors-input"}
                     type="text"
                     placeholder="Type here"
                     className="input input-bordered w-full max-w-xs"
@@ -74,6 +76,7 @@ export default function ProposalMetadataForm({
                     Summary
                   </label>
                   <textarea
+                    aria-label={"summary-input"}
                     className="textarea textarea-bordered w-full max-w-xs"
                     placeholder="Short Description"
                     value={formData.metadata.summary}
@@ -88,6 +91,7 @@ export default function ProposalMetadataForm({
                     Details
                   </label>
                   <textarea
+                    aria-label={"details-input"}
                     className="textarea textarea-bordered w-full max-w-xs"
                     placeholder="Long Description"
                     value={formData.metadata.details}
