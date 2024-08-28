@@ -4,7 +4,7 @@ This is a web app that allows users to interact with the Manifest Network and it
 
 For more information on the Manifest Network and its modules, please visit the [Manifest Network GitHub](https://github.com/liftedinit/manifest-ledger).
 
-[![codecov](https://codecov.io/gh/chalabi2/manifest-app/branch/main/graph/badge.svg)](https://codecov.io/gh/chalabi2/manifest-app)
+[![codecov](https://codecov.io/gh/liftedinit/manifest-app/branch/main/graph/badge.svg)](https://codecov.io/gh/liftedinit/manifest-app)
 
 ## Getting Started
 
@@ -12,7 +12,7 @@ For more information on the Manifest Network and its modules, please visit the [
 
 1. Clone the repository
 
-   - `git clone hptts://github.com/chalabi2/manifest-app`
+   - `git clone hptts://github.com/liftedinit/manifest-app`
    - `cd manifest-app`
 
 2. Install dependencies
