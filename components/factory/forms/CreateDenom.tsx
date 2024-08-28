@@ -30,6 +30,7 @@ export default function CreateDenom({
   const { estimateFee } = useFeeEstimation("manifest");
 
   const validateSubdenom = (value: string) => {
+    console.log("Validating subdenom", value);
     if (value.length === 0) {
       return "Subdenom is required";
     }
@@ -108,7 +109,9 @@ export default function CreateDenom({
                     onBlur={() => setTouched(true)}
                   />
                   {touched && error && (
-                    <p className="mt-2 text-sm text-error">{error}</p>
+                    <p className="mt-2 text-sm text-error" aria-label={"error"}>
+                      {error}
+                    </p>
                   )}
                   <p className="mt-2 text-sm text-gray-500">
                     We recommend starting with &apos;u&apos; (e.g.,

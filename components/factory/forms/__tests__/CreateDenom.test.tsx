@@ -1,6 +1,6 @@
 import { describe, test, afterEach, expect, jest } from "bun:test";
 import React from "react";
-import { screen, cleanup } from "@testing-library/react";
+import { screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
 import CreateDenom from "@/components/factory/forms/CreateDenom";
 import matchers from "@testing-library/jest-dom/matchers";
 import { renderWithChainProvider } from "@/tests/render";
@@ -24,24 +24,19 @@ describe("CreateDenom Component", () => {
     expect(screen.getByText("Token Sub Denom")).toBeInTheDocument();
   });
 
-  // TODO: Make this test pass. Why is the input not being updated?
-  // test('updates subdenom input correctly', () => {
-  //   renderWithChainProvider(<CreateDenom {...mockProps} />);
-  //   const subdenomInput = screen.getByPlaceholderText('udenom');
-  //   const subdenomInput = screen.getByLabelText('denom-input');
-  //   fireEvent.change(subdenomInput, { target: { value: 'utest' } });
-  //   expect(subdenomInput).toHaveValue('utest');
-  // });
+  test("updates subdenom input correctly", () => {
+    renderWithChainProvider(<CreateDenom {...mockProps} />);
+    const subdenomInput = screen.getByPlaceholderText("udenom");
+    fireEvent.change(subdenomInput, { target: { value: "utest" } });
+    expect(mockProps.dispatch).toHaveBeenCalledWith({
+      type: "UPDATE_FIELD",
+      field: "subdenom",
+      value: "utest",
+    });
+  });
 
-  // TODO: Make this test pass. Why is the input not being updated?
-  // test('shows validation error for invalid subdenom', () => {
-  //   renderWithChainProvider(<CreateDenom {...mockProps} />);
-  //   const subdenomInput = screen.getByPlaceholderText('udenom');
-  //   fireEvent.change(subdenomInput, { target: { value: '1invalid' } });
-  //   fireEvent.blur(subdenomInput);
-  //   expect(screen.getByText('Subdenom must start with a letter')).toBeInTheDocument();
-  // });
-  //
+  // TODO: Add a test that covers subdenom validation
+
   // // TODO: The confirm button should be disabled when the input is invalid
   // test('confirm button is disabled when inputs are invalid', () => {
   //   renderWithChainProvider(<CreateDenom {...mockProps} />);

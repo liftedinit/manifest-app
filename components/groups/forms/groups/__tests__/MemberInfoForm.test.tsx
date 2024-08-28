@@ -48,21 +48,35 @@ describe("MemberInfoForm Component", () => {
     expect(weight1).toHaveValue("2");
   });
 
-  // // TODO: Make this test pass. Why is the input not being updated?
-  // test('updates form fields correctly', () => {
-  //   renderWithChainProvider(<MemberInfoForm {...mockProps} />);
-  //   const addressInput = screen.getByLabelText('address-0');
-  //   fireEvent.change(addressInput, { target: { value: 'newaddress' } });
-  //   expect(addressInput).toHaveValue('newaddress');
-  //
-  //   const nameInput = screen.getByLabelText('name-0');
-  //   fireEvent.change(nameInput, { target: { value: 'New Name' } });
-  //   expect(nameInput).toHaveValue('New Name');
-  //
-  //   const weightInput = screen.getByLabelText('weight-0');
-  //   fireEvent.change(weightInput, { target: { value: '3' } });
-  //   expect(weightInput).toHaveValue('3');
-  // });
+  test("updates form fields correctly", () => {
+    renderWithChainProvider(<MemberInfoForm {...mockProps} />);
+    const addressInput = screen.getByLabelText("address-0");
+    fireEvent.change(addressInput, { target: { value: "newaddress" } });
+    expect(mockProps.dispatch).toHaveBeenCalledWith({
+      type: "UPDATE_MEMBER",
+      index: 0,
+      field: "address",
+      value: "newaddress",
+    });
+
+    const nameInput = screen.getByLabelText("name-0");
+    fireEvent.change(nameInput, { target: { value: "New Name" } });
+    expect(mockProps.dispatch).toHaveBeenCalledWith({
+      type: "UPDATE_MEMBER",
+      index: 0,
+      field: "name",
+      value: "New Name",
+    });
+
+    const weightInput = screen.getByLabelText("weight-0");
+    fireEvent.change(weightInput, { target: { value: "3" } });
+    expect(mockProps.dispatch).toHaveBeenCalledWith({
+      type: "UPDATE_MEMBER",
+      index: 0,
+      field: "weight",
+      value: "3",
+    });
+  });
 
   test("next button is disabled when form is invalid", () => {
     const invalidFormData = {

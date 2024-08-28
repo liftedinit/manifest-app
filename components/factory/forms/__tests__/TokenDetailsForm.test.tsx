@@ -1,6 +1,6 @@
 import { describe, test, afterEach, expect, jest } from "bun:test";
 import React from "react";
-import { screen, cleanup } from "@testing-library/react";
+import { screen, cleanup, fireEvent } from "@testing-library/react";
 import TokenDetailsForm from "@/components/factory/forms/TokenDetailsForm";
 import matchers from "@testing-library/jest-dom/matchers";
 import { renderWithChainProvider } from "@/tests/render";
@@ -30,37 +30,66 @@ describe("TokenDetailsForm Component", () => {
     expect(screen.getByText("URI Hash")).toBeInTheDocument();
   });
 
-  // TODO: Make this test pass. Why is the input not being updated?
-  // test('updates form fields correctly', () => {
-  //   renderWithChainProvider(<TokenDetailsForm {...mockProps} />);
-  //   const subdenomInput = screen.getByLabelText('subdenom-input');
-  //   fireEvent.change(subdenomInput, { target: { value: 'newsubdenom' } });
-  //   expect(subdenomInput).toHaveValue('newsubdenom');
-  //
-  //   const displayInput = screen.getByLabelText('display-input');
-  //   fireEvent.change(displayInput, { target: { value: 'New Display' } });
-  //   expect(displayInput).toHaveValue('New Display');
-  //
-  //   const nameInput = screen.getByLabelText('name-input');
-  //   fireEvent.change(nameInput, { target: { value: 'New Name' } });
-  //   expect(nameInput).toHaveValue('New Name');
-  //
-  //   const symbolInput = screen.getByLabelText('symbol-input');
-  //   fireEvent.change(symbolInput, { target: { value: 'NS' } });
-  //   expect(symbolInput).toHaveValue('NS');
-  //
-  //   const descriptionInput = screen.getByLabelText('description-input');
-  //   fireEvent.change(descriptionInput, { target: { value: 'New Description' } });
-  //   expect(descriptionInput).toHaveValue('New Description');
-  //
-  //   const uriInput = screen.getByLabelText('url-input');
-  //   fireEvent.change(uriInput, { target: { value: 'http://newuri.com' } });
-  //   expect(uriInput).toHaveValue('http://newuri.com');
-  //
-  //   const uriHashInput = screen.getByLabelText('uri-hash-input');
-  //   fireEvent.change(uriHashInput, { target: { value: 'newurihash' } });
-  //   expect(uriHashInput).toHaveValue('newurihash');
-  // });
+  test("updates form fields correctly", () => {
+    renderWithChainProvider(<TokenDetailsForm {...mockProps} />);
+    const subdenomInput = screen.getByLabelText("subdenom-input");
+    fireEvent.change(subdenomInput, { target: { value: "newsubdenom" } });
+    expect(mockProps.dispatch).toHaveBeenCalledWith({
+      type: "UPDATE_FIELD",
+      field: "subdenom",
+      value: "newsubdenom",
+    });
+
+    const displayInput = screen.getByLabelText("display-input");
+    fireEvent.change(displayInput, { target: { value: "New Display" } });
+    expect(mockProps.dispatch).toHaveBeenCalledWith({
+      type: "UPDATE_FIELD",
+      field: "display",
+      value: "New Display",
+    });
+
+    const nameInput = screen.getByLabelText("name-input");
+    fireEvent.change(nameInput, { target: { value: "New Name" } });
+    expect(mockProps.dispatch).toHaveBeenCalledWith({
+      type: "UPDATE_FIELD",
+      field: "name",
+      value: "New Name",
+    });
+
+    const symbolInput = screen.getByLabelText("symbol-input");
+    fireEvent.change(symbolInput, { target: { value: "NS" } });
+    expect(mockProps.dispatch).toHaveBeenCalledWith({
+      type: "UPDATE_FIELD",
+      field: "symbol",
+      value: "NS",
+    });
+
+    const descriptionInput = screen.getByLabelText("description-input");
+    fireEvent.change(descriptionInput, {
+      target: { value: "New Description" },
+    });
+    expect(mockProps.dispatch).toHaveBeenCalledWith({
+      type: "UPDATE_FIELD",
+      field: "description",
+      value: "New Description",
+    });
+
+    const uriInput = screen.getByLabelText("uri-input");
+    fireEvent.change(uriInput, { target: { value: "http://newuri.com" } });
+    expect(mockProps.dispatch).toHaveBeenCalledWith({
+      type: "UPDATE_FIELD",
+      field: "uri",
+      value: "http://newuri.com",
+    });
+
+    const uriHashInput = screen.getByLabelText("uri-hash-input");
+    fireEvent.change(uriHashInput, { target: { value: "newurihash" } });
+    expect(mockProps.dispatch).toHaveBeenCalledWith({
+      type: "UPDATE_FIELD",
+      field: "uriHash",
+      value: "newurihash",
+    });
+  });
 
   test("next button is disabled when form is invalid", () => {
     const invalidFormData = { ...mockTokenFormData, subdenom: "" };

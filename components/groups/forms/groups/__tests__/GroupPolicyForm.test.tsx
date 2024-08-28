@@ -31,10 +31,13 @@ describe("GroupPolicyForm Component", () => {
     fireEvent.change(votingAmountInput, { target: { value: "2" } });
     expect(votingAmountInput).toHaveValue(2);
 
-    // TODO: The input is not being updated, why?
-    // const votingThresholdInput = screen.getByPlaceholderText('e.g. (1)');
-    // fireEvent.change(votingThresholdInput, { target: { value: '3' } });
-    // expect(votingThresholdInput).toHaveValue('3');
+    const votingThresholdInput = screen.getByPlaceholderText("e.g. (1)");
+    fireEvent.change(votingThresholdInput, { target: { value: "3" } });
+    expect(mockProps.dispatch).toHaveBeenCalledWith({
+      type: "UPDATE_FIELD",
+      field: "votingThreshold",
+      value: "3",
+    });
   });
 
   test("next button is disabled when form is invalid", () => {

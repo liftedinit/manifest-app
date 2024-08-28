@@ -28,30 +28,55 @@ describe("GroupDetails Component", () => {
     expect(screen.getByText("Forum Link")).toBeInTheDocument();
   });
 
-  // TODO: Make this test pass. Why is the input not being updated?
-  // test('updates form fields correctly', async () => {
-  //   renderWithChainProvider(<GroupDetails {...mockProps} />);
-  //   const titleInput = screen.getByPlaceholderText('Title');
-  //   fireEvent.change(titleInput, { target: { value: 'New Group Title' } });
-  //   await waitFor(() => expect(titleInput).toHaveValue('New Group Title'));
-  //
-  //   const authorsInput = screen.getByPlaceholderText('List of authors or address');
-  //   fireEvent.change(authorsInput, { target: { value: 'New Author' } });
-  //   expect(authorsInput).toHaveValue('New Author');
-  //
-  //   const summaryInput = screen.getByPlaceholderText('Short Bio');
-  //   fireEvent.change(summaryInput, { target: { value: 'New Summary' } });
-  //   expect(summaryInput).toHaveValue('New Summary');
-  //
-  //   const descriptionInput = screen.getByPlaceholderText('Long Bio');
-  //   fireEvent.change(descriptionInput, { target: { value: 'New Description' } });
-  //   expect(descriptionInput).toHaveValue('New Description');
-  //
-  //   const forumLinkInput = screen.getByPlaceholderText('Link to forum');
-  //   fireEvent.change(forumLinkInput, { target: { value: 'http://newforumlink.com' } });
-  //   expect(forumLinkInput).toHaveValue('http://newforumlink.com');
-  // });
-  //
+  test("updates form fields correctly", () => {
+    renderWithChainProvider(<GroupDetails {...mockProps} />);
+    const titleInput = screen.getByPlaceholderText("Title");
+    fireEvent.change(titleInput, { target: { value: "New Group Title" } });
+    expect(mockProps.dispatch).toHaveBeenCalledWith({
+      type: "UPDATE_FIELD",
+      field: "title",
+      value: "New Group Title",
+    });
+
+    const authorsInput = screen.getByPlaceholderText(
+      "List of authors or address",
+    );
+    fireEvent.change(authorsInput, { target: { value: "New Author" } });
+    expect(mockProps.dispatch).toHaveBeenCalledWith({
+      type: "UPDATE_FIELD",
+      field: "authors",
+      value: "New Author",
+    });
+
+    const summaryInput = screen.getByPlaceholderText("Short Bio");
+    fireEvent.change(summaryInput, { target: { value: "New Summary" } });
+    expect(mockProps.dispatch).toHaveBeenCalledWith({
+      type: "UPDATE_FIELD",
+      field: "summary",
+      value: "New Summary",
+    });
+
+    const descriptionInput = screen.getByPlaceholderText("Long Bio");
+    fireEvent.change(descriptionInput, {
+      target: { value: "New Description" },
+    });
+    expect(mockProps.dispatch).toHaveBeenCalledWith({
+      type: "UPDATE_FIELD",
+      field: "description",
+      value: "New Description",
+    });
+
+    const forumLinkInput = screen.getByPlaceholderText("Link to forum");
+    fireEvent.change(forumLinkInput, {
+      target: { value: "http://newforumlink.com" },
+    });
+    expect(mockProps.dispatch).toHaveBeenCalledWith({
+      type: "UPDATE_FIELD",
+      field: "forumLink",
+      value: "http://newforumlink.com",
+    });
+  });
+
   test("next button is disabled when form is invalid", () => {
     const invalidFormData = { ...mockGroupFormData, title: "" };
     renderWithChainProvider(
