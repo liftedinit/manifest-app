@@ -1,4 +1,4 @@
-export * from './ConfrimationForm'
+export * from './ConfirmationForm'
 export * from './CreateDenom'
 export * from './Success'
 export * from './TokenDetailsForm'

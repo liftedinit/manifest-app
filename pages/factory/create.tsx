@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useReducer } from "react";
 import { tokenFormDataReducer, TokenFormData } from "@/helpers/formReducer";
 
-import ConfirmationForm from "@/components/factory/forms/ConfrimationForm";
+import ConfirmationForm from "@/components/factory/forms/ConfirmationForm";
 import TokenDetails from "@/components/factory/forms/TokenDetailsForm";
 
 import { Duration } from "@chalabi/manifestjs/dist/codegen/google/protobuf/duration";
