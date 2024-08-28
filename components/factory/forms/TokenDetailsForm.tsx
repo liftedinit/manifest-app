@@ -9,13 +9,13 @@ export default function TokenDetails({
   formData,
   dispatch,
   address,
-}: {
+}: Readonly<{
   nextStep: () => void;
   prevStep: () => void;
   formData: TokenFormData;
   dispatch: React.Dispatch<TokenAction>;
   address: string;
-}) {
+}>) {
   const updateField = (field: keyof TokenFormData, value: any) => {
     dispatch({ type: "UPDATE_FIELD", field, value });
   };
@@ -69,6 +69,7 @@ export default function TokenDetails({
               <span className="text-xs text-gray-500">(Unique identifier)</span>
             </label>
             <input
+              aria-label={"subdenom-input"}
               type="text"
               id="subdenom"
               className="input input-bordered w-full mt-1"
@@ -85,6 +86,7 @@ export default function TokenDetails({
               </span>
             </label>
             <input
+              aria-label={"display-input"}
               type="text"
               id="display"
               className="input input-bordered w-full mt-1"
@@ -98,6 +100,7 @@ export default function TokenDetails({
               Name <span className="text-xs text-gray-500">(Full name)</span>
             </label>
             <input
+              aria-label={"name-input"}
               type="text"
               id="name"
               className="input input-bordered w-full mt-1"
@@ -112,6 +115,7 @@ export default function TokenDetails({
               <span className="text-xs text-gray-500">(Short symbol)</span>
             </label>
             <input
+              aria-label={"symbol-input"}
               type="text"
               id="symbol"
               className="input input-bordered w-full mt-1"
@@ -128,6 +132,7 @@ export default function TokenDetails({
             <span className="text-xs text-gray-500">(Brief description)</span>
           </label>
           <textarea
+            aria-label={"description-input"}
             id="description"
             className="textarea textarea-bordered w-full mt-1"
             rows={2}
@@ -144,6 +149,7 @@ export default function TokenDetails({
               <span className="text-xs text-gray-500">(Info/image link)</span>
             </label>
             <input
+              aria-label={"uri-input"}
               type="text"
               id="uri"
               className="input input-bordered w-full mt-1"
@@ -157,6 +163,7 @@ export default function TokenDetails({
               <span className="text-xs text-gray-500">(If applicable)</span>
             </label>
             <input
+              aria-label={"uri-hash-input"}
               type="text"
               id="uriHash"
               className="input input-bordered w-full mt-1"
