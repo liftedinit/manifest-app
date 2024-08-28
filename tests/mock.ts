@@ -403,3 +403,21 @@ export const mockProposals: { [key: string]: ProposalSDKType[] } = {
     }
   ]
 };
+
+// TODO: Re-use mockDenomMeta1 here
+export const mockTokenFormData = {
+  name: 'Name Test Token',
+  symbol: 'STT',
+  display: 'Display Test Token',
+  subdenom: 'subtesttoken',
+  description: 'This is a test token',
+  denomUnits: [
+    {denom: 'testtoken', exponent: 0, aliases: []},
+    {denom: 'tt', exponent: 6, aliases: []},
+  ],
+  uri: 'www.someuri.com',
+  uriHash: 's0m3h4sh',
+  exponent: "6",
+  label: "LabelTT",
+  base: "BaseTT"
+};
