@@ -14,7 +14,7 @@ jobs:
       - name: Run tests and generate coverage
         run: bun run test:coverage
       - name: Convert lcov to Cobertura
-        run: python ./scripts/lcov_cobertura.py ./coverage/lcov.info -o ./coverage/cobertura.xml
+        run: python ./scripts/lcov_cobertura.py ./coverage/lcov.info -o ./coverage/cobertura.xml && rm ./coverage/lcov.info
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
