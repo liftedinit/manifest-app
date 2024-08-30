@@ -8,6 +8,11 @@ import {
 
 import * as initialMessages from "./messages";
 import { FiArrowUp, FiMinusCircle, FiPlusCircle } from "react-icons/fi";
+import { TextInput } from "@/components/react/inputs";
+
+import { Formik, Form, Field, FieldProps, FormikProps } from "formik";
+
+import * as Yup from "yup";
 
 export default function ProposalMessages({
   formData,
@@ -68,6 +73,10 @@ export default function ProposalMessages({
     setVisibleMessages(
       visibleMessages.map((visible, i) => (i === index ? !visible : visible)),
     );
+  };
+
+  const isValidAddress = (address: string) => {
+    return address.startsWith("manifest");
   };
 
   const handleChangeMessage = (
@@ -223,69 +232,134 @@ export default function ProposalMessages({
     checkFormValidity();
   };
 
+  console.log(formData);
+
   const renderInputs = (
-    object: any,
+    object: Record<string, any>,
     handleChange: (field: string, value: any) => void,
     path = "",
   ) => {
-    return Object.keys(object).map((key) => {
-      if (key === "type") return null;
+    const generateValidationSchema = (obj: Record<string, any>): any => {
+      return Yup.object().shape(
+        Object.entries(obj).reduce(
+          (schema: Record<string, any>, [key, value]) => {
+            if (key === "type") return schema;
 
-      const value = object[key];
-      const currentPath = path ? `${path}.${key}` : key;
+            if (
+              typeof value === "object" &&
+              value !== null &&
+              !Array.isArray(value)
+            ) {
+              schema[key] = generateValidationSchema(value);
+            } else {
+              schema[key] = Yup.string().required(`${key} is required`);
 
+              if (key.includes("address")) {
+                schema[key] = schema[key].test(
+                  "is-valid-address",
+                  "Invalid address format, must start with manifest",
+                  (val: string) => isValidAddress(val),
+                );
+              } else if (key.includes("amount")) {
+                schema[key] = Yup.number()
+                  .positive("Amount must be positive")
+                  .required("Amount is required");
+              }
+            }
+            return schema;
+          },
+          {},
+        ),
+      );
+    };
+
+    const validationSchema = generateValidationSchema(object);
+
+    const renderField = (
+      fieldPath: string,
+      fieldValue: any,
+      formikProps: FormikProps<any>,
+    ) => {
+      const { setFieldValue, errors, touched } = formikProps;
       if (
-        typeof value === "object" &&
-        value !== null &&
-        !Array.isArray(value)
+        typeof fieldValue === "object" &&
+        fieldValue !== null &&
+        !Array.isArray(fieldValue)
       ) {
         return (
-          <div key={currentPath} className="mb-4">
-            <h3 className="font-semibold mb-2 capitalize ">
-              {key.replace(/_/g, " ")}
+          <div key={fieldPath} className="mb-4">
+            <h3 className="text-lg font-semibold mb-2 text-primary">
+              {fieldPath.split(".").pop()?.replace(/_/g, " ")}
             </h3>
-            <div className="pl-4 border-l-2 border-gray-200">
-              {renderInputs(value, handleChange, currentPath)}
+            <div className="pl-4 border-l-2 border-primary">
+              {Object.entries(fieldValue).map(([key, value]) =>
+                renderField(`${fieldPath}.${key}`, value, formikProps),
+              )}
             </div>
           </div>
         );
-      } else if (typeof value === "boolean") {
+      } else if (typeof fieldValue === "boolean") {
         return (
-          <label key={currentPath} className="flex items-center mb-2">
-            <input
-              type="checkbox"
-              className="checkbox checkbox-sm mr-2"
-              checked={value}
-              onChange={(e) => handleChange(currentPath, e.target.checked)}
-            />
-            <span className="capitalize">{key.replace(/_/g, " ")}</span>
-            <p className="text-xs text-gray-500 mt-1 ml-4">
-              Switch on to turn {key.replace(/_/g, " ")} to true
-            </p>
-          </label>
+          <Field key={fieldPath} name={fieldPath}>
+            {({ field }: FieldProps) => (
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  {...field}
+                  checked={field.value}
+                  className="checkbox checkbox-sm mr-2"
+                  onChange={(e) => {
+                    field.onChange(e);
+                    handleChange(fieldPath, e.target.checked);
+                    setFieldValue(fieldPath, e.target.checked);
+                  }}
+                />
+                <span className="capitalize">
+                  {fieldPath.split(".").pop()?.replace(/_/g, " ")}
+                </span>
+              </label>
+            )}
+          </Field>
         );
       } else {
         return (
-          <div key={currentPath} className="mb-4  pb-2">
-            <div className="flex items-center h-full justify-between">
-              <span className="w-1/3 capitalize pb-2 mt-2 font-medium border-b-[0.01rem] border-gray-200 truncate">
-                {key.replace(/_/g, " ")}
-              </span>
-              <input
-                type="text"
-                placeholder={`Enter ${key.replace(/_/g, " ")}`}
-                className="w-2/3 focus:outline-none focus:ring-0 bg-transparent hover:bg-base-200/50 border-t-0 border-r-0 border-l-0  border-b-[0.01rem] focus:border-primary  border-gray-200"
-                value={value}
-                onChange={(e) => handleChange(currentPath, e.target.value)}
-              />
-            </div>
-            <p className="text-xs text-gray-500 mt-1">
-              Tip: Enter the {key.replace(/_/g, " ")} here
-            </p>
-          </div>
+          <Field key={fieldPath} name={fieldPath}>
+            {({ field }: FieldProps) => (
+              <div className="">
+                <TextInput
+                  label={fieldPath.split(".").pop()?.replace(/_/g, " ") ?? ""}
+                  placeholder={`Enter ${fieldPath.split(".").pop()?.replace(/_/g, " ")}`}
+                  {...field}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    field.onChange(e);
+                    handleChange(fieldPath, e.target.value);
+                    setFieldValue(fieldPath, e.target.value);
+                  }}
+                />
+              </div>
+            )}
+          </Field>
         );
       }
-    });
+    };
+
+    return (
+      <Formik
+        initialValues={object}
+        validationSchema={validationSchema}
+        onSubmit={() => {}}
+        validateOnChange={true}
+      >
+        {(formikProps: FormikProps<typeof object>) => (
+          <Form>
+            {Object.entries(object).map(
+              ([key, value]) =>
+                key !== "type" && renderField(key, value, formikProps),
+            )}
+          </Form>
+        )}
+      </Formik>
+    );
   };
 
   const renderMessageFields = (message: Message, index: number) => {

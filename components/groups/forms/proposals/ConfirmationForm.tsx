@@ -45,6 +45,8 @@ import {
 } from "@chalabi/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx";
 import { Duration } from "@chalabi/manifestjs/dist/codegen/google/protobuf/duration";
 import { ThresholdDecisionPolicy } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types";
+import { Buffer } from 'buffer';
+
 
 export default function ConfirmationModal({
   policyAddress,
@@ -145,141 +147,7 @@ export default function ConfirmationModal({
     return obj;
   };
 
-  const getMessageObject = (
-    message: { type: keyof MessageTypeMap } & Record<string, any>,
-  ): Any => {
-    const composer = messageTypeToComposer[message.type];
-    if (composer) {
-      let messageData = JSON.parse(JSON.stringify(message));
-
-      delete messageData.type;
-
-      messageData = convertKeysToCamelCase(messageData);
-      if (messageData.amount && !Array.isArray(messageData.amount)) {
-        messageData.amount = [messageData.amount];
-      }
-      const composedMessage = composer(
-        messageData as MessageTypeMap[typeof message.type],
-      );
-
-      if (!composedMessage || !composedMessage.value) {
-        console.error(
-          "Composed message or its value is undefined:",
-          composedMessage,
-        );
-        throw new Error(`Failed to compose message for type: ${message.type}`);
-      }
-
-      // Verify composedMessage structure
-      if (
-        !composedMessage.typeUrl ||
-        typeof composedMessage.value !== "object"
-      ) {
-        console.error("Invalid composedMessage structure:", composedMessage);
-        throw new Error(
-          `Invalid composedMessage structure for type: ${message.type}`,
-        );
-      }
-
-      let encodeFunction;
-      switch (message.type) {
-        case "send":
-          encodeFunction = MsgSend.encode;
-          break;
-        case "updatePoaParams":
-          encodeFunction = MsgUpdatePoaParams.encode;
-          break;
-        case "removeValidator":
-          encodeFunction = MsgRemoveValidator.encode;
-          break;
-        case "removePending":
-          encodeFunction = MsgRemovePending.encode;
-          break;
-        case "updateStakingParams":
-          encodeFunction = MsgUpdateStakingParams.encode;
-          break;
-        case "setPower":
-          encodeFunction = MsgSetPower.encode;
-          break;
-        case "updateManifestParams":
-          encodeFunction = MsgUpdateManifestParams.encode;
-          break;
-        case "payoutStakeholders":
-          encodeFunction = MsgPayout.encode;
-          break;
-        case "updateGroupAdmin":
-          encodeFunction = MsgUpdateGroupAdmin.encode;
-          break;
-        case "updateGroupMembers":
-          encodeFunction = MsgUpdateGroupMembers.encode;
-          break;
-        case "updateGroupMetadata":
-          encodeFunction = MsgUpdateGroupMetadata.encode;
-          break;
-        case "updateGroupPolicyAdmin":
-          encodeFunction = MsgUpdateGroupPolicyAdmin.encode;
-          break;
-        case "createGroupWithPolicy":
-          encodeFunction = MsgCreateGroupWithPolicy.encode;
-          break;
-        case "submitProposal":
-          encodeFunction = MsgSubmitProposal.encode;
-          break;
-        case "vote":
-          encodeFunction = MsgVote.encode;
-          break;
-        case "withdrawProposal":
-          encodeFunction = MsgWithdrawProposal.encode;
-          break;
-        case "exec":
-          encodeFunction = MsgExec.encode;
-          break;
-        case "leaveGroup":
-          encodeFunction = MsgLeaveGroup.encode;
-          break;
-        case "multiSend":
-          encodeFunction = MsgMultiSend.encode;
-          break;
-        case "softwareUpgrade":
-          encodeFunction = MsgSoftwareUpgrade.encode;
-          break;
-        case "cancelUpgrade":
-          encodeFunction = MsgCancelUpgrade.encode;
-          break;
-        case "customMessage":
-          encodeFunction = MsgSend.encode;
-          break;
-        default:
-          throw new Error(
-            `No encode function found for message type: ${message.type}`,
-          );
-      }
-
-      if (!encodeFunction) {
-        throw new Error(
-          `Encode function not set for message type: ${message.type}`,
-        );
-      }
-
-      try {
-        const encodedValue = encodeFunction(composedMessage.value).finish();
-
-        const anyMessage = Any.fromPartial({
-          typeUrl: composedMessage.typeUrl,
-          value: encodedValue,
-        });
-
-        return anyMessage;
-      } catch (error) {
-        console.error("Error encoding message:", error);
-        console.error("Message type:", message.type);
-        console.error("Composed message:", composedMessage);
-        throw error;
-      }
-    }
-    throw new Error(`Unknown message type: ${message.type}`);
-  };
-
+  
   const proposalMetadata = {
     title: formData.metadata.title,
     authors: formData.metadata.authors,
@@ -303,28 +171,73 @@ export default function ConfirmationModal({
   const handleConfirm = async () => {
     setIsSigning(true);
     const CID = await uploadMetaDataToIPFS();
-    //TODO: messages are not being processed correctly. Message info is not being passed to getMessageObject
-    const messages: Any[] = formData.messages.map((message) =>
-      getMessageObject(message),
-    );
+  
+    const messages = formData.messages.map((message) => {
+      const composer = messageTypeToComposer[message.type as keyof MessageTypeMap];
+      if (!composer) {
+        throw new Error(`Unknown message type: ${message.type}`);
+      }
+      
 
-    const msg = submitProposal({
+      let { type, ...messageData } = message;
+      messageData = convertKeysToCamelCase(messageData);
+      
+      const composedMessage = composer(messageData);
+      
+      return Any.fromPartial({
+        typeUrl: composedMessage.typeUrl,
+        value: composedMessage.value,
+      });
+    });
+
+    const testMessage = {
+      typeUrl: "/cosmos.bank.v1beta1.MsgSend",
+      value: MsgSend.toProtoMsg({fromAddress: "manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj", toAddress: "manifest1uwqjtgjhjctjc45ugy7ev5prprhehc7wclherd", amount: [{amount: "1", denom: "umfx"}]}),
+    }
+  
+    const proposalMsg = {
       groupPolicyAddress: policyAddress,
-      messages: messages,
-      metadata: CID,
       proposers: [formData.proposers],
+      metadata: CID,
+      messages: [testMessage],
+      exec: 1, 
       title: formData.title,
       summary: formData.metadata.summary,
-      exec: 0,
+    };
+  
+   
+  
+    const msg = cosmos.group.v1.MessageComposer.withTypeUrl.submitProposal({
+      groupPolicyAddress: policyAddress,
+      proposers: [formData.proposers],
+      metadata: CID,
+      messages: [{
+        typeUrl: "/cosmos.bank.v1beta1.MsgSend",
+        value: MsgSend.encode(MsgSend.fromPartial({fromAddress: "manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj", toAddress: "manifest1uwqjtgjhjctjc45ugy7ev5prprhehc7wclherd", amount: [{amount: "1", denom: "umfx"}]})).finish(),
+      }],
+      exec: 1, 
+      title: formData.title,
+      summary: formData.metadata.summary,
     });
-
-    const fee = await estimateFee(address ?? "", [msg]);
-    await tx([msg], {
-      fee,
-      onSuccess: () => {
-        nextStep();
-      },
-    });
+  
+    
+    try {
+      const fee = {
+        amount: [{amount: "1000", denom: "umfx"}],
+        gas: "1000000",
+      };
+      await tx([msg], {
+        fee,
+        onSuccess: () => {
+          nextStep();
+        },
+      });
+    } catch (error) {
+      console.error("Transaction error:", error);
+     
+    } finally {
+      setIsSigning(false);
+    }
   };
 
   return (

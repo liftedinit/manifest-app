@@ -1,7 +1,22 @@
 import React from "react";
+import { Formik, Form } from "formik";
+import * as Yup from "yup";
 import { ProposalFormData, ProposalAction } from "@/helpers/formReducer";
 import Link from "next/link";
 import { PiAddressBook } from "react-icons/pi";
+import { TextInput, TextArea } from "@/components/react/inputs";
+const ProposalSchema = Yup.object().shape({
+  title: Yup.string()
+    .required("Title is required")
+    .max(50, "Title must not exceed 50 characters"),
+  proposers: Yup.string()
+    .required("Proposer is required")
+    .max(200, "Proposers must not exceed 200 characters"),
+  summary: Yup.string()
+    .required("Summary is required")
+    .min(10, "Summary must be at least 10 characters")
+    .max(500, "Summary must not exceed 500 characters"),
+});
 
 export default function ProposalDetails({
   nextStep,
@@ -17,89 +32,82 @@ export default function ProposalDetails({
   const updateField = (field: keyof ProposalFormData, value: any) => {
     dispatch({ type: "UPDATE_FIELD", field, value });
   };
-
+  console.log(formData);
   return (
     <section className="">
-      <div className="lg:flex  mx-auto">
+      <div className="lg:flex mx-auto">
         <div className="flex items-center mx-auto md:w-[42rem] px-4 md:px-8 xl:px-0">
           <div className="w-full">
-            <h1 className="mb-4 text-2xl font-extrabold tracking-tight sm:mb-6 leading-tight ">
+            <h1 className="mb-4 text-2xl font-extrabold tracking-tight sm:mb-6 leading-tight">
               Proposal
             </h1>
-            <form className="min-h-[330px]">
-              <div className="grid gap-5 my-6 sm:grid-cols-2">
-                <div>
-                  <label
-                    htmlFor="full-name"
-                    className="block mb-2 text-sm font-medium"
-                  >
-                    Proposal Title
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Title"
-                    className="input input-bordered w-full max-w-xs"
-                    value={formData?.title}
-                    onChange={(e) => updateField("title", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="block mb-2 text-sm font-medium "
-                  >
-                    Proposer
-                  </label>
-                  <div className="flex flex-row justify-between items-center">
-                    {" "}
-                    <input
-                      type="text"
-                      placeholder="List of authors"
-                      className="input input-bordered rounded-tl-lg rounded-bl-lg rounded-tr-none rounded-br-none w-full max-w-xs"
-                      value={formData.proposers}
-                      onChange={(e) => updateField("proposers", e.target.value)}
-                    />{" "}
-                    <button
-                      aria-label={"address-btn"}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        updateField("proposers", address);
-                      }}
-                      className="btn btn-primary rounded-tr-lg rounded-br-lg  rounded-bl-none rounded-tl-none "
-                    >
-                      <PiAddressBook className="w-6 h-6" />
-                    </button>
-                  </div>
-                </div>
-                <div>
-                  <label
-                    htmlFor="password"
-                    className="block mb-2 text-sm font-medium  "
-                  >
-                    Summary
-                  </label>
-                  <textarea
-                    className="textarea textarea-bordered w-full max-w-xs"
-                    placeholder="Short Bio"
-                    value={formData?.summary}
-                    onChange={(e) => updateField("summary", e.target.value)}
-                  ></textarea>
-                </div>
-              </div>
-            </form>
-
-            <button
-              onClick={nextStep}
-              className="w-full mt-4 btn px-5 py-2.5 sm:py-3.5 btn-primary"
-              disabled={
-                !formData.title || !formData.proposers || !formData.summary
-              }
+            <Formik
+              initialValues={formData}
+              validationSchema={ProposalSchema}
+              onSubmit={nextStep}
+              validateOnChange={true}
             >
-              Next: Proposal Messages
-            </button>
+              {({ isValid, dirty, setFieldValue }) => (
+                <Form className="min-h-[330px]">
+                  <div className="grid gap-5 my-6 sm:grid-cols-2">
+                    <TextInput
+                      label="Proposal Title"
+                      name="title"
+                      placeholder="Title"
+                      value={formData.title}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        updateField("title", e.target.value);
+                        setFieldValue("title", e.target.value);
+                      }}
+                    />
+                    <div className="flex flex-row items-center justify-start">
+                      <TextInput
+                        label="Proposer"
+                        name="proposers"
+                        placeholder="List of authors"
+                        value={formData.proposers}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          updateField("proposers", e.target.value);
+                          setFieldValue("proposers", e.target.value);
+                        }}
+                        className="rounded-tr-none rounded-br-none"
+                      />
+                      <button
+                        type="button"
+                        aria-label="address-btn"
+                        onClick={() => {
+                          setFieldValue("proposers", address);
+                          updateField("proposers", address);
+                        }}
+                        className="btn btn-primary rounded-tr-lg rounded-br-lg rounded-bl-none rounded-tl-none"
+                      >
+                        <PiAddressBook className="w-6 h-6" />
+                      </button>
+                    </div>
+                    <TextArea
+                      label="Summary"
+                      name="summary"
+                      placeholder="Short Bio"
+                      value={formData.summary}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                        updateField("summary", e.target.value);
+                        setFieldValue("summary", e.target.value);
+                      }}
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="w-full mt-4 btn px-5 py-2.5 sm:py-3.5 btn-primary"
+                    disabled={!isValid || !dirty}
+                  >
+                    Next: Proposal Messages
+                  </button>
+                </Form>
+              )}
+            </Formik>
             <div className="flex space-x-3 ga-4 mt-6">
-              <Link href={"/groups"} legacyBehavior>
-                <button className="btn btn-neutral py-2.5 sm:py-3.5 w-1/2 ">
+              <Link href="/groups" legacyBehavior>
+                <button className="btn btn-neutral py-2.5 sm:py-3.5 w-1/2">
                   <span className="hidden sm:inline">Back: Groups Page</span>
                   <span className="sm:hidden">Back: Groups</span>
                 </button>
