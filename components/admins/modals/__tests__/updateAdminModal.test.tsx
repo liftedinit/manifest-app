@@ -1,16 +1,16 @@
-import { describe, test, afterEach, expect } from "bun:test";
-import React from "react";
-import { screen, fireEvent, cleanup } from "@testing-library/react";
-import { UpdateAdminModal } from "@/components/admins/modals/updateAdminModal";
-import matchers from "@testing-library/jest-dom/matchers";
-import { renderWithChainProvider } from "@/tests/render";
+import { describe, test, afterEach, expect } from 'bun:test';
+import React from 'react';
+import { screen, fireEvent, cleanup } from '@testing-library/react';
+import { UpdateAdminModal } from '@/components/admins/modals/updateAdminModal';
+import matchers from '@testing-library/jest-dom/matchers';
+import { renderWithChainProvider } from '@/tests/render';
 
 expect.extend(matchers);
 
-const modalId = "test-modal";
-const admin = "manifest1adminaddress";
-const userAddress = "manifest1useraddress";
-const validAddress = "manifest1hj5fveer5cjtn4wd6wstzugjfdxzl0xp8ws9ct";
+const modalId = 'test-modal';
+const admin = 'manifest1adminaddress';
+const userAddress = 'manifest1useraddress';
+const validAddress = 'manifest1hj5fveer5cjtn4wd6wstzugjfdxzl0xp8ws9ct';
 const allowExit = true;
 
 function renderWithProps(props = {}) {
@@ -21,45 +21,45 @@ function renderWithProps(props = {}) {
       userAddress={userAddress}
       allowExit={allowExit}
       {...props}
-    />,
+    />
   );
 }
 
-describe("UpdateAdminModal Component", () => {
+describe('UpdateAdminModal Component', () => {
   afterEach(cleanup);
 
-  test("renders modal with correct details", () => {
+  test('renders modal with correct details', () => {
     renderWithProps();
-    expect(screen.getByText("Update Admin")).toBeInTheDocument();
-    expect(screen.getByText("Warning")).toBeInTheDocument();
+    expect(screen.getByText('Update Admin')).toBeInTheDocument();
+    expect(screen.getByText('Warning')).toBeInTheDocument();
     expect(
       screen.getByText(
-        "Currently, the admin is set to a group policy address. While the admin can be any manifest1 address, it is recommended to set the new admin to another group policy address.",
-      ),
+        'Currently, the admin is set to a group policy address. While the admin can be any manifest1 address, it is recommended to set the new admin to another group policy address.'
+      )
     ).toBeInTheDocument();
   });
 
-  test("updates input field correctly", () => {
+  test('updates input field correctly', () => {
     renderWithProps();
-    const input = screen.getByPlaceholderText("manifest123...");
-    fireEvent.change(input, { target: { value: "manifest1newadminaddress" } });
-    expect(input).toHaveValue("manifest1newadminaddress");
+    const input = screen.getByPlaceholderText('manifest123...');
+    fireEvent.change(input, { target: { value: 'manifest1newadminaddress' } });
+    expect(input).toHaveValue('manifest1newadminaddress');
   });
 
-  test("disables update button when input is invalid", () => {
+  test('disables update button when input is invalid', () => {
     renderWithProps();
-    const input = screen.getByPlaceholderText("manifest123...");
-    const updateButton = screen.getByText("Update");
+    const input = screen.getByPlaceholderText('manifest123...');
+    const updateButton = screen.getByText('Update');
     expect(updateButton).toBeDisabled();
-    fireEvent.change(input, { target: { value: "invalidaddress" } });
+    fireEvent.change(input, { target: { value: 'invalidaddress' } });
     expect(updateButton).toBeDisabled();
   });
 
-  test("enables update button when input is valid", () => {
+  test('enables update button when input is valid', () => {
     renderWithProps();
-    const updateButton = screen.getByText("Update");
+    const updateButton = screen.getByText('Update');
     expect(updateButton).toBeDisabled();
-    const input = screen.getByPlaceholderText("manifest123...");
+    const input = screen.getByPlaceholderText('manifest123...');
     fireEvent.change(input, { target: { value: validAddress } });
     expect(updateButton).toBeEnabled();
   });

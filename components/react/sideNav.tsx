@@ -1,18 +1,18 @@
-import { PiSunThin, PiMoonThin, PiGearSixThin } from "react-icons/pi";
-import { useEffect, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
+import { PiSunThin, PiMoonThin, PiGearSixThin } from 'react-icons/pi';
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 import {
   PiUsersFourThin,
   PiFactoryThin,
   PiChalkboardTeacherThin,
   PiCoinsThin,
-} from "react-icons/pi";
-import { useRouter } from "next/router";
-import { IconWallet, WalletSection } from "../wallet";
-import { useTheme } from "@/contexts/theme";
-import { useAdvancedMode } from "@/contexts";
-import SettingsModal from "./settingsModal";
+} from 'react-icons/pi';
+import { useRouter } from 'next/router';
+import { IconWallet, WalletSection } from '../wallet';
+import { useTheme } from '@/contexts/theme';
+import { useAdvancedMode } from '@/contexts';
+import SettingsModal from './settingsModal';
 
 export default function SideNav() {
   const [isDrawerVisible, setDrawerVisible] = useState(false);
@@ -23,7 +23,7 @@ export default function SideNav() {
   const { isAdvancedMode, toggleAdvancedMode } = useAdvancedMode();
 
   useEffect(() => {
-    const storedIsDark = localStorage.getItem("isdark");
+    const storedIsDark = localStorage.getItem('isdark');
     if (storedIsDark) {
       setIsdark(JSON.parse(storedIsDark));
       toggleTheme();
@@ -31,18 +31,15 @@ export default function SideNav() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("isdark", JSON.stringify(isdark));
+    localStorage.setItem('isdark', JSON.stringify(isdark));
   }, [isdark]);
 
   const toggleDrawer = () => setDrawerVisible(!isDrawerVisible);
 
-  const NavItem: React.FC<{ Icon: React.ElementType; href: string }> = ({
-    Icon,
-    href,
-  }) => {
+  const NavItem: React.FC<{ Icon: React.ElementType; href: string }> = ({ Icon, href }) => {
     const { pathname } = useRouter();
     const isActive = pathname === href;
-    const tooltipText = href.split("/")[1] || href;
+    const tooltipText = href.split('/')[1] || href;
 
     return (
       <li className="relative group z-50">
@@ -50,7 +47,7 @@ export default function SideNav() {
           <a className="group active:scale-95 hover:ring-2 hover:ring-primary flex justify-center p-1 items-center mt-8 rounded-lg transition-all duration-300 ease-in-out">
             <Icon
               className={`w-8 h-8 transition-all duration-300 ease-in-out ${
-                isActive ? "text-primary scale-105" : "hover:text-primary"
+                isActive ? 'text-primary scale-105' : 'hover:text-primary'
               }`}
             />
             <span className="tooltip absolute z-50 left-full ml-2 px-3 py-2 bg-primary text-white text-sm font-medium rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-in-out whitespace-nowrap">
@@ -64,10 +61,10 @@ export default function SideNav() {
 
   const SideNav: React.FC = () => (
     <div className="overflow-y-auto z-30 py-5 px-3 w-20 bg-base-300 border-r border-primary mx-auto justify-center align-middle h-full transition-transform duration-300 ease-in-out items-center ">
-      <Link href={"/#"} passHref legacyBehavior>
+      <Link href={'/#'} passHref legacyBehavior>
         <a href="#">
           <Image
-            src={"/logo.svg"}
+            src={'/logo.svg'}
             className=" h-12 w-12 mx-auto "
             alt="Logo"
             height={264}
@@ -112,10 +109,7 @@ export default function SideNav() {
     </div>
   );
 
-  const NavDrawer: React.FC<{ Icon: React.ElementType; href: string }> = ({
-    Icon,
-    href,
-  }) => {
+  const NavDrawer: React.FC<{ Icon: React.ElementType; href: string }> = ({ Icon, href }) => {
     return (
       <li>
         <Link href={href} legacyBehavior>
@@ -134,7 +128,7 @@ export default function SideNav() {
       className="overflow-y-auto relative py-5 px-3 w-64 h-full  border-primary bg-base-300 border-r-primary border-r transition-transform duration-300 ease-in-out"
     >
       <div className="flex flex-row gap-4 items-center ">
-        <img src={"/logo.svg"} alt="logo" width={42} height={42} />
+        <img src={'/logo.svg'} alt="logo" width={42} height={42} />
         <span className="text-2xl leadin-tight text-balance ">Alberto</span>
       </div>
 
@@ -211,16 +205,13 @@ export default function SideNav() {
       <aside
         id="sidebar-double"
         className={`flex z-40 fixed top-0  h-full transform ${
-          isDrawerVisible ? "translate-x-0" : "-translate-x-full"
+          isDrawerVisible ? 'translate-x-0' : '-translate-x-full'
         } transition-transform duration-300 ease-in-out`}
         aria-label="Sidebar"
       >
         <SideDrawer />
       </aside>
-      <SettingsModal
-        isOpen={isSettingsModalOpen}
-        onClose={() => setIsSettingsModalOpen(false)}
-      />
+      <SettingsModal isOpen={isSettingsModalOpen} onClose={() => setIsSettingsModalOpen(false)} />
     </>
   );
 }

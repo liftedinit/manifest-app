@@ -1,30 +1,30 @@
-import { MouseEventHandler, useMemo } from "react";
+import { MouseEventHandler, useMemo } from 'react';
 
-import { ArrowPathIcon, ArrowDownTrayIcon } from "@heroicons/react/24/outline";
-import { PiWalletThin } from "react-icons/pi";
-import { useChain } from "@cosmos-kit/react";
-import { WalletStatus } from "cosmos-kit";
+import { ArrowPathIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import { PiWalletThin } from 'react-icons/pi';
+import { useChain } from '@cosmos-kit/react';
+import { WalletStatus } from 'cosmos-kit';
 
 const buttons = {
   Disconnected: {
     icon: PiWalletThin,
-    title: "Connect Wallet",
+    title: 'Connect Wallet',
   },
   Connected: {
     icon: PiWalletThin,
-    title: "My Wallet",
+    title: 'My Wallet',
   },
   Rejected: {
     icon: ArrowPathIcon,
-    title: "Reconnect",
+    title: 'Reconnect',
   },
   Error: {
     icon: ArrowPathIcon,
-    title: "Change Wallet",
+    title: 'Change Wallet',
   },
   NotExist: {
     icon: ArrowDownTrayIcon,
-    title: "Install Wallet",
+    title: 'Install Wallet',
   },
 };
 
@@ -50,12 +50,12 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
     icon: logoUrl,
   };
 
-  const onClickConnect: MouseEventHandler = async (e) => {
+  const onClickConnect: MouseEventHandler = async e => {
     e.preventDefault();
     await connect();
   };
 
-  const onClickOpenView: MouseEventHandler = (e) => {
+  const onClickOpenView: MouseEventHandler = e => {
     e.preventDefault();
     openView();
   };
@@ -90,10 +90,7 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
     }
 
     let onClick;
-    if (
-      status === WalletStatus.Disconnected ||
-      status === WalletStatus.Rejected
-    )
+    if (status === WalletStatus.Disconnected || status === WalletStatus.Rejected)
       onClick = onClickConnect;
     else onClick = onClickOpenView;
 
@@ -120,12 +117,12 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
 export const IconWallet: React.FC<WalletSectionProps> = ({ chainName }) => {
   const { connect, openView, status } = useChain(chainName);
 
-  const onClickConnect: MouseEventHandler = async (e) => {
+  const onClickConnect: MouseEventHandler = async e => {
     e.preventDefault();
     await connect();
   };
 
-  const onClickOpenView: MouseEventHandler = (e) => {
+  const onClickOpenView: MouseEventHandler = e => {
     e.preventDefault();
     openView();
   };
@@ -159,10 +156,7 @@ export const IconWallet: React.FC<WalletSectionProps> = ({ chainName }) => {
     }
 
     let onClick;
-    if (
-      status === WalletStatus.Disconnected ||
-      status === WalletStatus.Rejected
-    )
+    if (status === WalletStatus.Disconnected || status === WalletStatus.Rejected)
       onClick = onClickConnect;
     else onClick = onClickOpenView;
 

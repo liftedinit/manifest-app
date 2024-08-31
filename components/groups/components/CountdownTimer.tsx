@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 
 export default function CountdownTimer({ endTime }: { endTime: Date }) {
   const calculateTimeLeft = () => {
@@ -6,9 +6,7 @@ export default function CountdownTimer({ endTime }: { endTime: Date }) {
     const timeDiff = endTime.getTime() - now.getTime();
     if (timeDiff > 0) {
       const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor(
-        (timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
-      );
+      const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
       const min = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
       const sec = Math.floor((timeDiff % (1000 * 60)) / 1000);
       return { days, hours, min, sec };
@@ -32,7 +30,7 @@ export default function CountdownTimer({ endTime }: { endTime: Date }) {
         <div className="flex flex-col">
           <span className="countdown  text-xl">
             <span
-              style={{ "--value": timeLeft.days } as React.CSSProperties}
+              style={{ '--value': timeLeft.days } as React.CSSProperties}
               aria-label="days"
             ></span>
           </span>
@@ -43,7 +41,7 @@ export default function CountdownTimer({ endTime }: { endTime: Date }) {
             <span
               style={
                 {
-                  "--value": timeLeft.hours,
+                  '--value': timeLeft.hours,
                 } as React.CSSProperties
               }
               aria-label="hours"
@@ -56,7 +54,7 @@ export default function CountdownTimer({ endTime }: { endTime: Date }) {
             <span
               style={
                 {
-                  "--value": timeLeft.min,
+                  '--value': timeLeft.min,
                 } as React.CSSProperties
               }
               aria-label="mins"
@@ -69,7 +67,7 @@ export default function CountdownTimer({ endTime }: { endTime: Date }) {
             <span
               style={
                 {
-                  "--value": timeLeft.sec,
+                  '--value': timeLeft.sec,
                 } as React.CSSProperties
               }
               aria-label="secs"

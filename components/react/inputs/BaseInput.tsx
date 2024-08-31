@@ -1,5 +1,5 @@
-import React from "react";
-import { useField } from "formik";
+import React from 'react';
+import { useField } from 'formik';
 
 interface BaseInputProps {
   label: string;
@@ -7,9 +7,10 @@ interface BaseInputProps {
   className?: string;
 }
 
-export const BaseInput: React.FC<
-  BaseInputProps & React.InputHTMLAttributes<HTMLInputElement>
-> = ({ label, ...props }) => {
+export const BaseInput: React.FC<BaseInputProps & React.InputHTMLAttributes<HTMLInputElement>> = ({
+  label,
+  ...props
+}) => {
   const [field, meta] = useField(props);
   const id = props.id || props.name;
   return (

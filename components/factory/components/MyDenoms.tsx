@@ -1,8 +1,8 @@
-import ProfileAvatar from "@/utils/identicon";
-import { useRef, useState, useEffect } from "react";
-import { useRouter } from "next/router";
-import { MetadataSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
-import { DenomImage } from "./DenomImage";
+import ProfileAvatar from '@/utils/identicon';
+import { useRef, useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { DenomImage } from './DenomImage';
 
 export default function MyDenoms({
   denoms,
@@ -18,7 +18,7 @@ export default function MyDenoms({
   onSelectDenom: (denom: MetadataSDKType) => void;
 }) {
   const [selectedDenom, setSelectedDenom] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
   const denomRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
@@ -28,7 +28,7 @@ export default function MyDenoms({
     if (!selectedDenom && denoms.length > 0 && !isLoading) {
       if (denomFromUrl) {
         setSelectedDenom(denomFromUrl);
-        const metadata = denoms.find((denom) => denom.base === denomFromUrl);
+        const metadata = denoms.find(denom => denom.base === denomFromUrl);
         if (metadata) onSelectDenom(metadata);
         scrollToDenom(denomFromUrl);
       } else {
@@ -45,7 +45,7 @@ export default function MyDenoms({
   const scrollToDenom = (denom: string) => {
     const denomElement = denomRefs.current[denom];
     if (denomElement) {
-      denomElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      denomElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   };
 
@@ -60,15 +60,12 @@ export default function MyDenoms({
 
   const renderSkeleton = () => (
     <div className="py-8">
-      <div
-        className="skeleton rounded-md mx-auto h-16 w-5/6"
-        aria-label="skeleton"
-      ></div>
+      <div className="skeleton rounded-md mx-auto h-16 w-5/6" aria-label="skeleton"></div>
     </div>
   );
 
-  const filteredDenoms = denoms?.filter((denom) =>
-    denom?.display.toLowerCase().includes(searchQuery.toLowerCase()),
+  const filteredDenoms = denoms?.filter(denom =>
+    denom?.display.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -80,7 +77,7 @@ export default function MyDenoms({
             type="text"
             placeholder="Search..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={e => setSearchQuery(e.target.value)}
             className="input input-bordered input-xs w-1/3 max-w-xs"
           />
         </div>
@@ -91,11 +88,11 @@ export default function MyDenoms({
             return (
               <div
                 key={index}
-                ref={(el) => (denomRefs.current[denom.base] = el)}
+                ref={el => (denomRefs.current[denom.base] = el)}
                 className={`relative flex flex-row justify-between rounded-md mb-4 mt-2 items-center px-4 py-2 hover:cursor-pointer transition-all duration-200 ${
                   selectedDenom === denom.base
-                    ? "bg-primary border-r-4 border-r-[#263c3add] border-b-[#263c3add] border-b-4"
-                    : "bg-base-300 border-r-4 border-r-base-200 border-b-base-200 border-b-4 active:scale-95 hover:bg-base-200"
+                    ? 'bg-primary border-r-4 border-r-[#263c3add] border-b-[#263c3add] border-b-4'
+                    : 'bg-base-300 border-r-4 border-r-base-200 border-b-base-200 border-b-4 active:scale-95 hover:bg-base-200'
                 }`}
                 onClick={() => handleDenomSelect(denom)}
               >

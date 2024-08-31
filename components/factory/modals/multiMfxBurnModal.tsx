@@ -1,5 +1,5 @@
-import React from "react";
-import { PiPlusCircle, PiMinusCircle } from "react-icons/pi";
+import React from 'react';
+import { PiPlusCircle, PiMinusCircle } from 'react-icons/pi';
 
 interface BurnPair {
   address: string;
@@ -10,11 +10,7 @@ interface MultiBurnModalProps {
   isOpen: boolean;
   onClose: () => void;
   burnPairs: BurnPair[];
-  updateBurnPair: (
-    index: number,
-    field: "address" | "amount",
-    value: string,
-  ) => void;
+  updateBurnPair: (index: number, field: 'address' | 'amount', value: string) => void;
   addBurnPair: () => void;
   removeBurnPair: (index: number) => void;
   handleMultiBurn: () => void;
@@ -32,10 +28,7 @@ export function MultiBurnModal({
   isSigning,
 }: MultiBurnModalProps) {
   return (
-    <dialog
-      id="multi_burn_modal"
-      className={`modal ${isOpen ? "modal-open" : ""}`}
-    >
+    <dialog id="multi_burn_modal" className={`modal ${isOpen ? 'modal-open' : ''}`}>
       <div className="modal-box max-w-3xl">
         <h3 className="font-bold text-2xl mb-4">Multi Burn MFX</h3>
         <div className="divider -mt-4"></div>
@@ -54,9 +47,7 @@ export function MultiBurnModal({
                   placeholder="Enter address"
                   className="input input-bordered input-sm w-full mb-4"
                   value={pair.address}
-                  onChange={(e) =>
-                    updateBurnPair(index, "address", e.target.value)
-                  }
+                  onChange={e => updateBurnPair(index, 'address', e.target.value)}
                 />
               </div>
               <div className="w-full md:w-1/3">
@@ -68,19 +59,15 @@ export function MultiBurnModal({
                   placeholder="Enter amount"
                   className="input input-bordered input-sm w-full mb-4"
                   value={pair.amount}
-                  onChange={(e) =>
-                    updateBurnPair(index, "amount", e.target.value)
-                  }
+                  onChange={e => updateBurnPair(index, 'amount', e.target.value)}
                 />
               </div>
               <button
                 onClick={() =>
-                  index === burnPairs.length - 1
-                    ? addBurnPair()
-                    : removeBurnPair(index)
+                  index === burnPairs.length - 1 ? addBurnPair() : removeBurnPair(index)
                 }
                 className={`btn btn-circle btn-sm ${
-                  index === burnPairs.length - 1 ? "btn-secondary" : "btn-error"
+                  index === burnPairs.length - 1 ? 'btn-secondary' : 'btn-error'
                 } mt-4 md:mt-0`}
               >
                 {index === burnPairs.length - 1 ? (
@@ -96,16 +83,8 @@ export function MultiBurnModal({
           <button className="btn btn-ghost" onClick={onClose}>
             Cancel
           </button>
-          <button
-            className="btn btn-secondary"
-            onClick={handleMultiBurn}
-            disabled={isSigning}
-          >
-            {isSigning ? (
-              <span className="loading loading-dots loading-md"></span>
-            ) : (
-              "Multi Burn"
-            )}
+          <button className="btn btn-secondary" onClick={handleMultiBurn} disabled={isSigning}>
+            {isSigning ? <span className="loading loading-dots loading-md"></span> : 'Multi Burn'}
           </button>
         </div>
       </div>

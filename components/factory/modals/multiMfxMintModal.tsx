@@ -1,6 +1,6 @@
 // MultiMintModal.tsx
-import React from "react";
-import { PiPlusCircle, PiMinusCircle } from "react-icons/pi";
+import React from 'react';
+import { PiPlusCircle, PiMinusCircle } from 'react-icons/pi';
 
 interface PayoutPair {
   address: string;
@@ -11,11 +11,7 @@ interface MultiMintModalProps {
   isOpen: boolean;
   onClose: () => void;
   payoutPairs: PayoutPair[];
-  updatePayoutPair: (
-    index: number,
-    field: "address" | "amount",
-    value: string,
-  ) => void;
+  updatePayoutPair: (index: number, field: 'address' | 'amount', value: string) => void;
   addPayoutPair: () => void;
   removePayoutPair: (index: number) => void;
   handleMultiMint: () => void;
@@ -33,10 +29,7 @@ export function MultiMintModal({
   isSigning,
 }: MultiMintModalProps) {
   return (
-    <dialog
-      id="multi_mint_modal"
-      className={`modal ${isOpen ? "modal-open" : ""}`}
-    >
+    <dialog id="multi_mint_modal" className={`modal ${isOpen ? 'modal-open' : ''}`}>
       <div className="modal-box max-w-3xl">
         <h3 className="font-bold text-2xl mb-4">Multi Mint MFX</h3>
         <div className="divider -mt-4"></div>
@@ -48,18 +41,14 @@ export function MultiMintModal({
             >
               <div className="w-full md:w-1/2">
                 <label className="label -mb-2">
-                  <span className="label-text font-medium">
-                    Recipient Address
-                  </span>
+                  <span className="label-text font-medium">Recipient Address</span>
                 </label>
                 <input
                   type="text"
                   placeholder="Enter address"
                   className="input input-bordered input-sm w-full mb-4"
                   value={pair.address}
-                  onChange={(e) =>
-                    updatePayoutPair(index, "address", e.target.value)
-                  }
+                  onChange={e => updatePayoutPair(index, 'address', e.target.value)}
                 />
               </div>
               <div className="w-full md:w-1/3">
@@ -71,19 +60,15 @@ export function MultiMintModal({
                   placeholder="Enter amount"
                   className="input input-bordered input-sm w-full mb-4"
                   value={pair.amount}
-                  onChange={(e) =>
-                    updatePayoutPair(index, "amount", e.target.value)
-                  }
+                  onChange={e => updatePayoutPair(index, 'amount', e.target.value)}
                 />
               </div>
               <button
                 onClick={() =>
-                  index === payoutPairs.length - 1
-                    ? addPayoutPair()
-                    : removePayoutPair(index)
+                  index === payoutPairs.length - 1 ? addPayoutPair() : removePayoutPair(index)
                 }
                 className={`btn btn-circle btn-sm ${
-                  index === payoutPairs.length - 1 ? "btn-primary" : "btn-error"
+                  index === payoutPairs.length - 1 ? 'btn-primary' : 'btn-error'
                 } mt-4 md:mt-0`}
               >
                 {index === payoutPairs.length - 1 ? (
@@ -99,16 +84,8 @@ export function MultiMintModal({
           <button className="btn btn-ghost" onClick={onClose}>
             Cancel
           </button>
-          <button
-            className="btn btn-primary"
-            onClick={handleMultiMint}
-            disabled={isSigning}
-          >
-            {isSigning ? (
-              <span className="loading loading-dots loading-md"></span>
-            ) : (
-              "Multi Mint"
-            )}
+          <button className="btn btn-primary" onClick={handleMultiMint} disabled={isSigning}>
+            {isSigning ? <span className="loading loading-dots loading-md"></span> : 'Multi Mint'}
           </button>
         </div>
       </div>

@@ -1,14 +1,14 @@
-import React, { useState } from "react";
-import { chainName } from "@/config";
-import { useFeeEstimation, useGroupsByAdmin, useTx } from "@/hooks";
-import { cosmos, manifest, osmosis } from "@chalabi/manifestjs";
-import { MetadataSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
-import { PiAddressBook, PiPlusCircle, PiMinusCircle } from "react-icons/pi";
-import { shiftDigits } from "@/utils";
-import { Any } from "@chalabi/manifestjs/dist/codegen/google/protobuf/any";
-import { MsgPayout } from "@chalabi/manifestjs/dist/codegen/manifest/v1/tx";
-import { MultiMintModal } from "../modals/multiMfxMintModal";
-import { useToast } from "@/contexts";
+import React, { useState } from 'react';
+import { chainName } from '@/config';
+import { useFeeEstimation, useGroupsByAdmin, useTx } from '@/hooks';
+import { cosmos, manifest, osmosis } from '@chalabi/manifestjs';
+import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { PiAddressBook, PiPlusCircle, PiMinusCircle } from 'react-icons/pi';
+import { shiftDigits } from '@/utils';
+import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
+import { MsgPayout } from '@chalabi/manifestjs/dist/codegen/manifest/v1/tx';
+import { MultiMintModal } from '../modals/multiMfxMintModal';
+import { useToast } from '@/contexts';
 
 interface PayoutPair {
   address: string;
@@ -30,13 +30,11 @@ export default function MintForm({
   balance: string;
   isAdmin: boolean;
 }>) {
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState('');
   const [recipient, setRecipient] = useState(address);
   const [isSigning, setIsSigning] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [payoutPairs, setPayoutPairs] = useState<PayoutPair[]>([
-    { address: "", amount: "" },
-  ]);
+  const [payoutPairs, setPayoutPairs] = useState<PayoutPair[]>([{ address: '', amount: '' }]);
   const { setToastMessage } = useToast();
   const { tx } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
@@ -44,10 +42,8 @@ export default function MintForm({
   const { payout } = manifest.v1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
-  const exponent =
-    denom?.denom_units?.find((unit) => unit.denom === denom.display)
-      ?.exponent || 0;
-  const isMFX = denom.base.includes("mfx");
+  const exponent = denom?.denom_units?.find(unit => unit.denom === denom.display)?.exponent || 0;
+  const isMFX = denom.base.includes('mfx');
 
   const handleMint = async () => {
     if (!amount || isNaN(Number(amount))) {
@@ -55,14 +51,12 @@ export default function MintForm({
     }
     setIsSigning(true);
     try {
-      const amountInBaseUnits = BigInt(
-        parseFloat(amount) * Math.pow(10, exponent),
-      ).toString();
+      const amountInBaseUnits = BigInt(parseFloat(amount) * Math.pow(10, exponent)).toString();
 
       let msg;
       if (isMFX) {
         const payoutMsg = payout({
-          authority: admin ?? "",
+          authority: admin ?? '',
           payoutPairs: [
             {
               address: recipient,
@@ -75,10 +69,10 @@ export default function MintForm({
           value: MsgPayout.encode(payoutMsg.value).finish(),
         });
         msg = submitProposal({
-          groupPolicyAddress: admin ?? "",
+          groupPolicyAddress: admin ?? '',
           messages: [encodedMessage],
-          metadata: "",
-          proposers: [address ?? ""],
+          metadata: '',
+          proposers: [address ?? ''],
           title: `Manifest Module Control: Mint MFX`,
           summary: `This proposal includes a mint action for MFX.`,
           exec: 0,
@@ -94,46 +88,40 @@ export default function MintForm({
         });
       }
 
-      const fee = await estimateFee(address ?? "", [msg]);
+      const fee = await estimateFee(address ?? '', [msg]);
       await tx([msg], {
         fee,
         onSuccess: () => {
-          setAmount("");
+          setAmount('');
           refetch();
         },
       });
     } catch (error) {
-      console.error("Error during minting:", error);
+      console.error('Error during minting:', error);
     } finally {
       setIsSigning(false);
     }
   };
 
   const handleMultiMint = async () => {
-    if (
-      payoutPairs.some(
-        (pair) => !pair.address || !pair.amount || isNaN(Number(pair.amount)),
-      )
-    ) {
+    if (payoutPairs.some(pair => !pair.address || !pair.amount || isNaN(Number(pair.amount)))) {
       setToastMessage({
-        type: "alert-error",
-        title: "Missing fields",
-        description: "Please fill in all fields with valid values.",
-        bgColor: "#e74c3c",
+        type: 'alert-error',
+        title: 'Missing fields',
+        description: 'Please fill in all fields with valid values.',
+        bgColor: '#e74c3c',
       });
       return;
     }
     setIsSigning(true);
     try {
       const payoutMsg = payout({
-        authority: admin ?? "",
-        payoutPairs: payoutPairs.map((pair) => ({
+        authority: admin ?? '',
+        payoutPairs: payoutPairs.map(pair => ({
           address: pair.address,
           coin: {
             denom: denom.base,
-            amount: BigInt(
-              parseFloat(pair.amount) * Math.pow(10, exponent),
-            ).toString(),
+            amount: BigInt(parseFloat(pair.amount) * Math.pow(10, exponent)).toString(),
           },
         })),
       });
@@ -142,40 +130,35 @@ export default function MintForm({
         value: MsgPayout.encode(payoutMsg.value).finish(),
       });
       const msg = submitProposal({
-        groupPolicyAddress: admin ?? "",
+        groupPolicyAddress: admin ?? '',
         messages: [encodedMessage],
-        metadata: "",
-        proposers: [address ?? ""],
+        metadata: '',
+        proposers: [address ?? ''],
         title: `Manifest Module Control: Multi Mint MFX`,
         summary: `This proposal includes multiple mint actions for MFX.`,
         exec: 0,
       });
 
-      const fee = await estimateFee(address ?? "", [msg]);
+      const fee = await estimateFee(address ?? '', [msg]);
       await tx([msg], {
         fee,
         onSuccess: () => {
-          setPayoutPairs([{ address: "", amount: "" }]);
+          setPayoutPairs([{ address: '', amount: '' }]);
           setIsModalOpen(false);
           refetch();
         },
       });
     } catch (error) {
-      console.error("Error during multi-minting:", error);
+      console.error('Error during multi-minting:', error);
     } finally {
       setIsSigning(false);
     }
   };
 
-  const addPayoutPair = () =>
-    setPayoutPairs([...payoutPairs, { address: "", amount: "" }]);
+  const addPayoutPair = () => setPayoutPairs([...payoutPairs, { address: '', amount: '' }]);
   const removePayoutPair = (index: number) =>
     setPayoutPairs(payoutPairs.filter((_, i) => i !== index));
-  const updatePayoutPair = (
-    index: number,
-    field: "address" | "amount",
-    value: string,
-  ) => {
+  const updatePayoutPair = (index: number, field: 'address' | 'amount', value: string) => {
     const newPairs = [...payoutPairs];
     newPairs[index][field] = value;
     setPayoutPairs(newPairs);
@@ -194,27 +177,19 @@ export default function MintForm({
               <div className="grid grid-cols-2 gap-6">
                 <div>
                   <p className="text-sm text-gray-500">NAME</p>
-                  <p className="font-semibold text-md max-w-[20ch] truncate">
-                    {denom.name}
-                  </p>
+                  <p className="font-semibold text-md max-w-[20ch] truncate">{denom.name}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">YOUR BALANCE</p>
-                  <p className="font-semibold text-md">
-                    {shiftDigits(balance, -exponent)}
-                  </p>
+                  <p className="font-semibold text-md">{shiftDigits(balance, -exponent)}</p>
                 </div>
                 <div>
                   <p className="text-md text-gray-500">EXPONENT</p>
-                  <p className="font-semibold text-md">
-                    {denom?.denom_units[1]?.exponent}
-                  </p>
+                  <p className="font-semibold text-md">{denom?.denom_units[1]?.exponent}</p>
                 </div>
                 <div>
                   <p className="text-md text-gray-500">CIRCULATING SUPPLY</p>
-                  <p className="font-semibold text-md max-w-[20ch] truncate">
-                    {denom.display}
-                  </p>
+                  <p className="font-semibold text-md max-w-[20ch] truncate">{denom.display}</p>
                 </div>
               </div>
               <div className="flex space-x-4 mt-8 ">
@@ -223,12 +198,12 @@ export default function MintForm({
                     <p className="text-md">AMOUNT</p>
                   </label>
                   <input
-                    aria-label={"mint-amount-input"}
+                    aria-label={'mint-amount-input'}
                     type="text"
                     placeholder="Enter amount"
                     className="input input-bordered h-10 input-sm w-full"
                     value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
+                    onChange={e => setAmount(e.target.value)}
                   />
                 </div>
                 <div className="flex-1 ">
@@ -237,12 +212,12 @@ export default function MintForm({
                   </label>
                   <div className="flex flex-row items-center">
                     <input
-                      aria-label={"mint-recipient-input"}
+                      aria-label={'mint-recipient-input'}
                       type="text"
                       placeholder="Recipient address"
                       className="input input-bordered input-sm h-10 rounded-tl-lg rounded-bl-lg rounded-tr-none rounded-br-none w-full"
                       value={recipient}
-                      onChange={(e) => setRecipient(e.target.value)}
+                      onChange={e => setRecipient(e.target.value)}
                     />
                     <button
                       onClick={() => setRecipient(address)}
@@ -260,17 +235,10 @@ export default function MintForm({
                 className="btn btn-primary btn-md flex-grow"
                 disabled={isSigning}
               >
-                {isSigning ? (
-                  <span className="loading loading-dots loading-xs"></span>
-                ) : (
-                  "Mint"
-                )}
+                {isSigning ? <span className="loading loading-dots loading-xs"></span> : 'Mint'}
               </button>
               {isMFX && (
-                <button
-                  onClick={() => setIsModalOpen(true)}
-                  className="btn btn-primary btn-md"
-                >
+                <button onClick={() => setIsModalOpen(true)} className="btn btn-primary btn-md">
                   Multi Mint
                 </button>
               )}

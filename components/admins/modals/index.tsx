@@ -1,3 +1,3 @@
-export * from "./updateAdminModal";
-export * from "./validatorModal";
-export * from "./warningModal";
+export * from './updateAdminModal';
+export * from './validatorModal';
+export * from './warningModal';

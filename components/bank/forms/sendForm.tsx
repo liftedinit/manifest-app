@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
-import { chainName } from "@/config";
-import { useFeeEstimation, useTx } from "@/hooks";
-import { cosmos } from "@chalabi/manifestjs";
-import { PiAddressBook, PiCaretDownBold } from "react-icons/pi";
-import { shiftDigits } from "@/utils";
-import { CombinedBalanceInfo } from "@/pages/bank";
-import { DenomImage } from "@/components/factory";
+import { useState, useEffect } from 'react';
+import { chainName } from '@/config';
+import { useFeeEstimation, useTx } from '@/hooks';
+import { cosmos } from '@chalabi/manifestjs';
+import { PiAddressBook, PiCaretDownBold } from 'react-icons/pi';
+import { shiftDigits } from '@/utils';
+import { CombinedBalanceInfo } from '@/pages/bank';
+import { DenomImage } from '@/components/factory';
 
 export default function SendForm({
   address,
@@ -18,10 +18,9 @@ export default function SendForm({
   isBalancesLoading: boolean;
   refetchBalances: () => void;
 }>) {
-  const [recipient, setRecipient] = useState("");
-  const [amount, setAmount] = useState("");
-  const [selectedToken, setSelectedToken] =
-    useState<CombinedBalanceInfo | null>(null);
+  const [recipient, setRecipient] = useState('');
+  const [amount, setAmount] = useState('');
+  const [selectedToken, setSelectedToken] = useState<CombinedBalanceInfo | null>(null);
   const [isSending, setIsSending] = useState(false);
 
   const { tx } = useTx(chainName);
@@ -42,9 +41,8 @@ export default function SendForm({
     setIsSending(true);
     try {
       const exponent =
-        selectedToken.metadata?.denom_units.find(
-          (unit) => unit.denom === selectedToken.denom,
-        )?.exponent ?? 6;
+        selectedToken.metadata?.denom_units.find(unit => unit.denom === selectedToken.denom)
+          ?.exponent ?? 6;
       const amountInBaseUnits = shiftDigits(amount, exponent);
 
       const msg = send({
@@ -57,22 +55,22 @@ export default function SendForm({
       await tx([msg], {
         fee,
         onSuccess: () => {
-          setAmount("");
-          setRecipient("");
+          setAmount('');
+          setRecipient('');
           refetchBalances();
         },
       });
     } catch (error) {
-      console.error("Error during sending:", error);
+      console.error('Error during sending:', error);
     } finally {
       setIsSending(false);
     }
   };
 
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredBalances = balances?.filter((token) =>
-    token.metadata?.display.toLowerCase().includes(searchTerm.toLowerCase()),
+  const filteredBalances = balances?.filter(token =>
+    token.metadata?.display.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -86,9 +84,9 @@ export default function SendForm({
             <label
               tabIndex={0}
               className="btn btn-sm bg-base-300 w-full justify-between"
-              aria-label={"dropdown-label"}
+              aria-label={'dropdown-label'}
             >
-              {selectedToken?.metadata?.display.toUpperCase() ?? "Select Token"}
+              {selectedToken?.metadata?.display.toUpperCase() ?? 'Select Token'}
               <PiCaretDownBold className="ml-2" />
             </label>
             <ul
@@ -101,8 +99,8 @@ export default function SendForm({
                     type="text"
                     placeholder="Search tokens..."
                     className="input input-sm w-full pr-8 focus:outline-none focus:ring-0 border-none bg-transparent"
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{ boxShadow: "none" }}
+                    onChange={e => setSearchTerm(e.target.value)}
+                    style={{ boxShadow: 'none' }}
                   />
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -125,7 +123,7 @@ export default function SendForm({
                   <a>Loading tokens...</a>
                 </li>
               ) : (
-                filteredBalances?.map((token) => (
+                filteredBalances?.map(token => (
                   <li
                     key={token.coreDenom}
                     onClick={() => setSelectedToken(token)}
@@ -152,12 +150,9 @@ export default function SendForm({
               placeholder="Recipient address"
               className="input input-bordered input-sm rounded-r-none flex-grow"
               value={recipient}
-              onChange={(e) => setRecipient(e.target.value)}
+              onChange={e => setRecipient(e.target.value)}
             />
-            <button
-              onClick={() => {}}
-              className="btn btn-primary btn-sm rounded-l-none"
-            >
+            <button onClick={() => {}} className="btn btn-primary btn-sm rounded-l-none">
               <PiAddressBook className="w-5 h-5" />
             </button>
           </div>
@@ -172,21 +167,13 @@ export default function SendForm({
             placeholder="Enter amount"
             className="input input-bordered input-sm w-full"
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            onChange={e => setAmount(e.target.value)}
           />
         </div>
 
         <div className="mt-4">
-          <button
-            onClick={handleSend}
-            className="btn btn-primary w-full"
-            disabled={isSending}
-          >
-            {isSending ? (
-              <span className="loading loading-dots loading-xs"></span>
-            ) : (
-              "Send"
-            )}
+          <button onClick={handleSend} className="btn btn-primary w-full" disabled={isSending}>
+            {isSending ? <span className="loading loading-dots loading-xs"></span> : 'Send'}
           </button>
         </div>
       </div>

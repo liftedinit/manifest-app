@@ -1,9 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 
-import { Dialog } from "@headlessui/react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
-import { ChevronLeftIcon } from "@heroicons/react/20/solid";
-import { QRCodeSVG } from "qrcode.react";
+import { Dialog } from '@headlessui/react';
+import { XMarkIcon } from '@heroicons/react/24/outline';
+import { ChevronLeftIcon } from '@heroicons/react/20/solid';
+import { QRCodeSVG } from 'qrcode.react';
 
 export const QRCode = ({
   onClose,
@@ -45,10 +45,10 @@ export const QRCode = ({
       <div className="w-full mb-4">
         <div className="mt-4">
           <QRCodeSVG
-            value={qrUri || ""}
-            bgColor={"#ffffff"}
-            fgColor={"#000000"}
-            level={"L"}
+            value={qrUri || ''}
+            bgColor={'#ffffff'}
+            fgColor={'#000000'}
+            level={'L'}
             includeMargin={false}
             className="w-auto p-4 mx-auto border rounded-lg h-64 border-black/10 dark:border-white/10"
           />

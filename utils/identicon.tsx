@@ -1,15 +1,9 @@
-import React, { useState, useEffect } from "react";
-import Identicon, { IdenticonOptions } from "identicon.js";
-import CryptoJS from "crypto-js";
+import React, { useState, useEffect } from 'react';
+import Identicon, { IdenticonOptions } from 'identicon.js';
+import CryptoJS from 'crypto-js';
 
-const ProfileAvatar = ({
-  walletAddress,
-  size,
-}: {
-  walletAddress: string;
-  size?: number;
-}) => {
-  const [avatarSrc, setAvatarSrc] = useState("");
+const ProfileAvatar = ({ walletAddress, size }: { walletAddress: string; size?: number }) => {
+  const [avatarSrc, setAvatarSrc] = useState('');
 
   const colors: [number, number, number, number][] = [
     [41, 223, 212, 255],
@@ -22,15 +16,14 @@ const ProfileAvatar = ({
     if (walletAddress) {
       const hash = CryptoJS.SHA256(walletAddress).toString(CryptoJS.enc.Hex);
 
-      const colorIndex =
-        parseInt(hash.charAt(hash.length - 1), 16) % colors.length;
+      const colorIndex = parseInt(hash.charAt(hash.length - 1), 16) % colors.length;
 
       const options: IdenticonOptions = {
         foreground: colors[colorIndex],
         background: [70, 70, 70, 255],
         margin: 0.21,
         size: size ?? 700,
-        format: "svg",
+        format: 'svg',
       };
 
       const identicon = new Identicon(hash, options).toString();
@@ -38,7 +31,7 @@ const ProfileAvatar = ({
     }
   }, [walletAddress]);
 
-  const imageSize = size ? `${size}px` : "32px";
+  const imageSize = size ? `${size}px` : '32px';
 
   return (
     <img

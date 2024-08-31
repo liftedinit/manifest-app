@@ -1,24 +1,22 @@
-import React from "react";
-import { Formik, Form } from "formik";
-import * as Yup from "yup";
-import { ProposalFormData, ProposalAction } from "@/helpers/formReducer";
-import { TextInput, TextArea } from "@/components/react/inputs";
+import React from 'react';
+import { Formik, Form } from 'formik';
+import * as Yup from 'yup';
+import { ProposalFormData, ProposalAction } from '@/helpers/formReducer';
+import { TextInput, TextArea } from '@/components/react/inputs';
 
 const ProposalSchema = Yup.object().shape({
-  title: Yup.string()
-    .required("Title is required")
-    .max(50, "Title must not exceed 50 characters"),
+  title: Yup.string().required('Title is required').max(50, 'Title must not exceed 50 characters'),
   authors: Yup.string()
-    .required("Authors are required")
-    .max(200, "Authors must not exceed 200 characters"),
+    .required('Authors are required')
+    .max(200, 'Authors must not exceed 200 characters'),
   summary: Yup.string()
-    .required("Summary is required")
-    .min(10, "Summary must be at least 10 characters")
-    .max(500, "Summary must not exceed 500 characters"),
+    .required('Summary is required')
+    .min(10, 'Summary must be at least 10 characters')
+    .max(500, 'Summary must not exceed 500 characters'),
   details: Yup.string()
-    .required("Details are required")
-    .min(10, "Details must be at least 10 characters")
-    .max(500, "Summary must not exceed 500 characters"),
+    .required('Details are required')
+    .min(10, 'Details must be at least 10 characters')
+    .max(500, 'Summary must not exceed 500 characters'),
 });
 
 export default function ProposalMetadataForm({
@@ -32,13 +30,10 @@ export default function ProposalMetadataForm({
   formData: ProposalFormData;
   dispatch: React.Dispatch<ProposalAction>;
 }>) {
-  const handleChange = (
-    field: keyof ProposalFormData["metadata"],
-    value: any,
-  ) => {
+  const handleChange = (field: keyof ProposalFormData['metadata'], value: any) => {
     dispatch({
-      type: "UPDATE_FIELD",
-      field: "metadata",
+      type: 'UPDATE_FIELD',
+      field: 'metadata',
       value: {
         ...formData.metadata,
         [field]: value,
@@ -69,8 +64,8 @@ export default function ProposalMetadataForm({
                       placeholder="Type here"
                       value={formData.metadata.title}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        handleChange("title", e.target.value);
-                        setFieldValue("title", e.target.value);
+                        handleChange('title', e.target.value);
+                        setFieldValue('title', e.target.value);
                       }}
                     />
                     <TextInput
@@ -79,8 +74,8 @@ export default function ProposalMetadataForm({
                       placeholder="Type here"
                       value={formData.metadata.authors}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        handleChange("authors", e.target.value);
-                        setFieldValue("authors", e.target.value);
+                        handleChange('authors', e.target.value);
+                        setFieldValue('authors', e.target.value);
                       }}
                     />
                     <TextArea
@@ -89,8 +84,8 @@ export default function ProposalMetadataForm({
                       placeholder="Short Description"
                       value={formData.metadata.summary}
                       onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                        handleChange("summary", e.target.value);
-                        setFieldValue("summary", e.target.value);
+                        handleChange('summary', e.target.value);
+                        setFieldValue('summary', e.target.value);
                       }}
                     />
                     <TextArea
@@ -99,8 +94,8 @@ export default function ProposalMetadataForm({
                       placeholder="Long Description"
                       value={formData.metadata.details}
                       onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                        handleChange("details", e.target.value);
-                        setFieldValue("details", e.target.value);
+                        handleChange('details', e.target.value);
+                        setFieldValue('details', e.target.value);
                       }}
                     />
                   </div>

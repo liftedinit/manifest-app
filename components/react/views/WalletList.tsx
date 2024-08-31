@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
-import { Dialog } from "@headlessui/react";
-import { XMarkIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
-import { ChainWalletBase } from "cosmos-kit";
+import { Dialog } from '@headlessui/react';
+import { XMarkIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { ChainWalletBase } from 'cosmos-kit';
 
 export const WalletList = ({
   onClose,
@@ -12,25 +12,18 @@ export const WalletList = ({
   onWalletClicked: (name: string) => void;
   wallets: ChainWalletBase[];
 }) => {
-  const social = wallets.filter((wallet) =>
-    ["Google", "Twitter", "Apple", "Discord"].includes(
-      wallet.walletInfo.prettyName,
-    ),
+  const social = wallets.filter(wallet =>
+    ['Google', 'Twitter', 'Apple', 'Discord'].includes(wallet.walletInfo.prettyName)
   );
 
-  const browser = wallets.filter((wallet) =>
-    ["Keplr", "Cosmostation", "Leap", "Station"].includes(
-      wallet.walletInfo.prettyName,
-    ),
+  const browser = wallets.filter(wallet =>
+    ['Keplr', 'Cosmostation', 'Leap', 'Station'].includes(wallet.walletInfo.prettyName)
   );
 
-  const mobile = wallets.filter((wallet) =>
-    [
-      "Wallet Connect",
-      "Keplr Mobile",
-      "Cosmostation Mobile",
-      "Leap Mobile",
-    ].includes(wallet.walletInfo.prettyName),
+  const mobile = wallets.filter(wallet =>
+    ['Wallet Connect', 'Keplr Mobile', 'Cosmostation Mobile', 'Leap Mobile'].includes(
+      wallet.walletInfo.prettyName
+    )
   );
 
   return (
@@ -62,9 +55,7 @@ export const WalletList = ({
                     alt={prettyName}
                     className="w-8 h-8 mb-2 rounded-md mx-auto"
                   />
-                  <p className="text-sm font-medium text-center mx-auto">
-                    {prettyName}
-                  </p>
+                  <p className="text-sm font-medium text-center mx-auto">{prettyName}</p>
                 </div>
               </button>
             ))}
@@ -80,13 +71,9 @@ export const WalletList = ({
                 onClick={() => onWalletClicked(name)}
                 className="inline-flex flex-col active:scale-95 items-center bg-base-200 justify-center w-full p-3 transition duration-150 ease-in-out  rounded-lg hover:bg-base-100"
               >
-                <img
-                  src={logo?.toString()}
-                  alt={prettyName}
-                  className="w-8 h-8 mb-2 rounded-md"
-                />
+                <img src={logo?.toString()} alt={prettyName} className="w-8 h-8 mb-2 rounded-md" />
                 <p className="text-sm font-medium text-center">
-                  {prettyName === "Twitter" ? "X" : prettyName}
+                  {prettyName === 'Twitter' ? 'X' : prettyName}
                 </p>
               </button>
             ))}
@@ -103,13 +90,9 @@ export const WalletList = ({
                 onClick={() => onWalletClicked(name)}
                 className="inline-flex flex-col active:scale-95 items-center bg-base-200 justify-center w-full p-3 transition duration-150 ease-in-out  rounded-lg hover:bg-base-100"
               >
-                <img
-                  src={logo?.toString()}
-                  alt={prettyName}
-                  className="w-8 h-8 mb-2 rounded-md"
-                />
+                <img src={logo?.toString()} alt={prettyName} className="w-8 h-8 mb-2 rounded-md" />
                 <p className="text-sm font-medium text-center">
-                  {prettyName === "Twitter" ? "X" : prettyName}
+                  {prettyName === 'Twitter' ? 'X' : prettyName}
                 </p>
               </button>
             ))}

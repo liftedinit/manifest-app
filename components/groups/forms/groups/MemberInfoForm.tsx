@@ -1,6 +1,6 @@
-import { Action, FormData } from "@/helpers/formReducer";
-import React, { useState, useEffect } from "react";
-import { PiAddressBook } from "react-icons/pi"; // Ensure you have this import for the icon
+import { Action, FormData } from '@/helpers/formReducer';
+import React, { useState, useEffect } from 'react';
+import { PiAddressBook } from 'react-icons/pi'; // Ensure you have this import for the icon
 
 export default function MemberInfoForm({
   formData,
@@ -15,24 +15,22 @@ export default function MemberInfoForm({
   prevStep: () => void;
   address: string;
 }>) {
-  const [numberOfMembers, setNumberOfMembers] = useState(
-    formData.members.length,
-  );
+  const [numberOfMembers, setNumberOfMembers] = useState(formData.members.length);
 
   const updateMembers = () => {
     const currentLength = formData.members.length;
     if (numberOfMembers > currentLength) {
       for (let i = 0; i < numberOfMembers - currentLength; i++) {
         dispatch({
-          type: "ADD_MEMBER",
-          member: { address: "", name: "", weight: "" },
+          type: 'ADD_MEMBER',
+          member: { address: '', name: '', weight: '' },
         });
       }
     } else if (numberOfMembers < currentLength) {
       const updatedMembers = formData.members.slice(0, numberOfMembers);
       dispatch({
-        type: "UPDATE_FIELD",
-        field: "members",
+        type: 'UPDATE_FIELD',
+        field: 'members',
         value: updatedMembers,
       });
     }
@@ -42,13 +40,9 @@ export default function MemberInfoForm({
     updateMembers();
   }, [numberOfMembers]);
 
-  const handleChange = (
-    index: number,
-    field: keyof FormData["members"][0],
-    value: string,
-  ) => {
+  const handleChange = (index: number, field: keyof FormData['members'][0], value: string) => {
     dispatch({
-      type: "UPDATE_MEMBER",
+      type: 'UPDATE_MEMBER',
       index,
       field,
       value,
@@ -69,7 +63,7 @@ export default function MemberInfoForm({
 
   const pasteAddress = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
-    handleChange(0, "address", address);
+    handleChange(0, 'address', address);
   };
 
   return (
@@ -86,14 +80,12 @@ export default function MemberInfoForm({
                   <button
                     type="button"
                     className="btn btn-sm btn-secondary"
-                    onClick={() =>
-                      setNumberOfMembers(Math.max(0, numberOfMembers - 1))
-                    }
+                    onClick={() => setNumberOfMembers(Math.max(0, numberOfMembers - 1))}
                   >
                     -
                   </button>
                   <input
-                    aria-label={"member-count"}
+                    aria-label={'member-count'}
                     className="input input-bordered mx-2 text-center input-sm w-[40px]"
                     value={numberOfMembers}
                     onChange={handleNumberChange}
@@ -112,10 +104,7 @@ export default function MemberInfoForm({
               <form onSubmit={handleSubmit} className=" min-h-[330px]">
                 <div className="overflow-y-scroll max-h-[550px] min-h-[330px]">
                   {formData.members.map((member, index) => (
-                    <div
-                      key={index}
-                      className="grid grid-cols-3 gap-4 mb-4 p-1"
-                    >
+                    <div key={index} className="grid grid-cols-3 gap-4 mb-4 p-1">
                       <div className="relative">
                         <label
                           htmlFor={`address-${index}`}
@@ -129,13 +118,11 @@ export default function MemberInfoForm({
                             aria-label={`address-${index}`}
                             id={`address-${index}`}
                             value={member.address}
-                            onChange={(e) =>
-                              handleChange(index, "address", e.target.value)
-                            }
+                            onChange={e => handleChange(index, 'address', e.target.value)}
                             className={`input input-bordered ${
                               index === 0
-                                ? "rounded-tl-lg rounded-bl-lg rounded-tr-none rounded-br-none"
-                                : ""
+                                ? 'rounded-tl-lg rounded-bl-lg rounded-tr-none rounded-br-none'
+                                : ''
                             } w-full `}
                             placeholder="manifest1..."
                           />
@@ -162,9 +149,7 @@ export default function MemberInfoForm({
                           aria-label={`name-${index}`}
                           id={`name-${index}`}
                           value={member.name}
-                          onChange={(e) =>
-                            handleChange(index, "name", e.target.value)
-                          }
+                          onChange={e => handleChange(index, 'name', e.target.value)}
                           className="input input-bordered w-full"
                           placeholder="Alice"
                         />
@@ -182,9 +167,7 @@ export default function MemberInfoForm({
                           aria-label={`weight-${index}`}
                           id={`weight-${index}`}
                           value={member.weight}
-                          onChange={(e) =>
-                            handleChange(index, "weight", e.target.value)
-                          }
+                          onChange={e => handleChange(index, 'weight', e.target.value)}
                           className="input input-bordered w-full "
                           placeholder="1"
                         />
@@ -197,9 +180,8 @@ export default function MemberInfoForm({
                   onClick={handleSubmit}
                   className="btn btn-primary w-full"
                   disabled={
-                    !formData.members.every(
-                      (m) => m.address && m.name && m.weight,
-                    ) || numberOfMembers === 0
+                    !formData.members.every(m => m.address && m.name && m.weight) ||
+                    numberOfMembers === 0
                   }
                 >
                   Next: Group Policy

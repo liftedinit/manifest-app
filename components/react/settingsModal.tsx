@@ -1,7 +1,7 @@
 // components/SettingsModal.tsx
 
-import React from "react";
-import { useAdvancedMode } from "@/contexts";
+import React from 'react';
+import { useAdvancedMode } from '@/contexts';
 
 interface SettingsModalProps {
   isOpen: boolean;

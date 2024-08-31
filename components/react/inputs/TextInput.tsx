@@ -1,6 +1,6 @@
-import React from "react";
-import { BaseInput } from "./BaseInput";
+import React from 'react';
+import { BaseInput } from './BaseInput';
 
-export const TextInput: React.FC<React.ComponentProps<typeof BaseInput>> = (
-  props,
-) => <BaseInput type="text" {...props} />;
+export const TextInput: React.FC<React.ComponentProps<typeof BaseInput>> = props => (
+  <BaseInput type="text" {...props} />
+);

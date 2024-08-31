@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import { chainName } from "@/config";
-import { useFeeEstimation, useTx } from "@/hooks";
-import { osmosis } from "@chalabi/manifestjs";
-import { MetadataSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
-import { PiAddressBook, PiSwap } from "react-icons/pi";
+import React, { useState } from 'react';
+import { chainName } from '@/config';
+import { useFeeEstimation, useTx } from '@/hooks';
+import { osmosis } from '@chalabi/manifestjs';
+import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { PiAddressBook, PiSwap } from 'react-icons/pi';
 
 export default function TransferForm({
   denom,
@@ -16,14 +16,13 @@ export default function TransferForm({
   refetch: () => void;
   balance: string;
 }) {
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState('');
   const [fromAddress, setFromAddress] = useState(address);
-  const [toAddress, setToAddress] = useState("");
+  const [toAddress, setToAddress] = useState('');
   const [isSigning, setIsSigning] = useState(false);
   const { tx } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
-  const { forceTransfer } =
-    osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
+  const { forceTransfer } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
 
   const handleTransfer = async () => {
     if (!amount || isNaN(Number(amount))) {
@@ -32,11 +31,8 @@ export default function TransferForm({
     setIsSigning(true);
     try {
       const exponent =
-        denom?.denom_units?.find((unit) => unit.denom === denom.display)
-          ?.exponent || 0;
-      const amountInBaseUnits = BigInt(
-        parseFloat(amount) * Math.pow(10, exponent),
-      ).toString();
+        denom?.denom_units?.find(unit => unit.denom === denom.display)?.exponent || 0;
+      const amountInBaseUnits = BigInt(parseFloat(amount) * Math.pow(10, exponent)).toString();
       const msg = forceTransfer({
         sender: address,
         amount: {
@@ -46,16 +42,16 @@ export default function TransferForm({
         transferFromAddress: fromAddress,
         transferToAddress: toAddress,
       });
-      const fee = await estimateFee(address ?? "", [msg]);
+      const fee = await estimateFee(address ?? '', [msg]);
       await tx([msg], {
         fee,
         onSuccess: () => {
-          setAmount("");
+          setAmount('');
           refetch();
         },
       });
     } catch (error) {
-      console.error("Error during transfer:", error);
+      console.error('Error during transfer:', error);
     } finally {
       setIsSigning(false);
     }
@@ -82,15 +78,11 @@ export default function TransferForm({
         <div className="grid grid-cols-2 gap-4">
           <div>
             <p className="text-sm text-gray-500">CIRCULATING SUPPLY</p>
-            <p className="font-semibold text-md max-w-[20ch] truncate">
-              {denom.symbol}
-            </p>
+            <p className="font-semibold text-md max-w-[20ch] truncate">{denom.symbol}</p>
           </div>
           <div>
             <p className="text-md text-gray-500">EXPONENT</p>
-            <p className="font-semibold text-md">
-              {denom?.denom_units[1]?.exponent}
-            </p>
+            <p className="font-semibold text-md">{denom?.denom_units[1]?.exponent}</p>
           </div>
         </div>
       </div>
@@ -105,7 +97,7 @@ export default function TransferForm({
             placeholder="Enter amount"
             className="input input-bordered h-10 input-sm w-full"
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            onChange={e => setAmount(e.target.value)}
           />
         </div>
       </div>
@@ -120,7 +112,7 @@ export default function TransferForm({
               placeholder="From address"
               className="input input-bordered input-sm h-10 rounded-tl-lg rounded-bl-lg rounded-tr-none rounded-br-none w-full "
               value={fromAddress}
-              onChange={(e) => setFromAddress(e.target.value)}
+              onChange={e => setFromAddress(e.target.value)}
             />
             <button
               onClick={handleFromAddressBookClick}
@@ -145,7 +137,7 @@ export default function TransferForm({
               placeholder="To address"
               className="input input-bordered input-sm h-10 rounded-tl-lg rounded-bl-lg rounded-tr-none rounded-br-none w-full "
               value={toAddress}
-              onChange={(e) => setToAddress(e.target.value)}
+              onChange={e => setToAddress(e.target.value)}
             />
             <button
               onClick={handleToAddressBookClick}
@@ -163,11 +155,7 @@ export default function TransferForm({
           className="btn btn-primary btn-md w-full"
           disabled={isSigning}
         >
-          {isSigning ? (
-            <span className="loading loading-dots loading-xs"></span>
-          ) : (
-            "Transfer"
-          )}
+          {isSigning ? <span className="loading loading-dots loading-xs"></span> : 'Transfer'}
         </button>
       </div>
     </div>

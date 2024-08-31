@@ -1,18 +1,13 @@
-import React, { useEffect, useState } from "react";
-import {
-  ProposalFormData,
-  ProposalAction,
-  Message,
-  MessageFields,
-} from "@/helpers/formReducer";
+import React, { useEffect, useState } from 'react';
+import { ProposalFormData, ProposalAction, Message, MessageFields } from '@/helpers/formReducer';
 
-import * as initialMessages from "./messages";
-import { FiArrowUp, FiMinusCircle, FiPlusCircle } from "react-icons/fi";
-import { TextInput } from "@/components/react/inputs";
+import * as initialMessages from './messages';
+import { FiArrowUp, FiMinusCircle, FiPlusCircle } from 'react-icons/fi';
+import { TextInput } from '@/components/react/inputs';
 
-import { Formik, Form, Field, FieldProps, FormikProps } from "formik";
+import { Formik, Form, Field, FieldProps, FormikProps } from 'formik';
 
-import * as Yup from "yup";
+import * as Yup from 'yup';
 
 export default function ProposalMessages({
   formData,
@@ -27,15 +22,15 @@ export default function ProposalMessages({
 }>) {
   const [isFormValid, setIsFormValid] = useState(false);
   const [visibleMessages, setVisibleMessages] = useState<boolean[]>(
-    formData.messages.map(() => false),
+    formData.messages.map(() => false)
   );
 
   const isMessageValid = (message: Message): boolean => {
     const checkFields = (obj: any): boolean => {
       for (const key in obj) {
-        if (typeof obj[key] === "object" && obj[key] !== null) {
+        if (typeof obj[key] === 'object' && obj[key] !== null) {
           if (!checkFields(obj[key])) return false;
-        } else if (obj[key] === "" || obj[key] === undefined) {
+        } else if (obj[key] === '' || obj[key] === undefined) {
           return false;
         }
       }
@@ -56,7 +51,7 @@ export default function ProposalMessages({
 
   const handleAddMessage = () => {
     dispatch({
-      type: "ADD_MESSAGE",
+      type: 'ADD_MESSAGE',
       message: initialMessages.initialSendMessage,
     });
     setVisibleMessages([...visibleMessages, false]);
@@ -64,159 +59,153 @@ export default function ProposalMessages({
   };
 
   const handleRemoveMessage = (index: number) => {
-    dispatch({ type: "REMOVE_MESSAGE", index });
+    dispatch({ type: 'REMOVE_MESSAGE', index });
     setVisibleMessages(visibleMessages.filter((_, i) => i !== index));
     checkFormValidity();
   };
 
   const toggleVisibility = (index: number) => {
-    setVisibleMessages(
-      visibleMessages.map((visible, i) => (i === index ? !visible : visible)),
-    );
+    setVisibleMessages(visibleMessages.map((visible, i) => (i === index ? !visible : visible)));
   };
 
   const isValidAddress = (address: string) => {
-    return address.startsWith("manifest");
+    return address.startsWith('manifest');
   };
 
-  const handleChangeMessage = (
-    index: number,
-    field: MessageFields,
-    value: any,
-  ) => {
+  const handleChangeMessage = (index: number, field: MessageFields, value: any) => {
     let updatedMessage = { ...formData.messages[index] };
 
-    if (field === "type") {
+    if (field === 'type') {
       switch (value) {
-        case "send":
+        case 'send':
           updatedMessage = {
             ...initialMessages.initialSendMessage,
             type: value,
           };
           break;
-        case "customMessage":
+        case 'customMessage':
           updatedMessage = {
             ...initialMessages.initialCustomMessage,
             type: value,
           };
           break;
-        case "removeValidator":
+        case 'removeValidator':
           updatedMessage = {
             ...initialMessages.initialRemoveValidatorMessage,
             type: value,
-            sender: "",
-            validator_address: "",
+            sender: '',
+            validator_address: '',
           };
           break;
-        case "removePending":
+        case 'removePending':
           updatedMessage = {
             ...initialMessages.initialRemovePendingMessage,
             type: value,
           };
           break;
-        case "updatePoaParams":
+        case 'updatePoaParams':
           updatedMessage = {
             ...initialMessages.initialUpdatePoaParamsMessage,
             type: value,
           };
           break;
-        case "updateStakingParams":
+        case 'updateStakingParams':
           updatedMessage = {
             ...initialMessages.initialUpdateStakingParamsMessage,
             type: value,
           };
           break;
-        case "setPower":
+        case 'setPower':
           updatedMessage = {
             ...initialMessages.initialSetPowerMessage,
             type: value,
           };
           break;
-        case "updateManifestParams":
+        case 'updateManifestParams':
           updatedMessage = {
             ...initialMessages.initialUpdateManifestParamsMessage,
             type: value,
           };
           break;
-        case "payoutStakeholders":
+        case 'payoutStakeholders':
           updatedMessage = {
             ...initialMessages.initialPayoutStakeholdersMessage,
             type: value,
           };
           break;
-        case "updateGroupAdmin":
+        case 'updateGroupAdmin':
           updatedMessage = {
             ...initialMessages.initialUpdateGroupAdminMessage,
             type: value,
           };
           break;
-        case "updateGroupMembers":
+        case 'updateGroupMembers':
           updatedMessage = {
             ...initialMessages.initialUpdateGroupMembersMessage,
             type: value,
           };
           break;
-        case "updateGroupMetadata":
+        case 'updateGroupMetadata':
           updatedMessage = {
             ...initialMessages.initialUpdateGroupMetadataMessage,
             type: value,
           };
           break;
-        case "updateGroupPolicyAdmin":
+        case 'updateGroupPolicyAdmin':
           updatedMessage = {
             ...initialMessages.initialUpdateGroupPolicyAdminMessage,
             type: value,
           };
           break;
-        case "createGroupWithPolicy":
+        case 'createGroupWithPolicy':
           updatedMessage = {
             ...initialMessages.initialCreateGroupWithPolicyMessage,
             type: value,
           };
           break;
-        case "submitProposal":
+        case 'submitProposal':
           updatedMessage = {
             ...initialMessages.initialSubmitProposalMessage,
             type: value,
           };
           break;
-        case "vote":
+        case 'vote':
           updatedMessage = {
             ...initialMessages.initialVoteMessage,
             type: value,
           };
           break;
-        case "withdrawProposal":
+        case 'withdrawProposal':
           updatedMessage = {
             ...initialMessages.initialWithdrawProposalMessage,
             type: value,
           };
           break;
-        case "exec":
+        case 'exec':
           updatedMessage = {
             ...initialMessages.initialExecMessage,
             type: value,
           };
           break;
-        case "leaveGroup":
+        case 'leaveGroup':
           updatedMessage = {
             ...initialMessages.initialLeaveGroupMessage,
             type: value,
           };
           break;
-        case "multiSend":
+        case 'multiSend':
           updatedMessage = {
             ...initialMessages.initialMultiSendMessage,
             type: value,
           };
           break;
-        case "softwareUpgrade":
+        case 'softwareUpgrade':
           updatedMessage = {
             ...initialMessages.initialSoftwareUpgradeMessage,
             type: value,
           };
           break;
-        case "cancelUpgrade":
+        case 'cancelUpgrade':
           updatedMessage = {
             ...initialMessages.initialCancelUpgradeMessage,
             type: value,
@@ -228,7 +217,7 @@ export default function ProposalMessages({
     } else {
       (updatedMessage as any)[field as string] = value;
     }
-    dispatch({ type: "UPDATE_MESSAGE", index, message: updatedMessage });
+    dispatch({ type: 'UPDATE_MESSAGE', index, message: updatedMessage });
     checkFormValidity();
   };
 
@@ -237,68 +226,53 @@ export default function ProposalMessages({
   const renderInputs = (
     object: Record<string, any>,
     handleChange: (field: string, value: any) => void,
-    path = "",
+    path = ''
   ) => {
     const generateValidationSchema = (obj: Record<string, any>): any => {
       return Yup.object().shape(
-        Object.entries(obj).reduce(
-          (schema: Record<string, any>, [key, value]) => {
-            if (key === "type") return schema;
+        Object.entries(obj).reduce((schema: Record<string, any>, [key, value]) => {
+          if (key === 'type') return schema;
 
-            if (
-              typeof value === "object" &&
-              value !== null &&
-              !Array.isArray(value)
-            ) {
-              schema[key] = generateValidationSchema(value);
-            } else {
-              schema[key] = Yup.string().required(`${key} is required`);
+          if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+            schema[key] = generateValidationSchema(value);
+          } else {
+            schema[key] = Yup.string().required(`${key} is required`);
 
-              if (key.includes("address")) {
-                schema[key] = schema[key].test(
-                  "is-valid-address",
-                  "Invalid address format, must start with manifest",
-                  (val: string) => isValidAddress(val),
-                );
-              } else if (key.includes("amount")) {
-                schema[key] = Yup.number()
-                  .positive("Amount must be positive")
-                  .required("Amount is required");
-              }
+            if (key.includes('address')) {
+              schema[key] = schema[key].test(
+                'is-valid-address',
+                'Invalid address format, must start with manifest',
+                (val: string) => isValidAddress(val)
+              );
+            } else if (key.includes('amount')) {
+              schema[key] = Yup.number()
+                .positive('Amount must be positive')
+                .required('Amount is required');
             }
-            return schema;
-          },
-          {},
-        ),
+          }
+          return schema;
+        }, {})
       );
     };
 
     const validationSchema = generateValidationSchema(object);
 
-    const renderField = (
-      fieldPath: string,
-      fieldValue: any,
-      formikProps: FormikProps<any>,
-    ) => {
+    const renderField = (fieldPath: string, fieldValue: any, formikProps: FormikProps<any>) => {
       const { setFieldValue, errors, touched } = formikProps;
-      if (
-        typeof fieldValue === "object" &&
-        fieldValue !== null &&
-        !Array.isArray(fieldValue)
-      ) {
+      if (typeof fieldValue === 'object' && fieldValue !== null && !Array.isArray(fieldValue)) {
         return (
           <div key={fieldPath} className="mb-4">
             <h3 className="text-lg font-semibold mb-2 text-primary">
-              {fieldPath.split(".").pop()?.replace(/_/g, " ")}
+              {fieldPath.split('.').pop()?.replace(/_/g, ' ')}
             </h3>
             <div className="pl-4 border-l-2 border-primary">
               {Object.entries(fieldValue).map(([key, value]) =>
-                renderField(`${fieldPath}.${key}`, value, formikProps),
+                renderField(`${fieldPath}.${key}`, value, formikProps)
               )}
             </div>
           </div>
         );
-      } else if (typeof fieldValue === "boolean") {
+      } else if (typeof fieldValue === 'boolean') {
         return (
           <Field key={fieldPath} name={fieldPath}>
             {({ field }: FieldProps) => (
@@ -308,15 +282,13 @@ export default function ProposalMessages({
                   {...field}
                   checked={field.value}
                   className="checkbox checkbox-sm mr-2"
-                  onChange={(e) => {
+                  onChange={e => {
                     field.onChange(e);
                     handleChange(fieldPath, e.target.checked);
                     setFieldValue(fieldPath, e.target.checked);
                   }}
                 />
-                <span className="capitalize">
-                  {fieldPath.split(".").pop()?.replace(/_/g, " ")}
-                </span>
+                <span className="capitalize">{fieldPath.split('.').pop()?.replace(/_/g, ' ')}</span>
               </label>
             )}
           </Field>
@@ -327,8 +299,8 @@ export default function ProposalMessages({
             {({ field }: FieldProps) => (
               <div className="">
                 <TextInput
-                  label={fieldPath.split(".").pop()?.replace(/_/g, " ") ?? ""}
-                  placeholder={`Enter ${fieldPath.split(".").pop()?.replace(/_/g, " ")}`}
+                  label={fieldPath.split('.').pop()?.replace(/_/g, ' ') ?? ''}
+                  placeholder={`Enter ${fieldPath.split('.').pop()?.replace(/_/g, ' ')}`}
                   {...field}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     field.onChange(e);
@@ -353,8 +325,7 @@ export default function ProposalMessages({
         {(formikProps: FormikProps<typeof object>) => (
           <Form>
             {Object.entries(object).map(
-              ([key, value]) =>
-                key !== "type" && renderField(key, value, formikProps),
+              ([key, value]) => key !== 'type' && renderField(key, value, formikProps)
             )}
           </Form>
         )}
@@ -368,7 +339,7 @@ export default function ProposalMessages({
     }
 
     const handleChange = (field: string, value: any) => {
-      const fieldPath = field.split(".");
+      const fieldPath = field.split('.');
       let updatedMessage: any = { ...formData.messages[index] };
 
       let current = updatedMessage;
@@ -377,7 +348,7 @@ export default function ProposalMessages({
       }
       current[fieldPath[fieldPath.length - 1]] = value;
 
-      dispatch({ type: "UPDATE_MESSAGE", index, message: updatedMessage });
+      dispatch({ type: 'UPDATE_MESSAGE', index, message: updatedMessage });
     };
 
     return (
@@ -391,31 +362,31 @@ export default function ProposalMessages({
     nextStep();
   };
 
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const filteredMessageTypes = [
-    "send",
-    "customMessage",
-    "removeValidator",
-    "removePending",
-    "updatePoaParams",
-    "updateStakingParams",
-    "setPower",
-    "updateManifestParams",
-    "payoutStakeholders",
-    "updateGroupAdmin",
-    "updateGroupMembers",
-    "updateGroupMetadata",
-    "updateGroupPolicyAdmin",
-    "createGroupWithPolicy",
-    "submitProposal",
-    "vote",
-    "withdrawProposal",
-    "exec",
-    "leaveGroup",
-    "multiSend",
-    "softwareUpgrade",
-    "cancelUpgrade",
-  ].filter((type) => type.toLowerCase().includes(searchTerm.toLowerCase()));
+    'send',
+    'customMessage',
+    'removeValidator',
+    'removePending',
+    'updatePoaParams',
+    'updateStakingParams',
+    'setPower',
+    'updateManifestParams',
+    'payoutStakeholders',
+    'updateGroupAdmin',
+    'updateGroupMembers',
+    'updateGroupMetadata',
+    'updateGroupPolicyAdmin',
+    'createGroupWithPolicy',
+    'submitProposal',
+    'vote',
+    'withdrawProposal',
+    'exec',
+    'leaveGroup',
+    'multiSend',
+    'softwareUpgrade',
+    'cancelUpgrade',
+  ].filter(type => type.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
     <section className="w-full px-4 sm:px-0">
@@ -424,15 +395,13 @@ export default function ProposalMessages({
           <div className="w-full">
             <div className="w-full">
               <div className="flex flex-row justify-between items-center mb-6">
-                <h1 className="text-2xl font-extrabold tracking-tight  leading-tight">
-                  Messages
-                </h1>
+                <h1 className="text-2xl font-extrabold tracking-tight  leading-tight">Messages</h1>
                 <div className="flex gap-2  ">
                   <button
                     type="button"
                     className="btn btn-sm btn-primary"
                     onClick={handleAddMessage}
-                    aria-label={"add-message-btn"}
+                    aria-label={'add-message-btn'}
                   >
                     <span>
                       <FiPlusCircle className="text-lg text-white" />
@@ -451,15 +420,10 @@ export default function ProposalMessages({
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex flex-row items-center gap-4">
-                            <span className="text-lg font-bold">
-                              #{index + 1}
-                            </span>
+                            <span className="text-lg font-bold">#{index + 1}</span>
 
                             <div className="dropdown">
-                              <button
-                                tabIndex={0}
-                                className="btn m-1 btn-sm btn-neutral"
-                              >
+                              <button tabIndex={0} className="btn m-1 btn-sm btn-neutral">
                                 {message.type}
                               </button>
                               <ul
@@ -472,10 +436,8 @@ export default function ProposalMessages({
                                       type="text"
                                       placeholder="Search Messages"
                                       className="input input-sm w-full pr-8 focus:outline-none focus:ring-0 border-none bg-transparent"
-                                      onChange={(e) =>
-                                        setSearchTerm(e.target.value)
-                                      }
-                                      style={{ boxShadow: "none" }}
+                                      onChange={e => setSearchTerm(e.target.value)}
+                                      style={{ boxShadow: 'none' }}
                                     />
                                     <svg
                                       xmlns="http://www.w3.org/2000/svg"
@@ -493,15 +455,13 @@ export default function ProposalMessages({
                                     </svg>
                                   </div>
                                 </li>
-                                {filteredMessageTypes.map((type) => (
+                                {filteredMessageTypes.map(type => (
                                   <li key={type}>
                                     <button
                                       aria-label={`message-type-btn-${type}`}
-                                      onClick={() =>
-                                        handleChangeMessage(index, "type", type)
-                                      }
+                                      onClick={() => handleChangeMessage(index, 'type', type)}
                                     >
-                                      {type.replace(/([A-Z])/g, " $1").trim()}
+                                      {type.replace(/([A-Z])/g, ' $1').trim()}
                                     </button>
                                   </li>
                                 ))}
@@ -513,7 +473,7 @@ export default function ProposalMessages({
                               type="button"
                               className="btn btn-secondary btn-xs"
                               onClick={() => handleRemoveMessage(index)}
-                              aria-label={"remove-message-btn"}
+                              aria-label={'remove-message-btn'}
                             >
                               <span>
                                 <FiMinusCircle className="text-xs text-white" />
@@ -528,9 +488,7 @@ export default function ProposalMessages({
                             >
                               <span
                                 className={`transition-all duration-400 ${
-                                  visibleMessages[index]
-                                    ? "rotate-0"
-                                    : "rotate-180"
+                                  visibleMessages[index] ? 'rotate-0' : 'rotate-180'
                                 }`}
                               >
                                 <FiArrowUp className="text-xs" />
@@ -539,9 +497,7 @@ export default function ProposalMessages({
                           </div>
                         </div>
                         {visibleMessages[index] && (
-                          <div className="mt-4">
-                            {renderMessageFields(message, index)}
-                          </div>
+                          <div className="mt-4">{renderMessageFields(message, index)}</div>
                         )}
                       </div>
                     ))}
@@ -562,9 +518,7 @@ export default function ProposalMessages({
                   onClick={prevStep}
                   className="text-center btn btn-neutral items-center w-1/2 py-2.5 sm:py-3.5 text-sm font-medium focus:outline-none rounded-lg border"
                 >
-                  <span className="hidden sm:inline">
-                    Prev: Proposal Details
-                  </span>
+                  <span className="hidden sm:inline">Prev: Proposal Details</span>
                   <span className="sm:hidden"> Prev: Info</span>
                 </button>
                 <a className="text-center items-center w-1/2 py-2.5 sm:py-3.5 text-sm font-medium"></a>

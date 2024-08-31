@@ -1,8 +1,8 @@
-import { useFeeEstimation } from "@/hooks";
-import { useTx } from "@/hooks/useTx";
-import { cosmos } from "@chalabi/manifestjs";
-import { useChain } from "@cosmos-kit/react";
-import React from "react";
+import { useFeeEstimation } from '@/hooks';
+import { useTx } from '@/hooks/useTx';
+import { cosmos } from '@chalabi/manifestjs';
+import { useChain } from '@cosmos-kit/react';
+import React from 'react';
 
 function VotingPopup({
   proposalId,
@@ -13,21 +13,21 @@ function VotingPopup({
   isGridVisible: boolean;
   refetch: () => void;
 }) {
-  const { estimateFee } = useFeeEstimation("manifest");
-  const { tx } = useTx("manifest");
-  const { address } = useChain("manifest");
+  const { estimateFee } = useFeeEstimation('manifest');
+  const { tx } = useTx('manifest');
+  const { address } = useChain('manifest');
 
   const { vote } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
   const handleVote = async (option: number) => {
     const msg = vote({
       proposalId: proposalId,
-      voter: address ?? "",
+      voter: address ?? '',
       option: option,
-      metadata: "",
+      metadata: '',
       exec: 0,
     });
-    const fee = await estimateFee(address ?? "", [msg]);
+    const fee = await estimateFee(address ?? '', [msg]);
     try {
       await tx([msg], {
         fee,
@@ -36,7 +36,7 @@ function VotingPopup({
         },
       });
     } catch (error) {
-      console.error("Failed to vote: ", error);
+      console.error('Failed to vote: ', error);
     }
   };
 
@@ -44,7 +44,7 @@ function VotingPopup({
     <>
       <div
         className={`mx-auto w-full bg-base-300 p-4 rounded-md border-r-4 border-r-base-200 border-b-4 border-b-base-200 absolute flex justify-center items-center bottom-14 mb-4 ${
-          isGridVisible ? "animate-fadeSlideUp" : "animate-fadeSlideDown"
+          isGridVisible ? 'animate-fadeSlideUp' : 'animate-fadeSlideDown'
         } transition-opacity duration-300`}
       >
         <div className="grid w-full grid-cols-2 gap-4">

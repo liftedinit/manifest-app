@@ -1,45 +1,39 @@
-import { WalletSection } from "@/components";
-import { GroupInfo } from "@/components/groups/components/groupInfo";
-import ProposalsForPolicy from "@/components/groups/components/groupProposals";
-import { YourGroups } from "@/components/groups/components/myGroups";
-import Notifications from "@/components/groups/components/Notifications";
-import { useChain } from "@cosmos-kit/react";
+import { WalletSection } from '@/components';
+import { GroupInfo } from '@/components/groups/components/groupInfo';
+import ProposalsForPolicy from '@/components/groups/components/groupProposals';
+import { YourGroups } from '@/components/groups/components/myGroups';
+import Notifications from '@/components/groups/components/Notifications';
+import { useChain } from '@cosmos-kit/react';
 
-import axios from "axios";
-import Head from "next/head";
-import Link from "next/link";
-import React from "react";
-import { useState } from "react";
-import { chainName } from "../../config";
+import axios from 'axios';
+import Head from 'next/head';
+import Link from 'next/link';
+import React from 'react';
+import { useState } from 'react';
+import { chainName } from '../../config';
 import {
   useGroupsByMember,
   useProposalsByPolicyAccount,
   useProposalsByPolicyAccountAll,
-} from "../../hooks/useQueries";
-import Ably from "ably";
+} from '../../hooks/useQueries';
+import Ably from 'ably';
 export default function Groups() {
   const { address, isWalletConnected } = useChain(chainName);
-  const {
-    groupByMemberData,
-    isGroupByMemberLoading,
-    isGroupByMemberError,
-    refetchGroupByMember,
-  } = useGroupsByMember(address ?? "");
+  const { groupByMemberData, isGroupByMemberLoading, isGroupByMemberError, refetchGroupByMember } =
+    useGroupsByMember(address ?? '');
 
-  const [selectedPolicyAddress, setSelectedPolicyAddress] = useState<
-    string | null
-  >(null);
+  const [selectedPolicyAddress, setSelectedPolicyAddress] = useState<string | null>(null);
 
   const handleGroupSelect = (policyAddress: string) => {
     setSelectedPolicyAddress(policyAddress);
   };
 
   const infoGroup = groupByMemberData?.groups?.find(
-    (group) => group?.policies[0]?.address === selectedPolicyAddress,
+    group => group?.policies[0]?.address === selectedPolicyAddress
   );
 
   const groupPolicyAddresses =
-    groupByMemberData?.groups?.map((group) => group.policies[0].address) ?? [];
+    groupByMemberData?.groups?.map(group => group.policies[0].address) ?? [];
 
   const { proposalsByPolicyAccount, isProposalsError, isProposalsLoading } =
     useProposalsByPolicyAccountAll(groupPolicyAddresses ?? []);
@@ -69,10 +63,7 @@ export default function Groups() {
       <Head>
         <title>Groups - Alberto</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta
-          name="description"
-          content="Alberto is the gateway to the Manifest Network"
-        />
+        <meta name="description" content="Alberto is the gateway to the Manifest Network" />
         <meta
           name="keywords"
           content="crypto, blockchain, application, Cosmos-SDK, Alberto, Manifest Network"
@@ -81,10 +72,7 @@ export default function Groups() {
         <link rel="icon" href="/favicon.ico" />
 
         <meta property="og:title" content="Groups - Alberto" />
-        <meta
-          property="og:description"
-          content="Alberto is the gateway to the Manifest Network"
-        />
+        <meta property="og:description" content="Alberto is the gateway to the Manifest Network" />
         <meta property="og:url" content="https://" />
         <meta property="og:image" content="https://" />
         <meta property="og:type" content="website" />
@@ -92,27 +80,24 @@ export default function Groups() {
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Groups - Alberto" />
-        <meta
-          name="twitter:description"
-          content="Alberto is the gateway to the Manifest Network"
-        />
+        <meta name="twitter:description" content="Alberto is the gateway to the Manifest Network" />
         <meta name="twitter:image" content="https://" />
         <meta name="twitter:site" content="@" />
 
         <script type="application/ld+json">
           {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "WebPage",
-            name: "Groups - Alberto",
-            description: "Alberto is the gateway to the Manifest Network",
-            url: "https://",
-            image: "https://",
+            '@context': 'https://schema.org',
+            '@type': 'WebPage',
+            name: 'Groups - Alberto',
+            description: 'Alberto is the gateway to the Manifest Network',
+            url: 'https://',
+            image: 'https://',
             publisher: {
-              "@type": "Organization",
-              name: "Chandra Station",
+              '@type': 'Organization',
+              name: 'Chandra Station',
               logo: {
-                "@type": "ImageObject",
-                url: "https:///img/logo.png",
+                '@type': 'ImageObject',
+                url: 'https:///img/logo.png',
               },
             },
           })}
@@ -144,8 +129,8 @@ export default function Groups() {
                   Connect your wallet!
                 </h1>
                 <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl t">
-                  Use the button below to connect your wallet and start
-                  interacting with your groups.
+                  Use the button below to connect your wallet and start interacting with your
+                  groups.
                 </p>
                 <WalletSection chainName="manifest" />
               </div>
@@ -163,9 +148,9 @@ export default function Groups() {
                   On chain governance for collobrative decision making
                 </h1>
                 <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl t">
-                  Groups are sets of members who can submit and vote on
-                  proposals together. Proposals are composed of any message
-                  type. Create your first group and get started.
+                  Groups are sets of members who can submit and vote on proposals together.
+                  Proposals are composed of any message type. Create your first group and get
+                  started.
                 </p>
                 <Link href="/groups/create" passHref>
                   <button className="mt-6 btn btn-primary btn-lg inline-flex items-center">
@@ -188,43 +173,41 @@ export default function Groups() {
             <div className="skeleton h-full w-full"></div>
           </div>
         )}
-        {groupByMemberData?.groups?.length >= 1 &&
-          !isGroupByMemberLoading &&
-          isWalletConnected && (
-            <div className="flex flex-col w-full">
-              <div className=" flex flex-col md:flex-row sm:flex-col xs:flex-col w-full gap-4 transition-opacity duration-300 ease-in-out animate-fadeIn">
-                <div className="flex flex-col justify-start items-center lg:w-1/3 md:w-full">
-                  <YourGroups
-                    refetchGroupByMember={refetchGroupByMember}
-                    groups={groupByMemberData}
-                    groupByMemberDataLoading={isGroupByMemberLoading}
-                    groupByMemberDataError={isGroupByMemberError}
-                    onSelectGroup={handleGroupSelect}
-                    proposals={proposalsByPolicyAccount}
-                  />
-                </div>
-
-                <div className="flex flex-col justify-start gap-4 items-start  lg:w-2/3 md:w-full">
-                  <GroupInfo
-                    refetchGroupByMember={refetchGroupByMember}
-                    group={infoGroup}
-                    groupByMemberDataLoading={isGroupByMemberLoading}
-                    groupByMemberDataError={isGroupByMemberError}
-                    address={address ?? ""}
-                    policyAddress={selectedPolicyAddress ?? ""}
-                  />
-                </div>
+        {groupByMemberData?.groups?.length >= 1 && !isGroupByMemberLoading && isWalletConnected && (
+          <div className="flex flex-col w-full">
+            <div className=" flex flex-col md:flex-row sm:flex-col xs:flex-col w-full gap-4 transition-opacity duration-300 ease-in-out animate-fadeIn">
+              <div className="flex flex-col justify-start items-center lg:w-1/3 md:w-full">
+                <YourGroups
+                  refetchGroupByMember={refetchGroupByMember}
+                  groups={groupByMemberData}
+                  groupByMemberDataLoading={isGroupByMemberLoading}
+                  groupByMemberDataError={isGroupByMemberError}
+                  onSelectGroup={handleGroupSelect}
+                  proposals={proposalsByPolicyAccount}
+                />
               </div>
-              <ProposalsForPolicy policyAddress={selectedPolicyAddress ?? ""} />
-              {groupByMemberData?.groups?.length >= 1 && isWalletConnected && (
-                <Link href="/groups/create" passHref>
-                  <button className="relative items-center btn btn-primary block md:hidden w-full mt-6 mb-2">
-                    Create New Group
-                  </button>
-                </Link>
-              )}
+
+              <div className="flex flex-col justify-start gap-4 items-start  lg:w-2/3 md:w-full">
+                <GroupInfo
+                  refetchGroupByMember={refetchGroupByMember}
+                  group={infoGroup}
+                  groupByMemberDataLoading={isGroupByMemberLoading}
+                  groupByMemberDataError={isGroupByMemberError}
+                  address={address ?? ''}
+                  policyAddress={selectedPolicyAddress ?? ''}
+                />
+              </div>
             </div>
-          )}
+            <ProposalsForPolicy policyAddress={selectedPolicyAddress ?? ''} />
+            {groupByMemberData?.groups?.length >= 1 && isWalletConnected && (
+              <Link href="/groups/create" passHref>
+                <button className="relative items-center btn btn-primary block md:hidden w-full mt-6 mb-2">
+                  Create New Group
+                </button>
+              </Link>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

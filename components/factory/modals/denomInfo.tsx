@@ -1,22 +1,14 @@
-import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 
-type MessageType = "payout" | "burn";
+type MessageType = 'payout' | 'burn';
 
-export function DenomInfoModal({
-  denom,
-  modalId,
-}: {
-  denom: any;
-  modalId: string;
-}) {
+export function DenomInfoModal({ denom, modalId }: { denom: any; modalId: string }) {
   return (
     <>
       <dialog id={modalId} className="modal">
         <div className="modal-box absolute max-w-4xl mx-auto rounded-lg md:ml-20 shadow-lg">
           <form method="dialog">
-            <button className="btn btn-sm btn-circle btn-ghost absolute right-1 top-1">
-              ✕
-            </button>
+            <button className="btn btn-sm btn-circle btn-ghost absolute right-1 top-1">✕</button>
           </form>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
             <div>
@@ -25,22 +17,20 @@ export function DenomInfoModal({
               <div>
                 <p className="text-sm font-light mt-4">NAME</p>
                 <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
-                  <p className="text-md">{denom.name ?? "No name available"}</p>
+                  <p className="text-md">{denom.name ?? 'No name available'}</p>
                 </div>
               </div>
               <div>
                 <p className="text-sm font-light mt-4">SYMBOL</p>
                 <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
-                  <p className="text-md">
-                    {denom.symbol ?? "No symbol available"}
-                  </p>
+                  <p className="text-md">{denom.symbol ?? 'No symbol available'}</p>
                 </div>
               </div>
               <div>
                 <p className="text-sm font-light mt-4">DESCRIPTION</p>
                 <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2 max-h-[9.53rem] overflow-y-auto">
                   <p className="text-md text-wrap">
-                    {denom.description ?? "No description available"}
+                    {denom.description ?? 'No description available'}
                   </p>
                 </div>
               </div>
@@ -48,9 +38,7 @@ export function DenomInfoModal({
               <div>
                 <p className="text-sm font-light mt-4">EXPONENT</p>
                 <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
-                  <p className="text-md">
-                    {denom?.denom_units[1]?.exponent ?? "0"}
-                  </p>
+                  <p className="text-md">{denom?.denom_units[1]?.exponent ?? '0'}</p>
                 </div>
               </div>
             </div>
@@ -70,9 +58,7 @@ export function DenomInfoModal({
                   <div>
                     <p className="text-sm font-light mt-4">ALIASES</p>
                     <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
-                      <p className="text-md">
-                        {unit.aliases.join(", ") || "No aliases"}
-                      </p>
+                      <p className="text-md">{unit.aliases.join(', ') || 'No aliases'}</p>
                     </div>
                   </div>
                 </div>
@@ -93,9 +79,7 @@ export function DenomInfoModal({
               <div>
                 <p className="text-sm font-light mt-4">DISPLAY</p>
                 <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
-                  <p className="text-md">
-                    {denom.display ?? "No display available"}
-                  </p>
+                  <p className="text-md">{denom.display ?? 'No display available'}</p>
                 </div>
               </div>
             </div>

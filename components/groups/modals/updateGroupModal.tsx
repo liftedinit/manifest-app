@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { IPFSMetadata } from "@/hooks/useQueries";
-import { cosmos } from "@chalabi/manifestjs";
-import { PiTrashLight, PiPlusCircleThin, PiInfoLight } from "react-icons/pi";
-import { useTx, useFeeEstimation } from "@/hooks";
-import { chainName } from "@/config";
-import { ThresholdDecisionPolicy } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types";
-import { Any } from "@chalabi/manifestjs/dist/codegen/google/protobuf/any";
+import React, { useEffect, useState } from 'react';
+import { IPFSMetadata } from '@/hooks/useQueries';
+import { cosmos } from '@chalabi/manifestjs';
+import { PiTrashLight, PiPlusCircleThin, PiInfoLight } from 'react-icons/pi';
+import { useTx, useFeeEstimation } from '@/hooks';
+import { chainName } from '@/config';
+import { ThresholdDecisionPolicy } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
 
 interface Member {
   address: string;
@@ -58,38 +58,38 @@ export function UpdateGroupModal({
     updateGroupPolicyMetadata,
   } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
-  const [name, setName] = useState(maybeTitle ?? "");
-  const [authors, setAuthors] = useState(maybeAuthors ?? "");
-  const [summary, setSummary] = useState(maybeSummary ?? "");
-  const [forum, setForum] = useState(maybeProposalForumURL ?? "");
-  const [description, setDescription] = useState(maybeDetails ?? "");
-  const [threshold, setThreshold] = useState(maybeThreshold ?? "");
-  const [windowInput, setWindowInput] = useState("");
-  const [votingUnit, setVotingUnit] = useState("days");
+  const [name, setName] = useState(maybeTitle ?? '');
+  const [authors, setAuthors] = useState(maybeAuthors ?? '');
+  const [summary, setSummary] = useState(maybeSummary ?? '');
+  const [forum, setForum] = useState(maybeProposalForumURL ?? '');
+  const [description, setDescription] = useState(maybeDetails ?? '');
+  const [threshold, setThreshold] = useState(maybeThreshold ?? '');
+  const [windowInput, setWindowInput] = useState('');
+  const [votingUnit, setVotingUnit] = useState('days');
   const [isSigning, setIsSigning] = useState(false);
 
   useEffect(() => {
-    setAuthors(maybeAuthors ?? "");
-    setSummary(maybeSummary ?? "");
-    setForum(maybeProposalForumURL ?? "");
-    setDescription(maybeDetails ?? "");
-    setThreshold(maybeThreshold ?? "");
+    setAuthors(maybeAuthors ?? '');
+    setSummary(maybeSummary ?? '');
+    setForum(maybeProposalForumURL ?? '');
+    setDescription(maybeDetails ?? '');
+    setThreshold(maybeThreshold ?? '');
   }, [group]);
 
   const convertToSeconds = (input: string, unit: string) => {
     const value = parseFloat(input);
     let seconds;
     switch (unit) {
-      case "hours":
+      case 'hours':
         seconds = value * 3600;
         break;
-      case "days":
+      case 'days':
         seconds = value * 86400;
         break;
-      case "weeks":
+      case 'weeks':
         seconds = value * 604800;
         break;
-      case "months":
+      case 'months':
         seconds = value * 2592000;
         break;
       default:
@@ -99,7 +99,7 @@ export function UpdateGroupModal({
   };
 
   const [windowSeconds, setWindowSeconds] = useState(() =>
-    convertToSeconds(windowInput, votingUnit),
+    convertToSeconds(windowInput, votingUnit)
   );
 
   const handleUnitChange = (e: { target: { value: any } }) => {
@@ -118,16 +118,16 @@ export function UpdateGroupModal({
 
   let formattedVotingWindow;
   switch (votingUnit) {
-    case "hours":
+    case 'hours':
       formattedVotingWindow = votingWindow / 60 / 60;
       break;
-    case "days":
+    case 'days':
       formattedVotingWindow = votingWindow / 24 / 60 / 60;
       break;
-    case "weeks":
+    case 'weeks':
       formattedVotingWindow = votingWindow / 7 / 24 / 60 / 60;
       break;
-    case "months":
+    case 'months':
       formattedVotingWindow = votingWindow / 30 / 24 / 60 / 60;
       break;
     default:
@@ -145,7 +145,7 @@ export function UpdateGroupModal({
   };
 
   const initializeMembers = () => {
-    return maybeMembers?.map((member) => ({
+    return maybeMembers?.map(member => ({
       group_id: member.group_id,
       member: member.member,
       isCoreMember: true,
@@ -165,9 +165,9 @@ export function UpdateGroupModal({
     const newMember = {
       group_id: members[0].group_id,
       member: {
-        address: "",
-        metadata: "",
-        weight: "",
+        address: '',
+        metadata: '',
+        weight: '',
         added_at: new Date(),
       } as Member,
       isCoreMember: false,
@@ -181,10 +181,8 @@ export function UpdateGroupModal({
   const handleChange = (index: number, field: string, value: string) => {
     setMembers(
       members.map((member, idx) =>
-        idx === index
-          ? { ...member, member: { ...member.member, [field]: value } }
-          : member,
-      ),
+        idx === index ? { ...member, member: { ...member.member, [field]: value } } : member
+      )
     );
   };
 
@@ -194,63 +192,49 @@ export function UpdateGroupModal({
       const updatedMember = {
         ...member,
         isActive: !member.isActive,
-        member: { ...member.member, weight: member.isActive ? "0" : "1" },
+        member: { ...member.member, weight: member.isActive ? '0' : '1' },
       };
-      setMembers(
-        members.map((mem, idx) => (idx === index ? updatedMember : mem)),
-      );
+      setMembers(members.map((mem, idx) => (idx === index ? updatedMember : mem)));
     } else {
       setMembers(members.filter((_, idx) => idx !== index));
     }
   };
 
   const hasStateChanged = (newValue: any, originalValue: any) => {
-    return (
-      newValue !== null && newValue !== undefined && newValue !== originalValue
-    );
+    return newValue !== null && newValue !== undefined && newValue !== originalValue;
   };
 
   const buildMessages = () => {
     const messages: Any[] = [];
 
     // Update Group Admin
-    const newAdmin = members?.find((member) => member?.isAdmin)?.member
-      ?.address;
+    const newAdmin = members?.find(member => member?.isAdmin)?.member?.address;
     if (hasStateChanged(newAdmin, group.admin)) {
       const msg = updateGroupAdmin({
         admin: group.admin,
         groupId: BigInt(maybeMembers?.[0]?.group_id),
-        newAdmin: newAdmin ?? "",
+        newAdmin: newAdmin ?? '',
       });
       messages.push(
         Any.fromPartial({
           typeUrl: cosmos.group.v1.MsgUpdateGroupAdmin.typeUrl,
           value: cosmos.group.v1.MsgUpdateGroupAdmin.encode(msg.value).finish(),
-        }),
+        })
       );
     }
 
     // Update Group Members
     const membersChanged = members.some(
       (member, index) =>
-        hasStateChanged(
-          member.member.address,
-          group.members[index]?.member.address,
-        ) ||
-        hasStateChanged(
-          member.member.metadata,
-          group.members[index]?.member.metadata,
-        ) ||
-        hasStateChanged(
-          member.member.weight,
-          group.members[index]?.member.weight,
-        ),
+        hasStateChanged(member.member.address, group.members[index]?.member.address) ||
+        hasStateChanged(member.member.metadata, group.members[index]?.member.metadata) ||
+        hasStateChanged(member.member.weight, group.members[index]?.member.weight)
     );
     if (membersChanged) {
       const msg = updateGroupMembers({
         admin: group.admin,
         groupId: BigInt(maybeMembers?.[0]?.group_id),
-        memberUpdates: members.map((member) => ({
+        memberUpdates: members.map(member => ({
           address: member.member.address,
           metadata: member.member.metadata,
           weight: member.member.weight,
@@ -259,10 +243,8 @@ export function UpdateGroupModal({
       messages.push(
         Any.fromPartial({
           typeUrl: cosmos.group.v1.MsgUpdateGroupMembers.typeUrl,
-          value: cosmos.group.v1.MsgUpdateGroupMembers.encode(
-            msg.value,
-          ).finish(),
-        }),
+          value: cosmos.group.v1.MsgUpdateGroupMembers.encode(msg.value).finish(),
+        })
       );
     }
 
@@ -289,10 +271,8 @@ export function UpdateGroupModal({
       messages.push(
         Any.fromPartial({
           typeUrl: cosmos.group.v1.MsgUpdateGroupMetadata.typeUrl,
-          value: cosmos.group.v1.MsgUpdateGroupMetadata.encode(
-            msgGroupMetadata.value,
-          ).finish(),
-        }),
+          value: cosmos.group.v1.MsgUpdateGroupMetadata.encode(msgGroupMetadata.value).finish(),
+        })
       );
 
       const msgPolicyMetadata = updateGroupPolicyMetadata({
@@ -304,28 +284,25 @@ export function UpdateGroupModal({
         Any.fromPartial({
           typeUrl: cosmos.group.v1.MsgUpdateGroupPolicyMetadata.typeUrl,
           value: cosmos.group.v1.MsgUpdateGroupPolicyMetadata.encode(
-            msgPolicyMetadata.value,
+            msgPolicyMetadata.value
           ).finish(),
-        }),
+        })
       );
     }
 
     // Update Group Policy Admin
-    const newPolicyAdmin = members?.find((member) => member?.isPolicyAdmin)
-      ?.member?.address;
+    const newPolicyAdmin = members?.find(member => member?.isPolicyAdmin)?.member?.address;
     if (hasStateChanged(newPolicyAdmin, maybePolicies?.admin)) {
       const msg = updateGroupPolicyAdmin({
         groupPolicyAddress: maybePolicies?.address,
         admin: group.admin,
-        newAdmin: newPolicyAdmin ?? "",
+        newAdmin: newPolicyAdmin ?? '',
       });
       messages.push(
         Any.fromPartial({
           typeUrl: cosmos.group.v1.MsgUpdateGroupPolicyAdmin.typeUrl,
-          value: cosmos.group.v1.MsgUpdateGroupPolicyAdmin.encode(
-            msg.value,
-          ).finish(),
-        }),
+          value: cosmos.group.v1.MsgUpdateGroupPolicyAdmin.encode(msg.value).finish(),
+        })
       );
     }
 
@@ -342,11 +319,8 @@ export function UpdateGroupModal({
         },
       };
 
-      const threshholdPolicyFromPartial =
-        ThresholdDecisionPolicy.fromPartial(thresholdMsg);
-      const threshholdPolicy = ThresholdDecisionPolicy.encode(
-        threshholdPolicyFromPartial,
-      ).finish();
+      const threshholdPolicyFromPartial = ThresholdDecisionPolicy.fromPartial(thresholdMsg);
+      const threshholdPolicy = ThresholdDecisionPolicy.encode(threshholdPolicyFromPartial).finish();
 
       const msg = updateGroupPolicyDecisionPolicy({
         groupPolicyAddress: maybePolicies?.address,
@@ -361,10 +335,8 @@ export function UpdateGroupModal({
       messages.push(
         Any.fromPartial({
           typeUrl: cosmos.group.v1.MsgUpdateGroupPolicyDecisionPolicy.typeUrl,
-          value: cosmos.group.v1.MsgUpdateGroupPolicyDecisionPolicy.encode(
-            msg.value,
-          ).finish(),
-        }),
+          value: cosmos.group.v1.MsgUpdateGroupPolicyDecisionPolicy.encode(msg.value).finish(),
+        })
       );
     }
 
@@ -379,11 +351,11 @@ export function UpdateGroupModal({
     const msg = submitProposal({
       groupPolicyAddress: policyAddress,
       proposers: [address],
-      metadata: "",
+      metadata: '',
       messages: encodedMessages,
       exec: 0,
-      title: "Update Group",
-      summary: "Update Group",
+      title: 'Update Group',
+      summary: 'Update Group',
     });
 
     const fee = await estimateFee(address, [msg]);
@@ -398,9 +370,7 @@ export function UpdateGroupModal({
     <dialog id={modalId} className="modal">
       <div className="modal-box absolute max-w-6xl mx-auto rounded-lg md:ml-20 shadow-lg min-h-96">
         <form method="dialog">
-          <button className="btn btn-sm btn-circle btn-ghost absolute right-1 top-1">
-            ✕
-          </button>
+          <button className="btn btn-sm btn-circle btn-ghost absolute right-1 top-1">✕</button>
         </form>
         <h3 className="text-lg font-semibold ">Update Group</h3>
         <div className="divider divider-horizon -mt-0 "></div>
@@ -412,10 +382,7 @@ export function UpdateGroupModal({
                   <label htmlFor="name" className="block  text-sm font-medium">
                     Group Name
                   </label>
-                  <div
-                    className=""
-                    data-tip="Group Name (can not exceed 24 characters)"
-                  >
+                  <div className="" data-tip="Group Name (can not exceed 24 characters)">
                     <PiInfoLight className="hover:group-[]" />
                   </div>
                 </div>
@@ -424,19 +391,14 @@ export function UpdateGroupModal({
                   id="name"
                   name="name"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={e => setName(e.target.value)}
                   className="input input-bordered w-full"
-                  placeholder={
-                    group?.ipfsMetadata?.title ?? "No title available"
-                  }
+                  placeholder={group?.ipfsMetadata?.title ?? 'No title available'}
                   maxLength={24}
                 />
               </div>
               <div>
-                <label
-                  htmlFor="authors"
-                  className="block mb-2 text-sm font-medium"
-                >
+                <label htmlFor="authors" className="block mb-2 text-sm font-medium">
                   Authors
                 </label>
                 <input
@@ -444,18 +406,13 @@ export function UpdateGroupModal({
                   id="authors"
                   name="authors"
                   value={authors}
-                  onChange={(e) => setAuthors(e.target.value)}
+                  onChange={e => setAuthors(e.target.value)}
                   className="input input-bordered w-full"
-                  placeholder={
-                    group?.ipfsMetadata?.authors ?? "No authors available"
-                  }
+                  placeholder={group?.ipfsMetadata?.authors ?? 'No authors available'}
                 />
               </div>
               <div>
-                <label
-                  htmlFor="summary"
-                  className="block mb-2 text-sm font-medium"
-                >
+                <label htmlFor="summary" className="block mb-2 text-sm font-medium">
                   Summary
                 </label>
                 <input
@@ -463,18 +420,13 @@ export function UpdateGroupModal({
                   id="summary"
                   name="summary"
                   value={summary}
-                  onChange={(e) => setSummary(e.target.value)}
+                  onChange={e => setSummary(e.target.value)}
                   className="input input-bordered w-full"
-                  placeholder={
-                    group?.ipfsMetadata?.summary ?? "No summary available"
-                  }
+                  placeholder={group?.ipfsMetadata?.summary ?? 'No summary available'}
                 />
               </div>
               <div>
-                <label
-                  htmlFor="threshold"
-                  className="block mb-2 text-sm font-medium"
-                >
+                <label htmlFor="threshold" className="block mb-2 text-sm font-medium">
                   Threshold
                 </label>
                 <input
@@ -482,16 +434,13 @@ export function UpdateGroupModal({
                   id="threshold"
                   name="threshold"
                   value={threshold}
-                  onChange={(e) => setThreshold(e.target.value)}
+                  onChange={e => setThreshold(e.target.value)}
                   className="input input-bordered w-full"
-                  placeholder={maybeThreshold ?? "No threshold available"}
+                  placeholder={maybeThreshold ?? 'No threshold available'}
                 />
               </div>
               <div>
-                <label
-                  htmlFor="forum"
-                  className="block mb-2 text-sm font-medium"
-                >
+                <label htmlFor="forum" className="block mb-2 text-sm font-medium">
                   Forum
                 </label>
                 <input
@@ -499,18 +448,13 @@ export function UpdateGroupModal({
                   id="forum"
                   name="forum"
                   value={forum}
-                  onChange={(e) => setForum(e.target.value)}
+                  onChange={e => setForum(e.target.value)}
                   className="input input-bordered w-full"
-                  placeholder={
-                    maybeProposalForumURL ?? "No forum URL available"
-                  }
+                  placeholder={maybeProposalForumURL ?? 'No forum URL available'}
                 />
               </div>
               <div className="flex flex-col">
-                <label
-                  htmlFor="window"
-                  className="text-sm font-medium mb-2 block"
-                >
+                <label htmlFor="window" className="text-sm font-medium mb-2 block">
                   Voting Window
                 </label>
                 <div className="flex flex-row gap-3">
@@ -546,11 +490,9 @@ export function UpdateGroupModal({
                   id="description"
                   rows={4}
                   value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  onChange={e => setDescription(e.target.value)}
                   className="textarea w-full textarea-bordered"
-                  placeholder={
-                    group?.ipfsMetadata?.details ?? "No description available"
-                  }
+                  placeholder={group?.ipfsMetadata?.details ?? 'No description available'}
                 ></textarea>
               </div>
             </div>
@@ -572,14 +514,14 @@ export function UpdateGroupModal({
                   key={index}
                   className={`flex relative flex-col gap-2 px-4 py-2 rounded-md border-4 ${
                     member.isAdmin && member.isPolicyAdmin
-                      ? "border-r-primary border-b-primary border-l-secondary border-t-secondary"
+                      ? 'border-r-primary border-b-primary border-l-secondary border-t-secondary'
                       : member.isAdmin
-                        ? "border-r-primary border-b-primary border-t-transparent border-l-transparent"
+                        ? 'border-r-primary border-b-primary border-t-transparent border-l-transparent'
                         : member.isPolicyAdmin
-                          ? "border-l-secondary border-t-secondary border-r-base-100 border-b-base-100 "
-                          : "border-r-transparent border-b-transparent border-t-transparent border-l-transparent"
+                          ? 'border-l-secondary border-t-secondary border-r-base-100 border-b-base-100 '
+                          : 'border-r-transparent border-b-transparent border-t-transparent border-l-transparent'
                   } transition-all duration-200 max-h-[12.4rem] ${
-                    !member.isActive ? "bg-base-100" : "bg-base-200"
+                    !member.isActive ? 'bg-base-100' : 'bg-base-200'
                   }  `}
                 >
                   <div className="flex flex-row justify-between items-center">
@@ -589,15 +531,11 @@ export function UpdateGroupModal({
                       onClick={() => handleMemberRemoval(index)}
                       className={`btn btn-sm ${
                         member.isActive
-                          ? "text-red-500 hover:bg-red-500"
-                          : "text-primary hover:bg-primary "
+                          ? 'text-red-500 hover:bg-red-500'
+                          : 'text-primary hover:bg-primary '
                       }  hover:text-white bg-base-300`}
                     >
-                      {member.isActive ? (
-                        <PiTrashLight />
-                      ) : (
-                        <PiPlusCircleThin />
-                      )}
+                      {member.isActive ? <PiTrashLight /> : <PiPlusCircleThin />}
                     </button>
                   </div>
                   <div className="flex flex-col gap-4 mb-2">
@@ -605,42 +543,26 @@ export function UpdateGroupModal({
                       type="text"
                       disabled={member.isCoreMember && !member.isActive}
                       value={member.member.metadata}
-                      onChange={(e) =>
-                        handleChange(index, "metadata", e.target.value)
-                      }
+                      onChange={e => handleChange(index, 'metadata', e.target.value)}
                       className="input input-sm input-bordered w-full disabled:border-base-100"
-                      placeholder={
-                        member.isCoreMember ? member.member.metadata : "Name"
-                      }
+                      placeholder={member.isCoreMember ? member.member.metadata : 'Name'}
                     />
 
                     <input
                       type="text"
                       disabled={member.isCoreMember}
                       value={member.member.address}
-                      onChange={(e) =>
-                        handleChange(index, "address", e.target.value)
-                      }
+                      onChange={e => handleChange(index, 'address', e.target.value)}
                       className="input input-sm input-bordered w-full disabled:border-base-100"
-                      placeholder={
-                        member.isCoreMember ? member.member.address : "Address"
-                      }
+                      placeholder={member.isCoreMember ? member.member.address : 'Address'}
                     />
                     <input
                       type="number"
                       disabled={member.isCoreMember && !member.isActive}
-                      value={
-                        member.isCoreMember && !member.isActive
-                          ? "0"
-                          : member.member.weight
-                      }
-                      onChange={(e) =>
-                        handleChange(index, "weight", e.target.value)
-                      }
+                      value={member.isCoreMember && !member.isActive ? '0' : member.member.weight}
+                      onChange={e => handleChange(index, 'weight', e.target.value)}
                       className="input input-sm input-bordered w-full disabled:border-base-100"
-                      placeholder={
-                        member.isCoreMember ? member.member.weight : "Weight"
-                      }
+                      placeholder={member.isCoreMember ? member.member.weight : 'Weight'}
                     />
                   </div>
                 </div>
@@ -652,7 +574,7 @@ export function UpdateGroupModal({
           <button
             onClick={() => {
               const modal = document.getElementById(
-                `update_group_${group?.id}`,
+                `update_group_${group?.id}`
               ) as HTMLDialogElement;
               modal?.close();
             }}
@@ -666,11 +588,7 @@ export function UpdateGroupModal({
             onClick={handleConfirm}
             disabled={isSigning || buildMessages().length === 0}
           >
-            {isSigning ? (
-              <span className="loading loading-spinner"></span>
-            ) : (
-              "Update"
-            )}
+            {isSigning ? <span className="loading loading-spinner"></span> : 'Update'}
           </button>
         </div>
       </div>

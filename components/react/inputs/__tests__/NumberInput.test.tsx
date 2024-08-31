@@ -1,59 +1,59 @@
-import { test, expect, afterEach, describe } from "bun:test";
-import React from "react";
-import matchers from "@testing-library/jest-dom/matchers";
-import { render, screen, cleanup, fireEvent } from "@testing-library/react";
-import { NumberInput } from "@/components/react/inputs";
-import { Formik, Form } from "formik";
+import { test, expect, afterEach, describe } from 'bun:test';
+import React from 'react';
+import matchers from '@testing-library/jest-dom/matchers';
+import { render, screen, cleanup, fireEvent } from '@testing-library/react';
+import { NumberInput } from '@/components/react/inputs';
+import { Formik, Form } from 'formik';
 
 expect.extend(matchers);
 
 const TestForm = ({ children }: { children: React.ReactNode }) => (
-  <Formik initialValues={{ test: "" }} onSubmit={() => {}}>
+  <Formik initialValues={{ test: '' }} onSubmit={() => {}}>
     <Form>{children}</Form>
   </Formik>
 );
 
-describe("NumberInput", () => {
+describe('NumberInput', () => {
   afterEach(() => {
     cleanup();
   });
 
-  test("renders correctly", () => {
+  test('renders correctly', () => {
     render(
       <TestForm>
         <NumberInput label="Test Number" name="test" />
-      </TestForm>,
+      </TestForm>
     );
-    const input = screen.getByLabelText("Test Number");
+    const input = screen.getByLabelText('Test Number');
     expect(input).toBeInTheDocument();
-    expect(input.tagName.toLowerCase()).toBe("input");
-    expect(input).toHaveAttribute("type", "number");
+    expect(input.tagName.toLowerCase()).toBe('input');
+    expect(input).toHaveAttribute('type', 'number');
   });
 
-  test("updates value on change", () => {
+  test('updates value on change', () => {
     render(
       <TestForm>
         <NumberInput label="Test Number" name="test" />
-      </TestForm>,
+      </TestForm>
     );
-    const input = screen.getByLabelText("Test Number");
-    fireEvent.change(input, { target: { value: "42" } });
+    const input = screen.getByLabelText('Test Number');
+    fireEvent.change(input, { target: { value: '42' } });
     expect(input).toHaveValue(42);
   });
 
-  test("displays error message", () => {
+  test('displays error message', () => {
     render(
       <Formik
-        initialValues={{ test: "" }}
-        initialErrors={{ test: "Must be a number" }}
+        initialValues={{ test: '' }}
+        initialErrors={{ test: 'Must be a number' }}
         initialTouched={{ test: true }}
         onSubmit={() => {}}
       >
         <Form>
           <NumberInput label="Test Number" name="test" />
         </Form>
-      </Formik>,
+      </Formik>
     );
-    expect(screen.getByText("Must be a number")).toBeInTheDocument();
+    expect(screen.getByText('Must be a number')).toBeInTheDocument();
   });
 });

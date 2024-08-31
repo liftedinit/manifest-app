@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode } from 'react';
 
 export default function StepIndicator({
   currentStep,
@@ -10,10 +10,7 @@ export default function StepIndicator({
   return (
     <ul className="steps w-full">
       {steps.map(({ label, step }) => (
-        <li
-          key={step}
-          className={`step ${step <= currentStep ? "step-primary" : ""}`}
-        >
+        <li key={step} className={`step ${step <= currentStep ? 'step-primary' : ''}`}>
           {label}
         </li>
       ))}

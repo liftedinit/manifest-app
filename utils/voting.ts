@@ -1,27 +1,24 @@
-import { AssetList, Asset } from "@chain-registry/types";
-import BigNumber from "bignumber.js";
-import { assets } from "chain-registry";
-import dayjs from "dayjs";
-import {
-  Proposal,
-  ProposalStatus,
-} from "@chalabi/manifestjs/dist/codegen/cosmos/gov/v1/gov";
+import { AssetList, Asset } from '@chain-registry/types';
+import BigNumber from 'bignumber.js';
+import { assets } from 'chain-registry';
+import dayjs from 'dayjs';
+import { Proposal, ProposalStatus } from '@chalabi/manifestjs/dist/codegen/cosmos/gov/v1/gov';
 
 export const parseProposals = (proposals: Proposal[]) => {
   const sortedProposal = proposals.sort((a, b) => Number(b.id) - Number(a.id));
   const votingProposals = sortedProposal.filter(
-    ({ status }) => status === ProposalStatus.PROPOSAL_STATUS_VOTING_PERIOD,
+    ({ status }) => status === ProposalStatus.PROPOSAL_STATUS_VOTING_PERIOD
   );
   const nonVotingProposals = sortedProposal.filter(
-    ({ status }) => status !== ProposalStatus.PROPOSAL_STATUS_VOTING_PERIOD,
+    ({ status }) => status !== ProposalStatus.PROPOSAL_STATUS_VOTING_PERIOD
   );
 
   return [...votingProposals, ...nonVotingProposals];
 };
 
 export const decodeUint8Arr = (uint8array: Uint8Array | undefined) => {
-  if (!uint8array) return "";
-  return new TextDecoder("utf-8").decode(uint8array);
+  if (!uint8array) return '';
+  return new TextDecoder('utf-8').decode(uint8array);
 };
 
 export const parseQuorum = (quorum: Uint8Array | undefined) => {
@@ -30,7 +27,7 @@ export const parseQuorum = (quorum: Uint8Array | undefined) => {
 };
 
 export const getChainAssets = (chainName: string) => {
-  return assets.find((chain) => chain.chain_name === chainName) as AssetList;
+  return assets.find(chain => chain.chain_name === chainName) as AssetList;
 };
 
 export const getCoin = (chainName: string) => {
@@ -39,21 +36,18 @@ export const getCoin = (chainName: string) => {
 };
 
 export const getExponent = (chainName: string) => {
-  return getCoin(chainName).denom_units.find(
-    (unit) => unit.denom === getCoin(chainName).display,
-  )?.exponent as number;
+  return getCoin(chainName).denom_units.find(unit => unit.denom === getCoin(chainName).display)
+    ?.exponent as number;
 };
 
 export const exponentiate = (num: number | string | undefined, exp: number) => {
   if (!num) return 0;
-  return new BigNumber(num)
-    .multipliedBy(new BigNumber(10).exponentiatedBy(exp))
-    .toNumber();
+  return new BigNumber(num).multipliedBy(new BigNumber(10).exponentiatedBy(exp)).toNumber();
 };
 
 export const formatDate = (date: Date | undefined) => {
-  if (!date) return "not specified";
-  return dayjs(date).format("YYYY-MM-DD hh:mm:ss");
+  if (!date) return 'not specified';
+  return dayjs(date).format('YYYY-MM-DD hh:mm:ss');
 };
 
 export const getTitleFromDecoded = (decodedStr: string) => {
@@ -61,7 +55,7 @@ export const getTitleFromDecoded = (decodedStr: string) => {
 };
 
 export const getPercentage = (option: string | undefined, total: number) => {
-  if (!total) return "0.00%";
+  if (!total) return '0.00%';
   const voted = option ? Number(option) : 0;
-  return ((voted / total) * 100).toFixed(2) + "%";
+  return ((voted / total) * 100).toFixed(2) + '%';
 };

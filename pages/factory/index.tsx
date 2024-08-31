@@ -1,6 +1,6 @@
-import { WalletSection } from "@/components";
-import DenomInfo from "@/components/factory/components/DenomInfo";
-import MyDenoms from "@/components/factory/components/MyDenoms";
+import { WalletSection } from '@/components';
+import DenomInfo from '@/components/factory/components/DenomInfo';
+import MyDenoms from '@/components/factory/components/MyDenoms';
 import {
   useBalance,
   useGroupsByAdmin,
@@ -9,42 +9,42 @@ import {
   useTokenFactoryBalance,
   useTokenFactoryDenoms,
   useTokenFactoryDenomsMetadata,
-} from "@/hooks";
-import { MetadataSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
-import { useChain } from "@cosmos-kit/react";
+} from '@/hooks';
+import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { useChain } from '@cosmos-kit/react';
 
-import Head from "next/head";
-import Link from "next/link";
-import React, { useState, useEffect, useMemo } from "react";
+import Head from 'next/head';
+import Link from 'next/link';
+import React, { useState, useEffect, useMemo } from 'react';
 
-import { chainName } from "@/config";
-import MetaBox from "@/components/factory/components/metaBox";
-import { CoinSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/base/v1beta1/coin";
+import { chainName } from '@/config';
+import MetaBox from '@/components/factory/components/metaBox';
+import { CoinSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/base/v1beta1/coin';
 
 export default function Factory() {
   const MFX_TOKEN_DATA: MetadataSDKType = {
-    description: "The native token of the Manifest Chain",
+    description: 'The native token of the Manifest Chain',
     denom_units: [
-      { denom: "umfx", exponent: 0, aliases: [] },
-      { denom: "mfx", exponent: 6, aliases: [] },
+      { denom: 'umfx', exponent: 0, aliases: [] },
+      { denom: 'mfx', exponent: 6, aliases: [] },
     ],
-    base: "umfx",
-    display: "mfx",
-    name: "Manifest",
-    symbol: "MFX",
-    uri: "",
-    uri_hash: "",
+    base: 'umfx',
+    display: 'mfx',
+    name: 'Manifest',
+    symbol: 'MFX',
+    uri: '',
+    uri_hash: '',
   };
 
   const { address, isWalletConnected } = useChain(chainName);
-  const { denoms, isDenomsLoading, isDenomsError, refetchDenoms } =
-    useTokenFactoryDenoms(address ?? "");
+  const { denoms, isDenomsLoading, isDenomsError, refetchDenoms } = useTokenFactoryDenoms(
+    address ?? ''
+  );
   const { metadatas, isMetadatasLoading, isMetadatasError, refetchMetadatas } =
     useTokenFactoryDenomsMetadata();
 
   const [selectedDenom, setSelectedDenom] = useState<string | null>(null);
-  const [selectedDenomMetadata, setSelectedDenomMetadata] =
-    useState<MetadataSDKType | null>(null);
+  const [selectedDenomMetadata, setSelectedDenomMetadata] = useState<MetadataSDKType | null>(null);
 
   const [balance, setBalance] = useState<CoinSDKType | null>(null);
   const [isBalanceLoading, setIsBalanceLoading] = useState(false);
@@ -53,7 +53,7 @@ export default function Factory() {
     balance: fetchedBalance,
     refetchBalance,
     isBalanceLoading: isFetchingBalance,
-  } = useTokenFactoryBalance(address ?? "", selectedDenomMetadata?.base ?? "");
+  } = useTokenFactoryBalance(address ?? '', selectedDenomMetadata?.base ?? '');
 
   useEffect(() => {
     if (selectedDenomMetadata) {
@@ -77,13 +77,9 @@ export default function Factory() {
     if (denoms && metadatas) {
       const tokenFactoryDenoms = denoms.denoms
         .map((denom: string) => {
-          return (
-            metadatas.metadatas.find((meta) => meta.base === denom) || null
-          );
+          return metadatas.metadatas.find(meta => meta.base === denom) || null;
         })
-        .filter(
-          (meta: MetadataSDKType | null) => meta !== null,
-        ) as MetadataSDKType[];
+        .filter((meta: MetadataSDKType | null) => meta !== null) as MetadataSDKType[];
 
       result = [...result, ...tokenFactoryDenoms];
     }
@@ -134,8 +130,7 @@ export default function Factory() {
                     Connect your wallet!
                   </h1>
                   <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl">
-                    Use the button below to connect your wallet and start
-                    minting tokens.
+                    Use the button below to connect your wallet and start minting tokens.
                   </p>
                   <WalletSection chainName="manifest" />
                 </div>
@@ -164,16 +159,16 @@ export default function Factory() {
                       balance={balance}
                       isBalanceLoading={isBalanceLoading}
                       denom={selectedDenomMetadata}
-                      address={address ?? ""}
+                      address={address ?? ''}
                       refetchDenoms={refetchDenoms}
                     />
                   </div>
                 </div>
                 <div className="mt-4">
                   <MetaBox
-                    balance={balance?.amount ?? ""}
+                    balance={balance?.amount ?? ''}
                     refetch={refetch}
-                    address={address ?? ""}
+                    address={address ?? ''}
                     denom={selectedDenomMetadata}
                   />
                 </div>

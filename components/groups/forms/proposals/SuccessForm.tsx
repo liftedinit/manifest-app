@@ -1,6 +1,6 @@
-import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
-import { ProposalFormData } from "@/helpers";
-import Link from "next/link";
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import { ProposalFormData } from '@/helpers';
+import Link from 'next/link';
 
 export default function ProposalSuccess({
   formData,
@@ -10,20 +10,15 @@ export default function ProposalSuccess({
   prevStep: () => void;
 }>) {
   const renderProposers = () => {
-    if (formData.proposers.startsWith("manifest")) {
-      return (
-        <TruncatedAddressWithCopy address={formData.proposers} slice={14} />
-      );
-    } else if (formData.proposers.includes(",")) {
+    if (formData.proposers.startsWith('manifest')) {
+      return <TruncatedAddressWithCopy address={formData.proposers} slice={14} />;
+    } else if (formData.proposers.includes(',')) {
       return (
         <div className="flex flex-wrap gap-2">
-          {formData.proposers.split(",").map((proposer, index) => (
+          {formData.proposers.split(',').map((proposer, index) => (
             <div key={index}>
-              {proposer.trim().startsWith("manifest") ? (
-                <TruncatedAddressWithCopy
-                  address={proposer.trim()}
-                  slice={14}
-                />
+              {proposer.trim().startsWith('manifest') ? (
+                <TruncatedAddressWithCopy address={proposer.trim()} slice={14} />
               ) : (
                 <span>{proposer.trim()}</span>
               )}
@@ -39,15 +34,13 @@ export default function ProposalSuccess({
   return (
     <section className="lg:max-h-[90vh] max-h-screen lg:mt-1 mt-12  flex items-center justify-center ">
       <div className="max-w-2xl mx-auto bg-base-300 shadow-lg rounded-lg p-8 text-white">
-        <h1 className="text-3xl font-bold mb-4">
-          Proposal Submitted Successfully!
-        </h1>
+        <h1 className="text-3xl font-bold mb-4">Proposal Submitted Successfully!</h1>
         <p className="text-lg mb-2 text-pretty">
           Your proposal has been successfully submitted to the group.
         </p>
         <p className="text-md text-gray-300 mb-6 text-pretty">
-          Group members can now vote on your proposal. The voting period will
-          last for the duration specified in the group&apos;s settings.
+          Group members can now vote on your proposal. The voting period will last for the duration
+          specified in the group&apos;s settings.
         </p>
         <div className="border-t border-gray-700 pt-4">
           <h2 className="text-2xl font-semibold mb-4">Proposal Details</h2>
@@ -85,9 +78,7 @@ export default function ProposalSuccess({
           <div className="mt-6">
             <div className="w-full justify-between items-center">
               <Link href="/groups" legacyBehavior>
-                <button className="btn btn-md btn-secondary w-full">
-                  Back to Groups Page
-                </button>
+                <button className="btn btn-md btn-secondary w-full">Back to Groups Page</button>
               </Link>
             </div>
           </div>

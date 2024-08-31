@@ -1,21 +1,19 @@
-import React from "react";
-import { Formik, Form } from "formik";
-import * as Yup from "yup";
-import { ProposalFormData, ProposalAction } from "@/helpers/formReducer";
-import Link from "next/link";
-import { PiAddressBook } from "react-icons/pi";
-import { TextInput, TextArea } from "@/components/react/inputs";
+import React from 'react';
+import { Formik, Form } from 'formik';
+import * as Yup from 'yup';
+import { ProposalFormData, ProposalAction } from '@/helpers/formReducer';
+import Link from 'next/link';
+import { PiAddressBook } from 'react-icons/pi';
+import { TextInput, TextArea } from '@/components/react/inputs';
 const ProposalSchema = Yup.object().shape({
-  title: Yup.string()
-    .required("Title is required")
-    .max(50, "Title must not exceed 50 characters"),
+  title: Yup.string().required('Title is required').max(50, 'Title must not exceed 50 characters'),
   proposers: Yup.string()
-    .required("Proposer is required")
-    .max(200, "Proposers must not exceed 200 characters"),
+    .required('Proposer is required')
+    .max(200, 'Proposers must not exceed 200 characters'),
   summary: Yup.string()
-    .required("Summary is required")
-    .min(10, "Summary must be at least 10 characters")
-    .max(500, "Summary must not exceed 500 characters"),
+    .required('Summary is required')
+    .min(10, 'Summary must be at least 10 characters')
+    .max(500, 'Summary must not exceed 500 characters'),
 });
 
 export default function ProposalDetails({
@@ -30,7 +28,7 @@ export default function ProposalDetails({
   address: string;
 }>) {
   const updateField = (field: keyof ProposalFormData, value: any) => {
-    dispatch({ type: "UPDATE_FIELD", field, value });
+    dispatch({ type: 'UPDATE_FIELD', field, value });
   };
   console.log(formData);
   return (
@@ -56,8 +54,8 @@ export default function ProposalDetails({
                       placeholder="Title"
                       value={formData.title}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        updateField("title", e.target.value);
-                        setFieldValue("title", e.target.value);
+                        updateField('title', e.target.value);
+                        setFieldValue('title', e.target.value);
                       }}
                     />
                     <div className="flex flex-row items-center justify-start">
@@ -67,8 +65,8 @@ export default function ProposalDetails({
                         placeholder="List of authors"
                         value={formData.proposers}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          updateField("proposers", e.target.value);
-                          setFieldValue("proposers", e.target.value);
+                          updateField('proposers', e.target.value);
+                          setFieldValue('proposers', e.target.value);
                         }}
                         className="rounded-tr-none rounded-br-none"
                       />
@@ -76,8 +74,8 @@ export default function ProposalDetails({
                         type="button"
                         aria-label="address-btn"
                         onClick={() => {
-                          setFieldValue("proposers", address);
-                          updateField("proposers", address);
+                          setFieldValue('proposers', address);
+                          updateField('proposers', address);
                         }}
                         className="btn btn-primary rounded-tr-lg rounded-br-lg rounded-bl-none rounded-tl-none"
                       >
@@ -90,8 +88,8 @@ export default function ProposalDetails({
                       placeholder="Short Bio"
                       value={formData.summary}
                       onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                        updateField("summary", e.target.value);
-                        setFieldValue("summary", e.target.value);
+                        updateField('summary', e.target.value);
+                        setFieldValue('summary', e.target.value);
                       }}
                     />
                   </div>

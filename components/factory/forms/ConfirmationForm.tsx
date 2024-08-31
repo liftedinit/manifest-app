@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { TokenFormData } from "@/helpers/formReducer";
-import { useFeeEstimation } from "@/hooks/useFeeEstimation";
-import { useTx } from "@/hooks/useTx";
-import { osmosis } from "@chalabi/manifestjs";
-import { chainName } from "@/config";
+import { useState } from 'react';
+import { TokenFormData } from '@/helpers/formReducer';
+import { useFeeEstimation } from '@/hooks/useFeeEstimation';
+import { useTx } from '@/hooks/useTx';
+import { osmosis } from '@chalabi/manifestjs';
+import { chainName } from '@/config';
 
 export default function ConfirmationForm({
   nextStep,
@@ -19,8 +19,7 @@ export default function ConfirmationForm({
   const [isSigning, setIsSigning] = useState(false);
   const { tx } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
-  const { setDenomMetadata } =
-    osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
+  const { setDenomMetadata } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
 
   const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -56,7 +55,7 @@ export default function ConfirmationForm({
         },
       });
 
-      const fee = await estimateFee(address ?? "", [msg]);
+      const fee = await estimateFee(address ?? '', [msg]);
       await tx([msg], {
         fee,
         onSuccess: () => {
@@ -65,7 +64,7 @@ export default function ConfirmationForm({
       });
     } catch (error) {
       setIsSigning(false);
-      console.error("Error during transaction setup:", error);
+      console.error('Error during transaction setup:', error);
     } finally {
       setIsSigning(false);
     }
@@ -85,38 +84,30 @@ export default function ConfirmationForm({
       <h2 className="text-2xl font-bold mb-4">Token Information</h2>
       <div className="bg-base-300 rounded-lg p-4 mb-6 flex-grow overflow-auto max-h-[34rem]">
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
-          {renderField("Token Name", formData.name)}
-          {renderField("Symbol", formData.symbol)}
-          {renderField("Display", formData.display)}
-          {renderField("Subdenom", formData.subdenom)}
+          {renderField('Token Name', formData.name)}
+          {renderField('Symbol', formData.symbol)}
+          {renderField('Display', formData.display)}
+          {renderField('Subdenom', formData.subdenom)}
         </div>
-        <div className="mt-4">
-          {renderField("Description", formData.description)}
-        </div>
+        <div className="mt-4">{renderField('Description', formData.description)}</div>
         <div className="mt-4">
           <h3 className="font-semibold mb-2">Denom Units</h3>
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
-            {renderField("Base Denom", "turd")}
-            {renderField("Base Exponent", "0")}
-            {renderField("Full Denom", fullDenom)}
-            {renderField(
-              "Full Denom Exponent",
-              formData.denomUnits[1].exponent.toString(),
-            )}
+            {renderField('Base Denom', 'turd')}
+            {renderField('Base Exponent', '0')}
+            {renderField('Full Denom', fullDenom)}
+            {renderField('Full Denom Exponent', formData.denomUnits[1].exponent.toString())}
           </div>
         </div>
-        <button
-          className="btn btn-link mt-4 p-0"
-          onClick={() => setShowAdvanced(!showAdvanced)}
-        >
-          {showAdvanced ? "Hide" : "Show"} Advanced Details
+        <button className="btn btn-link mt-4 p-0" onClick={() => setShowAdvanced(!showAdvanced)}>
+          {showAdvanced ? 'Hide' : 'Show'} Advanced Details
         </button>
         {showAdvanced && (
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 mt-4">
-            {renderField("URI", formData.uri || "N/A")}
-            {renderField("URI Hash", formData.uriHash || "N/A")}
-            {renderField("Base Denom Alias", formData.subdenom)}
-            {renderField("Full Denom Alias", formData.display)}
+            {renderField('URI', formData.uri || 'N/A')}
+            {renderField('URI Hash', formData.uriHash || 'N/A')}
+            {renderField('Base Denom Alias', formData.subdenom)}
+            {renderField('Full Denom Alias', formData.display)}
           </div>
         )}
       </div>
@@ -124,16 +115,8 @@ export default function ConfirmationForm({
         <button onClick={prevStep} className="btn btn-neutral flex-1">
           Edit Token Metadata
         </button>
-        <button
-          onClick={handleConfirm}
-          className="btn btn-primary flex-1"
-          disabled={isSigning}
-        >
-          {isSigning ? (
-            <span className="loading loading-dots loading-sm"></span>
-          ) : (
-            "Confirm & Sign"
-          )}
+        <button onClick={handleConfirm} className="btn btn-primary flex-1" disabled={isSigning}>
+          {isSigning ? <span className="loading loading-dots loading-sm"></span> : 'Confirm & Sign'}
         </button>
       </div>
     </section>

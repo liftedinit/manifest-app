@@ -1,8 +1,8 @@
-import { TokenAction, TokenFormData } from "@/helpers/formReducer";
-import { useTx, useFeeEstimation } from "@/hooks";
-import { osmosis } from "@chalabi/manifestjs";
-import Link from "next/link";
-import { useState, useEffect } from "react";
+import { TokenAction, TokenFormData } from '@/helpers/formReducer';
+import { useTx, useFeeEstimation } from '@/hooks';
+import { osmosis } from '@chalabi/manifestjs';
+import Link from 'next/link';
+import { useState, useEffect } from 'react';
 
 export default function CreateDenom({
   nextStep,
@@ -19,26 +19,25 @@ export default function CreateDenom({
   const [touched, setTouched] = useState(false);
 
   const updateField = (field: keyof TokenFormData, value: any) => {
-    dispatch({ type: "UPDATE_FIELD", field, value });
+    dispatch({ type: 'UPDATE_FIELD', field, value });
     setTouched(true);
   };
 
-  const { createDenom } =
-    osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
+  const { createDenom } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
   const [isSigning, setIsSigning] = useState(false);
-  const { tx } = useTx("manifest");
-  const { estimateFee } = useFeeEstimation("manifest");
+  const { tx } = useTx('manifest');
+  const { estimateFee } = useFeeEstimation('manifest');
 
   const validateSubdenom = (value: string) => {
-    console.log("Validating subdenom", value);
+    console.log('Validating subdenom', value);
     if (value.length === 0) {
-      return "Subdenom is required";
+      return 'Subdenom is required';
     }
     if (!/^[a-zA-Z]/.test(value)) {
-      return "Subdenom must start with a letter";
+      return 'Subdenom must start with a letter';
     }
     if (!/^[a-zA-Z0-9]+$/.test(value)) {
-      return "Subdenom can only contain letters and numbers";
+      return 'Subdenom can only contain letters and numbers';
     }
     return null;
   };
@@ -61,11 +60,11 @@ export default function CreateDenom({
     setIsSigning(true);
     try {
       const msg = createDenom({
-        sender: address ?? "",
+        sender: address ?? '',
         subdenom: formData.subdenom,
       });
 
-      const fee = await estimateFee(address ?? "", [msg]);
+      const fee = await estimateFee(address ?? '', [msg]);
       await tx([msg], {
         fee,
         onSuccess: () => {
@@ -74,7 +73,7 @@ export default function CreateDenom({
       });
     } catch (error) {
       setIsSigning(false);
-      console.error("Error during transaction setup:", error);
+      console.error('Error during transaction setup:', error);
     } finally {
       setIsSigning(false);
     }
@@ -91,31 +90,27 @@ export default function CreateDenom({
             <form className=" min-h-[330px]">
               <div className="grid gap-5 my-6 sm:grid-cols-2">
                 <div>
-                  <label
-                    htmlFor="denom"
-                    className="block mb-2 text-sm font-medium"
-                  >
+                  <label htmlFor="denom" className="block mb-2 text-sm font-medium">
                     Token Sub Denom
                   </label>
                   <input
                     type="text"
-                    aria-label={"denom-input"}
+                    aria-label={'denom-input'}
                     placeholder="udenom"
                     className={`input input-bordered w-full max-w-xs ${
-                      touched && error ? "input-error" : ""
+                      touched && error ? 'input-error' : ''
                     }`}
                     value={formData.subdenom}
-                    onChange={(e) => updateField("subdenom", e.target.value)}
+                    onChange={e => updateField('subdenom', e.target.value)}
                     onBlur={() => setTouched(true)}
                   />
                   {touched && error && (
-                    <p className="mt-2 text-sm text-error" aria-label={"error"}>
+                    <p className="mt-2 text-sm text-error" aria-label={'error'}>
                       {error}
                     </p>
                   )}
                   <p className="mt-2 text-sm text-gray-500">
-                    We recommend starting with &apos;u&apos; (e.g.,
-                    &apos;utoken&apos;)
+                    We recommend starting with &apos;u&apos; (e.g., &apos;utoken&apos;)
                   </p>
                 </div>
               </div>
@@ -128,11 +123,11 @@ export default function CreateDenom({
               {isSigning ? (
                 <span className="loading loading-dots loading-sm"></span>
               ) : (
-                "Next: Token Metadata"
+                'Next: Token Metadata'
               )}
             </button>
             <div className="flex space-x-3 ga-4 mt-6">
-              <Link href={"/factory"} legacyBehavior>
+              <Link href={'/factory'} legacyBehavior>
                 <button className=" btn btn-neutral py-2.5 sm:py-3.5 w-1/2 ">
                   Back: Factory Page
                 </button>

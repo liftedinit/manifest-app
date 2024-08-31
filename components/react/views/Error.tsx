@@ -1,9 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 
-import { Dialog } from "@headlessui/react";
-import { XMarkIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
-import { ChevronLeftIcon } from "@heroicons/react/20/solid";
-import Image from "next/image";
+import { Dialog } from '@headlessui/react';
+import { XMarkIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { ChevronLeftIcon } from '@heroicons/react/20/solid';
+import Image from 'next/image';
 export const Error = ({
   currentWalletName,
   onClose,
@@ -53,11 +53,9 @@ export const Error = ({
             height={16}
           />
         </div>
-        <p className="mt-3 font-medium text-black dark:text-white">
-          An error has occured
-        </p>
+        <p className="mt-3 font-medium text-black dark:text-white">An error has occured</p>
         <p className="mt-1 text-sm text-gray-500">
-          You may attempt to reconnect to your {currentWalletName} wallet{" "}
+          You may attempt to reconnect to your {currentWalletName} wallet{' '}
         </p>
         <button
           className="rounded-lg w-[180px]  inline-flex justify-center items-center py-2.5 font-medium mt-4 bg-mint mx-auto text-black dark:text-white"

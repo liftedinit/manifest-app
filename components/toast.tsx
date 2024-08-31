@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useRef } from "react";
-import Link from "next/link";
-import Confetti from "react-confetti";
+import React, { useEffect, useState, useRef } from 'react';
+import Link from 'next/link';
+import Confetti from 'react-confetti';
 export interface ToastMessage {
   type: string;
   title: string;
@@ -14,10 +14,7 @@ interface ToastProps {
   setToastMessage: (msg: ToastMessage | null) => void;
 }
 
-export const Toast: React.FC<ToastProps> = ({
-  toastMessage,
-  setToastMessage,
-}) => {
+export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [prevMessage, setPrevMessage] = useState<ToastMessage | null>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -42,10 +39,7 @@ export const Toast: React.FC<ToastProps> = ({
   }, [toastMessage, setToastMessage]);
 
   useEffect(() => {
-    if (
-      toastMessage &&
-      (!prevMessage || toastMessage.type !== prevMessage.type)
-    ) {
+    if (toastMessage && (!prevMessage || toastMessage.type !== prevMessage.type)) {
       setPrevMessage(toastMessage);
     }
   }, [toastMessage, prevMessage]);
@@ -61,15 +55,15 @@ export const Toast: React.FC<ToastProps> = ({
 
   const getGradientColor = (type: string) => {
     switch (type) {
-      case "alert-success":
-        return "from-green-500 to-green-700";
-      case "alert-error":
-        return "from-red-500 to-red-700";
-      case "alert-warning":
-        return "from-yellow-500 to-yellow-700";
-      case "alert-info":
+      case 'alert-success':
+        return 'from-green-500 to-green-700';
+      case 'alert-error':
+        return 'from-red-500 to-red-700';
+      case 'alert-warning':
+        return 'from-yellow-500 to-yellow-700';
+      case 'alert-info':
       default:
-        return "from-blue-500 to-blue-700";
+        return 'from-blue-500 to-blue-700';
     }
   };
 
@@ -81,16 +75,12 @@ export const Toast: React.FC<ToastProps> = ({
             ref={toastRef}
             className={`alert ${toastMessage.type} w-96 relative
     transition-all duration-300 ease-in-out
-    ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}
-    ${
-      prevMessage && prevMessage.type !== toastMessage.type
-        ? "animate-pulse"
-        : ""
-    }
+    ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}
+    ${prevMessage && prevMessage.type !== toastMessage.type ? 'animate-pulse' : ''}
     bg-gradient-to-r ${getGradientColor(toastMessage.type)}
     text-white shadow-lg rounded-lg overflow-hidden`}
           >
-            {toastMessage.type === "alert-success" ? (
+            {toastMessage.type === 'alert-success' ? (
               <Confetti
                 width={384}
                 gravity={0.05}
@@ -107,7 +97,7 @@ export const Toast: React.FC<ToastProps> = ({
             </button>
             <div className="flex flex-col w-full">
               <div className="flex flex-row items-center gap-2">
-                {toastMessage.type === "alert-info" && (
+                {toastMessage.type === 'alert-info' && (
                   <span className="loading loading-bars loading-md" />
                 )}
                 <span className="text-xl font-bold">{toastMessage.title}</span>

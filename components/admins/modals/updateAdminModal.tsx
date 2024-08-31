@@ -1,10 +1,10 @@
-import { chainName } from "@/config";
-import { useFeeEstimation, useTx } from "@/hooks";
-import { cosmos, strangelove_ventures } from "@chalabi/manifestjs";
-import { Any } from "@chalabi/manifestjs/dist/codegen/google/protobuf/any";
-import { MsgUpdateParams } from "@chalabi/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx";
-import React, { useState, useEffect } from "react";
-import { PiWarning } from "react-icons/pi";
+import { chainName } from '@/config';
+import { useFeeEstimation, useTx } from '@/hooks';
+import { cosmos, strangelove_ventures } from '@chalabi/manifestjs';
+import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
+import { MsgUpdateParams } from '@chalabi/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
+import React, { useState, useEffect } from 'react';
+import { PiWarning } from 'react-icons/pi';
 
 interface UpdateModalProps {
   modalId: string;
@@ -19,13 +19,12 @@ export function UpdateAdminModal({
   userAddress,
   allowExit,
 }: Readonly<UpdateModalProps>) {
-  const [newAdmin, setNewAdmin] = useState("");
+  const [newAdmin, setNewAdmin] = useState('');
   const [isValidAddress, setIsValidAddress] = useState(false);
 
   const { estimateFee } = useFeeEstimation(chainName);
   const { tx } = useTx(chainName);
-  const { updateParams } =
-    strangelove_ventures.poa.v1.MessageComposer.withTypeUrl;
+  const { updateParams } = strangelove_ventures.poa.v1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
   useEffect(() => {
@@ -37,7 +36,7 @@ export function UpdateAdminModal({
     if (!isValidAddress) return;
 
     const msgUpdateAdmin = updateParams({
-      sender: admin ?? "",
+      sender: admin ?? '',
       params: {
         admins: [newAdmin],
         allowValidatorSelfExit: allowExit ?? false,
@@ -52,14 +51,14 @@ export function UpdateAdminModal({
     const groupProposalMsg = submitProposal({
       groupPolicyAddress: admin,
       messages: [anyMessage],
-      metadata: "",
-      proposers: [userAddress ?? ""],
+      metadata: '',
+      proposers: [userAddress ?? ''],
       title: `Update PoA Admin`,
       summary: `This proposal will update the administrator of the PoA module to ${newAdmin}`,
       exec: 0,
     });
 
-    const fee = await estimateFee(userAddress ?? "", [groupProposalMsg]);
+    const fee = await estimateFee(userAddress ?? '', [groupProposalMsg]);
     await tx([groupProposalMsg], {
       fee,
       onSuccess: () => {},
@@ -69,9 +68,7 @@ export function UpdateAdminModal({
   return (
     <dialog id={modalId} className="modal">
       <form method="dialog" className="modal-box">
-        <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-          ✕
-        </button>
+        <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
         <h3 className="font-bold text-lg">Update Admin</h3>
         <div className="divider divider-horizon -mt-0 -mb-0"></div>
         <div className="py-4 flex flex-col gap-4">
@@ -81,9 +78,9 @@ export function UpdateAdminModal({
               <span className="text-sm text-yellow-200">Warning</span>
             </div>
             <p className="text-md font-thin">
-              Currently, the admin is set to a group policy address. While the
-              admin can be any manifest1 address, it is recommended to set the
-              new admin to another group policy address.
+              Currently, the admin is set to a group policy address. While the admin can be any
+              manifest1 address, it is recommended to set the new admin to another group policy
+              address.
             </p>
           </div>
           <div className="flex flex-col gap-2 mt-3">
@@ -92,15 +89,13 @@ export function UpdateAdminModal({
               type="text"
               placeholder="manifest123..."
               className={`input input-bordered input-md w-full ${
-                newAdmin && !isValidAddress ? "input-error" : ""
+                newAdmin && !isValidAddress ? 'input-error' : ''
               }`}
               value={newAdmin}
-              onChange={(e) => setNewAdmin(e.target.value)}
+              onChange={e => setNewAdmin(e.target.value)}
             />
             {newAdmin && !isValidAddress && (
-              <p className="text-error text-sm">
-                Please enter a valid manifest1 address
-              </p>
+              <p className="text-error text-sm">Please enter a valid manifest1 address</p>
             )}
           </div>
         </div>

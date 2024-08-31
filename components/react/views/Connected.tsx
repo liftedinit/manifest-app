@@ -1,22 +1,19 @@
 /* eslint-disable @next/next/no-img-element */
-import { Dialog } from "@headlessui/react";
+import { Dialog } from '@headlessui/react';
 import {
   XMarkIcon,
   ArrowRightOnRectangleIcon,
   ClipboardDocumentIcon,
-} from "@heroicons/react/24/outline";
-import { ChevronLeftIcon, CheckIcon } from "@heroicons/react/20/solid";
-import copyToClipboard from "copy-to-clipboard";
-import { useState } from "react";
-import ProfileAvatar from "@/utils/identicon";
-import { useBalance } from "@/hooks/useQueries";
-import { shiftDigits } from "@/utils";
+} from '@heroicons/react/24/outline';
+import { ChevronLeftIcon, CheckIcon } from '@heroicons/react/20/solid';
+import copyToClipboard from 'copy-to-clipboard';
+import { useState } from 'react';
+import ProfileAvatar from '@/utils/identicon';
+import { useBalance } from '@/hooks/useQueries';
+import { shiftDigits } from '@/utils';
 
 export function truncate(address: string) {
-  return `${address.substring(0, 12)}...${address.substring(
-    address.length - 8,
-    address.length,
-  )}`;
+  return `${address.substring(0, 12)}...${address.substring(address.length - 8, address.length)}`;
 }
 
 export const Address = ({ children: address }: { children: string }) => {
@@ -33,7 +30,7 @@ export const Address = ({ children: address }: { children: string }) => {
       }}
     >
       <div className="flex flex-row w-full justify-between items-center active:scale-95">
-        <p>{truncate(address || "")}</p>
+        <p>{truncate(address || '')}</p>
         {copied ? (
           <CheckIcon className="w-3 h-3  " />
         ) : (
@@ -61,7 +58,7 @@ export const Connected = ({
   username?: string;
   address?: string;
 }) => {
-  const { balance } = useBalance(address ?? "");
+  const { balance } = useBalance(address ?? '');
 
   return (
     <div className="mt-3 text-center sm:mt-1.5 sm:text-left  ">
@@ -88,19 +85,19 @@ export const Connected = ({
       </div>
       <div className="flex flex-col justify-center w-full h-full px-2 pt-4 pb-8 mt-4">
         <div className=" mx-auto">
-          <ProfileAvatar walletAddress={address ?? ""} size={48} />
+          <ProfileAvatar walletAddress={address ?? ''} size={48} />
         </div>
         <div className="flex flex-row items-center mx-auto space-x-2">
-          <p className="mt-3 text-2xl mb-2 ">{username || ""}</p>
+          <p className="mt-3 text-2xl mb-2 ">{username || ''}</p>
         </div>
         <div className="-mb-2 mx-auto justify-center items-center">
-          <Address>{address || ""}</Address>
+          <Address>{address || ''}</Address>
         </div>
         <div className="flex flex-col items-center">
           <div className="flex flex-row items-center space-x-2">
             {balance?.amount && (
               <p className="text-lg font-medium text-gray-400">
-                {shiftDigits(balance?.amount ?? "", -6)}
+                {shiftDigits(balance?.amount ?? '', -6)}
               </p>
             )}
             {!balance?.amount && <div className="loading"></div>}

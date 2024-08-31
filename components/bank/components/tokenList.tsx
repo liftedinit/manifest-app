@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { DenomImage } from "@/components/factory";
-import { shiftDigits } from "@/utils";
-import { CombinedBalanceInfo } from "@/pages/bank";
-import { DenomInfoModal } from "@/components/factory"; // Make sure to import this
+import React, { useState } from 'react';
+import { DenomImage } from '@/components/factory';
+import { shiftDigits } from '@/utils';
+import { CombinedBalanceInfo } from '@/pages/bank';
+import { DenomInfoModal } from '@/components/factory'; // Make sure to import this
 
 interface TokenListProps {
   balances: CombinedBalanceInfo[] | undefined;
@@ -10,22 +10,20 @@ interface TokenListProps {
 }
 
 export default function TokenList({ balances, isLoading }: TokenListProps) {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedDenom, setSelectedDenom] = useState<any>(null);
 
   const filteredBalances = React.useMemo(() => {
     if (!Array.isArray(balances)) return [];
-    return balances.filter((balance) =>
-      balance.denom.toLowerCase().includes(searchTerm.toLowerCase()),
+    return balances.filter(balance =>
+      balance.denom.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [balances, searchTerm]);
 
   const openModal = (denom: any) => {
     setSelectedDenom(denom);
 
-    const modal = document.getElementById(
-      "denom-info-modal",
-    ) as HTMLDialogElement;
+    const modal = document.getElementById('denom-info-modal') as HTMLDialogElement;
     if (modal) {
       modal.showModal();
     }
@@ -43,7 +41,7 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
             placeholder="Search for a token..."
             className="input input-bordered input-xs ml-4"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={e => setSearchTerm(e.target.value)}
           />
         </div>
       </div>
@@ -61,7 +59,7 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
               </tr>
             </thead>
             <tbody className="overflow-y-auto">
-              {filteredBalances.map((balance) => (
+              {filteredBalances.map(balance => (
                 <tr
                   key={balance.denom}
                   className="hover:bg-base-200/10 cursor-pointer"
@@ -83,13 +81,13 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
                     <span className="block truncate max-w-[20ch]">
                       {Number(balance.metadata?.base.length) < 10
                         ? balance.metadata?.base
-                        : (balance.metadata?.base.split("/").pop() ?? "")}
+                        : (balance.metadata?.base.split('/').pop() ?? '')}
                     </span>
                   </td>
                   <td className="px-6 py-3 text-sm">
                     {shiftDigits(
                       balance.amount,
-                      -Number(balance.metadata?.denom_units[1]?.exponent) ?? 6,
+                      -Number(balance.metadata?.denom_units[1]?.exponent) ?? 6
                     )}
                   </td>
                 </tr>
@@ -105,9 +103,7 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
       )}
 
       {/* DenomInfoModal */}
-      {selectedDenom && (
-        <DenomInfoModal denom={selectedDenom} modalId="denom-info-modal" />
-      )}
+      {selectedDenom && <DenomInfoModal denom={selectedDenom} modalId="denom-info-modal" />}
     </div>
   );
 }

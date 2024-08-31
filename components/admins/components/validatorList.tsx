@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { ValidatorDetailsModal } from "../modals/validatorModal";
-import { WarningModal } from "../modals/warningModal";
-import { ValidatorSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking";
+import React, { useState, useEffect } from 'react';
+import { ValidatorDetailsModal } from '../modals/validatorModal';
+import { WarningModal } from '../modals/warningModal';
+import { ValidatorSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
 
-import ProfileAvatar from "@/utils/identicon";
+import ProfileAvatar from '@/utils/identicon';
 export interface ExtendedValidatorSDKType extends ValidatorSDKType {
   consensus_power?: bigint;
   logo_url?: string;
@@ -22,13 +22,11 @@ export default function ValidatorList({
   isLoading,
 }: ValidatorListProps) {
   const [active, setActive] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedValidator, setSelectedValidator] =
-    useState<ExtendedValidatorSDKType | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedValidator, setSelectedValidator] = useState<ExtendedValidatorSDKType | null>(null);
   const [modalId, setModalId] = useState<string | null>(null);
   const [warningVisible, setWarningVisible] = useState(false);
-  const [validatorToRemove, setValidatorToRemove] =
-    useState<ExtendedValidatorSDKType | null>(null);
+  const [validatorToRemove, setValidatorToRemove] = useState<ExtendedValidatorSDKType | null>(null);
 
   useEffect(() => {
     if (modalId) {
@@ -45,17 +43,11 @@ export default function ValidatorList({
   };
 
   const filteredValidators = active
-    ? (Array.isArray(activeValidators) ? activeValidators : []).filter(
-        (validator) =>
-          validator.description.moniker
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()),
+    ? (Array.isArray(activeValidators) ? activeValidators : []).filter(validator =>
+        validator.description.moniker.toLowerCase().includes(searchTerm.toLowerCase())
       )
-    : (Array.isArray(pendingValidators) ? pendingValidators : []).filter(
-        (validator) =>
-          validator.description.moniker
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()),
+    : (Array.isArray(pendingValidators) ? pendingValidators : []).filter(validator =>
+        validator.description.moniker.toLowerCase().includes(searchTerm.toLowerCase())
       );
 
   const [modalKey, setModalKey] = useState(0);
@@ -69,7 +61,7 @@ export default function ValidatorList({
 
   const handleRowClick = (validator: ExtendedValidatorSDKType) => {
     setSelectedValidator(validator);
-    setModalKey((prevKey) => prevKey + 1);
+    setModalKey(prevKey => prevKey + 1);
     setModalId(`validator-modal-${validator.operator_address}-${Date.now()}`);
   };
 
@@ -79,17 +71,17 @@ export default function ValidatorList({
         <div className="relative">
           <h3
             className={`text-lg font-bold leading-6 hidden lg:block transition-all ${
-              active ? "animate-fadeOut" : "animate-fadeIn"
+              active ? 'animate-fadeOut' : 'animate-fadeIn'
             }`}
           >
-            {active ? "Active Validators" : "Pending Validators"}
+            {active ? 'Active Validators' : 'Pending Validators'}
           </h3>
           <h3
             className={`text-lg font-bold leading-6 block lg:hidden transition-all ${
-              active ? "animate-fadeOut" : "animate-fadeIn"
+              active ? 'animate-fadeOut' : 'animate-fadeIn'
             }`}
           >
-            {active ? "Active" : "Pending"}
+            {active ? 'Active' : 'Pending'}
           </h3>
         </div>
         <div className="flex flex-row items-center justify-between gap-2">
@@ -98,15 +90,13 @@ export default function ValidatorList({
             placeholder="Search for a validator..."
             className="input input-bordered input-xs ml-4"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={e => setSearchTerm(e.target.value)}
           />
           <button
             onClick={() => setActive(!active)}
-            className={`btn ${
-              active ? "btn-secondary" : "btn-primary"
-            } btn-xs min-w-[4rem]`}
+            className={`btn ${active ? 'btn-secondary' : 'btn-primary'} btn-xs min-w-[4rem]`}
           >
-            {active ? "Pending" : "Active"}
+            {active ? 'Pending' : 'Active'}
           </button>
         </div>
       </div>
@@ -125,7 +115,7 @@ export default function ValidatorList({
               </tr>
             </thead>
             <tbody className="overflow-y-auto">
-              {filteredValidators.map((validator) => (
+              {filteredValidators.map(validator => (
                 <React.Fragment key={validator.operator_address}>
                   <tr
                     className="hover:bg-base-200/10 cursor-pointer"
@@ -141,10 +131,7 @@ export default function ValidatorList({
                               alt=""
                             />
                           ) : (
-                            <ProfileAvatar
-                              walletAddress={validator.operator_address}
-                              size={38}
-                            />
+                            <ProfileAvatar walletAddress={validator.operator_address} size={38} />
                           )}
                         </div>
                       </div>
@@ -155,11 +142,11 @@ export default function ValidatorList({
                       </span>
                     </td>
                     <td className="px-6 py-3 text-sm">
-                      {validator.consensus_power?.toString() ?? "Inactive"}
+                      {validator.consensus_power?.toString() ?? 'Inactive'}
                     </td>
                     <td className="px-4 lg:px-6 py-4 flex flex-row gap-4 lg:justify-start justify-start items-center">
                       <button
-                        onClick={(e) => {
+                        onClick={e => {
                           e.stopPropagation();
                           handleRemove(validator);
                         }}
@@ -167,9 +154,7 @@ export default function ValidatorList({
                       >
                         Remove
                       </button>
-                      {!active && (
-                        <button className="btn btn-xs btn-primary">Add</button>
-                      )}
+                      {!active && <button className="btn btn-xs btn-primary">Add</button>}
                     </td>
                   </tr>
                 </React.Fragment>
@@ -187,14 +172,14 @@ export default function ValidatorList({
       <ValidatorDetailsModal
         key={modalKey}
         validator={selectedValidator}
-        modalId={modalId || ""}
+        modalId={modalId || ''}
         admin={admin}
       />
       <WarningModal
         admin={admin}
         isActive={active}
-        address={validatorToRemove?.operator_address || ""}
-        moniker={validatorToRemove?.description.moniker || ""}
+        address={validatorToRemove?.operator_address || ''}
+        moniker={validatorToRemove?.description.moniker || ''}
         modalId="warning-modal"
       />
     </div>

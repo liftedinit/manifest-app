@@ -1,13 +1,13 @@
-import { useState, useEffect } from "react";
-import { chainName } from "@/config";
-import { useFeeEstimation, useTx, useBalance, useTokenBalances } from "@/hooks";
-import { cosmos, ibc } from "@chalabi/manifestjs";
+import { useState, useEffect } from 'react';
+import { chainName } from '@/config';
+import { useFeeEstimation, useTx, useBalance, useTokenBalances } from '@/hooks';
+import { cosmos, ibc } from '@chalabi/manifestjs';
 
-import { getIbcInfo, shiftDigits } from "@/utils";
-import { PiAddressBook, PiCaretDownBold } from "react-icons/pi";
-import { CoinSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/base/v1beta1/coin";
-import { CombinedBalanceInfo } from "@/pages/bank";
-import { DenomImage } from "@/components/factory";
+import { getIbcInfo, shiftDigits } from '@/utils';
+import { PiAddressBook, PiCaretDownBold } from 'react-icons/pi';
+import { CoinSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/base/v1beta1/coin';
+import { CombinedBalanceInfo } from '@/pages/bank';
+import { DenomImage } from '@/components/factory';
 
 export default function IbcSendForm({
   address,
@@ -22,10 +22,9 @@ export default function IbcSendForm({
   isBalancesLoading: boolean;
   refetchBalances: () => void;
 }>) {
-  const [recipient, setRecipient] = useState("");
-  const [amount, setAmount] = useState("");
-  const [selectedToken, setSelectedToken] =
-    useState<CombinedBalanceInfo | null>(null);
+  const [recipient, setRecipient] = useState('');
+  const [amount, setAmount] = useState('');
+  const [selectedToken, setSelectedToken] = useState<CombinedBalanceInfo | null>(null);
   const [isSending, setIsSending] = useState(false);
 
   const { tx } = useTx(chainName);
@@ -46,15 +45,11 @@ export default function IbcSendForm({
     setIsSending(true);
     try {
       const exponent =
-        selectedToken.metadata?.denom_units.find(
-          (unit) => unit.denom === selectedToken.denom,
-        )?.exponent ?? 6;
+        selectedToken.metadata?.denom_units.find(unit => unit.denom === selectedToken.denom)
+          ?.exponent ?? 6;
       const amountInBaseUnits = shiftDigits(amount, exponent);
 
-      const { source_port, source_channel } = getIbcInfo(
-        chainName ?? "",
-        destinationChain ?? "",
-      );
+      const { source_port, source_channel } = getIbcInfo(chainName ?? '', destinationChain ?? '');
 
       const token = {
         denom: selectedToken.coreDenom,
@@ -67,8 +62,8 @@ export default function IbcSendForm({
       const msg = transfer({
         sourcePort: source_port,
         sourceChannel: source_channel,
-        sender: address ?? "",
-        receiver: recipient ?? "",
+        sender: address ?? '',
+        receiver: recipient ?? '',
         token,
         //@ts-ignore
         timeoutHeight: undefined,
@@ -80,22 +75,22 @@ export default function IbcSendForm({
       await tx([msg], {
         fee,
         onSuccess: () => {
-          setAmount("");
-          setRecipient("");
+          setAmount('');
+          setRecipient('');
           refetchBalances();
         },
       });
     } catch (error) {
-      console.error("Error during sending:", error);
+      console.error('Error during sending:', error);
     } finally {
       setIsSending(false);
     }
   };
 
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredBalances = balances?.filter((token) =>
-    token.metadata?.display.toLowerCase().includes(searchTerm.toLowerCase()),
+  const filteredBalances = balances?.filter(token =>
+    token.metadata?.display.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -111,7 +106,7 @@ export default function IbcSendForm({
               className="btn btn-sm bg-base-300 w-full justify-between"
               aria-label="dropdown-label"
             >
-              {selectedToken?.metadata?.display.toUpperCase() ?? "Select Token"}
+              {selectedToken?.metadata?.display.toUpperCase() ?? 'Select Token'}
               <PiCaretDownBold className="ml-2" />
             </label>
             <ul
@@ -124,8 +119,8 @@ export default function IbcSendForm({
                     type="text"
                     placeholder="Search tokens..."
                     className="input input-sm w-full pr-8 focus:outline-none focus:ring-0 border-none bg-transparent"
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{ boxShadow: "none" }}
+                    onChange={e => setSearchTerm(e.target.value)}
+                    style={{ boxShadow: 'none' }}
                   />
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -148,7 +143,7 @@ export default function IbcSendForm({
                   <a>Loading tokens...</a>
                 </li>
               ) : (
-                filteredBalances?.map((token) => (
+                filteredBalances?.map(token => (
                   <li
                     key={token.coreDenom}
                     onClick={() => setSelectedToken(token)}
@@ -175,12 +170,9 @@ export default function IbcSendForm({
               placeholder="Recipient address"
               className="input input-bordered input-sm rounded-r-none flex-grow"
               value={recipient}
-              onChange={(e) => setRecipient(e.target.value)}
+              onChange={e => setRecipient(e.target.value)}
             />
-            <button
-              onClick={() => {}}
-              className="btn btn-primary btn-sm rounded-l-none"
-            >
+            <button onClick={() => {}} className="btn btn-primary btn-sm rounded-l-none">
               <PiAddressBook className="w-5 h-5" />
             </button>
           </div>
@@ -195,7 +187,7 @@ export default function IbcSendForm({
             placeholder="Enter amount"
             className="input input-bordered input-sm w-full"
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            onChange={e => setAmount(e.target.value)}
           />
         </div>
 
@@ -206,11 +198,7 @@ export default function IbcSendForm({
             disabled={isSending}
             aria-label="send-btn"
           >
-            {isSending ? (
-              <span className="loading loading-dots loading-xs"></span>
-            ) : (
-              "Send"
-            )}
+            {isSending ? <span className="loading loading-dots loading-xs"></span> : 'Send'}
           </button>
         </div>
       </div>
