@@ -524,6 +524,7 @@ export default function ProposalMessages({
                               className="btn btn-xs btn-primary ml-2"
                               onClick={() => toggleVisibility(index)}
                               disabled={!message.type}
+                              aria-label="Toggle message visibility"
                             >
                               <span
                                 className={`transition-all duration-400 ${
