@@ -1,16 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import { useFeeEstimation } from "@/hooks/useFeeEstimation";
 import { uploadJsonToIPFS } from "@/hooks/useIpfs";
 import { useTx } from "@/hooks/useTx";
 import { manifest, strangelove_ventures, cosmos } from "@chalabi/manifestjs";
 import { Any } from "@chalabi/manifestjs/dist/codegen/google/protobuf/any";
-import { Cosmos_basev1beta1Msg_InterfaceDecoder } from "@chalabi/manifestjs/dist/codegen/cosmos/authz/v1beta1/tx";
+
 import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
-import {
-  ProposalFormData,
-  ProposalAction,
-  Message,
-} from "@/helpers/formReducer";
+import { ProposalFormData } from "@/helpers/formReducer";
 import { chainName } from "@/config";
 import {
   MsgMultiSend,
@@ -43,10 +39,6 @@ import {
   MsgSoftwareUpgrade,
   MsgCancelUpgrade,
 } from "@chalabi/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx";
-import { Duration } from "@chalabi/manifestjs/dist/codegen/google/protobuf/duration";
-import { ThresholdDecisionPolicy } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types";
-import { Buffer } from 'buffer';
-
 
 export default function ConfirmationModal({
   policyAddress,
@@ -61,8 +53,6 @@ export default function ConfirmationModal({
   formData: ProposalFormData;
   address: string;
 }>) {
-  const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
-
   type MessageTypeMap = {
     send: MsgSend;
     updatePoaParams: MsgUpdatePoaParams;
@@ -147,7 +137,6 @@ export default function ConfirmationModal({
     return obj;
   };
 
-  
   const proposalMetadata = {
     title: formData.metadata.title,
     authors: formData.metadata.authors,
@@ -171,19 +160,19 @@ export default function ConfirmationModal({
   const handleConfirm = async () => {
     setIsSigning(true);
     const CID = await uploadMetaDataToIPFS();
-  
+
     const messages = formData.messages.map((message) => {
-      const composer = messageTypeToComposer[message.type as keyof MessageTypeMap];
+      const composer =
+        messageTypeToComposer[message.type as keyof MessageTypeMap];
       if (!composer) {
         throw new Error(`Unknown message type: ${message.type}`);
       }
-      
 
       let { type, ...messageData } = message;
       messageData = convertKeysToCamelCase(messageData);
-      
+
       const composedMessage = composer(messageData);
-      
+
       return Any.fromPartial({
         typeUrl: composedMessage.typeUrl,
         value: composedMessage.value,
@@ -192,38 +181,49 @@ export default function ConfirmationModal({
 
     const testMessage = {
       typeUrl: "/cosmos.bank.v1beta1.MsgSend",
-      value: MsgSend.toProtoMsg({fromAddress: "manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj", toAddress: "manifest1uwqjtgjhjctjc45ugy7ev5prprhehc7wclherd", amount: [{amount: "1", denom: "umfx"}]}),
-    }
-  
+      value: MsgSend.toProtoMsg({
+        fromAddress:
+          "manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj",
+        toAddress: "manifest1uwqjtgjhjctjc45ugy7ev5prprhehc7wclherd",
+        amount: [{ amount: "1", denom: "umfx" }],
+      }),
+    };
+
     const proposalMsg = {
       groupPolicyAddress: policyAddress,
       proposers: [formData.proposers],
       metadata: CID,
       messages: [testMessage],
-      exec: 1, 
+      exec: 1,
       title: formData.title,
       summary: formData.metadata.summary,
     };
-  
-   
-  
+
     const msg = cosmos.group.v1.MessageComposer.withTypeUrl.submitProposal({
       groupPolicyAddress: policyAddress,
       proposers: [formData.proposers],
       metadata: CID,
-      messages: [{
-        typeUrl: "/cosmos.bank.v1beta1.MsgSend",
-        value: MsgSend.encode(MsgSend.fromPartial({fromAddress: "manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj", toAddress: "manifest1uwqjtgjhjctjc45ugy7ev5prprhehc7wclherd", amount: [{amount: "1", denom: "umfx"}]})).finish(),
-      }],
-      exec: 1, 
+      messages: [
+        {
+          typeUrl: "/cosmos.bank.v1beta1.MsgSend",
+          value: MsgSend.encode(
+            MsgSend.fromPartial({
+              fromAddress:
+                "manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj",
+              toAddress: "manifest1uwqjtgjhjctjc45ugy7ev5prprhehc7wclherd",
+              amount: [{ amount: "1", denom: "umfx" }],
+            }),
+          ).finish(),
+        },
+      ],
+      exec: 1,
       title: formData.title,
       summary: formData.metadata.summary,
     });
-  
-    
+
     try {
       const fee = {
-        amount: [{amount: "1000", denom: "umfx"}],
+        amount: [{ amount: "1000", denom: "umfx" }],
         gas: "1000000",
       };
       await tx([msg], {
@@ -234,7 +234,6 @@ export default function ConfirmationModal({
       });
     } catch (error) {
       console.error("Transaction error:", error);
-     
     } finally {
       setIsSigning(false);
     }
