@@ -14,6 +14,14 @@ function renderWithProps(props = {}) {
     balances: mockBalances,
     isBalancesLoading: false,
     refetchBalances: jest.fn(),
+    ibcChains: [
+      {
+        id: 'osmosis',
+        name: 'Osmosis',
+        icon: 'https://osmosis.zone/assets/icons/osmo-logo-icon.svg',
+        prefix: 'osmo',
+      },
+    ],
   };
 
   return renderWithChainProvider(<SendForm {...defaultProps} {...props} />);
