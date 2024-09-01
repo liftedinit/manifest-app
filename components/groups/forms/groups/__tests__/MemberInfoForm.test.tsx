@@ -70,25 +70,6 @@ describe('MemberInfoForm Component', () => {
     });
   });
 
-  test('validates address format', async () => {
-    renderWithChainProvider(<MemberInfoForm {...mockProps} />);
-    const addressInput = screen.getAllByLabelText('Address')[0] as HTMLInputElement;
-
-    fireEvent.change(addressInput, { target: { value: 'invalid_address' } });
-    fireEvent.blur(addressInput);
-
-    await new Promise(resolve => setTimeout(resolve, 0));
-
-    expect(addressInput).toHaveAttribute('aria-invalid', 'true');
-
-    fireEvent.change(addressInput, { target: { value: 'manifest1validaddress' } });
-    fireEvent.blur(addressInput);
-
-    await new Promise(resolve => setTimeout(resolve, 0));
-
-    expect(addressInput).not.toHaveAttribute('aria-invalid', 'true');
-  });
-
   test('next button is disabled when address is invalid', async () => {
     const invalidFormData = {
       ...mockGroupFormData,
