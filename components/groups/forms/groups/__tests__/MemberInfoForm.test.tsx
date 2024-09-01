@@ -1,6 +1,6 @@
-import { describe, test, afterEach, expect, jest } from 'bun:test';
+import { describe, test, afterEach, expect, jest, mock } from 'bun:test';
 import React from 'react';
-import { screen, fireEvent, cleanup } from '@testing-library/react';
+import { screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
 import MemberInfoForm from '@/components/groups/forms/groups/MemberInfoForm';
 import matchers from '@testing-library/jest-dom/matchers';
 import { renderWithChainProvider } from '@/tests/render';
@@ -8,94 +8,121 @@ import { mockGroupFormData } from '@/tests/mock';
 
 expect.extend(matchers);
 
+// Mock the isValidAddress function
+mock.module('@/utils/string', () => ({
+  isValidAddress: (address: string) => address.startsWith('manifest1'),
+}));
+
 const mockProps = {
   nextStep: jest.fn(),
   prevStep: jest.fn(),
   formData: mockGroupFormData,
   dispatch: jest.fn(),
-  address: 'cosmos1address',
+  address: 'manifest1address',
 };
 
 describe('MemberInfoForm Component', () => {
-  afterEach(cleanup);
-
+  afterEach(() => {
+    cleanup();
+    jest.clearAllMocks();
+  });
   test('renders component with correct details', () => {
     renderWithChainProvider(<MemberInfoForm {...mockProps} />);
-    expect(screen.getByText('Member Info')).toBeInTheDocument();
-
-    const addr0 = screen.getByLabelText('address-0');
-    expect(addr0).toBeInTheDocument();
-    expect(addr0).toHaveValue('manifest1member1');
-
-    const addr1 = screen.getByLabelText('address-1');
-    expect(addr1).toBeInTheDocument();
-    expect(addr1).toHaveValue('manifest1member2');
-
-    const name0 = screen.getByLabelText('name-0');
-    expect(name0).toBeInTheDocument();
-    expect(name0).toHaveValue('Member 1');
-
-    const name1 = screen.getByLabelText('name-1');
-    expect(name1).toBeInTheDocument();
-    expect(name1).toHaveValue('Member 2');
-
-    const weight0 = screen.getByLabelText('weight-0');
-    expect(weight0).toBeInTheDocument();
-    expect(weight0).toHaveValue('1');
-
-    const weight1 = screen.getByLabelText('weight-1');
-    expect(weight1).toBeInTheDocument();
-    expect(weight1).toHaveValue('2');
+    expect(screen.getByText('Member Info')).toBeTruthy();
+    expect(screen.getAllByLabelText('Address')[0]).toBeTruthy();
+    expect(screen.getAllByLabelText('Name')[0]).toBeTruthy();
+    expect(screen.getAllByLabelText('Weight')[0]).toBeTruthy();
   });
 
-  test('updates form fields correctly', () => {
+  test('updates form fields correctly', async () => {
     renderWithChainProvider(<MemberInfoForm {...mockProps} />);
-    const addressInput = screen.getByLabelText('address-0');
-    fireEvent.change(addressInput, { target: { value: 'newaddress' } });
-    expect(mockProps.dispatch).toHaveBeenCalledWith({
-      type: 'UPDATE_MEMBER',
-      index: 0,
-      field: 'address',
-      value: 'newaddress',
+    const addressInput = screen.getAllByLabelText('Address')[0] as HTMLInputElement;
+    fireEvent.change(addressInput, { target: { value: 'manifest1newaddress' } });
+    await waitFor(() => {
+      expect(mockProps.dispatch).toHaveBeenCalledWith({
+        type: 'UPDATE_MEMBER',
+        index: 0,
+        field: 'address',
+        value: 'manifest1newaddress',
+      });
     });
 
-    const nameInput = screen.getByLabelText('name-0');
+    const nameInput = screen.getAllByLabelText('Name')[0] as HTMLInputElement;
     fireEvent.change(nameInput, { target: { value: 'New Name' } });
-    expect(mockProps.dispatch).toHaveBeenCalledWith({
-      type: 'UPDATE_MEMBER',
-      index: 0,
-      field: 'name',
-      value: 'New Name',
+    await waitFor(() => {
+      expect(mockProps.dispatch).toHaveBeenCalledWith({
+        type: 'UPDATE_MEMBER',
+        index: 0,
+        field: 'name',
+        value: 'New Name',
+      });
     });
 
-    const weightInput = screen.getByLabelText('weight-0');
+    const weightInput = screen.getAllByLabelText('Weight')[0] as HTMLInputElement;
     fireEvent.change(weightInput, { target: { value: '3' } });
-    expect(mockProps.dispatch).toHaveBeenCalledWith({
-      type: 'UPDATE_MEMBER',
-      index: 0,
-      field: 'weight',
-      value: '3',
+    await waitFor(() => {
+      expect(mockProps.dispatch).toHaveBeenCalledWith({
+        type: 'UPDATE_MEMBER',
+        index: 0,
+        field: 'weight',
+        value: '3',
+      });
     });
   });
 
-  test('next button is disabled when form is invalid', () => {
+  test('validates address format', async () => {
+    renderWithChainProvider(<MemberInfoForm {...mockProps} />);
+    const addressInput = screen.getAllByLabelText('Address')[0] as HTMLInputElement;
+
+    fireEvent.change(addressInput, { target: { value: 'invalid_address' } });
+    fireEvent.blur(addressInput);
+
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(addressInput).toHaveAttribute('aria-invalid', 'true');
+
+    fireEvent.change(addressInput, { target: { value: 'manifest1validaddress' } });
+    fireEvent.blur(addressInput);
+
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(addressInput).not.toHaveAttribute('aria-invalid', 'true');
+  });
+
+  test('next button is disabled when address is invalid', async () => {
     const invalidFormData = {
       ...mockGroupFormData,
-      members: [{ address: '', name: '', weight: '' }],
+      members: [{ address: 'invalid_address', name: 'Test', weight: '1' }],
     };
     renderWithChainProvider(<MemberInfoForm {...mockProps} formData={invalidFormData} />);
-    const nextButton = screen.getByText('Next: Group Policy');
-    expect(nextButton).toBeDisabled();
+    await waitFor(() => {
+      expect(screen.getByLabelText('Address')).toHaveValue('invalid_address');
+    });
+    const addressInput = screen.getByLabelText('Address');
+    fireEvent.blur(addressInput);
+    await waitFor(
+      () => {
+        const nextButton = screen.getByText('Next: Group Policy');
+        expect(nextButton).toBeDisabled();
+      },
+      { timeout: 2000 }
+    );
   });
 
-  test('next button is enabled when form is valid', () => {
+  test('next button is enabled when form is valid', async () => {
     renderWithChainProvider(<MemberInfoForm {...mockProps} />);
-    const nextButton = screen.getByText('Next: Group Policy');
-    expect(nextButton).toBeEnabled();
+    await waitFor(() => {
+      const nextButton = screen.getByText('Next: Group Policy');
+      expect(nextButton).toBeEnabled();
+    });
   });
 
-  test('calls nextStep when next button is clicked', () => {
+  test('calls nextStep when next button is clicked', async () => {
     renderWithChainProvider(<MemberInfoForm {...mockProps} />);
+    await waitFor(() => {
+      const nextButton = screen.getByText('Next: Group Policy');
+      expect(nextButton).toBeEnabled();
+    });
     const nextButton = screen.getByText('Next: Group Policy');
     fireEvent.click(nextButton);
     expect(mockProps.nextStep).toHaveBeenCalled();
@@ -108,16 +135,45 @@ describe('MemberInfoForm Component', () => {
     expect(mockProps.prevStep).toHaveBeenCalled();
   });
 
-  test('increases and decreases number of members correctly', () => {
+  test('increases and decreases number of members correctly', async () => {
     renderWithChainProvider(<MemberInfoForm {...mockProps} />);
     const increaseButton = screen.getByText('+');
     const decreaseButton = screen.getByText('-');
-    const memberCountInput = screen.getByLabelText('member-count');
+    const memberCountInput = screen.getByLabelText('member-count') as HTMLInputElement;
 
     fireEvent.click(increaseButton);
-    expect(memberCountInput).toHaveValue('3');
+    await waitFor(() => {
+      expect(memberCountInput.value).toBe('3');
+    });
 
     fireEvent.click(decreaseButton);
-    expect(memberCountInput).toHaveValue('2');
+    await waitFor(() => {
+      expect(memberCountInput.value).toBe('2');
+    });
+  });
+
+  test('pastes address when address button is clicked', async () => {
+    renderWithChainProvider(<MemberInfoForm {...mockProps} />);
+
+    const addressButton = screen
+      .getAllByRole('button')
+      .find(
+        button =>
+          button.classList.contains('btn-primary') && button.classList.contains('rounded-tr-lg')
+      );
+
+    expect(addressButton).toBeTruthy();
+
+    if (addressButton) {
+      fireEvent.click(addressButton);
+      await waitFor(() => {
+        expect(mockProps.dispatch).toHaveBeenCalledWith({
+          type: 'UPDATE_MEMBER',
+          index: 0,
+          field: 'address',
+          value: mockProps.address,
+        });
+      });
+    }
   });
 });

@@ -4,7 +4,7 @@ import { ProposalFormData, ProposalAction, Message, MessageFields } from '@/help
 import * as initialMessages from './messages';
 import { FiArrowUp, FiMinusCircle, FiPlusCircle } from 'react-icons/fi';
 import { TextInput } from '@/components/react/inputs';
-
+import { isValidAddress } from '@/utils/string';
 import { Formik, Form, Field, FieldProps, FormikProps } from 'formik';
 
 import * as Yup from 'yup';
@@ -66,10 +66,6 @@ export default function ProposalMessages({
 
   const toggleVisibility = (index: number) => {
     setVisibleMessages(visibleMessages.map((visible, i) => (i === index ? !visible : visible)));
-  };
-
-  const isValidAddress = (address: string) => {
-    return address.startsWith('manifest');
   };
 
   const handleChangeMessage = (index: number, field: MessageFields, value: any) => {

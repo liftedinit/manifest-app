@@ -13,6 +13,10 @@ export function truncateString(str: string, num: number) {
   }
 }
 
+export const isValidAddress = (address: string) => {
+  return address.startsWith('manifest');
+};
+
 export const isValidIPFSCID = (cid: string): boolean => {
   const cidV0Regex = /^Qm[1-9A-HJ-NP-Za-km-z]{44}$/;
   const cidV1Regex = /^b[A-Za-z2-7]{58}$/;

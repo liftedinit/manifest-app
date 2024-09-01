@@ -1,6 +1,18 @@
 import { Action, FormData } from '@/helpers/formReducer';
 import { useEffect, useState } from 'react';
 import { PiCaretDownBold } from 'react-icons/pi';
+import { Formik, Form, Field } from 'formik';
+import * as Yup from 'yup';
+import { TextInput, NumberInput } from '@/components/react/inputs';
+
+const GroupPolicySchema = Yup.object().shape({
+  votingAmount: Yup.number()
+    .required('Voting amount is required')
+    .min(1, 'Minimum voting amount is 1'),
+  votingThreshold: Yup.number()
+    .required('Voting threshold is required')
+    .min(1, 'Minimum voting threshold is 1'),
+});
 
 export default function GroupPolicyForm({
   nextStep,
@@ -41,18 +53,10 @@ export default function GroupPolicyForm({
         nanos: 0,
       },
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [votingUnit, votingAmount]);
+  }, [votingUnit, votingAmount, dispatch]);
 
   const handleUnitChange = (unit: string) => {
     setVotingUnit(unit);
-  };
-
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value);
-    if (!isNaN(value)) {
-      setVotingAmount(value);
-    }
   };
 
   return (
@@ -62,71 +66,98 @@ export default function GroupPolicyForm({
           <div className="w-full">
             <h1 className="text-2xl font-extrabold tracking-tight leading-tight">Group Policy</h1>
 
-            <form className="min-h-[330px]">
-              <div className="grid gap-5 my-6 sm:grid-cols-2">
-                <div>
-                  <label className="block mb-2 text-sm font-medium">Voting Period</label>
-                  <div className="flex flex-row items-center space-x-2 justify-between">
-                    <input
-                      type="number"
-                      className="input input-bordered flex-grow w-1/3"
-                      placeholder="Enter duration"
-                      value={votingAmount}
-                      onChange={handleAmountChange}
-                    />
-                    <div className="dropdown dropdown-end w-1/3">
-                      <label
-                        tabIndex={0}
-                        className="btn m-1 bg-base-100 border w-full border-zinc-700"
-                      >
-                        {votingUnit.charAt(0).toUpperCase() + votingUnit.slice(1)}
-                        <PiCaretDownBold className="ml-2" />
-                      </label>
-                      <ul
-                        tabIndex={0}
-                        className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 mt-1"
-                      >
-                        {['hours', 'days', 'weeks', 'months'].map(unit => (
-                          <li key={unit}>
-                            <a onClick={() => handleUnitChange(unit)}>
-                              {unit.charAt(0).toUpperCase() + unit.slice(1)}
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
+            <Formik
+              initialValues={{
+                votingAmount: votingAmount,
+                votingThreshold: formData.votingThreshold || '',
+              }}
+              validationSchema={GroupPolicySchema}
+              onSubmit={nextStep}
+              validateOnChange={true}
+            >
+              {({ isValid, dirty, setFieldValue }) => (
+                <Form className="min-h-[330px]">
+                  <div className="grid gap-5 my-6 sm:grid-cols-2">
+                    <div>
+                      <label className="block mb-2 text-sm font-medium">Voting Period</label>
+                      <div className="flex flex-row items-center space-x-2 justify-between">
+                        <NumberInput
+                          name="votingAmount"
+                          placeholder="Enter duration"
+                          label="Voting Amount"
+                          value={votingAmount}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            const value = Math.max(1, parseInt(e.target.value) || 1);
+                            setVotingAmount(value);
+                            setFieldValue('votingAmount', value);
+                          }}
+                          min={1}
+                          className="input input-bordered flex-grow w-1/3"
+                        />
+                        <div className="dropdown dropdown-end w-1/3">
+                          <label
+                            tabIndex={0}
+                            className="btn m-1 bg-base-100 border w-full border-zinc-700"
+                          >
+                            {votingUnit.charAt(0).toUpperCase() + votingUnit.slice(1)}
+                            <PiCaretDownBold className="ml-2" />
+                          </label>
+                          <ul
+                            tabIndex={0}
+                            className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 mt-1"
+                          >
+                            {['hours', 'days', 'weeks', 'months'].map(unit => (
+                              <li key={unit}>
+                                <a onClick={() => handleUnitChange(unit)}>
+                                  {unit.charAt(0).toUpperCase() + unit.slice(1)}
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-1 w-full">
+                      <div className="flex flex-row mb-2 gap-1 justify-between items-center">
+                        <label className="block text-sm font-medium">Voting Threshold</label>
+                        <div className="text-sm text-gray-500">
+                          (number of total required votes)
+                        </div>
+                      </div>
+
+                      <NumberInput
+                        name="votingThreshold"
+                        placeholder="e.g. (1)"
+                        label=""
+                        value={formData.votingThreshold}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          const value = Math.max(1, parseInt(e.target.value) || 1);
+                          dispatch({
+                            type: 'UPDATE_FIELD',
+                            field: 'votingThreshold',
+                            value: value.toString(),
+                          });
+                          setFieldValue('votingThreshold', value);
+                        }}
+                        min={1}
+                        className="input input-bordered w-full"
+                      />
                     </div>
                   </div>
-                </div>
-
-                <div className="mt-1 w-full">
-                  <div className="flex flex-row mb-2 gap-1 justify-between items-center">
-                    <label className="block  text-sm font-medium">Voting Threshold</label>
-                    <div className="text-sm text-gray-500">(number of total required votes)</div>
-                  </div>
-
-                  <input
-                    type="number"
-                    placeholder="e.g. (1)"
-                    className="input input-bordered w-full"
-                    value={formData.votingThreshold}
-                    onChange={e =>
-                      dispatch({
-                        type: 'UPDATE_FIELD',
-                        field: 'votingThreshold',
-                        value: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-            </form>
-            <button
-              onClick={nextStep}
-              className="w-full btn btn-primary"
-              disabled={!formData?.votingPeriod || !formData?.votingThreshold}
-            >
-              Next: Member Info
-            </button>
+                  <button
+                    type="submit"
+                    className="w-full btn btn-primary"
+                    disabled={!isValid}
+                    onClick={() => {
+                      nextStep();
+                    }}
+                  >
+                    Next: Member Info
+                  </button>
+                </Form>
+              )}
+            </Formik>
             <div className="flex space-x-3 ga-4 mt-6">
               <button
                 onClick={prevStep}
