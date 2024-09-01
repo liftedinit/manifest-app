@@ -13,8 +13,9 @@ export function truncateString(str: string, num: number) {
   }
 }
 
-export const isValidAddress = (address: string) => {
-  return address.startsWith('manifest');
+export const isValidAddress = (address: string, prefix?: string): boolean => {
+  const actualPrefix = prefix || 'manifest';
+  return address.startsWith(actualPrefix) && address.length === actualPrefix.length + 39;
 };
 
 export const isValidIPFSCID = (cid: string): boolean => {

@@ -24,6 +24,7 @@ export default function SendBox({
       id: 'osmosis',
       name: 'Osmosis',
       icon: 'https://osmosis.zone/assets/icons/osmo-logo-icon.svg',
+      prefix: 'osmo',
     },
   ];
 
@@ -107,6 +108,7 @@ export default function SendBox({
         />
       ) : (
         <SendForm
+          ibcChains={ibcChains}
           address={address}
           balances={balances}
           isBalancesLoading={isBalancesLoading}
