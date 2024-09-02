@@ -5,3 +5,5 @@ export * from './logos';
 export * from './ibc';
 export * from './string';
 export * from './identicon';
+export * from './profanityFilter';
+export * from './yupExtensions';

@@ -6,6 +6,11 @@ import { useTx, useFeeEstimation } from '@/hooks';
 import { chainName } from '@/config';
 import { ThresholdDecisionPolicy } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
+import { Formik, Form, FieldArray } from 'formik';
+import * as Yup from 'yup';
+import { isValidAddress } from '@/utils';
+
+import { TextInput, TextArea } from '@/components/react/inputs';
 
 interface Member {
   address: string;
@@ -116,7 +121,7 @@ export function UpdateGroupModal({
 
   const votingWindow = parseFloat(maybeVotingPeriod?.slice(0, -1));
 
-  let formattedVotingWindow;
+  let formattedVotingWindow: number;
   switch (votingUnit) {
     case 'hours':
       formattedVotingWindow = votingWindow / 60 / 60;
@@ -145,15 +150,24 @@ export function UpdateGroupModal({
   };
 
   const initializeMembers = () => {
-    return maybeMembers?.map(member => ({
-      group_id: member.group_id,
-      member: member.member,
-      isCoreMember: true,
-      isActive: true,
-      isAdmin: isAdmin(member.member.address),
-      isPolicyAdmin: isPolicyAdmin(member.member.address),
-    }));
+    return (
+      group.members?.map(member => ({
+        group_id: member.group_id,
+        member: {
+          address: member.member.address,
+          metadata: member.member.metadata,
+          weight: member.member.weight,
+          added_at: member.member.added_at,
+        },
+        isCoreMember: true,
+        isActive: true,
+        isAdmin: isAdmin(member.member.address),
+        isPolicyAdmin: isPolicyAdmin(member.member.address),
+      })) || []
+    );
   };
+
+  const [initialMembers] = useState(initializeMembers());
 
   const [members, setMembers] = useState(initializeMembers());
 
@@ -161,38 +175,13 @@ export function UpdateGroupModal({
     setMembers(initializeMembers());
   }, [group]);
 
-  const addMember = () => {
-    const newMember = {
-      group_id: members[0].group_id,
-      member: {
-        address: '',
-        metadata: '',
-        weight: '',
-        added_at: new Date(),
-      } as Member,
-      isCoreMember: false,
-      isActive: true,
-      isAdmin: false,
-      isPolicyAdmin: false,
-    };
-    setMembers([...members, newMember]);
-  };
-
-  const handleChange = (index: number, field: string, value: string) => {
-    setMembers(
-      members.map((member, idx) =>
-        idx === index ? { ...member, member: { ...member.member, [field]: value } } : member
-      )
-    );
-  };
-
   const handleMemberRemoval = (index: number) => {
     const member = members[index];
-    if (member.isCoreMember) {
+    if (member?.isCoreMember) {
       const updatedMember = {
         ...member,
-        isActive: !member.isActive,
-        member: { ...member.member, weight: member.isActive ? '0' : '1' },
+        isActive: !member?.isActive,
+        member: { ...member?.member, weight: member?.isActive ? '0' : '1' },
       };
       setMembers(members.map((mem, idx) => (idx === index ? updatedMember : mem)));
     } else {
@@ -343,29 +332,89 @@ export function UpdateGroupModal({
     return messages;
   };
 
-  const handleConfirm = async () => {
+  const handleConfirm = async (values: any) => {
     setIsSigning(true);
+    try {
+      const encodedMessages = buildMessages();
+      const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
+      const msg = submitProposal({
+        groupPolicyAddress: policyAddress,
+        proposers: [address],
+        metadata: '',
+        messages: encodedMessages,
+        exec: 0,
+        title: 'Update Group',
+        summary: 'Update Group',
+      });
 
-    const encodedMessages = buildMessages();
-    const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
-    const msg = submitProposal({
-      groupPolicyAddress: policyAddress,
-      proposers: [address],
-      metadata: '',
-      messages: encodedMessages,
-      exec: 0,
-      title: 'Update Group',
-      summary: 'Update Group',
-    });
-
-    const fee = await estimateFee(address, [msg]);
-    await tx([msg], {
-      fee,
-      onSuccess: () => {
+      let fee;
+      try {
+        fee = await estimateFee(address, [msg]);
+      } catch (feeError) {
         setIsSigning(false);
-      },
-    });
+        console.error('Error estimating fee:', feeError);
+        throw new Error('Failed to estimate transaction fee. Please try again.');
+      }
+      await tx([msg], {
+        fee,
+        onSuccess: () => {
+          setIsSigning(false);
+        },
+      });
+      setIsSigning(false);
+    } catch (error) {
+      console.error('Error in handleConfirm:', error);
+      setIsSigning(false);
+    }
   };
+
+  const validationSchema = Yup.object().shape({
+    name: Yup.string()
+      .max(24, 'Name must be at most 24 characters')
+      .noProfanity('Profanity is not allowed')
+      .required('Required'),
+    authors: Yup.string().noProfanity('Profanity is not allowed').required('Required'),
+    summary: Yup.string()
+      .noProfanity('Profanity is not allowed')
+      .required('Required')
+      .min(10, 'Summary must be at least 10 characters')
+      .max(500, 'Summary must not exceed 500 characters'),
+    threshold: Yup.number()
+      .required('Threshold is required')
+      .min(1, 'Threshold must be at least 1')
+      .required('Required'),
+    windowInput: Yup.number()
+      .required('Voting window is required')
+      .min(1, 'Voting window must be at least 1')
+      .required('Required'),
+    forum: Yup.string()
+      .url('Invalid URL')
+      .noProfanity('Profanity is not allowed')
+      .required('Required'),
+    description: Yup.string()
+      .noProfanity('Profanity is not allowed')
+      .required('Required')
+      .min(10, 'Summary must be at least 10 characters')
+      .max(500, 'Summary must not exceed 500 characters'),
+    members: Yup.array().of(
+      Yup.object().shape({
+        member: Yup.object().shape({
+          address: Yup.string()
+            .required('Address is required')
+            .test('is-valid-address', 'Invalid address format', value =>
+              isValidAddress(value || '')
+            ),
+          metadata: Yup.string().noProfanity('Profanity is not allowed').required('Required'),
+          weight: Yup.number()
+            .required('Weight is required')
+            .min(0, 'Weight must be at least 0')
+            .max(threshold, 'Weight may not exceed threshold')
+            .required('Required'),
+        }),
+      })
+    ),
+  });
+
   return (
     <dialog id={modalId} className="modal">
       <div className="modal-box absolute max-w-6xl mx-auto rounded-lg md:ml-20 shadow-lg min-h-96">
@@ -374,203 +423,239 @@ export function UpdateGroupModal({
         </form>
         <h3 className="text-lg font-semibold ">Update Group</h3>
         <div className="divider divider-horizon -mt-0 "></div>
-        <div className="md:flex sm:grid sm:grid-cols-1 md:flex-row gap-4  justify-between items-center ">
-          <div className="relative bg-base-300 rounded-md p-4 sm:w-full md:w-1/2 max-w-6xl h-[480px] ">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <div className="flex flex-row mb-2 gap-2 items-center">
-                  <label htmlFor="name" className="block  text-sm font-medium">
-                    Group Name
-                  </label>
-                  <div className="" data-tip="Group Name (can not exceed 24 characters)">
-                    <PiInfoLight className="hover:group-[]" />
-                  </div>
-                </div>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  className="input input-bordered w-full"
-                  placeholder={group?.ipfsMetadata?.title ?? 'No title available'}
-                  maxLength={24}
-                />
-              </div>
-              <div>
-                <label htmlFor="authors" className="block mb-2 text-sm font-medium">
-                  Authors
-                </label>
-                <input
-                  type="text"
-                  id="authors"
-                  name="authors"
-                  value={authors}
-                  onChange={e => setAuthors(e.target.value)}
-                  className="input input-bordered w-full"
-                  placeholder={group?.ipfsMetadata?.authors ?? 'No authors available'}
-                />
-              </div>
-              <div>
-                <label htmlFor="summary" className="block mb-2 text-sm font-medium">
-                  Summary
-                </label>
-                <input
-                  type="text"
-                  id="summary"
-                  name="summary"
-                  value={summary}
-                  onChange={e => setSummary(e.target.value)}
-                  className="input input-bordered w-full"
-                  placeholder={group?.ipfsMetadata?.summary ?? 'No summary available'}
-                />
-              </div>
-              <div>
-                <label htmlFor="threshold" className="block mb-2 text-sm font-medium">
-                  Threshold
-                </label>
-                <input
-                  type="number"
-                  id="threshold"
-                  name="threshold"
-                  value={threshold}
-                  onChange={e => setThreshold(e.target.value)}
-                  className="input input-bordered w-full"
-                  placeholder={maybeThreshold ?? 'No threshold available'}
-                />
-              </div>
-              <div>
-                <label htmlFor="forum" className="block mb-2 text-sm font-medium">
-                  Forum
-                </label>
-                <input
-                  type="text"
-                  id="forum"
-                  name="forum"
-                  value={forum}
-                  onChange={e => setForum(e.target.value)}
-                  className="input input-bordered w-full"
-                  placeholder={maybeProposalForumURL ?? 'No forum URL available'}
-                />
-              </div>
-              <div className="flex flex-col">
-                <label htmlFor="window" className="text-sm font-medium mb-2 block">
-                  Voting Window
-                </label>
-                <div className="flex flex-row gap-3">
-                  <input
-                    type="number"
-                    id="window"
-                    name="window"
-                    value={windowInput}
-                    onChange={handleWindowInputChange}
-                    className="input input-bordered w-6/12"
-                    placeholder={formattedVotingWindow.toString()}
-                  />
-                  <select
-                    onChange={handleUnitChange}
-                    value={votingUnit}
-                    className="select select-bordered w-6/12 p-2"
-                  >
-                    <option value="hours">Hours</option>
-                    <option value="days">Days</option>
-                    <option value="weeks">Weeks</option>
-                    <option value="months">Months</option>
-                  </select>
-                </div>
-              </div>
-              <div className="sm:col-span-2">
-                <label
-                  htmlFor="description"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Description
-                </label>
-                <textarea
-                  id="description"
-                  rows={4}
-                  value={description}
-                  onChange={e => setDescription(e.target.value)}
-                  className="textarea w-full textarea-bordered"
-                  placeholder={group?.ipfsMetadata?.details ?? 'No description available'}
-                ></textarea>
-              </div>
-            </div>
-          </div>
-          <div className="relative p-4 bg-base-300 rounded-md sm:w-full md:w-1/2 max-w-6xl h-[480px]   ">
-            <div className="flex flex-row justify-between items-center mb-2 -mt-1">
-              <label className="text-sm font-medium ">Members</label>
-              <button
-                className="btn btn-xs btn-primary justify-center items-center"
-                onClick={addMember}
-              >
-                +
-              </button>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2  max-h-[26rem] overflow-y-auto">
-              {members.map((member, index) => (
-                <div
-                  key={index}
-                  className={`flex relative flex-col gap-2 px-4 py-2 rounded-md border-4 ${
-                    member.isAdmin && member.isPolicyAdmin
-                      ? 'border-r-primary border-b-primary border-l-secondary border-t-secondary'
-                      : member.isAdmin
-                        ? 'border-r-primary border-b-primary border-t-transparent border-l-transparent'
-                        : member.isPolicyAdmin
-                          ? 'border-l-secondary border-t-secondary border-r-base-100 border-b-base-100 '
-                          : 'border-r-transparent border-b-transparent border-t-transparent border-l-transparent'
-                  } transition-all duration-200 max-h-[12.4rem] ${
-                    !member.isActive ? 'bg-base-100' : 'bg-base-200'
-                  }  `}
-                >
-                  <div className="flex flex-row justify-between items-center">
-                    <span className="text-light text-md"># {index + 1}</span>
-
-                    <button
-                      onClick={() => handleMemberRemoval(index)}
-                      className={`btn btn-sm ${
-                        member.isActive
-                          ? 'text-red-500 hover:bg-red-500'
-                          : 'text-primary hover:bg-primary '
-                      }  hover:text-white bg-base-300`}
-                    >
-                      {member.isActive ? <PiTrashLight /> : <PiPlusCircleThin />}
-                    </button>
-                  </div>
-                  <div className="flex flex-col gap-4 mb-2">
-                    <input
-                      type="text"
-                      disabled={member.isCoreMember && !member.isActive}
-                      value={member.member.metadata}
-                      onChange={e => handleChange(index, 'metadata', e.target.value)}
-                      className="input input-sm input-bordered w-full disabled:border-base-100"
-                      placeholder={member.isCoreMember ? member.member.metadata : 'Name'}
+        <Formik
+          initialValues={{
+            name: group?.ipfsMetadata?.title || '',
+            authors: group?.ipfsMetadata?.authors || '',
+            summary: group?.ipfsMetadata?.summary || '',
+            forum: group?.ipfsMetadata?.proposalForumURL || '',
+            description: group?.ipfsMetadata?.details || '',
+            threshold: group?.policies?.[0]?.decision_policy?.threshold || '',
+            windowInput: '',
+            members: initialMembers,
+          }}
+          validationSchema={validationSchema}
+          onSubmit={handleConfirm}
+        >
+          {({ setFieldValue, values }) => (
+            <Form className="flex flex-row gap-4 justify-between items-center">
+              <div className="relative bg-base-300 rounded-md p-4 w-1/2 h-[480px]">
+                <div className="grid gap-4">
+                  <div>
+                    <TextInput
+                      label="Group Name"
+                      name="name"
+                      placeholder={group?.ipfsMetadata?.title ?? 'No title available'}
+                      value={values.name}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        setName(e.target.value);
+                        setFieldValue('name', e.target.value);
+                      }}
+                      maxLength={24}
                     />
-
-                    <input
-                      type="text"
-                      disabled={member.isCoreMember}
-                      value={member.member.address}
-                      onChange={e => handleChange(index, 'address', e.target.value)}
-                      className="input input-sm input-bordered w-full disabled:border-base-100"
-                      placeholder={member.isCoreMember ? member.member.address : 'Address'}
+                  </div>
+                  <div>
+                    <TextInput
+                      label="Authors"
+                      name="authors"
+                      placeholder={group?.ipfsMetadata?.authors ?? 'No authors available'}
+                      value={values.authors}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        setAuthors(e.target.value);
+                        setFieldValue('authors', e.target.value);
+                      }}
                     />
-                    <input
+                  </div>
+                  <div>
+                    <TextInput
+                      label="Summary"
+                      name="summary"
+                      placeholder={group?.ipfsMetadata?.summary ?? 'No summary available'}
+                      value={values.summary}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        setSummary(e.target.value);
+                        setFieldValue('summary', e.target.value);
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <TextInput
+                      label="Threshold"
+                      name="threshold"
                       type="number"
-                      disabled={member.isCoreMember && !member.isActive}
-                      value={member.isCoreMember && !member.isActive ? '0' : member.member.weight}
-                      onChange={e => handleChange(index, 'weight', e.target.value)}
-                      className="input input-sm input-bordered w-full disabled:border-base-100"
-                      placeholder={member.isCoreMember ? member.member.weight : 'Weight'}
+                      placeholder={maybeThreshold ?? 'No threshold available'}
+                      value={values.threshold}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        setThreshold(e.target.value);
+                        setFieldValue('threshold', e.target.value);
+                      }}
+                      min={1}
+                    />
+                  </div>
+                  <div>
+                    <TextInput
+                      label="Forum"
+                      name="forum"
+                      placeholder={maybeProposalForumURL ?? 'No forum URL available'}
+                      value={values.forum}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        setForum(e.target.value);
+                        setFieldValue('forum', e.target.value);
+                      }}
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <div className="flex flex-row gap-3">
+                      <TextInput
+                        label="Voting Window"
+                        name="windowInput"
+                        type="number"
+                        placeholder={formattedVotingWindow.toString()}
+                        value={values.windowInput}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          handleWindowInputChange(e);
+                          setFieldValue('windowInput', e.target.value);
+                        }}
+                        min={1}
+                      />
+                      <select
+                        onChange={handleUnitChange}
+                        value={votingUnit}
+                        title="votingUnit"
+                        className="select select-bordered w-6/12 p-2"
+                      >
+                        <option value="hours">Hours</option>
+                        <option value="days">Days</option>
+                        <option value="weeks">Weeks</option>
+                        <option value="months">Months</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <TextArea
+                      label="Description"
+                      name="description"
+                      placeholder={group?.ipfsMetadata?.details ?? 'No description available'}
+                      value={values.description}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                        setDescription(e.target.value);
+                        setFieldValue('description', e.target.value);
+                      }}
                     />
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div className="modal-action w-full flex flex-row  items-center justify-between">
+              </div>
+              <div className="relative bg-base-300 rounded-md p-4 w-1/2 h-[480px]">
+                <div className="flex flex-row justify-between items-center mb-2 -mt-1">
+                  <label className="text-sm font-medium">Members</label>
+                  <button
+                    type="button"
+                    className="btn btn-xs btn-primary justify-center items-center"
+                    aria-label="addMembers"
+                    onClick={() => {
+                      const newMember = {
+                        group_id: values.members[0]?.group_id || '',
+                        member: {
+                          address: '',
+                          metadata: '',
+                          weight: '',
+                          added_at: new Date(),
+                        },
+                        isCoreMember: false,
+                        isActive: true,
+                        isAdmin: false,
+                        isPolicyAdmin: false,
+                      };
+                      setFieldValue('members', [...values.members, newMember]);
+                    }}
+                  >
+                    +
+                  </button>
+                </div>
+                <FieldArray name="members">
+                  {() => (
+                    <div className="grid gap-4 sm:grid-cols-2 max-h-[26rem] overflow-y-auto">
+                      {values.members.map((member, index) => (
+                        <div
+                          key={index}
+                          className={`flex relative flex-col gap-2 px-4 py-2 rounded-md transition-all duration-200 max-h-[12.4rem] ${
+                            !member.isActive ? 'bg-base-100' : 'bg-base-200'
+                          }`}
+                        >
+                          <div className="flex flex-row justify-between items-center">
+                            <span className="text-light text-md"># {index + 1}</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (member.isCoreMember) {
+                                  setFieldValue(`members[${index}].isActive`, !member.isActive);
+                                  setFieldValue(
+                                    `members[${index}].member.weight`,
+                                    member.isActive ? '0' : '1'
+                                  );
+                                } else {
+                                  setFieldValue(`members[${index}]`, undefined);
+                                  setFieldValue(
+                                    'members',
+                                    values.members.filter((_, idx) => idx !== index)
+                                  );
+                                }
+                              }}
+                              className={`btn btn-sm ${
+                                member.isActive
+                                  ? 'text-red-500 hover:bg-red-500'
+                                  : 'text-primary hover:bg-primary '
+                              } hover:text-white bg-base-300`}
+                            >
+                              {member.isActive ? <PiTrashLight /> : <PiPlusCircleThin />}
+                            </button>
+                          </div>
+                          <div className="flex flex-col gap-4 mb-2">
+                            <TextInput
+                              label="Metadata"
+                              name={`members.${index}.member.metadata`}
+                              disabled={!member.isActive}
+                              value={member.member.metadata}
+                              onChange={e => {
+                                setFieldValue(`members.${index}.member.metadata`, e.target.value);
+                              }}
+                              className="input input-sm input-bordered w-full disabled:border-base-100"
+                              placeholder={member.isCoreMember ? member.member.metadata : 'Name'}
+                            />
+                            <TextInput
+                              label="Address"
+                              name={`members.${index}.member.address`}
+                              disabled={member.isCoreMember || !member.isActive}
+                              value={member.member.address}
+                              onChange={e => {
+                                setFieldValue(`members.${index}.member.address`, e.target.value);
+                              }}
+                              className="input input-sm input-bordered w-full disabled:border-base-100"
+                              placeholder={member.isCoreMember ? member.member.address : 'Address'}
+                            />
+                            <TextInput
+                              label="Weight"
+                              name={`members.${index}.member.weight`}
+                              type="number"
+                              value={member.member.weight}
+                              disabled={!member.isActive}
+                              onChange={e => {
+                                setFieldValue(`members.${index}.member.weight`, e.target.value);
+                              }}
+                              className="input input-sm input-bordered w-full disabled:border-base-100"
+                              placeholder={member.isCoreMember ? member.member.weight : 'Weight'}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </FieldArray>
+              </div>
+            </Form>
+          )}
+        </Formik>
+        <div className="modal-action w-full flex flex-row items-center justify-between mt-4">
           <button
             onClick={() => {
               const modal = document.getElementById(
@@ -582,17 +667,16 @@ export function UpdateGroupModal({
           >
             Cancel
           </button>
-
           <button
-            className="btn btn-primary w-[49%] "
-            onClick={handleConfirm}
+            className="btn btn-primary w-[49%]"
+            type="submit"
             disabled={isSigning || buildMessages().length === 0}
+            onClick={handleConfirm}
           >
             {isSigning ? <span className="loading loading-spinner"></span> : 'Update'}
           </button>
         </div>
       </div>
-
       <form method="dialog" className="modal-backdrop">
         <button>close</button>
       </form>
