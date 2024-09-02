@@ -7,7 +7,7 @@ import { chainName } from '@/config';
 import { ThresholdDecisionPolicy } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
 import { Formik, Form, FieldArray } from 'formik';
-import * as Yup from 'yup';
+import Yup from '@/utils/yupExtensions';
 import { isValidAddress } from '@/utils';
 
 import { TextInput, TextArea } from '@/components/react/inputs';

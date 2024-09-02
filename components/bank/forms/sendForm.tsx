@@ -7,7 +7,7 @@ import { shiftDigits } from '@/utils';
 import { CombinedBalanceInfo } from '@/pages/bank';
 import { DenomImage } from '@/components/factory';
 import { Formik, Form } from 'formik';
-import * as Yup from 'yup';
+import Yup from '@/utils/yupExtensions';
 import { TextInput } from '@/components/react/inputs';
 
 export default function SendForm({
@@ -45,7 +45,7 @@ export default function SendForm({
     amount: Yup.string()
       .required('Amount is required')
       .test('valid-amount', 'Invalid amount', value => {
-        return /^\d*\.?\d*$/.test(value); // Allows integers and decimals
+        return /^\d*\.?\d*$/.test(value);
       })
       .test('positive', 'Amount must be positive', value => {
         return parseFloat(value) > 0;

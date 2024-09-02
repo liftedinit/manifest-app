@@ -7,7 +7,7 @@ import { PiAddressBook, PiCaretDownBold } from 'react-icons/pi';
 import { CombinedBalanceInfo } from '@/pages/bank';
 import { DenomImage } from '@/components/factory';
 import { Formik, Form } from 'formik';
-import * as Yup from 'yup';
+import Yup from '@/utils/yupExtensions';
 import { TextInput } from '@/components/react/inputs';
 
 export default function IbcSendForm({

@@ -7,7 +7,7 @@ import { TextInput } from '@/components/react/inputs';
 import { isValidAddress } from '@/utils/string';
 import { Formik, Form, Field, FieldProps, FormikProps } from 'formik';
 
-import * as Yup from 'yup';
+import Yup from '@/utils/yupExtensions';
 
 export default function ProposalMessages({
   formData,

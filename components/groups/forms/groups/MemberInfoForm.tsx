@@ -2,7 +2,7 @@ import { Action, FormData } from '@/helpers/formReducer';
 import React, { useState, useEffect } from 'react';
 import { PiAddressBook } from 'react-icons/pi';
 import { Formik, Form, FieldArray } from 'formik';
-import * as Yup from 'yup';
+import Yup from '@/utils/yupExtensions';
 import { TextInput, NumberInput } from '@/components/react/inputs';
 import { isValidAddress } from '@/utils/string';
 

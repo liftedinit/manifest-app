@@ -1,6 +1,6 @@
 import React from 'react';
 import { Formik, Form } from 'formik';
-import * as Yup from 'yup';
+import Yup from '@/utils/yupExtensions';
 import { ProposalFormData, ProposalAction } from '@/helpers/formReducer';
 import { TextInput, TextArea } from '@/components/react/inputs';
 

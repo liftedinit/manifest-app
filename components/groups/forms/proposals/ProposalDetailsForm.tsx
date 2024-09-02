@@ -1,6 +1,6 @@
 import React from 'react';
 import { Formik, Form } from 'formik';
-import * as Yup from 'yup';
+import Yup from '@/utils/yupExtensions';
 import { ProposalFormData, ProposalAction } from '@/helpers/formReducer';
 import Link from 'next/link';
 import { PiAddressBook } from 'react-icons/pi';

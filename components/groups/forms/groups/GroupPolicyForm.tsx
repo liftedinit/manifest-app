@@ -2,7 +2,7 @@ import { Action, FormData } from '@/helpers/formReducer';
 import { useEffect, useState } from 'react';
 import { PiCaretDownBold } from 'react-icons/pi';
 import { Formik, Form, Field } from 'formik';
-import * as Yup from 'yup';
+import Yup from '@/utils/yupExtensions';
 import { TextInput, NumberInput } from '@/components/react/inputs';
 
 const GroupPolicySchema = Yup.object().shape({

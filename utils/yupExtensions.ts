@@ -7,7 +7,7 @@ declare module 'yup' {
   }
 }
 
-Yup.addMethod(Yup.string, 'noProfanity', function (message) {
+Yup.addMethod<Yup.StringSchema>(Yup.string, 'noProfanity', function (message) {
   return this.test('no-profanity', message, function (value) {
     const { path, createError } = this;
     return (
@@ -17,3 +17,5 @@ Yup.addMethod(Yup.string, 'noProfanity', function (message) {
     );
   });
 });
+
+export default Yup;
