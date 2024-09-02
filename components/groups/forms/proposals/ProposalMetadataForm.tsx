@@ -5,18 +5,24 @@ import { ProposalFormData, ProposalAction } from '@/helpers/formReducer';
 import { TextInput, TextArea } from '@/components/react/inputs';
 
 const ProposalSchema = Yup.object().shape({
-  title: Yup.string().required('Title is required').max(50, 'Title must not exceed 50 characters'),
+  title: Yup.string()
+    .required('Title is required')
+    .max(50, 'Title must not exceed 50 characters')
+    .noProfanity('Profanity is not allowed'),
   authors: Yup.string()
     .required('Authors are required')
-    .max(200, 'Authors must not exceed 200 characters'),
+    .max(200, 'Authors must not exceed 200 characters')
+    .noProfanity('Profanity is not allowed'),
   summary: Yup.string()
     .required('Summary is required')
     .min(10, 'Summary must be at least 10 characters')
-    .max(500, 'Summary must not exceed 500 characters'),
+    .max(500, 'Summary must not exceed 500 characters')
+    .noProfanity('Profanity is not allowed'),
   details: Yup.string()
     .required('Details are required')
     .min(10, 'Details must be at least 10 characters')
-    .max(500, 'Summary must not exceed 500 characters'),
+    .max(500, 'Summary must not exceed 500 characters')
+    .noProfanity('Profanity is not allowed'),
 });
 
 export default function ProposalMetadataForm({

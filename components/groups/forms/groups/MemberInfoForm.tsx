@@ -10,7 +10,7 @@ const MemberSchema = Yup.object().shape({
   address: Yup.string()
     .test('is-valid-address', 'Invalid address format', value => isValidAddress(value || ''))
     .required('Required'),
-  name: Yup.string().required('Required'),
+  name: Yup.string().required('Required').noProfanity('Profanity is not allowed'),
   weight: Yup.number().min(1, 'Must be at least 1').required('Required'),
 });
 

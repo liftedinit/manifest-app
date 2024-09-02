@@ -10,15 +10,18 @@ const GroupSchema = Yup.object().shape({
   title: Yup.string().required('Title is required').max(50, 'Title must not exceed 50 characters'),
   authors: Yup.string()
     .required('Authors are required')
-    .max(200, 'Authors must not exceed 200 characters'),
+    .max(200, 'Authors must not exceed 200 characters')
+    .noProfanity('Profanity is not allowed'),
   summary: Yup.string()
     .required('Summary is required')
     .min(10, 'Summary must be at least 10 characters')
-    .max(500, 'Summary must not exceed 500 characters'),
+    .max(500, 'Summary must not exceed 500 characters')
+    .noProfanity('Profanity is not allowed'),
   description: Yup.string()
     .required('Description is required')
     .min(20, 'Description must be at least 20 characters')
-    .max(1000, 'Description must not exceed 1000 characters'),
+    .max(1000, 'Description must not exceed 1000 characters')
+    .noProfanity('Profanity is not allowed'),
   forumLink: Yup.string().url('Invalid URL format'),
 });
 
