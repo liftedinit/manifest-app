@@ -88,7 +88,7 @@ export const DenomImage = ({ denom }: { denom: any }) => {
   }
 
   // Check for MFX token first
-  if (denom.base.includes('umfx')) {
+  if (denom?.base?.includes('umfx')) {
     return (
       <Image
         width={0}
@@ -101,8 +101,8 @@ export const DenomImage = ({ denom }: { denom: any }) => {
   }
 
   // Then check for other conditions
-  if (!denom.uri || !isSupported || imageError) {
-    return <ProfileAvatar walletAddress={denom.base} />;
+  if (!denom?.uri || !isSupported || imageError) {
+    return <ProfileAvatar walletAddress={denom?.base} />;
   }
 
   // For all other cases, use the denom.uri
