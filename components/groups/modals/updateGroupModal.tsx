@@ -399,11 +399,7 @@ export function UpdateGroupModal({
     members: Yup.array().of(
       Yup.object().shape({
         member: Yup.object().shape({
-          address: Yup.string()
-            .required('Address is required')
-            .test('is-valid-address', 'Invalid address format', value =>
-              isValidAddress(value || '')
-            ),
+          address: Yup.string().required('Address is required').manifestAddress(),
           metadata: Yup.string().noProfanity('Profanity is not allowed').required('Required'),
           weight: Yup.number()
             .required('Weight is required')

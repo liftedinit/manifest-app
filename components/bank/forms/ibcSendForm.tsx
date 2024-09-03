@@ -37,16 +37,11 @@ export default function IbcSendForm({
   const initialSelectedToken = balances && balances.length > 0 ? balances[0] : null;
 
   const validationSchema = Yup.object().shape({
-    recipient: Yup.string()
-      .required('Recipient is required')
-      .test('valid-address', 'Invalid address', value => {
-        // Use the prefix from the destination chain for validation
-        return value?.startsWith(destinationChain) && value.length >= 44;
-      }),
+    recipient: Yup.string().required('Recipient is required').manifestAddress(),
     amount: Yup.string()
       .required('Amount is required')
       .test('valid-amount', 'Invalid amount', value => {
-        return /^\d*\.?\d*$/.test(value); // Allows integers and decimals
+        return /^\d*\.?\d*$/.test(value);
       })
       .test('positive', 'Amount must be positive', value => {
         return parseFloat(value) > 0;

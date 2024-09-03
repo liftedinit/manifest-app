@@ -1,6 +1,6 @@
-import { describe, test, afterEach, expect } from 'bun:test';
+import { describe, test, afterEach, expect, jest } from 'bun:test';
 import React from 'react';
-import { screen, fireEvent, cleanup } from '@testing-library/react';
+import { screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
 import { UpdateAdminModal } from '@/components/admins/modals/updateAdminModal';
 import matchers from '@testing-library/jest-dom/matchers';
 import { renderWithChainProvider } from '@/tests/render';
@@ -39,29 +39,47 @@ describe('UpdateAdminModal Component', () => {
     ).toBeInTheDocument();
   });
 
-  test('updates input field correctly', () => {
+  test('updates input field correctly', async () => {
     renderWithProps();
-    const input = screen.getByPlaceholderText('manifest123...');
-    fireEvent.change(input, { target: { value: 'manifest1newadminaddress' } });
-    expect(input).toHaveValue('manifest1newadminaddress');
+    const input = screen.getByLabelText('Admin Address');
+    fireEvent.change(input, { target: { value: validAddress } });
+    await waitFor(() => {
+      expect(input).toHaveValue(validAddress);
+    });
   });
 
-  test('disables update button when input is invalid', () => {
+  test('disables update button when input is invalid', async () => {
     renderWithProps();
-    const input = screen.getByPlaceholderText('manifest123...');
+    const input = screen.getByLabelText('Admin Address');
     const updateButton = screen.getByText('Update');
     expect(updateButton).toBeDisabled();
     fireEvent.change(input, { target: { value: 'invalidaddress' } });
-    expect(updateButton).toBeDisabled();
+    await waitFor(() => {
+      expect(updateButton).toBeDisabled();
+    });
   });
 
-  test('enables update button when input is valid', () => {
+  test('enables update button when input is valid', async () => {
     renderWithProps();
     const updateButton = screen.getByText('Update');
     expect(updateButton).toBeDisabled();
-    const input = screen.getByPlaceholderText('manifest123...');
+    const input = screen.getByLabelText('Admin Address');
     fireEvent.change(input, { target: { value: validAddress } });
-    expect(updateButton).toBeEnabled();
+    await waitFor(() => {
+      expect(updateButton).toBeEnabled();
+    });
+  });
+
+  test('accepts valid manifest1 address', async () => {
+    renderWithProps();
+    const input = screen.getByLabelText('Admin Address');
+    const longValidAddress = 'manifest1' + 'a'.repeat(38);
+    fireEvent.change(input, { target: { value: longValidAddress } });
+    await waitFor(() => {
+      expect(
+        screen.queryByText('Please enter a valid manifest1 address (at least 38 characters long)')
+      ).not.toBeInTheDocument();
+    });
   });
 
   // // TODO: Why is this test failing?

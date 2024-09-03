@@ -1,6 +1,6 @@
 import { describe, test, afterEach, expect } from 'bun:test';
 import React from 'react';
-import { screen, fireEvent, cleanup, within } from '@testing-library/react';
+import { screen, fireEvent, cleanup, within, waitFor } from '@testing-library/react';
 import { ValidatorDetailsModal } from '@/components/admins/modals/validatorModal';
 import matchers from '@testing-library/jest-dom/matchers';
 import { mockActiveValidators } from '@/tests/mock';
@@ -11,10 +11,19 @@ expect.extend(matchers);
 const validator = mockActiveValidators[0];
 const modalId = 'test-modal';
 const admin = 'manifest1adminaddress';
+const totalvp = '10000';
+const validatorVPArray = [{ vp: BigInt(1000), moniker: 'Validator One' }];
 
 function renderWithProps(props = {}) {
   return renderWithChainProvider(
-    <ValidatorDetailsModal validator={validator} modalId={modalId} admin={admin} {...props} />
+    <ValidatorDetailsModal
+      validator={validator}
+      modalId={modalId}
+      admin={admin}
+      totalvp={totalvp}
+      validatorVPArray={validatorVPArray}
+      {...props}
+    />
   );
 }
 
@@ -30,27 +39,55 @@ describe('ValidatorDetailsModal Component', () => {
     expect(within(detailsContainer).getByText('details1')).toBeInTheDocument();
   });
 
-  test('updates input field correctly', () => {
+  test('updates input field correctly', async () => {
     renderWithProps();
     const input = screen.getByPlaceholderText('1000');
-    fireEvent.change(input, { target: { value: 2000 } });
-    expect(input).toHaveValue(2000);
+    fireEvent.change(input, { target: { value: '2000' } });
+    await waitFor(() => {
+      expect(input).toHaveValue(2000);
+    });
   });
 
-  test('enables update button when input is valid', () => {
+  test('enables update button when input is valid', async () => {
     renderWithProps();
     const input = screen.getByPlaceholderText('1000');
-    fireEvent.change(input, { target: { value: 2000 } });
-    const updateButton = screen.getByText('update');
-    expect(updateButton).toBeEnabled();
+    fireEvent.change(input, { target: { value: '2000' } });
+    await waitFor(() => {
+      const updateButton = screen.getByText('Update');
+      expect(updateButton).not.toBeDisabled();
+    });
   });
 
-  // // TODO: Why is this test failing?
-  // // https://github.com/capricorn86/haVyppy-dom/issues/1184
-  // test('closes modal when close button is clicked', async () => {
-  //   renderWithProps();
-  //   const closeButton = screen.getByText('✕');
-  //   fireEvent.click(closeButton);
-  //   await waitFor(() => expect(screen.queryByText('Validator Details')).not.toBeInTheDocument());
-  // });
+  test('disables update button when input is invalid', async () => {
+    renderWithProps();
+    const input = screen.getByPlaceholderText('1000');
+    fireEvent.change(input, { target: { value: '-1' } });
+    fireEvent.blur(input);
+    await waitFor(() => {
+      const updateButton = screen.getByText('Update');
+      expect(updateButton).toBeDisabled();
+    });
+  });
+
+  test('shows error message for invalid power input', async () => {
+    renderWithProps();
+    const input = screen.getByPlaceholderText('1000');
+    fireEvent.change(input, { target: { value: '-1' } });
+    fireEvent.blur(input);
+    await waitFor(() => {
+      const errorMessage = screen.getByText(/power must be a non-negative number/i);
+      expect(errorMessage).toBeInTheDocument();
+    });
+  });
+
+  test('shows warning message for unsafe power update', async () => {
+    renderWithProps();
+    const input = screen.getByPlaceholderText('1000');
+    fireEvent.change(input, { target: { value: '9000' } });
+    fireEvent.blur(input);
+    await waitFor(() => {
+      const warningMessage = screen.getByText(/Warning: This power update may be unsafe/i);
+      expect(warningMessage).toBeInTheDocument();
+    });
+  });
 });

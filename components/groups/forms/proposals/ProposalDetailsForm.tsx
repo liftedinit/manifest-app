@@ -10,10 +10,7 @@ const ProposalSchema = Yup.object().shape({
     .required('Title is required')
     .max(50, 'Title must not exceed 50 characters')
     .noProfanity('Profanity is not allowed'),
-  proposers: Yup.string()
-    .required('Proposer is required')
-    .max(200, 'Proposers must not exceed 200 characters')
-    .noProfanity('Profanity is not allowed'),
+  proposers: Yup.string().manifestAddress().required('Required'),
   summary: Yup.string()
     .required('Summary is required')
     .min(10, 'Summary must be at least 10 characters')

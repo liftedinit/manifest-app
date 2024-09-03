@@ -93,3 +93,27 @@ export function abbreviateNumber(value: number): string {
 
   return newValue + suffixes[suffixNum];
 }
+
+export const calculateIsUnsafe = (
+  newPower: string | number,
+  currentPower: string | number,
+  totalVP: string | number
+): boolean => {
+  const newVP = BigInt(Number.isNaN(Number(newPower)) ? 0 : newPower);
+  const currentVP = BigInt(Number.isNaN(Number(currentPower)) ? 0 : currentPower);
+  const totalVPBigInt = BigInt(Number.isNaN(Number(totalVP)) ? 0 : totalVP);
+
+  if (totalVPBigInt === 0n) {
+    return newVP !== currentVP;
+  }
+
+  const currentPercentage = (currentVP * 100n) / totalVPBigInt;
+  const newPercentage = (newVP * 100n) / totalVPBigInt;
+
+  const changePercentage =
+    newPercentage > currentPercentage
+      ? newPercentage - currentPercentage
+      : currentPercentage - newPercentage;
+
+  return changePercentage > 30n;
+};
