@@ -34,7 +34,7 @@ describe('GroupDetails Component', () => {
   test('updates form fields correctly', async () => {
     renderWithChainProvider(<GroupDetails {...mockProps} />);
 
-    const titleInput = screen.getByLabelText('Group Title') as HTMLInputElement;
+    const titleInput = screen.getByLabelText('Group Title');
     fireEvent.change(titleInput, { target: { value: 'New Group Title' } });
     await waitFor(() => {
       expect(mockProps.dispatch).toHaveBeenCalledWith({
@@ -44,7 +44,7 @@ describe('GroupDetails Component', () => {
       });
     });
 
-    const authorsInput = screen.getByLabelText('Authors') as HTMLInputElement;
+    const authorsInput = screen.getByLabelText('Authors');
     fireEvent.change(authorsInput, { target: { value: 'New Author' } });
     await waitFor(() => {
       expect(mockProps.dispatch).toHaveBeenCalledWith({
@@ -54,7 +54,7 @@ describe('GroupDetails Component', () => {
       });
     });
 
-    const summaryInput = screen.getByLabelText('Summary') as HTMLTextAreaElement;
+    const summaryInput = screen.getByLabelText('Summary');
     fireEvent.change(summaryInput, { target: { value: 'New Summary' } });
     await waitFor(() => {
       expect(mockProps.dispatch).toHaveBeenCalledWith({
@@ -64,7 +64,7 @@ describe('GroupDetails Component', () => {
       });
     });
 
-    const descriptionInput = screen.getByLabelText('Description') as HTMLTextAreaElement;
+    const descriptionInput = screen.getByLabelText('Description');
     fireEvent.change(descriptionInput, { target: { value: 'New Description' } });
     await waitFor(() => {
       expect(mockProps.dispatch).toHaveBeenCalledWith({
@@ -74,7 +74,7 @@ describe('GroupDetails Component', () => {
       });
     });
 
-    const forumLinkInput = screen.getByLabelText('Forum Link') as HTMLInputElement;
+    const forumLinkInput = screen.getByLabelText('Forum Link');
     fireEvent.change(forumLinkInput, { target: { value: 'http://newforumlink.com' } });
     await waitFor(() => {
       expect(mockProps.dispatch).toHaveBeenCalledWith({
@@ -85,38 +85,75 @@ describe('GroupDetails Component', () => {
     });
   });
 
+  test('next button is enabled when form is not dirty but valid', async () => {
+    renderWithChainProvider(<GroupDetails {...mockProps} />);
+    expect(screen.getByText('Next: Group Policy')).toBeEnabled();
+  });
+
+  test('next button is disabled when form is dirty and invalid', async () => {
+    function updateField(field: string, validValue: string) {
+      const input = screen.getByLabelText(field);
+      fireEvent.change(input, { target: { value: validValue } });
+    }
+
+    const invalidProps = {
+      ...mockProps,
+      formData: {
+        ...mockGroupFormData,
+        title: '',
+        authors: '',
+        summary: '',
+        description: '',
+        forumLink: '',
+        members: [],
+        votingThreshold: '',
+      },
+    };
+
+    renderWithChainProvider(<GroupDetails {...invalidProps} />);
+    const nextButton = screen.getByText('Next: Group Policy');
+    await waitFor(() => expect(nextButton).toBeDisabled());
+
+    updateField('Group Title', 'New Group Title');
+    await waitFor(() => expect(nextButton).toBeDisabled());
+    updateField('Authors', 'New Author');
+    await waitFor(() => expect(nextButton).toBeDisabled());
+    updateField('Summary', 'New Summary');
+    await waitFor(() => expect(nextButton).toBeDisabled());
+    updateField('Description', 'New Long Description is Long Enough');
+    await waitFor(() => expect(nextButton).toBeEnabled());
+  });
+
   test('next button is enabled when form is valid and dirty', async () => {
     renderWithChainProvider(<GroupDetails {...mockProps} />);
-    const titleInput = screen.getByLabelText('Group Title') as HTMLInputElement;
+    const titleInput = screen.getByLabelText('Group Title');
     fireEvent.change(titleInput, { target: { value: 'New Group Title' } });
     await waitFor(() => {
-      const nextButton = screen.getByText('Next: Group Policy') as HTMLButtonElement;
-      expect(nextButton.disabled).toBe(false);
+      expect(screen.getByText('Next: Group Policy')).toBeEnabled();
     });
   });
 
   test('calls nextStep when next button is clicked', async () => {
     renderWithChainProvider(<GroupDetails {...mockProps} />);
 
-    const titleInput = screen.getByLabelText('Group Title') as HTMLInputElement;
+    const titleInput = screen.getByLabelText('Group Title');
     fireEvent.change(titleInput, { target: { value: 'New Group Title' } });
 
-    const authorsInput = screen.getByLabelText('Authors') as HTMLInputElement;
+    const authorsInput = screen.getByLabelText('Authors');
     fireEvent.change(authorsInput, { target: { value: 'New Author' } });
 
-    const summaryInput = screen.getByLabelText('Summary') as HTMLTextAreaElement;
+    const summaryInput = screen.getByLabelText('Summary');
     fireEvent.change(summaryInput, {
       target: { value: 'New summary that is at least 10 characters long' },
     });
 
-    const descriptionInput = screen.getByLabelText('Description') as HTMLTextAreaElement;
+    const descriptionInput = screen.getByLabelText('Description');
     fireEvent.change(descriptionInput, {
       target: { value: 'New description that is at least 20 characters long' },
     });
 
     await waitFor(() => {
-      const nextButton = screen.getByText('Next: Group Policy') as HTMLButtonElement;
-      expect(nextButton.disabled).toBe(false);
+      expect(screen.getByText('Next: Group Policy')).toBeEnabled();
     });
 
     const nextButton = screen.getByText('Next: Group Policy');

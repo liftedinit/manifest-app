@@ -29,7 +29,6 @@ export default function CreateDenom({
   const { estimateFee } = useFeeEstimation('manifest');
 
   const validateSubdenom = (value: string) => {
-    console.log('Validating subdenom', value);
     if (value.length === 0) {
       return 'Subdenom is required';
     }

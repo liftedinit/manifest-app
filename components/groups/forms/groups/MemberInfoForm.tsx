@@ -31,7 +31,6 @@ export default function MemberInfoForm({
   address: string;
 }>) {
   const [numberOfMembers, setNumberOfMembers] = useState(formData.members.length);
-  console.log('formData', formData);
   const updateMembers = () => {
     const currentLength = formData.members.length;
     if (numberOfMembers > currentLength) {

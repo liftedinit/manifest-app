@@ -35,7 +35,6 @@ export default function ProposalDetails({
   const updateField = (field: keyof ProposalFormData, value: any) => {
     dispatch({ type: 'UPDATE_FIELD', field, value });
   };
-  console.log(formData);
   return (
     <section className="">
       <div className="lg:flex mx-auto">

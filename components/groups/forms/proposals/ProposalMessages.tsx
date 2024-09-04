@@ -217,8 +217,6 @@ export default function ProposalMessages({
     checkFormValidity();
   };
 
-  console.log(formData);
-
   const renderInputs = (
     object: Record<string, any>,
     handleChange: (field: string, value: any) => void,

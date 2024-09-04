@@ -20,7 +20,6 @@ function renderWithProps(props = {}) {
   return renderWithChainProvider(<IbcSendForm {...defaultProps} {...props} />);
 }
 
-// TODO: Validate form inputs in component
 describe('IbcSendForm Component', () => {
   afterEach(cleanup);
 
@@ -60,14 +59,12 @@ describe('IbcSendForm Component', () => {
     expect(amountInput).toHaveValue('100');
   });
 
-  // // TODO: Make this test pass
-  // test('send button is disabled when inputs are invalid', () => {
-  //   renderWithProps();
-  //   const sendButton = screen.getByLabelText('send-btn');
-  //   expect(sendButton).toBeDisabled();
-  // });
+  test('send button is disabled when inputs are invalid', () => {
+    renderWithProps();
+    const sendButton = screen.getByLabelText('send-btn');
+    expect(sendButton).toBeDisabled();
+  });
 
-  // TODO: Fix inputs to be valid
   test('send button is enabled when inputs are valid', () => {
     renderWithProps();
     fireEvent.change(screen.getByPlaceholderText('Recipient address'), {

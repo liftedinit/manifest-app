@@ -45,13 +45,40 @@ describe('GroupPolicyForm Component', () => {
     });
   });
 
+  test('next button is disabled when form is not dirty', async () => {
+    renderWithChainProvider(<GroupPolicyForm {...mockProps} />);
+    const nextButton = screen.getByText('Next: Member Info');
+    expect(nextButton).toBeDisabled();
+  });
+
+  test('next button is disabled when form is invalid', async () => {
+    renderWithChainProvider(<GroupPolicyForm {...mockProps} />);
+    const nextButton = screen.getByText('Next: Member Info');
+    expect(nextButton).toBeDisabled();
+
+    const votingThresholdInput = screen.getByPlaceholderText('e.g. (1)');
+    fireEvent.change(votingThresholdInput, { target: { value: '' } });
+    await waitFor(() => {
+      expect(nextButton).toBeDisabled();
+    });
+
+    fireEvent.change(votingThresholdInput, { target: { value: '1' } });
+    await waitFor(() => {
+      expect(nextButton).toBeEnabled();
+    });
+
+    const votingAmountInput = screen.getByPlaceholderText('Enter duration');
+    // The value will be set to 1 if the input is less than 1
+    fireEvent.change(votingAmountInput, { target: { value: '0' } });
+    expect(votingAmountInput).toHaveValue(1);
+  });
+
   test('next button is enabled when form is valid and dirty', async () => {
     renderWithChainProvider(<GroupPolicyForm {...mockProps} />);
     const votingThresholdInput = screen.getByPlaceholderText('e.g. (1)');
     fireEvent.change(votingThresholdInput, { target: { value: '3' } });
     await waitFor(() => {
-      const nextButton = screen.getByText('Next: Member Info');
-      expect(nextButton).toBeEnabled();
+      expect(screen.getByText('Next: Member Info')).toBeEnabled();
     });
   });
 

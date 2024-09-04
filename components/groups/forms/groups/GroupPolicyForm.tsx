@@ -14,6 +14,13 @@ const GroupPolicySchema = Yup.object().shape({
     .min(1, 'Minimum voting threshold is 1'),
 });
 
+enum VotingUnit {
+  Hours = 'hours',
+  Days = 'days',
+  Weeks = 'weeks',
+  Months = 'months',
+}
+
 export default function GroupPolicyForm({
   nextStep,
   prevStep,
@@ -25,18 +32,22 @@ export default function GroupPolicyForm({
   nextStep: () => void;
   prevStep: () => void;
 }>) {
-  const [votingUnit, setVotingUnit] = useState('days');
+  const updateField = (field: keyof FormData, value: any) => {
+    dispatch({ type: 'UPDATE_FIELD', field, value });
+  };
+
+  const [votingUnit, setVotingUnit] = useState(VotingUnit.Days);
   const [votingAmount, setVotingAmount] = useState(1);
 
-  const convertToSeconds = (unit: string, amount: number): number => {
+  const convertToSeconds = (unit: VotingUnit, amount: number): number => {
     switch (unit) {
-      case 'hours':
+      case VotingUnit.Hours:
         return amount * 3600;
-      case 'days':
+      case VotingUnit.Days:
         return amount * 86400;
-      case 'weeks':
+      case VotingUnit.Weeks:
         return amount * 604800;
-      case 'months':
+      case VotingUnit.Months:
         return amount * 2592000;
       default:
         return 0;
@@ -45,17 +56,13 @@ export default function GroupPolicyForm({
 
   useEffect(() => {
     const votingPeriodSeconds = convertToSeconds(votingUnit, votingAmount);
-    dispatch({
-      type: 'UPDATE_FIELD',
-      field: 'votingPeriod',
-      value: {
-        seconds: BigInt(votingPeriodSeconds),
-        nanos: 0,
-      },
+    updateField('votingPeriod', {
+      seconds: BigInt(votingPeriodSeconds),
+      nanos: 0,
     });
   }, [votingUnit, votingAmount, dispatch]);
 
-  const handleUnitChange = (unit: string) => {
+  const handleUnitChange = (unit: VotingUnit) => {
     setVotingUnit(unit);
   };
 
@@ -106,7 +113,7 @@ export default function GroupPolicyForm({
                             tabIndex={0}
                             className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 mt-1"
                           >
-                            {['hours', 'days', 'weeks', 'months'].map(unit => (
+                            {Object.values(VotingUnit).map(unit => (
                               <li key={unit}>
                                 <a onClick={() => handleUnitChange(unit)}>
                                   {unit.charAt(0).toUpperCase() + unit.slice(1)}
@@ -132,12 +139,8 @@ export default function GroupPolicyForm({
                         label=""
                         value={formData.votingThreshold}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          const value = Math.max(1, parseInt(e.target.value) || 1);
-                          dispatch({
-                            type: 'UPDATE_FIELD',
-                            field: 'votingThreshold',
-                            value: value.toString(),
-                          });
+                          const value = Math.max(1, parseInt(e.target.value));
+                          updateField('votingThreshold', value.toString());
                           setFieldValue('votingThreshold', value);
                         }}
                         min={1}
@@ -148,7 +151,7 @@ export default function GroupPolicyForm({
                   <button
                     type="submit"
                     className="w-full btn btn-primary"
-                    disabled={!isValid}
+                    disabled={!isValid || !dirty}
                     onClick={() => {
                       nextStep();
                     }}
