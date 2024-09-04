@@ -1,6 +1,5 @@
 import { PiSunThin, PiMoonThin, PiGearSixThin } from 'react-icons/pi';
-import { useState, useRef, useEffect } from 'react';
-import { createPortal } from 'react-dom';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -40,52 +39,21 @@ export default function SideNav() {
     const { pathname } = useRouter();
     const isActive = pathname === href;
     const tooltipText = href.split('/')[1] || href;
-    const [showTooltip, setShowTooltip] = useState(false);
-    const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
-    const iconRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-      if (iconRef.current && showTooltip) {
-        const rect = iconRef.current.getBoundingClientRect();
-        setTooltipPosition({
-          top: rect.top + window.scrollY - 2,
-          left: rect.right + window.scrollX + 20,
-        });
-      }
-    }, [showTooltip]);
 
     return (
-      <li className="relative">
+      <li className="relative group">
         <Link href={href} passHref legacyBehavior>
-          <a
-            className="group active:scale-95 hover:ring-2 hover:ring-primary flex justify-center p-1 items-center mt-8 rounded-lg transition-all duration-300 ease-in-out"
-            onMouseEnter={() => setShowTooltip(true)}
-            onMouseLeave={() => setShowTooltip(false)}
-          >
-            <div ref={iconRef}>
-              <Icon
-                className={`w-8 h-8 transition-all duration-300 ease-in-out ${
-                  isActive ? 'text-primary scale-105' : 'hover:text-primary'
-                }`}
-              />
-            </div>
+          <a className="group active:scale-95 hover:ring-2 hover:ring-primary flex justify-center p-1 items-center mt-8 rounded-lg transition-all duration-300 ease-in-out">
+            <Icon
+              className={`w-8 h-8 transition-all duration-300 ease-in-out ${
+                isActive ? 'text-primary scale-105' : 'hover:text-primary'
+              }`}
+            />
+            <span className="tooltip fixed z-[9999] left-[4.55rem] px-3 py-2 bg-primary text-white text-sm font-medium rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-in-out whitespace-nowrap">
+              {tooltipText}
+            </span>
           </a>
         </Link>
-        {showTooltip &&
-          createPortal(
-            <div
-              style={{
-                position: 'absolute',
-                top: `${tooltipPosition.top}px`,
-                left: `${tooltipPosition.left}px`,
-                zIndex: 9999,
-              }}
-              className="px-3 py-2 bg-primary text-white text-sm font-medium rounded-lg whitespace-nowrap"
-            >
-              {tooltipText}
-            </div>,
-            document.body
-          )}
       </li>
     );
   };
@@ -132,9 +100,8 @@ export default function SideNav() {
             }}
           />
 
-          <PiSunThin className="swap-on mx-auto fill-current w-8 h-8 " />
-
-          <PiMoonThin className="swap-off mx-auto fill-current w-8 h-8" />
+          <PiMoonThin className="swap-on mx-auto fill-current w-8 h-8" />
+          <PiSunThin className="swap-off mx-auto fill-current w-8 h-8 " />
         </label>
       </div>
     </div>
@@ -183,7 +150,7 @@ export default function SideNav() {
           aria-controls="secondary-sidenav"
           type="button"
           onClick={toggleDrawer}
-          className="inline-flex p-2  rounded-full cursor-pointer  border border-primary text-white hover:bg-primary focus:ring-4 focus:ring-secondary  "
+          className="inline-flex p-2  rounded-full cursor-pointer  border border-primary  hover:bg-primary focus:ring-4 focus:ring-secondary  "
         >
           <svg
             className="w-6 h-6"
