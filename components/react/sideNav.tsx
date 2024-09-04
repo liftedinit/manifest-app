@@ -1,5 +1,6 @@
 import { PiSunThin, PiMoonThin, PiGearSixThin } from 'react-icons/pi';
-import { useEffect, useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -20,7 +21,6 @@ export default function SideNav() {
   const [isdark, setIsdark] = useState(false);
 
   const { toggleTheme } = useTheme();
-  const { isAdvancedMode, toggleAdvancedMode } = useAdvancedMode();
 
   useEffect(() => {
     const storedIsDark = localStorage.getItem('isdark');
@@ -40,21 +40,52 @@ export default function SideNav() {
     const { pathname } = useRouter();
     const isActive = pathname === href;
     const tooltipText = href.split('/')[1] || href;
+    const [showTooltip, setShowTooltip] = useState(false);
+    const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
+    const iconRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+      if (iconRef.current && showTooltip) {
+        const rect = iconRef.current.getBoundingClientRect();
+        setTooltipPosition({
+          top: rect.top + window.scrollY - 2,
+          left: rect.right + window.scrollX + 20,
+        });
+      }
+    }, [showTooltip]);
 
     return (
-      <li className="relative group z-50">
+      <li className="relative">
         <Link href={href} passHref legacyBehavior>
-          <a className="group active:scale-95 hover:ring-2 hover:ring-primary flex justify-center p-1 items-center mt-8 rounded-lg transition-all duration-300 ease-in-out">
-            <Icon
-              className={`w-8 h-8 transition-all duration-300 ease-in-out ${
-                isActive ? 'text-primary scale-105' : 'hover:text-primary'
-              }`}
-            />
-            <span className="tooltip absolute z-50 left-full ml-2 px-3 py-2 bg-primary text-white text-sm font-medium rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-in-out whitespace-nowrap">
-              {tooltipText}
-            </span>
+          <a
+            className="group active:scale-95 hover:ring-2 hover:ring-primary flex justify-center p-1 items-center mt-8 rounded-lg transition-all duration-300 ease-in-out"
+            onMouseEnter={() => setShowTooltip(true)}
+            onMouseLeave={() => setShowTooltip(false)}
+          >
+            <div ref={iconRef}>
+              <Icon
+                className={`w-8 h-8 transition-all duration-300 ease-in-out ${
+                  isActive ? 'text-primary scale-105' : 'hover:text-primary'
+                }`}
+              />
+            </div>
           </a>
         </Link>
+        {showTooltip &&
+          createPortal(
+            <div
+              style={{
+                position: 'absolute',
+                top: `${tooltipPosition.top}px`,
+                left: `${tooltipPosition.left}px`,
+                zIndex: 9999,
+              }}
+              className="px-3 py-2 bg-primary text-white text-sm font-medium rounded-lg whitespace-nowrap"
+            >
+              {tooltipText}
+            </div>,
+            document.body
+          )}
       </li>
     );
   };
@@ -125,7 +156,7 @@ export default function SideNav() {
   const SideDrawer: React.FC = () => (
     <div
       id="secondary-sidenav"
-      className="overflow-y-auto relative py-5 px-3 w-64 h-full  border-primary border-r-primary border-r transition-transform duration-300 ease-in-out"
+      className="overflow-y-auto relative py-5 px-3 w-64 h-full bg-base-300  border-primary border-r-primary border-r transition-transform duration-300 ease-in-out"
     >
       <div className="flex flex-row gap-4 items-center ">
         <img src={'/logo.svg'} alt="logo" width={42} height={42} />
@@ -152,7 +183,7 @@ export default function SideNav() {
           aria-controls="secondary-sidenav"
           type="button"
           onClick={toggleDrawer}
-          className="inline-flex p-2  rounded-full cursor-pointer  border border-secondary text-secondary hover:bg-mint-100 focus:ring-4 focus:ring-secondary "
+          className="inline-flex p-2  rounded-full cursor-pointer  border border-primary text-white hover:bg-primary focus:ring-4 focus:ring-secondary  "
         >
           <svg
             className="w-6 h-6"
@@ -177,16 +208,15 @@ export default function SideNav() {
     <>
       <aside
         id="sidebar-double"
-        className={`   hidden md:flex fixed top-0 left-0 h-full`}
+        className={`hidden md:flex fixed top-0 left-0 h-full z-40`}
         aria-label="Sidebar"
       >
-        <SideNav />
         <button
           id="hide-secondary-sidenav-button"
           aria-controls="secondary-sidenav"
           type="button"
           onClick={toggleDrawer}
-          className="inline-flex absolute bottom-7 left-28 p-2  cursor-pointer border border-secondary rounded-full hover:bg-mint-100 focus:ring-4 focus:ring-secondary "
+          className="inline-flex absolute bottom-7 left-28 p-2  cursor-pointer border border-primary rounded-full hover:bg-primary focus:ring-4 focus:ring-secondary z-99 "
         >
           <svg
             className="w-6 h-6"
@@ -201,6 +231,7 @@ export default function SideNav() {
             ></path>
           </svg>
         </button>
+        <SideNav />
       </aside>
       <aside
         id="sidebar-double"
