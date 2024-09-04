@@ -24,32 +24,48 @@ describe('CreateDenom Component', () => {
     expect(screen.getByText('Token Sub Denom')).toBeInTheDocument();
   });
 
-  test('updates subdenom input correctly', () => {
+  test('updates subdenom input correctly', async () => {
     renderWithChainProvider(<CreateDenom {...mockProps} />);
     const subdenomInput = screen.getByPlaceholderText('udenom');
     fireEvent.change(subdenomInput, { target: { value: 'utest' } });
-    expect(mockProps.dispatch).toHaveBeenCalledWith({
-      type: 'UPDATE_FIELD',
-      field: 'subdenom',
-      value: 'utest',
+    await waitFor(() => {
+      expect(mockProps.dispatch).toHaveBeenCalledWith({
+        type: 'UPDATE_FIELD',
+        field: 'subdenom',
+        value: 'utest',
+      });
     });
   });
 
-  // TODO: Add a test that covers subdenom validation
+  test('shows validation error for invalid subdenom', async () => {
+    renderWithChainProvider(<CreateDenom {...mockProps} />);
+    const subdenomInput = screen.getByPlaceholderText('udenom');
+    fireEvent.change(subdenomInput, { target: { value: 'invalid' } });
+    fireEvent.blur(subdenomInput);
+    await waitFor(() => {
+      expect(
+        screen.getByText('Subdenom must start with u, a, q, or g, followed by letters and numbers')
+      ).toBeInTheDocument();
+    });
+  });
 
-  // // TODO: The confirm button should be disabled when the input is invalid
-  // test('confirm button is disabled when inputs are invalid', () => {
-  //   renderWithChainProvider(<CreateDenom {...mockProps} />);
-  //   const confirmButton = screen.getByText('Next: Token Metadata');
-  //   expect(confirmButton).toBeDisabled();
-  // });
-  //
-  // // TODO: The confirm button should be enabled when the input is valid
-  // test('confirm button is enabled when inputs are valid', () => {
-  //   renderWithChainProvider(<CreateDenom {...mockProps} />);
-  //   const subdenomInput = screen.getByPlaceholderText('udenom');
-  //   fireEvent.change(subdenomInput, { target: { value: 'utest' } });
-  //   const confirmButton = screen.getByText('Next: Token Metadata');
-  //   expect(confirmButton).toBeEnabled();
-  // });
+  test('confirm button is disabled when inputs are invalid', async () => {
+    renderWithChainProvider(<CreateDenom {...mockProps} />);
+    const confirmButton = screen.getByText('Next: Token Metadata');
+    const subdenomInput = screen.getByPlaceholderText('udenom');
+    fireEvent.change(subdenomInput, { target: { value: 'invalid' } });
+    await waitFor(() => {
+      expect(confirmButton).toBeDisabled();
+    });
+  });
+
+  test('confirm button is enabled when inputs are valid', async () => {
+    renderWithChainProvider(<CreateDenom {...mockProps} />);
+    const subdenomInput = screen.getByPlaceholderText('udenom');
+    fireEvent.change(subdenomInput, { target: { value: 'utest' } });
+    await waitFor(() => {
+      const confirmButton = screen.getByText('Next: Token Metadata');
+      expect(confirmButton).toBeEnabled();
+    });
+  });
 });

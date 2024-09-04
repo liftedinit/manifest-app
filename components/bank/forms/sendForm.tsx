@@ -37,11 +37,7 @@ export default function SendForm({
   const initialSelectedToken = balances && balances.length > 0 ? balances[0] : null;
 
   const validationSchema = Yup.object().shape({
-    recipient: Yup.string()
-      .required('Recipient is required')
-      .test('valid-address', 'Invalid address', value => {
-        return value?.startsWith('manifest') && value.length >= 44;
-      }),
+    recipient: Yup.string().required('Recipient is required').manifestAddress(),
     amount: Yup.string()
       .required('Amount is required')
       .test('valid-amount', 'Invalid amount', value => {

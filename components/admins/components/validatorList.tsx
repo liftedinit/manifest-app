@@ -27,6 +27,19 @@ export default function ValidatorList({
   const [modalId, setModalId] = useState<string | null>(null);
   const [warningVisible, setWarningVisible] = useState(false);
   const [validatorToRemove, setValidatorToRemove] = useState<ExtendedValidatorSDKType | null>(null);
+  const totalvp = Array.isArray(activeValidators)
+    ? activeValidators.reduce(
+        (acc, validator) => acc + BigInt(validator?.consensus_power ?? 0),
+        BigInt(0)
+      )
+    : BigInt(0);
+
+  const validatorVPArray = Array.isArray(activeValidators)
+    ? activeValidators.map(validator => ({
+        moniker: validator.description.moniker,
+        vp: BigInt(validator?.consensus_power ?? 0),
+      }))
+    : [];
 
   useEffect(() => {
     if (modalId) {
@@ -174,6 +187,8 @@ export default function ValidatorList({
         validator={selectedValidator}
         modalId={modalId || ''}
         admin={admin}
+        totalvp={totalvp.toString()}
+        validatorVPArray={validatorVPArray}
       />
       <WarningModal
         admin={admin}

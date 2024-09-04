@@ -233,11 +233,7 @@ export default function ProposalMessages({
             schema[key] = Yup.string().required(`${key} is required`);
 
             if (key.includes('address')) {
-              schema[key] = schema[key].test(
-                'is-valid-address',
-                'Invalid address format, must start with manifest',
-                (val: string) => isValidAddress(val)
-              );
+              schema[key] = schema[key].manifestAddress();
             } else if (key.includes('amount')) {
               schema[key] = Yup.number()
                 .positive('Amount must be positive')

@@ -4,7 +4,6 @@ import { screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
 import ProposalDetails from '@/components/groups/forms/proposals/ProposalDetailsForm';
 import { renderWithChainProvider } from '@/tests/render';
 import { mockProposalFormData } from '@/tests/mock';
-import { Formik } from 'formik';
 
 const mockProps = {
   nextStep: jest.fn(),
@@ -27,7 +26,7 @@ describe('ProposalDetails Component', () => {
 
   test('updates form fields correctly', async () => {
     renderWithChainProvider(<ProposalDetails {...mockProps} />);
-    const titleInput = screen.getByLabelText('Proposal Title') as HTMLInputElement;
+    const titleInput = screen.getByLabelText('Proposal Title');
     fireEvent.change(titleInput, { target: { value: 'New Title' } });
     await waitFor(() => {
       expect(mockProps.dispatch).toHaveBeenCalledWith({
@@ -37,7 +36,7 @@ describe('ProposalDetails Component', () => {
       });
     });
 
-    const proposersInput = screen.getByLabelText('Proposer') as HTMLInputElement;
+    const proposersInput = screen.getByLabelText('Proposer');
     fireEvent.change(proposersInput, { target: { value: 'New Proposer' } });
     await waitFor(() => {
       expect(mockProps.dispatch).toHaveBeenCalledWith({
@@ -47,7 +46,7 @@ describe('ProposalDetails Component', () => {
       });
     });
 
-    const summaryInput = screen.getByLabelText('Summary') as HTMLTextAreaElement;
+    const summaryInput = screen.getByLabelText('Summary');
     fireEvent.change(summaryInput, { target: { value: 'New Summary' } });
     await waitFor(() => {
       expect(mockProps.dispatch).toHaveBeenCalledWith({
@@ -60,29 +59,24 @@ describe('ProposalDetails Component', () => {
 
   test('next button is disabled when form is invalid', () => {
     renderWithChainProvider(<ProposalDetails {...mockProps} />);
-    const nextButton = screen.getByText('Next: Proposal Messages') as HTMLButtonElement;
-    expect(nextButton.disabled).toBe(true);
+    const nextButton = screen.getByText('Next: Proposal Messages');
+    expect(nextButton).toBeDisabled();
   });
 
   test('next button is enabled when form is valid and dirty', async () => {
     renderWithChainProvider(<ProposalDetails {...mockProps} />);
-    const titleInput = screen.getByLabelText('Proposal Title') as HTMLInputElement;
+    const titleInput = screen.getByLabelText('Proposal Title');
     fireEvent.change(titleInput, { target: { value: 'New Title' } });
-    await waitFor(() => {
-      const nextButton = screen.getByText('Next: Proposal Messages') as HTMLButtonElement;
-      expect(nextButton.disabled).toBe(false);
-    });
+    const nextButton = screen.getByText('Next: Proposal Messages');
+    await waitFor(() => expect(nextButton).toBeEnabled());
   });
 
   test('calls nextStep when next button is clicked', async () => {
     renderWithChainProvider(<ProposalDetails {...mockProps} />);
-    const titleInput = screen.getByLabelText('Proposal Title') as HTMLInputElement;
+    const titleInput = screen.getByLabelText('Proposal Title');
     fireEvent.change(titleInput, { target: { value: 'New Title' } });
-    await waitFor(() => {
-      const nextButton = screen.getByText('Next: Proposal Messages') as HTMLButtonElement;
-      expect(nextButton.disabled).toBe(false);
-    });
     const nextButton = screen.getByText('Next: Proposal Messages');
+    await waitFor(() => expect(nextButton).toBeEnabled());
     fireEvent.click(nextButton);
     expect(mockProps.nextStep).toHaveBeenCalled();
   });

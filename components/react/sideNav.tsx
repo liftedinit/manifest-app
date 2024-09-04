@@ -125,7 +125,7 @@ export default function SideNav() {
   const SideDrawer: React.FC = () => (
     <div
       id="secondary-sidenav"
-      className="overflow-y-auto relative py-5 px-3 w-64 h-full  border-primary bg-base-300 border-r-primary border-r transition-transform duration-300 ease-in-out"
+      className="overflow-y-auto relative py-5 px-3 w-64 h-full  border-primary border-r-primary border-r transition-transform duration-300 ease-in-out"
     >
       <div className="flex flex-row gap-4 items-center ">
         <img src={'/logo.svg'} alt="logo" width={42} height={42} />
