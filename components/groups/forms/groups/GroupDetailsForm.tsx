@@ -53,8 +53,10 @@ export default function GroupDetails({
               validationSchema={GroupSchema}
               onSubmit={nextStep}
               validateOnChange={true}
+              validateOnMount={true}
+              enableReinitialize
             >
-              {({ isValid, dirty, setFieldValue }) => (
+              {({ isValid, setFieldValue }) => (
                 <Form className="min-h-[330px]">
                   <div className="grid gap-5 my-6 sm:grid-cols-2">
                     <TextInput

@@ -46,7 +46,7 @@ describe('ConfirmationModal Component', () => {
     expect(screen.getByText('Confirmation')).toBeInTheDocument();
     expect(screen.getByLabelText('proposal-details')).toBeInTheDocument();
     expect(screen.getByText(mockProposalFormData.title)).toBeInTheDocument();
-    expect(screen.getByText('manifest1propo...oposer')).toBeInTheDocument();
+    expect(screen.getByText('manifest1hj5fv...8ws9ct')).toBeInTheDocument();
 
     // TODO: This is never displayed in the component
     // expect(screen.getByText(mockFormData.summary)).toBeInTheDocument();

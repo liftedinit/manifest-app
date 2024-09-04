@@ -8,11 +8,6 @@ import { mockGroupFormData } from '@/tests/mock';
 
 expect.extend(matchers);
 
-// Mock the isValidAddress function
-mock.module('@/utils/string', () => ({
-  isValidAddress: (address: string) => address.startsWith('manifest1'),
-}));
-
 const mockProps = {
   nextStep: jest.fn(),
   prevStep: jest.fn(),
@@ -100,11 +95,8 @@ describe('MemberInfoForm Component', () => {
 
   test('calls nextStep when next button is clicked', async () => {
     renderWithChainProvider(<MemberInfoForm {...mockProps} />);
-    await waitFor(() => {
-      const nextButton = screen.getByText('Next: Group Policy');
-      expect(nextButton).toBeEnabled();
-    });
     const nextButton = screen.getByText('Next: Group Policy');
+    await waitFor(() => expect(nextButton).toBeEnabled());
     fireEvent.click(nextButton);
     expect(mockProps.nextStep).toHaveBeenCalled();
   });

@@ -32,7 +32,6 @@ export default function ProposalDetails({
   const updateField = (field: keyof ProposalFormData, value: any) => {
     dispatch({ type: 'UPDATE_FIELD', field, value });
   };
-  console.log(formData);
   return (
     <section className="">
       <div className="lg:flex mx-auto">
@@ -47,52 +46,63 @@ export default function ProposalDetails({
               onSubmit={nextStep}
               validateOnChange={true}
             >
-              {({ isValid, dirty, setFieldValue }) => (
-                <Form className="min-h-[330px]">
-                  <div className="grid gap-5 my-6 sm:grid-cols-2">
-                    <TextInput
-                      label="Proposal Title"
-                      name="title"
-                      placeholder="Title"
-                      value={formData.title}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        updateField('title', e.target.value);
-                        setFieldValue('title', e.target.value);
-                      }}
-                    />
-                    <div className="flex flex-row items-center justify-start">
+              {({ isValid, dirty, errors, setFieldValue }) => {
+                return (
+                  <Form className="min-h-[330px]">
+                    <div className="grid gap-5 my-6 sm:grid-cols-2">
                       <TextInput
-                        label="Proposer"
-                        name="proposers"
-                        placeholder="List of authors"
-                        value={formData.proposers}
+                        label="Proposal Title"
+                        name="title"
+                        placeholder="Title"
+                        value={formData.title}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          updateField('proposers', e.target.value);
-                          setFieldValue('proposers', e.target.value);
+                          updateField('title', e.target.value);
+                          setFieldValue('title', e.target.value);
                         }}
-                        className="rounded-tr-none rounded-br-none"
                       />
-                      <button
-                        type="button"
-                        aria-label="address-btn"
-                        onClick={() => {
-                          setFieldValue('proposers', address);
-                          updateField('proposers', address);
+                      <div className="flex flex-row items-center justify-start">
+                        <TextInput
+                          label="Proposer"
+                          name="proposers"
+                          placeholder="List of authors"
+                          value={formData.proposers}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            updateField('proposers', e.target.value);
+                            setFieldValue('proposers', e.target.value);
+                          }}
+                          className="rounded-tr-none rounded-br-none"
+                        />
+                        <button
+                          type="button"
+                          aria-label="address-btn"
+                          onClick={() => {
+                            setFieldValue('proposers', address);
+                            updateField('proposers', address);
+                          }}
+                          className="btn btn-primary rounded-tr-lg rounded-br-lg rounded-bl-none rounded-tl-none"
+                        >
+                          <PiAddressBook className="w-6 h-6" />
+                        </button>
+                      </div>
+                      <TextArea
+                        label="Summary"
+                        name="summary"
+                        placeholder="Short Bio"
+                        value={formData.summary}
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                          updateField('summary', e.target.value);
+                          setFieldValue('summary', e.target.value);
                         }}
-                        className="btn btn-primary rounded-tr-lg rounded-br-lg rounded-bl-none rounded-tl-none"
-                      >
-                        <PiAddressBook className="w-6 h-6" />
-                      </button>
+                      />
                     </div>
-                    <TextArea
-                      label="Summary"
-                      name="summary"
-                      placeholder="Short Bio"
-                      value={formData.summary}
-                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                        updateField('summary', e.target.value);
-                        setFieldValue('summary', e.target.value);
+                    <button
+                      type="submit"
+                      className="w-full mt-4 btn px-5 py-2.5 sm:py-3.5 btn-primary"
+                      disabled={!isValid || !dirty}
+                      onClick={() => {
+                        nextStep();
                       }}
+
                     />
                   </div>
                   <button

@@ -15,8 +15,10 @@ import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1
 import { FormData, ProposalFormData } from '@/helpers';
 import { cosmos } from '@chalabi/manifestjs';
 import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
-import { MsgUpdateParams } from '@chalabi/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
 import { MsgSend } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
+
+export const manifestAddr1 = 'manifest1hj5fveer5cjtn4wd6wstzugjfdxzl0xp8ws9ct';
+export const manifestAddr2 = 'manifest1efd63aw40lxf3n4mhf7dzhjkr453axurm6rp3z';
 
 export const mockDenomMeta1: MetadataSDKType = {
   description: 'My First Token',
@@ -477,13 +479,13 @@ export const mockGroupFormData: FormData = {
   votingPeriod: { seconds: BigInt(3600), nanos: 0 },
   votingThreshold: '2',
   members: [
-    { address: 'manifest1member1', name: 'Member 1', weight: '1' },
-    { address: 'manifest1member2', name: 'Member 2', weight: '2' },
+    { address: manifestAddr1, name: 'Member 1', weight: '1' },
+    { address: manifestAddr2, name: 'Member 2', weight: '2' },
   ],
 };
 export const mockProposalFormData: ProposalFormData = {
   title: 'Test Proposal',
-  proposers: 'manifest1proposer',
+  proposers: manifestAddr1,
   summary: 'This is a test proposal',
   metadata: {
     title: 'Test Metadata Title',
