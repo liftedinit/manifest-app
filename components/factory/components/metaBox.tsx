@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import MintForm from '@/components/factory/forms/MintForm';
 import BurnForm from '@/components/factory/forms/BurnForm';
-import TransferForm from '@/components/factory/forms/TransferForm';
+
 import { useGroupsByAdmin, usePoaParams } from '@/hooks';
 
 export default function MetaBox({
@@ -16,7 +16,7 @@ export default function MetaBox({
   refetch: () => void;
   balance: string;
 }>) {
-  const [activeTab, setActiveTab] = useState<'transfer' | 'burn' | 'mint'>('mint');
+  const [activeTab, setActiveTab] = useState<'burn' | 'mint'>('mint');
 
   const { poaParams, isPoaParamsLoading, refetchPoaParams, isPoaParamsError } = usePoaParams();
   const admin = poaParams?.admins[0];
@@ -51,7 +51,7 @@ export default function MetaBox({
           {`${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} ${denom.display}`}
         </h2>
         <div role="tablist" className="tabs tabs-lifted tabs-md -mr-4 items-end" aria-label="tabs">
-          {[...(denom.base.includes('mfx') ? [] : ['transfer']), 'burn', 'mint'].map(tab => (
+          {['burn', 'mint'].map(tab => (
             <button
               key={tab}
               type="button"
@@ -59,7 +59,7 @@ export default function MetaBox({
               className={`tab [--tab-bg:#edf2f7] dark:[--tab-bg:#202020] [--tab-border-color:transparent] ${
                 activeTab === tab ? 'tab-active' : ''
               }`}
-              onClick={() => setActiveTab(tab as 'transfer' | 'burn' | 'mint')}
+              onClick={() => setActiveTab(tab as 'burn' | 'mint')}
             >
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
             </button>
@@ -78,9 +78,6 @@ export default function MetaBox({
         )}
         {denom && (
           <>
-            {!denom.base.includes('mfx') && activeTab === 'transfer' && (
-              <TransferForm balance={balance} refetch={refetch} address={address} denom={denom} />
-            )}
             {activeTab === 'burn' && (
               <BurnForm
                 isAdmin={isAdmin ?? false}
