@@ -221,6 +221,7 @@ export default function BurnForm({
                   <div className="flex space-x-4 mt-8">
                     <div className="flex-1">
                       <NumberInput
+                        aria-label="burn-amount-input"
                         label="AMOUNT"
                         name="amount"
                         placeholder="Enter amount"
@@ -238,6 +239,7 @@ export default function BurnForm({
                       <div className="flex flex-row items-center">
                         <input
                           type="text"
+                          aria-label="burn-target-input"
                           disabled={!isMFX}
                           placeholder="Target address"
                           className="input input-bordered input-sm h-10 rounded-tl-lg rounded-bl-lg rounded-tr-none rounded-br-none w-full"

@@ -221,6 +221,7 @@ export default function MintForm({
                     <div className="flex-1">
                       <NumberInput
                         label="AMOUNT"
+                        aria-label="mint-amount-input"
                         name="amount"
                         placeholder="Enter amount"
                         value={amount}
@@ -234,6 +235,7 @@ export default function MintForm({
                       <div className="flex flex-row items-center">
                         <TextInput
                           label="RECIPIENT"
+                          aria-label="mint-recipient-input"
                           name="recipient"
                           placeholder="Recipient address"
                           value={recipient}
@@ -269,6 +271,7 @@ export default function MintForm({
                         type="button"
                         onClick={() => setIsModalOpen(true)}
                         className="btn btn-primary btn-md"
+                        aria-label="multi-mint-button"
                       >
                         Multi Mint
                       </button>

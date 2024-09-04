@@ -99,9 +99,7 @@ export default function ProposalDetails({
                     type="submit"
                     className="w-full mt-4 btn px-5 py-2.5 sm:py-3.5 btn-primary"
                     disabled={!isValid || !dirty}
-                    onClick={() => {
-                      nextStep();
-                    }}
+                    onClick={nextStep()}
                   >
                     Next: Proposal Messages
                   </button>

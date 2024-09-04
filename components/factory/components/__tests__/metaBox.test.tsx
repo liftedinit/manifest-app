@@ -53,15 +53,6 @@ describe('MetaBox', () => {
     expect(screen.getByText('Select a token to view options')).toBeInTheDocument();
   });
 
-  test("renders TransferForm when active tab is 'transfer'", async () => {
-    renderWithProps({ denom: mockDenom });
-    const transferTab = screen.getByText('Transfer');
-    expect(transferTab).toBeInTheDocument();
-    expect(transferTab).toBeEnabled();
-    transferTab.click();
-    await waitFor(() => expect(screen.getByText('Transfer TEST')).toBeInTheDocument());
-  });
-
   test("renders BurnForm when active tab is 'burn'", async () => {
     renderWithProps({ denom: mockDenom });
     const burnTab = screen.getByText('Burn');

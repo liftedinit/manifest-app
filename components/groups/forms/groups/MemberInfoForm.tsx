@@ -194,9 +194,7 @@ export default function MemberInfoForm({
                       type="submit"
                       className="btn btn-primary w-full"
                       disabled={!isValid || numberOfMembers === 0}
-                      onClick={() => {
-                        nextStep();
-                      }}
+                      onClick={nextStep()}
                     >
                       Next: Group Policy
                     </button>
