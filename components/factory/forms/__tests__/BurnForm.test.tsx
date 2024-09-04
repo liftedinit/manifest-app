@@ -1,6 +1,6 @@
 import { describe, test, afterEach, expect, jest } from 'bun:test';
 import React from 'react';
-import { screen, fireEvent, cleanup } from '@testing-library/react';
+import { screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
 import BurnForm from '@/components/factory/forms/BurnForm';
 import matchers from '@testing-library/jest-dom/matchers';
 import { mockDenomMeta1, mockMfxDenom } from '@/tests/mock';
@@ -44,18 +44,40 @@ describe('BurnForm Component', () => {
     ).toBeInTheDocument();
   });
 
-  test('updates amount input correctly', () => {
+  test('updates amount input correctly', async () => {
     renderWithProps();
-    const amountInput = screen.getByPlaceholderText('Enter amount');
+    const amountInput = screen.getByLabelText('burn-amount-input');
     fireEvent.change(amountInput, { target: { value: '100' } });
-    expect(amountInput).toHaveValue('100');
+    await waitFor(() => {
+      expect(amountInput).toHaveValue(100);
+    });
   });
 
-  test('updates recipient input correctly', () => {
+  test('burn button is disabled when inputs are invalid', async () => {
     renderWithProps();
+    const burnButton = screen.getByLabelText('burn-target-input');
+    expect(burnButton).toBeDisabled();
+
+    const amountInput = screen.getByPlaceholderText('Enter amount');
+    fireEvent.change(amountInput, { target: { value: '-100' } });
+
+    await waitFor(() => {
+      expect(burnButton).toBeDisabled();
+    });
+  });
+
+  test('burn button is enabled when inputs are valid', async () => {
+    renderWithProps();
+    const amountInput = screen.getByPlaceholderText('Enter amount');
     const recipientInput = screen.getByPlaceholderText('Target address');
+    const burnButton = screen.getByText('Burn');
+
+    fireEvent.change(amountInput, { target: { value: '100' } });
     fireEvent.change(recipientInput, { target: { value: 'cosmos1recipient' } });
-    expect(recipientInput).toHaveValue('cosmos1recipient');
+
+    await waitFor(() => {
+      expect(burnButton).toBeEnabled();
+    });
   });
 
   // // TODO: Make this test pass

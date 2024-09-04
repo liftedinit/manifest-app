@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { chainName } from '@/config';
-import { useFeeEstimation, useTx } from '@/hooks';
+import { useTokenFactoryBalance, useFeeEstimation, useTx } from '@/hooks';
 import { cosmos, manifest, osmosis } from '@chalabi/manifestjs';
 import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { PiAddressBook } from 'react-icons/pi';
@@ -9,6 +9,9 @@ import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgBurnHeldBalance } from '@chalabi/manifestjs/dist/codegen/manifest/v1/tx';
 import { MultiBurnModal } from '../modals/multiMfxBurnModal';
 import { useToast } from '@/contexts';
+import { Formik, Form } from 'formik';
+import Yup from '@/utils/yupExtensions';
+import { NumberInput, TextInput } from '@/components/react/inputs';
 
 interface BurnPair {
   address: string;
@@ -44,6 +47,21 @@ export default function BurnForm({
   const { setToastMessage } = useToast();
   const exponent = denom?.denom_units?.find(unit => unit.denom === denom.display)?.exponent || 0;
   const isMFX = denom.base.includes('mfx');
+
+  const { balance: recipientBalance } = useTokenFactoryBalance(recipient ?? '', denom.base);
+  const balanceNumber = parseFloat(
+    shiftDigits(isMFX ? recipientBalance?.amount || '0' : balance, -exponent)
+  );
+
+  const BurnSchema = Yup.object().shape({
+    amount: Yup.number()
+      .positive('Amount must be positive')
+      .required('Amount is required')
+      .max(1e12, 'Amount is too large')
+      .test('max-balance', 'Amount exceeds balance', function (value) {
+        return value <= balanceNumber;
+      }),
+  });
 
   const handleBurn = async () => {
     if (!amount || isNaN(Number(amount))) {
@@ -187,58 +205,82 @@ export default function BurnForm({
                 <p className="font-semibold text-md max-w-[20ch] truncate">{denom.display}</p>
               </div>
             </div>
-            <div className="flex space-x-4 mt-8">
-              <div className="flex-1">
-                <label className="label p-0">
-                  <p className="text-md">AMOUNT</p>
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter amount"
-                  className="input input-bordered h-10 input-sm w-full"
-                  value={amount}
-                  onChange={e => setAmount(e.target.value)}
-                />
-              </div>
-              <div className="flex-1">
-                <label className="label p-0">
-                  <p className="text-md">TARGET</p>
-                </label>
-                <div className="flex flex-row items-center">
-                  <input
-                    type="text"
-                    placeholder="Target address"
-                    className="input input-bordered input-sm h-10 rounded-tl-lg rounded-bl-lg rounded-tr-none rounded-br-none w-full"
-                    value={recipient}
-                    onChange={e => setRecipient(e.target.value)}
-                  />
-                  <button
-                    onClick={handleAddressBookClick}
-                    className="btn btn-secondary btn-sm h-10 rounded-tr-lg rounded-br-lg rounded-bl-none rounded-tl-none"
-                  >
-                    <PiAddressBook className="w-6 h-6" />
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div className="flex justify-end mt-6 space-x-2">
-              <button
-                onClick={handleBurn}
-                className="btn btn-secondary btn-md flex-grow"
-                disabled={isSigning}
-              >
-                {isSigning ? <span className="loading loading-dots loading-xs"></span> : 'Burn'}
-              </button>
-              {isMFX && (
-                <button
-                  onClick={() => setIsModalOpen(true)}
-                  className="btn btn-secondary btn-md"
-                  aria-label={'multi-burn-btn'}
-                >
-                  Multi Burn
-                </button>
+            <Formik
+              initialValues={{ amount: '' }}
+              validationSchema={BurnSchema}
+              onSubmit={values => {
+                setAmount(values.amount);
+                handleBurn();
+              }}
+              validateOnChange={true}
+              validateOnBlur={true}
+              validateOnMount={true}
+            >
+              {({ isValid, dirty, setFieldValue }) => (
+                <Form>
+                  <div className="flex space-x-4 mt-8">
+                    <div className="flex-1">
+                      <NumberInput
+                        aria-label="burn-amount-input"
+                        label="AMOUNT"
+                        name="amount"
+                        placeholder="Enter amount"
+                        value={amount}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          setAmount(e.target.value);
+                          setFieldValue('amount', e.target.value);
+                        }}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label className="label p-0">
+                        <p className="text-md">TARGET</p>
+                      </label>
+                      <div className="flex flex-row items-center">
+                        <input
+                          type="text"
+                          aria-label="burn-target-input"
+                          disabled={!isMFX}
+                          placeholder="Target address"
+                          className="input input-bordered input-sm h-10 rounded-tl-lg rounded-bl-lg rounded-tr-none rounded-br-none w-full"
+                          value={isMFX ? recipient : address}
+                          onChange={e => setRecipient(e.target.value)}
+                        />
+                        <button
+                          onClick={handleAddressBookClick}
+                          className="btn btn-secondary btn-sm h-10 rounded-tr-lg rounded-br-lg rounded-bl-none rounded-tl-none"
+                        >
+                          <PiAddressBook className="w-6 h-6" />
+                        </button>
+                      </div>
+                      {isMFX && <p className="text-sm text-gray-500">{balanceNumber}</p>}
+                    </div>
+                  </div>
+                  <div className="flex justify-end mt-6 space-x-2">
+                    <button
+                      onClick={handleBurn}
+                      className="btn btn-secondary btn-md flex-grow"
+                      disabled={isSigning || !isValid}
+                    >
+                      {isSigning ? (
+                        <span className="loading loading-dots loading-xs"></span>
+                      ) : (
+                        'Burn'
+                      )}
+                    </button>
+                    {isMFX && (
+                      <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="btn btn-secondary btn-md"
+                        aria-label={'multi-burn-btn'}
+                      >
+                        Multi Burn
+                      </button>
+                    )}
+                  </div>
+                </Form>
               )}
-            </div>
+            </Formik>
             {isMFX && (
               <MultiBurnModal
                 isOpen={isModalOpen}

@@ -9,6 +9,9 @@ import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgPayout } from '@chalabi/manifestjs/dist/codegen/manifest/v1/tx';
 import { MultiMintModal } from '../modals/multiMfxMintModal';
 import { useToast } from '@/contexts';
+import { Formik, Form } from 'formik';
+import Yup from '@/utils/yupExtensions';
+import { NumberInput, TextInput } from '@/components/react/inputs';
 
 interface PayoutPair {
   address: string;
@@ -44,6 +47,16 @@ export default function MintForm({
 
   const exponent = denom?.denom_units?.find(unit => unit.denom === denom.display)?.exponent || 0;
   const isMFX = denom.base.includes('mfx');
+
+  const MintSchema = Yup.object().shape({
+    amount: Yup.number()
+      .positive('Amount must be positive')
+      .required('Amount is required')
+      .max(1e12, 'Amount is too large'),
+    recipient: Yup.string()
+      .required('Recipient address is required')
+      .manifestAddress('Invalid address format'),
+  });
 
   const handleMint = async () => {
     if (!amount || isNaN(Number(amount))) {
@@ -173,86 +186,110 @@ export default function MintForm({
           </div>
         ) : (
           <>
-            <>
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <p className="text-sm text-gray-500">NAME</p>
-                  <p className="font-semibold text-md max-w-[20ch] truncate">{denom.name}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">YOUR BALANCE</p>
-                  <p className="font-semibold text-md">{shiftDigits(balance, -exponent)}</p>
-                </div>
-                <div>
-                  <p className="text-md text-gray-500">EXPONENT</p>
-                  <p className="font-semibold text-md">{denom?.denom_units[1]?.exponent}</p>
-                </div>
-                <div>
-                  <p className="text-md text-gray-500">CIRCULATING SUPPLY</p>
-                  <p className="font-semibold text-md max-w-[20ch] truncate">{denom.display}</p>
-                </div>
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <p className="text-sm text-gray-500">NAME</p>
+                <p className="font-semibold text-md max-w-[20ch] truncate">{denom.name}</p>
               </div>
-              <div className="flex space-x-4 mt-8 ">
-                <div className="flex-1">
-                  <label className="label p-0">
-                    <p className="text-md">AMOUNT</p>
-                  </label>
-                  <input
-                    aria-label={'mint-amount-input'}
-                    type="text"
-                    placeholder="Enter amount"
-                    className="input input-bordered h-10 input-sm w-full"
-                    value={amount}
-                    onChange={e => setAmount(e.target.value)}
-                  />
-                </div>
-                <div className="flex-1 ">
-                  <label className="label p-0">
-                    <p className="text-md">RECIPIENT</p>
-                  </label>
-                  <div className="flex flex-row items-center">
-                    <input
-                      aria-label={'mint-recipient-input'}
-                      type="text"
-                      placeholder="Recipient address"
-                      className="input input-bordered input-sm h-10 rounded-tl-lg rounded-bl-lg rounded-tr-none rounded-br-none w-full"
-                      value={recipient}
-                      onChange={e => setRecipient(e.target.value)}
-                    />
-                    <button
-                      onClick={() => setRecipient(address)}
-                      className="btn btn-primary btn-sm h-10 rounded-tr-lg rounded-br-lg rounded-bl-none rounded-tl-none"
-                    >
-                      <PiAddressBook className="w-6 h-6" />
-                    </button>
-                  </div>
-                </div>
+              <div>
+                <p className="text-sm text-gray-500">YOUR BALANCE</p>
+                <p className="font-semibold text-md">{shiftDigits(balance, -exponent)}</p>
               </div>
-            </>
-            <div className="flex justify-end mt-6 space-x-2">
-              <button
-                onClick={handleMint}
-                className="btn btn-primary btn-md flex-grow"
-                disabled={isSigning}
-              >
-                {isSigning ? <span className="loading loading-dots loading-xs"></span> : 'Mint'}
-              </button>
-              {isMFX && (
-                <button onClick={() => setIsModalOpen(true)} className="btn btn-primary btn-md">
-                  Multi Mint
-                </button>
-              )}
-              <MultiMintModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                payoutPairs={payoutPairs}
-                updatePayoutPair={updatePayoutPair}
-                addPayoutPair={addPayoutPair}
-                removePayoutPair={removePayoutPair}
-                handleMultiMint={handleMultiMint}
-                isSigning={isSigning}
-              />
+              <div>
+                <p className="text-md text-gray-500">EXPONENT</p>
+                <p className="font-semibold text-md">{denom?.denom_units[1]?.exponent}</p>
+              </div>
+              <div>
+                <p className="text-md text-gray-500">CIRCULATING SUPPLY</p>
+                <p className="font-semibold text-md max-w-[20ch] truncate">{denom.display}</p>
+              </div>
             </div>
+            <Formik
+              initialValues={{ amount: '', recipient: address }}
+              validationSchema={MintSchema}
+              onSubmit={values => {
+                setAmount(values.amount);
+                setRecipient(values.recipient);
+                handleMint();
+              }}
+              validateOnChange={true}
+              validateOnBlur={true}
+            >
+              {({ isValid, dirty, setFieldValue, errors, touched }) => (
+                <Form>
+                  <div className="flex space-x-4 mt-8 ">
+                    <div className="flex-1">
+                      <NumberInput
+                        label="AMOUNT"
+                        aria-label="mint-amount-input"
+                        name="amount"
+                        placeholder="Enter amount"
+                        value={amount}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          setAmount(e.target.value);
+                          setFieldValue('amount', e.target.value);
+                        }}
+                      />
+                    </div>
+                    <div className="flex-1 ">
+                      <div className="flex flex-row items-center">
+                        <TextInput
+                          label="RECIPIENT"
+                          aria-label="mint-recipient-input"
+                          name="recipient"
+                          placeholder="Recipient address"
+                          value={recipient}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            setRecipient(e.target.value);
+                            setFieldValue('recipient', e.target.value);
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setRecipient(address)}
+                          className="btn btn-primary btn-sm h-10 rounded-tr-lg rounded-br-lg rounded-bl-none rounded-tl-none"
+                        >
+                          <PiAddressBook className="w-6 h-6" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex justify-end mt-6 space-x-2">
+                    <button
+                      type="submit"
+                      className="btn btn-primary btn-md flex-grow"
+                      disabled={isSigning || !isValid || !dirty}
+                    >
+                      {isSigning ? (
+                        <span className="loading loading-dots loading-xs"></span>
+                      ) : (
+                        'Mint'
+                      )}
+                    </button>
+                    {isMFX && (
+                      <button
+                        type="button"
+                        onClick={() => setIsModalOpen(true)}
+                        className="btn btn-primary btn-md"
+                        aria-label="multi-mint-button"
+                      >
+                        Multi Mint
+                      </button>
+                    )}
+                  </div>
+                </Form>
+              )}
+            </Formik>
+            <MultiMintModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              payoutPairs={payoutPairs}
+              updatePayoutPair={updatePayoutPair}
+              addPayoutPair={addPayoutPair}
+              removePayoutPair={removePayoutPair}
+              handleMultiMint={handleMultiMint}
+              isSigning={isSigning}
+            />
           </>
         )}
       </div>

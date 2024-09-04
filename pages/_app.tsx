@@ -219,7 +219,7 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
               <AdvancedModeProvider>
                 <SideNav />
                 <MobileNav />
-                <div className="relative min-h-screen max-w-screen  md:ml-20 sm:px-4 sm:py-2 ">
+                <div className="relative min-h-screen max-w-screen  md:ml-20 sm:px-4 sm:py-2 dark:bg-[#0E0A1F] bg-[#F0F0FF] ">
                   <DynamicEndpointSelector />
                   <Component {...pageProps} />
                 </div>

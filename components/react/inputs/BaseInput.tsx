@@ -22,7 +22,7 @@ export const BaseInput: React.FC<BaseInputProps & React.InputHTMLAttributes<HTML
         id={id}
         {...field}
         {...props}
-        className={`input input-bordered w-full ${props.className}`}
+        className={`input input-bordered  w-full ${props.className}`}
       />
       {meta.touched && meta.error ? (
         <label className="label">

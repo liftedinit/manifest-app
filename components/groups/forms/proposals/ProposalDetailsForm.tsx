@@ -102,12 +102,19 @@ export default function ProposalDetails({
                       onClick={() => {
                         nextStep();
                       }}
-                    >
-                      Next: Proposal Messages
-                    </button>
-                  </Form>
-                );
-              }}
+
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="w-full mt-4 btn px-5 py-2.5 sm:py-3.5 btn-primary"
+                    disabled={!isValid || !dirty}
+                    onClick={nextStep()}
+                  >
+                    Next: Proposal Messages
+                  </button>
+                </Form>
+              )}
             </Formik>
             <div className="flex space-x-3 ga-4 mt-6">
               <Link href="/groups" legacyBehavior>

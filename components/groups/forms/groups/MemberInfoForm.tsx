@@ -192,21 +192,18 @@ export default function MemberInfoForm({
                         </FieldArray>
                       </div>
 
-                      <button
-                        type="submit"
-                        className="btn btn-primary w-full"
-                        disabled={!isValid || numberOfMembers === 0}
-                        onClick={() => {
-                          nextStep();
-                        }}
-                      >
-                        Next: Group Policy
-                      </button>
-                    </Form>
-                  );
-                }}
-              </Formik>
 
+                    <button
+                      type="submit"
+                      className="btn btn-primary w-full"
+                      disabled={!isValid || numberOfMembers === 0}
+                      onClick={nextStep()}
+                    >
+                      Next: Group Policy
+                    </button>
+                  </Form>
+                )}
+              </Formik>
               <div className="flex space-x-3 ga-4 mt-6">
                 <button
                   onClick={prevStep}
