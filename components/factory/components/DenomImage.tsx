@@ -68,7 +68,7 @@ export const DenomImage = ({ denom }: { denom: any }) => {
   useEffect(() => {
     const checkUri = async () => {
       if (denom?.uri) {
-        setIsSupported(isUrlSupported(denom.uri));
+        setIsSupported(isUrlSupported(denom?.uri));
         // Simulate a delay to show the loading state
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
@@ -110,7 +110,7 @@ export const DenomImage = ({ denom }: { denom: any }) => {
     <Image
       width={32}
       height={32}
-      src={denom.uri}
+      src={denom?.uri}
       alt="Token Icon"
       onError={() => setImageError(true)}
       className="rounded-full w-[32px] h-[32px]"

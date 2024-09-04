@@ -5,6 +5,49 @@ import { useTx } from '@/hooks/useTx';
 import { osmosis } from '@chalabi/manifestjs';
 import { chainName } from '@/config';
 import { DenomUnit } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { Formik, Form } from 'formik';
+import Yup from '@/utils/yupExtensions';
+import { TextInput, TextArea } from '@/components/react/inputs';
+//TODO: validation doesnt occur on denom unit entries when creating or updating
+const TokenDetailsSchema = Yup.object().shape({
+  subdenom: Yup.string().required('Subdenom is required'),
+  display: Yup.string().required('Display is required').noProfanity(),
+  name: Yup.string().required('Name is required').noProfanity(),
+  symbol: Yup.string().required('Symbol is required').noProfanity(),
+  description: Yup.string()
+    .required('Description is required')
+    .min(10, 'Description must be at least 10 characters long')
+    .noProfanity(),
+  uri: Yup.string().url('Must be a valid URL'),
+  uriHash: Yup.string(),
+  denomUnits: Yup.array()
+    .of(
+      Yup.object().shape({
+        denom: Yup.string().required('Denom is required'),
+        exponent: Yup.number().required('Exponent is required'),
+        aliases: Yup.array().of(Yup.string()),
+      })
+    )
+    .test('valid-denom-units', 'Invalid denom units', function (denomUnits) {
+      if (!denomUnits || denomUnits.length < 2) return false;
+
+      const additionalDenom = denomUnits[1];
+      if (!additionalDenom.denom) {
+        return this.createError({
+          path: 'denomUnits[1].denom',
+          message: 'Additional denom is required',
+        });
+      }
+      if (![6, 9, 12, 18].includes(additionalDenom.exponent || 0)) {
+        return this.createError({
+          path: 'denomUnits[1].exponent',
+          message: 'Exponent must be 6, 9, 12, or 18',
+        });
+      }
+
+      return true;
+    }),
+});
 
 export function UpdateDenomMetadataModal({
   denom,
@@ -99,174 +142,163 @@ export function UpdateDenomMetadataModal({
       <div className="modal-box max-w-4xl">
         <h3 className="font-bold text-lg mb-4">Update Denom Metadata</h3>
         <div className="divider divider-horizon -mt-4 -mb-0 "></div>
-        <form method="dialog">
-          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-        </form>
-        <div className="py-4 space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label htmlFor="display" className="block text-sm font-medium">
-                Display <span className="text-xs text-gray-500">(How it&apos;s shown)</span>
-              </label>
-              <input
-                type="text"
-                id="display"
-                className="input input-bordered w-full mt-1"
-                value={formData.display}
-                onChange={e => updateField('display', e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium">
-                Name <span className="text-xs text-gray-500">(Full name)</span>
-              </label>
-              <input
-                type="text"
-                id="name"
-                className="input input-bordered w-full mt-1"
-                value={formData.name}
-                onChange={e => updateField('name', e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="symbol" className="block text-sm font-medium">
-                Symbol <span className="text-xs text-gray-500">(Short symbol)</span>
-              </label>
-              <input
-                type="text"
-                id="symbol"
-                className="input input-bordered w-full mt-1"
-                value={formData.symbol}
-                onChange={e => updateField('symbol', e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium">
-              Description <span className="text-xs text-gray-500">(Brief description)</span>
-            </label>
-            <textarea
-              id="description"
-              className="textarea textarea-bordered w-full mt-1"
-              rows={2}
-              value={formData.description}
-              onChange={e => updateField('description', e.target.value)}
-              required
-            ></textarea>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label htmlFor="uri" className="block text-sm font-medium">
-                URI <span className="text-xs text-gray-500">(Info/image link)</span>
-              </label>
-              <input
-                type="text"
-                id="uri"
-                className="input input-bordered w-full mt-1"
-                value={formData.uri}
-                onChange={e => updateField('uri', e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="uriHash" className="block text-sm font-medium">
-                URI Hash <span className="text-xs text-gray-500">(If applicable)</span>
-              </label>
-              <input
-                type="text"
-                id="uriHash"
-                className="input input-bordered w-full mt-1"
-                value={formData.uriHash}
-                onChange={e => updateField('uriHash', e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div>
-            <h2 className="text-lg font-semibold mb-2">Denom Units</h2>
-            <div className="space-y-2">
-              <div>
-                <label className="block text-sm font-medium">
-                  Base Denom <span className="text-xs text-gray-500">(Cannot be changed)</span>
-                </label>
-                <input
-                  type="text"
-                  className="input input-bordered w-full mt-1"
-                  value={fullDenom}
-                  disabled
+        <Formik
+          initialValues={formData}
+          validationSchema={TokenDetailsSchema}
+          onSubmit={handleUpdate}
+        >
+          {({ isValid, dirty, setFieldValue }) => (
+            <Form className="py-4 space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <TextInput
+                  label="Display"
+                  name="display"
+                  value={formData.display}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    updateField('display', e.target.value);
+                    setFieldValue('display', e.target.value);
+                  }}
+                />
+                <TextInput
+                  label="Name"
+                  name="name"
+                  value={formData.name}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    updateField('name', e.target.value);
+                    setFieldValue('name', e.target.value);
+                  }}
+                />
+                <TextInput
+                  label="Symbol"
+                  name="symbol"
+                  value={formData.symbol}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    updateField('symbol', e.target.value);
+                    setFieldValue('symbol', e.target.value);
+                  }}
                 />
               </div>
-              <div className="flex space-x-2">
-                <div className="flex-grow">
-                  <label className="block text-sm font-medium">
-                    Additional Denom <span className="text-xs text-gray-500">(Display denom)</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Denom"
-                    className="input input-bordered w-full mt-1"
-                    value={formData.denomUnits[1]?.denom || ''}
-                    onChange={e => updateDenomUnit(1, 'denom', e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium">
-                    Exponent <span className="text-xs text-gray-500">(Decimals)</span>
-                  </label>
-                  <div className="dropdown dropdown-left mt-1 w-full">
-                    <label
-                      tabIndex={0}
-                      className="btn m-0 w-full input input-bordered flex justify-between items-center"
-                    >
-                      {formData.denomUnits[1]?.exponent || 6}
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className="w-4 h-4"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-                        />
-                      </svg>
+
+              <TextArea
+                label="Description"
+                name="description"
+                value={formData.description}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                  updateField('description', e.target.value);
+                  setFieldValue('description', e.target.value);
+                }}
+              />
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <TextInput
+                  label="URI"
+                  name="uri"
+                  value={formData.uri}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    updateField('uri', e.target.value);
+                    setFieldValue('uri', e.target.value);
+                  }}
+                />
+                <TextInput
+                  label="URI Hash"
+                  name="uriHash"
+                  value={formData.uriHash}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    updateField('uriHash', e.target.value);
+                    setFieldValue('uriHash', e.target.value);
+                  }}
+                />
+              </div>
+
+              <div>
+                <h2 className="text-lg font-semibold mb-2">Denom Units</h2>
+                <div className="space-y-2">
+                  <div>
+                    <label className="block text-sm font-medium">
+                      Base Denom <span className="text-xs text-gray-500">(Cannot be changed)</span>
                     </label>
-                    <ul
-                      tabIndex={0}
-                      className="dropdown-content menu p-2 -mt-2 mr-2 shadow bg-base-300 rounded-lg w-full"
-                    >
-                      {[6, 9, 12, 18].map(exp => (
-                        <li key={exp}>
-                          <a onClick={() => updateDenomUnit(1, 'exponent', exp)}>{exp}</a>
-                        </li>
-                      ))}
-                    </ul>
+                    <input
+                      type="text"
+                      className="input input-bordered w-full mt-1"
+                      value={fullDenom}
+                      disabled
+                    />
+                  </div>
+                  <div className="flex space-x-2">
+                    <div className="flex-grow">
+                      <label className="block text-sm font-medium">
+                        Additional Denom{' '}
+                        <span className="text-xs text-gray-500">(Display denom)</span>
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Denom"
+                        className="input input-bordered w-full mt-1"
+                        value={formData.denomUnits[1]?.denom || ''}
+                        onChange={e => updateDenomUnit(1, 'denom', e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium">
+                        Exponent <span className="text-xs text-gray-500">(Decimals)</span>
+                      </label>
+                      <div className="dropdown dropdown-left mt-1 w-full">
+                        <label
+                          tabIndex={0}
+                          className="btn m-0 w-full input input-bordered flex justify-between items-center"
+                        >
+                          {formData.denomUnits[1]?.exponent || 6}
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            className="w-4 h-4"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                            />
+                          </svg>
+                        </label>
+                        <ul
+                          tabIndex={0}
+                          className="dropdown-content menu p-2 -mt-2 mr-2 shadow bg-base-300 rounded-lg w-full"
+                        >
+                          {[6, 9, 12, 18].map(exp => (
+                            <li key={exp}>
+                              <a onClick={() => updateDenomUnit(1, 'exponent', exp)}>{exp}</a>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-        <div className="modal-action">
-          <form method="dialog">
-            <button className="btn btn-neutral mr-2">Cancel</button>
-          </form>
-          <button
-            className="btn btn-primary max-w-[6rem] w-full"
-            onClick={handleUpdate}
-            disabled={isSigning || !isFormValid()}
-          >
-            {isSigning ? <span className="loading loading-spinner"></span> : 'Update'}
-          </button>
-        </div>
+              <div className="modal-action">
+                <form method="dialog">
+                  <button className="btn btn-neutral mr-2">Cancel</button>
+                </form>
+                <button
+                  type="submit"
+                  className="btn btn-primary max-w-[6rem] w-full"
+                  disabled={isSigning || !isValid}
+                  onClick={() => {
+                    if (isFormValid()) {
+                      handleUpdate();
+                    }
+                  }}
+                >
+                  {isSigning ? <span className="loading loading-spinner"></span> : 'Update'}
+                </button>
+              </div>
+            </Form>
+          )}
+        </Formik>
       </div>
     </dialog>
   );

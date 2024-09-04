@@ -3,7 +3,7 @@ import { DenomUnit } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/
 import { Formik, Form, Field } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { TextInput, TextArea } from '@/components/react/inputs';
-
+//TODO: validation doesnt occur on denom unit entries when creating or updating
 const TokenDetailsSchema = Yup.object().shape({
   subdenom: Yup.string().required('Subdenom is required'),
   display: Yup.string().required('Display is required').noProfanity(),
