@@ -80,6 +80,7 @@ module.exports = {
           accent: '#30DB5B',
           'accent-content': '#161616',
           neutral: '#FFFFFF',
+          'button-gradient': 'linear-gradient(to right, #A087FF, #380CC5)',
           'neutral-content': '#161616',
           'base-100': '#FFFFFF',
           'base-200': '#F0F0FF',
@@ -100,6 +101,7 @@ module.exports = {
           'secondary-content': '#FFFFFF',
           accent: '#30DB5B',
           'accent-content': '#FFFFFF',
+          'button-gradient': 'linear-gradient(to right, #A087FF, #380CC5)',
           neutral: '#1D192D',
           'neutral-content': '#FFFFFF',
           'background-color': '#0E0A1F',
@@ -121,5 +123,16 @@ module.exports = {
     require('@tailwindcss/forms'),
     require('tailwind-scrollbar-hide'),
     require('daisyui'),
+    function ({ addUtilities }) {
+      const newUtilities = {
+        '.btn-gradient': {
+          backgroundImage: 'linear-gradient(to right, #A087FF, #380CC5)',
+          '&:hover': {
+            backgroundImage: 'linear-gradient(to right, #8B6EFF, #2F0AA3)',
+          },
+        },
+      };
+      addUtilities(newUtilities, ['responsive', 'hover']);
+    },
   ],
 };

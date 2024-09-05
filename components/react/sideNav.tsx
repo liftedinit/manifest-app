@@ -107,67 +107,87 @@ export default function SideNav() {
     </div>
   );
 
-  const NavDrawer: React.FC<{ Icon: React.ElementType; href: string }> = ({ Icon, href }) => {
+  const NavDrawer: React.FC<{ Icon: React.ElementType; href: string; label: string }> = ({
+    Icon,
+    href,
+    label,
+  }) => {
+    const { pathname } = useRouter();
+    const isActive = pathname === href;
+
     return (
-      <li>
+      <li className="w-full mb-2">
         <Link href={href} legacyBehavior>
-          <div className="flex flex-row cursor-pointer hover:text-primary justify-start gap-4 items-center transition-all duration-300 ease-in-out">
-            <Icon className="w-8 h-8" />
-            <span className="text-2xl">{href.slice(0, 12)}</span>
-          </div>
+          <a
+            className={`flex items-center p-3 rounded-lg transition-all duration-300 ease-in-out text-gray-500 ${isActive ? 'bg-primary text-white' : 'hover:bg-base-200'}`}
+          >
+            <Icon className="w-8 h-8 mr-6" />
+            <span className="text-xl ">{label}</span>
+          </a>
         </Link>
       </li>
     );
   };
 
   const SideDrawer: React.FC = () => (
-    <div
-      id="secondary-sidenav"
-      className="overflow-y-auto relative py-5 px-3 w-64 h-full bg-base-300  border-primary border-r-primary border-r transition-transform duration-300 ease-in-out"
-    >
-      <div className="flex flex-row gap-4 items-center ">
-        <img src={'/logo.svg'} alt="logo" width={42} height={42} />
-        <span className="text-2xl leadin-tight text-balance ">Alberto</span>
+    <div className="flex flex-col h-full bg-base-300 w-64 p-4">
+      <div className="flex flex-row gap-2 justify-start ml-2 mt-2 items-center mb-12 space-x-2">
+        <Image src={'/logo.svg'} alt="logo" width={48} height={48} />
+        <p className="text-2xl font-bold">Alberto</p>
+      </div>
+      <ul className="flex-grow mt-8 p-1">
+        <NavDrawer Icon={PiCoinsThin} href="/bank" label="Bank" />
+        <NavDrawer Icon={PiUsersFourThin} href="/groups" label="Groups" />
+        <NavDrawer Icon={PiChalkboardTeacherThin} href="/admins" label="Admins" />
+        <NavDrawer Icon={PiFactoryThin} href="/factory" label="Factory" />
+      </ul>
+      <div className="mt-auto">
+        <div className="flex items-center justify-between mb-4">
+          <label className="swap swap-rotate">
+            <input
+              type="checkbox"
+              className="theme-controller hidden"
+              value="light"
+              checked={isdark}
+              onChange={() => {
+                setIsdark(!isdark);
+                toggleTheme();
+              }}
+            />
+            <div className="swap-on bg-base-100 rounded-full p-2">
+              <PiMoonThin className="w-6 h-6" />
+            </div>
+            <div className="swap-off bg-base-100 rounded-full p-2">
+              <PiSunThin className="w-6 h-6" />
+            </div>
+          </label>
+        </div>
+        <ul className="pt-5 mt-5 space-y-2 ">
+          <div className="mx-auto w-full justify-center items-center h-full">
+            <WalletSection chainName="manifest" />
+          </div>
+        </ul>
       </div>
 
-      <div className="divider divider-horizon"></div>
-      <ul className="space-y-6 mt-4">
-        <NavDrawer href="bank" Icon={PiCoinsThin} />
-        <NavDrawer href="groups" Icon={PiUsersFourThin} />
-        <NavDrawer href="admins" Icon={PiChalkboardTeacherThin} />
-        <NavDrawer href="factory" Icon={PiFactoryThin} />
-        {/* <NavDrawer label="Governance" /> */}
-      </ul>
-      <div className="divider divider-horizontal"></div>
-      <ul className="pt-5 mt-5 space-y-2 ">
-        <div className="mx-auto w-full justify-center items-center h-full">
-          <WalletSection chainName="manifest" />
-        </div>
-      </ul>
-      <div className="flex absolute right-2 bottom-7 z-20 justify-end w-full ">
-        <button
-          id="show-secondary-sidenav-button"
-          aria-controls="secondary-sidenav"
-          type="button"
-          onClick={toggleDrawer}
-          className="inline-flex p-2  rounded-full cursor-pointer  border border-primary  hover:bg-primary focus:ring-4 focus:ring-secondary  "
+      <button
+        onClick={toggleDrawer}
+        className="absolute top-1/2 transform -translate-y-1/2 -right-4 p-2 rounded-full bg-base-200 hover:bg-primary transition-all duration-300 ease-in-out"
+      >
+        <svg
+          className={`w-5 h-5 transition-all duration-300 ${isDrawerVisible ? '' : 'rotate-180'}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
         >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M15 19l-7-7 7-7"
-            ></path>
-          </svg>
-        </button>
-      </div>
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M15 19l-7-7 7-7"
+          ></path>
+        </svg>
+      </button>
     </div>
   );
 
@@ -175,34 +195,14 @@ export default function SideNav() {
     <>
       <aside
         id="sidebar-double"
-        className={`hidden md:flex fixed top-0 left-0 h-full z-40`}
+        className="hidden md:flex fixed top-0 left-0 h-full z-40"
         aria-label="Sidebar"
       >
-        <button
-          id="hide-secondary-sidenav-button"
-          aria-controls="secondary-sidenav"
-          type="button"
-          onClick={toggleDrawer}
-          className="inline-flex absolute bottom-7 left-28 p-2  cursor-pointer border border-primary rounded-full hover:bg-primary focus:ring-4 focus:ring-secondary z-99 "
-        >
-          <svg
-            className="w-6 h-6"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fillRule="evenodd"
-              d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-              clipRule="evenodd"
-            ></path>
-          </svg>
-        </button>
         <SideNav />
       </aside>
       <aside
         id="sidebar-double"
-        className={`flex z-40 fixed top-0  h-full transform ${
+        className={`flex z-40 fixed top-0 left-0 h-full transform ${
           isDrawerVisible ? 'translate-x-0' : '-translate-x-full'
         } transition-transform duration-300 ease-in-out`}
         aria-label="Sidebar"

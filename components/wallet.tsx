@@ -1,9 +1,10 @@
 import { MouseEventHandler, useMemo } from 'react';
 
 import { ArrowPathIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
-import { PiWalletThin } from 'react-icons/pi';
+import { PiGearSixThin, PiWalletThin } from 'react-icons/pi';
 import { useChain } from '@cosmos-kit/react';
 import { WalletStatus } from 'cosmos-kit';
+import Image from 'next/image';
 
 const buttons = {
   Disconnected: {
@@ -60,12 +61,12 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
     openView();
   };
 
-  const _renderConnectButton = useMemo(() => {
+  const _renderWalletContent = useMemo(() => {
     if (status === WalletStatus.Connecting) {
       return (
-        <button className="rounded-lg w-full bg-purple-damp hover:bg-purple-damp/75 inline-flex justify-center items-center py-1.5 font-medium cursor-wait text-dark-bg-800 dark:text-light-bg-100 text-sm">
+        <button className="btn w-full border-0 btn-gradient animate-pulse text-white">
           <svg
-            className="w-4 h-4 text-dark-bg-800 dark:text-light-bg-100 animate-spin mr-2"
+            className="w-5 h-5 mr-3 animate-spin"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -84,32 +85,54 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
             ></path>
           </svg>
-          Loading...
+          Connecting...
         </button>
       );
     }
 
-    let onClick;
-    if (status === WalletStatus.Disconnected || status === WalletStatus.Rejected)
-      onClick = onClickConnect;
-    else onClick = onClickOpenView;
-
     const buttonData = buttons[status];
+    const onClick =
+      status === WalletStatus.Disconnected || status === WalletStatus.Rejected ? connect : openView;
 
     return (
       <button
-        className="btn btn-primary sm:btn-md md:btn-lg w-full md:w-auto mx-auto"
+        className="btn w-full transition-all border-0 duration-300 ease-in-out  text-white btn-gradient"
         onClick={onClick}
       >
+        <buttonData.icon className="w-5 h-5 mr-2" />
         {buttonData.title}
       </button>
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, connect, openView]);
+  }, [status, connect, openView, username, address]);
 
   return (
-    <div className="w-full ">
-      <div className="w-full ">{_renderConnectButton}</div>
+    <div className="w-full transition-all duration-300 ease-in-out relative">
+      {status === WalletStatus.Connected ? (
+        <div className="bg-[rgba(0,0,0,0.4)] rounded-lg p-4 transition-all duration-300 ease-in-out relative">
+          <div className="absolute bottom-0 right-4 pointer-events-none z-0">
+            <Image
+              src="/flower.svg"
+              alt="Decorative flower"
+              width={280}
+              height={280}
+              className="opacity-50 w-full h-full object-cover"
+            />
+          </div>
+          <div className="relative z-10">
+            <p className="font-medium text-center mb-2">{username || 'Connected User'}</p>
+            <div className="bg-base-300 rounded-full py-2 px-4 text-center mb-4">
+              <p className="text-xs text-gray-500 break-all">
+                {address
+                  ? `${address.slice(0, 20)}...${address.slice(-4)}`
+                  : 'Address not available'}
+              </p>
+            </div>
+            {_renderWalletContent}
+          </div>
+        </div>
+      ) : (
+        <div className="flex p-4 justify-center items-center">{_renderWalletContent}</div>
+      )}
     </div>
   );
 };
