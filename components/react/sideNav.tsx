@@ -2,17 +2,13 @@ import { PiSunThin, PiMoonThin, PiGearSixThin } from 'react-icons/pi';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import {
-  PiUsersFourThin,
-  PiFactoryThin,
-  PiChalkboardTeacherThin,
-  PiCoinsThin,
-} from 'react-icons/pi';
+
 import { useRouter } from 'next/router';
 import { IconWallet, WalletSection } from '../wallet';
 import { useTheme } from '@/contexts/theme';
 import { useAdvancedMode } from '@/contexts';
 import SettingsModal from './settingsModal';
+import { AdminsIcon, BankIcon, FactoryIcon, GroupsIcon } from '@/components/icons';
 
 export default function SideNav() {
   const [isDrawerVisible, setDrawerVisible] = useState(false);
@@ -35,7 +31,10 @@ export default function SideNav() {
 
   const toggleDrawer = () => setDrawerVisible(!isDrawerVisible);
 
-  const NavItem: React.FC<{ Icon: React.ElementType; href: string }> = ({ Icon, href }) => {
+  const NavItem: React.FC<{
+    Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+    href: string;
+  }> = ({ Icon, href }) => {
     const { pathname } = useRouter();
     const isActive = pathname === href;
     const tooltipText = href.split('/')[1] || href;
@@ -43,12 +42,13 @@ export default function SideNav() {
     return (
       <li className="relative group">
         <Link href={href} passHref legacyBehavior>
-          <a className="group active:scale-95 hover:ring-2 hover:ring-primary flex justify-center p-1 items-center mt-8 rounded-lg transition-all duration-300 ease-in-out">
-            <Icon
-              className={`w-8 h-8 transition-all duration-300 ease-in-out ${
-                isActive ? 'text-primary scale-105' : 'hover:text-primary'
-              }`}
-            />
+          <a
+            className={`group active:scale-95 hover:ring-2 hover:ring-primary flex justify-center p-1 items-center mt-8 rounded-lg transition-all duration-300 ease-in-out
+            ${isActive ? 'text-primary' : 'text-gray-500 hover:text-primary'}`}
+          >
+            <div className="w-8 h-8 transition-all duration-300 ease-in-out">
+              <Icon className="w-full h-full" />
+            </div>
             <span className="tooltip fixed z-[9999] left-[4.55rem] px-3 py-2 bg-primary text-white text-sm font-medium rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-in-out whitespace-nowrap">
               {tooltipText}
             </span>
@@ -72,11 +72,10 @@ export default function SideNav() {
         </a>
       </Link>
       <ul className=" mt-20 mx-auto items-center">
-        <NavItem Icon={PiCoinsThin} href="/bank" />
-        <NavItem Icon={PiUsersFourThin} href="/groups" />
-        <NavItem Icon={PiChalkboardTeacherThin} href="/admins" />
-        <NavItem Icon={PiFactoryThin} href="/factory" />
-        {/* <NavItem Icon={PiBankThin} href="/governance" /> */}
+        <NavItem Icon={BankIcon} href="/bank" />
+        <NavItem Icon={GroupsIcon} href="/groups" />
+        <NavItem Icon={AdminsIcon} href="/admins" />
+        <NavItem Icon={FactoryIcon} href="/factory" />
       </ul>
       <div className="bottom-6 justify-center absolute space-y-4 p-3 mx-auto items-center">
         <div className="w-full mx-auto flex flex-col items-center justify-center">
@@ -107,22 +106,26 @@ export default function SideNav() {
     </div>
   );
 
-  const NavDrawer: React.FC<{ Icon: React.ElementType; href: string; label: string }> = ({
-    Icon,
-    href,
-    label,
-  }) => {
+  const NavDrawer: React.FC<{
+    Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+    href: string;
+    label: string;
+  }> = ({ Icon, href, label }) => {
     const { pathname } = useRouter();
     const isActive = pathname === href;
 
     return (
-      <li className="w-full mb-2">
+      <li className="w-full mb-5">
         <Link href={href} legacyBehavior>
           <a
-            className={`flex items-center p-3 rounded-lg transition-all duration-300 ease-in-out text-gray-500 ${isActive ? 'bg-primary text-white' : 'hover:bg-base-200'}`}
+            className={`flex items-center p-2 text-base font-normal rounded-lg transition duration-300 ease-in-out ${
+              isActive
+                ? 'bg-primary text-white'
+                : 'text-gray-500 hover:bg-base-200 hover:text-primary'
+            }`}
           >
             <Icon className="w-8 h-8 mr-6" />
-            <span className="text-xl ">{label}</span>
+            <span className="text-xl">{label}</span>
           </a>
         </Link>
       </li>
@@ -136,10 +139,10 @@ export default function SideNav() {
         <p className="text-2xl font-bold">Alberto</p>
       </div>
       <ul className="flex-grow mt-8 p-1">
-        <NavDrawer Icon={PiCoinsThin} href="/bank" label="Bank" />
-        <NavDrawer Icon={PiUsersFourThin} href="/groups" label="Groups" />
-        <NavDrawer Icon={PiChalkboardTeacherThin} href="/admins" label="Admins" />
-        <NavDrawer Icon={PiFactoryThin} href="/factory" label="Factory" />
+        <NavDrawer Icon={BankIcon} href="/bank" label="Bank" />
+        <NavDrawer Icon={GroupsIcon} href="/groups" label="Groups" />
+        <NavDrawer Icon={AdminsIcon} href="/admins" label="Admins" />
+        <NavDrawer Icon={FactoryIcon} href="/factory" label="Factory" />
       </ul>
       <div className="mt-auto">
         <div className="flex items-center justify-between mb-4">

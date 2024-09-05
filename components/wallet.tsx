@@ -109,23 +109,41 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
     <div className="w-full transition-all duration-300 ease-in-out relative">
       {status === WalletStatus.Connected ? (
         <div className="bg-[rgba(0,0,0,0.4)] rounded-lg p-4 transition-all duration-300 ease-in-out relative">
-          <div className="absolute bottom-0 right-4 pointer-events-none z-0">
+          <div className="absolute bottom-0 right-0 rounded-lg pointer-events-none">
             <Image
               src="/flower.svg"
               alt="Decorative flower"
-              width={280}
-              height={280}
-              className="opacity-50 w-full h-full object-cover"
+              width={400}
+              height={400}
+              className="opacity-50 w-full h-full object-contain rounded-lg overflow-hidden"
             />
           </div>
           <div className="relative z-10">
             <p className="font-medium text-center mb-2">{username || 'Connected User'}</p>
-            <div className="bg-base-300 rounded-full py-2 px-4 text-center mb-4">
-              <p className="text-xs text-gray-500 break-all">
+            <div className="bg-base-300 rounded-full py-2 px-4 text-center mb-4 flex items-center justify-between w-full">
+              <p className="text-xs text-gray-500 truncate flex-grow">
                 {address
                   ? `${address.slice(0, 20)}...${address.slice(-4)}`
                   : 'Address not available'}
               </p>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(address || '');
+                  const button = document.getElementById('copyButton');
+                  if (button) {
+                    button.innerHTML = '✓';
+                    button.classList.add('text-green-500');
+                    setTimeout(() => {
+                      button.innerHTML = '📋';
+                      button.classList.remove('text-green-500');
+                    }, 2000);
+                  }
+                }}
+                className="ml-2 focus:outline-none"
+                id="copyButton"
+              >
+                📋
+              </button>
             </div>
             {_renderWalletContent}
           </div>
