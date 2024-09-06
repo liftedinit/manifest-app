@@ -6,10 +6,10 @@ const ProfileAvatar = ({ walletAddress, size }: { walletAddress: string; size?: 
   const [avatarSrc, setAvatarSrc] = useState('');
 
   const colors: [number, number, number, number][] = [
-    [41, 223, 212, 255],
-    [171, 119, 129, 255],
-    [221, 156, 128, 255],
-    [106, 168, 160, 255],
+    [56, 12, 197, 255],
+    [160, 135, 255, 255],
+    [88, 218, 210, 255],
+    [225, 225, 249, 255],
   ];
 
   useEffect(() => {
@@ -20,7 +20,7 @@ const ProfileAvatar = ({ walletAddress, size }: { walletAddress: string; size?: 
 
       const options: IdenticonOptions = {
         foreground: colors[colorIndex],
-        background: [70, 70, 70, 255],
+        background: [22, 22, 22, 255],
         margin: 0.21,
         size: size ?? 700,
         format: 'svg',

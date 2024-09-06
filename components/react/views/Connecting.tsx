@@ -21,16 +21,22 @@ export const Connecting = ({
 }) => {
   return (
     <div className="mt-3 text-center sm:mt-1.5">
-      <div className="flex flex-row items-center justify-between">
-        <button type="button" className="p-2 " onClick={onReturn}>
-          <span className="sr-only">Return</span>
+      <div className="flex justify-between items-center mb-2">
+        <button
+          type="button"
+          className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+          onClick={onReturn}
+        >
           <ChevronLeftIcon className="w-5 h-5" aria-hidden="true" />
         </button>
-        <Dialog.Title as="h3" className="font-medium leading-6 text-center w">
+        <Dialog.Title as="h3" className="text-lg font-semibold">
           {name}
         </Dialog.Title>
-        <button type="button" className="btn-sm btn btn-secondary rounded-full " onClick={onClose}>
-          <span className="sr-only">Close</span>
+        <button
+          type="button"
+          className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+          onClick={onClose}
+        >
           <XMarkIcon className="w-5 h-5" aria-hidden="true" />
         </button>
       </div>

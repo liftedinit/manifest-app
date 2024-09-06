@@ -1,6 +1,6 @@
 import '../styles/globals.css';
 import '@interchain-ui/react/styles';
-import '@fontsource/rubik';
+import '@fontsource/manrope';
 
 import type { AppProps } from 'next/app';
 import { createPortal } from 'react-dom';
@@ -179,7 +179,6 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
     // <AblyProvider client={ablyClient}>
 
     <QueryClientProvider client={client}>
-      <ReactQueryDevtools />
       {isLoading ? (
         <div className="fixed inset-0 flex flex-col items-center justify-center bg-base-200 bg-opacity-75 z-50">
           <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-primary mb-4"></div>

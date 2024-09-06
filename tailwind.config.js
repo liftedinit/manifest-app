@@ -20,6 +20,7 @@ module.exports = {
         fadeSlideDown: 'fadeSlideDown 400ms ease-out forwards',
         slideFadeInLeft: 'slideFadeInLeft 400ms ease-in',
         slideFadeOutRight: 'slideFadeOutRight 400ms ease-out',
+        slideThumb: 'slideThumb 300ms ease-in-out',
       },
       keyframes: {
         fadeIn: {
@@ -36,6 +37,10 @@ module.exports = {
           '75%': { transform: 'translateY(0%)', opacity: 0.5 },
           '100%': { transform: 'translateY(0%)', opacity: 1 },
         },
+        slideThumb: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(calc(100% + 0.5rem))' },
+        },
         fadeSlideDown: {
           '0%': { transform: 'translateY(-100%)', opacity: 0 },
           '100%': { transform: 'translateY(0)', opacity: 1 },
@@ -51,8 +56,8 @@ module.exports = {
       },
 
       fontFamily: {
-        sans: ['Rubik', 'sans-serif'],
-        body: ['Rubik', 'sans-serif'],
+        sans: ['Manrope', 'sans-serif'],
+        body: ['Manrope', 'sans-serif'],
       },
     },
   },
@@ -73,6 +78,7 @@ module.exports = {
     themes: [
       {
         light: {
+          'wallet-background': '#1c1c1c1a',
           primary: '#A287FF',
           'primary-content': '#161616',
           secondary: '#F0F0FF',
@@ -88,13 +94,14 @@ module.exports = {
           'base-content': '#161616',
           'background-color': '#F0F0FF',
           info: '#3B82F6',
-          success: '#30DB5B',
+          success: '#00D515',
           warning: '#FBBD23',
-          error: '#F54582',
+          error: '#F54562',
         },
       },
       {
         dark: {
+          'wallet-background': '#dcdcdc15',
           primary: '#A287FF',
           'primary-content': '#FFFFFF',
           secondary: '#1D192D',
@@ -110,9 +117,9 @@ module.exports = {
           'base-300': '#2A2640',
           'base-content': '#FFFFFF',
           info: '#3B82F6',
-          success: '#30DB5B',
+          success: '#00D515',
           warning: '#FBBD23',
-          error: '#F54582',
+          error: '#F54562',
         },
       },
     ],

@@ -18,27 +18,22 @@ export const QRCode = ({
 }) => {
   return (
     <div className="mt-3 text-center sm:mt-1.5 sm:text-left">
-      <div className="flex flex-row items-center justify-between">
+      <div className="flex justify-between items-center mb-2">
         <button
           type="button"
-          className="p-2 text-black bg-white rounded-full hover:bg-gray-200 dark:text-white dark:bg-dark-bg-100 dark:hover:bg-white/10"
+          className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
           onClick={onReturn}
         >
-          <span className="sr-only">Return</span>
           <ChevronLeftIcon className="w-5 h-5" aria-hidden="true" />
         </button>
-        <Dialog.Title
-          as="h3"
-          className="font-medium leading-6 text-center text-gray-900 dark:text-white"
-        >
+        <Dialog.Title as="h3" className="text-lg font-semibold">
           {name}
         </Dialog.Title>
         <button
           type="button"
-          className="p-2 text-black bg-white rounded-full hover:bg-gray-200 dark:text-white dark:bg-dark-bg-100 dark:hover:bg-white/10"
+          className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
           onClick={onClose}
         >
-          <span className="sr-only">Close</span>
           <XMarkIcon className="w-5 h-5" aria-hidden="true" />
         </button>
       </div>

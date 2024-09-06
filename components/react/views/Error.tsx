@@ -22,10 +22,9 @@ export const Error = ({
       <div className="flex flex-row items-center justify-between">
         <button
           type="button"
-          className="p-2 text-black bg-white rounded-full hover:bg-gray-200 dark:text-white dark:bg-dark-bg-100 dark:hover:bg-white/10"
+          className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
           onClick={onReturn}
         >
-          <span className="sr-only">Return</span>
           <ChevronLeftIcon className="w-5 h-5" aria-hidden="true" />
         </button>
         <Dialog.Title
@@ -36,10 +35,9 @@ export const Error = ({
         </Dialog.Title>
         <button
           type="button"
-          className="p-2 text-black bg-white rounded-full hover:bg-gray-200 dark:text-white dark:bg-dark-bg-100 dark:hover:bg-white/10"
+          className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
           onClick={onClose}
         >
-          <span className="sr-only">Close</span>
           <XMarkIcon className="w-5 h-5" aria-hidden="true" />
         </button>
       </div>
@@ -58,7 +56,7 @@ export const Error = ({
           You may attempt to reconnect to your {currentWalletName} wallet{' '}
         </p>
         <button
-          className="rounded-lg w-[180px]  inline-flex justify-center items-center py-2.5 font-medium mt-4 bg-mint mx-auto text-black dark:text-white"
+          className="rounded-lg w-[180px] btn btn-error  inline-flex justify-center items-center py-2.5 font-medium mt-4 bg-mint mx-auto text-black dark:text-white"
           onClick={onReconnect}
         >
           <ArrowPathIcon className="flex-shrink-0 w-5 h-5 mr-2 text-black dark:text-white" />

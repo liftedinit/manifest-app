@@ -1,18 +1,19 @@
-import { MouseEventHandler, useMemo } from 'react';
+import { MouseEventHandler, useMemo, useState } from 'react';
 
 import { ArrowPathIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
-import { PiGearSixThin, PiWalletThin } from 'react-icons/pi';
+import { ArrowUpIcon } from './icons';
 import { useChain } from '@cosmos-kit/react';
 import { WalletStatus } from 'cosmos-kit';
 import Image from 'next/image';
-
+import { CopyIcon } from './icons';
+import { MdWallet } from 'react-icons/md';
 const buttons = {
   Disconnected: {
-    icon: PiWalletThin,
+    icon: MdWallet,
     title: 'Connect Wallet',
   },
   Connected: {
-    icon: PiWalletThin,
+    icon: MdWallet,
     title: 'My Wallet',
   },
   Rejected: {
@@ -34,32 +35,7 @@ interface WalletSectionProps {
 }
 
 export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
-  const {
-    connect,
-    openView,
-    status,
-    username,
-    address,
-    chain: chainInfo,
-    logoUrl,
-  } = useChain(chainName);
-
-  const chain = {
-    chainName,
-    label: chainInfo.pretty_name,
-    value: chainName,
-    icon: logoUrl,
-  };
-
-  const onClickConnect: MouseEventHandler = async e => {
-    e.preventDefault();
-    await connect();
-  };
-
-  const onClickOpenView: MouseEventHandler = e => {
-    e.preventDefault();
-    openView();
-  };
+  const { connect, openView, status, username, address } = useChain(chainName);
 
   const _renderWalletContent = useMemo(() => {
     if (status === WalletStatus.Connecting) {
@@ -108,72 +84,74 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
   return (
     <div className="w-full transition-all duration-300 ease-in-out relative">
       {status === WalletStatus.Connected ? (
-        <div className="bg-[rgba(0,0,0,0.4)] rounded-lg p-4 transition-all duration-300 ease-in-out relative">
-          <div className="absolute bottom-0 right-0 rounded-lg pointer-events-none">
-            <Image
-              src="/flower.svg"
-              alt="Decorative flower"
-              width={400}
-              height={400}
-              className="opacity-50 w-full h-full object-contain rounded-lg overflow-hidden"
-            />
-          </div>
-          <div className="relative z-10">
-            <p className="font-medium text-center mb-2">{username || 'Connected User'}</p>
-            <div className="bg-base-300 rounded-full py-2 px-4 text-center mb-4 flex items-center justify-between w-full">
-              <p className="text-xs text-gray-500 truncate flex-grow">
+        <div
+          className="bg-base-200 rounded-lg p-4 transition-all duration-300 ease-in-out relative h-48"
+          style={{
+            backgroundImage: 'url("/flower.svg")',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+          }}
+        >
+          <div className="relative z-10 h-full flex flex-col  justify-between">
+            <p className="font-medium text-xl text-center mb-2">{username || 'Connected User'}</p>
+            <div className="bg-base-300 rounded-full py-2 px-4 text-center mb-4 flex items-center flex-row justify-between w-full ">
+              <p className="text-xs  truncate flex-grow">
                 {address
-                  ? `${address.slice(0, 20)}...${address.slice(-4)}`
+                  ? `${address.slice(0, 12)}...${address.slice(-6)}`
                   : 'Address not available'}
               </p>
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(address || '');
-                  const button = document.getElementById('copyButton');
+                  const button = document.getElementById('copyButton2');
                   if (button) {
-                    button.innerHTML = '✓';
-                    button.classList.add('text-green-500');
+                    const originalContent = button.innerHTML;
+                    button.innerHTML =
+                      '<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-primary" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" /><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>';
                     setTimeout(() => {
-                      button.innerHTML = '📋';
-                      button.classList.remove('text-green-500');
+                      button.innerHTML = originalContent;
                     }, 2000);
                   }
                 }}
-                className="ml-2 focus:outline-none"
-                id="copyButton"
+                style={{
+                  height: ' 1rem',
+                  minHeight: '1rem',
+                  paddingLeft: '0.25rem',
+                  paddingRight: '0.25rem',
+                  fontSize: '0.37rem',
+                  backgroundColor: 'transparent',
+                }}
+                className=" btn btn-ghost -mt-1 focus:outline-none transition-colors duration-200"
+                id="copyButton2"
               >
-                📋
+                <CopyIcon className="w-4 h-4  hover:text-primary" />
               </button>
             </div>
             {_renderWalletContent}
           </div>
         </div>
       ) : (
-        <div className="flex p-4 justify-center items-center">{_renderWalletContent}</div>
+        <div className="flex justify-center items-center">{_renderWalletContent}</div>
       )}
     </div>
   );
 };
 
 export const IconWallet: React.FC<WalletSectionProps> = ({ chainName }) => {
-  const { connect, openView, status } = useChain(chainName);
+  const { connect, openView, status, address } = useChain(chainName);
 
   const onClickConnect: MouseEventHandler = async e => {
     e.preventDefault();
     await connect();
   };
 
-  const onClickOpenView: MouseEventHandler = e => {
-    e.preventDefault();
-    openView();
-  };
-
   const _renderConnectButton = useMemo(() => {
     if (status === WalletStatus.Connecting) {
       return (
-        <button className="rounded-lg w-8 h-8 justify-center items-center mx-auto  font-medium cursor-wait  text-sm">
+        <button className="flex justify-center items-center w-8 h-8">
           <svg
-            className="w-8 h-8 text-primary justify-center items-center animate-spin mx-auto"
+            className="w-8 h-8 text-primary animate-spin"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -199,24 +177,56 @@ export const IconWallet: React.FC<WalletSectionProps> = ({ chainName }) => {
     let onClick;
     if (status === WalletStatus.Disconnected || status === WalletStatus.Rejected)
       onClick = onClickConnect;
-    else onClick = onClickOpenView;
+    else onClick = openView;
 
     const buttonData = buttons[status];
 
     return (
-      <button
-        className="rounded-lg mx-auto  hover:ring-2 hover:ring-primary hover:text-primary   justify-center items-center  font-medium  text-sm"
-        onClick={onClick}
-      >
-        <buttonData.icon className=" w-8 h-8 transition-all duration-200 ease-in-out  " />
-      </button>
+      <div className="relative group">
+        <button
+          onClick={
+            status === WalletStatus.Disconnected || status === WalletStatus.Rejected
+              ? onClick
+              : () => {}
+          }
+          className={`flex justify-center items-center w-8 h-8 hover:text-primary transition-all duration-200 ease-in-out  ${status === WalletStatus.Disconnected || status === WalletStatus.Rejected ? 'cursor-pointer' : 'cursor-default'}`}
+        >
+          <buttonData.icon className="w-8 h-8" />
+        </button>
+        {status === WalletStatus.Connected && (
+          <div className="absolute -top-4 -right-8 mt-[-0.5rem] mr-[-0.5rem] bg-base-100 rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-out">
+            <button
+              className="p-2 hover:text-primary rounded-t-md w-full flex justify-center items-center"
+              id="copyButton"
+              onClick={() => {
+                navigator.clipboard.writeText(address || '');
+                const button = document.getElementById('copyButton');
+                if (button) {
+                  const originalContent = button.innerHTML;
+                  button.innerHTML =
+                    '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-primary" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" /><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>';
+                  setTimeout(() => {
+                    button.innerHTML = originalContent;
+                  }, 2000);
+                }
+              }}
+            >
+              <CopyIcon className="w-5 h-5" />
+            </button>
+            <button
+              className="p-2 hover:text-primary rounded-b-md w-full flex justify-center items-center"
+              onClick={e => {
+                e.stopPropagation();
+                openView();
+              }}
+            >
+              <ArrowUpIcon className="w-5 h-5" />
+            </button>
+          </div>
+        )}
+      </div>
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, connect, openView]);
+  }, [status, connect, openView, address]);
 
-  return (
-    <div className="w-full mx-auto flex items-center justify-center">
-      <div className="w-full mx-auto">{_renderConnectButton}</div>
-    </div>
-  );
+  return _renderConnectButton;
 };
