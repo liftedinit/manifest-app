@@ -67,7 +67,7 @@ export const Connected = ({
           <p className="text-xl font-semibold">{username || 'Anonymous'}</p>
           <div className="flex items-center">
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              {truncateString(address || '', 18)}
+              {truncateString(address || '', 12)}
             </p>
             <button
               onClick={copyAddress}

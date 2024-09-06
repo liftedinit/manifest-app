@@ -196,7 +196,7 @@ export default function SideNav() {
       </aside>
       <button
         onClick={toggleDrawer}
-        className={`fixed top-1/2 transform -translate-y-1/2 z-50 p-2 rounded-full bg-base-200 hover:bg-primary transition-all duration-500 ease-in-out ${
+        className={`fixed top-1/2 transform -translate-y-1/2 z-50 p-2 rounded-full dark:bg-base-200 bg-base-100 hover:bg-primary dark:hover:bg-primary transition-all duration-500 ease-in-out ${
           isDrawerVisible ? 'left-60' : 'left-28'
         }`}
       >
