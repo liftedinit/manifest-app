@@ -59,7 +59,7 @@ export default function SideNav() {
   };
 
   const SideNav: React.FC = () => (
-    <div className="overflow-y-auto z-30 py-5 px-3 w-32 bg-[#ffffff3b] dark:bg-[#ffffff10] flex flex-col items-center h-full transition-transform duration-300 ease-in-out">
+    <div className="overflow-y-auto z-30 py-5 px-3 w-32 bg-[#FFFFFF3D] dark:bg-[#FFFFFF0F] flex flex-col items-center h-full transition-transform duration-300 ease-in-out">
       <Link href={'/#'} passHref legacyBehavior>
         <a href="#" className="mb-12">
           <Image src={'/logo.svg'} className="h-16 w-16" alt="Logo" height={264} width={264} />

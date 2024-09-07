@@ -33,7 +33,7 @@ import {
   cosmosProtoRegistry,
 } from '@chalabi/manifestjs';
 import { ToastProvider } from '@/contexts';
-
+import { useTheme } from '@/contexts/theme';
 import MobileNav from '@/components/react/mobileNav';
 import EndpointSelector from '@/components/react/endpointSelector';
 
@@ -93,7 +93,7 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
 
   // tanstack query client
   const client = new QueryClient();
-
+  const { theme } = useTheme();
   // web3auth helpers for cosmoskit
   const [web3AuthPrompt, setWeb3AuthPrompt] = useState<
     | {
@@ -114,7 +114,7 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
           {
             provider: 'twitter',
             name: 'Twitter',
-            logo: 'https://upload.wikimedia.org/wikipedia/commons/5/57/X_logo_2023_%28white%29.png',
+            logo: '/x.svg',
           },
           {
             provider: 'github',
@@ -124,7 +124,7 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
           {
             provider: 'apple',
             name: 'Apple',
-            logo: '/appleBlack.svg',
+            logo: '/apple.svg',
           },
           {
             provider: 'discord',
@@ -149,7 +149,7 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
             })
           ),
       }),
-    []
+    [theme]
   );
 
   // combine the web3auth wallets with the other wallets
@@ -181,8 +181,8 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
     <QueryClientProvider client={client}>
       <ReactQueryDevtools />
       {isLoading ? (
-        <div className="fixed inset-0 flex flex-col items-center justify-center bg-base-200 bg-opacity-75 z-50">
-          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-primary mb-4"></div>
+        <div className="fixed inset-0 flex flex-col items-center justify-center  z-50">
+          <div className="loading w-[8rem] loading-ring text-primary mb-4"></div>
           <p className="text-xl font-semibold">Swapping endpoints...</p>
         </div>
       ) : (

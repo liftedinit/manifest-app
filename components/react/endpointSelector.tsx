@@ -115,7 +115,10 @@ function SSREndpointSelector() {
 
   return (
     <div className={`absolute top-2 right-2 dropdown dropdown-bottom dropdown-end `}>
-      <label tabIndex={0} className="btn  btn-primary m-1 flex items-center justify-between">
+      <label
+        tabIndex={0}
+        className="btn  btn-primary m-1 flex text-white items-center justify-between"
+      >
         <div className="flex items-center">
           <div
             className={`w-3 h-3 rounded-full mr-2 ${

@@ -60,7 +60,11 @@ export const WalletList = ({
             onClick={() => onWalletClicked(name)}
             className="flex items-center justify-center p-4 dark:bg-[#ffffff0c] bg-[#f0f0ff5c] dark:hover:bg-[#0000004c] hover:bg-[#a8a8a84c] rounded-lg transition"
           >
-            <img src={logo?.toString()} alt={prettyName} className="w-6 h-6" />
+            <img
+              src={logo?.toString()}
+              alt={prettyName}
+              className={`${prettyName === 'Twitter' || prettyName === 'Apple' ? 'w-7 h-7' : 'w-6 h-6'} rounded-md`}
+            />
           </button>
         ))}
       </div>

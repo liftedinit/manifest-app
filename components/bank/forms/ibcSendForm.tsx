@@ -9,6 +9,8 @@ import { DenomImage } from '@/components/factory';
 import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { TextInput } from '@/components/react/inputs';
+import { IbcChain } from '../components/sendBox';
+import Image from 'next/image';
 
 export default function IbcSendForm({
   address,
@@ -16,12 +18,22 @@ export default function IbcSendForm({
   balances,
   isBalancesLoading,
   refetchBalances,
+  isIbcTransfer,
+  setIsIbcTransfer,
+  ibcChains,
+  selectedChain,
+  setSelectedChain,
 }: Readonly<{
   address: string;
   destinationChain: string;
   balances: CombinedBalanceInfo[];
   isBalancesLoading: boolean;
   refetchBalances: () => void;
+  isIbcTransfer: boolean;
+  setIsIbcTransfer: (isIbcTransfer: boolean) => void;
+  ibcChains: IbcChain[];
+  selectedChain: string;
+  setSelectedChain: (selectedChain: string) => void;
 }>) {
   const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -107,7 +119,7 @@ export default function IbcSendForm({
   };
 
   return (
-    <div className="text-sm">
+    <div className="text-sm rounded-2xl bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] p-6 w-full h-full">
       <Formik
         initialValues={{
           recipient: '',
@@ -119,6 +131,44 @@ export default function IbcSendForm({
       >
         {({ isValid, dirty, setFieldValue, values }) => (
           <Form className="space-y-4">
+            <div className="relative  w-full h-10">
+              <div
+                className={`dropdown dropdown-end w-full   ${isIbcTransfer ? 'block' : 'hidden'}`}
+              >
+                <label
+                  tabIndex={0}
+                  className="btn m-1 btn-neutral w-full justify-between border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A]"
+                >
+                  <span>
+                    {ibcChains.find(chain => chain.id === selectedChain)?.name ?? 'Chain'}
+                  </span>
+                  <PiCaretDownBold />
+                </label>
+                <ul
+                  tabIndex={0}
+                  className="dropdown-content z-[100] menu p-2 shadow bg-base-300 rounded-lg w-full"
+                >
+                  {ibcChains.map(chain => (
+                    <li key={chain.id}>
+                      <a
+                        onClick={() => setSelectedChain(chain.id)}
+                        className="flex items-center"
+                        aria-label={chain.name}
+                      >
+                        <Image
+                          src={chain.icon}
+                          alt={chain.name}
+                          width={24}
+                          height={24}
+                          className="mr-2"
+                        />
+                        {chain.name}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
             <div>
               <label className="label">
                 <span className="label-text text-sm font-medium">Token</span>
@@ -185,7 +235,7 @@ export default function IbcSendForm({
             </div>
 
             <TextInput
-              label="Recipient"
+              label="Send To"
               name="recipient"
               placeholder="Recipient address"
               value={values.recipient}

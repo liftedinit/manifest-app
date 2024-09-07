@@ -134,7 +134,7 @@ export default function Bank() {
             </h3>
           </div>
         </div>
-        <div className="mt-6 p-4 gap-4 flex flex-col lg:flex-row rounded-md bg-base-300 shadow-lg transition-opacity duration-300 ease-in-out animate-fadeIn">
+        <div className="mt-6 p-4 gap-4 flex flex-col lg:flex-row rounded-md   transition-opacity duration-300 ease-in-out animate-fadeIn">
           {!isWalletConnected ? (
             <section className="transition-opacity duration-300 ease-in-out animate-fadeIn w-full">
               <div className="grid max-w-screen-xl bg-base-100 p-12 rounded-md w-full mx-auto gap-8 lg:grid-cols-12">
