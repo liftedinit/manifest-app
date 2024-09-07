@@ -1,6 +1,6 @@
-import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
-import { FormData } from "@/helpers";
-import Link from "next/link";
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import { FormData } from '@/helpers';
+import Link from 'next/link';
 
 export default function Success({
   formData,
@@ -10,14 +10,14 @@ export default function Success({
   prevStep: () => void;
 }>) {
   const renderAuthors = () => {
-    if (formData.authors.startsWith("manifest")) {
+    if (formData.authors.startsWith('manifest')) {
       return <TruncatedAddressWithCopy address={formData.authors} slice={14} />;
-    } else if (formData.authors.includes(",")) {
+    } else if (formData.authors.includes(',')) {
       return (
         <div className="flex flex-wrap gap-2">
-          {formData.authors.split(",").map((author, index) => (
+          {formData.authors.split(',').map((author, index) => (
             <div key={index}>
-              {author.trim().startsWith("manifest") ? (
+              {author.trim().startsWith('manifest') ? (
                 <TruncatedAddressWithCopy address={author.trim()} slice={14} />
               ) : (
                 <span>{author.trim()}</span>
@@ -39,15 +39,15 @@ export default function Success({
           Your transaction was successfully signed and broadcasted.
         </p>
         <p className="text-md text-gray-300 mb-6 text-pretty">
-          You may now interact with your group by adding members, submitting or
-          voting on proposals, and changing group parameters.
+          You may now interact with your group by adding members, submitting or voting on proposals,
+          and changing group parameters.
         </p>
         {/*
           TODO: Verify the render is correct.
                 I changed the <p> to a <div> here because <div> (in TruncatedAddressWithCopy) cannot be a descendant of <p>
         */}
         <div className="text-md text-gray-300 mb-6 text-pretty">
-          Remember to fund your group by sending tokens to the policy address{" "}
+          Remember to fund your group by sending tokens to the policy address{' '}
           <span>
             <TruncatedAddressWithCopy address="address" slice={24} />
           </span>
@@ -80,26 +80,20 @@ export default function Success({
               <p className="text-lg font-medium">{formData.forumLink}</p>
             </div>
             <div>
-              <h3 className="text-md font-light text-gray-400">
-                VOTING PERIOD
-              </h3>
+              <h3 className="text-md font-light text-gray-400">VOTING PERIOD</h3>
               <p className="text-lg font-medium">
                 {formData.votingPeriod.seconds.toString()} seconds
               </p>
             </div>
             <div>
-              <h3 className="text-md font-light text-gray-400">
-                VOTING THRESHOLD
-              </h3>
+              <h3 className="text-md font-light text-gray-400">VOTING THRESHOLD</h3>
               <p className="text-lg font-medium">{formData.votingThreshold}</p>
             </div>
           </div>
           <div className="mt-6">
             <div className=" w-full   justify-between items-center">
-              <Link href={"/groups"} legacyBehavior>
-                <button className="btn btn-md btn-secondary w-full">
-                  Back to Groups Page
-                </button>
+              <Link href={'/groups'} legacyBehavior>
+                <button className="btn btn-md btn-secondary w-full">Back to Groups Page</button>
               </Link>
             </div>
           </div>

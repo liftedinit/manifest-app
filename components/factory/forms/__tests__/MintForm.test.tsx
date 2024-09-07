@@ -1,65 +1,93 @@
-import { describe, test, afterEach, expect, jest } from "bun:test";
-import React from "react";
-import { screen, fireEvent, cleanup } from "@testing-library/react";
-import MintForm from "@/components/factory/forms/MintForm";
-import matchers from "@testing-library/jest-dom/matchers";
-import { renderWithChainProvider } from "@/tests/render";
-import { mockDenomMeta1 } from "@/tests/mock";
+import { describe, test, afterEach, expect, jest } from 'bun:test';
+import React from 'react';
+import { screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
+import MintForm from '@/components/factory/forms/MintForm';
+import matchers from '@testing-library/jest-dom/matchers';
+import { renderWithChainProvider } from '@/tests/render';
+import { mockDenomMeta1, mockMfxDenom } from '@/tests/mock';
 
 expect.extend(matchers);
 
 const mockProps = {
   isAdmin: true,
-  admin: "cosmos1adminaddress",
+  admin: 'cosmos1adminaddress',
   denom: mockDenomMeta1,
-  address: "cosmos1address",
+  address: 'cosmos1address',
   refetch: jest.fn(),
-  balance: "1000000",
+  balance: '1000000',
 };
 
-describe("MintForm Component", () => {
+function renderWithProps(props = {}) {
+  return renderWithChainProvider(<MintForm {...mockProps} {...props} />);
+}
+
+describe('MintForm Component', () => {
   afterEach(cleanup);
 
-  test("renders form with correct details", () => {
-    renderWithChainProvider(<MintForm {...mockProps} />);
-    expect(screen.getByText("NAME")).toBeInTheDocument();
-    expect(screen.getByText("YOUR BALANCE")).toBeInTheDocument();
-    expect(screen.getByText("EXPONENT")).toBeInTheDocument();
-    expect(screen.getByText("CIRCULATING SUPPLY")).toBeInTheDocument();
+  test('renders form with correct details', () => {
+    renderWithProps();
+    expect(screen.getByText('NAME')).toBeInTheDocument();
+    expect(screen.getByText('YOUR BALANCE')).toBeInTheDocument();
+    expect(screen.getByText('EXPONENT')).toBeInTheDocument();
+    expect(screen.getByText('CIRCULATING SUPPLY')).toBeInTheDocument();
   });
 
-  test("updates amount input correctly", () => {
-    renderWithChainProvider(<MintForm {...mockProps} />);
-    const amountInput = screen.getByLabelText("mint-amount-input");
-    fireEvent.change(amountInput, { target: { value: "100" } });
-    expect(amountInput).toHaveValue("100");
-  });
-
-  test("updates recipient input correctly", () => {
-    renderWithChainProvider(<MintForm {...mockProps} />);
-    const recipientInput = screen.getByLabelText("mint-recipient-input");
-    fireEvent.change(recipientInput, { target: { value: "cosmos1recipient" } });
-    expect(recipientInput).toHaveValue("cosmos1recipient");
-  });
-
-  // TODO: Button is disabled when inputs are invalid
-  // test('mint button is disabled when inputs are invalid', () => {
-  //   renderWithChainProvider(<MintForm {...mockProps} />);
-  //   const mintButton = screen.getByText('Mint');
-  //   expect(mintButton).toBeDisabled();
-  // });
-  //
-  // TODO: Button is enabled when inputs are valid
-  //       Fix values validation in the component, this test should not pass as-is
-  test("mint button is enabled when inputs are valid", () => {
-    renderWithChainProvider(<MintForm {...mockProps} />);
-    fireEvent.change(screen.getByLabelText("mint-amount-input"), {
-      target: { value: "100" },
+  test('updates amount input correctly', async () => {
+    renderWithProps();
+    const amountInput = screen.getByLabelText('mint-amount-input');
+    fireEvent.change(amountInput, { target: { value: '100' } });
+    await waitFor(() => {
+      expect(amountInput).toHaveValue(100);
     });
-    fireEvent.change(screen.getByLabelText("mint-recipient-input"), {
-      target: { value: "cosmos1recipient" },
+  });
+
+  test('updates recipient input correctly', async () => {
+    renderWithProps();
+    const recipientInput = screen.getByPlaceholderText('Recipient address');
+    fireEvent.change(recipientInput, { target: { value: 'cosmos1recipient' } });
+    await waitFor(() => {
+      expect(recipientInput).toHaveValue('cosmos1recipient');
     });
-    const mintButton = screen.getByText("Mint");
-    expect(mintButton).toBeEnabled();
+  });
+
+  test('mint button is disabled when inputs are invalid', async () => {
+    renderWithProps();
+    const mintButton = screen.getByText('Mint');
+    expect(mintButton).toBeDisabled();
+
+    const amountInput = screen.getByLabelText('mint-amount-input');
+    fireEvent.change(amountInput, { target: { value: '-100' } });
+
+    await waitFor(() => {
+      expect(mintButton).toBeDisabled();
+    });
+  });
+
+  test('mint button is enabled when inputs are valid', async () => {
+    renderWithProps();
+    const amountInput = screen.getByLabelText('mint-amount-input');
+    const recipientInput = screen.getByLabelText('mint-recipient-input');
+    const mintButton = screen.getByText('Mint');
+
+    fireEvent.change(amountInput, { target: { value: '1' } });
+    fireEvent.change(recipientInput, {
+      target: { value: 'manifest1aucdev30u9505dx9t6q5fkcm70sjg4rh7rn5nf' },
+    });
+
+    await waitFor(() => {
+      expect(mintButton).toBeEnabled();
+    });
+  });
+
+  test('renders multi mint button when token is mfx', () => {
+    renderWithProps({ denom: mockMfxDenom });
+    expect(screen.getByLabelText('multi-mint-button')).toBeInTheDocument();
+  });
+
+  test('renders not affiliated message when not admin and token is mfx', () => {
+    renderWithProps({ isAdmin: false, denom: mockMfxDenom });
+    expect(
+      screen.getByText('You are not affiliated with any PoA Admin entity.')
+    ).toBeInTheDocument();
   });
 });

@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
-import TxInfoModal from "../modals/txInfo";
-import { shiftDigits } from "@/utils";
-import { formatDenom } from "@/components";
+import React, { useState } from 'react';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import TxInfoModal from '../modals/txInfo';
+import { shiftDigits } from '@/utils';
+import { formatDenom } from '@/components';
 
 interface Transaction {
   from_address: string;
@@ -30,10 +30,10 @@ export function HistoryBox({
 
   function formatDateShort(dateString: string): string {
     const date = new Date(dateString);
-    return date.toLocaleString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
     });
   }
 
@@ -71,21 +71,14 @@ export function HistoryBox({
                       onClick={() => openModal(tx)}
                       className="cursor-pointer hover:bg-base-200"
                     >
+                      <td className="px-6 py-4">{formatDateShort(tx.formatted_date)}</td>
                       <td className="px-6 py-4">
-                        {formatDateShort(tx.formatted_date)}
-                      </td>
-                      <td className="px-6 py-4">
-                        {tx.data.from_address === address ? "Send" : "Receive"}
+                        {tx.data.from_address === address ? 'Send' : 'Receive'}
                       </td>
                       <td className="px-6 py-4">
                         {tx.data.amount
-                          .map(
-                            (amt) =>
-                              `${shiftDigits(amt.amount, -6)} ${formatDenom(
-                                amt.denom,
-                              )}`,
-                          )
-                          .join(", ")}
+                          .map(amt => `${shiftDigits(amt.amount, -6)} ${formatDenom(amt.denom)}`)
+                          .join(', ')}
                       </td>
                       <td className="px-6 py-4">
                         <TruncatedAddressWithCopy
@@ -109,13 +102,7 @@ export function HistoryBox({
           )}
         </div>
       </div>
-      {selectedTx && (
-        <TxInfoModal
-          tx={selectedTx}
-          isOpen={!!selectedTx}
-          onClose={closeModal}
-        />
-      )}
+      {selectedTx && <TxInfoModal tx={selectedTx} isOpen={!!selectedTx} onClose={closeModal} />}
     </div>
   );
 }

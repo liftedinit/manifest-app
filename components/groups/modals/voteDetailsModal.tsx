@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useMemo } from "react";
-import dynamic from "next/dynamic";
+import React, { useEffect, useState, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 
 import {
   MemberSDKType,
@@ -9,24 +9,24 @@ import {
   ProposalStatus,
   VoteOption,
   VoteSDKType,
-} from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types";
-import { QueryTallyResultResponseSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/query";
-import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
-import VotingPopup from "./voteModal";
-import { ApexOptions } from "apexcharts";
-import { shiftDigits } from "@/utils";
-import { useChain } from "@cosmos-kit/react";
-import { chainName } from "@/config";
-import { useTx } from "@/hooks/useTx";
-import { cosmos } from "@chalabi/manifestjs";
-import { useTheme } from "@/contexts/theme";
-import CountdownTimer from "../components/CountdownTimer";
-import { useFeeEstimation } from "@/hooks";
-import ScrollableFade from "@/components/react/scrollableFade";
+} from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { QueryTallyResultResponseSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/query';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import VotingPopup from './voteModal';
+import { ApexOptions } from 'apexcharts';
+import { shiftDigits } from '@/utils';
+import { useChain } from '@cosmos-kit/react';
+import { chainName } from '@/config';
+import { useTx } from '@/hooks/useTx';
+import { cosmos } from '@chalabi/manifestjs';
+import { useTheme } from '@/contexts/theme';
+import CountdownTimer from '../components/CountdownTimer';
+import { useFeeEstimation } from '@/hooks';
+import ScrollableFade from '@/components/react/scrollableFade';
 
-const Chart = dynamic(() => import("react-apexcharts"), {
+const Chart = dynamic(() => import('react-apexcharts'), {
   ssr: false,
-});
+}) as any;
 
 interface VoteMap {
   [key: string]: VoteOption;
@@ -60,66 +60,66 @@ function VoteDetailsModal({
         acc[voterKey] = vote?.option;
         return acc;
       }, {}),
-    [votes],
+    [votes]
   );
 
   const { address } = useChain(chainName);
 
   const { theme } = useTheme();
 
-  const textColor = theme === "dark" ? "#E0D1D4" : "#2e2e2e";
+  const textColor = theme === 'dark' ? '#E0D1D4' : '#2e2e2e';
 
   const normalizedMembers = useMemo(
     () =>
-      members?.map((member) => ({
+      members?.map(member => ({
         ...member,
       })),
-    [members],
+    [members]
   );
 
   const executorResultMapping: { [key: string]: string } = {
-    PROPOSAL_EXECUTOR_RESULT_NOT_RUN: "execute",
-    PROPOSAL_EXECUTOR_RESULT_SUCCESS: "success",
-    PROPOSAL_EXECUTOR_RESULT_FAILURE: "failed",
+    PROPOSAL_EXECUTOR_RESULT_NOT_RUN: 'execute',
+    PROPOSAL_EXECUTOR_RESULT_SUCCESS: 'success',
+    PROPOSAL_EXECUTOR_RESULT_FAILURE: 'failed',
   };
 
   const votingStatusResultMapping: { [key: string]: string } = {
-    PROPOSAL_STATUS_CLOSED: "closed",
-    PROPOSAL_STATUS_SUBMITTED: "voting",
-    PROPOSAL_STATUS_ABORTED: "aborted",
-    PROPOSAL_STATUS_ACCEPTED: "accepted",
-    PROPOSAL_STATUS_REJECTED: "rejected",
+    PROPOSAL_STATUS_CLOSED: 'closed',
+    PROPOSAL_STATUS_SUBMITTED: 'voting',
+    PROPOSAL_STATUS_ABORTED: 'aborted',
+    PROPOSAL_STATUS_ACCEPTED: 'accepted',
+    PROPOSAL_STATUS_REJECTED: 'rejected',
   };
 
   const voteMapping: { [key: string]: string } = {
-    VOTE_OPTION_YES: "yes",
-    VOTE_OPTION_NO: "no",
-    VOTE_OPTION_NO_WITH_VETO: "veto",
-    VOTE_OPTION_ABSTAIN: "abstain",
+    VOTE_OPTION_YES: 'yes',
+    VOTE_OPTION_NO: 'no',
+    VOTE_OPTION_NO_WITH_VETO: 'veto',
+    VOTE_OPTION_ABSTAIN: 'abstain',
   };
 
   const getStatusLabel = (proposal: any) => {
-    if (proposal.executor_result === "PROPOSAL_EXECUTOR_RESULT_NOT_RUN") {
-      return votingStatusResultMapping[proposal.status] || "unknown status";
+    if (proposal.executor_result === 'PROPOSAL_EXECUTOR_RESULT_NOT_RUN') {
+      return votingStatusResultMapping[proposal.status] || 'unknown status';
     }
 
-    return executorResultMapping[proposal.executor_result] || "unknown status";
+    return executorResultMapping[proposal.executor_result] || 'unknown status';
   };
 
   const [chartData, setChartData] = useState<number[]>([0, 0, 0, 0]);
 
   useEffect(() => {
-    const yesCount = parseInt(tallies?.tally?.yes_count ?? "0");
-    const noCount = parseInt(tallies?.tally?.no_count ?? "0");
-    const vetoCount = parseInt(tallies?.tally?.no_with_veto_count ?? "0");
-    const abstainCount = parseInt(tallies?.tally?.abstain_count ?? "0");
+    const yesCount = parseInt(tallies?.tally?.yes_count ?? '0');
+    const noCount = parseInt(tallies?.tally?.no_count ?? '0');
+    const vetoCount = parseInt(tallies?.tally?.no_with_veto_count ?? '0');
+    const abstainCount = parseInt(tallies?.tally?.abstain_count ?? '0');
 
     setChartData([yesCount, noCount, vetoCount, abstainCount]);
   }, [tallies, votes]);
 
   const options: ApexOptions = {
     chart: {
-      type: "bar",
+      type: 'bar',
       height: 350,
       toolbar: {
         tools: {
@@ -132,27 +132,25 @@ function VoteDetailsModal({
         useSeriesColors: true,
       },
       markers: {
-        width: 12,
-        height: 12,
         radius: 12,
       },
     },
     states: {
       normal: {
-        filter: { type: "none", value: 0 },
+        filter: { type: 'none', value: 0 },
       },
       hover: {
-        filter: { type: "lighten", value: 0.2 },
+        filter: { type: 'lighten', value: 0.2 },
       },
       active: {
-        filter: { type: "darken", value: 0.2 },
+        filter: { type: 'darken', value: 0.2 },
         allowMultipleDataPointsSelection: false,
       },
     },
     plotOptions: {
       bar: {
         horizontal: false,
-        columnWidth: "55%",
+        columnWidth: '55%',
         distributed: true,
       },
     },
@@ -163,7 +161,7 @@ function VoteDetailsModal({
       show: false,
     },
     xaxis: {
-      categories: ["Yes", "No", "Veto", "Abstain"],
+      categories: ['Yes', 'No', 'Veto', 'Abstain'],
       labels: {
         style: {
           colors: textColor,
@@ -188,7 +186,7 @@ function VoteDetailsModal({
         data: chartData,
       },
     ],
-    colors: ["#78f59599", "#fe6565b0", "#fcd4779a", "#a885f8a1"],
+    colors: ['#78f59599', '#fe6565b0', '#fcd4779a', '#a885f8a1'],
     tooltip: {
       enabled: false,
     },
@@ -201,17 +199,17 @@ function VoteDetailsModal({
 
   const msgExec = exec({
     proposalId: proposal?.id,
-    executor: address ?? "",
+    executor: address ?? '',
   });
 
   const msgWithdraw = withdrawProposal({
     proposalId: proposal?.id,
-    address: address ?? "",
+    address: address ?? '',
   });
 
   const executeProposal = async () => {
     try {
-      const fee = await estimateFee(address ?? "", [msgExec]);
+      const fee = await estimateFee(address ?? '', [msgExec]);
       await tx([msgExec], {
         fee,
         onSuccess: () => {
@@ -222,13 +220,13 @@ function VoteDetailsModal({
         },
       });
     } catch (error) {
-      console.error("Failed to execute proposal: ", error);
+      console.error('Failed to execute proposal: ', error);
     }
   };
 
   const executeWithdrawl = async () => {
     try {
-      const fee = await estimateFee(address ?? "", [msgWithdraw]);
+      const fee = await estimateFee(address ?? '', [msgWithdraw]);
       await tx([msgWithdraw], {
         fee,
         onSuccess: () => {
@@ -238,24 +236,24 @@ function VoteDetailsModal({
         },
       });
     } catch (error) {
-      console.error("Failed to execute proposal: ", error);
+      console.error('Failed to execute proposal: ', error);
     }
   };
 
   const optionToVote = (option: string) => {
     switch (option) {
-      case "VOTE_OPTION_YES":
-        return "Yes";
-      case "VOTE_OPTION_NO":
-        return "No";
-      case "VOTE_OPTION_NO_WITH_VETO":
-        return "Veto";
-      case "VOTE_OPTION_ABSTAIN":
-        return "Abstain";
+      case 'VOTE_OPTION_YES':
+        return 'Yes';
+      case 'VOTE_OPTION_NO':
+        return 'No';
+      case 'VOTE_OPTION_NO_WITH_VETO':
+        return 'Veto';
+      case 'VOTE_OPTION_ABSTAIN':
+        return 'Abstain';
       case undefined:
-        return "N/A";
+        return 'N/A';
       default:
-        return "Unknown";
+        return 'Unknown';
     }
   };
 
@@ -275,9 +273,7 @@ function VoteDetailsModal({
 
       if (timeDiff > 0) {
         const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor(
-          (timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
-        );
+        const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
         return { days, hours, minutes, seconds };
@@ -300,7 +296,7 @@ function VoteDetailsModal({
   const [isGridVisible, setIsGridVisible] = useState(false);
 
   const handleButtonClick = () => {
-    setIsGridVisible((prev) => !prev);
+    setIsGridVisible(prev => !prev);
   };
 
   const proposalClosed =
@@ -310,64 +306,45 @@ function VoteDetailsModal({
       countdownValues.seconds ===
     0;
 
-  const userHasVoted = votes.some(
-    (vote) => vote.voter.toLowerCase().trim() === address,
-  );
+  const userHasVoted = votes.some(vote => vote.voter.toLowerCase().trim() === address);
 
   const userVoteOption = userHasVoted
-    ? votes.find((vote) => vote.voter.toLowerCase().trim() === address)?.option
+    ? votes.find(vote => vote.voter.toLowerCase().trim() === address)?.option
     : null;
 
   const userVotedStatus = useMemo(() => userHasVoted, [votes]);
 
   const importantFields: { [key: string]: string[] } = {
-    "/cosmos.bank.v1beta1.MsgSend": ["from_address", "to_address", "amount"],
-    "/cosmos.group.v1.MsgCreateGroup": ["admin", "members", "metadata"],
-    "/cosmos.group.v1.MsgUpdateGroupMembers": [
-      "admin",
-      "group_id",
-      "member_updates",
+    '/cosmos.bank.v1beta1.MsgSend': ['from_address', 'to_address', 'amount'],
+    '/cosmos.group.v1.MsgCreateGroup': ['admin', 'members', 'metadata'],
+    '/cosmos.group.v1.MsgUpdateGroupMembers': ['admin', 'group_id', 'member_updates'],
+    '/cosmos.group.v1.MsgUpdateGroupAdmin': ['group_id', 'admin', 'new_admin'],
+    '/cosmos.group.v1.MsgUpdateGroupMetadata': ['admin', 'group_id', 'metadata'],
+    '/cosmos.group.v1.MsgCreateGroupPolicy': ['admin', 'group_id', 'metadata', 'decision_policy'],
+    '/cosmos.group.v1.MsgCreateGroupWithPolicy': [
+      'admin',
+      'members',
+      'group_metadata',
+      'group_policy_metadata',
+      'decision_policy',
     ],
-    "/cosmos.group.v1.MsgUpdateGroupAdmin": ["group_id", "admin", "new_admin"],
-    "/cosmos.group.v1.MsgUpdateGroupMetadata": [
-      "admin",
-      "group_id",
-      "metadata",
+    '/cosmos.group.v1.MsgSubmitProposal': [
+      'group_policy_address',
+      'proposers',
+      'metadata',
+      'messages',
     ],
-    "/cosmos.group.v1.MsgCreateGroupPolicy": [
-      "admin",
-      "group_id",
-      "metadata",
-      "decision_policy",
-    ],
-    "/cosmos.group.v1.MsgCreateGroupWithPolicy": [
-      "admin",
-      "members",
-      "group_metadata",
-      "group_policy_metadata",
-      "decision_policy",
-    ],
-    "/cosmos.group.v1.MsgSubmitProposal": [
-      "group_policy_address",
-      "proposers",
-      "metadata",
-      "messages",
-    ],
-    "/cosmos.group.v1.MsgVote": ["proposal_id", "voter", "option", "metadata"],
-    "/cosmos.group.v1.MsgExec": ["proposal_id", "executor"],
-    "/cosmos.group.v1.MsgLeaveGroup": ["address", "group_id"],
+    '/cosmos.group.v1.MsgVote': ['proposal_id', 'voter', 'option', 'metadata'],
+    '/cosmos.group.v1.MsgExec': ['proposal_id', 'executor'],
+    '/cosmos.group.v1.MsgLeaveGroup': ['address', 'group_id'],
     // Add more message types and their important fields here
   };
 
   // Default fields to show if the message type is not in the mapping
-  const defaultFields = ["@type"];
+  const defaultFields = ['@type'];
 
-  const renderMessageField = (
-    key: string,
-    value: any,
-    depth: number = 0,
-  ): JSX.Element => {
-    if (typeof value === "object" && value !== null) {
+  const renderMessageField = (key: string, value: any, depth: number = 0): JSX.Element => {
+    if (typeof value === 'object' && value !== null) {
       if (Array.isArray(value)) {
         return (
           <div key={key} style={{ marginLeft: `${depth * 20}px` }}>
@@ -384,7 +361,7 @@ function VoteDetailsModal({
           <div key={key} style={{ marginLeft: `${depth * 20}px` }}>
             <h4 className="font-medium">{key}:</h4>
             {Object.entries(value).map(([subKey, subValue]) =>
-              renderMessageField(subKey, subValue, depth + 1),
+              renderMessageField(subKey, subValue, depth + 1)
             )}
           </div>
         );
@@ -393,7 +370,7 @@ function VoteDetailsModal({
       return (
         <div key={key} style={{ marginLeft: `${depth * 20}px` }}>
           <h4 className="font-large text-md">{key}:</h4>
-          {typeof value === "string" && value.match(/^[a-zA-Z0-9]{40,}$/) ? (
+          {typeof value === 'string' && value.match(/^[a-zA-Z0-9]{40,}$/) ? (
             <TruncatedAddressWithCopy slice={14} address={value} />
           ) : (
             <p>{String(value)}</p>
@@ -407,9 +384,7 @@ function VoteDetailsModal({
     <dialog id={modalId} className="modal">
       <div className="modal-box relative max-w-4xl min-h-96  flex flex-col md:flex-row md:ml-20  rounded-lg shadow">
         <form method="dialog">
-          <button className="btn btn-sm btn-circle btn-ghost absolute right-1 top-1">
-            ✕
-          </button>
+          <button className="btn btn-sm btn-circle btn-ghost absolute right-1 top-1">✕</button>
         </form>
         <div className="flex flex-col flex-grow w-full">
           <div className="flex flex-row justify-between items-center">
@@ -425,21 +400,18 @@ function VoteDetailsModal({
                 <span>your vote</span>
                 <span
                   className={`items-center justify-center badge badge-lg ${
-                    userVoteOption?.toString() === "VOTE_OPTION_YES"
-                      ? "bg-green-500/50"
-                      : userVoteOption?.toString() === "VOTE_OPTION_NO"
-                        ? "bg-red-500/50"
-                        : userVoteOption?.toString() ===
-                            "VOTE_OPTION_NO_WITH_VETO"
-                          ? "bg-yellow-500/50"
-                          : userVoteOption?.toString() === "VOTE_OPTION_ABSTAIN"
-                            ? "bg-purple-500/50"
-                            : ""
+                    userVoteOption?.toString() === 'VOTE_OPTION_YES'
+                      ? 'bg-green-500/50'
+                      : userVoteOption?.toString() === 'VOTE_OPTION_NO'
+                        ? 'bg-red-500/50'
+                        : userVoteOption?.toString() === 'VOTE_OPTION_NO_WITH_VETO'
+                          ? 'bg-yellow-500/50'
+                          : userVoteOption?.toString() === 'VOTE_OPTION_ABSTAIN'
+                            ? 'bg-purple-500/50'
+                            : ''
                   }`}
                 >
-                  {userVoteOption !== null
-                    ? voteMapping[userVoteOption ?? ""]
-                    : null}
+                  {userVoteOption !== null ? voteMapping[userVoteOption ?? ''] : null}
                 </span>
               </div>
             )}
@@ -462,23 +434,15 @@ function VoteDetailsModal({
           <p className="text-md font-light mt-4">MESSAGES</p>
           <ScrollableFade>
             {proposal.messages.map((message: any, index: number) => {
-              const messageType = message["@type"];
-              const fieldsToShow =
-                importantFields[messageType] || defaultFields;
+              const messageType = message['@type'];
+              const fieldsToShow = importantFields[messageType] || defaultFields;
 
               return (
-                <div
-                  key={index}
-                  className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2"
-                >
+                <div key={index} className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
                   <h3 className="text-lg font-semibold mb-4">
-                    {messageType.split(".").pop().replace("Msg", "")}
+                    {messageType.split('.').pop().replace('Msg', '')}
                   </h3>
-                  <div>
-                    {fieldsToShow.map((field) =>
-                      renderMessageField(field, message[field]),
-                    )}
-                  </div>
+                  <div>{fieldsToShow.map(field => renderMessageField(field, message[field]))}</div>
                 </div>
               );
             })}
@@ -493,12 +457,7 @@ function VoteDetailsModal({
         <div className="flex flex-col w-full relative flex-grow items-start justify-start">
           <p className="text-md font-light mt-2  ">TALLY</p>
           <div className="w-full ">
-            <Chart
-              options={options}
-              series={[{ data: chartData }]}
-              type="bar"
-              height={200}
-            />
+            <Chart options={options} series={[{ data: chartData }]} type="bar" height={200} />
           </div>
           <p className="text-md font-light mt-4  ">MEMBERS</p>
           <div className="overflow-x-auto w-full min-h-96 max-h-96 rounded-md  overflow-y-auto">
@@ -523,15 +482,10 @@ function VoteDetailsModal({
                   return (
                     <tr key={index}>
                       <td className="px-6 py-4">
-                        <TruncatedAddressWithCopy
-                          slice={8}
-                          address={member.member.address}
-                        />
+                        <TruncatedAddressWithCopy slice={8} address={member.member.address} />
                       </td>
                       <td className="px-6 py-4">{member.member.weight}</td>
-                      <td className="px-6 py-4">
-                        {optionToVote(memberVote?.toString()) || "N/A"}
-                      </td>
+                      <td className="px-6 py-4">{optionToVote(memberVote?.toString()) || 'N/A'}</td>
                     </tr>
                   );
                 })}
@@ -543,29 +497,20 @@ function VoteDetailsModal({
             </div>
           </div>
           <div className="w-full relative">
-            {proposal.status ===
-              ("PROPOSAL_STATUS_ACCEPTED" as unknown as ProposalStatus) &&
+            {proposal.status === ('PROPOSAL_STATUS_ACCEPTED' as unknown as ProposalStatus) &&
             proposal.executor_result ===
-              ("PROPOSAL_EXECUTOR_RESULT_NOT_RUN" as unknown as ProposalExecutorResult) ? (
-              <button
-                className="btn w-full btn-primary ml-auto mt-4"
-                onClick={executeProposal}
-              >
+              ('PROPOSAL_EXECUTOR_RESULT_NOT_RUN' as unknown as ProposalExecutorResult) ? (
+              <button className="btn w-full btn-primary ml-auto mt-4" onClick={executeProposal}>
                 Execute
               </button>
             ) : proposal.executor_result ===
-                ("PROPOSAL_EXECUTOR_RESULT_NOT_RUN" as unknown as ProposalExecutorResult) &&
+                ('PROPOSAL_EXECUTOR_RESULT_NOT_RUN' as unknown as ProposalExecutorResult) &&
               proposalClosed &&
-              proposal.status !==
-                ("PROPOSAL_STATUS_REJECTED" as unknown as ProposalStatus) ? (
-              <button
-                className="btn w-full btn-primary ml-auto mt-4"
-                onClick={executeProposal}
-              >
+              proposal.status !== ('PROPOSAL_STATUS_REJECTED' as unknown as ProposalStatus) ? (
+              <button className="btn w-full btn-primary ml-auto mt-4" onClick={executeProposal}>
                 Execute
               </button>
-            ) : proposal.status !==
-                ("PROPOSAL_STATUS_CLOSED" as unknown as ProposalStatus) &&
+            ) : proposal.status !== ('PROPOSAL_STATUS_CLOSED' as unknown as ProposalStatus) &&
               !proposalClosed &&
               userHasVoted === false ? (
               <>
@@ -576,7 +521,7 @@ function VoteDetailsModal({
                 >
                   Vote
                 </button>
-                {proposal.proposers.includes(address ?? "") && (
+                {proposal.proposers.includes(address ?? '') && (
                   <button
                     className=" absolute top-3 right-[0.3rem] btn btn-xs w-1/8 mx-auto btn-secondary ml-auto mt-2"
                     onClick={executeWithdrawl}
@@ -585,17 +530,15 @@ function VoteDetailsModal({
                   </button>
                 )}
               </>
-            ) : proposal.status ===
-                ("PROPOSAL_STATUS_REJECTED" as unknown as ProposalStatus) ||
+            ) : proposal.status === ('PROPOSAL_STATUS_REJECTED' as unknown as ProposalStatus) ||
               proposal.executor_result ===
-                ("PROPOSAL_EXECUTOR_RESULT_FAILURE" as unknown as ProposalExecutorResult) ||
+                ('PROPOSAL_EXECUTOR_RESULT_FAILURE' as unknown as ProposalExecutorResult) ||
               (userHasVoted === true &&
-                proposal.status !=
-                  ("PROPOSAL_STATUS_REJECTED" as unknown as ProposalStatus)) ||
+                proposal.status != ('PROPOSAL_STATUS_REJECTED' as unknown as ProposalStatus)) ||
               proposal.executor_result !=
-                ("PROPOSAL_EXECUTOR_RESULT_FAILURE" as unknown as ProposalExecutorResult) ? (
+                ('PROPOSAL_EXECUTOR_RESULT_FAILURE' as unknown as ProposalExecutorResult) ? (
               <button
-                disabled={!proposal.proposers.includes(address ?? "")}
+                disabled={!proposal.proposers.includes(address ?? '')}
                 className="btn w-full btn-primary ml-auto mt-4"
                 onClick={executeWithdrawl}
               >

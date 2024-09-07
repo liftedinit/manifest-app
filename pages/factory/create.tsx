@@ -1,38 +1,35 @@
-import React, { useState, useEffect, useReducer } from "react";
-import { tokenFormDataReducer, TokenFormData } from "@/helpers/formReducer";
+import React, { useState, useEffect, useReducer } from 'react';
+import { tokenFormDataReducer, TokenFormData } from '@/helpers/formReducer';
 
-import ConfirmationForm from "@/components/factory/forms/ConfirmationForm";
-import TokenDetails from "@/components/factory/forms/TokenDetailsForm";
+import ConfirmationForm from '@/components/factory/forms/ConfirmationForm';
+import TokenDetails from '@/components/factory/forms/TokenDetailsForm';
 
-import { Duration } from "@chalabi/manifestjs/dist/codegen/google/protobuf/duration";
-import StepIndicator from "@/components/groups/components/StepIndicator";
-import { useChain } from "@cosmos-kit/react";
-import { chainName } from "@/config";
-import { WalletSection } from "@/components";
-import Success from "@/components/factory/forms/Success";
-import Head from "next/head";
-import CreateDenom from "@/components/factory/forms/CreateDenom";
+import { Duration } from '@chalabi/manifestjs/dist/codegen/google/protobuf/duration';
+import StepIndicator from '@/components/groups/components/StepIndicator';
+import { useChain } from '@cosmos-kit/react';
+import { chainName } from '@/config';
+import { WalletSection } from '@/components';
+import Success from '@/components/factory/forms/Success';
+import Head from 'next/head';
+import CreateDenom from '@/components/factory/forms/CreateDenom';
 const initialFormData: TokenFormData = {
-  subdenom: "",
-  symbol: "",
-  label: "",
-  description: "",
-  uri: "",
-  display: "",
-  exponent: "",
-  base: "",
-  name: "",
-  uriHash: "",
+  subdenom: '',
+  symbol: '',
+  label: '',
+  description: '',
+  uri: '',
+  display: '',
+  exponent: '',
+  base: '',
+  name: '',
+  uriHash: '',
   denomUnits: [],
 };
 
 export default function CreateToken() {
   const [currentStep, setCurrentStep] = useState(1);
 
-  const [formData, dispatch] = useReducer(
-    tokenFormDataReducer,
-    initialFormData,
-  );
+  const [formData, dispatch] = useReducer(tokenFormDataReducer, initialFormData);
   const { address } = useChain(chainName);
   const nextStep = () => {
     if (currentStep < 4) {
@@ -49,9 +46,9 @@ export default function CreateToken() {
   const { isWalletConnected } = useChain(chainName);
 
   const steps = [
-    { label: "Create Denom", step: 1 },
-    { label: "Token Metadata", step: 2 },
-    { label: "Confirmation", step: 3 },
+    { label: 'Create Denom', step: 1 },
+    { label: 'Token Metadata', step: 2 },
+    { label: 'Confirmation', step: 3 },
   ];
 
   return (
@@ -59,10 +56,7 @@ export default function CreateToken() {
       <Head>
         <title>Create token - Alberto</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta
-          name="description"
-          content="Alberto is the gateway to the Manifest Network"
-        />
+        <meta name="description" content="Alberto is the gateway to the Manifest Network" />
         <meta
           name="keywords"
           content="crypto, blockchain, application, Cosmos-SDK, Alberto, Manifest Network"
@@ -71,10 +65,7 @@ export default function CreateToken() {
         <link rel="icon" href="/favicon.ico" />
 
         <meta property="og:title" content="Create a token - Alberto" />
-        <meta
-          property="og:description"
-          content="Alberto is the gateway to the Manifest Network"
-        />
+        <meta property="og:description" content="Alberto is the gateway to the Manifest Network" />
         <meta property="og:url" content="https://" />
         <meta property="og:image" content="https://" />
         <meta property="og:type" content="website" />
@@ -82,27 +73,24 @@ export default function CreateToken() {
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Create a token - Alberto" />
-        <meta
-          name="twitter:description"
-          content="Alberto is the gateway to the Manifest Network"
-        />
+        <meta name="twitter:description" content="Alberto is the gateway to the Manifest Network" />
         <meta name="twitter:image" content="https://" />
         <meta name="twitter:site" content="@" />
 
         <script type="application/ld+json">
           {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "WebPage",
-            name: "Create a token - Alberto",
-            description: "Alberto is the gateway to the Manifest Network",
-            url: "https://",
-            image: "https://",
+            '@context': 'https://schema.org',
+            '@type': 'WebPage',
+            name: 'Create a token - Alberto',
+            description: 'Alberto is the gateway to the Manifest Network',
+            url: 'https://',
+            image: 'https://',
             publisher: {
-              "@type": "Organization",
-              name: "Chandra Station",
+              '@type': 'Organization',
+              name: 'Chandra Station',
               logo: {
-                "@type": "ImageObject",
-                url: "https:///img/logo.png",
+                '@type': 'ImageObject',
+                url: 'https:///img/logo.png',
               },
             },
           })}
@@ -117,8 +105,7 @@ export default function CreateToken() {
                   Connect your wallet!
                 </h1>
                 <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl text-balance">
-                  Use the button below to connect your wallet and create a
-                  token.
+                  Use the button below to connect your wallet and create a token.
                 </p>
                 <WalletSection chainName={chainName} />
               </div>
@@ -131,23 +118,21 @@ export default function CreateToken() {
       )}
       {isWalletConnected && (
         <div className="w-full flex flex-col gap-12 justify-between my-auto items-center animate-fadeIn max-w-4xl mt-10">
-          {currentStep != 4 && (
-            <StepIndicator steps={steps} currentStep={currentStep} />
-          )}
+          {currentStep != 4 && <StepIndicator steps={steps} currentStep={currentStep} />}
           {currentStep === 1 && (
             <div className="transition-opacity duration-300 animate-fadeIn">
               <CreateDenom
                 formData={formData}
                 dispatch={dispatch}
                 nextStep={nextStep}
-                address={address ?? ""}
+                address={address ?? ''}
               />
             </div>
           )}
           {currentStep === 2 && (
             <div className="transition-opacity duration-300 animate-fadeIn">
               <TokenDetails
-                address={address ?? ""}
+                address={address ?? ''}
                 formData={formData}
                 dispatch={dispatch}
                 prevStep={prevStep}
@@ -161,13 +146,13 @@ export default function CreateToken() {
                 formData={formData}
                 prevStep={prevStep}
                 nextStep={nextStep}
-                address={address ?? ""}
+                address={address ?? ''}
               />
             </div>
           )}
           {currentStep === 4 && (
             <div className="transition-opacity duration-300 animate-fadeIn">
-              <Success formData={formData} address={address ?? ""} />
+              <Success formData={formData} address={address ?? ''} />
             </div>
           )}
         </div>

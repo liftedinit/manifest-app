@@ -1,17 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
-import type { ChainWalletBase, WalletModalProps } from "cosmos-kit";
-import { WalletStatus } from "cosmos-kit";
-import { useCallback, Fragment, useState, useMemo, useEffect } from "react";
-import { Dialog, Transition } from "@headlessui/react";
-import {
-  Connected,
-  Connecting,
-  Error,
-  NotExist,
-  QRCode,
-  WalletList,
-} from "./views";
-import { useRouter } from "next/router";
+import type { ChainWalletBase, WalletModalProps } from 'cosmos-kit';
+import { WalletStatus } from 'cosmos-kit';
+import { useCallback, Fragment, useState, useMemo, useEffect } from 'react';
+import { Dialog, Transition } from '@headlessui/react';
+import { Connected, Connecting, Error, NotExist, QRCode, WalletList } from './views';
+import { useRouter } from 'next/router';
 
 export enum ModalView {
   WalletList,
@@ -21,16 +14,10 @@ export enum ModalView {
   Error,
   NotExist,
 }
-export const TailwindModal: React.FC<WalletModalProps> = ({
-  isOpen,
-  setOpen,
-  walletRepo,
-}) => {
+export const TailwindModal: React.FC<WalletModalProps> = ({ isOpen, setOpen, walletRepo }) => {
   const router = useRouter();
 
-  const [currentView, setCurrentView] = useState<ModalView>(
-    ModalView.WalletList,
-  );
+  const [currentView, setCurrentView] = useState<ModalView>(ModalView.WalletList);
   const [qrWallet, setQRWallet] = useState<ChainWalletBase | undefined>();
 
   const current = walletRepo?.current;
@@ -71,13 +58,13 @@ export const TailwindModal: React.FC<WalletModalProps> = ({
       // 1ms timeout prevents _render from determining the view to show first
       setTimeout(() => {
         const wallet = walletRepo?.getWallet(name);
-        if (wallet?.walletInfo.mode === "wallet-connect") {
+        if (wallet?.walletInfo.mode === 'wallet-connect') {
           setCurrentView(ModalView.QRCode);
           setQRWallet(wallet);
         }
       }, 1);
     },
-    [walletRepo],
+    [walletRepo]
   );
 
   const onCloseModal = useCallback(() => {
@@ -101,17 +88,15 @@ export const TailwindModal: React.FC<WalletModalProps> = ({
             onReturn={() => setCurrentView(ModalView.WalletList)}
             disconnect={() => current?.disconnect()}
             name={currentWalletData?.prettyName!}
-            logo={currentWalletData?.logo!.toString() ?? ""}
+            logo={currentWalletData?.logo!.toString() ?? ''}
             username={current?.username}
             address={current?.address}
           />
         );
       case ModalView.Connecting:
         let subtitle: string;
-        if (currentWalletData!.mode === "wallet-connect") {
-          subtitle = `Approve ${
-            currentWalletData!.prettyName
-          } connection request on your mobile.`;
+        if (currentWalletData!.mode === 'wallet-connect') {
+          subtitle = `Approve ${currentWalletData!.prettyName} connection request on your mobile.`;
         } else {
           subtitle = `Open the ${
             currentWalletData!.prettyName
@@ -123,7 +108,7 @@ export const TailwindModal: React.FC<WalletModalProps> = ({
             onClose={onCloseModal}
             onReturn={() => setCurrentView(ModalView.WalletList)}
             name={currentWalletData?.prettyName!}
-            logo={currentWalletData?.logo!.toString() ?? ""}
+            logo={currentWalletData?.logo!.toString() ?? ''}
             title="Requesting Connection"
             subtitle={subtitle}
           />
@@ -140,10 +125,10 @@ export const TailwindModal: React.FC<WalletModalProps> = ({
       case ModalView.Error:
         return (
           <Error
-            currentWalletName={currentWalletName ?? ""}
+            currentWalletName={currentWalletName ?? ''}
             onClose={onCloseModal}
             onReturn={() => setCurrentView(ModalView.WalletList)}
-            logo={currentWalletData?.logo!.toString() ?? ""}
+            logo={currentWalletData?.logo!.toString() ?? ''}
             onReconnect={() => onWalletClicked(currentWalletData?.name!)}
           />
         );
@@ -156,7 +141,7 @@ export const TailwindModal: React.FC<WalletModalProps> = ({
               const link = current?.downloadInfo?.link;
               if (link) router.push(current?.downloadInfo?.link);
             }}
-            logo={currentWalletData?.logo!.toString() ?? ""}
+            logo={currentWalletData?.logo!.toString() ?? ''}
             name={currentWalletData?.prettyName!}
           />
         );
@@ -175,7 +160,7 @@ export const TailwindModal: React.FC<WalletModalProps> = ({
 
   return (
     <Transition.Root show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-10" onClose={onCloseModal}>
+      <Dialog as="div" className="relative z-[9999]" onClose={onCloseModal}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -199,7 +184,7 @@ export const TailwindModal: React.FC<WalletModalProps> = ({
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <Dialog.Panel className="relative transform overflow-hidden rounded-xl bg-base-300 px-4 pt-2.5 pb-4 [min-height:18rem] text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-xs sm:p-4">
+              <Dialog.Panel className="relative transform w-full overflow-hidden rounded-xl dark:bg-[#1D192D] bg-[#FFFF] px-4 pt-2.5 pb-4 [min-height:18rem] text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-sm sm:p-4">
                 <div className="h-full">{_render}</div>
               </Dialog.Panel>
             </Transition.Child>

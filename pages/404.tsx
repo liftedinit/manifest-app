@@ -1,40 +1,38 @@
-import { ChevronRightIcon } from "@heroicons/react/20/solid";
+import { ChevronRightIcon } from '@heroicons/react/20/solid';
 import {
   BookmarkSquareIcon,
   BookOpenIcon,
   QueueListIcon,
   RssIcon,
   MagnifyingGlassCircleIcon,
-} from "@heroicons/react/24/solid";
-import Head from "next/head";
-import Link from "next/link";
-import { SVGProps } from "react";
+} from '@heroicons/react/24/solid';
+import Head from 'next/head';
+import Link from 'next/link';
+import { SVGProps } from 'react';
 
 const links = [
   {
-    name: "Docs",
-    href: "#",
-    description:
-      "Learn how to sync nodes, query data, and use the Manifest Network.",
+    name: 'Docs',
+    href: '#',
+    description: 'Learn how to sync nodes, query data, and use the Manifest Network.',
     icon: BookOpenIcon,
   },
   {
-    name: "Explorer",
-    href: "#",
-    description: "Search for transactions, wallets, and other chain data.",
+    name: 'Explorer',
+    href: '#',
+    description: 'Search for transactions, wallets, and other chain data.',
     icon: MagnifyingGlassCircleIcon,
   },
   {
-    name: "FAQ",
-    href: "#",
-    description:
-      "The most common questions and answers about the Manifest Network.",
+    name: 'FAQ',
+    href: '#',
+    description: 'The most common questions and answers about the Manifest Network.',
     icon: BookmarkSquareIcon,
   },
   {
-    name: "Blog",
-    href: "#",
-    description: "Read our latest news and articles.",
+    name: 'Blog',
+    href: '#',
+    description: 'Read our latest news and articles.',
     icon: RssIcon,
   },
 ];
@@ -45,10 +43,7 @@ export default function FourOhFour() {
       <Head>
         <title>404 - Alberto</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta
-          name="description"
-          content="Alberto is the gateway to the Manifest Network"
-        />
+        <meta name="description" content="Alberto is the gateway to the Manifest Network" />
         <meta
           name="keywords"
           content="crypto, blockchain, application, Cosmos-SDK, Alberto, Manifest Network"
@@ -57,10 +52,7 @@ export default function FourOhFour() {
         <link rel="icon" href="/favicon.ico" />
 
         <meta property="og:title" content="404 - Alberto" />
-        <meta
-          property="og:description"
-          content="Alberto is the gateway to the Manifest Network"
-        />
+        <meta property="og:description" content="Alberto is the gateway to the Manifest Network" />
         <meta property="og:url" content="https://" />
         <meta property="og:image" content="https://" />
         <meta property="og:type" content="website" />
@@ -68,38 +60,31 @@ export default function FourOhFour() {
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="404 - Alberto" />
-        <meta
-          name="twitter:description"
-          content="Alberto is the gateway to the Manifest Network"
-        />
+        <meta name="twitter:description" content="Alberto is the gateway to the Manifest Network" />
         <meta name="twitter:image" content="https://" />
         <meta name="twitter:site" content="@" />
 
         <script type="application/ld+json">
           {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "WebPage",
-            name: "404 - Alberto",
-            description: "Alberto is the gateway to the Manifest Network",
-            url: "https://",
-            image: "https://",
+            '@context': 'https://schema.org',
+            '@type': 'WebPage',
+            name: '404 - Alberto',
+            description: 'Alberto is the gateway to the Manifest Network',
+            url: 'https://',
+            image: 'https://',
             publisher: {
-              "@type": "Organization",
-              name: "Chandra Station",
+              '@type': 'Organization',
+              name: 'Chandra Station',
               logo: {
-                "@type": "ImageObject",
-                url: "https:///img/logo.png",
+                '@type': 'ImageObject',
+                url: 'https:///img/logo.png',
               },
             },
           })}
         </script>
       </Head>
       <main className="mx-auto w-full max-w-7xl px-6 pb-16 pt-10 sm:pb-24 lg:px-8">
-        <img
-          className="mx-auto h-10 w-auto sm:h-12"
-          src="/darkLogo.png"
-          alt="Your Company"
-        />
+        <img className="mx-auto h-10 w-auto sm:h-12" src="/darkLogo.png" alt="Your Company" />
         <div className="mx-auto mt-20 max-w-2xl text-center sm:mt-24">
           <p className="text-base font-semibold leading-8 ">404</p>
           <h1 className="mt-4 text-3xl font-bold tracking-tight  sm:text-5xl">
@@ -118,10 +103,7 @@ export default function FourOhFour() {
             {links.map((link, linkIdx) => (
               <li key={linkIdx} className="relative flex gap-x-6 py-6">
                 <div className="flex h-10 w-10 flex-none items-center justify-center rounded-lg shadow-sm ring-1 ring-primary bg-base-200">
-                  <link.icon
-                    className="h-6 w-6 text-accent"
-                    aria-hidden="true"
-                  />
+                  <link.icon className="h-6 w-6 text-accent" aria-hidden="true" />
                 </div>
                 <div className="flex-auto">
                   <h3 className="text-sm font-semibold leading-6 ">
@@ -141,11 +123,7 @@ export default function FourOhFour() {
             ))}
           </ul>
           <div className="mt-10 flex justify-center">
-            <Link
-              href="/"
-              className="text-sm font-semibold leading-6"
-              legacyBehavior
-            >
+            <Link href="/" className="text-sm font-semibold leading-6" legacyBehavior>
               <span aria-hidden="true">&larr;Back to home</span>
             </Link>
           </div>

@@ -1,4 +1,4 @@
-import { WalletSection } from "../wallet";
+import { WalletSection } from '../wallet';
 
 export default function Header() {
   return (

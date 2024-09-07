@@ -1,8 +1,8 @@
-import React from "react";
-import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
-import { formatDenom, TransactionGroup } from "@/components";
-import { FaExternalLinkAlt } from "react-icons/fa";
-import { shiftDigits } from "@/utils";
+import React from 'react';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import { formatDenom, TransactionGroup } from '@/components';
+import { FaExternalLinkAlt } from 'react-icons/fa';
+import { shiftDigits } from '@/utils';
 
 interface TxInfoModalProps {
   tx: TransactionGroup;
@@ -13,21 +13,18 @@ interface TxInfoModalProps {
 export default function TxInfoModal({ tx, isOpen, onClose }: TxInfoModalProps) {
   function formatDate(dateString: string): string {
     const date = new Date(dateString);
-    return date.toLocaleString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
     });
   }
 
   return (
-    <dialog
-      id={`tx_modal_${tx.tx_hash}`}
-      className={`modal ${isOpen ? "modal-open" : ""}`}
-    >
+    <dialog id={`tx_modal_${tx.tx_hash}`} className={`modal ${isOpen ? 'modal-open' : ''}`}>
       <div
         className="modal-box absolute max-w-4xl mx-auto rounded-lg md:ml-20 shadow-lg"
         aria-label="tx info"
@@ -78,10 +75,7 @@ export default function TxInfoModal({ tx, isOpen, onClose }: TxInfoModalProps) {
               <p className="text-md font-bold mt-4">FROM</p>
               <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
                 <div className="flex items-center">
-                  <TruncatedAddressWithCopy
-                    address={tx.data.from_address}
-                    slice={6}
-                  />
+                  <TruncatedAddressWithCopy address={tx.data.from_address} slice={6} />
                   <a
                     href={`https://manifest-explorer.vercel.app/manifest/account/${tx.data.from_address}`}
                     target="_blank"
@@ -97,10 +91,7 @@ export default function TxInfoModal({ tx, isOpen, onClose }: TxInfoModalProps) {
               <p className="text-md font-bold mt-4">TO</p>
               <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
                 <div className="flex items-center">
-                  <TruncatedAddressWithCopy
-                    address={tx.data.to_address}
-                    slice={6}
-                  />
+                  <TruncatedAddressWithCopy address={tx.data.to_address} slice={6} />
                   <a
                     href={`https://manifest-explorer.vercel.app/manifest/account/${tx.data.to_address}`}
                     target="_blank"

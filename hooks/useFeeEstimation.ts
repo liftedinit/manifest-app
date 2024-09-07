@@ -1,8 +1,8 @@
-import { EncodeObject } from "@cosmjs/proto-signing";
-import { GasPrice, calculateFee } from "@cosmjs/stargate";
-import { useChain } from "@cosmos-kit/react";
+import { EncodeObject } from '@cosmjs/proto-signing';
+import { GasPrice, calculateFee } from '@cosmjs/stargate';
+import { useChain } from '@cosmos-kit/react';
 
-import { getCoin } from "@/utils";
+import { getCoin } from '@/utils';
 
 export const useFeeEstimation = (chainName: string) => {
   const { getSigningStargateClient, chain } = useChain(chainName);
@@ -15,25 +15,21 @@ export const useFeeEstimation = (chainName: string) => {
     address: string,
     messages: EncodeObject[],
     modifier?: number,
-    memo?: string,
+    memo?: string
   ) => {
     const stargateClient = await getSigningStargateClient();
     if (!stargateClient) {
-      throw new Error("getSigningStargateClient error");
+      throw new Error('getSigningStargateClient error');
     }
 
-    const gasEstimation = await stargateClient.simulate(
-      address,
-      messages,
-      memo,
-    );
+    const gasEstimation = await stargateClient.simulate(address, messages, memo);
     if (!gasEstimation) {
-      throw new Error("estimate gas error");
+      throw new Error('estimate gas error');
     }
 
     const fee = calculateFee(
       Math.round(gasEstimation * (modifier || 1.5)),
-      GasPrice.fromString(gasPrice + "umfx"),
+      GasPrice.fromString(gasPrice + 'umfx')
     );
 
     return fee;

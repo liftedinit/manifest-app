@@ -1,14 +1,17 @@
-import React, { useState } from "react";
-import { chainName } from "@/config";
-import { useFeeEstimation, useTx } from "@/hooks";
-import { cosmos, manifest, osmosis } from "@chalabi/manifestjs";
-import { MetadataSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
-import { PiAddressBook } from "react-icons/pi";
-import { shiftDigits } from "@/utils";
-import { Any } from "@chalabi/manifestjs/dist/codegen/google/protobuf/any";
-import { MsgBurnHeldBalance } from "@chalabi/manifestjs/dist/codegen/manifest/v1/tx";
-import { MultiBurnModal } from "../modals/multiMfxBurnModal";
-import { useToast } from "@/contexts";
+import React, { useState } from 'react';
+import { chainName } from '@/config';
+import { useTokenFactoryBalance, useFeeEstimation, useTx } from '@/hooks';
+import { cosmos, manifest, osmosis } from '@chalabi/manifestjs';
+import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { PiAddressBook } from 'react-icons/pi';
+import { shiftDigits } from '@/utils';
+import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
+import { MsgBurnHeldBalance } from '@chalabi/manifestjs/dist/codegen/manifest/v1/tx';
+import { MultiBurnModal } from '../modals/multiMfxBurnModal';
+import { useToast } from '@/contexts';
+import { Formik, Form } from 'formik';
+import Yup from '@/utils/yupExtensions';
+import { NumberInput, TextInput } from '@/components/react/inputs';
 
 interface BurnPair {
   address: string;
@@ -30,13 +33,11 @@ export default function BurnForm({
   refetch: () => void;
   balance: string;
 }>) {
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState('');
   const [recipient, setRecipient] = useState(address);
   const [isSigning, setIsSigning] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [burnPairs, setBurnPairs] = useState<BurnPair[]>([
-    { address: "", amount: "" },
-  ]);
+  const [burnPairs, setBurnPairs] = useState<BurnPair[]>([{ address: '', amount: '' }]);
 
   const { tx } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
@@ -44,10 +45,23 @@ export default function BurnForm({
   const { burnHeldBalance } = manifest.v1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const { setToastMessage } = useToast();
-  const exponent =
-    denom?.denom_units?.find((unit) => unit.denom === denom.display)
-      ?.exponent || 0;
-  const isMFX = denom.base.includes("mfx");
+  const exponent = denom?.denom_units?.find(unit => unit.denom === denom.display)?.exponent || 0;
+  const isMFX = denom.base.includes('mfx');
+
+  const { balance: recipientBalance } = useTokenFactoryBalance(recipient ?? '', denom.base);
+  const balanceNumber = parseFloat(
+    shiftDigits(isMFX ? recipientBalance?.amount || '0' : balance, -exponent)
+  );
+
+  const BurnSchema = Yup.object().shape({
+    amount: Yup.number()
+      .positive('Amount must be positive')
+      .required('Amount is required')
+      .max(1e12, 'Amount is too large')
+      .test('max-balance', 'Amount exceeds balance', function (value) {
+        return value <= balanceNumber;
+      }),
+  });
 
   const handleBurn = async () => {
     if (!amount || isNaN(Number(amount))) {
@@ -55,14 +69,12 @@ export default function BurnForm({
     }
     setIsSigning(true);
     try {
-      const amountInBaseUnits = BigInt(
-        parseFloat(amount) * Math.pow(10, exponent),
-      ).toString();
+      const amountInBaseUnits = BigInt(parseFloat(amount) * Math.pow(10, exponent)).toString();
 
       let msg;
       if (isMFX) {
         const burnMsg = burnHeldBalance({
-          authority: admin ?? "",
+          authority: admin ?? '',
           burnCoins: [{ denom: denom.base, amount: amountInBaseUnits }],
         });
         const encodedMessage = Any.fromPartial({
@@ -70,10 +82,10 @@ export default function BurnForm({
           value: MsgBurnHeldBalance.encode(burnMsg.value).finish(),
         });
         msg = submitProposal({
-          groupPolicyAddress: admin ?? "",
+          groupPolicyAddress: admin ?? '',
           messages: [encodedMessage],
-          metadata: "",
-          proposers: [address ?? ""],
+          metadata: '',
+          proposers: [address ?? ''],
           title: `Manifest Module Control: Burn MFX`,
           summary: `This proposal includes a burn action for MFX.`,
           exec: 0,
@@ -89,44 +101,38 @@ export default function BurnForm({
         });
       }
 
-      const fee = await estimateFee(address ?? "", [msg]);
+      const fee = await estimateFee(address ?? '', [msg]);
       await tx([msg], {
         fee,
         onSuccess: () => {
-          setAmount("");
+          setAmount('');
           refetch();
         },
       });
     } catch (error) {
-      console.error("Error during burning:", error);
+      console.error('Error during burning:', error);
     } finally {
       setIsSigning(false);
     }
   };
 
   const handleMultiBurn = async () => {
-    if (
-      burnPairs.some(
-        (pair) => !pair.address || !pair.amount || isNaN(Number(pair.amount)),
-      )
-    ) {
+    if (burnPairs.some(pair => !pair.address || !pair.amount || isNaN(Number(pair.amount)))) {
       setToastMessage({
-        type: "alert-error",
-        title: "Missing fields",
-        description: "Please fill in all fields with valid values.",
-        bgColor: "#e74c3c",
+        type: 'alert-error',
+        title: 'Missing fields',
+        description: 'Please fill in all fields with valid values.',
+        bgColor: '#e74c3c',
       });
       return;
     }
     setIsSigning(true);
     try {
       const burnMsg = burnHeldBalance({
-        authority: admin ?? "",
-        burnCoins: burnPairs.map((pair) => ({
+        authority: admin ?? '',
+        burnCoins: burnPairs.map(pair => ({
           denom: denom.base,
-          amount: BigInt(
-            parseFloat(pair.amount) * Math.pow(10, exponent),
-          ).toString(),
+          amount: BigInt(parseFloat(pair.amount) * Math.pow(10, exponent)).toString(),
         })),
       });
       const encodedMessage = Any.fromPartial({
@@ -134,40 +140,34 @@ export default function BurnForm({
         value: MsgBurnHeldBalance.encode(burnMsg.value).finish(),
       });
       const msg = submitProposal({
-        groupPolicyAddress: admin ?? "",
+        groupPolicyAddress: admin ?? '',
         messages: [encodedMessage],
-        metadata: "",
-        proposers: [address ?? ""],
+        metadata: '',
+        proposers: [address ?? ''],
         title: `Manifest Module Control: Multi Burn MFX`,
         summary: `This proposal includes multiple burn actions for MFX.`,
         exec: 0,
       });
 
-      const fee = await estimateFee(address ?? "", [msg]);
+      const fee = await estimateFee(address ?? '', [msg]);
       await tx([msg], {
         fee,
         onSuccess: () => {
-          setBurnPairs([{ address: "", amount: "" }]);
+          setBurnPairs([{ address: '', amount: '' }]);
           setIsModalOpen(false);
           refetch();
         },
       });
     } catch (error) {
-      console.error("Error during multi-burning:", error);
+      console.error('Error during multi-burning:', error);
     } finally {
       setIsSigning(false);
     }
   };
 
-  const addBurnPair = () =>
-    setBurnPairs([...burnPairs, { address: "", amount: "" }]);
-  const removeBurnPair = (index: number) =>
-    setBurnPairs(burnPairs.filter((_, i) => i !== index));
-  const updateBurnPair = (
-    index: number,
-    field: "address" | "amount",
-    value: string,
-  ) => {
+  const addBurnPair = () => setBurnPairs([...burnPairs, { address: '', amount: '' }]);
+  const removeBurnPair = (index: number) => setBurnPairs(burnPairs.filter((_, i) => i !== index));
+  const updateBurnPair = (index: number, field: 'address' | 'amount', value: string) => {
     const newPairs = [...burnPairs];
     newPairs[index][field] = value;
     setBurnPairs(newPairs);
@@ -190,85 +190,97 @@ export default function BurnForm({
             <div className="grid grid-cols-2 gap-6">
               <div>
                 <p className="text-sm text-gray-500">NAME</p>
-                <p className="font-semibold text-md max-w-[20ch] truncate">
-                  {denom.name}
-                </p>
+                <p className="font-semibold text-md max-w-[20ch] truncate">{denom.name}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">YOUR BALANCE</p>
-                <p className="font-semibold text-md">
-                  {shiftDigits(balance, -exponent)}
-                </p>
+                <p className="font-semibold text-md">{shiftDigits(balance, -exponent)}</p>
               </div>
               <div>
                 <p className="text-md text-gray-500">EXPONENT</p>
-                <p className="font-semibold text-md">
-                  {denom?.denom_units[1]?.exponent}
-                </p>
+                <p className="font-semibold text-md">{denom?.denom_units[1]?.exponent}</p>
               </div>
               <div>
                 <p className="text-md text-gray-500">CIRCULATING SUPPLY</p>
-                <p className="font-semibold text-md max-w-[20ch] truncate">
-                  {denom.display}
-                </p>
+                <p className="font-semibold text-md max-w-[20ch] truncate">{denom.display}</p>
               </div>
             </div>
-            <div className="flex space-x-4 mt-8">
-              <div className="flex-1">
-                <label className="label p-0">
-                  <p className="text-md">AMOUNT</p>
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter amount"
-                  className="input input-bordered h-10 input-sm w-full"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                />
-              </div>
-              <div className="flex-1">
-                <label className="label p-0">
-                  <p className="text-md">TARGET</p>
-                </label>
-                <div className="flex flex-row items-center">
-                  <input
-                    type="text"
-                    placeholder="Target address"
-                    className="input input-bordered input-sm h-10 rounded-tl-lg rounded-bl-lg rounded-tr-none rounded-br-none w-full"
-                    value={recipient}
-                    onChange={(e) => setRecipient(e.target.value)}
-                  />
-                  <button
-                    onClick={handleAddressBookClick}
-                    className="btn btn-secondary btn-sm h-10 rounded-tr-lg rounded-br-lg rounded-bl-none rounded-tl-none"
-                  >
-                    <PiAddressBook className="w-6 h-6" />
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div className="flex justify-end mt-6 space-x-2">
-              <button
-                onClick={handleBurn}
-                className="btn btn-secondary btn-md flex-grow"
-                disabled={isSigning}
-              >
-                {isSigning ? (
-                  <span className="loading loading-dots loading-xs"></span>
-                ) : (
-                  "Burn"
-                )}
-              </button>
-              {isMFX && (
-                <button
-                  onClick={() => setIsModalOpen(true)}
-                  className="btn btn-secondary btn-md"
-                  aria-label={"multi-burn-btn"}
-                >
-                  Multi Burn
-                </button>
+            <Formik
+              initialValues={{ amount: '' }}
+              validationSchema={BurnSchema}
+              onSubmit={values => {
+                setAmount(values.amount);
+                handleBurn();
+              }}
+              validateOnChange={true}
+              validateOnBlur={true}
+              validateOnMount={true}
+            >
+              {({ isValid, dirty, setFieldValue }) => (
+                <Form>
+                  <div className="flex space-x-4 mt-8">
+                    <div className="flex-1">
+                      <NumberInput
+                        aria-label="burn-amount-input"
+                        label="AMOUNT"
+                        name="amount"
+                        placeholder="Enter amount"
+                        value={amount}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          setAmount(e.target.value);
+                          setFieldValue('amount', e.target.value);
+                        }}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label className="label p-0">
+                        <p className="text-md">TARGET</p>
+                      </label>
+                      <div className="flex flex-row items-center">
+                        <input
+                          type="text"
+                          aria-label="burn-target-input"
+                          disabled={!isMFX}
+                          placeholder="Target address"
+                          className="input input-bordered input-sm h-10 rounded-tl-lg rounded-bl-lg rounded-tr-none rounded-br-none w-full"
+                          value={isMFX ? recipient : address}
+                          onChange={e => setRecipient(e.target.value)}
+                        />
+                        <button
+                          onClick={handleAddressBookClick}
+                          className="btn btn-secondary btn-sm h-10 rounded-tr-lg rounded-br-lg rounded-bl-none rounded-tl-none"
+                        >
+                          <PiAddressBook className="w-6 h-6" />
+                        </button>
+                      </div>
+                      {isMFX && <p className="text-sm text-gray-500">{balanceNumber}</p>}
+                    </div>
+                  </div>
+                  <div className="flex justify-end mt-6 space-x-2">
+                    <button
+                      onClick={handleBurn}
+                      className="btn btn-secondary btn-md flex-grow"
+                      disabled={isSigning || !isValid}
+                    >
+                      {isSigning ? (
+                        <span className="loading loading-dots loading-xs"></span>
+                      ) : (
+                        'Burn'
+                      )}
+                    </button>
+                    {isMFX && (
+                      <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="btn btn-secondary btn-md"
+                        aria-label={'multi-burn-btn'}
+                      >
+                        Multi Burn
+                      </button>
+                    )}
+                  </div>
+                </Form>
               )}
-            </div>
+            </Formik>
             {isMFX && (
               <MultiBurnModal
                 isOpen={isModalOpen}

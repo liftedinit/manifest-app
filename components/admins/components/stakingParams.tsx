@@ -1,6 +1,6 @@
-import React from "react";
-import { ParamsSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking";
-import { UpdateStakingParamsModal } from "../modals/updateStakingParamsModal";
+import React from 'react';
+import { ParamsSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
+import { UpdateStakingParamsModal } from '../modals/updateStakingParamsModal';
 
 interface StakingParamsProps {
   stakingParams: ParamsSDKType;
@@ -16,9 +16,7 @@ export default function StakingParams({
   admin,
 }: StakingParamsProps) {
   const openParamsModal = () => {
-    const modal = document.getElementById(
-      `update-params-modal`,
-    ) as HTMLDialogElement;
+    const modal = document.getElementById(`update-params-modal`) as HTMLDialogElement;
     modal?.showModal();
   };
 
@@ -30,10 +28,7 @@ export default function StakingParams({
       >
         <h3 className="text-lg font-bold leading-6">Staking Params</h3>
 
-        <button
-          className="btn btn-primary btn-xs min-w-[4rem]"
-          onClick={openParamsModal}
-        >
+        <button className="btn btn-primary btn-xs min-w-[4rem]" onClick={openParamsModal}>
           Update
         </button>
       </div>
@@ -50,8 +45,7 @@ export default function StakingParams({
               <span className="text-md bg-base-300 py-2 rounded-md">
                 <span className="p-2">
                   {Number(
-                    BigInt(stakingParams.unbonding_time?.seconds ?? 1) /
-                      BigInt(86400),
+                    BigInt(stakingParams.unbonding_time?.seconds ?? 1) / BigInt(86400)
                   ).toString()}
                 </span>
               </span>
@@ -71,15 +65,10 @@ export default function StakingParams({
               </span>
             </div>
             <div className="flex flex-col gap-2 w-1/2 rounded-md">
-              <span className="text-sm text-gray-400 truncate">
-                MINIMUM COMMISSION
-              </span>
+              <span className="text-sm text-gray-400 truncate">MINIMUM COMMISSION</span>
               <span className="text-md bg-base-300 py-2 rounded-md">
                 <span className="p-2">
-                  {(Number(stakingParams.min_commission_rate) * 100)
-                    .toFixed(0)
-                    .toString()}{" "}
-                  %
+                  {(Number(stakingParams.min_commission_rate) * 100).toFixed(0).toString()} %
                 </span>
               </span>
             </div>
@@ -92,9 +81,7 @@ export default function StakingParams({
               </span>
             </div>
             <div className="flex flex-col gap-2 w-1/2 rounded-md">
-              <span className="text-sm text-gray-400 truncate">
-                HISTORICAL ENTRIES
-              </span>
+              <span className="text-sm text-gray-400 truncate">HISTORICAL ENTRIES</span>
               <span className="text-md bg-base-300 py-2 rounded-md">
                 <span className="p-2">{stakingParams.historical_entries}</span>
               </span>

@@ -1,4 +1,4 @@
-import { ChainCardProps } from "../types";
+import { ChainCardProps } from '../types';
 
 export const ChainCard = (props: ChainCardProps) => {
   return (

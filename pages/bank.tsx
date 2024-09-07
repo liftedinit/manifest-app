@@ -1,7 +1,7 @@
-import { WalletSection } from "@/components";
-import SendBox from "@/components/bank/components/sendBox";
-import TokenList from "@/components/bank/components/tokenList";
-import { chainName } from "@/config";
+import { WalletSection } from '@/components';
+import SendBox from '@/components/bank/components/sendBox';
+import TokenList from '@/components/bank/components/tokenList';
+import { chainName } from '@/config';
 import {
   useGroupsByAdmin,
   usePoaParams,
@@ -11,13 +11,13 @@ import {
   useTokenBalancesResolved,
   useTokenFactoryDenoms,
   useTokenFactoryDenomsMetadata,
-} from "@/hooks";
-import { CoinSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/base/v1beta1/coin";
-import { MetadataSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
-import { useChain } from "@cosmos-kit/react";
-import Head from "next/head";
-import React, { useMemo } from "react";
-import { HistoryBox } from "@/components";
+} from '@/hooks';
+import { CoinSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/base/v1beta1/coin';
+import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { useChain } from '@cosmos-kit/react';
+import Head from 'next/head';
+import React, { useMemo } from 'react';
+import { HistoryBox } from '@/components';
 
 export type CombinedBalanceInfo = {
   denom: string;
@@ -28,46 +28,39 @@ export type CombinedBalanceInfo = {
 
 export default function Bank() {
   const { address, isWalletConnected } = useChain(chainName);
-  const { balances, isBalancesLoading, refetchBalances } = useTokenBalances(
-    address ?? "",
-  );
+  const { balances, isBalancesLoading, refetchBalances } = useTokenBalances(address ?? '');
   const {
     balances: resolvedBalances,
     isBalancesLoading: resolvedLoading,
     refetchBalances: resolveRefetch,
-  } = useTokenBalancesResolved(address ?? "");
-  const { denoms, isDenomsLoading } = useTokenFactoryDenoms(address ?? "");
+  } = useTokenBalancesResolved(address ?? '');
+  const { denoms, isDenomsLoading } = useTokenFactoryDenoms(address ?? '');
   const { metadatas, isMetadatasLoading } = useTokenFactoryDenomsMetadata();
   const { poaParams, refetchPoaParams, isPoaParamsLoading } = usePoaParams();
-  const { groupByAdmin, isGroupByAdminLoading, refetchGroupByAdmin } =
-    useGroupsByAdmin(
-      poaParams?.admins[0] ??
-        "manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj",
-    );
+  const { groupByAdmin, isGroupByAdminLoading, refetchGroupByAdmin } = useGroupsByAdmin(
+    poaParams?.admins[0] ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'
+  );
   const group = groupByAdmin?.groups?.[0];
 
   const combinedBalances = useMemo(() => {
     if (!balances || !resolvedBalances || !metadatas) return [];
 
-    return balances.map(
-      (coreBalance: { denom: string; amount: any }): CombinedBalanceInfo => {
-        const resolvedBalance = resolvedBalances.find(
-          (rb: { denom: string | undefined }) =>
-            rb.denom === coreBalance.denom ||
-            rb.denom === coreBalance.denom.split("/").pop(),
-        );
-        const metadata = metadatas.metadatas.find(
-          (m: { base: string }) => m.base === coreBalance.denom,
-        );
+    return balances.map((coreBalance: { denom: string; amount: any }): CombinedBalanceInfo => {
+      const resolvedBalance = resolvedBalances.find(
+        (rb: { denom: string | undefined }) =>
+          rb.denom === coreBalance.denom || rb.denom === coreBalance.denom.split('/').pop()
+      );
+      const metadata = metadatas.metadatas.find(
+        (m: { base: string }) => m.base === coreBalance.denom
+      );
 
-        return {
-          denom: resolvedBalance?.denom || coreBalance.denom,
-          coreDenom: coreBalance.denom,
-          amount: coreBalance.amount,
-          metadata: metadata || null,
-        };
-      },
-    );
+      return {
+        denom: resolvedBalance?.denom || coreBalance.denom,
+        coreDenom: coreBalance.denom,
+        amount: coreBalance.amount,
+        metadata: metadata || null,
+      };
+    });
   }, [balances, resolvedBalances, metadatas]);
 
   const isLoading =
@@ -77,21 +70,15 @@ export default function Bank() {
     isMetadatasLoading ||
     isPoaParamsLoading;
 
-  const { sendTxs, refetch } = useSendTxIncludingAddressQuery(address ?? "");
+  const { sendTxs, refetch } = useSendTxIncludingAddressQuery(address ?? '');
 
   return (
     <>
       <div className="max-w-5xl relative py-8 mx-auto">
         <Head>
           <title>Bank - Alberto</title>
-          <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0"
-          />
-          <meta
-            name="description"
-            content="Alberto is the gateway to the Manifest Network"
-          />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <meta name="description" content="Alberto is the gateway to the Manifest Network" />
           <meta
             name="keywords"
             content="crypto, blockchain, application, Cosmos-SDK, Alberto, Manifest Network"
@@ -120,18 +107,18 @@ export default function Bank() {
 
           <script type="application/ld+json">
             {JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebPage",
-              name: "Bank - Alberto",
-              description: "Alberto is the gateway to the Manifest Network",
-              url: "https://",
-              image: "https://",
+              '@context': 'https://schema.org',
+              '@type': 'WebPage',
+              name: 'Bank - Alberto',
+              description: 'Alberto is the gateway to the Manifest Network',
+              url: 'https://',
+              image: 'https://',
               publisher: {
-                "@type": "Organization",
-                name: "Chandra Station",
+                '@type': 'Organization',
+                name: 'Chandra Station',
                 logo: {
-                  "@type": "ImageObject",
-                  url: "https:///img/logo.png",
+                  '@type': 'ImageObject',
+                  url: 'https:///img/logo.png',
                 },
               },
             })}
@@ -156,8 +143,8 @@ export default function Bank() {
                     Connect your wallet!
                   </h1>
                   <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl">
-                    Use the button below to connect your wallet and start
-                    interacting with your tokens.
+                    Use the button below to connect your wallet and start interacting with your
+                    tokens.
                   </p>
                   <WalletSection chainName="manifest" />
                 </div>
@@ -174,19 +161,14 @@ export default function Bank() {
                   <SendBox
                     balances={combinedBalances}
                     isBalancesLoading={resolvedLoading}
-                    refetchBalances={
-                      resolveRefetch || refetch || refetchBalances
-                    }
-                    address={address ?? ""}
+                    refetchBalances={resolveRefetch || refetch || refetchBalances}
+                    address={address ?? ''}
                   />
-                  <TokenList
-                    balances={combinedBalances}
-                    isLoading={resolvedLoading}
-                  />
+                  <TokenList balances={combinedBalances} isLoading={resolvedLoading} />
                 </div>
                 <div className="flex flex-col w-full gap-4 mt-4">
                   <HistoryBox
-                    address={address ?? ""}
+                    address={address ?? ''}
                     send={sendTxs ?? []}
                     isLoading={resolvedLoading}
                   />

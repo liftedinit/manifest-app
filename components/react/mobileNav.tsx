@@ -1,7 +1,7 @@
-import { useTheme } from "@/contexts/theme";
-import Image from "next/image";
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useTheme } from '@/contexts/theme';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import {
   PiBankThin,
   PiUsersFourThin,
@@ -11,15 +11,12 @@ import {
   PiHamburgerLight,
   PiMoonThin,
   PiSunThin,
-} from "react-icons/pi";
-import { WalletSection } from "../wallet";
-import { RiMenuUnfoldFill } from "react-icons/ri";
+} from 'react-icons/pi';
+import { WalletSection } from '../wallet';
+import { RiMenuUnfoldFill } from 'react-icons/ri';
 
 export default function MobileNav() {
-  const NavItem: React.FC<{ Icon: React.ElementType; href: string }> = ({
-    Icon,
-    href,
-  }) => {
+  const NavItem: React.FC<{ Icon: React.ElementType; href: string }> = ({ Icon, href }) => {
     return (
       <li>
         <Link href={href} legacyBehavior>
@@ -37,7 +34,7 @@ export default function MobileNav() {
   const { toggleTheme } = useTheme();
 
   useEffect(() => {
-    const storedIsDark = localStorage.getItem("isdark");
+    const storedIsDark = localStorage.getItem('isdark');
     if (storedIsDark) {
       setIsdark(JSON.parse(storedIsDark));
       toggleTheme();
@@ -45,36 +42,27 @@ export default function MobileNav() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("isdark", JSON.stringify(isdark));
+    localStorage.setItem('isdark', JSON.stringify(isdark));
   }, [isdark]);
 
   return (
     <>
       <div className=" top-4 left-4 p-3 bg-base-300 flex flex-row justify-between items-center  md:hidden ">
         <Image src="/logo.svg" height={38} width={38} alt="manifest" />
-        <label
-          htmlFor="my-drawer"
-          className="btn btn-sm btn-primary drawer-button"
-        >
-          <RiMenuUnfoldFill fontSize={"24px"} />
+        <label htmlFor="my-drawer" className="btn btn-sm btn-primary drawer-button">
+          <RiMenuUnfoldFill fontSize={'24px'} />
         </label>
       </div>
       <div className="drawer z-10">
         <input id="my-drawer" type="checkbox" className="drawer-toggle" />
 
         <div className="drawer-side">
-          <label
-            htmlFor="my-drawer"
-            aria-label="close sidebar"
-            className="drawer-overlay"
-          ></label>
+          <label htmlFor="my-drawer" aria-label="close sidebar" className="drawer-overlay"></label>
           <ul className="menu p-4 w-80 min-h-full bg-base-200 space-y-3 text-base-content">
             <div className="flex flex-row justify-between items-center">
               <div className="flex flex-row gap-4 justify-between items-center">
-                <img src={"/logo.svg"} alt="logo" width={42} height={42} />
-                <span className="text-2xl leadin-tight text-balance ">
-                  Alberto
-                </span>
+                <img src={'/logo.svg'} alt="logo" width={42} height={42} />
+                <span className="text-2xl leadin-tight text-balance ">Alberto</span>
               </div>
 
               <label className="swap swap-rotate hover:text-primary transition-all duration-300 ease-in-out">

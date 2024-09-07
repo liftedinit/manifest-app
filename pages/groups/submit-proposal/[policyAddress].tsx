@@ -1,21 +1,17 @@
-import React, { useState, useReducer } from "react";
-import { useRouter } from "next/router";
-import StepIndicator from "@/components/groups/components/StepIndicator";
-import ConfirmationForm from "@/components/groups/forms/proposals/ConfirmationForm";
-import ProposalDetails from "@/components/groups/forms/proposals/ProposalDetailsForm";
-import ProposalMetadataForm from "@/components/groups/forms/proposals/ProposalMetadataForm";
-import ProposalMessages from "@/components/groups/forms/proposals/ProposalMessages";
-import {
-  ProposalFormData,
-  proposalFormDataReducer,
-  ProposalAction,
-} from "@/helpers/formReducer";
-import Head from "next/head";
-import { chainName } from "@/config";
-import { useChain } from "@cosmos-kit/react";
-import Success from "@/components/groups/forms/proposals/SuccessForm";
-import { WalletSection } from "@/components";
-import { FaVoteYea } from "react-icons/fa";
+import React, { useState, useReducer } from 'react';
+import { useRouter } from 'next/router';
+import StepIndicator from '@/components/groups/components/StepIndicator';
+import ConfirmationForm from '@/components/groups/forms/proposals/ConfirmationForm';
+import ProposalDetails from '@/components/groups/forms/proposals/ProposalDetailsForm';
+import ProposalMetadataForm from '@/components/groups/forms/proposals/ProposalMetadataForm';
+import ProposalMessages from '@/components/groups/forms/proposals/ProposalMessages';
+import { ProposalFormData, proposalFormDataReducer, ProposalAction } from '@/helpers/formReducer';
+import Head from 'next/head';
+import { chainName } from '@/config';
+import { useChain } from '@cosmos-kit/react';
+import Success from '@/components/groups/forms/proposals/SuccessForm';
+import { WalletSection } from '@/components';
+import { FaVoteYea } from 'react-icons/fa';
 
 export default function SubmitProposal() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -23,32 +19,29 @@ export default function SubmitProposal() {
   const { policyAddress } = router.query;
   const { address, isWalletConnected } = useChain(chainName);
   const initialProposalFormData: ProposalFormData = {
-    title: "",
-    proposers: "",
-    summary: "",
+    title: '',
+    proposers: '',
+    summary: '',
     messages: [
       {
-        type: "send",
-        from_address: "",
-        to_address: "",
+        type: 'send',
+        from_address: '',
+        to_address: '',
         amount: {
-          denom: "",
-          amount: "",
+          denom: '',
+          amount: '',
         },
       },
     ],
     metadata: {
-      title: "",
-      authors: "",
-      summary: "",
-      details: "",
+      title: '',
+      authors: '',
+      summary: '',
+      details: '',
     },
   };
 
-  const [formData, dispatch] = useReducer(
-    proposalFormDataReducer,
-    initialProposalFormData,
-  );
+  const [formData, dispatch] = useReducer(proposalFormDataReducer, initialProposalFormData);
 
   const nextStep = () => {
     if (currentStep < 5) {
@@ -63,9 +56,9 @@ export default function SubmitProposal() {
   };
 
   const steps = [
-    { label: "Info", step: 1 },
-    { label: "Messages", step: 2 },
-    { label: "Metadata", step: 3 },
+    { label: 'Info', step: 1 },
+    { label: 'Messages', step: 2 },
+    { label: 'Metadata', step: 3 },
     {
       label: (
         <>
@@ -82,10 +75,7 @@ export default function SubmitProposal() {
       <Head>
         <title>Submit a proposal - Alberto</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta
-          name="description"
-          content="Alberto is the gateway to the Manifest Network"
-        />
+        <meta name="description" content="Alberto is the gateway to the Manifest Network" />
         <meta
           name="keywords"
           content="crypto, blockchain, application, Cosmos-SDK, Alberto, Manifest Network"
@@ -94,10 +84,7 @@ export default function SubmitProposal() {
         <link rel="icon" href="/favicon.ico" />
 
         <meta property="og:title" content="Submit a proposal - Alberto" />
-        <meta
-          property="og:description"
-          content="Alberto is the gateway to the Manifest Network"
-        />
+        <meta property="og:description" content="Alberto is the gateway to the Manifest Network" />
         <meta property="og:url" content="https://" />
         <meta property="og:image" content="https://" />
         <meta property="og:type" content="website" />
@@ -105,27 +92,24 @@ export default function SubmitProposal() {
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Submit a proposal - Alberto" />
-        <meta
-          name="twitter:description"
-          content="Alberto is the gateway to the Manifest Network"
-        />
+        <meta name="twitter:description" content="Alberto is the gateway to the Manifest Network" />
         <meta name="twitter:image" content="https://" />
         <meta name="twitter:site" content="@" />
 
         <script type="application/ld+json">
           {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "WebPage",
-            name: "Submit a proposal - Alberto",
-            description: "Alberto is the gateway to the Manifest Network",
-            url: "https://",
-            image: "https://",
+            '@context': 'https://schema.org',
+            '@type': 'WebPage',
+            name: 'Submit a proposal - Alberto',
+            description: 'Alberto is the gateway to the Manifest Network',
+            url: 'https://',
+            image: 'https://',
             publisher: {
-              "@type": "Organization",
-              name: "Chandra Station",
+              '@type': 'Organization',
+              name: 'Chandra Station',
               logo: {
-                "@type": "ImageObject",
-                url: "https:///img/logo.png",
+                '@type': 'ImageObject',
+                url: 'https:///img/logo.png',
               },
             },
           })}
@@ -140,8 +124,7 @@ export default function SubmitProposal() {
                   Connect your wallet!
                 </h1>
                 <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl text-balance">
-                  Use the button below to connect your wallet and submit a
-                  proposal.
+                  Use the button below to connect your wallet and submit a proposal.
                 </p>
                 <WalletSection chainName={chainName} />
               </div>
@@ -154,9 +137,7 @@ export default function SubmitProposal() {
       )}
       {isWalletConnected && (
         <div className="w-full flex flex-col gap-12 justify-between my-auto items-center animate-fadeIn max-w-4xl mt-10">
-          {currentStep != 5 && (
-            <StepIndicator steps={steps} currentStep={currentStep} />
-          )}
+          {currentStep != 5 && <StepIndicator steps={steps} currentStep={currentStep} />}
 
           {currentStep === 1 && (
             <div className="transition-opacity duration-300 animate-fadeIn">
@@ -164,7 +145,7 @@ export default function SubmitProposal() {
                 formData={formData}
                 dispatch={dispatch}
                 nextStep={nextStep}
-                address={address ?? ""}
+                address={address ?? ''}
               />
             </div>
           )}
@@ -191,7 +172,7 @@ export default function SubmitProposal() {
           {currentStep === 4 && (
             <div className="transition-opacity duration-300 animate-fadeIn">
               <ConfirmationForm
-                address={address ?? ""}
+                address={address ?? ''}
                 policyAddress={policyAddress as string}
                 formData={formData}
                 prevStep={prevStep}

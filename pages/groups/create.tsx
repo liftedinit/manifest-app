@@ -1,26 +1,26 @@
-import React, { useState, useEffect, useReducer } from "react";
-import { formDataReducer, FormData } from "@/helpers/formReducer";
-import ConfirmationForm from "@/components/groups/forms/groups/ConfirmationForm";
-import GroupDetails from "@/components/groups/forms/groups/GroupDetailsForm";
-import GroupPolicyForm from "@/components/groups/forms/groups/GroupPolicyForm";
-import MemberInfoForm from "@/components/groups/forms/groups/MemberInfoForm";
-import { Duration } from "@chalabi/manifestjs/dist/codegen/google/protobuf/duration";
-import StepIndicator from "@/components/groups/components/StepIndicator";
-import { useChain } from "@cosmos-kit/react";
-import { chainName } from "@/config";
-import { WalletSection } from "@/components";
-import Success from "@/components/groups/forms/groups/Success";
-import Head from "next/head";
+import React, { useState, useEffect, useReducer } from 'react';
+import { formDataReducer, FormData } from '@/helpers/formReducer';
+import ConfirmationForm from '@/components/groups/forms/groups/ConfirmationForm';
+import GroupDetails from '@/components/groups/forms/groups/GroupDetailsForm';
+import GroupPolicyForm from '@/components/groups/forms/groups/GroupPolicyForm';
+import MemberInfoForm from '@/components/groups/forms/groups/MemberInfoForm';
+import { Duration } from '@chalabi/manifestjs/dist/codegen/google/protobuf/duration';
+import StepIndicator from '@/components/groups/components/StepIndicator';
+import { useChain } from '@cosmos-kit/react';
+import { chainName } from '@/config';
+import { WalletSection } from '@/components';
+import Success from '@/components/groups/forms/groups/Success';
+import Head from 'next/head';
 const initialFormData: FormData = {
-  title: "",
-  authors: "",
-  summary: "",
-  description: "",
-  forumLink: "",
+  title: '',
+  authors: '',
+  summary: '',
+  description: '',
+  forumLink: '',
   votingPeriod: {} as Duration,
-  votingThreshold: "",
+  votingThreshold: '',
 
-  members: [{ address: "", name: "", weight: "" }],
+  members: [{ address: '', name: '', weight: '' }],
 };
 
 export default function CreateGroup() {
@@ -43,10 +43,10 @@ export default function CreateGroup() {
   const { isWalletConnected } = useChain(chainName);
 
   const steps = [
-    { label: "Details", step: 1 },
-    { label: "Policy", step: 2 },
-    { label: "Members", step: 3 },
-    { label: "Confirmation", step: 4 },
+    { label: 'Details', step: 1 },
+    { label: 'Policy', step: 2 },
+    { label: 'Members', step: 3 },
+    { label: 'Confirmation', step: 4 },
   ];
 
   return (
@@ -54,10 +54,7 @@ export default function CreateGroup() {
       <Head>
         <title>Create a group - Alberto</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta
-          name="description"
-          content="Alberto is the gateway to the Manifest Network"
-        />
+        <meta name="description" content="Alberto is the gateway to the Manifest Network" />
         <meta
           name="keywords"
           content="crypto, blockchain, application, Cosmos-SDK, Alberto, Manifest Network"
@@ -66,10 +63,7 @@ export default function CreateGroup() {
         <link rel="icon" href="/favicon.ico" />
 
         <meta property="og:title" content="Create a group - Alberto" />
-        <meta
-          property="og:description"
-          content="Alberto is the gateway to the Manifest Network"
-        />
+        <meta property="og:description" content="Alberto is the gateway to the Manifest Network" />
         <meta property="og:url" content="https://" />
         <meta property="og:image" content="https://" />
         <meta property="og:type" content="website" />
@@ -77,27 +71,24 @@ export default function CreateGroup() {
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Create a group - Alberto" />
-        <meta
-          name="twitter:description"
-          content="Alberto is the gateway to the Manifest Network"
-        />
+        <meta name="twitter:description" content="Alberto is the gateway to the Manifest Network" />
         <meta name="twitter:image" content="https://" />
         <meta name="twitter:site" content="@" />
 
         <script type="application/ld+json">
           {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "WebPage",
-            name: "Create a group - Alberto",
-            description: "Alberto is the gateway to the Manifest Network",
-            url: "https://",
-            image: "https://",
+            '@context': 'https://schema.org',
+            '@type': 'WebPage',
+            name: 'Create a group - Alberto',
+            description: 'Alberto is the gateway to the Manifest Network',
+            url: 'https://',
+            image: 'https://',
             publisher: {
-              "@type": "Organization",
-              name: "Chandra Station",
+              '@type': 'Organization',
+              name: 'Chandra Station',
               logo: {
-                "@type": "ImageObject",
-                url: "https:///img/logo.png",
+                '@type': 'ImageObject',
+                url: 'https:///img/logo.png',
               },
             },
           })}
@@ -112,8 +103,7 @@ export default function CreateGroup() {
                   Connect your wallet!
                 </h1>
                 <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl text-balance">
-                  Use the button below to connect your wallet and create a
-                  group.
+                  Use the button below to connect your wallet and create a group.
                 </p>
                 <WalletSection chainName={chainName} />
               </div>
@@ -126,9 +116,7 @@ export default function CreateGroup() {
       )}
       {isWalletConnected && (
         <div className="w-full flex flex-col gap-12 justify-between my-auto items-center animate-fadeIn max-w-4xl mt-10">
-          {currentStep != 5 && (
-            <StepIndicator steps={steps} currentStep={currentStep} />
-          )}
+          {currentStep != 5 && <StepIndicator steps={steps} currentStep={currentStep} />}
 
           {currentStep === 1 && (
             <div className="transition-opacity duration-300 animate-fadeIn">
@@ -136,7 +124,7 @@ export default function CreateGroup() {
                 formData={formData}
                 dispatch={dispatch}
                 nextStep={nextStep}
-                address={address ?? ""}
+                address={address ?? ''}
               />
             </div>
           )}
@@ -153,7 +141,7 @@ export default function CreateGroup() {
           {currentStep === 3 && (
             <div className="transition-opacity duration-300 animate-fadeIn">
               <MemberInfoForm
-                address={address ?? ""}
+                address={address ?? ''}
                 formData={formData}
                 dispatch={dispatch}
                 nextStep={nextStep}
@@ -163,11 +151,7 @@ export default function CreateGroup() {
           )}
           {currentStep === 4 && (
             <div className="transition-opacity duration-300 animate-fadeIn">
-              <ConfirmationForm
-                formData={formData}
-                prevStep={prevStep}
-                nextStep={nextStep}
-              />
+              <ConfirmationForm formData={formData} prevStep={prevStep} nextStep={nextStep} />
             </div>
           )}
           {currentStep === 5 && (

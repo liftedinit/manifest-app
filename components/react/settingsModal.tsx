@@ -1,7 +1,7 @@
 // components/SettingsModal.tsx
 
-import React from "react";
-import { useAdvancedMode } from "@/contexts";
+import React from 'react';
+import { useAdvancedMode } from '@/contexts';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -9,7 +9,7 @@ interface SettingsModalProps {
 }
 
 const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
-  const { isAdvancedMode, toggleAdvancedMode } = useAdvancedMode();
+  // const { isAdvancedMode, toggleAdvancedMode } = useAdvancedMode();
 
   if (!isOpen) return null;
 
@@ -24,8 +24,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
               <input
                 type="checkbox"
                 className="toggle"
-                checked={isAdvancedMode}
-                onChange={toggleAdvancedMode}
+                // checked={isAdvancedMode}
+                // onChange={toggleAdvancedMode}
               />
             </label>
           </div>
