@@ -1,10 +1,10 @@
-import { MouseEventHandler, useMemo, useState } from 'react';
+import { MouseEventHandler, useMemo, useState, useEffect } from 'react';
 
 import { ArrowPathIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 import { ArrowUpIcon } from './icons';
 import { useChain } from '@cosmos-kit/react';
 import { WalletStatus } from 'cosmos-kit';
-import Image from 'next/image';
+
 import { CopyIcon } from './icons';
 import { MdWallet } from 'react-icons/md';
 const buttons = {
@@ -36,9 +36,26 @@ interface WalletSectionProps {
 
 export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
   const { connect, openView, status, username, address } = useChain(chainName);
+  const [localStatus, setLocalStatus] = useState(status);
+
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
+    if (status === WalletStatus.Connecting) {
+      timeoutId = setTimeout(() => {
+        setLocalStatus(WalletStatus.Error);
+      }, 10000); // 10 seconds timeout
+    } else {
+      setLocalStatus(status);
+    }
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [status]);
 
   const _renderWalletContent = useMemo(() => {
-    if (status === WalletStatus.Connecting) {
+    if (localStatus === WalletStatus.Connecting) {
       return (
         <button className="btn w-full border-0 btn-gradient animate-pulse text-white">
           <svg
@@ -66,9 +83,11 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
       );
     }
 
-    const buttonData = buttons[status];
+    const buttonData = buttons[localStatus];
     const onClick =
-      status === WalletStatus.Disconnected || status === WalletStatus.Rejected ? connect : openView;
+      localStatus === WalletStatus.Disconnected || localStatus === WalletStatus.Rejected
+        ? connect
+        : openView;
 
     return (
       <button
@@ -79,13 +98,13 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
         {buttonData.title}
       </button>
     );
-  }, [status, connect, openView, username, address]);
+  }, [localStatus, connect, openView, username, address]);
 
   return (
     <div className="w-full transition-all duration-300 ease-in-out relative">
       {status === WalletStatus.Connected ? (
         <div
-          className="bg-base-200 rounded-lg p-4 transition-all duration-300 ease-in-out relative h-48"
+          className="bg-[#0000000A] dark:bg-[#FFFFFF0F] rounded-lg p-4 transition-all duration-300 ease-in-out relative h-48"
           style={{
             backgroundImage: 'url("/flower.svg")',
             backgroundSize: 'cover',
@@ -95,7 +114,7 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
         >
           <div className="relative z-10 h-full flex flex-col  justify-between">
             <p className="font-medium text-xl text-center mb-2">{username || 'Connected User'}</p>
-            <div className="bg-base-300 rounded-full py-2 px-4 text-center mb-4 flex items-center flex-row justify-between w-full ">
+            <div className="bg-base-100 dark:bg-base-200 rounded-full py-2 px-4 text-center mb-4 flex items-center flex-row justify-between w-full ">
               <p className="text-xs  truncate flex-grow">
                 {address
                   ? `${address.slice(0, 12)}...${address.slice(-6)}`

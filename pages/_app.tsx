@@ -32,10 +32,10 @@ import {
   cosmosAminoConverters,
   cosmosProtoRegistry,
 } from '@chalabi/manifestjs';
-import { AdvancedModeProvider, ToastProvider } from '@/contexts';
+import { ToastProvider } from '@/contexts';
 
 import MobileNav from '@/components/react/mobileNav';
-import { DynamicEndpointSelector } from '@/components/react/endpointSelector';
+import EndpointSelector from '@/components/react/endpointSelector';
 
 import { useEndpointStore } from '@/store/endpointStore';
 
@@ -179,6 +179,7 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
     // <AblyProvider client={ablyClient}>
 
     <QueryClientProvider client={client}>
+      <ReactQueryDevtools />
       {isLoading ? (
         <div className="fixed inset-0 flex flex-col items-center justify-center bg-base-200 bg-opacity-75 z-50">
           <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-primary mb-4"></div>
@@ -215,27 +216,27 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
         >
           <ThemeProvider>
             <ToastProvider>
-              <AdvancedModeProvider>
-                <SideNav />
-                <MobileNav />
-                <div className="relative min-h-screen max-w-screen  md:ml-20 sm:px-4 sm:py-2 bg-background-color ">
-                  <DynamicEndpointSelector />
-                  <Component {...pageProps} />
-                </div>
+              {/* <AdvancedModeProvider> */}
+              <SideNav />
+              <MobileNav />
+              <div className="relative min-h-screen max-w-screen  md:ml-20 sm:px-4 sm:py-2 bg-background-color transition-all duration-300 ease-in-out ">
+                <EndpointSelector />
+                <Component {...pageProps} />
+              </div>
 
-                {/* this is for the web3auth signing modal */}
-                {isBrowser &&
-                  createPortal(
-                    <SignModal
-                      visible={web3AuthPrompt !== undefined}
-                      onClose={() => web3AuthPrompt?.resolve(false)}
-                      data={web3AuthPrompt?.signData ?? ({} as SignData)}
-                      approve={() => web3AuthPrompt?.resolve(true)}
-                      reject={() => web3AuthPrompt?.resolve(false)}
-                    />,
-                    document.body
-                  )}
-              </AdvancedModeProvider>
+              {/* this is for the web3auth signing modal */}
+              {isBrowser &&
+                createPortal(
+                  <SignModal
+                    visible={web3AuthPrompt !== undefined}
+                    onClose={() => web3AuthPrompt?.resolve(false)}
+                    data={web3AuthPrompt?.signData ?? ({} as SignData)}
+                    approve={() => web3AuthPrompt?.resolve(true)}
+                    reject={() => web3AuthPrompt?.resolve(false)}
+                  />,
+                  document.body
+                )}
+              {/* </AdvancedModeProvider> */}
             </ToastProvider>
           </ThemeProvider>
         </ChainProvider>

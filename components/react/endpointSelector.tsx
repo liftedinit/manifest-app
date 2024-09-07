@@ -1,6 +1,5 @@
 import React, { useState, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useAdvancedMode } from '@/contexts';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import { useToast } from '@/contexts';
 import dynamic from 'next/dynamic';
@@ -15,8 +14,7 @@ export interface Endpoint {
   custom: boolean;
 }
 
-const EndpointSelector: React.FC = () => {
-  const { isAdvancedMode } = useAdvancedMode();
+function SSREndpointSelector() {
   const {
     endpoints,
     selectedEndpointKey,
@@ -35,12 +33,6 @@ const EndpointSelector: React.FC = () => {
     updateEndpointHealth: state.updateEndpointHealth,
   }));
   const { setToastMessage } = useToast();
-  const handleEndpointChange = useCallback(
-    (endpoint: Endpoint) => {
-      setSelectedEndpointKey(endpoint.provider);
-    },
-    [setSelectedEndpointKey]
-  );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newRPCEndpoint, setNewRPCEndpoint] = useState('');
@@ -122,22 +114,15 @@ const EndpointSelector: React.FC = () => {
   const isCustomEndpoint = (endpoint: Endpoint) => endpoint.custom;
 
   return (
-    <div
-      className={`absolute top-2 right-2 dropdown dropdown-bottom dropdown-end ${
-        isAdvancedMode ? 'block' : 'hidden'
-      }`}
-    >
-      <label
-        tabIndex={0}
-        className="btn btn-primary btn-outline m-1 flex items-center justify-between"
-      >
+    <div className={`absolute top-2 right-2 dropdown dropdown-bottom dropdown-end `}>
+      <label tabIndex={0} className="btn  btn-primary m-1 flex items-center justify-between">
         <div className="flex items-center">
           <div
             className={`w-3 h-3 rounded-full mr-2 ${
-              selectedEndpoint?.isHealthy ? 'bg-primary' : 'bg-secondary'
+              selectedEndpoint?.isHealthy ? 'bg-success' : 'bg-error'
             }`}
           ></div>
-          <span className="text-white">{selectedEndpointKey}</span>
+          <span className="">{selectedEndpointKey}</span>
         </div>
         <ChevronDownIcon className="w-5 h-5 ml-2" />
       </label>
@@ -170,7 +155,7 @@ const EndpointSelector: React.FC = () => {
                   <div className="flex items-center">
                     <div
                       className={`w-3 h-3 rounded-full ${
-                        endpoint.isHealthy ? 'bg-primary' : 'bg-secondary'
+                        endpoint.isHealthy ? 'bg-success' : 'bg-error'
                       }`}
                     ></div>
                   </div>
@@ -271,8 +256,10 @@ const EndpointSelector: React.FC = () => {
       )}
     </div>
   );
-};
+}
 
-export const DynamicEndpointSelector = dynamic(() => Promise.resolve(EndpointSelector), {
+const EndpointSelector = dynamic(() => Promise.resolve(SSREndpointSelector), {
   ssr: false,
 });
+
+export default EndpointSelector;

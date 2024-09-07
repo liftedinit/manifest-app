@@ -133,9 +133,9 @@ module.exports = {
     function ({ addUtilities }) {
       const newUtilities = {
         '.btn-gradient': {
-          backgroundImage: 'linear-gradient(to right, #A087FF, #380CC5)',
+          backgroundImage: 'linear-gradient(98.22deg, #A087FF -51.92%, #380CC5 103.12%)',
           '&:hover': {
-            backgroundImage: 'linear-gradient(to right, #8B6EFF, #2F0AA3)',
+            backgroundImage: 'linear-gradient(98.22deg, #A087FF -51.92%, #380CC5 103.12%)',
           },
         },
       };

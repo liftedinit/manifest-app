@@ -16,6 +16,7 @@ import {
   DarkIcon,
   LightIcon,
 } from '@/components/icons';
+import EndpointSelector from './endpointSelector';
 
 export default function SideNav() {
   const [isDrawerVisible, setDrawerVisible] = useState(false);
@@ -23,7 +24,7 @@ export default function SideNav() {
   const [isdark, setIsdark] = useState(false);
 
   const { toggleTheme, theme } = useTheme();
-
+  console.log('theme in sideNav', theme);
   const toggleDrawer = () => setDrawerVisible(!isDrawerVisible);
 
   const NavItem: React.FC<{
@@ -42,7 +43,7 @@ export default function SideNav() {
             ${isActive ? 'text-white bg-primary' : 'text-gray-500 hover:text-primary'}`}
           >
             <div
-              className={`w-8 h-8 duration-300  ${isActive ? 'text-white bg-primary' : 'text-gray-500 group-hover:text-primary'}`}
+              className={`w-8 h-8 duration-300  ${isActive ? 'text-white bg-primary' : 'text-[#00000066] dark:text-[#FFFFFF66] group-hover:text-primary'}`}
             >
               <Icon className="w-full h-full " />
             </div>
@@ -58,7 +59,7 @@ export default function SideNav() {
   };
 
   const SideNav: React.FC = () => (
-    <div className="overflow-y-auto z-30 py-5 px-3 w-32 bg-base-300 flex flex-col items-center h-full transition-transform duration-300 ease-in-out">
+    <div className="overflow-y-auto z-30 py-5 px-3 w-32 bg-[#ffffff3b] dark:bg-[#ffffff10] flex flex-col items-center h-full transition-transform duration-300 ease-in-out">
       <Link href={'/#'} passHref legacyBehavior>
         <a href="#" className="mb-12">
           <Image src={'/logo.svg'} className="h-16 w-16" alt="Logo" height={264} width={264} />
@@ -70,17 +71,17 @@ export default function SideNav() {
         <NavItem Icon={AdminsIcon} href="/admins" />
         <NavItem Icon={FactoryIcon} href="/factory" />
       </ul>
-      <div className="mt-auto flex flex-col items-center space-y-6 bg-base-200 rounded-lg p-4 w-[75%]">
-        <div className="flex justify-center w-full text-gray-500">
+      <div className="mt-auto flex flex-col items-center space-y-6 dark:bg-[#FFFFFF0F] bg-[#0000000A] rounded-lg p-4 w-[75%]">
+        <div className="flex justify-center w-full text-[#00000066] dark:text-[#FFFFFF66]">
           <IconWallet chainName="manifest" />
         </div>
-        <button
+        {/* <button
           onClick={() => setIsSettingsModalOpen(true)}
           className="hover:text-primary transition-all text-gray-500 duration-300 ease-in-out"
         >
           <RiSettings4Fill className="w-8 h-8" />
-        </button>
-        <label className="swap swap-rotate text-gray-500 hover:text-primary transition-all duration-300 ease-in-out">
+        </button> */}
+        <label className="swap swap-rotate text-[#00000066] dark:text-[#FFFFFF66] hover:text-primary dark:hover:text-primary transition-all duration-300 ease-in-out">
           <input
             type="checkbox"
             className="theme-controller hidden"
@@ -113,7 +114,7 @@ export default function SideNav() {
             className={`flex items-center p-2 text-base font-normal rounded-lg transition duration-300 ease-in-out ${
               isActive
                 ? 'bg-primary text-white'
-                : 'text-gray-500 hover:bg-base-200 hover:text-primary'
+                : 'text-[#00000066] dark:text-[#FFFFFF66]  hover:bg-base-300 hover:text-primary dark:hover:text-primary dark:hover:bg-base-300'
             }`}
           >
             <Icon className="w-8 h-8 mr-6" />
@@ -125,7 +126,7 @@ export default function SideNav() {
   };
 
   const SideDrawer: React.FC = () => (
-    <div className="overflow-y-auto flex flex-col h-full bg-base-300 w-64 p-4">
+    <div className="overflow-y-auto flex flex-col h-full bg-[#F4F4FF] dark:bg-[#1D192D]  w-64 p-4">
       <div className="flex flex-row gap-2 justify-start ml-2 mt-2 items-center mb-12 space-x-2">
         <Link href={'/#'} passHref legacyBehavior>
           <Image src={'/logo.svg'} alt="logo" width={48} height={48} className="cursor-pointer" />
@@ -141,7 +142,7 @@ export default function SideNav() {
       <div className="mt-auto">
         <div className="flex items-center justify-between mb-2">
           {/* Theme toggle */}
-          <div className="relative w-full h-[3.6rem] bg-base-200 rounded-lg">
+          <div className="relative w-full h-[3.6rem] bg-[#0000000A] dark:bg-[#FFFFFF0F] rounded-xl">
             <label className="flex items-center justify-between w-full h-full cursor-pointer">
               <input
                 type="checkbox"
@@ -163,10 +164,11 @@ export default function SideNav() {
                   className={`w-8 h-8 ${theme === 'light' ? 'text-white' : 'text-gray-500'} transition-colors duration-300`}
                 />
               </div>
-              <span className="absolute left-1 w-[calc(50%-0.5rem)] h-12 bg-primary rounded-lg transition-all duration-300 ease-in-out transform peer-checked:translate-x-[calc(100%+0.5rem)]" />
+              <span className="absolute left-1 w-[calc(50%-0.5rem)] h-12 bg-primary rounded-xl transition-all duration-300 ease-in-out transform peer-checked:translate-x-[calc(100%+0.5rem)]" />
             </label>
           </div>
         </div>
+
         <ul className="pt-5 pb-4">
           <div className="mx-auto w-full justify-center items-center h-full">
             <WalletSection chainName="manifest" />
@@ -196,7 +198,7 @@ export default function SideNav() {
       </aside>
       <button
         onClick={toggleDrawer}
-        className={`fixed top-1/2 transform -translate-y-1/2 z-50 p-2 rounded-full dark:bg-base-200 bg-base-100 hover:bg-primary dark:hover:bg-primary transition-all duration-500 ease-in-out ${
+        className={`fixed top-1/2 transform -translate-y-1/2 z-50 opacity-100 p-2 text-white rounded-full bg-[#C1C1CB] dark:bg-[#444151] hover:bg-primary dark:hover:bg-primary transition-all duration-500 ease-in-out ${
           isDrawerVisible ? 'left-60' : 'left-28'
         }`}
       >
