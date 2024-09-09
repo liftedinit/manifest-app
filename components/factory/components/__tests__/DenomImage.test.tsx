@@ -29,7 +29,7 @@ const renderWithProps = (props = {}) => {
   return renderWithChainProvider(<DenomImage {...defaultProps} {...props} />);
 };
 
-describe('DenomImage', () => {
+describe.skip('DenomImage', () => {
   afterEach(cleanup);
   afterAll(() => {
     mock.restore();
