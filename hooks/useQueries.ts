@@ -403,29 +403,29 @@ export const useTokenFactoryBalance = (address: string, denom: string) => {
   };
 };
 
-export const usePoaParams = () => {
+export const usePoaGetAdmin = () => {
   const { lcdQueryClient } = usePoaLcdQueryClient();
 
-  const fetchParams = async () => {
+  const fetchPoaAdmin = async () => {
     if (!lcdQueryClient) {
       throw new Error('LCD Client not ready');
     }
-    return await lcdQueryClient.strangelove_ventures.poa.v1.params({});
+    return await lcdQueryClient.strangelove_ventures.poa.v1.poaAuthority({});
   };
 
   const paramsQuery = useQuery({
     queryKey: ['paramsInfo', lcdQueryClient],
-    queryFn: fetchParams,
+    queryFn: fetchPoaAdmin,
     enabled: !!lcdQueryClient,
     staleTime: Infinity,
     refetchOnMount: true,
   });
 
   return {
-    poaParams: paramsQuery.data?.params,
-    isPoaParamsLoading: paramsQuery.isLoading,
-    isPoaParamsError: paramsQuery.isError,
-    refetchPoaParams: paramsQuery.refetch,
+    poaAdmin: paramsQuery.data?.authority,
+    isPoaAdminLoading: paramsQuery.isLoading,
+    isPoaAdminError: paramsQuery.isError,
+    refetchPoaAdmin: paramsQuery.refetch,
   };
 };
 

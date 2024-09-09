@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import MintForm from '@/components/factory/forms/MintForm';
 import BurnForm from '@/components/factory/forms/BurnForm';
 
-import { useGroupsByAdmin, usePoaParams } from '@/hooks';
+import { useGroupsByAdmin, usePoaGetAdmin } from '@/hooks';
 
 export default function MetaBox({
   denom,
@@ -18,15 +18,14 @@ export default function MetaBox({
 }>) {
   const [activeTab, setActiveTab] = useState<'burn' | 'mint'>('mint');
 
-  const { poaParams, isPoaParamsLoading, refetchPoaParams, isPoaParamsError } = usePoaParams();
-  const admin = poaParams?.admins[0];
-  const { groupByAdmin, isGroupByAdminLoading, refetchGroupByAdmin } = useGroupsByAdmin(
-    admin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'
+  const { poaAdmin, isPoaAdminLoading } = usePoaGetAdmin();
+  const { groupByAdmin, isGroupByAdminLoading } = useGroupsByAdmin(
+    poaAdmin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'
   );
 
   const members = groupByAdmin?.groups?.[0]?.members;
   const isAdmin = members?.some(member => member?.member?.address === address);
-  const isLoading = isPoaParamsLoading || isGroupByAdminLoading;
+  const isLoading = isPoaAdminLoading || isGroupByAdminLoading;
 
   useEffect(() => {
     if (denom?.base.includes('mfx')) {
@@ -81,7 +80,7 @@ export default function MetaBox({
             {activeTab === 'burn' && (
               <BurnForm
                 isAdmin={isAdmin ?? false}
-                admin={admin ?? ''}
+                admin={poaAdmin ?? ''}
                 balance={balance}
                 refetch={refetch}
                 address={address}
@@ -91,7 +90,7 @@ export default function MetaBox({
             {activeTab === 'mint' && (
               <MintForm
                 isAdmin={isAdmin ?? false}
-                admin={admin ?? ''}
+                admin={poaAdmin ?? ''}
                 balance={balance}
                 refetch={refetch}
                 address={address}

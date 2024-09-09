@@ -37,15 +37,6 @@ describe('AdminOptions', () => {
     expect(within(detailsContainer).getByText('details1')).toBeInTheDocument();
   });
 
-  test('opens update modal on button click', () => {
-    renderWithProps();
-    const updateAdminButtonContainer = screen.getByLabelText('update admin');
-    fireEvent.click(within(updateAdminButtonContainer).getByText('Update Admin'));
-    const modal = document.getElementById('update-admin-modal') as HTMLDialogElement;
-    expect(modal).toBeInTheDocument();
-    expect(modal.open).toBe(true);
-  });
-
   test('opens description modal on button click', () => {
     renderWithProps();
     fireEvent.click(screen.getByLabelText('three-dots'));

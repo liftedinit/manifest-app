@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, jest, mock } from 'bun:test';
+import { afterAll, afterEach, describe, expect, test, jest, mock } from 'bun:test';
 import React from 'react';
 import { screen, cleanup, fireEvent } from '@testing-library/react';
 import MyDenoms from '@/components/factory/components/MyDenoms';
@@ -37,6 +37,9 @@ const allDenoms = [mockDenom, mockMfxDenom];
 
 describe('MyDenoms', () => {
   afterEach(cleanup);
+  afterAll(() => {
+    mock.restore();
+  });
 
   test('renders loading skeleton when isLoading is true', () => {
     renderWithProps({ isLoading: true });

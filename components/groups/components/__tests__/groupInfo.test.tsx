@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, jest, mock, beforeAll } from 'bun:test';
+import { afterAll, afterEach, describe, expect, test, jest, mock, beforeAll } from 'bun:test';
 import React from 'react';
 import { screen, cleanup, fireEvent } from '@testing-library/react';
 import { GroupInfo } from '@/components/groups/components/groupInfo';
@@ -34,6 +34,9 @@ describe('GroupInfo', () => {
     m.mockReturnValue({ balance: { amount: '1000000' } });
   });
   afterEach(cleanup);
+  afterAll(() => {
+    mock.restore();
+  });
 
   test('renders initial state correctly', () => {
     renderWithProps();

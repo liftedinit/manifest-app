@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, jest, mock } from 'bun:test';
+import { afterAll, afterEach, describe, expect, test, jest, mock } from 'bun:test';
 import React from 'react';
 import { screen, cleanup, waitFor, within } from '@testing-library/react';
 import MetaBox from '@/components/factory/components/metaBox';
@@ -10,18 +10,22 @@ expect.extend(matchers);
 
 // Mock usePoaParams and useGroupsByAdmin hooks
 mock.module('@/hooks', () => ({
-  usePoaParams: jest.fn().mockReturnValue({
-    poaParams: { admins: ['mockAdmin'] },
-    isPoaParamsLoading: false,
-    refetchPoaParams: jest.fn(),
-    isPoaParamsError: false,
-  }),
   useGroupsByAdmin: jest.fn().mockReturnValue({
     groupByAdmin: {
       groups: [{ members: [{ member: { address: 'mockAddress' } }] }],
     },
     isGroupByAdminLoading: false,
     refetchGroupByAdmin: jest.fn(),
+  }),
+  useTokenFactoryBalance: jest.fn().mockReturnValue({
+    balance: '0',
+    isBalanceLoading: false,
+    refetchBalance: jest.fn(),
+  }),
+  usePoaGetAdmin: jest.fn().mockReturnValue({
+    poaAdmin: 'mockAdmin',
+    isPoaAdminLoading: false,
+    refetchPoaAdmin: jest.fn(),
   }),
 }));
 
@@ -37,6 +41,9 @@ const renderWithProps = (props = {}) => {
 
 describe('MetaBox', () => {
   afterEach(cleanup);
+  afterAll(() => {
+    mock.restore();
+  });
 
   test("renders 'Select a token to view options' message when no denom is provided", () => {
     renderWithProps();
