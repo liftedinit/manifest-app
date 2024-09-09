@@ -42,6 +42,7 @@
     "@tanstack/react-query-devtools": "^5.55.0",
     "ably": "^2.3.2",
     "apexcharts": "^3.53.0",
+    "autoprefixer": "^10.4.20",
     "bad-words": "^4.0.0",
     "chain-registry": "1.63.83",
     "cosmjs-types": "^0.9.0",
