@@ -3,6 +3,9 @@ import { screen, cleanup, waitFor, fireEvent } from '@testing-library/react';
 import { YourGroups } from '@/components/groups/components/myGroups';
 import { mockGroup, mockGroup2, mockProposals } from '@/tests/mock';
 import { renderWithChainProvider } from '@/tests/render';
+import matchers from '@testing-library/jest-dom/matchers';
+
+expect.extend(matchers);
 
 // Mock useRouter
 const m = jest.fn();
