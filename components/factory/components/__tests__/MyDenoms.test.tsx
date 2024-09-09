@@ -17,11 +17,6 @@ mock.module('next/router', () => ({
   }),
 }));
 
-// TODO: Mock DenomImage until we can fix the URL parsing issue
-mock.module('@/components/factory/components/DenomImage', () => ({
-  DenomImage: () => <div>DenomImage</div>,
-}));
-
 const renderWithProps = (props = {}) => {
   const defaultProps = {
     denoms: [],
