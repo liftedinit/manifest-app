@@ -1,25 +1,23 @@
-import { useTokenFactoryBalance } from '@/hooks/useQueries';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { shiftDigits } from '@/utils';
 import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
-import { PiArrowUpRightLight } from 'react-icons/pi';
-import { useEffect } from 'react';
 import { DenomInfoModal } from '../modals';
 import { UpdateDenomMetadataModal } from '../modals';
 import { CoinSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/base/v1beta1/coin';
+
 export default function DenomInfo({
   denom,
   address,
   refetchDenoms,
   balance,
   isBalanceLoading,
-}: {
+}: Readonly<{
   denom: MetadataSDKType | null;
   address: string;
   refetchDenoms: () => void;
   balance: CoinSDKType | null;
   isBalanceLoading: boolean;
-}) {
+}>) {
   const DenomConversion = ({ denom }: { denom: MetadataSDKType }) => {
     if (!denom || !denom.denom_units || denom.denom_units.length === 0) {
       return (
