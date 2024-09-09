@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, jest, mock } from 'bun:test';
+import { afterAll, afterEach, describe, expect, test, jest, mock } from 'bun:test';
 import React from 'react';
 import { screen, cleanup, waitFor, within } from '@testing-library/react';
 import MetaBox from '@/components/factory/components/metaBox';
@@ -41,6 +41,9 @@ const renderWithProps = (props = {}) => {
 
 describe('MetaBox', () => {
   afterEach(cleanup);
+  afterAll(() => {
+    mock.restore();
+  });
 
   test("renders 'Select a token to view options' message when no denom is provided", () => {
     renderWithProps();

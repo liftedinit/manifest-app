@@ -1,4 +1,4 @@
-import { describe, expect, test, jest, mock, afterEach } from 'bun:test';
+import { afterAll, describe, expect, test, jest, mock, afterEach } from 'bun:test';
 import { screen, cleanup, waitFor, fireEvent } from '@testing-library/react';
 import { YourGroups } from '@/components/groups/components/myGroups';
 import { mockGroup, mockGroup2, mockProposals } from '@/tests/mock';
@@ -33,6 +33,9 @@ function renderWithProps(props = {}) {
 
 describe('YourGroups Component', () => {
   afterEach(cleanup);
+  afterAll(() => {
+    mock.restore();
+  });
 
   test('renders empty group state correctly', () => {
     renderWithProps({ groups: { groups: [] } });
