@@ -12,7 +12,7 @@ jobs:
       - name: Install dependencies
         run: bun install
       - name: Run tests and generate coverage
-        run: bun run test:coverage --runInBand
+        run: bun run test:coverage
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
