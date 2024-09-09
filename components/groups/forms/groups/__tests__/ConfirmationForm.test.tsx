@@ -1,4 +1,4 @@
-import { describe, test, afterEach, expect, jest, mock } from 'bun:test';
+import { afterAll, describe, test, afterEach, expect, jest, mock } from 'bun:test';
 import React from 'react';
 import { screen, fireEvent, cleanup } from '@testing-library/react';
 import ConfirmationModal from '@/components/groups/forms/groups/ConfirmationForm';
@@ -30,6 +30,9 @@ const mockProps = {
 
 describe('ConfirmationModal Component', () => {
   afterEach(cleanup);
+  afterAll(() => {
+    mock.restore();
+  });
 
   test('renders component with correct details', () => {
     renderWithChainProvider(<ConfirmationModal {...mockProps} />);
