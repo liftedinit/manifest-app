@@ -17,3 +17,4 @@ export { default as QRIcon } from './QRIcon';
 export { default as SearchIcon } from './SearchIcon';
 export { default as TransferIcon } from './TransferIcon';
 export { default as TrashIcon } from './TrashIcon';
+export { default as BroadcastingIcon } from './BroadcastingIcon';

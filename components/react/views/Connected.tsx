@@ -38,8 +38,8 @@ export const Connected = ({
   };
 
   return (
-    <div className="p-6 max-w-sm mx-auto">
-      <div className="flex justify-between items-center mb-2">
+    <div className="p-2 w-full mx-auto pt-4">
+      <div className="flex justify-between items-center -mt-4 mb-6">
         <button
           type="button"
           className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
@@ -47,7 +47,7 @@ export const Connected = ({
         >
           <ChevronLeftIcon className="w-5 h-5" aria-hidden="true" />
         </button>
-        <Dialog.Title as="h3" className="text-lg font-semibold">
+        <Dialog.Title as="h3" className="text-md font-semibold">
           {name}
         </Dialog.Title>
         <button
@@ -59,12 +59,10 @@ export const Connected = ({
         </button>
       </div>
 
-      <hr className="border-t border-gray-200 dark:border-gray-700 my-4" />
-
       <div className="flex items-center mb-6">
-        <ProfileAvatar walletAddress={address ?? ''} size={64} />
+        <ProfileAvatar walletAddress={address ?? ''} size={60} />
         <div className="ml-4">
-          <p className="text-xl font-semibold">{username || 'Anonymous'}</p>
+          <p className="text-lg font-semibold">{username || 'Anonymous'}</p>
           <div className="flex items-center">
             <p className="text-sm text-gray-500 dark:text-gray-400">
               {truncateString(address || '', 12)}
@@ -83,20 +81,24 @@ export const Connected = ({
         </div>
       </div>
 
-      <div className="bg-base-300 dark:bg-base-300 rounded-lg p-4 mb-6">
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Balance</p>
+      <div className="bg-base-300 dark:bg-base-300 rounded-lg py-3 px-2 mb-4">
+        <p className="text-sm leading-4 tracking-wider text-gray-500 dark:text-gray-400 mb-1 ml-2">
+          Balance
+        </p>
         <div className="flex items-center">
           {balance?.amount ? (
-            <p className="text-2xl font-bold">{shiftDigits(balance?.amount ?? '', -6)}</p>
+            <p className="text-md text-[#FFFFFF99] font-bold ml-2">
+              {shiftDigits(balance?.amount ?? '', -6)}
+            </p>
           ) : (
             <div className="loading w-16 h-8"></div>
           )}
-          <p className="text-lg ml-2">MFX</p>
+          <p className="text-md ml-2 text-[#FFFFFF99]">MFX</p>
         </div>
       </div>
 
       <button
-        className="w-full py-3 px-4 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition duration-200 flex items-center justify-center"
+        className="w-full btn btn-disconnect-gradient rounded-lg transition duration-200 flex items-center justify-center"
         onClick={() => {
           disconnect();
           onClose();

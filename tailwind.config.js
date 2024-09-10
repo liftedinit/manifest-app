@@ -134,8 +134,25 @@ module.exports = {
       const newUtilities = {
         '.btn-gradient': {
           backgroundImage: 'linear-gradient(98.22deg, #A087FF -51.92%, #380CC5 103.12%)',
+          transition: 'all 0.3s ease',
           '&:hover': {
-            backgroundImage: 'linear-gradient(98.22deg, #A087FF -51.92%, #380CC5 103.12%)',
+            backgroundImage: 'linear-gradient(98.22deg, #B19AFF -51.92%, #4A1FD6 103.12%)',
+            boxShadow: '0 0 4px rgba(160, 135, 255, 0.5)',
+            border: '1px solid rgba(160, 135, 255, 0.5)',
+          },
+        },
+      };
+      addUtilities(newUtilities, ['responsive', 'hover']);
+    },
+    function ({ addUtilities }) {
+      const newUtilities = {
+        '.btn-disconnect-gradient': {
+          backgroundImage: 'linear-gradient(98.22deg, #FF8787 -51.92%, #C50C87 103.12%)',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            backgroundImage: 'linear-gradient(98.22deg, #FF9A9A -51.92%, #D61F98 103.12%)',
+            boxShadow: '0 0 4px rgba(255, 135, 135, 0.5)',
+            border: '1px solid rgba(255, 135, 135, 0.5)',
           },
         },
       };

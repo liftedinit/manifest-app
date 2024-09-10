@@ -54,7 +54,7 @@ export default function AdminOptions({ group, isLoading }: Readonly<AdminOptions
           </button>
 
           <div className="flex flex-row gap-4 justify-center items-center -mt-2 w-full pb-3">
-            <button className="btn block lg:hidden btn-primary btn-sm w-2/6" onClick={handleOpen}>
+            <button className="btn block btn-primary btn-sm w-2/6" onClick={handleOpen}>
               Update
             </button>
           </div>

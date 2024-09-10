@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Confetti from 'react-confetti';
 import CloseIcon from './icons/CloseIcon';
 import CopyIcon from './icons/CopyIcon';
+import BroadcastingIcon from './icons/BroadcastingIcon';
 export interface ToastMessage {
   type: string;
   title: string;
@@ -19,16 +20,9 @@ interface ToastProps {
 export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [prevMessage, setPrevMessage] = useState<ToastMessage | null>(null);
-  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+
   const toastRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (isVisible && toastRef.current) {
-      setDimensions({
-        width: toastRef.current.offsetWidth,
-        height: toastRef.current.offsetHeight,
-      });
-    }
-  }, [isVisible]);
+
   useEffect(() => {
     if (toastMessage) {
       setIsVisible(true);
@@ -58,14 +52,14 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
   const getBorderColor = (type: string) => {
     switch (type) {
       case 'alert-success':
-        return 'border-success';
+        return 'border-[#87FFA9]';
       case 'alert-error':
-        return 'border-error';
+        return 'border-[#FF17A2]';
       case 'alert-warning':
-        return 'border-warning';
+        return 'border-[#FFFF87]';
       case 'alert-info':
       default:
-        return 'border-info';
+        return 'border-[#A087FF]';
     }
   };
 
@@ -74,18 +68,19 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
       <div className="toast toast-end toast-bottom flex flex-col justify-start items-center text-left pointer-events-auto">
         <div
           ref={toastRef}
+          style={{ borderRadius: '30px' }}
           className={`alert ${toastMessage.type} w-96 relative
             transition-all duration-300 ease-in-out
             ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}
             ${prevMessage && prevMessage.type !== toastMessage.type ? 'animate-pulse' : ''}
-            bg-white dark:bg-[#161616] border-2 ${getBorderColor(toastMessage.type)}
-            text-black dark:text-white shadow-lg rounded-lg overflow-hidden`}
+            bg-white dark:bg-[#0E0A1F] border-2 ${getBorderColor(toastMessage.type)}
+            text-black dark:text-white shadow-lg  overflow-hidden`}
         >
           {toastMessage.type === 'alert-success' && (
             <Confetti
               width={384}
               height={160}
-              gravity={0.03}
+              gravity={0.04}
               wind={0.001}
               recycle={false}
               numberOfPieces={600}
@@ -101,7 +96,7 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
           <div className="flex flex-col w-full h-full overflow-hidden">
             <div className="flex flex-row items-center gap-2 mb-2">
               {toastMessage.type === 'alert-info' && (
-                <span className="loading loading-spinner loading-sm" />
+                <BroadcastingIcon className="w-6 h-6" aria-hidden="true" />
               )}
               <h3 className="text-lg font-semibold">{toastMessage.title}</h3>
             </div>
@@ -112,7 +107,7 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
               {toastMessage.link && (
                 <Link
                   href={toastMessage.link}
-                  className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 underline mt-2 inline-block transition-colors duration-200"
+                  className="text-primary hover:text-primary/60 dark:text-primary  underline mt-[0.1rem] inline-block transition-colors duration-200"
                   target="_blank"
                   rel="noopener noreferrer"
                 >

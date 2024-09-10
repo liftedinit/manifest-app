@@ -4,7 +4,6 @@ import TokenList from '@/components/bank/components/tokenList';
 import { chainName } from '@/config';
 import {
   useGroupsByAdmin,
-  usePoaParams,
   useSendTxIncludingAddressQuery,
   useSendTxQuery,
   useTokenBalances,
@@ -36,11 +35,6 @@ export default function Bank() {
   } = useTokenBalancesResolved(address ?? '');
   const { denoms, isDenomsLoading } = useTokenFactoryDenoms(address ?? '');
   const { metadatas, isMetadatasLoading } = useTokenFactoryDenomsMetadata();
-  const { poaParams, refetchPoaParams, isPoaParamsLoading } = usePoaParams();
-  const { groupByAdmin, isGroupByAdminLoading, refetchGroupByAdmin } = useGroupsByAdmin(
-    poaParams?.admins[0] ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'
-  );
-  const group = groupByAdmin?.groups?.[0];
 
   const combinedBalances = useMemo(() => {
     if (!balances || !resolvedBalances || !metadatas) return [];
@@ -63,12 +57,7 @@ export default function Bank() {
     });
   }, [balances, resolvedBalances, metadatas]);
 
-  const isLoading =
-    isBalancesLoading ||
-    resolvedLoading ||
-    isDenomsLoading ||
-    isMetadatasLoading ||
-    isPoaParamsLoading;
+  const isLoading = isBalancesLoading || resolvedLoading || isDenomsLoading || isMetadatasLoading;
 
   const { sendTxs, refetch } = useSendTxIncludingAddressQuery(address ?? '');
 

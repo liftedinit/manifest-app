@@ -45,7 +45,7 @@ export const QRCode = ({
             fgColor={'#000000'}
             level={'L'}
             includeMargin={false}
-            className="w-auto p-4 mx-auto border rounded-lg h-64 border-black/10 dark:border-white/10"
+            className="w-auto p-4 mx-auto rounded-lg h-64 "
           />
         </div>
       </div>

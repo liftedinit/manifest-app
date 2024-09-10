@@ -4,7 +4,6 @@ import MyDenoms from '@/components/factory/components/MyDenoms';
 import {
   useBalance,
   useGroupsByAdmin,
-  usePoaParams,
   useTokenBalances,
   useTokenFactoryBalance,
   useTokenFactoryDenoms,
