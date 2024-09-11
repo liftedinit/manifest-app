@@ -34,25 +34,24 @@ export default function SendForm({
     token.metadata?.display.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const initialSelectedToken = balances && balances.length > 0 ? balances[0] : null;
+  const initialSelectedToken =
+    balances?.find(token => token.denom === 'umfx') || balances?.[0] || null;
 
   const validationSchema = Yup.object().shape({
     recipient: Yup.string().required('Recipient is required').manifestAddress(),
-    amount: Yup.string()
+    amount: Yup.number()
       .required('Amount is required')
-      .test('valid-amount', 'Invalid amount', value => {
-        return /^\d*\.?\d*$/.test(value);
-      })
-      .test('positive', 'Amount must be positive', value => {
-        return parseFloat(value) > 0;
-      })
+      .positive('Amount must be positive')
       .test('sufficient-balance', 'Insufficient balance', function (value) {
         const { selectedToken } = this.parent;
-        if (!selectedToken) return false;
-        const balance = parseFloat(selectedToken.amount);
-        return parseFloat(value) <= balance;
+        if (!selectedToken || !value) return true;
+
+        const exponent = selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
+        const balance = parseFloat(selectedToken.amount) / Math.pow(10, exponent);
+        return value <= balance;
       }),
     selectedToken: Yup.object().required('Please select a token'),
+    memo: Yup.string().max(255, 'Memo must be less than 255 characters'),
   });
 
   const handleSend = async (values: {
@@ -63,13 +62,10 @@ export default function SendForm({
   }) => {
     setIsSending(true);
     try {
-      const exponent =
-        values.selectedToken.metadata?.denom_units.find(
-          unit => unit.denom === values.selectedToken.denom
-        )?.exponent ?? 6;
-
-      const amountInSmallestUnit = parseFloat(values.amount) * Math.pow(10, exponent);
-      const amountInBaseUnits = Math.floor(amountInSmallestUnit).toString();
+      const exponent = values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
+      const amountInBaseUnits = Math.floor(
+        parseFloat(values.amount) * Math.pow(10, exponent)
+      ).toString();
 
       const msg = send({
         fromAddress: address,
@@ -95,19 +91,21 @@ export default function SendForm({
   return (
     <div
       style={{ borderRadius: '24px' }}
-      className="text-sm bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] p-6 w-full h-full"
+      className="text-sm bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] px-6 pb-6 pt-4 w-full h-full"
     >
       <Formik
         initialValues={{
           recipient: '',
           amount: '',
-          selectedToken: initialSelectedToken ?? ({} as CombinedBalanceInfo),
+          selectedToken: initialSelectedToken,
           memo: '',
         }}
         validationSchema={validationSchema}
         onSubmit={handleSend}
+        validateOnChange={true}
+        validateOnBlur={true}
       >
-        {({ isValid, dirty, setFieldValue, values }) => (
+        {({ isValid, dirty, setFieldValue, values, errors, touched }) => (
           <Form className="space-y-6 flex flex-col items-center max-w-md mx-auto">
             <div className="w-full space-y-4">
               <div className="w-full">
@@ -118,19 +116,16 @@ export default function SendForm({
                 </label>
                 <div className="relative">
                   <input
-                    type="text"
+                    className="input input-md border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full pr-24 dark:text-[#FFFFFF] text-[#161616]"
                     name="amount"
                     placeholder="0.00"
+                    style={{ borderRadius: '12px' }}
                     value={values.amount}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      const value = e.target.value;
-                      if (/^\d*\.?\d*$/.test(value)) {
-                        setFieldValue('amount', value);
-                      }
+                      setFieldValue('amount', e.target.value);
                     }}
-                    style={{ borderRadius: '12px' }}
-                    className="input input-md border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full pr-24"
                   />
+
                   <div className="absolute inset-y-1 right-1 flex items-center">
                     <div className="dropdown dropdown-end h-full">
                       <label
@@ -138,13 +133,16 @@ export default function SendForm({
                         tabIndex={0}
                         className="btn btn-sm h-full px-3 bg-[#FFFFFF] dark:bg-[#FFFFFF0F] border-none hover:bg-transparent"
                       >
-                        <DenomImage denom={values.selectedToken?.metadata} />
+                        {values.selectedToken?.metadata ? (
+                          <DenomImage denom={values.selectedToken?.metadata} />
+                        ) : null}
+
                         {values.selectedToken?.metadata?.display.toUpperCase() ?? 'Select'}
                         <PiCaretDownBold className="ml-1" />
                       </label>
                       <ul
                         tabIndex={0}
-                        className="dropdown-content z-[100] menu p-2 shadow dark:bg-[#0E0A1F] bg-[#F0F0FF] rounded-lg w-full mt-1 h-62 max-h-62 min-h-62 min-w-44 overflow-y-auto"
+                        className="dropdown-content z-[100] menu p-2 shadow dark:bg-[#0E0A1F] bg-[#F0F0FF] rounded-lg w-full mt-1 h-62 max-h-62 min-h-62 min-w-44 overflow-y-auto dark:text-[#FFFFFF] text-[#161616]"
                       >
                         <li className="sticky top-0 bg-transparent z-10 hover:bg-transparent mb-2">
                           <div className="px-2 py-1">
@@ -195,18 +193,34 @@ export default function SendForm({
                   </div>
                 </div>
                 <div className="text-xs mt-1 flex justify-between text-[#00000099] dark:text-[#FFFFFF99]">
-                  <div className="flex flex-row gap-1">
+                  <div className="flex flex-row gap-1 ml-1">
                     <span>
                       Balance:{'  '}
-                      {shiftDigits(
-                        Number(values.selectedToken.amount),
-                        -(values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6)
-                      )}
+                      {values.selectedToken
+                        ? shiftDigits(
+                            Number(values.selectedToken.amount),
+                            -(values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6)
+                          )
+                        : '0'}
                     </span>
-                    <span className="text-primary">
+                    <span className="">
                       {values.selectedToken?.metadata?.display?.toUpperCase() || ''}
                     </span>
+                    <button
+                      type="button"
+                      className="  text-xs text-primary"
+                      onClick={() => {
+                        const exponent =
+                          values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
+                        const maxAmount =
+                          Number(values.selectedToken.amount) / Math.pow(10, exponent);
+                        setFieldValue('amount', maxAmount.toString());
+                      }}
+                    >
+                      MAX
+                    </button>
                   </div>
+                  {errors.amount && <div className="text-red-500 text-xs">{errors.amount}</div>}
                 </div>
               </div>
 

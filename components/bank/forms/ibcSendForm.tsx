@@ -47,23 +47,21 @@ export default function IbcSendForm({
     token.metadata?.display.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const initialSelectedToken = balances && balances.length > 0 ? balances[0] : null;
+  const initialSelectedToken =
+    balances?.find(token => token.denom === 'umfx') || balances?.[0] || null;
 
   const validationSchema = Yup.object().shape({
     recipient: Yup.string().required('Recipient is required').manifestAddress(),
-    amount: Yup.string()
+    amount: Yup.number()
       .required('Amount is required')
-      .test('valid-amount', 'Invalid amount', value => {
-        return /^\d*\.?\d*$/.test(value);
-      })
-      .test('positive', 'Amount must be positive', value => {
-        return parseFloat(value) > 0;
-      })
+      .positive('Amount must be positive')
       .test('sufficient-balance', 'Insufficient balance', function (value) {
         const { selectedToken } = this.parent;
-        if (!selectedToken) return false;
-        const balance = parseFloat(selectedToken.amount);
-        return parseFloat(value) <= balance;
+        if (!selectedToken || !value) return true;
+
+        const exponent = selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
+        const balance = parseFloat(selectedToken.amount) / Math.pow(10, exponent);
+        return value <= balance;
       }),
     selectedToken: Yup.object().required('Please select a token'),
     memo: Yup.string().max(255, 'Memo must be less than 255 characters'),
@@ -71,19 +69,14 @@ export default function IbcSendForm({
 
   const handleSend = async (values: {
     recipient: string;
-    amount: string;
+    amount: number;
     selectedToken: CombinedBalanceInfo;
     memo: string;
   }) => {
     setIsSending(true);
     try {
-      const exponent =
-        values.selectedToken.metadata?.denom_units.find(
-          unit => unit.denom === values.selectedToken.denom
-        )?.exponent ?? 6;
-
-      const amountInSmallestUnit = parseFloat(values.amount) * Math.pow(10, exponent);
-      const amountInBaseUnits = Math.floor(amountInSmallestUnit).toString();
+      const exponent = values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
+      const amountInBaseUnits = Math.floor(values.amount * Math.pow(10, exponent)).toString();
 
       const { source_port, source_channel } = getIbcInfo(chainName ?? '', destinationChain ?? '');
 
@@ -131,14 +124,16 @@ export default function IbcSendForm({
       <Formik
         initialValues={{
           recipient: '',
-          amount: '',
-          selectedToken: initialSelectedToken ?? ({} as CombinedBalanceInfo),
+          amount: 0,
+          selectedToken: initialSelectedToken,
           memo: '',
         }}
         validationSchema={validationSchema}
         onSubmit={handleSend}
+        validateOnChange={true}
+        validateOnBlur={true}
       >
-        {({ isValid, dirty, setFieldValue, values }) => (
+        {({ isValid, dirty, setFieldValue, values, errors, touched }) => (
           <Form className="space-y-6 flex flex-col items-center max-w-md mx-auto">
             <div className="w-full space-y-4">
               <div className={`dropdown dropdown-end w-full ${isIbcTransfer ? 'block' : 'hidden'}`}>
@@ -173,7 +168,7 @@ export default function IbcSendForm({
 
                 <ul
                   tabIndex={0}
-                  className="dropdown-content z-[100] menu p-2 shadow dark:bg-[#0E0A1F] bg-[#F0F0FF] rounded-lg w-full mt-1"
+                  className="dropdown-content z-[100] menu p-2 shadow dark:bg-[#0E0A1F] bg-[#F0F0FF] rounded-lg w-full mt-1 dark:text-[#FFFFFF] text-[#161616]"
                 >
                   {ibcChains.map(chain => (
                     <li key={chain.id}>
@@ -210,12 +205,10 @@ export default function IbcSendForm({
                     value={values.amount}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       const value = e.target.value;
-                      if (/^\d*\.?\d*$/.test(value)) {
-                        setFieldValue('amount', value);
-                      }
+                      setFieldValue('amount', value === '' ? '' : parseFloat(value));
                     }}
                     style={{ borderRadius: '12px' }}
-                    className="input input-md border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full pr-24"
+                    className="input input-md border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full pr-24 dark:text-[#FFFFFF] text-[#161616]"
                   />
                   <div className="absolute inset-y-1 right-1 flex items-center">
                     <div className="dropdown dropdown-end h-full">
@@ -230,7 +223,7 @@ export default function IbcSendForm({
                       </label>
                       <ul
                         tabIndex={0}
-                        className="dropdown-content z-[100] menu p-2 shadow  dark:bg-[#0E0A1F] bg-[#F0F0FF]  rounded-lg w-full mt-1 h-62 max-h-62 min-h-62 min-w-44 overflow-y-auto"
+                        className="dropdown-content z-[100] menu p-2 shadow  dark:bg-[#0E0A1F] bg-[#F0F0FF]  rounded-lg w-full mt-1 h-62 max-h-62 min-h-62 min-w-44 overflow-y-auto dark:text-[#FFFFFF] text-[#161616]"
                       >
                         <li className="sticky top-0 bg-transparent z-10 hover:bg-transparent mb-2">
                           <div className="px-2 py-1">
@@ -284,15 +277,31 @@ export default function IbcSendForm({
                   <div className="flex flex-row gap-1">
                     <span>
                       Balance:{'  '}
-                      {shiftDigits(
-                        Number(values.selectedToken.amount),
-                        -(values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6)
-                      )}
+                      {values.selectedToken
+                        ? shiftDigits(
+                            Number(values.selectedToken.amount),
+                            -(values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6)
+                          )
+                        : '0'}
                     </span>
-                    <span className="text-primary">
+                    <span className="">
                       {values.selectedToken?.metadata?.display?.toUpperCase() || ''}
                     </span>
+                    <button
+                      type="button"
+                      className="  text-xs text-primary"
+                      onClick={() => {
+                        const exponent =
+                          values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
+                        const maxAmount =
+                          Number(values.selectedToken.amount) / Math.pow(10, exponent);
+                        setFieldValue('amount', maxAmount.toString());
+                      }}
+                    >
+                      MAX
+                    </button>
                   </div>
+                  {errors.amount && <div className="text-red-500 text-xs">{errors.amount}</div>}
                 </div>
               </div>
 
@@ -324,7 +333,7 @@ export default function IbcSendForm({
             <div className="w-full mt-6">
               <button
                 type="submit"
-                className="btn btn-gradient w-full"
+                className="btn btn-gradient w-full text-white"
                 disabled={isSending || !isValid || !dirty}
                 aria-label="send-btn"
               >

@@ -162,6 +162,7 @@ module.exports = {
             cursor: 'not-allowed',
             border: 'none',
             boxShadow: 'none',
+            textColor: '#FFFFFF',
           },
         },
       };

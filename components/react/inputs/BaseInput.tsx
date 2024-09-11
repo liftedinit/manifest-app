@@ -25,7 +25,10 @@ export const BaseInput: React.FC<BaseInputProps & React.InputHTMLAttributes<HTML
           id={id}
           {...field}
           {...props}
-          className={`input border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full ${props.className}`}
+          className={`dark:text-[#FFFFFF] text-[#161616] input border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full 
+            autofill:bg-[#E0E0FF0A] autofill:dark:bg-[#E0E0FF0A]
+            focus:bg-[#E0E0FF0A] focus:dark:bg-[#E0E0FF0A]
+            ${props.className}`}
         />
         {rightElement && (
           <div className="absolute inset-y-0 right-0 flex items-center pr-3">{rightElement}</div>
