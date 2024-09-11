@@ -131,32 +131,64 @@ module.exports = {
     require('tailwind-scrollbar-hide'),
     require('daisyui'),
     function ({ addUtilities }) {
-      const newUtilities = {
-        '.btn-gradient': {
-          backgroundImage: 'linear-gradient(98.22deg, #A087FF -51.92%, #380CC5 103.12%)',
-          transition: 'all 0.3s ease',
-          '&:hover': {
-            backgroundImage: 'linear-gradient(98.22deg, #B19AFF -51.92%, #4A1FD6 103.12%)',
-            boxShadow: '0 0 4px rgba(160, 135, 255, 0.5)',
-            border: '1px solid rgba(160, 135, 255, 0.5)',
-          },
-        },
-      };
-      addUtilities(newUtilities, ['responsive', 'hover']);
-    },
-    function ({ addUtilities }) {
-      const newUtilities = {
+      const disconnectButton = {
         '.btn-disconnect-gradient': {
           backgroundImage: 'linear-gradient(98.22deg, #FF8787 -51.92%, #C50C87 103.12%)',
           transition: 'all 0.3s ease',
-          '&:hover': {
+          '&:hover:not(:disabled)': {
             backgroundImage: 'linear-gradient(98.22deg, #FF9A9A -51.92%, #D61F98 103.12%)',
             boxShadow: '0 0 4px rgba(255, 135, 135, 0.5)',
             border: '1px solid rgba(255, 135, 135, 0.5)',
           },
+          '&:disabled': {
+            opacity: '0.5',
+            cursor: 'not-allowed',
+            border: 'none',
+            boxShadow: 'none',
+          },
         },
       };
-      addUtilities(newUtilities, ['responsive', 'hover']);
+      const connectButton = {
+        '.btn-gradient': {
+          backgroundImage: 'linear-gradient(98.22deg, #A087FF -51.92%, #380CC5 103.12%)',
+          transition: 'all 0.3s ease',
+          '&:hover:not(:disabled)': {
+            backgroundImage: 'linear-gradient(98.22deg, #B19AFF -51.92%, #4A1FD6 103.12%)',
+            boxShadow: '0 0 4px rgba(160, 135, 255, 0.5)',
+            border: '1px solid rgba(160, 135, 255, 0.5)',
+          },
+          '&:disabled': {
+            opacity: '0.5',
+            cursor: 'not-allowed',
+            border: 'none',
+            boxShadow: 'none',
+          },
+        },
+      };
+      const dropDownBtns = {
+        '.btn-dropdown': {
+          backgroundColor: '#E0E0FF0A',
+          border: '1px solid #00000033',
+          transition: 'all 0.3s ease',
+          '@apply dark:bg-[#E0E0FF0A] dark:border-[#FFFFFF33]': {},
+          '&:hover:not(:disabled)': {
+            background: '#E0E0FF0A',
+            boxShadow: '0 0 4px #E0E0FF0A',
+            border: '1px solid #00000033',
+            '@apply dark:bg-[#E0E0FF0A] dark:border-[#FFFFFF33] dark:shadow-[0_0_4px_#E0E0FF0A]':
+              {},
+          },
+          '&:disabled': {
+            opacity: '0.5',
+            cursor: 'not-allowed',
+            border: 'none',
+            boxShadow: 'none',
+          },
+        },
+      };
+      addUtilities(disconnectButton, ['responsive', 'hover', 'disabled']);
+      addUtilities(connectButton, ['responsive', 'hover', 'disabled']);
+      addUtilities(dropDownBtns, ['responsive', 'hover', 'disabled']);
     },
   ],
 };

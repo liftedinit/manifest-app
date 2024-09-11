@@ -24,7 +24,7 @@ export default function SendBox({
   isBalancesLoading: boolean;
   refetchBalances: () => void;
 }) {
-  const [isIbcTransfer, setIsIbcTransfer] = useState(false);
+  const [activeTab, setActiveTab] = useState<'send' | 'cross-chain'>('send');
   const [selectedChain, setSelectedChain] = useState('');
   const ibcChains: IbcChain[] = [
     {
@@ -36,36 +36,33 @@ export default function SendBox({
   ];
 
   return (
-    <div className="flex flex-col rounded-xl max-h-[28rem] md:w-full w-full min-h-[28rem] ">
-      <div className="relative  w-full h-10 bg-base-300 rounded-full p-1 mb-6">
-        <div
-          className={`absolute top-1 bottom-1 w-[calc(50%-6px)] bg-primary rounded-full transition-all duration-300 ease-in-out ${
-            isIbcTransfer ? 'left-[calc(50%+0px)]' : 'left-[6px]'
+    <div className=" rounded-2xl w-[80%]">
+      <div className="flex mb-6 w-full h-[3.5rem] rounded-xl p-1 bg-[#0000000A] dark:bg-[#FFFFFF0F]">
+        <button
+          className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl transition-colors ${
+            activeTab === 'send'
+              ? 'dark:bg-[#FFFFFF1F] bg-[#FFFFFF] text-[#161616] dark:text-white'
+              : 'text-[#808080]'
           }`}
-        ></div>
-        <div className="relative flex h-full" aria-label="buttons">
-          <button
-            className={`flex-1 text-sm font-light z-10 transition-colors duration-300 ${
-              !isIbcTransfer ? 'text-base-content' : 'text-gray-600'
-            }`}
-            onClick={() => setIsIbcTransfer(false)}
-          >
-            Send
-          </button>
-          <button
-            className={`flex-1 text-sm font-light z-10 transition-colors duration-300 ${
-              isIbcTransfer ? 'text-base-content' : 'text-gray-600'
-            }`}
-            onClick={() => setIsIbcTransfer(true)}
-          >
-            IBC Transfer
-          </button>
-        </div>
+          onClick={() => setActiveTab('send')}
+        >
+          Send
+        </button>
+        <button
+          className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl transition-colors ${
+            activeTab === 'cross-chain'
+              ? 'dark:bg-[#FFFFFF1F] bg-[#FFFFFF] text-[#161616] dark:text-white'
+              : 'text-[#808080]'
+          }`}
+          onClick={() => setActiveTab('cross-chain')}
+        >
+          Cross-Chain Transfer
+        </button>
       </div>
-      {isIbcTransfer ? (
+      {activeTab === 'cross-chain' ? (
         <IbcSendForm
-          isIbcTransfer={isIbcTransfer}
-          setIsIbcTransfer={setIsIbcTransfer}
+          isIbcTransfer={true}
+          setIsIbcTransfer={() => {}}
           ibcChains={ibcChains}
           selectedChain={selectedChain}
           setSelectedChain={setSelectedChain}

@@ -63,7 +63,7 @@ export default function Bank() {
 
   return (
     <>
-      <div className="max-w-5xl relative py-8 mx-auto">
+      <div className="min-h-screen relative py-2 px-4 md:px-8 lg:px-20 mx-auto  text-white">
         <Head>
           <title>Bank - Alberto</title>
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -113,17 +113,8 @@ export default function Bank() {
             })}
           </script>
         </Head>
-        <div className="flex items-center justify-between flex-wrap -ml-4 -mt-2 sm:flex-nowrap">
-          <div className="ml-4 mt-2">
-            <h3 className="tracking-tight leading-none text-4xl xl:text-4xl md:block hidden">
-              Bank
-            </h3>
-            <h3 className="tracking-tight px-4 leading-none text-4xl xl:text-4xl md:hidden block">
-              Bank
-            </h3>
-          </div>
-        </div>
-        <div className="mt-6 p-4 gap-4 flex flex-col lg:flex-row rounded-md   transition-opacity duration-300 ease-in-out animate-fadeIn">
+
+        <div className="mt-6 gap-4 flex flex-col lg:flex-row transition-opacity duration-300 ease-in-out animate-fadeIn">
           {!isWalletConnected ? (
             <section className="transition-opacity duration-300 ease-in-out animate-fadeIn w-full">
               <div className="grid max-w-screen-xl bg-base-100 p-12 rounded-md w-full mx-auto gap-8 lg:grid-cols-12">
@@ -145,22 +136,24 @@ export default function Bank() {
           ) : (
             isWalletConnected &&
             combinedBalances && (
-              <div className="flex flex-col w-full">
-                <div className="flex md:flex-row flex-col gap-4 justify-between items-center w-full transition-opacity duration-300 ease-in-out animate-fadeIn">
+              <div className="flex flex-col lg:flex-row w-full gap-4">
+                <div className="w-full lg:w-1/2 xl:w-2/5">
                   <SendBox
                     balances={combinedBalances}
                     isBalancesLoading={resolvedLoading}
                     refetchBalances={resolveRefetch || refetch || refetchBalances}
                     address={address ?? ''}
                   />
-                  <TokenList balances={combinedBalances} isLoading={resolvedLoading} />
                 </div>
-                <div className="flex flex-col w-full gap-4 mt-4">
-                  <HistoryBox
-                    address={address ?? ''}
-                    send={sendTxs ?? []}
-                    isLoading={resolvedLoading}
-                  />
+                <div className="w-full lg:w-1/2 xl:w-3/5">
+                  <TokenList balances={combinedBalances} isLoading={resolvedLoading} />
+                  <div className="mt-4">
+                    <HistoryBox
+                      address={address ?? ''}
+                      send={sendTxs ?? []}
+                      isLoading={resolvedLoading}
+                    />
+                  </div>
                 </div>
               </div>
             )

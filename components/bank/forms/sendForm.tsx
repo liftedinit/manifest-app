@@ -59,6 +59,7 @@ export default function SendForm({
     recipient: string;
     amount: string;
     selectedToken: CombinedBalanceInfo;
+    memo: string;
   }) => {
     setIsSending(true);
     try {
@@ -78,6 +79,7 @@ export default function SendForm({
 
       const fee = await estimateFee(address, [msg]);
       await tx([msg], {
+        memo: values.memo,
         fee,
         onSuccess: () => {
           refetchBalances();
@@ -91,113 +93,152 @@ export default function SendForm({
   };
 
   return (
-    <div className="text-sm">
+    <div
+      style={{ borderRadius: '24px' }}
+      className="text-sm bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] p-6 w-full h-full"
+    >
       <Formik
         initialValues={{
           recipient: '',
           amount: '',
           selectedToken: initialSelectedToken ?? ({} as CombinedBalanceInfo),
+          memo: '',
         }}
         validationSchema={validationSchema}
         onSubmit={handleSend}
       >
         {({ isValid, dirty, setFieldValue, values }) => (
-          <Form className="space-y-4">
-            <div>
-              <label className="label">
-                <span className="label-text text-sm font-medium">Token</span>
-              </label>
-              <div className="dropdown dropdown-end w-full">
-                <label
-                  tabIndex={0}
-                  className="btn btn-sm bg-base-300 w-full justify-between"
-                  aria-label={'dropdown-label'}
-                >
-                  {values.selectedToken?.metadata?.display.toUpperCase() ?? 'Select Token'}
-                  <PiCaretDownBold className="ml-2" />
+          <Form className="space-y-6 flex flex-col items-center max-w-md mx-auto">
+            <div className="w-full space-y-4">
+              <div className="w-full">
+                <label className="label">
+                  <span className="label-text text-md font-medium text-[#00000099] dark:text-[#FFFFFF99]">
+                    Amount
+                  </span>
                 </label>
-                <ul
-                  tabIndex={0}
-                  className="dropdown-content z-[100] menu p-2 shadow bg-base-300 rounded-lg w-full mt-1 h-62 max-h-62 min-h-62 overflow-y-auto"
-                >
-                  <li className="sticky top-0 bg-base-300 z-10 hover:bg-transparent">
-                    <div className="px-2 py-1">
-                      <input
-                        type="text"
-                        placeholder="Search tokens..."
-                        className="input input-sm w-full pr-8 focus:outline-none focus:ring-0 border-none bg-transparent"
-                        onChange={e => setSearchTerm(e.target.value)}
-                        style={{ boxShadow: 'none' }}
-                      />
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
+                <div className="relative">
+                  <input
+                    type="text"
+                    name="amount"
+                    placeholder="0.00"
+                    value={values.amount}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      const value = e.target.value;
+                      if (/^\d*\.?\d*$/.test(value)) {
+                        setFieldValue('amount', value);
+                      }
+                    }}
+                    style={{ borderRadius: '12px' }}
+                    className="input input-md border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full pr-24"
+                  />
+                  <div className="absolute inset-y-1 right-1 flex items-center">
+                    <div className="dropdown dropdown-end h-full">
+                      <label
+                        tabIndex={0}
+                        className="btn btn-sm h-full px-3 bg-[#FFFFFF] dark:bg-[#FFFFFF0F] border-none hover:bg-transparent"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                        />
-                      </svg>
+                        <DenomImage denom={values.selectedToken?.metadata} />
+                        {values.selectedToken?.metadata?.display.toUpperCase() ?? 'Select'}
+                        <PiCaretDownBold className="ml-1" />
+                      </label>
+                      <ul
+                        tabIndex={0}
+                        className="dropdown-content z-[100] menu p-2 shadow dark:bg-[#0E0A1F] bg-[#F0F0FF] rounded-lg w-full mt-1 h-62 max-h-62 min-h-62 min-w-44 overflow-y-auto"
+                      >
+                        <li className="sticky top-0 bg-transparent z-10 hover:bg-transparent mb-2">
+                          <div className="px-2 py-1">
+                            <input
+                              type="text"
+                              placeholder="Search tokens..."
+                              className="input input-sm w-full pr-8 focus:outline-none focus:ring-0 border-none bg-transparent"
+                              onChange={e => setSearchTerm(e.target.value)}
+                              style={{ boxShadow: 'none' }}
+                            />
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-5 w-5 absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                              />
+                            </svg>
+                          </div>
+                        </li>
+                        {isBalancesLoading ? (
+                          <li>
+                            <a>Loading tokens...</a>
+                          </li>
+                        ) : (
+                          filteredBalances?.map(token => (
+                            <li
+                              key={token.coreDenom}
+                              onClick={() => setFieldValue('selectedToken', token)}
+                              className="flex justify-start mb-2"
+                              aria-label={token.metadata?.display}
+                            >
+                              <a className="flex-row justify-start gap-3 items-center w-full">
+                                <DenomImage denom={token.metadata} />
+                                {token.metadata?.display.toUpperCase()}
+                              </a>
+                            </li>
+                          ))
+                        )}
+                      </ul>
                     </div>
-                  </li>
-                  {isBalancesLoading ? (
-                    <li>
-                      <a>Loading tokens...</a>
-                    </li>
-                  ) : (
-                    filteredBalances?.map(token => (
-                      <li
-                        key={token.coreDenom}
-                        onClick={() => setFieldValue('selectedToken', token)}
-                        className="flex justify-start"
-                        aria-label={token.metadata?.display}
-                      >
-                        <a className="flex-row justify-start gap-3 items-center w-full">
-                          <DenomImage denom={token.metadata} />
-                          {token.metadata?.display.toUpperCase()}
-                        </a>
-                      </li>
-                    ))
-                  )}
-                </ul>
+                  </div>
+                </div>
+                <div className="text-xs mt-1 flex justify-between text-[#00000099] dark:text-[#FFFFFF99]">
+                  <div className="flex flex-row gap-1">
+                    <span>
+                      Balance:{'  '}
+                      {shiftDigits(
+                        Number(values.selectedToken.amount),
+                        -(values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6)
+                      )}
+                    </span>
+                    <span className="text-primary">
+                      {values.selectedToken?.metadata?.display?.toUpperCase() || ''}
+                    </span>
+                  </div>
+                </div>
               </div>
+
+              <TextInput
+                label="Send To"
+                name="recipient"
+                placeholder="Enter address"
+                value={values.recipient}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  setFieldValue('recipient', e.target.value);
+                }}
+                className="input-md w-full"
+                style={{ borderRadius: '12px' }}
+              />
+              <TextInput
+                label="Memo (optional)"
+                name="memo"
+                placeholder="Memo"
+                style={{ borderRadius: '12px' }}
+                value={values.memo}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  setFieldValue('memo', e.target.value);
+                }}
+                className="input-md w-full"
+              />
             </div>
 
-            <TextInput
-              label="Recipient"
-              name="recipient"
-              placeholder="Recipient address"
-              value={values.recipient}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                setFieldValue('recipient', e.target.value);
-              }}
-              className="input-sm"
-            />
-
-            <TextInput
-              label="Amount"
-              name="amount"
-              placeholder="Enter amount"
-              value={values.amount}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                const value = e.target.value;
-                if (/^\d*\.?\d*$/.test(value)) {
-                  // Only allow numbers and one decimal point
-                  setFieldValue('amount', value);
-                }
-              }}
-              className="input-sm"
-            />
-            <div className="mt-4">
+            <div className="w-full mt-6">
               <button
                 type="submit"
-                className="btn btn-primary w-full"
+                className="btn btn-gradient w-full"
                 disabled={isSending || !isValid || !dirty}
+                aria-label="send-btn"
               >
                 {isSending ? <span className="loading loading-dots loading-xs"></span> : 'Send'}
               </button>

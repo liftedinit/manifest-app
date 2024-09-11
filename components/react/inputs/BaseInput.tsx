@@ -5,10 +5,12 @@ interface BaseInputProps {
   label: string;
   name: string;
   className?: string;
+  rightElement?: React.ReactNode;
 }
 
 export const BaseInput: React.FC<BaseInputProps & React.InputHTMLAttributes<HTMLInputElement>> = ({
   label,
+  rightElement,
   ...props
 }) => {
   const [field, meta] = useField(props);
@@ -16,14 +18,19 @@ export const BaseInput: React.FC<BaseInputProps & React.InputHTMLAttributes<HTML
   return (
     <div className="form-control w-full">
       <label className="label" htmlFor={id}>
-        <span className="label-text">{label}</span>
+        <span className="label-text text-[#00000099] dark:text-[#FFFFFF99]">{label}</span>
       </label>
-      <input
-        id={id}
-        {...field}
-        {...props}
-        className={`input input-bordered  w-full ${props.className}`}
-      />
+      <div className="relative">
+        <input
+          id={id}
+          {...field}
+          {...props}
+          className={`input border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full ${props.className}`}
+        />
+        {rightElement && (
+          <div className="absolute inset-y-0 right-0 flex items-center pr-3">{rightElement}</div>
+        )}
+      </div>
       {meta.touched && meta.error ? (
         <label className="label">
           <span className="label-text-alt text-error">{meta.error}</span>
