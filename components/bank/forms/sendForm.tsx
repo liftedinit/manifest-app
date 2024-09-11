@@ -134,6 +134,7 @@ export default function SendForm({
                   <div className="absolute inset-y-1 right-1 flex items-center">
                     <div className="dropdown dropdown-end h-full">
                       <label
+                        aria-label="token-selector"
                         tabIndex={0}
                         className="btn btn-sm h-full px-3 bg-[#FFFFFF] dark:bg-[#FFFFFF0F] border-none hover:bg-transparent"
                       >

@@ -39,6 +39,7 @@ export default function SendBox({
     <div className=" rounded-2xl w-[80%]">
       <div className="flex mb-6 w-full h-[3.5rem] rounded-xl p-1 bg-[#0000000A] dark:bg-[#FFFFFF0F]">
         <button
+          aria-label="send-tab"
           className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl transition-colors ${
             activeTab === 'send'
               ? 'dark:bg-[#FFFFFF1F] bg-[#FFFFFF] text-[#161616] dark:text-white'
@@ -49,6 +50,7 @@ export default function SendBox({
           Send
         </button>
         <button
+          aria-label="cross-chain-transfer-tab"
           className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl transition-colors ${
             activeTab === 'cross-chain'
               ? 'dark:bg-[#FFFFFF1F] bg-[#FFFFFF] text-[#161616] dark:text-white'

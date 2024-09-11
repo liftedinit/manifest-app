@@ -15,6 +15,18 @@ function renderWithProps(props = {}) {
     balances: mockBalances,
     isBalancesLoading: false,
     refetchBalances: jest.fn(),
+    isIbcTransfer: true,
+    setIsIbcTransfer: jest.fn(),
+    ibcChains: [
+      {
+        id: 'osmosis',
+        name: 'Osmosis',
+        icon: 'https://osmosis.zone/assets/icons/osmo-logo-icon.svg',
+        prefix: 'osmo',
+      },
+    ],
+    selectedChain: 'osmosis',
+    setSelectedChain: jest.fn(),
   };
 
   return renderWithChainProvider(<IbcSendForm {...defaultProps} {...props} />);
@@ -25,36 +37,41 @@ describe('IbcSendForm Component', () => {
 
   test('renders form with correct details', () => {
     renderWithProps();
-    expect(screen.getByText('Token')).toBeInTheDocument();
-    expect(screen.getByText('Recipient')).toBeInTheDocument();
     expect(screen.getByText('Amount')).toBeInTheDocument();
+    expect(screen.getByText('Send To')).toBeInTheDocument();
+    expect(screen.getByText('Chain')).toBeInTheDocument();
   });
 
   test('empty balances', () => {
     renderWithProps({ balances: [] });
-    expect(screen.getByText('Select Token')).toBeInTheDocument();
+    const tokenSelector = screen.getByText('Select');
+    expect(tokenSelector).toBeInTheDocument();
   });
 
   test('updates token dropdown correctly', () => {
     renderWithProps();
-    const dropdownLabelContainer = screen.getByLabelText('dropdown-label');
-    fireEvent.click(within(dropdownLabelContainer).getByText('TOKEN 1'));
-
-    const balanceContainer = screen.getByLabelText('Token 1');
-    expect(within(balanceContainer).getByText('TOKEN 1')).toBeInTheDocument();
-    expect(within(balanceContainer).queryByText('TOKEN 2')).not.toBeInTheDocument();
+    const tokenSelector = screen.getByLabelText('token-selector');
+    fireEvent.click(tokenSelector);
+    expect(tokenSelector).toHaveTextContent('TOKEN 1');
   });
 
   test('updates recipient input correctly', () => {
     renderWithProps();
-    const recipientInput = screen.getByPlaceholderText('Recipient address');
-    fireEvent.change(recipientInput, { target: { value: 'cosmos1recipient' } });
-    expect(recipientInput).toHaveValue('cosmos1recipient');
+    const recipientInput = screen.getByPlaceholderText('Enter address');
+    fireEvent.change(recipientInput, { target: { value: 'manifest1recipient' } });
+    expect(recipientInput).toHaveValue('manifest1recipient');
+  });
+
+  test('updates chain selector correctly', () => {
+    renderWithProps();
+    const chainSelector = screen.getByLabelText('chain-selector');
+    fireEvent.click(chainSelector);
+    expect(chainSelector).toHaveTextContent('Osmosis');
   });
 
   test('updates amount input correctly', () => {
     renderWithProps();
-    const amountInput = screen.getByPlaceholderText('Enter amount');
+    const amountInput = screen.getByPlaceholderText('0.00');
     fireEvent.change(amountInput, { target: { value: '100' } });
     expect(amountInput).toHaveValue('100');
   });
@@ -67,15 +84,17 @@ describe('IbcSendForm Component', () => {
 
   test('send button is enabled when inputs are valid', () => {
     renderWithProps();
-    fireEvent.change(screen.getByPlaceholderText('Recipient address'), {
-      target: { value: 'cosmos1recipient' },
+    fireEvent.change(screen.getByPlaceholderText('Enter address'), {
+      target: { value: 'manifest1recipient' },
     });
-    fireEvent.change(screen.getByPlaceholderText('Enter amount'), {
+    fireEvent.change(screen.getByPlaceholderText('0.00'), {
       target: { value: '100' },
     });
-    const dropdownLabelContainer = screen.getByLabelText('dropdown-label');
-    fireEvent.click(within(dropdownLabelContainer).getByText('TOKEN 1'));
-    const sendButton = screen.getByText('Send');
-    expect(sendButton).toBeEnabled();
+    const tokenSelector = screen.getByLabelText('token-selector');
+    fireEvent.click(tokenSelector);
+    const dropdownItems = screen.getAllByText('TOKEN 1');
+    fireEvent.click(dropdownItems[dropdownItems.length - 1]);
+    const sendButton = screen.getByRole('button', { name: 'send-btn' });
+    expect(sendButton).not.toBeDisabled();
   });
 });

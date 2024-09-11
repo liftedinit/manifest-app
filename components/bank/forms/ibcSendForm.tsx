@@ -148,6 +148,7 @@ export default function IbcSendForm({
                   </span>
                   <label
                     tabIndex={0}
+                    aria-label="chain-selector"
                     style={{ borderRadius: '12px' }}
                     className="btn   btn-md btn-dropdown w-full justify-between border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A]"
                   >
@@ -220,6 +221,7 @@ export default function IbcSendForm({
                     <div className="dropdown dropdown-end h-full">
                       <label
                         tabIndex={0}
+                        aria-label="token-selector"
                         className="btn btn-sm h-full px-3 bg-[#FFFFFF] dark:bg-[#FFFFFF0F] border-none hover:bg-transparent"
                       >
                         <DenomImage denom={values.selectedToken?.metadata} />
