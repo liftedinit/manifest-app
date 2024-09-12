@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { DenomImage } from '@/components/factory';
 import { shiftDigits } from '@/utils';
 import { CombinedBalanceInfo } from '@/pages/bank';
-import { DenomInfoModal } from '@/components/factory'; // Make sure to import this
+import { DenomInfoModal } from '@/components/factory';
+import { PiMagnifyingGlass } from 'react-icons/pi';
 
 interface TokenListProps {
   balances: CombinedBalanceInfo[] | undefined;
@@ -13,16 +14,15 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDenom, setSelectedDenom] = useState<any>(null);
 
-  const filteredBalances = React.useMemo(() => {
+  const filteredBalances = useMemo(() => {
     if (!Array.isArray(balances)) return [];
     return balances.filter(balance =>
-      balance.denom.toLowerCase().includes(searchTerm.toLowerCase())
+      balance.metadata?.display.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [balances, searchTerm]);
 
   const openModal = (denom: any) => {
     setSelectedDenom(denom);
-
     const modal = document.getElementById('denom-info-modal') as HTMLDialogElement;
     if (modal) {
       modal.showModal();
@@ -30,75 +30,62 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
   };
 
   return (
-    <div className="w-full mx-auto p-4 bg-base-100 rounded-md max-h-[28rem] min-h-[28rem]">
-      <div className="px-4 py-2 border-base-content flex items-center justify-between">
+    <div className="w-full mx-auto rounded-[24px] p-6">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-xl font-semibold text-[#161616] dark:text-white">Your assets</h3>
         <div className="relative">
-          <h3 className="text-lg font-bold leading-6 ">Your Balances</h3>
-        </div>
-        <div className="flex flex-row items-center justify-between gap-2">
           <input
             type="text"
             placeholder="Search for a token..."
-            className="input input-bordered input-xs ml-4"
+            className="input input-md w-64 pr-8 bg-[#FFFFFF1F] dark:bg-[#FFFFFF1F]  text-[#161616] dark:text-white placeholder-[#00000099] dark:placeholder-[#FFFFFF99] focus:outline-none focus:ring-0"
+            style={{ borderRadius: '12px' }}
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
           />
+          <PiMagnifyingGlass className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#00000099] dark:text-[#FFFFFF99]" />
         </div>
       </div>
-      <div className="divider divider-horizon -mt-2 mb-1"></div>
-      {isLoading && <div className="skeleton h-[18.9rem] w-full"></div>}
-      {filteredBalances.length > 0 && !isLoading && (
-        <div className="overflow-x-auto shadow-md rounded-lg bg-base-300 max-h-[22.2rem] min-h-[22.2rem] relative transition-opacity duration-300 ease-in-out animate-fadeIn">
-          <table className="table w-full table-fixed  rounded-md">
-            <thead className="sticky top-0 z-1 bg-base-300">
-              <tr>
-                <th className="px-6 py-3 w-1/4">Icon</th>
-                <th className="px-6 py-3 w-1/4">Name</th>
-                <th className="px-6 py-3 w-1/4">Base</th>
-                <th className="px-6 py-3 w-1/4">Balance</th>
-              </tr>
-            </thead>
-            <tbody className="overflow-y-auto">
-              {filteredBalances.map(balance => (
-                <tr
-                  key={balance.denom}
-                  className="hover:bg-base-200/10 cursor-pointer"
-                  onClick={() => openModal(balance.metadata)}
-                >
-                  <td className="px-6 py-3">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10">
-                        <DenomImage denom={balance.metadata} />
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-3 text-sm font-medium">
-                    <span className="block truncate max-w-[20ch]">
-                      {balance.metadata?.display.toUpperCase()}
-                    </span>
-                  </td>
-                  <td className="px-6 py-3 text-sm font-medium">
-                    <span className="block truncate max-w-[20ch]">
-                      {Number(balance.metadata?.base.length) < 10
-                        ? balance.metadata?.base
-                        : (balance.metadata?.base.split('/').pop() ?? '')}
-                    </span>
-                  </td>
-                  <td className="px-6 py-3 text-sm">
-                    {shiftDigits(
-                      balance.amount,
-                      -Number(balance.metadata?.denom_units[1]?.exponent) ?? 6
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-      {filteredBalances.length === 0 && !isLoading && (
-        <div className="mx-auto items-center justify-center h-full underline text-center transition-opacity duration-300 ease-in-out animate-fadeIn">
-          <p className="my-32">Your wallet is empty!</p>
+
+      {isLoading ? (
+        <div className="skeleton h-[400px] w-full"></div>
+      ) : (
+        <div className="space-y-2 max-h-[400px] overflow-y-auto">
+          {filteredBalances.map(balance => (
+            <div
+              key={balance.denom}
+              className="flex items-center justify-between p-4 bg-[#FFFFFF33] dark:bg-[#FFFFFF0F] rounded-[16px] cursor-pointer hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] transition-colors"
+              onClick={() => openModal(balance.metadata)}
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-full overflow-hidden bg-[#FFFFFF33] dark:bg-[#FFFFFF1A] flex items-center justify-center">
+                  <DenomImage denom={balance.metadata} />
+                </div>
+                <div>
+                  <p className="font-semibold text-[#161616] dark:text-white">
+                    {balance.metadata?.display}
+                  </p>
+                  <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99]">
+                    {balance.metadata?.symbol}
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="font-semibold text-[#161616] dark:text-white">
+                  {shiftDigits(
+                    balance.amount,
+                    -Number(balance.metadata?.denom_units[1]?.exponent) ?? 6
+                  )}{' '}
+                  {balance.metadata?.symbol}
+                </p>
+                <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99]">$3691.01</p>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="text-green-500">+2.09%</span>
+                {/* Replace with actual chart component */}
+                <div className="w-[50px] h-[20px] bg-[#FFFFFF33] dark:bg-[#FFFFFF1A] rounded-full"></div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 

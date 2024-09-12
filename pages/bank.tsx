@@ -17,7 +17,7 @@ import { useChain } from '@cosmos-kit/react';
 import Head from 'next/head';
 import React, { useMemo } from 'react';
 import { HistoryBox } from '@/components';
-
+import { BankIcon } from '@/components/icons';
 export type CombinedBalanceInfo = {
   denom: string;
   coreDenom: string;
@@ -63,7 +63,7 @@ export default function Bank() {
 
   return (
     <>
-      <div className="min-h-screen relative py-2 px-4 md:px-8 lg:px-20 mx-auto  text-white">
+      <div className="min-h-screen relative py-4 px-2 mx-auto text-white">
         <Head>
           <title>Bank - Alberto</title>
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -114,10 +114,10 @@ export default function Bank() {
           </script>
         </Head>
 
-        <div className="mt-6 gap-4 flex flex-col lg:flex-row transition-opacity duration-300 ease-in-out animate-fadeIn">
+        <div className=" gap-6 flex flex-col w-full lg:flex-row transition-opacity duration-300 ease-in-out animate-fadeIn">
           {!isWalletConnected ? (
-            <section className="transition-opacity duration-300 ease-in-out animate-fadeIn w-full">
-              <div className="grid max-w-screen-xl bg-base-100 p-12 rounded-md w-full mx-auto gap-8 lg:grid-cols-12">
+            <section className="transition-opacity duration-300 h-[80vh] ease-in-out animate-fadeIn w-full flex items-center justify-center">
+              <div className="grid max-w-4xl bg-base-300 p-12 rounded-md w-full mx-auto gap-8 lg:grid-cols-12">
                 <div className="mr-auto place-self-center lg:col-span-7">
                   <h1 className="max-w-2xl mb-4 text-2xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl">
                     Connect your wallet!
@@ -126,34 +126,34 @@ export default function Bank() {
                     Use the button below to connect your wallet and start interacting with your
                     tokens.
                   </p>
-                  <WalletSection chainName="manifest" />
+                  <div className="w-[50%]">
+                    <WalletSection chainName="manifest" />
+                  </div>
                 </div>
                 <div className="hidden lg:mt-0 lg:ml-24 lg:col-span-5 lg:flex">
-                  <img src="/bank.svg" alt="groups" className="h-60 w-60" />
+                  <BankIcon className="h-60 w-60 text-primary" />
                 </div>
               </div>
             </section>
           ) : (
             isWalletConnected &&
             combinedBalances && (
-              <div className="flex flex-col lg:flex-row w-full gap-4">
-                <div className="w-full lg:w-1/2 xl:w-2/5">
+              <div className="flex flex-col lg:flex-row w-full gap-6 justify-start items-start">
+                <div className="w-full lg:w-[400px] xl:w-[450px] flex flex-col gap-6">
                   <SendBox
                     balances={combinedBalances}
                     isBalancesLoading={resolvedLoading}
                     refetchBalances={resolveRefetch || refetch || refetchBalances}
                     address={address ?? ''}
                   />
+                  <HistoryBox
+                    address={address ?? ''}
+                    send={sendTxs ?? []}
+                    isLoading={resolvedLoading}
+                  />
                 </div>
-                <div className="w-full lg:w-1/2 xl:w-3/5">
+                <div className="w-full lg:flex-1 -mt-6">
                   <TokenList balances={combinedBalances} isLoading={resolvedLoading} />
-                  <div className="mt-4">
-                    <HistoryBox
-                      address={address ?? ''}
-                      send={sendTxs ?? []}
-                      isLoading={resolvedLoading}
-                    />
-                  </div>
                 </div>
               </div>
             )

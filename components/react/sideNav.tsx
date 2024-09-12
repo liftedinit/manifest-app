@@ -18,8 +18,12 @@ import {
 } from '@/components/icons';
 import EndpointSelector from './endpointSelector';
 
-export default function SideNav() {
-  const [isDrawerVisible, setDrawerVisible] = useState(false);
+interface SideNavProps {
+  isDrawerVisible: boolean;
+  setDrawerVisible: (visible: boolean) => void;
+}
+
+export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavProps) {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isdark, setIsdark] = useState(false);
 
@@ -182,7 +186,7 @@ export default function SideNav() {
     <>
       <aside
         id="sidebar-double"
-        className="hidden md:flex fixed top-0 left-0 h-full z-40"
+        className="fixed top-0 left-0 h-full z-30 flex transition-all duration-300 ease-in-out"
         aria-label="Sidebar"
       >
         <SideNav />

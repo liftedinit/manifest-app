@@ -53,6 +53,8 @@ type ManifestAppProps = AppProps & {
 };
 
 function ManifestApp({ Component, pageProps }: ManifestAppProps) {
+  const [isDrawerVisible, setDrawerVisible] = useState(false);
+
   // signer options to support amino signing for all the different modules we use
   const signerOptions: SignerOptions = {
     signingStargate: (_chain: string | Chain): SigningStargateClientOptions | undefined => {
@@ -176,8 +178,6 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
   );
 
   return (
-    // <AblyProvider client={ablyClient}>
-
     <QueryClientProvider client={client}>
       <ReactQueryDevtools />
       {isLoading ? (
@@ -216,15 +216,21 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
         >
           <ThemeProvider>
             <ToastProvider>
-              {/* <AdvancedModeProvider> */}
-              <SideNav />
-              <MobileNav />
-              <div className="relative min-h-screen max-w-screen  md:ml-20 sm:px-4 sm:py-2 bg-background-color transition-all duration-300 ease-in-out ">
-                <EndpointSelector />
-                <Component {...pageProps} />
+              <div className="flex min-h-screen bg-background-color relative">
+                <SideNav isDrawerVisible={isDrawerVisible} setDrawerVisible={setDrawerVisible} />
+                <div
+                  className={`flex-1 transition-all duration-300 ease-in-out ${
+                    isDrawerVisible ? 'ml-[17rem]' : 'ml-36'
+                  } relative z-0`}
+                >
+                  <MobileNav />
+                  <main className="p-6 relative z-10">
+                    <Component {...pageProps} />
+                  </main>
+                </div>
               </div>
 
-              {/* this is for the web3auth signing modal */}
+              {/* Web3auth signing modal */}
               {isBrowser &&
                 createPortal(
                   <SignModal
@@ -236,14 +242,11 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
                   />,
                   document.body
                 )}
-              {/* </AdvancedModeProvider> */}
             </ToastProvider>
           </ThemeProvider>
         </ChainProvider>
       )}
     </QueryClientProvider>
-
-    // </AblyProvider>
   );
 }
 
