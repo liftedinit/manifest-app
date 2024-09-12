@@ -203,7 +203,7 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
       <button
         onClick={toggleDrawer}
         className={`fixed top-1/2 transform -translate-y-1/2 z-50 opacity-100 p-2 text-white rounded-full bg-[#C1C1CB] dark:bg-[#444151] hover:bg-primary dark:hover:bg-primary transition-all duration-500 ease-in-out ${
-          isDrawerVisible ? 'left-60' : 'left-28'
+          isDrawerVisible ? 'left-60' : 'left-[6.8rem]'
         }`}
       >
         <svg
