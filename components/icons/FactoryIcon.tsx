@@ -1,7 +1,7 @@
 import React from 'react';
 import { SVGProps } from 'react';
 
-const FactoryIcon: React.FC<SVGProps<SVGSVGElement>> = props => (
+export const FactoryIcon: React.FC<SVGProps<SVGSVGElement>> = props => (
   <svg
     width="24"
     height="24"
@@ -27,5 +27,3 @@ const FactoryIcon: React.FC<SVGProps<SVGSVGElement>> = props => (
     />
   </svg>
 );
-
-export default FactoryIcon;

@@ -28,7 +28,7 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
   const [isdark, setIsdark] = useState(false);
 
   const { toggleTheme, theme } = useTheme();
-  console.log('theme in sideNav', theme);
+
   const toggleDrawer = () => setDrawerVisible(!isDrawerVisible);
 
   const NavItem: React.FC<{

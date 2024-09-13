@@ -1,7 +1,7 @@
 import React from 'react';
 import { SVGProps } from 'react';
 
-const TrashIcon: React.FC<SVGProps<SVGSVGElement>> = props => (
+export const TrashIcon: React.FC<SVGProps<SVGSVGElement>> = props => (
   <svg
     width="24"
     height="24"
@@ -22,5 +22,3 @@ const TrashIcon: React.FC<SVGProps<SVGSVGElement>> = props => (
     />
   </svg>
 );
-
-export default TrashIcon;
