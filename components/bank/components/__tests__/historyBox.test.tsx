@@ -32,8 +32,7 @@ describe('HistoryBox', () => {
         address="manifest123akjshjashdjkashjdahskjdhjakshdjkashkdjasjdhadajsdhkajsd"
       />
     );
-    // Check for "Received" instead of "Sent"
-    expect(screen.getByText('Received')).toBeInTheDocument();
+    expect(screen.getByText('+1 TOKEN')).toBeInTheDocument();
   });
 
   test("displays 'No transactions found' message when there are no transactions", () => {
@@ -55,10 +54,10 @@ describe('HistoryBox', () => {
         address="manifest123akjshjashdjkashjdahskjdhjakshdjkashkdjasjdhadajsdhkajsd"
       />
     );
-    // Find the transaction by its amount instead of "Sent"
+
     const transaction = screen.getByText('+1 TOKEN');
     fireEvent.click(transaction);
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByLabelText('tx_info_modal')).toBeInTheDocument();
   });
 
   test('formats amount correctly', () => {
@@ -92,7 +91,7 @@ describe('HistoryBox', () => {
       />
     );
 
-    expect(screen.getByText('Received')).toBeInTheDocument();
+    expect(screen.getByText('+1 TOKEN')).toBeInTheDocument();
     expect(screen.getByText('Sent')).toBeInTheDocument();
   });
 });

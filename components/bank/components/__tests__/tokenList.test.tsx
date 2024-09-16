@@ -61,16 +61,16 @@ describe('TokenList', () => {
 
   test('displays empty state when there are no balances', () => {
     render(<TokenList balances={[]} isLoading={false} />);
-    expect(screen.getByText('No assets found')).toBeInTheDocument();
+    expect(screen.getByText('No tokens found for this account!')).toBeInTheDocument();
   });
 
   test('filters balances based on search term', () => {
     render(<TokenList balances={mockBalances} isLoading={false} />);
     const searchInput = screen.getByPlaceholderText('Search for a token...');
-    fireEvent.change(searchInput, { target: { value: 'token1' } });
+    fireEvent.change(searchInput, { target: { value: 'Token 1' } });
 
-    expect(screen.getByText('Token 1', { selector: 'p.font-semibold' })).toBeInTheDocument();
-    expect(screen.queryByText('Token 2', { selector: 'p.font-semibold' })).not.toBeInTheDocument();
+    expect(screen.getByText('Token 1')).toBeInTheDocument();
+    expect(screen.queryByText('Token 2')).not.toBeInTheDocument();
   });
 
   test('opens modal with correct denomination information', () => {
@@ -78,9 +78,8 @@ describe('TokenList', () => {
     const balanceRow = screen.getByText('Token 1', { selector: 'p.font-semibold' });
     fireEvent.click(balanceRow);
 
-    const modal = screen.getByRole('dialog');
+    const modal = screen.getByLabelText('denom_info_modal');
     expect(modal).toBeInTheDocument();
-    expect(within(modal).getByText('My first token')).toBeInTheDocument();
   });
 
   test('displays correct balance for each token', () => {

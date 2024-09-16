@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { chainName } from '@/config';
 import { useFeeEstimation, useTx } from '@/hooks';
 import { cosmos } from '@chalabi/manifestjs';
-import { PiAddressBook, PiCaretDownBold } from 'react-icons/pi';
+import { PiCaretDownBold } from 'react-icons/pi';
 import { shiftDigits } from '@/utils';
 import { CombinedBalanceInfo } from '@/pages/bank';
 import { DenomImage } from '@/components/factory';
@@ -27,7 +27,7 @@ export default function SendForm({
 }>) {
   const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-
+  const [feeWarning, setFeeWarning] = useState('');
   const { tx } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
   const { send } = cosmos.bank.v1beta1.MessageComposer.withTypeUrl;
@@ -44,17 +44,37 @@ export default function SendForm({
     amount: Yup.number()
       .required('Amount is required')
       .positive('Amount must be positive')
-      .test('sufficient-balance', 'Insufficient balance', function (value) {
+      .test('sufficient-balance', 'Amount exceeds balance', function (value) {
         const { selectedToken } = this.parent;
         if (!selectedToken || !value) return true;
 
         const exponent = selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
         const balance = parseFloat(selectedToken.amount) / Math.pow(10, exponent);
+
         return value <= balance;
+      })
+      .test('leave-for-fees', '', function (value) {
+        const { selectedToken } = this.parent;
+        if (!selectedToken || !value || selectedToken.denom !== 'umfx') return true;
+
+        const exponent = selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
+        const balance = parseFloat(selectedToken.amount) / Math.pow(10, exponent);
+
+        if (value > balance - 0.09) {
+          setFeeWarning('Remember to leave tokens for fees!');
+        } else {
+          setFeeWarning('');
+        }
+
+        return true;
       }),
     selectedToken: Yup.object().required('Please select a token'),
     memo: Yup.string().max(255, 'Memo must be less than 255 characters'),
   });
+
+  const formatAmount = (amount: number, decimals: number) => {
+    return amount.toFixed(decimals).replace(/\.?0+$/, '');
+  };
 
   const handleSend = async (values: {
     recipient: string;
@@ -206,24 +226,40 @@ export default function SendForm({
                           )
                         : '0'}
                     </span>
+
                     <span className="">
                       {values.selectedToken?.metadata?.display?.toUpperCase() || ''}
                     </span>
                     <button
                       type="button"
-                      className="  text-xs text-primary"
+                      className="text-xs text-primary"
                       onClick={() => {
+                        if (!values.selectedToken) return;
+
                         const exponent =
                           values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
                         const maxAmount =
                           Number(values.selectedToken.amount) / Math.pow(10, exponent);
-                        setFieldValue('amount', maxAmount.toString());
+
+                        let adjustedMaxAmount = maxAmount;
+                        if (values.selectedToken.denom === 'umfx') {
+                          adjustedMaxAmount = Math.max(0, maxAmount - 0.1);
+                        }
+
+                        const decimals =
+                          values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
+                        const formattedAmount = formatAmount(adjustedMaxAmount, decimals);
+
+                        setFieldValue('amount', formattedAmount);
                       }}
                     >
                       MAX
                     </button>
                   </div>
                   {errors.amount && <div className="text-red-500 text-xs">{errors.amount}</div>}
+                  {feeWarning && !errors.amount && (
+                    <div className="text-yellow-500 text-xs">{feeWarning}</div>
+                  )}
                 </div>
               </div>
 

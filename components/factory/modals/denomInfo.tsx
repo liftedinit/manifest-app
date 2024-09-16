@@ -5,7 +5,7 @@ type MessageType = 'payout' | 'burn';
 export function DenomInfoModal({ denom, modalId }: { denom: any; modalId: string }) {
   return (
     <>
-      <dialog id={modalId} className="modal">
+      <dialog aria-label="denom_info_modal" id={modalId} className="modal">
         <div className="modal-box absolute max-w-4xl mx-auto rounded-lg md:ml-20 shadow-lg">
           <form method="dialog">
             <button className="btn btn-sm btn-circle btn-ghost absolute right-1 top-1">✕</button>

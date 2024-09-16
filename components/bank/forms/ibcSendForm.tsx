@@ -40,7 +40,7 @@ export default function IbcSendForm({
 }>) {
   const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-
+  const [feeWarning, setFeeWarning] = useState('');
   const { tx } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
   const { transfer } = ibc.applications.transfer.v1.MessageComposer.withTypeUrl;
@@ -57,28 +57,49 @@ export default function IbcSendForm({
     amount: Yup.number()
       .required('Amount is required')
       .positive('Amount must be positive')
-      .test('sufficient-balance', 'Insufficient balance', function (value) {
+      .test('sufficient-balance', 'Amount exceeds balance', function (value) {
         const { selectedToken } = this.parent;
         if (!selectedToken || !value) return true;
 
         const exponent = selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
         const balance = parseFloat(selectedToken.amount) / Math.pow(10, exponent);
         return value <= balance;
+      })
+      .test('leave-for-fees', '', function (value) {
+        const { selectedToken } = this.parent;
+        if (!selectedToken || !value || selectedToken.denom !== 'umfx') return true;
+
+        const exponent = selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
+        const balance = parseFloat(selectedToken.amount) / Math.pow(10, exponent);
+
+        if (value > balance - 0.09) {
+          setFeeWarning('Remember to leave tokens for fees!');
+        } else {
+          setFeeWarning('');
+        }
+
+        return true;
       }),
     selectedToken: Yup.object().required('Please select a token'),
     memo: Yup.string().max(255, 'Memo must be less than 255 characters'),
   });
 
+  const formatAmount = (amount: number, decimals: number) => {
+    return amount.toFixed(decimals).replace(/\.?0+$/, '');
+  };
+
   const handleSend = async (values: {
     recipient: string;
-    amount: number;
+    amount: string;
     selectedToken: CombinedBalanceInfo;
     memo: string;
   }) => {
     setIsSending(true);
     try {
       const exponent = values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-      const amountInBaseUnits = Math.floor(values.amount * Math.pow(10, exponent)).toString();
+      const amountInBaseUnits = Math.floor(
+        parseFloat(values.amount) * Math.pow(10, exponent)
+      ).toString();
 
       const { source_port, source_channel } = getIbcInfo(chainName ?? '', destinationChain ?? '');
 
@@ -127,7 +148,7 @@ export default function IbcSendForm({
       <Formik
         initialValues={{
           recipient: '',
-          amount: 0,
+          amount: '',
           selectedToken: initialSelectedToken,
           memo: '',
         }}
@@ -207,8 +228,7 @@ export default function IbcSendForm({
                     placeholder="0.00"
                     value={values.amount}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      const value = e.target.value;
-                      setFieldValue('amount', value === '' ? '' : parseFloat(value));
+                      setFieldValue('amount', e.target.value);
                     }}
                     style={{ borderRadius: '12px' }}
                     className="input input-md border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full pr-24 dark:text-[#FFFFFF] text-[#161616]"
@@ -294,17 +314,32 @@ export default function IbcSendForm({
                       type="button"
                       className="  text-xs text-primary"
                       onClick={() => {
+                        if (!values.selectedToken) return;
+
                         const exponent =
                           values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
                         const maxAmount =
                           Number(values.selectedToken.amount) / Math.pow(10, exponent);
-                        setFieldValue('amount', maxAmount.toString());
+
+                        let adjustedMaxAmount = maxAmount;
+                        if (values.selectedToken.denom === 'umfx') {
+                          adjustedMaxAmount = Math.max(0, maxAmount - 0.1);
+                        }
+
+                        const decimals =
+                          values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
+                        const formattedAmount = formatAmount(adjustedMaxAmount, decimals);
+
+                        setFieldValue('amount', formattedAmount);
                       }}
                     >
                       MAX
                     </button>
                   </div>
                   {errors.amount && <div className="text-red-500 text-xs">{errors.amount}</div>}
+                  {feeWarning && !errors.amount && (
+                    <div className="text-yellow-500 text-xs">{feeWarning}</div>
+                  )}
                 </div>
               </div>
 

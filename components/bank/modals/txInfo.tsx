@@ -24,7 +24,11 @@ export default function TxInfoModal({ tx, isOpen, onClose }: TxInfoModalProps) {
   }
 
   return (
-    <dialog id={`tx_modal_${tx.tx_hash}`} className={`modal ${isOpen ? 'modal-open' : ''}`}>
+    <dialog
+      aria-label="tx_info_modal"
+      id={`tx_modal_${tx.tx_hash}`}
+      className={`modal ${isOpen ? 'modal-open' : ''}`}
+    >
       <div
         className="modal-box absolute max-w-4xl mx-auto rounded-lg md:ml-20 shadow-lg"
         aria-label="tx info"
