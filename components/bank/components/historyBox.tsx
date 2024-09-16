@@ -90,13 +90,13 @@ export function HistoryBox({
                   <div
                     key={tx.tx_hash}
                     onClick={e => handleTxClick(e, tx)}
-                    className="flex items-center justify-between p-4 bg-[#FFFFFF33] dark:bg-[#FFFFFF0F] rounded-[16px] cursor-pointer hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] transition-colors"
+                    className="flex items-center justify-between p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px] cursor-pointer hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] transition-colors"
                   >
                     <div className="flex items-center space-x-3">
                       <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center">
                         {tx.data.from_address === address ? <SendIcon /> : <ReceiveIcon />}
                       </div>
-                      <div className="w-10 h-10 rounded-full overflow-hidden bg-[#FFFFFF33] dark:bg-[#FFFFFF1A] flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-full overflow-hidden bg-[#0000000A] dark:bg-[#FFFFFF0F] flex items-center justify-center">
                         {tx.data.amount.map((amt, index) => {
                           const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
 

@@ -63,7 +63,7 @@ export default function Bank() {
 
   return (
     <>
-      <div className="min-h-screen relative py-4 px-2 mx-auto text-white">
+      <div className="min-h-screen relative py-4 px-2 mx-auto text-white mt-12 md:mt-0">
         <Head>
           <title>Bank - Alberto</title>
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -139,7 +139,7 @@ export default function Bank() {
             isWalletConnected &&
             combinedBalances && (
               <div className="flex flex-col lg:flex-row w-full gap-6 justify-start items-start">
-                <div className="w-full lg:w-[400px] xl:w-[450px] flex flex-col gap-6">
+                <div className="xl:w-1/3 w-full flex flex-col gap-6">
                   <SendBox
                     balances={combinedBalances}
                     isBalancesLoading={resolvedLoading}
@@ -152,7 +152,7 @@ export default function Bank() {
                     isLoading={resolvedLoading}
                   />
                 </div>
-                <div className="w-full lg:flex-1 -mt-6">
+                <div className="xl:w-2/3 w-full lg:flex-1 -mt-6">
                   <TokenList balances={combinedBalances} isLoading={resolvedLoading} />
                 </div>
               </div>

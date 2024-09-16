@@ -1,9 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import Confetti from 'react-confetti';
-import CloseIcon from './icons/CloseIcon';
-import CopyIcon from './icons/CopyIcon';
-import BroadcastingIcon from './icons/BroadcastingIcon';
+import { CloseIcon, CopyIcon, BroadcastingIcon } from './icons';
 export interface ToastMessage {
   type: string;
   title: string;

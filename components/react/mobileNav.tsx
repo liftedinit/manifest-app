@@ -47,18 +47,18 @@ export default function MobileNav() {
 
   return (
     <>
-      <div className=" top-4 left-4 p-3 bg-base-300 flex flex-row justify-between items-center  md:hidden ">
+      <div className="fixed top-0 left-0 right-0 z-40 mb-12 p-3 bg-base-300 flex flex-row justify-between items-center md:hidden">
         <Image src="/logo.svg" height={38} width={38} alt="manifest" />
         <label htmlFor="my-drawer" className="btn btn-sm btn-primary drawer-button">
           <RiMenuUnfoldFill fontSize={'24px'} />
         </label>
       </div>
-      <div className="drawer z-10">
+      <div className="drawer z-50">
         <input id="my-drawer" type="checkbox" className="drawer-toggle" />
 
         <div className="drawer-side">
           <label htmlFor="my-drawer" aria-label="close sidebar" className="drawer-overlay"></label>
-          <ul className="menu p-4 w-80 min-h-full bg-base-200 space-y-3 text-base-content">
+          <ul className="menu p-4 w-80 min-h-full bg-[#F4F4FF] dark:bg-[#1D192D] space-y-3 text-base-content">
             <div className="flex flex-row justify-between items-center">
               <div className="flex flex-row gap-4 justify-between items-center">
                 <img src={'/logo.svg'} alt="logo" width={42} height={42} />

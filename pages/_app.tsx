@@ -217,11 +217,13 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
           <ThemeProvider>
             <ToastProvider>
               <div className="flex min-h-screen bg-background-color relative">
-                <SideNav isDrawerVisible={isDrawerVisible} setDrawerVisible={setDrawerVisible} />
+                <div className="hidden md:block">
+                  <SideNav isDrawerVisible={isDrawerVisible} setDrawerVisible={setDrawerVisible} />
+                </div>
+
                 <div
-                  className={`flex-1 transition-all duration-300 ease-in-out ${
-                    isDrawerVisible ? 'ml-[17rem]' : 'ml-36'
-                  } relative z-0`}
+                  className={`flex-1 transition-all duration-300 ease-in-out ml-0 
+                    ${isDrawerVisible ? 'md:ml-[17rem]' : 'md:ml-36'}  relative z-0`}
                 >
                   <MobileNav />
                   <main className="p-6 relative z-10">

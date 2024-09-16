@@ -33,8 +33,12 @@ export const TruncatedAddressWithCopy = ({
   const iconSize = size === 'small' ? 10 : 16;
 
   return (
-    <div className="flex items-center space-x-2" onClick={handleCopy} style={{ cursor: 'pointer' }}>
-      <span className="truncate">{truncatedAddress}</span>
+    <div
+      className="flex items-center space-x-2 text-[#00000099] dark:text-[#FFFFFF99]"
+      onClick={handleCopy}
+      style={{ cursor: 'pointer' }}
+    >
+      <span className="truncate ">{truncatedAddress}</span>
       {copied ? <FiCheck size={iconSize} /> : <FiCopy size={iconSize} />}
     </div>
   );
