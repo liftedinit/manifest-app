@@ -139,11 +139,12 @@ export default function Bank() {
             isWalletConnected &&
             combinedBalances && (
               <div className="flex flex-col lg:flex-row w-full gap-6 justify-start items-start">
-                <div className="xl:w-1/3 w-full flex flex-col gap-6">
+                <div className="xl:w-1/3 lg:w-1/2 w-full flex flex-col gap-6">
                   <SendBox
                     balances={combinedBalances}
                     isBalancesLoading={resolvedLoading}
-                    refetchBalances={resolveRefetch || refetch || refetchBalances}
+                    refetchBalances={refetchBalances}
+                    refetchHistory={refetch}
                     address={address ?? ''}
                   />
                   <HistoryBox
@@ -152,7 +153,7 @@ export default function Bank() {
                     isLoading={resolvedLoading}
                   />
                 </div>
-                <div className="xl:w-2/3 w-full lg:flex-1 -mt-6">
+                <div className="xl:w-2/3 lg:w-1/2 w-full lg:flex-1 -mt-6">
                   <TokenList balances={combinedBalances} isLoading={resolvedLoading} />
                 </div>
               </div>

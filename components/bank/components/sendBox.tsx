@@ -18,11 +18,13 @@ export default function SendBox({
   balances,
   isBalancesLoading,
   refetchBalances,
+  refetchHistory,
 }: {
   address: string;
   balances: CombinedBalanceInfo[];
   isBalancesLoading: boolean;
   refetchBalances: () => void;
+  refetchHistory: () => void;
 }) {
   const [activeTab, setActiveTab] = useState<'send' | 'cross-chain'>('send');
   const [selectedChain, setSelectedChain] = useState('');
@@ -73,6 +75,7 @@ export default function SendBox({
           balances={balances}
           isBalancesLoading={isBalancesLoading}
           refetchBalances={refetchBalances}
+          refetchHistory={refetchHistory}
         />
       ) : (
         <SendForm
@@ -81,6 +84,7 @@ export default function SendBox({
           balances={balances}
           isBalancesLoading={isBalancesLoading}
           refetchBalances={refetchBalances}
+          refetchHistory={refetchHistory}
         />
       )}
     </div>

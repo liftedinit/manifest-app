@@ -19,6 +19,7 @@ export default function IbcSendForm({
   balances,
   isBalancesLoading,
   refetchBalances,
+  refetchHistory,
   isIbcTransfer,
   setIsIbcTransfer,
   ibcChains,
@@ -30,6 +31,7 @@ export default function IbcSendForm({
   balances: CombinedBalanceInfo[];
   isBalancesLoading: boolean;
   refetchBalances: () => void;
+  refetchHistory: () => void;
   isIbcTransfer: boolean;
   setIsIbcTransfer: (isIbcTransfer: boolean) => void;
   ibcChains: IbcChain[];
@@ -107,6 +109,7 @@ export default function IbcSendForm({
         fee,
         onSuccess: () => {
           refetchBalances();
+          refetchHistory();
         },
       });
     } catch (error) {

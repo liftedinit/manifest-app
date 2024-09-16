@@ -15,12 +15,14 @@ export default function SendForm({
   balances,
   isBalancesLoading,
   refetchBalances,
+  refetchHistory,
   ibcChains,
 }: Readonly<{
   address: string;
   balances: CombinedBalanceInfo[];
   isBalancesLoading: boolean;
   refetchBalances: () => void;
+  refetchHistory: () => void;
   ibcChains: { prefix: string }[];
 }>) {
   const [isSending, setIsSending] = useState(false);
@@ -79,6 +81,7 @@ export default function SendForm({
         fee,
         onSuccess: () => {
           refetchBalances();
+          refetchHistory();
         },
       });
     } catch (error) {

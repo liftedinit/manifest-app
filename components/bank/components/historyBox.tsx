@@ -62,12 +62,6 @@ export function HistoryBox({
     return groups;
   }, [send]);
 
-  const handleTxClick = (event: React.MouseEvent, tx: TransactionGroup) => {
-    if (!(event.target as HTMLElement).closest('.address-copy')) {
-      openModal(tx);
-    }
-  };
-
   return (
     <div className="w-full mx-auto rounded-[24px] mt-4">
       <div className="flex items-center justify-between mb-6">
@@ -75,9 +69,14 @@ export function HistoryBox({
           Transaction History
         </h3>
       </div>
-
       {isLoading ? (
-        <div className="skeleton h-[400px] w-full"></div>
+        <div aria-label="skeleton-loader" className="skeleton h-[400px] w-full"></div>
+      ) : send.length === 0 ? (
+        <div className="flex items-center justify-center h-[200px] w-full bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px]">
+          <p className="text-center text-[#00000099] dark:text-[#FFFFFF99]">
+            No transactions found for this account!
+          </p>
+        </div>
       ) : (
         <div className="space-y-4 max-h-[400px] overflow-y-auto">
           {Object.entries(groupedTransactions).map(([date, transactions]) => (
@@ -86,11 +85,11 @@ export function HistoryBox({
                 {date}
               </h4>
               <div className="space-y-2">
-                {transactions.map((tx: TransactionGroup) => (
+                {transactions.map(tx => (
                   <div
                     key={tx.tx_hash}
-                    onClick={e => handleTxClick(e, tx)}
                     className="flex items-center justify-between p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px] cursor-pointer hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] transition-colors"
+                    onClick={() => openModal(tx)}
                   >
                     <div className="flex items-center space-x-3">
                       <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center">
@@ -99,7 +98,6 @@ export function HistoryBox({
                       <div className="w-10 h-10 rounded-full overflow-hidden bg-[#0000000A] dark:bg-[#FFFFFF0F] flex items-center justify-center">
                         {tx.data.amount.map((amt, index) => {
                           const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
-
                           return <DenomImage key={index} denom={metadata} />;
                         })}
                       </div>
