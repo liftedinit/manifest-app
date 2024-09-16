@@ -105,7 +105,7 @@ export function HistoryBox({
                         <p className="font-semibold text-[#161616] dark:text-white">
                           {tx.data.from_address === address ? 'Sent' : 'Received'}
                         </p>
-                        <div className="address-copy">
+                        <div className="address-copy" onClick={e => e.stopPropagation()}>
                           <TruncatedAddressWithCopy
                             address={
                               tx.data.from_address === address

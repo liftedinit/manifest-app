@@ -213,7 +213,7 @@ export const IconWallet: React.FC<WalletSectionProps> = ({ chainName }) => {
           <buttonData.icon className="w-8 h-8" />
         </button>
         {status === WalletStatus.Connected && (
-          <div className="absolute -top-4 -right-8 mt-[-0.5rem] mr-[-0.5rem] bg-base-100 rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-out">
+          <div className="absolute -top-4 -right-8 mt-[-0.5rem] mr-[-0.5rem] bg-[#F4F4FF] dark:bg-[#191526] rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-out">
             <button
               className="p-2 hover:text-primary rounded-t-md w-full flex justify-center items-center"
               id="copyButton"
