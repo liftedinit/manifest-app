@@ -7,8 +7,8 @@ import {
 } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { QueryTallyResultResponseSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/query';
 import Link from 'next/link';
-import { truncateString } from '@/utils';
-import { PiArrowLeftBold } from 'react-icons/pi';
+import { SearchIcon } from '@/components/icons';
+
 import VoteDetailsModal from '@/components/groups/modals/voteDetailsModal';
 import { useGroupsByMember } from '@/hooks/useQueries';
 import { useChain } from '@cosmos-kit/react';
@@ -33,6 +33,7 @@ export default function GroupProposals({
   >([]);
   const [members, setMembers] = useState<MemberSDKType[]>([]);
   const [admin, setAdmin] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Convert proposalId to string before passing it to the hooks
   const proposalIdString = selectedProposal?.id?.toString() ?? '0';
@@ -65,8 +66,15 @@ export default function GroupProposals({
 
   const handleRowClick = (proposal: ProposalSDKType) => {
     setSelectedProposal(proposal);
-    const modal = document.getElementById(`vote_modal_${proposal.id}`) as HTMLDialogElement;
-    modal?.showModal();
+    // Use setTimeout to ensure the state has been updated and the modal is available
+    setTimeout(() => {
+      const modal = document.getElementById(`vote_modal_${proposal.id}`) as HTMLDialogElement;
+      if (modal) {
+        modal.showModal();
+      } else {
+        console.error(`Modal not found for proposal ${proposal.id}`);
+      }
+    }, 0);
   };
 
   function isProposalPassing(tally: QueryTallyResultResponseSDKType) {
@@ -149,6 +157,10 @@ export default function GroupProposals({
     }
   }, [groupByMemberData, policyAddress]);
 
+  const filteredProposals = filterProposals(proposals).filter(proposal =>
+    proposal.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="space-y-4 w-full pt-4">
       <div className="flex items-center justify-between mb-12">
@@ -167,11 +179,36 @@ export default function GroupProposals({
 
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold">Proposals</h2>
-        <Link href={`/groups/submit-proposal/${policyAddress}`} passHref>
-          <button className="btn btn-gradient rounded-[12px] w-[140px] h-[52px]">
-            New proposal
-          </button>
-        </Link>
+        <div className="flex items-center space-x-4">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search for a group..."
+              className="input input-bordered w-[224px] h-[40px] rounded-[12px] border-none bg-[#FFFFFF1F] pl-10"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+            />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </div>
+          <Link href={`/groups/submit-proposal/${policyAddress}`} passHref>
+            <button className="btn btn-gradient rounded-[12px] w-[140px] h-[52px]">
+              New proposal
+            </button>
+          </Link>
+        </div>
       </div>
 
       {isProposalsLoading ? (
@@ -180,7 +217,7 @@ export default function GroupProposals({
         </div>
       ) : isProposalsError ? (
         <div className="text-center text-error">Error loading proposals</div>
-      ) : (
+      ) : filteredProposals.length > 0 ? (
         <div className="overflow-x-auto w-full">
           <table className="table w-full border-separate border-spacing-y-3">
             <thead>
@@ -193,7 +230,7 @@ export default function GroupProposals({
               </tr>
             </thead>
             <tbody className="space-y-4">
-              {filterProposals(proposals).map(proposal => {
+              {filteredProposals.map(proposal => {
                 const proposalTally = tallies.find(t => t.proposalId === proposal.id);
                 const { isPassing = false } = proposalTally
                   ? isProposalPassing(proposalTally.tally)
@@ -224,7 +261,7 @@ export default function GroupProposals({
                     onClick={() => handleRowClick(proposal)}
                     className="hover:bg-base-200 rounded-lg cursor-pointer"
                   >
-                    <td className="dark:bg-[#FFFFFF0F] rounded-l-[12px]">
+                    <td className="dark:bg-[#FFFFFF0F] rounded-l-[12px] py-[1.15rem]">
                       {proposal.id.toString()}
                     </td>
                     <td className="dark:bg-[#FFFFFF0F] truncate max-w-xs">{proposal.title}</td>
@@ -247,21 +284,24 @@ export default function GroupProposals({
             </tbody>
           </table>
         </div>
+      ) : (
+        <div className="text-center py-8 text-gray-500">No proposals available</div>
       )}
 
-      {selectedProposal && (
+      {proposals.map(proposal => (
         <VoteDetailsModal
+          key={proposal.id.toString()}
           tallies={tally ?? ({} as QueryTallyResultResponseSDKType)}
           votes={votes ?? []}
           members={members}
-          proposal={selectedProposal}
+          proposal={proposal}
           admin={admin}
-          modalId={`vote_modal_${selectedProposal.id}`}
+          modalId={`vote_modal_${proposal.id}`}
           refetchVotes={refetchVotes}
           refetchTally={refetchTally}
           refetchProposals={refetchProposals}
         />
-      )}
+      ))}
     </div>
   );
 }
