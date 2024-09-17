@@ -285,7 +285,7 @@ export default function GroupProposals({
           </table>
         </div>
       ) : (
-        <div className="text-center py-8 text-gray-500">No proposals available</div>
+        <div className="text-center py-8 text-gray-500">No proposals found</div>
       )}
 
       {proposals.map(proposal => (

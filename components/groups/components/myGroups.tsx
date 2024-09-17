@@ -92,29 +92,32 @@ export function YourGroups({
             </div>
           </div>
           <div className="overflow-x-auto w-full">
-            <table className="table w-full border-separate border-spacing-y-3 ">
-              <thead>
-                <tr className="text-sm font-medium ">
-                  <th className="bg-transparent">Group Name</th>
-                  <th className="bg-transparent">Active proposal</th>
-                  <th className="bg-transparent">Authors</th>
-                  <th className="bg-transparent">Group Balance</th>
-                  <th className="bg-transparent">Qualified Majority</th>
-                  <th className="bg-transparent">Group address</th>
-                  <th className="bg-transparent"></th>
-                </tr>
-              </thead>
-              <tbody className="space-y-4">
-                {filteredGroups.map((group, index) => (
-                  <GroupRow
-                    key={index}
-                    group={group}
-                    proposals={proposals[group.policies[0].address]}
-                    onSelectGroup={handleSelectGroup}
-                  />
-                ))}
-              </tbody>
-            </table>
+            <div className="max-w-8xl mx-auto">
+              {' '}
+              {/* Center the table */}
+              <table className="table w-full border-separate border-spacing-y-3">
+                <thead>
+                  <tr className="text-sm font-medium">
+                    <th className="bg-transparent w-1/6">Group Name</th>
+                    <th className="bg-transparent w-1/6">Active proposals</th>
+                    <th className="bg-transparent w-1/6">Authors</th>
+                    <th className="bg-transparent w-1/6">Group Balance</th>
+                    <th className="bg-transparent w-1/6">Qualified Majority</th>
+                    <th className="bg-transparent w-1/6">Group address</th>
+                  </tr>
+                </thead>
+                <tbody className="space-y-4">
+                  {filteredGroups.map((group, index) => (
+                    <GroupRow
+                      key={index}
+                      group={group}
+                      proposals={proposals[group.policies[0].address]}
+                      onSelectGroup={handleSelectGroup}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -155,45 +158,36 @@ function GroupRow({
   const activeProposals = filterActiveProposals(proposals);
 
   return (
-    <tr className="hover:bg-base-200 rounded-lg">
-      <td className="dark:bg-[#FFFFFF0F] rounded-l-[12px]">
+    <tr
+      className="hover:bg-base-200 rounded-lg cursor-pointer"
+      onClick={e => {
+        e.stopPropagation();
+        onSelectGroup(policyAddress, groupName);
+      }}
+    >
+      <td className="dark:bg-[#FFFFFF0F] rounded-l-[12px] w-1/6">
         <div className="flex items-center space-x-3">
           <ProfileAvatar walletAddress={group.created_at.toString() ?? ''} />
           <span className="font-medium">{truncateString(groupName, 24)}</span>
         </div>
       </td>
-      <td className="dark:bg-[#FFFFFF0F]">
+      <td className="dark:bg-[#FFFFFF0F] w-1/6">
         {activeProposals.length > 0 ? (
           <span className="badge badge-primary badge-sm">{activeProposals.length}</span>
         ) : (
           '-'
         )}
       </td>
-      <td className="dark:bg-[#FFFFFF0F]">
-        {truncateString(group.ipfsMetadata?.authors ?? 'Unknown', 24)}
+      <td className="dark:bg-[#FFFFFF0F] w-1/6">
+        {truncateString(
+          group.ipfsMetadata?.authors ?? 'Unknown',
+          group.ipfsMetadata?.authors?.startsWith('manifest1') ? 6 : 24
+        )}
       </td>
-      <td className="dark:bg-[#FFFFFF0F]">{group.balance ?? '0'} MFX</td>
-      <td className="dark:bg-[#FFFFFF0F]">{`${group.policies[0]?.decision_policy?.threshold ?? '0'} / ${group.total_weight ?? '0'}`}</td>
-      <td className="dark:bg-[#FFFFFF0F]">{truncateString(policyAddress, 12)}</td>
-      <td className="dark:bg-[#FFFFFF0F] rounded-r-[12px]">
-        <button
-          className="btn btn-square rounded-[8px] btn-sm"
-          onClick={e => {
-            e.stopPropagation();
-            onSelectGroup(policyAddress, groupName);
-          }}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-6 h-6"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-          </svg>
-        </button>
+      <td className="dark:bg-[#FFFFFF0F] w-1/6">{group.balance ?? '0'} MFX</td>
+      <td className="dark:bg-[#FFFFFF0F] w-1/6">{`${group.policies[0]?.decision_policy?.threshold ?? '0'} / ${group.total_weight ?? '0'}`}</td>
+      <td className="dark:bg-[#FFFFFF0F] rounded-r-[12px] w-1/6">
+        {truncateString(policyAddress, 6)}
       </td>
     </tr>
   );
