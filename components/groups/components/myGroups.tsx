@@ -1,136 +1,200 @@
 import { ExtendedQueryGroupsByMemberResponseSDKType } from '@/hooks/useQueries';
 import ProfileAvatar from '@/utils/identicon';
 import { truncateString } from '@/utils';
-import { useEffect, useRef, useState } from 'react';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { ProposalSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
+import GroupProposals from './groupProposals';
 
 export function YourGroups({
   groups,
-  groupByMemberDataLoading,
-  groupByMemberDataError,
-  refetchGroupByMember,
-  onSelectGroup,
   proposals,
-}: Readonly<{
+}: {
   groups: ExtendedQueryGroupsByMemberResponseSDKType;
-  groupByMemberDataLoading: boolean;
-  groupByMemberDataError: Error | null | boolean;
-  refetchGroupByMember: () => void;
-  onSelectGroup: (policyAddress: string) => void;
-  proposals: any; // TODO: Define type
-}>) {
-  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  proposals: { [policyAddress: string]: ProposalSDKType[] };
+}) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedGroup, setSelectedGroup] = useState<{
+    policyAddress: string;
+    name: string;
+  } | null>(null);
   const router = useRouter();
-  const groupRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+
+  const filteredGroups = groups.groups.filter(group =>
+    group.ipfsMetadata?.title?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   useEffect(() => {
-    const policyAddressFromUrl = router.query.policyAddress as string;
-
-    if (!selectedGroup && groups.groups.length > 0) {
-      if (policyAddressFromUrl) {
-        setSelectedGroup(policyAddressFromUrl);
-        onSelectGroup(policyAddressFromUrl);
-        scrollToGroup(policyAddressFromUrl);
-      } else {
-        const defaultPolicyAddress = groups.groups[0].policies[0].address;
-        setSelectedGroup(defaultPolicyAddress);
-        onSelectGroup(defaultPolicyAddress);
-        router.push(`?policyAddress=${defaultPolicyAddress}`, undefined, {
-          shallow: true,
+    // Check if there's a policy address in the URL on component mount
+    const { policyAddress } = router.query;
+    if (policyAddress && typeof policyAddress === 'string') {
+      const group = groups.groups.find(g => g.policies[0]?.address === policyAddress);
+      if (group) {
+        setSelectedGroup({
+          policyAddress,
+          name: group.ipfsMetadata?.title ?? 'Untitled Group',
         });
       }
     }
-  }, [groups]);
+  }, [router.query, groups.groups]);
 
-  const scrollToGroup = (policyAddress: string) => {
-    const groupElement = groupRefs.current[policyAddress];
-    if (groupElement) {
-      groupElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
+  const handleSelectGroup = (policyAddress: string, groupName: string) => {
+    setSelectedGroup({ policyAddress, name: groupName });
+    router.push(`/groups?policyAddress=${policyAddress}`, undefined, { shallow: true });
   };
 
-  const handleGroupSelect = (policyAddress: string) => {
-    setSelectedGroup(policyAddress);
-    onSelectGroup(policyAddress);
-    router.push(`?policyAddress=${policyAddress}`, undefined, {
-      shallow: true,
-    });
-    scrollToGroup(policyAddress);
+  const handleBack = () => {
+    setSelectedGroup(null);
+    router.push('/groups', undefined, { shallow: true });
   };
 
-  const renderSkeleton = () => (
-    <div className="py-8">
-      <div className="skeleton rounded-md mx-auto h-16 w-5/6"></div>
+  return (
+    <div className="relative w-full overflow-hidden">
+      <div
+        className={`transition-transform duration-300 ${selectedGroup ? '-translate-x-full' : 'translate-x-0'}`}
+      >
+        <div className="space-y-4 w-full pt-4">
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center space-x-4">
+              <h1 style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}>My groups</h1>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search for a group..."
+                  className="input input-bordered w-[224px] h-[40px] rounded-[12px] border-none bg-[#FFFFFF1F] pl-10"
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-4">
+              <Link href="/groups/create" passHref>
+                <button className="btn btn-gradient w-[224px] h-[52px] rounded-[12px]">
+                  Create New Group
+                </button>
+              </Link>
+            </div>
+          </div>
+          <div className="overflow-x-auto w-full">
+            <table className="table w-full border-separate border-spacing-y-3 ">
+              <thead>
+                <tr className="text-sm font-medium ">
+                  <th className="bg-transparent">Group Name</th>
+                  <th className="bg-transparent">Active proposal</th>
+                  <th className="bg-transparent">Authors</th>
+                  <th className="bg-transparent">Group Balance</th>
+                  <th className="bg-transparent">Qualified Majority</th>
+                  <th className="bg-transparent">Group address</th>
+                  <th className="bg-transparent"></th>
+                </tr>
+              </thead>
+              <tbody className="space-y-4">
+                {filteredGroups.map((group, index) => (
+                  <GroupRow
+                    key={index}
+                    group={group}
+                    proposals={proposals[group.policies[0].address]}
+                    onSelectGroup={handleSelectGroup}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div
+        className={`absolute top-0 left-0 w-full h-full transition-transform duration-300 ${selectedGroup ? 'translate-x-0' : 'translate-x-full'}`}
+      >
+        {selectedGroup && (
+          <GroupProposals
+            policyAddress={selectedGroup.policyAddress}
+            groupName={selectedGroup.name}
+            onBack={handleBack}
+          />
+        )}
+      </div>
     </div>
   );
+}
 
-  const filteredGroups = groups.groups.filter(group =>
-    group.ipfsMetadata?.title?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const filterProposals = (proposals: ProposalSDKType[]) => {
-    return proposals.filter(
+function GroupRow({
+  group,
+  proposals,
+  onSelectGroup,
+}: {
+  group: any;
+  proposals: ProposalSDKType[];
+  onSelectGroup: (policyAddress: string, groupName: string) => void;
+}) {
+  const policyAddress = group.policies[0]?.address;
+  const groupName = group.ipfsMetadata?.title ?? 'Untitled Group';
+  const filterActiveProposals = (proposals: ProposalSDKType[]) => {
+    return proposals?.filter(
       proposal =>
         proposal.status.toString() !== 'PROPOSAL_STATUS_ACCEPTED' &&
         proposal.status.toString() !== 'PROPOSAL_STATUS_REJECTED' &&
         proposal.status.toString() !== 'PROPOSAL_STATUS_WITHDRAWN'
     );
   };
+  const activeProposals = filterActiveProposals(proposals);
 
   return (
-    <div className="flex flex-col rounded-md max-h-[23rem]  min-h-[23rem] bg-base-100  shadow w-full p-4">
-      <div className="w-full rounded-md ">
-        <div className="px-4 py-2 border-base-content flex justify-between items-center">
-          <h3 className="text-lg font-bold leading-6">My Groups</h3>
-          <input
-            type="text"
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            className="input input-bordered input-xs  w-1/3 max-w-xs"
-          />
+    <tr className="hover:bg-base-200 rounded-lg">
+      <td className="dark:bg-[#FFFFFF0F] rounded-l-[12px]">
+        <div className="flex items-center space-x-3">
+          <ProfileAvatar walletAddress={group.created_at.toString() ?? ''} />
+          <span className="font-medium">{truncateString(groupName, 24)}</span>
         </div>
-        <div className="divider divider-horizon -mt-2"></div>
-        <div className="overflow-y-auto max-h-[17rem] -mt-4  mb-2 gap-4">
-          {groupByMemberDataLoading ? renderSkeleton() : null}
-          {filteredGroups.map((group, index) => {
-            const policyAddress = group.policies[0]?.address;
-
-            return (
-              <div
-                key={index}
-                ref={el => (groupRefs.current[policyAddress] = el)}
-                className={` relative flex flex-row justify-between rounded-md  mb-4 mt-2  items-center px-4 py-2  hover:cursor-pointer transition-all duration-200 ${
-                  selectedGroup === policyAddress
-                    ? 'bg-primary border-r-4 border-r-[#263c3add] border-b-[#263c3add] border-b-4 '
-                    : 'bg-base-300 border-r-4 border-r-base-200 border-b-base-200 border-b-4 active:scale-95 hover:bg-base-200'
-                }`}
-                onClick={() => handleGroupSelect(policyAddress)}
-              >
-                {filterProposals(proposals[group?.policies[0]?.address ?? '']).length > 0 && (
-                  <div className="absolute top-1 shadow-inner right-1 w-5 h-5 text-sm rounded-full bg-secondary flex justify-center items-center">
-                    <span className="text-center">
-                      {filterProposals(proposals[group?.policies[0]?.address ?? ''])?.length}
-                    </span>
-                  </div>
-                )}
-
-                <ProfileAvatar walletAddress={group.created_at.toString() ?? ''} />
-                <div className="ml-2 flex-grow">
-                  <h5 className="text-base font-medium truncate">
-                    {truncateString(group.ipfsMetadata?.title ?? 'Untitled Group', 24)}
-                  </h5>
-                </div>
-              </div>
-            );
-          })}
-          {!groupByMemberDataLoading && !groupByMemberDataError && filteredGroups.length === 0 && (
-            <div className="text-center mt-6">No groups found</div>
-          )}
-        </div>
-      </div>
-    </div>
+      </td>
+      <td className="dark:bg-[#FFFFFF0F]">
+        {activeProposals.length > 0 ? (
+          <span className="badge badge-primary badge-sm">{activeProposals.length}</span>
+        ) : (
+          '-'
+        )}
+      </td>
+      <td className="dark:bg-[#FFFFFF0F]">
+        {truncateString(group.ipfsMetadata?.authors ?? 'Unknown', 24)}
+      </td>
+      <td className="dark:bg-[#FFFFFF0F]">{group.balance ?? '0'} MFX</td>
+      <td className="dark:bg-[#FFFFFF0F]">{`${group.policies[0]?.decision_policy?.threshold ?? '0'} / ${group.total_weight ?? '0'}`}</td>
+      <td className="dark:bg-[#FFFFFF0F]">{truncateString(policyAddress, 12)}</td>
+      <td className="dark:bg-[#FFFFFF0F] rounded-r-[12px]">
+        <button
+          className="btn btn-square rounded-[8px] btn-sm"
+          onClick={e => {
+            e.stopPropagation();
+            onSelectGroup(policyAddress, groupName);
+          }}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-6 h-6"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+          </svg>
+        </button>
+      </td>
+    </tr>
   );
 }

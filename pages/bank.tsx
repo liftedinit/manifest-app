@@ -139,7 +139,7 @@ export default function Bank() {
             isWalletConnected &&
             combinedBalances && (
               <div className="flex flex-col lg:flex-row w-full gap-6 justify-start items-start">
-                <div className="xl:w-1/3 lg:w-1/2 w-full flex flex-col gap-6">
+                <div className="xl:w-1/3 lg:w-1/2 w-full flex flex-col gap-6 max-h-screen min-h-screen">
                   <SendBox
                     balances={combinedBalances}
                     isBalancesLoading={resolvedLoading}

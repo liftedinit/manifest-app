@@ -20,7 +20,7 @@ const ProfileAvatar = ({ walletAddress, size }: { walletAddress: string; size?: 
 
       const options: IdenticonOptions = {
         foreground: colors[colorIndex],
-        background: [22, 22, 22, 255],
+        background: [0, 0, 0, 0],
         margin: 0.21,
         size: size ?? 700,
         format: 'svg',
@@ -37,7 +37,7 @@ const ProfileAvatar = ({ walletAddress, size }: { walletAddress: string; size?: 
     <img
       src={avatarSrc}
       alt="Profile Avatar"
-      className="rounded-full "
+      className="rounded-lg bg-[#FFFFFF0F]"
       style={{ height: imageSize, width: imageSize }}
     />
   );

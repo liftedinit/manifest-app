@@ -63,7 +63,7 @@ export function HistoryBox({
   }, [send]);
 
   return (
-    <div className="w-full mx-auto rounded-[24px] mt-4">
+    <div className="w-full mx-auto rounded-[24px] mt-4  h-full md:h-1/2">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xl font-semibold text-[#161616] dark:text-white">
           Transaction History

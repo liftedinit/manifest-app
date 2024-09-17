@@ -61,7 +61,7 @@ describe('TokenList', () => {
 
   test('displays empty state when there are no balances', () => {
     render(<TokenList balances={[]} isLoading={false} />);
-    expect(screen.getByText('No tokens found for this account!')).toBeInTheDocument();
+    expect(screen.getByText('No tokens found!')).toBeInTheDocument();
   });
 
   test('filters balances based on search term', () => {

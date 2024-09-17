@@ -56,9 +56,7 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
         <div aria-label="skeleton-loader" className="skeleton h-[400px] w-full"></div>
       ) : filteredBalances.length === 0 ? (
         <div className="flex items-center justify-center h-[200px] w-full bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px]">
-          <p className="text-center text-[#00000099] dark:text-[#FFFFFF99]">
-            No tokens found for this account!
-          </p>
+          <p className="text-center text-[#00000099] dark:text-[#FFFFFF99]">No tokens found!</p>
         </div>
       ) : (
         <div className="space-y-2 max-h-[400px] overflow-y-auto">

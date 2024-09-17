@@ -21,3 +21,4 @@ export * from './TrashIcon';
 export * from './BroadcastingIcon';
 export * from './ReceiveIcon';
 export * from './SendIcon';
+export * from './ArrowRightIcon';

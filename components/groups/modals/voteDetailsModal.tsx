@@ -55,7 +55,7 @@ function VoteDetailsModal({
 }) {
   const voteMap = useMemo(
     () =>
-      votes.reduce<VoteMap>((acc, vote) => {
+      votes?.reduce<VoteMap>((acc, vote) => {
         const voterKey = vote?.voter?.toLowerCase().trim();
         acc[voterKey] = vote?.option;
         return acc;
@@ -170,7 +170,7 @@ function VoteDetailsModal({
     },
     yaxis: {
       min: 0,
-      tickAmount: votes.length,
+      tickAmount: votes?.length,
       forceNiceScale: true,
       labels: {
         style: {
@@ -306,10 +306,10 @@ function VoteDetailsModal({
       countdownValues.seconds ===
     0;
 
-  const userHasVoted = votes.some(vote => vote.voter.toLowerCase().trim() === address);
+  const userHasVoted = votes?.some(vote => vote.voter.toLowerCase().trim() === address);
 
   const userVoteOption = userHasVoted
-    ? votes.find(vote => vote.voter.toLowerCase().trim() === address)?.option
+    ? votes?.find(vote => vote.voter.toLowerCase().trim() === address)?.option
     : null;
 
   const userVotedStatus = useMemo(() => userHasVoted, [votes]);

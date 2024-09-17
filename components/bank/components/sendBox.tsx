@@ -38,7 +38,7 @@ export default function SendBox({
   ];
 
   return (
-    <div className="rounded-2xl w-full">
+    <div className="rounded-2xl w-full h-full md:h-1/2">
       <div className="flex mb-6 w-full h-[3.5rem] rounded-xl p-1 bg-[#0000000A] dark:bg-[#FFFFFF0F]">
         <button
           aria-label="send-tab"
