@@ -17,7 +17,7 @@ export function GroupInfo({
   if (!group) return null;
 
   return (
-    <div className="modal-box bg-base-300 max-w-2xl p-6">
+    <div className="modal-box bg-[#FFFFFF] dark:bg-[#1D192D] max-w-2xl p-6">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-4">
           <ProfileAvatar walletAddress={policyAddress} size={40} />

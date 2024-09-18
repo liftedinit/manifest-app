@@ -58,12 +58,17 @@ export function YourGroups({
         <div className="space-y-4 w-full pt-4">
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center space-x-4">
-              <h1 style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}>My groups</h1>
+              <h1
+                className="text-black dark:text-white"
+                style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
+              >
+                My groups
+              </h1>
               <div className="relative">
                 <input
                   type="text"
                   placeholder="Search for a group..."
-                  className="input input-bordered w-[224px] h-[40px] rounded-[12px] border-none bg-[#FFFFFF1F] pl-10"
+                  className="input input-bordered w-[224px] h-[40px] rounded-[12px] border-none bg:[#0000000A] dark:bg-[#FFFFFF1F] pl-10"
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                 />
@@ -86,7 +91,7 @@ export function YourGroups({
 
             <div className="flex items-center space-x-4">
               <Link href="/groups/create" passHref>
-                <button className="btn btn-gradient w-[224px] h-[52px] rounded-[12px]">
+                <button className="btn btn-gradient w-[224px] h-[52px] text-white rounded-[12px]">
                   Create New Group
                 </button>
               </Link>
@@ -162,34 +167,36 @@ function GroupRow({
 
   return (
     <tr
-      className="hover:bg-base-200 rounded-lg cursor-pointer"
+      className="hover:bg-base-200 text-black dark:text-white rounded-lg cursor-pointer"
       onClick={e => {
         e.stopPropagation();
         onSelectGroup(policyAddress, groupName);
       }}
     >
-      <td className="dark:bg-[#FFFFFF0F] rounded-l-[12px] w-1/6">
+      <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] w-1/6">
         <div className="flex items-center space-x-3">
           <ProfileAvatar walletAddress={group.created_at.toString() ?? ''} />
           <span className="font-medium">{truncateString(groupName, 24)}</span>
         </div>
       </td>
-      <td className="dark:bg-[#FFFFFF0F] w-1/6">
+      <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6">
         {activeProposals.length > 0 ? (
           <span className="badge badge-primary badge-sm">{activeProposals.length}</span>
         ) : (
           '-'
         )}
       </td>
-      <td className="dark:bg-[#FFFFFF0F] w-1/6">
+      <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6">
         {truncateString(
           group.ipfsMetadata?.authors ?? 'Unknown',
           group.ipfsMetadata?.authors?.startsWith('manifest1') ? 6 : 24
         )}
       </td>
-      <td className="dark:bg-[#FFFFFF0F] w-1/6">{shiftDigits(balance?.amount ?? '0', -6)} MFX</td>
-      <td className="dark:bg-[#FFFFFF0F] w-1/6">{`${group.policies[0]?.decision_policy?.threshold ?? '0'} / ${group.total_weight ?? '0'}`}</td>
-      <td className="dark:bg-[#FFFFFF0F] rounded-r-[12px] w-1/6">
+      <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6">
+        {shiftDigits(balance?.amount ?? '0', -6)} MFX
+      </td>
+      <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6">{`${group.policies[0]?.decision_policy?.threshold ?? '0'} / ${group.total_weight ?? '0'}`}</td>
+      <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px] w-1/6">
         {truncateString(policyAddress, 6)}
       </td>
     </tr>

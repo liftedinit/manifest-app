@@ -164,10 +164,13 @@ export default function GroupProposals({
   );
 
   return (
-    <div className="space-y-4 w-full pt-4">
+    <div className="space-y-4 w-full pt-4 text-black dark:text-white">
       <div className="flex items-center justify-between mb-12">
         <div className="flex items-center space-x-6">
-          <button onClick={onBack} className="btn btn-circle rounded-[16px] bg-[#FFFFFF0F] btn-md">
+          <button
+            onClick={onBack}
+            className="btn btn-circle rounded-[16px] dark:bg-[#FFFFFF0F] bg-[#FFFFFF] btn-md"
+          >
             <ArrowRightIcon className="text-primary" />
           </button>
           <h1 className="text-2xl font-bold">{groupName}</h1>
@@ -175,14 +178,16 @@ export default function GroupProposals({
         </div>
         <div className="flex items-center space-x-4">
           <button
-            className="btn w-[140px] h-[52px] rounded-[12px] bg-[#FFFFFF0F]"
+            className="btn w-[140px] h-[52px] rounded-[12px] dark:bg-[#FFFFFF0F] bg-[#0000000A]"
             onClick={() =>
               (document.getElementById('group-info-modal') as HTMLDialogElement).showModal()
             }
           >
             Info
           </button>
-          <button className="btn w-[140px] h-[52px] rounded-[12px] bg-[#FFFFFF0F]">Members</button>
+          <button className="btn w-[140px] h-[52px] rounded-[12px] dark:bg-[#FFFFFF0F] bg-[#0000000A]">
+            Members
+          </button>
         </div>
       </div>
 
@@ -193,7 +198,7 @@ export default function GroupProposals({
             <input
               type="text"
               placeholder="Search for a group..."
-              className="input input-bordered w-[224px] h-[40px] rounded-[12px] border-none bg-[#FFFFFF1F] pl-10"
+              className="input input-bordered w-[224px] h-[40px] rounded-[12px] border-none bg:[#0000000A] dark:bg-[#FFFFFF1F] pl-10"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
             />
@@ -213,7 +218,7 @@ export default function GroupProposals({
             </svg>
           </div>
           <Link href={`/groups/submit-proposal/${policyAddress}`} passHref>
-            <button className="btn btn-gradient rounded-[12px] w-[140px] h-[52px]">
+            <button className="btn btn-gradient rounded-[12px] w-[140px] text-white h-[52px]">
               New proposal
             </button>
           </Link>
@@ -268,17 +273,19 @@ export default function GroupProposals({
                   <tr
                     key={proposal.id.toString()}
                     onClick={() => handleRowClick(proposal)}
-                    className="hover:bg-base-200 rounded-lg cursor-pointer"
+                    className="hover:bg-base-200 text-black dark:text-white rounded-lg cursor-pointer"
                   >
-                    <td className="dark:bg-[#FFFFFF0F] rounded-l-[12px] py-[1.15rem]">
+                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] py-[1.15rem]">
                       {proposal.id.toString()}
                     </td>
-                    <td className="dark:bg-[#FFFFFF0F] truncate max-w-xs">{proposal.title}</td>
-                    <td className="dark:bg-[#FFFFFF0F]">{timeLeft}</td>
-                    <td className="dark:bg-[#FFFFFF0F]">
+                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] truncate max-w-xs">
+                      {proposal.title}
+                    </td>
+                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF]">{timeLeft}</td>
+                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF]">
                       {getHumanReadableType((proposal.messages[0] as any)['@type'])}
                     </td>
-                    <td className="dark:bg-[#FFFFFF0F] rounded-r-[12px]">
+                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px]">
                       {isPassing && diff > 0
                         ? 'Passing'
                         : isPassing && diff <= 0

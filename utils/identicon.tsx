@@ -37,7 +37,7 @@ const ProfileAvatar = ({ walletAddress, size }: { walletAddress: string; size?: 
     <img
       src={avatarSrc}
       alt="Profile Avatar"
-      className="rounded-lg bg-[#FFFFFF0F]"
+      className="rounded-lg dark:bg-[#FFFFFF0F] bg-[#0000000A]"
       style={{ height: imageSize, width: imageSize }}
     />
   );
