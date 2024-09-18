@@ -497,7 +497,7 @@ export default function ProposalMessages({
                 <button
                   onClick={handleNextStep}
                   className="btn mt-4 btn-primary w-full"
-                  disabled={formData.messages.length === 0 || !isFormValid}
+                  disabled={formData.messages.length === 0}
                 >
                   Next: Proposal Metadata
                 </button>
