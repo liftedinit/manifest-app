@@ -15,6 +15,7 @@ import { useChain } from '@cosmos-kit/react';
 import { MemberSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { ArrowRightIcon } from '@/components/icons';
 import ProfileAvatar from '@/utils/identicon';
+import { GroupInfo } from './groupInfo';
 
 export default function GroupProposals({
   policyAddress,
@@ -173,7 +174,14 @@ export default function GroupProposals({
           <ProfileAvatar walletAddress={policyAddress} size={40} />
         </div>
         <div className="flex items-center space-x-4">
-          <button className="btn w-[140px] h-[52px] rounded-[12px] bg-[#FFFFFF0F]">Info</button>
+          <button
+            className="btn w-[140px] h-[52px] rounded-[12px] bg-[#FFFFFF0F]"
+            onClick={() =>
+              (document.getElementById('group-info-modal') as HTMLDialogElement).showModal()
+            }
+          >
+            Info
+          </button>
           <button className="btn w-[140px] h-[52px] rounded-[12px] bg-[#FFFFFF0F]">Members</button>
         </div>
       </div>
@@ -303,6 +311,14 @@ export default function GroupProposals({
           refetchProposals={refetchProposals}
         />
       ))}
+
+      <dialog id="group-info-modal" className="modal">
+        <GroupInfo
+          group={groupByMemberData?.groups.find(g => g.policies[0]?.address === policyAddress)}
+          address={address}
+          policyAddress={policyAddress}
+        />
+      </dialog>
     </div>
   );
 }

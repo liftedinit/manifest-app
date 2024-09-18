@@ -6,7 +6,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { ProposalSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
 import GroupProposals from './groupProposals';
-
+import { useBalance } from '@/hooks/useQueries';
+import { shiftDigits } from '@/utils';
 export function YourGroups({
   groups,
   proposals,
@@ -157,6 +158,8 @@ function GroupRow({
   };
   const activeProposals = filterActiveProposals(proposals);
 
+  const { balance } = useBalance(policyAddress);
+
   return (
     <tr
       className="hover:bg-base-200 rounded-lg cursor-pointer"
@@ -184,7 +187,7 @@ function GroupRow({
           group.ipfsMetadata?.authors?.startsWith('manifest1') ? 6 : 24
         )}
       </td>
-      <td className="dark:bg-[#FFFFFF0F] w-1/6">{group.balance ?? '0'} MFX</td>
+      <td className="dark:bg-[#FFFFFF0F] w-1/6">{shiftDigits(balance?.amount ?? '0', -6)} MFX</td>
       <td className="dark:bg-[#FFFFFF0F] w-1/6">{`${group.policies[0]?.decision_policy?.threshold ?? '0'} / ${group.total_weight ?? '0'}`}</td>
       <td className="dark:bg-[#FFFFFF0F] rounded-r-[12px] w-1/6">
         {truncateString(policyAddress, 6)}

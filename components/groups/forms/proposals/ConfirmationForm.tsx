@@ -283,6 +283,7 @@ export default function ConfirmationModal({
       },
     });
   };
+
   return (
     <section className="">
       <div className="lg:flex  mx-auto">
