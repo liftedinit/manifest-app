@@ -4,18 +4,23 @@ import { shiftDigits } from '@/utils';
 import ProfileAvatar from '@/utils/identicon';
 import { ExtendedGroupType } from '@/hooks/useQueries';
 
-export function GroupInfo({
-  group,
-  address,
-  policyAddress,
-  onUpdate,
-}: Readonly<{
-  group: ExtendedGroupType;
-  address: string;
+interface GroupInfoProps {
+  group: ExtendedGroupType | null;
   policyAddress: string;
+  address: string;
   onUpdate: () => void;
-}>) {
-  if (!group) return null;
+}
+
+export function GroupInfo({ group, policyAddress, address, onUpdate }: GroupInfoProps) {
+  if (!group || !group.policies || group.policies.length === 0) return null;
+
+  const policy = group.policies[0];
+  const votingPeriod = policy?.decision_policy?.windows?.voting_period;
+  const votingPeriodDays = votingPeriod
+    ? Math.floor(parseInt(votingPeriod.slice(0, -1)) / 86400)
+    : 0;
+
+  const threshold = policy?.decision_policy?.threshold ?? '0';
 
   const renderAuthors = () => {
     const authors = group.ipfsMetadata?.authors;
@@ -77,19 +82,8 @@ export function GroupInfo({
 
         <div className="space-y-4">
           <h4 className="font-semibold">Group Information</h4>
-          <InfoItem
-            label="Voting period"
-            value={`${
-              Math.floor(
-                parseInt(group.policies[0]?.decision_policy?.windows?.voting_period.slice(0, -1)) /
-                  86400
-              ) ?? '0'
-            } days`}
-          />
-          <InfoItem
-            label="Qualified Majority"
-            value={group.policies[0]?.decision_policy?.threshold ?? '0'}
-          />
+          <InfoItem label="Voting period" value={`${votingPeriodDays} days`} />
+          <InfoItem label="Qualified Majority" value={threshold} />
           <InfoItem
             label="Description"
             value={group.ipfsMetadata?.details ?? 'No description'}

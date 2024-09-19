@@ -12,9 +12,11 @@ import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 export function YourGroups({
   groups,
   proposals,
+  isLoading,
 }: {
   groups: ExtendedQueryGroupsByMemberResponseSDKType;
   proposals: { [policyAddress: string]: ProposalSDKType[] };
+  isLoading: boolean;
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGroup, setSelectedGroup] = useState<{
@@ -121,14 +123,42 @@ export function YourGroups({
                   </tr>
                 </thead>
                 <tbody className="space-y-4">
-                  {filteredGroups.map((group, index) => (
-                    <GroupRow
-                      key={index}
-                      group={group}
-                      proposals={proposals[group.policies[0].address]}
-                      onSelectGroup={handleSelectGroup}
-                    />
-                  ))}
+                  {isLoading
+                    ? Array(5)
+                        .fill(0)
+                        .map((_, index) => (
+                          <tr key={index}>
+                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] w-1/6">
+                              <div className="flex items-center space-x-3">
+                                <div className="skeleton w-10 h-10 rounded-full shrink-0"></div>
+                                <div className="skeleton h-4 w-24"></div>
+                              </div>
+                            </td>
+                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6">
+                              <div className="skeleton h-4 w-8"></div>
+                            </td>
+                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6">
+                              <div className="skeleton h-4 w-24"></div>
+                            </td>
+                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6">
+                              <div className="skeleton h-4 w-16"></div>
+                            </td>
+                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6">
+                              <div className="skeleton h-4 w-20"></div>
+                            </td>
+                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px] w-1/6">
+                              <div className="skeleton h-4 w-32"></div>
+                            </td>
+                          </tr>
+                        ))
+                    : filteredGroups.map((group, index) => (
+                        <GroupRow
+                          key={index}
+                          group={group}
+                          proposals={proposals[group.policies[0].address]}
+                          onSelectGroup={handleSelectGroup}
+                        />
+                      ))}
                 </tbody>
               </table>
             </div>

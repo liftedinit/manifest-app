@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import { chainName } from '../../config';
 import { useGroupsByMember, useProposalsByPolicyAccountAll } from '../../hooks/useQueries';
 import { GroupsIcon } from '@/components';
+import { ExtendedGroupType } from '../../hooks/useQueries';
 export default function Groups() {
   const { address, isWalletConnected } = useChain(chainName);
   const { groupByMemberData, isGroupByMemberLoading, isGroupByMemberError, refetchGroupByMember } =
@@ -24,6 +25,9 @@ export default function Groups() {
 
   const { proposalsByPolicyAccount, isProposalsError, isProposalsLoading } =
     useProposalsByPolicyAccountAll(groupPolicyAddresses ?? []);
+
+  const isLoading = isGroupByMemberLoading || isProposalsLoading;
+  const isError = isGroupByMemberError || isProposalsError;
 
   return (
     <div className="min-h-screen relative py-4 px-2 mx-auto text-white mt-12 md:-mt-4">
@@ -74,28 +78,28 @@ export default function Groups() {
         <div className="w-full mx-auto">
           {!isWalletConnected ? (
             <WalletNotConnected />
-          ) : isGroupByMemberLoading ? (
-            <div className="flex justify-center items-center h-64">
-              <span className="loading loading-spinner loading-lg"></span>
-            </div>
-          ) : isGroupByMemberError ? (
-            <div className="text-center text-error">Error loading groups</div>
-          ) : groupByMemberData?.groups && groupByMemberData.groups.length > 0 ? (
+          ) : isError ? (
+            <div className="text-center text-error">Error loading groups or proposals</div>
+          ) : (
             <>
               <YourGroups
-                groups={groupByMemberData}
+                groups={groupByMemberData ?? { groups: [] }}
                 proposals={proposalsByPolicyAccount}
-                onSelectGroup={handleGroupSelect}
+                isLoading={isLoading}
               />
               {selectedPolicyAddress && (
                 <GroupInfo
                   policyAddress={selectedPolicyAddress}
-                  proposals={proposalsByPolicyAccount[selectedPolicyAddress]}
+                  group={
+                    groupByMemberData?.groups.find(
+                      g => g.policies[0]?.address === selectedPolicyAddress
+                    ) ?? null
+                  }
+                  address={address ?? ''}
+                  onUpdate={() => {}}
                 />
               )}
             </>
-          ) : (
-            <NoGroupsFound />
           )}
         </div>
       </div>
