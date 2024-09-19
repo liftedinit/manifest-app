@@ -8,6 +8,7 @@ import { ProposalSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v
 import GroupProposals from './groupProposals';
 import { useBalance } from '@/hooks/useQueries';
 import { shiftDigits } from '@/utils';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 export function YourGroups({
   groups,
   proposals,
@@ -39,6 +40,13 @@ export function YourGroups({
       }
     }
   }, [router.query, groups.groups]);
+
+  useEffect(() => {
+    // Scroll to top when a group is selected
+    if (selectedGroup) {
+      window.scrollTo(0, 0);
+    }
+  }, [selectedGroup]);
 
   const handleSelectGroup = (policyAddress: string, groupName: string) => {
     setSelectedGroup({ policyAddress, name: groupName });
@@ -175,7 +183,7 @@ function GroupRow({
     >
       <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] w-1/6">
         <div className="flex items-center space-x-3">
-          <ProfileAvatar walletAddress={group.created_at.toString() ?? ''} />
+          <ProfileAvatar walletAddress={group.policies[0]?.address ?? ''} />
           <span className="font-medium">{truncateString(groupName, 24)}</span>
         </div>
       </td>
@@ -197,7 +205,7 @@ function GroupRow({
       </td>
       <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6">{`${group.policies[0]?.decision_policy?.threshold ?? '0'} / ${group.total_weight ?? '0'}`}</td>
       <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px] w-1/6">
-        {truncateString(policyAddress, 6)}
+        <TruncatedAddressWithCopy address={policyAddress} slice={12} />
       </td>
     </tr>
   );

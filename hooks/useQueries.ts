@@ -11,7 +11,7 @@ import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1
 import axios from 'axios';
 export interface IPFSMetadata {
   title: string;
-  authors: string;
+  authors: string | string[];
   summary: string;
   details: string;
   proposalForumURL: string;
@@ -309,7 +309,7 @@ export const useTallyCount = (proposalId: bigint) => {
   };
 
   const tallyQuery = useQuery({
-    queryKey: ['tallyInfo', proposalId],
+    queryKey: ['tallyInfo', proposalId.toString()],
     queryFn: fetchGroupInfo,
     enabled: !!lcdQueryClient && !!proposalId,
     staleTime: Infinity,
@@ -336,7 +336,7 @@ export const useVotesByProposal = (proposalId: bigint) => {
   };
 
   const voteQuery = useQuery({
-    queryKey: ['voteInfo', proposalId],
+    queryKey: ['voteInfo', proposalId.toString()],
     queryFn: fetchGroupInfo,
     enabled: !!lcdQueryClient && !!proposalId,
     staleTime: Infinity,

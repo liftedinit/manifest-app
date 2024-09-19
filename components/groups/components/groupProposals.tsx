@@ -16,6 +16,7 @@ import { MemberSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/
 import { ArrowRightIcon } from '@/components/icons';
 import ProfileAvatar from '@/utils/identicon';
 import { GroupInfo } from './groupInfo';
+import { ExtendedGroupType } from '@/hooks/useQueries';
 
 export default function GroupProposals({
   policyAddress,
@@ -38,11 +39,11 @@ export default function GroupProposals({
   const [searchTerm, setSearchTerm] = useState('');
 
   // Convert proposalId to string before passing it to the hooks
-  const proposalIdString = selectedProposal?.id?.toString() ?? '0';
+  const proposalId = selectedProposal?.id ?? 0n;
 
   // Use the string version of the proposalId
-  const { tally, refetchTally } = useTallyCount(proposalIdString);
-  const { votes, refetchVotes } = useVotesByProposal(proposalIdString);
+  const { tally, refetchTally } = useTallyCount(proposalId);
+  const { votes, refetchVotes } = useVotesByProposal(proposalId);
 
   const updateTally = (proposalId: bigint, newTally: QueryTallyResultResponseSDKType) => {
     setTallies(prevTallies => {
@@ -56,19 +57,19 @@ export default function GroupProposals({
       }
     });
   };
-
+  console.log(proposals);
   const filterProposals = (proposals: ProposalSDKType[]) => {
     return proposals.filter(
       proposal =>
-        proposal.status !== ProposalStatus.PROPOSAL_STATUS_ACCEPTED &&
-        proposal.status !== ProposalStatus.PROPOSAL_STATUS_REJECTED &&
-        proposal.status !== ProposalStatus.PROPOSAL_STATUS_WITHDRAWN
+        proposal.status.toString() !== 'PROPOSAL_STATUS_ACCEPTED' &&
+        proposal.status.toString() !== 'PROPOSAL_STATUS_REJECTED' &&
+        proposal.status.toString() !== 'PROPOSAL_STATUS_WITHDRAWN'
     );
   };
-
+  console.log(filterProposals(proposals));
   const handleRowClick = (proposal: ProposalSDKType) => {
     setSelectedProposal(proposal);
-    // Use setTimeout to ensure the state has been updated and the modal is available
+    //  Timeout to ensure the state has been updated and the modal is available
     setTimeout(() => {
       const modal = document.getElementById(`vote_modal_${proposal.id}`) as HTMLDialogElement;
       if (modal) {
@@ -163,6 +164,15 @@ export default function GroupProposals({
     proposal.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const openInfoModal = () => {
+    const modal = document.getElementById('group-info-modal') as HTMLDialogElement | null;
+    if (modal) {
+      modal.showModal();
+    } else {
+      console.error("Modal element 'group-info-modal' not found");
+    }
+  };
+
   return (
     <div className="space-y-4 w-full pt-4 text-black dark:text-white">
       <div className="flex items-center justify-between mb-12">
@@ -179,9 +189,7 @@ export default function GroupProposals({
         <div className="flex items-center space-x-4">
           <button
             className="btn w-[140px] h-[52px] rounded-[12px] dark:bg-[#FFFFFF0F] bg-[#0000000A]"
-            onClick={() =>
-              (document.getElementById('group-info-modal') as HTMLDialogElement).showModal()
-            }
+            onClick={openInfoModal}
           >
             Info
           </button>
@@ -251,24 +259,28 @@ export default function GroupProposals({
                   : {};
                 const endTime = new Date(proposal?.voting_period_end);
                 const now = new Date();
+                const msPerMinute = 1000 * 60;
+                const msPerHour = msPerMinute * 60;
+                const msPerDay = msPerHour * 24;
+
                 const diff = endTime.getTime() - now.getTime();
 
                 let timeLeft: string;
+
                 if (diff <= 0) {
                   timeLeft = 'none';
-                } else if (diff >= 86400000) {
-                  const days = Math.floor(diff / 86400000);
+                } else if (diff >= msPerDay) {
+                  const days = Math.floor(diff / msPerDay);
                   timeLeft = `${days} day${days === 1 ? '' : 's'}`;
-                } else if (diff >= 3600000) {
-                  const hours = Math.floor(diff / 3600000);
+                } else if (diff >= msPerHour) {
+                  const hours = Math.floor(diff / msPerHour);
                   timeLeft = `${hours} hour${hours === 1 ? '' : 's'}`;
-                } else if (diff >= 60000) {
-                  const minutes = Math.floor(diff / 60000);
+                } else if (diff >= msPerMinute) {
+                  const minutes = Math.floor(diff / msPerMinute);
                   timeLeft = `${minutes} minute${minutes === 1 ? '' : 's'}`;
                 } else {
                   timeLeft = 'less than a minute';
                 }
-
                 return (
                   <tr
                     key={proposal.id.toString()}
@@ -319,13 +331,15 @@ export default function GroupProposals({
         />
       ))}
 
-      <dialog id="group-info-modal" className="modal">
-        <GroupInfo
-          group={groupByMemberData?.groups.find(g => g.policies[0]?.address === policyAddress)}
-          address={address}
-          policyAddress={policyAddress}
-        />
-      </dialog>
+      <GroupInfo
+        group={
+          groupByMemberData?.groups.find(g => g.policies[0]?.address === policyAddress) ??
+          ({} as unknown as ExtendedGroupType)
+        }
+        address={address ?? ''}
+        policyAddress={policyAddress}
+        onUpdate={() => {}}
+      />
     </div>
   );
 }

@@ -20,7 +20,9 @@ export const TruncatedAddressWithCopy = ({
     return () => clearTimeout(timer);
   }, [copied]);
 
-  const handleCopy = async () => {
+  const handleCopy = async (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    e.preventDefault();
     try {
       await navigator.clipboard.writeText(address);
       setCopied(true);
@@ -34,7 +36,7 @@ export const TruncatedAddressWithCopy = ({
 
   return (
     <div
-      className="flex items-center space-x-2 text-[#00000099] dark:text-[#FFFFFF99]"
+      className="flex items-center hover:text-primary dark:hover:text-primary space-x-2 text-[#00000099] dark:text-[#FFFFFF99]"
       onClick={handleCopy}
       style={{ cursor: 'pointer' }}
     >
@@ -65,8 +67,12 @@ export const AddressWithCopy = ({ address }: { address: string }) => {
   };
 
   return (
-    <div className="flex items-center space-x-2" onClick={handleCopy} style={{ cursor: 'pointer' }}>
-      <span>{address}</span>
+    <div
+      className="flex  items-center space-x-2"
+      onClick={handleCopy}
+      style={{ cursor: 'pointer' }}
+    >
+      <span className="hover:text-primary">{address}</span>
       {copied ? <FiCheck size="16" /> : <FiCopy size="16" />}
     </div>
   );
