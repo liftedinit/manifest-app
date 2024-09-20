@@ -131,9 +131,6 @@ function VoteDetailsModal({
       labels: {
         useSeriesColors: true,
       },
-      markers: {
-        radius: 12,
-      },
     },
     states: {
       normal: {
@@ -478,13 +475,13 @@ function VoteDetailsModal({
               <tbody>
                 {/* Mapping over members */}
                 {normalizedMembers?.map((member, index) => {
-                  const memberVote = voteMap[member?.member.address];
+                  const memberVote = voteMap[member?.address];
                   return (
                     <tr key={index}>
                       <td className="px-6 py-4">
-                        <TruncatedAddressWithCopy slice={8} address={member.member.address} />
+                        <TruncatedAddressWithCopy slice={8} address={member?.address} />
                       </td>
-                      <td className="px-6 py-4">{member.member.weight}</td>
+                      <td className="px-6 py-4">{member?.weight}</td>
                       <td className="px-6 py-4">{optionToVote(memberVote?.toString()) || 'N/A'}</td>
                     </tr>
                   );

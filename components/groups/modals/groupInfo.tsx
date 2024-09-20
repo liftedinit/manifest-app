@@ -3,6 +3,7 @@ import { useBalance } from '@/hooks/useQueries';
 import { shiftDigits } from '@/utils';
 import ProfileAvatar from '@/utils/identicon';
 import { ExtendedGroupType } from '@/hooks/useQueries';
+import { UpdateGroupModal } from './updateGroupModal';
 
 interface GroupInfoProps {
   group: ExtendedGroupType | null;
@@ -75,13 +76,21 @@ export function GroupInfo({ group, policyAddress, address, onUpdate }: GroupInfo
 
         <div className="flex justify-between items-center mb-6">
           <span className="text-xl font-semibold">Info</span>
-          <button className="btn btn-gradient rounded-[12px] h-[52px] w-[140px]" onClick={onUpdate}>
+          <button
+            className="btn btn-gradient text-white rounded-[12px] h-[52px] w-[140px]"
+            onClick={() => {
+              const modal = document.getElementById('update-group-modal') as HTMLDialogElement;
+              if (modal) modal.showModal();
+            }}
+          >
             Update
           </button>
         </div>
 
         <div className="space-y-4">
-          <h4 className="font-semibold">Group Information</h4>
+          <h4 className="font-semibold dark:text-[#FFFFFF99] text-[#00000099]">
+            Group Information
+          </h4>
           <InfoItem label="Voting period" value={`${votingPeriodDays} days`} />
           <InfoItem label="Qualified Majority" value={threshold} />
           <InfoItem
@@ -97,6 +106,7 @@ export function GroupInfo({ group, policyAddress, address, onUpdate }: GroupInfo
       <form method="dialog" className="modal-backdrop">
         <button>close</button>
       </form>
+      <UpdateGroupModal group={group} policyAddress={policyAddress} address={address} />
     </dialog>
   );
 }
@@ -114,11 +124,15 @@ function InfoItem({
 }) {
   return (
     <div
-      className={`bg-[#FFFFFF0F] p-3 rounded-lg ${isProposal ? 'flex flex-col' : 'flex flex-row justify-between items-center'}`}
+      className={`dark:bg-[#FFFFFF0F] bg-[#0000000A] p-3 rounded-lg ${isProposal ? 'flex flex-col' : 'flex flex-row justify-between items-center'}`}
     >
-      <span className="text-sm text-[#FFFFFF66]">{isAddress ? '' : label}</span>
+      <span className="text-sm dark:text-[#FFFFFF66] text-[#00000066]">
+        {isAddress ? '' : label}
+      </span>
       {value && (
-        <div className={`text-sm text-[#FFFFFF99] ${isProposal ? 'mt-2' : ''}`}>
+        <div
+          className={`text-sm dark:text-[#FFFFFF99] text-[#00000099] ${isProposal ? 'mt-2' : ''}`}
+        >
           {isAddress ? (
             <>
               <span className="text-sm text-[#FFFFFF66] block mb-1">Address</span>

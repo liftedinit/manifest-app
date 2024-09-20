@@ -1,46 +1,28 @@
-import React, { useEffect, useState } from 'react';
-import { IPFSMetadata } from '@/hooks/useQueries';
-import { cosmos } from '@chalabi/manifestjs';
-import { PiTrashLight, PiPlusCircleThin, PiInfoLight } from 'react-icons/pi';
-import { useTx, useFeeEstimation } from '@/hooks';
-import { chainName } from '@/config';
-import { ThresholdDecisionPolicy } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
-import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
-import { Formik, Form, FieldArray } from 'formik';
+import React, { useState } from 'react';
+import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
-import { isValidAddress } from '@/utils';
-
 import { TextInput, TextArea } from '@/components/react/inputs';
 
-interface Member {
-  address: string;
-  metadata: string;
-  weight: string;
-  added_at: Date;
-  isCoreMember: boolean;
-  isActive: boolean;
-}
-
-interface Group {
-  group: {
-    id: string;
-    admin: string;
-    metadata: string;
-    ipfsMetadata: IPFSMetadata | null;
-    members: { group_id: string; member: Member }[];
-    policies: any[]; // TODO: Define type
-  };
-  address: string;
-}
+import { useTx, useFeeEstimation } from '@/hooks';
+import { chainName } from '@/config';
+import { IPFSMetadata } from '@/hooks';
+import { ThresholdDecisionPolicy } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { cosmos } from '@chalabi/manifestjs';
+import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
+import { ExtendedGroupType } from '@/hooks';
 
 export function UpdateGroupModal({
   group,
-  modalId,
-  address,
   policyAddress,
-}: Group & { modalId: string; policyAddress: string }) {
+  address,
+}: {
+  group: ExtendedGroupType;
+  policyAddress: string;
+  address: string;
+}) {
   const { tx } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
+  const [isSigning, setIsSigning] = useState(false);
 
   const maybeIpfsMetadata = group?.ipfsMetadata;
   const maybeTitle = maybeIpfsMetadata?.title;
@@ -55,8 +37,6 @@ export function UpdateGroupModal({
   const maybeMembers = group?.members;
 
   const {
-    updateGroupAdmin,
-    updateGroupMembers,
     updateGroupMetadata,
     updateGroupPolicyAdmin,
     updateGroupPolicyDecisionPolicy,
@@ -71,15 +51,6 @@ export function UpdateGroupModal({
   const [threshold, setThreshold] = useState(maybeThreshold ?? '');
   const [windowInput, setWindowInput] = useState('');
   const [votingUnit, setVotingUnit] = useState('days');
-  const [isSigning, setIsSigning] = useState(false);
-
-  useEffect(() => {
-    setAuthors(maybeAuthors ?? '');
-    setSummary(maybeSummary ?? '');
-    setForum(maybeProposalForumURL ?? '');
-    setDescription(maybeDetails ?? '');
-    setThreshold(maybeThreshold ?? '');
-  }, [group]);
 
   const convertToSeconds = (input: string, unit: string) => {
     const value = parseFloat(input);
@@ -107,13 +78,13 @@ export function UpdateGroupModal({
     convertToSeconds(windowInput, votingUnit)
   );
 
-  const handleUnitChange = (e: { target: { value: any } }) => {
+  const handleUnitChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newUnit = e.target.value;
     setVotingUnit(newUnit);
     setWindowSeconds(convertToSeconds(windowInput, newUnit));
   };
 
-  const handleWindowInputChange = (e: { target: { value: any } }) => {
+  const handleWindowInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setWindowInput(newValue);
     setWindowSeconds(convertToSeconds(newValue, votingUnit));
@@ -139,103 +110,12 @@ export function UpdateGroupModal({
       formattedVotingWindow = votingWindow;
   }
 
-  const isAdmin = (address: string) => {
-    const adminAddresses = [group.admin].filter(Boolean);
-    return adminAddresses.includes(address);
-  };
-
-  const isPolicyAdmin = (address: string) => {
-    const adminAddresses = [maybePolicies?.admin].filter(Boolean);
-    return adminAddresses.includes(address);
-  };
-
-  const initializeMembers = () => {
-    return (
-      group.members?.map(member => ({
-        group_id: member.group_id,
-        member: {
-          address: member.member.address,
-          metadata: member.member.metadata,
-          weight: member.member.weight,
-          added_at: member.member.added_at,
-        },
-        isCoreMember: true,
-        isActive: true,
-        isAdmin: isAdmin(member.member.address),
-        isPolicyAdmin: isPolicyAdmin(member.member.address),
-      })) || []
-    );
-  };
-
-  const [initialMembers] = useState(initializeMembers());
-
-  const [members, setMembers] = useState(initializeMembers());
-
-  useEffect(() => {
-    setMembers(initializeMembers());
-  }, [group]);
-
-  const handleMemberRemoval = (index: number) => {
-    const member = members[index];
-    if (member?.isCoreMember) {
-      const updatedMember = {
-        ...member,
-        isActive: !member?.isActive,
-        member: { ...member?.member, weight: member?.isActive ? '0' : '1' },
-      };
-      setMembers(members.map((mem, idx) => (idx === index ? updatedMember : mem)));
-    } else {
-      setMembers(members.filter((_, idx) => idx !== index));
-    }
-  };
-
   const hasStateChanged = (newValue: any, originalValue: any) => {
     return newValue !== null && newValue !== undefined && newValue !== originalValue;
   };
 
   const buildMessages = () => {
     const messages: Any[] = [];
-
-    // Update Group Admin
-    const newAdmin = members?.find(member => member?.isAdmin)?.member?.address;
-    if (hasStateChanged(newAdmin, group.admin)) {
-      const msg = updateGroupAdmin({
-        admin: group.admin,
-        groupId: BigInt(maybeMembers?.[0]?.group_id),
-        newAdmin: newAdmin ?? '',
-      });
-      messages.push(
-        Any.fromPartial({
-          typeUrl: cosmos.group.v1.MsgUpdateGroupAdmin.typeUrl,
-          value: cosmos.group.v1.MsgUpdateGroupAdmin.encode(msg.value).finish(),
-        })
-      );
-    }
-
-    // Update Group Members
-    const membersChanged = members.some(
-      (member, index) =>
-        hasStateChanged(member.member.address, group.members[index]?.member.address) ||
-        hasStateChanged(member.member.metadata, group.members[index]?.member.metadata) ||
-        hasStateChanged(member.member.weight, group.members[index]?.member.weight)
-    );
-    if (membersChanged) {
-      const msg = updateGroupMembers({
-        admin: group.admin,
-        groupId: BigInt(maybeMembers?.[0]?.group_id),
-        memberUpdates: members.map(member => ({
-          address: member.member.address,
-          metadata: member.member.metadata,
-          weight: member.member.weight,
-        })),
-      });
-      messages.push(
-        Any.fromPartial({
-          typeUrl: cosmos.group.v1.MsgUpdateGroupMembers.typeUrl,
-          value: cosmos.group.v1.MsgUpdateGroupMembers.encode(msg.value).finish(),
-        })
-      );
-    }
 
     // Update Group Metadata
     if (
@@ -275,22 +155,6 @@ export function UpdateGroupModal({
           value: cosmos.group.v1.MsgUpdateGroupPolicyMetadata.encode(
             msgPolicyMetadata.value
           ).finish(),
-        })
-      );
-    }
-
-    // Update Group Policy Admin
-    const newPolicyAdmin = members?.find(member => member?.isPolicyAdmin)?.member?.address;
-    if (hasStateChanged(newPolicyAdmin, maybePolicies?.admin)) {
-      const msg = updateGroupPolicyAdmin({
-        groupPolicyAddress: maybePolicies?.address,
-        admin: group.admin,
-        newAdmin: newPolicyAdmin ?? '',
-      });
-      messages.push(
-        Any.fromPartial({
-          typeUrl: cosmos.group.v1.MsgUpdateGroupPolicyAdmin.typeUrl,
-          value: cosmos.group.v1.MsgUpdateGroupPolicyAdmin.encode(msg.value).finish(),
         })
       );
     }
@@ -412,13 +276,12 @@ export function UpdateGroupModal({
   });
 
   return (
-    <dialog id={modalId} className="modal">
-      <div className="modal-box absolute max-w-6xl mx-auto rounded-lg md:ml-20 shadow-lg min-h-96">
+    <dialog id="update-group-modal" className="modal">
+      <div className="modal-box bg-[#FFFFFF] dark:bg-[#1D192D] rounded-[24px] max-w-[842px] p-6">
         <form method="dialog">
-          <button className="btn btn-sm btn-circle btn-ghost absolute right-1 top-1">✕</button>
+          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
         </form>
-        <h3 className="text-lg font-semibold ">Update Group</h3>
-        <div className="divider divider-horizon -mt-0 "></div>
+        <h3 className="text-lg font-semibold mb-4">Update Group</h3>
         <Formik
           initialValues={{
             name: group?.ipfsMetadata?.title || '',
@@ -428,250 +291,129 @@ export function UpdateGroupModal({
             description: group?.ipfsMetadata?.details || '',
             threshold: group?.policies?.[0]?.decision_policy?.threshold || '',
             windowInput: '',
-            members: initialMembers,
           }}
           validationSchema={validationSchema}
           onSubmit={handleConfirm}
         >
           {({ setFieldValue, values }) => (
-            <Form className="flex flex-row gap-4 justify-between items-center">
-              <div className="relative bg-base-300 rounded-md p-4 w-1/2 h-[480px]">
-                <div className="grid gap-4">
-                  <div>
-                    <TextInput
-                      label="Group Name"
-                      name="name"
-                      placeholder={group?.ipfsMetadata?.title ?? 'No title available'}
-                      value={values.name}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        setName(e.target.value);
-                        setFieldValue('name', e.target.value);
-                      }}
-                      maxLength={24}
-                    />
-                  </div>
-                  <div>
-                    <TextInput
-                      label="Authors"
-                      name="authors"
-                      placeholder={group?.ipfsMetadata?.authors ?? 'No authors available'}
-                      value={values.authors}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        setAuthors(e.target.value);
-                        setFieldValue('authors', e.target.value);
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <TextInput
-                      label="Summary"
-                      name="summary"
-                      placeholder={group?.ipfsMetadata?.summary ?? 'No summary available'}
-                      value={values.summary}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        setSummary(e.target.value);
-                        setFieldValue('summary', e.target.value);
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <TextInput
-                      label="Threshold"
-                      name="threshold"
-                      type="number"
-                      placeholder={maybeThreshold ?? 'No threshold available'}
-                      value={values.threshold}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        setThreshold(e.target.value);
-                        setFieldValue('threshold', e.target.value);
-                      }}
-                      min={1}
-                    />
-                  </div>
-                  <div>
-                    <TextInput
-                      label="Forum"
-                      name="forum"
-                      placeholder={maybeProposalForumURL ?? 'No forum URL available'}
-                      value={values.forum}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        setForum(e.target.value);
-                        setFieldValue('forum', e.target.value);
-                      }}
-                    />
-                  </div>
-                  <div className="flex flex-col">
-                    <div className="flex flex-row gap-3">
-                      <TextInput
-                        label="Voting Window"
-                        name="windowInput"
-                        type="number"
-                        placeholder={formattedVotingWindow.toString()}
-                        value={values.windowInput}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          handleWindowInputChange(e);
-                          setFieldValue('windowInput', e.target.value);
-                        }}
-                        min={1}
-                      />
-                      <select
-                        onChange={handleUnitChange}
-                        value={votingUnit}
-                        title="votingUnit"
-                        className="select select-bordered w-6/12 p-2"
-                      >
-                        <option value="hours">Hours</option>
-                        <option value="days">Days</option>
-                        <option value="weeks">Weeks</option>
-                        <option value="months">Months</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div className="sm:col-span-2">
-                    <TextArea
-                      label="Description"
-                      name="description"
-                      placeholder={group?.ipfsMetadata?.details ?? 'No description available'}
-                      value={values.description}
-                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                        setDescription(e.target.value);
-                        setFieldValue('description', e.target.value);
-                      }}
-                    />
-                  </div>
+            <Form className="flex flex-col gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <TextInput
+                  label="Group Name"
+                  name="name"
+                  placeholder={group?.ipfsMetadata?.title ?? 'No title available'}
+                  value={values.name}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    setName(e.target.value);
+                    setFieldValue('name', e.target.value);
+                  }}
+                  maxLength={24}
+                />
+                <TextInput
+                  label="Authors"
+                  name="authors"
+                  placeholder={
+                    Array.isArray(values.authors)
+                      ? values.authors.join(', ')
+                      : (values.authors ?? 'No authors available')
+                  }
+                  value={values.authors}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    setAuthors(e.target.value);
+                    setFieldValue('authors', e.target.value);
+                  }}
+                />
+                <TextInput
+                  label="Summary"
+                  name="summary"
+                  placeholder={group?.ipfsMetadata?.summary ?? 'No summary available'}
+                  value={values.summary}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    setSummary(e.target.value);
+                    setFieldValue('summary', e.target.value);
+                  }}
+                />
+                <TextInput
+                  label="Threshold"
+                  name="threshold"
+                  type="number"
+                  placeholder={maybeThreshold ?? 'No threshold available'}
+                  value={values.threshold}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    setThreshold(e.target.value);
+                    setFieldValue('threshold', e.target.value);
+                  }}
+                  min={1}
+                />
+                <TextInput
+                  label="Forum"
+                  name="forum"
+                  placeholder={maybeProposalForumURL ?? 'No forum URL available'}
+                  value={values.forum}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    setForum(e.target.value);
+                    setFieldValue('forum', e.target.value);
+                  }}
+                />
+                <div className="flex gap-2">
+                  <TextInput
+                    label="Voting Window"
+                    name="windowInput"
+                    type="number"
+                    placeholder={formattedVotingWindow.toString()}
+                    value={values.windowInput}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      handleWindowInputChange(e);
+                      setFieldValue('windowInput', e.target.value);
+                    }}
+                    min={1}
+                    className="flex-grow"
+                  />
+                  <select
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleUnitChange(e)}
+                    value={votingUnit}
+                    title="votingUnit"
+                    className="select select-bordered mt-8 w-1/3"
+                  >
+                    <option value="hours">Hours</option>
+                    <option value="days">Days</option>
+                    <option value="weeks">Weeks</option>
+                    <option value="months">Months</option>
+                  </select>
                 </div>
               </div>
-              <div className="relative bg-base-300 rounded-md p-4 w-1/2 h-[480px]">
-                <div className="flex flex-row justify-between items-center mb-2 -mt-1">
-                  <label className="text-sm font-medium">Members</label>
-                  <button
-                    type="button"
-                    className="btn btn-xs btn-primary justify-center items-center"
-                    aria-label="addMembers"
-                    onClick={() => {
-                      const newMember = {
-                        group_id: values.members[0]?.group_id || '',
-                        member: {
-                          address: '',
-                          metadata: '',
-                          weight: '',
-                          added_at: new Date(),
-                        },
-                        isCoreMember: false,
-                        isActive: true,
-                        isAdmin: false,
-                        isPolicyAdmin: false,
-                      };
-                      setFieldValue('members', [...values.members, newMember]);
-                    }}
-                  >
-                    +
-                  </button>
-                </div>
-                <FieldArray name="members">
-                  {() => (
-                    <div className="grid gap-4 sm:grid-cols-2 max-h-[26rem] overflow-y-auto">
-                      {values.members.map((member, index) => (
-                        <div
-                          key={index}
-                          className={`flex relative flex-col gap-2 px-4 py-2 rounded-md transition-all duration-200 max-h-[12.4rem] ${
-                            !member.isActive ? 'bg-base-100' : 'bg-base-200'
-                          }`}
-                        >
-                          <div className="flex flex-row justify-between items-center">
-                            <span className="text-light text-md"># {index + 1}</span>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (member.isCoreMember) {
-                                  setFieldValue(`members[${index}].isActive`, !member.isActive);
-                                  setFieldValue(
-                                    `members[${index}].member.weight`,
-                                    member.isActive ? '0' : '1'
-                                  );
-                                } else {
-                                  setFieldValue(`members[${index}]`, undefined);
-                                  setFieldValue(
-                                    'members',
-                                    values.members.filter((_, idx) => idx !== index)
-                                  );
-                                }
-                              }}
-                              className={`btn btn-sm ${
-                                member.isActive
-                                  ? 'text-red-500 hover:bg-red-500'
-                                  : 'text-primary hover:bg-primary '
-                              } hover:text-white bg-base-300`}
-                            >
-                              {member.isActive ? <PiTrashLight /> : <PiPlusCircleThin />}
-                            </button>
-                          </div>
-                          <div className="flex flex-col gap-4 mb-2">
-                            <TextInput
-                              label="Metadata"
-                              name={`members.${index}.member.metadata`}
-                              disabled={!member.isActive}
-                              value={member.member.metadata}
-                              onChange={e => {
-                                setFieldValue(`members.${index}.member.metadata`, e.target.value);
-                              }}
-                              className="input input-sm input-bordered w-full disabled:border-base-100"
-                              placeholder={member.isCoreMember ? member.member.metadata : 'Name'}
-                            />
-                            <TextInput
-                              label="Address"
-                              name={`members.${index}.member.address`}
-                              disabled={member.isCoreMember || !member.isActive}
-                              value={member.member.address}
-                              onChange={e => {
-                                setFieldValue(`members.${index}.member.address`, e.target.value);
-                              }}
-                              className="input input-sm input-bordered w-full disabled:border-base-100"
-                              placeholder={member.isCoreMember ? member.member.address : 'Address'}
-                            />
-                            <TextInput
-                              label="Weight"
-                              name={`members.${index}.member.weight`}
-                              type="number"
-                              value={member.member.weight}
-                              disabled={!member.isActive}
-                              onChange={e => {
-                                setFieldValue(`members.${index}.member.weight`, e.target.value);
-                              }}
-                              className="input input-sm input-bordered w-full disabled:border-base-100"
-                              placeholder={member.isCoreMember ? member.member.weight : 'Weight'}
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </FieldArray>
+              <TextArea
+                label="Description"
+                name="description"
+                placeholder={group?.ipfsMetadata?.details ?? 'No description available'}
+                value={values.description}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                  setDescription(e.target.value);
+                  setFieldValue('description', e.target.value);
+                }}
+                className="w-full"
+              />
+              <div className="modal-action">
+                <button
+                  type="button"
+                  className="btn btn-neutral"
+                  onClick={() =>
+                    (document.getElementById('update-group-modal') as HTMLDialogElement).close()
+                  }
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={isSigning || buildMessages().length === 0}
+                >
+                  {isSigning ? <span className="loading loading-spinner"></span> : 'Update'}
+                </button>
               </div>
             </Form>
           )}
         </Formik>
-        <div className="modal-action w-full flex flex-row items-center justify-between mt-4">
-          <button
-            onClick={() => {
-              const modal = document.getElementById(
-                `update_group_${group?.id}`
-              ) as HTMLDialogElement;
-              modal?.close();
-            }}
-            className="btn btn-neutral w-[49.5%]"
-          >
-            Cancel
-          </button>
-          <button
-            className="btn btn-primary w-[49%]"
-            type="submit"
-            disabled={isSigning || buildMessages().length === 0}
-            onClick={handleConfirm}
-          >
-            {isSigning ? <span className="loading loading-spinner"></span> : 'Update'}
-          </button>
-        </div>
       </div>
       <form method="dialog" className="modal-backdrop">
         <button>close</button>

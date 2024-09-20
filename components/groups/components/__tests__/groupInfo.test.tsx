@@ -1,7 +1,7 @@
 import { afterAll, afterEach, describe, expect, test, jest, mock, beforeAll } from 'bun:test';
 import React from 'react';
 import { screen, cleanup, fireEvent } from '@testing-library/react';
-import { GroupInfo } from '@/components/groups/components/groupInfo';
+import { GroupInfo } from '@/components/groups/modals/groupInfo';
 import matchers from '@testing-library/jest-dom/matchers';
 import { renderWithChainProvider } from '@/tests/render';
 import { mockGroup } from '@/tests/mock';

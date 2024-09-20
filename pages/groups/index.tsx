@@ -1,6 +1,6 @@
 import { WalletSection } from '@/components';
 import { YourGroups } from '@/components/groups/components/myGroups';
-import { GroupInfo } from '@/components/groups/components/groupInfo';
+import { GroupInfo } from '@/components/groups/modals/groupInfo';
 import { useChain } from '@cosmos-kit/react';
 import Head from 'next/head';
 import Link from 'next/link';

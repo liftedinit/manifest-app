@@ -15,8 +15,9 @@ import { useChain } from '@cosmos-kit/react';
 import { MemberSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { ArrowRightIcon } from '@/components/icons';
 import ProfileAvatar from '@/utils/identicon';
-import { GroupInfo } from './groupInfo';
+import { GroupInfo } from '../modals/groupInfo';
 import { ExtendedGroupType } from '@/hooks/useQueries';
+import { MemberManagementModal } from '../modals/memberManagmentModal';
 
 export default function GroupProposals({
   policyAddress,
@@ -150,12 +151,24 @@ export default function GroupProposals({
   const { address } = useChain('manifest');
   const { groupByMemberData } = useGroupsByMember(address ?? '');
 
+  const [groupId, setGroupId] = useState<string>('');
+  const [groupAdmin, setGroupAdmin] = useState<string>('');
+
   useEffect(() => {
     if (groupByMemberData && policyAddress) {
       const group = groupByMemberData.groups.find(g => g.policies[0]?.address === policyAddress);
       if (group) {
-        setMembers(group.members);
-        setAdmin(group.admin);
+        setMembers(
+          group.members.map(member => ({
+            ...member.member,
+            isCoreMember: true,
+            isActive: true,
+            isAdmin: member.member.address === group.admin,
+            isPolicyAdmin: member.member.address === group.policies[0]?.admin,
+          }))
+        );
+        setGroupId(group.id.toString());
+        setGroupAdmin(group.admin);
       }
     }
   }, [groupByMemberData, policyAddress]);
@@ -170,6 +183,15 @@ export default function GroupProposals({
       modal.showModal();
     } else {
       console.error("Modal element 'group-info-modal' not found");
+    }
+  };
+
+  const openMemberModal = () => {
+    const modal = document.getElementById('member-management-modal') as HTMLDialogElement | null;
+    if (modal) {
+      modal.showModal();
+    } else {
+      console.error("Modal element 'member-management-modal' not found");
     }
   };
 
@@ -193,7 +215,10 @@ export default function GroupProposals({
           >
             Info
           </button>
-          <button className="btn w-[140px] h-[52px] rounded-[12px] dark:bg-[#FFFFFF0F] bg-[#0000000A]">
+          <button
+            className="btn w-[140px] h-[52px] rounded-[12px] dark:bg-[#FFFFFF0F] bg-[#0000000A]"
+            onClick={openMemberModal}
+          >
             Members
           </button>
         </div>
@@ -339,6 +364,15 @@ export default function GroupProposals({
         address={address ?? ''}
         policyAddress={policyAddress}
         onUpdate={() => {}}
+      />
+
+      <MemberManagementModal
+        members={members}
+        groupId={groupId}
+        groupAdmin={groupAdmin}
+        policyAddress={policyAddress}
+        address={address ?? ''}
+        onUpdate={refetchProposals}
       />
     </div>
   );
