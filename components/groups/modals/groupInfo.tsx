@@ -70,7 +70,7 @@ export function GroupInfo({ group, policyAddress, address, onUpdate }: GroupInfo
             <h3 className="font-bold text-lg">{group.ipfsMetadata?.title}</h3>
           </div>
           <form method="dialog">
-            <button className="btn btn-sm btn-circle btn-ghost">✕</button>
+            <button className=" absolute top-3 right-3 btn btn-sm btn-circle btn-ghost">✕</button>
           </form>
         </div>
 

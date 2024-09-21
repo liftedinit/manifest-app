@@ -137,8 +137,6 @@ module.exports = {
           transition: 'all 0.3s ease',
           '&:hover:not(:disabled)': {
             backgroundImage: 'linear-gradient(98.22deg, #FF9A9A -51.92%, #D61F98 103.12%)',
-            boxShadow: '0 0 4px rgba(255, 135, 135, 0.5)',
-            border: '1px solid rgba(255, 135, 135, 0.5)',
           },
           '&:disabled': {
             opacity: '0.5',
@@ -150,12 +148,11 @@ module.exports = {
       };
       const connectButton = {
         '.btn-gradient': {
+          border: 'none',
           backgroundImage: 'linear-gradient(98.22deg, #A087FF -51.92%, #380CC5 103.12%)',
           transition: 'all 0.3s ease',
           '&:hover:not(:disabled)': {
             backgroundImage: 'linear-gradient(98.22deg, #B19AFF -51.92%, #4A1FD6 103.12%)',
-            boxShadow: '0 0 4px rgba(160, 135, 255, 0.5)',
-            border: '1px solid rgba(160, 135, 255, 0.5)',
           },
           '&:disabled': {
             opacity: '0.5',

@@ -290,7 +290,7 @@ export default function SendForm({
             <div className="w-full mt-6">
               <button
                 type="submit"
-                className="btn btn-gradient w-full"
+                className="btn btn-gradient w-full text-white"
                 disabled={isSending || !isValid || !dirty}
                 aria-label="send-btn"
               >

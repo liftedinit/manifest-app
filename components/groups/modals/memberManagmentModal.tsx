@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Formik, Form } from 'formik';
-import { PiTrashLight, PiPlusCircleThin, PiCopy } from 'react-icons/pi';
-import Yup from '@/utils/yupExtensions';
+import { Formik, Form, Field, FieldProps } from 'formik';
+
+import * as Yup from 'yup';
 import { cosmos } from '@chalabi/manifestjs';
 import { useTx, useFeeEstimation } from '@/hooks';
 import { chainName } from '@/config';
 import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
 import { MemberSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { CopyIcon, TrashIcon } from '@/components/icons';
 
 interface ExtendedMember extends MemberSDKType {
   isNew: boolean;
@@ -38,11 +39,11 @@ export function MemberManagementModal({
     members: Yup.array().of(
       Yup.object().shape({
         address: Yup.string().required('Address is required').manifestAddress(),
-        metadata: Yup.string().noProfanity('Profanity is not allowed').required('Required'),
-        weight: Yup.number()
-          .required('Weight is required')
-          .min(0, 'Weight must be at least 0')
-          .required('Required'),
+        metadata: Yup.string()
+          .noProfanity('Profanity is not allowed')
+          .required('Required')
+          .max(25, 'Maximum 25 characters'),
+        weight: Yup.number().required('Weight is required').min(0, 'Weight must be at least 0'),
       })
     ),
   });
@@ -67,9 +68,15 @@ export function MemberManagementModal({
 
   const handleMemberToggleDeletion = (index: number) => {
     setMembers(
-      members.map((member, idx) =>
-        idx === index ? { ...member, markedForDeletion: !member.markedForDeletion } : member
-      )
+      members
+        .map((member, idx) =>
+          idx === index
+            ? member.isNew
+              ? undefined
+              : { ...member, markedForDeletion: !member.markedForDeletion }
+            : member
+        )
+        .filter(Boolean) as ExtendedMember[]
     );
   };
 
@@ -136,108 +143,147 @@ export function MemberManagementModal({
         onUpdate();
       },
     });
+    setIsSigning(false);
   };
 
   return (
     <dialog id="member-management-modal" className="modal">
-      <div className="modal-box bg-[#1D192D] rounded-[24px] max-w-[842px] p-6 text-white">
-        <form method="dialog">
-          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-        </form>
-        <h3 className="text-2xl font-semibold mb-6">Members</h3>
-        <Formik
-          initialValues={{ members }}
-          validationSchema={validationSchema}
-          onSubmit={handleConfirm}
-        >
-          {({ values, setFieldValue }) => (
-            <Form>
-              <div className="flex justify-between items-center mb-4">
-                <div className="grid grid-cols-12 w-full text-sm text-gray-400">
-                  <div className="col-span-1">#</div>
-                  <div className="col-span-4">Name</div>
-                  <div className="col-span-6">Address</div>
-                  <div className="col-span-1"></div>
+      <div className="flex flex-col items-center w-full h-full">
+        <div className="modal-box dark:bg-[#1D192D] bg-[#FFFFFF] rounded-[24px] max-w-[39rem] p-6 dark:text-white text-black">
+          <form method="dialog">
+            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+          </form>
+          <div className="flex justify-between items-center my-8">
+            <h3 className="text-2xl font-semibold">Members</h3>
+            <button
+              type="button"
+              className="btn btn-gradient w-[140px] h-[52px] text-white rounded-[12px] btn-sm"
+              onClick={handleAddMember}
+            >
+              New member
+            </button>
+          </div>
+
+          <Formik
+            initialValues={{ members }}
+            validationSchema={validationSchema}
+            onSubmit={handleConfirm}
+            enableReinitialize
+          >
+            {({ values, errors, touched }) => (
+              <Form>
+                <div className="flex items-center mb-4 px-4 text-sm text-gray-400">
+                  <div className="w-[10%] ml-3">#</div>
+                  <div className="w-[35%] ml-11">Name</div>
+                  <div className="w-[45%]">Address</div>
+                  <div className="w-[10%]"></div>
                 </div>
-                <button
-                  type="button"
-                  className="btn btn-primary btn-sm rounded-full px-4"
-                  onClick={handleAddMember}
-                >
-                  New member
-                </button>
-              </div>
-              <div className="space-y-2 max-h-[400px] overflow-y-auto">
-                {members.map((member, index) => (
-                  <div
-                    key={index}
-                    className={`grid grid-cols-12 items-center bg-[#2D2A3E] rounded-lg p-3 ${member.markedForDeletion ? 'opacity-50' : ''}`}
-                  >
-                    <div className="col-span-1">{index + 1}</div>
-                    <div className="col-span-4">
-                      <input
-                        type="text"
-                        value={member.metadata}
-                        onChange={e => {
-                          const newMembers = [...members];
-                          newMembers[index].metadata = e.target.value;
-                          setMembers(newMembers);
-                        }}
-                        className="input input-sm input-ghost w-full max-w-xs"
-                        placeholder="Unknown type"
-                        disabled={member.markedForDeletion}
-                      />
+                <div className="space-y-4 max-h-[420px] overflow-y-auto">
+                  {values.members.map((member, index) => (
+                    <div
+                      key={index}
+                      className={`flex items-center dark:bg-[#2D2A3E] bg-[#0000000A] rounded-[12px] p-3 ${
+                        member.markedForDeletion ? 'opacity-50' : ''
+                      }`}
+                    >
+                      <div className="w-[10%] text-center">{index + 1}</div>
+                      {/* Name Field with Daisy UI Tooltip */}
+                      <div className="w-[35%] ml-12 pr-6 relative">
+                        <Field name={`members.${index}.metadata`}>
+                          {({ field, meta }: FieldProps) => (
+                            <div>
+                              <input
+                                {...field}
+                                type="text"
+                                className={`input input-sm input-ghost w-full max-w-xs pr-8 ${
+                                  meta.touched && meta.error ? 'input-error' : ''
+                                }`}
+                                placeholder="member name"
+                                disabled={member.markedForDeletion}
+                              />
+                              {meta.touched && meta.error && (
+                                <div
+                                  className="tooltip tooltip-bottom tooltip-open tooltip-primary text-white text-xs mt-1 absolute left-1/2 transform translate-y-7 -translate-x-4 z-50"
+                                  data-tip={meta.error}
+                                >
+                                  {/* Invisible element to anchor the tooltip */}
+                                  <div className="w-0 h-0"></div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </Field>
+                      </div>
+                      {/* Address Field with Daisy UI Tooltip */}
+                      <div className="w-[45%] flex items-center relative">
+                        <Field name={`members.${index}.address`}>
+                          {({ field, meta }: FieldProps) => (
+                            <div className="flex-grow">
+                              <input
+                                {...field}
+                                type="text"
+                                className={`input input-sm input-ghost w-full pr-8 ${
+                                  meta.touched && meta.error ? 'input-error' : ''
+                                }`}
+                                placeholder="manifest1..."
+                                disabled={!member.isNew || member.markedForDeletion}
+                              />
+                              {meta.touched && meta.error && (
+                                <div
+                                  className="tooltip tooltip-bottom tooltip-open tooltip-primary  text-white text-xs mt-1 absolute left-1/2 transform translate-y-7 -translate-x-4 z-50"
+                                  data-tip={meta.error}
+                                >
+                                  <div className="w-0 h-0"></div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </Field>
+                        <button
+                          onClick={e => {
+                            e.preventDefault();
+                            navigator.clipboard.writeText(member.address);
+                          }}
+                          className="btn btn-ghost hover:bg-transparent btn-sm -ml-2"
+                        >
+                          <CopyIcon className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <div className="w-[10%] flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() => handleMemberToggleDeletion(index)}
+                          className={`btn btn-primary btn-square rounded-[12px] btn-sm `}
+                        >
+                          <TrashIcon className="text-white w-5 h-5" />
+                        </button>
+                      </div>
                     </div>
-                    <div className="col-span-6 flex items-center">
-                      <input
-                        type="text"
-                        value={member.address}
-                        onChange={e => {
-                          if (member.isNew) {
-                            const newMembers = [...members];
-                            newMembers[index].address = e.target.value;
-                            setMembers(newMembers);
-                          }
-                        }}
-                        className="input input-sm input-ghost w-full"
-                        placeholder="manifest1..."
-                        disabled={!member.isNew || member.markedForDeletion}
-                      />
-                      <button className="btn btn-ghost btn-sm ml-2">
-                        <PiCopy />
-                      </button>
-                    </div>
-                    <div className="col-span-1 flex justify-end">
-                      <button
-                        type="button"
-                        onClick={() => handleMemberToggleDeletion(index)}
-                        className={`btn btn-ghost btn-sm ${member.markedForDeletion ? 'text-success' : 'text-error'}`}
-                      >
-                        <PiTrashLight size={20} />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="modal-action">
-                <button
-                  type="button"
-                  className="btn btn-ghost"
-                  onClick={() =>
-                    (
-                      document.getElementById('member-management-modal') as HTMLDialogElement
-                    ).close()
-                  }
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary" disabled={isSigning}>
-                  {isSigning ? 'Signing...' : 'Save Changes'}
-                </button>
-              </div>
-            </Form>
-          )}
-        </Formik>
+                  ))}
+                </div>
+              </Form>
+            )}
+          </Formik>
+        </div>
+        <div className="mt-4 flex justify-center w-full">
+          <button
+            type="button"
+            className="btn btn-ghost dark:text-white text-black"
+            onClick={() =>
+              (document.getElementById('member-management-modal') as HTMLDialogElement).close()
+            }
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="btn btn-gradient ml-4 text-white"
+            onClick={handleConfirm}
+            disabled={isSigning}
+          >
+            {isSigning ? 'Signing...' : 'Save Changes'}
+          </button>
+        </div>
       </div>
       <form method="dialog" className="modal-backdrop">
         <button>close</button>
