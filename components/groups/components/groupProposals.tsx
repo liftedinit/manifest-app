@@ -210,13 +210,13 @@ export default function GroupProposals({
         </div>
         <div className="flex items-center space-x-4">
           <button
-            className="btn w-[140px] h-[52px] rounded-[12px] dark:bg-[#FFFFFF0F] bg-[#0000000A]"
+            className="btn w-[140px] h-[52px] rounded-[12px] focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
             onClick={openInfoModal}
           >
             Info
           </button>
           <button
-            className="btn w-[140px] h-[52px] rounded-[12px] dark:bg-[#FFFFFF0F] bg-[#0000000A]"
+            className="btn w-[140px] h-[52px] rounded-[12px] focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
             onClick={openMemberModal}
           >
             Members

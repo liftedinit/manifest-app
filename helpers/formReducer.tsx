@@ -5,7 +5,7 @@ import { Coin } from '@cosmjs/stargate';
 // Schemas for form data
 export type FormData = {
   title: string;
-  authors: string;
+  authors: string | string[];
   summary: string;
   description: string;
   forumLink: string;
@@ -47,6 +47,9 @@ export const tokenFormDataReducer = (state: TokenFormData, action: TokenAction):
 // Actions for form data
 export type Action =
   | { type: 'UPDATE_FIELD'; field: keyof FormData; value: any }
+  | { type: 'ADD_AUTHOR' }
+  | { type: 'REMOVE_AUTHOR'; index: number }
+  | { type: 'UPDATE_AUTHOR'; index: number; value: string }
   | {
       type: 'UPDATE_MEMBER';
       index: number;
@@ -60,6 +63,28 @@ export const formDataReducer = (state: FormData, action: Action): FormData => {
   switch (action.type) {
     case 'UPDATE_FIELD':
       return { ...state, [action.field]: action.value };
+
+    case 'ADD_AUTHOR':
+      return {
+        ...state,
+        authors: Array.isArray(state.authors) ? [...state.authors, ''] : [state.authors, ''],
+      };
+
+    case 'REMOVE_AUTHOR':
+      if (!Array.isArray(state.authors)) return state;
+      return {
+        ...state,
+        authors: state.authors.filter((_, index) => index !== action.index),
+      };
+
+    case 'UPDATE_AUTHOR':
+      if (!Array.isArray(state.authors)) return state;
+      return {
+        ...state,
+        authors: state.authors.map((author, index) =>
+          index === action.index ? action.value : author
+        ),
+      };
 
     case 'UPDATE_MEMBER':
       return {

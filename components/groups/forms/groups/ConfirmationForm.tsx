@@ -98,22 +98,34 @@ export default function ConfirmationModal({
   };
 
   const renderAuthors = () => {
-    if (formData.authors.startsWith('manifest')) {
-      return <TruncatedAddressWithCopy address={formData.authors} slice={14} />;
-    } else if (formData.authors.includes(',')) {
-      return formData.authors
-        .split(',')
-        .map((author, index) => (
-          <div key={index}>
-            {author.trim().startsWith('manifest') ? (
-              <TruncatedAddressWithCopy address={author.trim()} slice={14} />
-            ) : (
-              <span>{author.trim()}</span>
-            )}
-          </div>
-        ));
+    if (Array.isArray(formData.authors)) {
+      return formData.authors.map((author, index) => (
+        <div key={index}>
+          {author.trim().startsWith('manifest') ? (
+            <TruncatedAddressWithCopy address={author.trim()} slice={14} />
+          ) : (
+            <span>{author.trim()}</span>
+          )}
+        </div>
+      ));
     } else {
-      return <span>{formData.authors}</span>;
+      if (formData.authors.startsWith('manifest')) {
+        return <TruncatedAddressWithCopy address={formData.authors} slice={14} />;
+      } else if (formData.authors.includes(',')) {
+        return formData.authors
+          .split(',')
+          .map((author, index) => (
+            <div key={index}>
+              {author.trim().startsWith('manifest') ? (
+                <TruncatedAddressWithCopy address={author.trim()} slice={14} />
+              ) : (
+                <span>{author.trim()}</span>
+              )}
+            </div>
+          ));
+      } else {
+        return <span>{formData.authors}</span>;
+      }
     }
   };
 

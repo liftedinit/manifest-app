@@ -92,6 +92,7 @@ module.exports = {
           'base-200': '#F0F0FF',
           'base-300': '#E1E1F9',
           'base-content': '#161616',
+          'tooltip-color': '#ffffff',
           'background-color': '#F0F0FF',
           info: '#3B82F6',
           success: '#00D515',
@@ -114,6 +115,7 @@ module.exports = {
           'background-color': '#0E0A1F',
           'base-100': '#161616',
           'base-200': '#1D192D',
+          'tooltip-color': '#ffffff',
           'base-300': '#2A2640',
           'base-content': '#FFFFFF',
           info: '#3B82F6',
@@ -146,9 +148,16 @@ module.exports = {
           },
         },
       };
+      const toolTip = {
+        '.tooltip-primary': {
+          color: '#FFFFFF',
+          textColor: '#FFFFFF',
+        },
+      };
       const connectButton = {
         '.btn-gradient': {
           border: 'none',
+          color: '#FFFFFF',
           backgroundImage: 'linear-gradient(98.22deg, #A087FF -51.92%, #380CC5 103.12%)',
           transition: 'all 0.3s ease',
           '&:hover:not(:disabled)': {
@@ -159,7 +168,7 @@ module.exports = {
             cursor: 'not-allowed',
             border: 'none',
             boxShadow: 'none',
-            textColor: '#FFFFFF',
+            textColor: '#000000',
           },
         },
       };
@@ -187,6 +196,7 @@ module.exports = {
       addUtilities(disconnectButton, ['responsive', 'hover', 'disabled']);
       addUtilities(connectButton, ['responsive', 'hover', 'disabled']);
       addUtilities(dropDownBtns, ['responsive', 'hover', 'disabled']);
+      addUtilities(toolTip, ['responsive', 'hover', 'disabled']);
     },
   ],
 };

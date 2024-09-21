@@ -195,7 +195,7 @@ export function MemberManagementModal({
                               <input
                                 {...field}
                                 type="text"
-                                className={`input input-sm input-ghost w-full max-w-xs pr-8 ${
+                                className={`input input-sm focus:outline-none input-ghost  bg-transparent w-full max-w-xs  ${
                                   meta.touched && meta.error ? 'input-error' : ''
                                 }`}
                                 placeholder="member name"
@@ -203,7 +203,7 @@ export function MemberManagementModal({
                               />
                               {meta.touched && meta.error && (
                                 <div
-                                  className="tooltip tooltip-bottom tooltip-open tooltip-primary text-white text-xs mt-1 absolute left-1/2 transform translate-y-7 -translate-x-4 z-50"
+                                  className="tooltip tooltip-bottom tooltip-open tooltip-primary dark:text-white text-white text-xs mt-1 absolute left-1/2 transform translate-y-7 -translate-x-4 z-50"
                                   data-tip={meta.error}
                                 >
                                   {/* Invisible element to anchor the tooltip */}
@@ -222,7 +222,7 @@ export function MemberManagementModal({
                               <input
                                 {...field}
                                 type="text"
-                                className={`input input-sm input-ghost w-full pr-8 ${
+                                className={`input  input-sm focus:outline-none disabled:bg-transparent disabled:border-none bg-transparent input-ghost w-full  ${
                                   meta.touched && meta.error ? 'input-error' : ''
                                 }`}
                                 placeholder="manifest1..."
@@ -230,10 +230,10 @@ export function MemberManagementModal({
                               />
                               {meta.touched && meta.error && (
                                 <div
-                                  className="tooltip tooltip-bottom tooltip-open tooltip-primary  text-white text-xs mt-1 absolute left-1/2 transform translate-y-7 -translate-x-4 z-50"
+                                  className="tooltip tooltip-bottom tooltip-open tooltip-primary dark:text-white text-white text-xs mt-1 absolute left-1/2 transform translate-y-7 -translate-x-4 z-50"
                                   data-tip={meta.error}
                                 >
-                                  <div className="w-0 h-0"></div>
+                                  <div className="w-0 h-0 "></div>
                                 </div>
                               )}
                             </div>
@@ -268,7 +268,7 @@ export function MemberManagementModal({
         <div className="mt-4 flex justify-center w-full">
           <button
             type="button"
-            className="btn btn-ghost dark:text-white text-black"
+            className="btn btn-ghost dark:text-white text-white"
             onClick={() =>
               (document.getElementById('member-management-modal') as HTMLDialogElement).close()
             }

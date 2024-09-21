@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { chainName } from '../../config';
 import { useGroupsByMember, useProposalsByPolicyAccountAll } from '../../hooks/useQueries';
 import { GroupsIcon } from '@/components';
-import { ExtendedGroupType } from '../../hooks/useQueries';
+
 export default function Groups() {
   const { address, isWalletConnected } = useChain(chainName);
   const { groupByMemberData, isGroupByMemberLoading, isGroupByMemberError, refetchGroupByMember } =

@@ -15,14 +15,19 @@ export const TextArea: React.FC<
   return (
     <div className="form-control w-full">
       <label className="label" htmlFor={id}>
-        <span className="label-text">{label}</span>
+        <span className="label-text text-[#00000099] dark:text-[#FFFFFF99]">{label}</span>
       </label>
-      <textarea
-        id={id}
-        {...field}
-        {...props}
-        className={`textarea textarea-bordered h-24 ${props.className}`}
-      />
+      <div className="relative">
+        <textarea
+          id={id}
+          {...field}
+          {...props}
+          className={`dark:text-[#FFFFFF] text-[#161616] textarea border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full 
+            autofill:bg-[#E0E0FF0A] autofill:dark:bg-[#E0E0FF0A]
+            focus:bg-[#E0E0FF0A] focus:dark:bg-[#E0E0FF0A]
+            ${props.className}`}
+        />
+      </div>
       {meta.touched && meta.error ? (
         <label className="label">
           <span className="label-text-alt text-error">{meta.error}</span>
