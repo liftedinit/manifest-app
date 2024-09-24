@@ -1,11 +1,10 @@
 import { Action, FormData } from '@/helpers/formReducer';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { PiAddressBook } from 'react-icons/pi';
-import { Formik, Form, FieldArray } from 'formik';
+import { Formik, Form, FieldArray, Field, FieldProps } from 'formik';
 import Yup from '@/utils/yupExtensions';
-import { TextInput, NumberInput } from '@/components/react/inputs';
-import { isValidAddress } from '@/utils/string';
-
+import { TrashIcon, PlusIcon } from '@/components/icons';
+import { NumberInput, TextInput } from '@/components/react';
 const MemberSchema = Yup.object().shape({
   address: Yup.string().manifestAddress().required('Required'),
   name: Yup.string().required('Required').noProfanity('Profanity is not allowed'),
@@ -15,6 +14,7 @@ const MemberSchema = Yup.object().shape({
 const MemberInfoSchema = Yup.object().shape({
   members: Yup.array().of(MemberSchema).min(1, 'At least one member is required'),
 });
+
 export default function MemberInfoForm({
   formData,
   dispatch,
@@ -28,191 +28,234 @@ export default function MemberInfoForm({
   prevStep: () => void;
   address: string;
 }>) {
-  const [numberOfMembers, setNumberOfMembers] = useState(formData.members.length);
-  const updateMembers = () => {
-    const currentLength = formData.members.length;
-    if (numberOfMembers > currentLength) {
-      for (let i = 0; i < numberOfMembers - currentLength; i++) {
-        dispatch({
-          type: 'ADD_MEMBER',
-          member: { address: '', name: '', weight: '' },
-        });
-      }
-    } else if (numberOfMembers < currentLength) {
-      const updatedMembers = formData.members.slice(0, numberOfMembers);
-      dispatch({
-        type: 'UPDATE_FIELD',
-        field: 'members',
-        value: updatedMembers,
-      });
-    }
-  };
-
-  useEffect(() => {
-    updateMembers();
-  }, [numberOfMembers]);
-
-  const handleNumberChange = (event: { target: { value: string } }) => {
-    const newCount = parseInt(event.target.value, 10);
-    if (!isNaN(newCount) && newCount >= 0) {
-      setNumberOfMembers(newCount);
-    }
-  };
+  const [isValidForm, setIsValidForm] = useState(false);
+  const addMemberRef = useRef<() => void>(() => {});
 
   return (
     <section className="">
       <div className="lg:flex mx-auto">
-        <div className="flex items-center mx-auto md:w-[42rem] px-4 md:px-8 xl:px-0">
+        <div className="flex items-center mx-auto w-full dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-[24px] rounded-[24px]">
           <div className="w-full">
-            <div className="w-full">
-              <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-extrabold tracking-tight leading-tight">
-                  Member Info
-                </h1>
-                <div className="flex">
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-secondary"
-                    onClick={() => setNumberOfMembers(Math.max(0, numberOfMembers - 1))}
-                  >
-                    -
-                  </button>
-                  <input
-                    aria-label={'member-count'}
-                    className="input input-bordered mx-2 text-center input-sm w-[40px]"
-                    value={numberOfMembers}
-                    onChange={handleNumberChange}
-                    min="0"
-                  />
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-primary"
-                    onClick={() => setNumberOfMembers(numberOfMembers + 1)}
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-
-              <Formik
-                initialValues={{ members: formData.members }}
-                validationSchema={MemberInfoSchema}
-                onSubmit={nextStep}
-                validateOnMount={true}
-                validateOnChange={true}
-                validateOnBlur={true}
-              >
-                {({ values, isValid, dirty, setFieldValue }) => (
-                  <Form className="min-h-[330px]">
-                    <div className="overflow-y-scroll max-h-[550px] min-h-[330px]">
+            <h1 className="mb-4 text-xl font-extrabold tracking-tight sm:mb-6 leading-tight border-b-[0.5px] dark:border-[#ffffff8e] border-b-[black] pb-4">
+              Member Info
+            </h1>
+            <Formik
+              initialValues={{ members: formData.members }}
+              validationSchema={MemberInfoSchema}
+              onSubmit={nextStep}
+              validateOnMount={true}
+              validateOnChange={true}
+              validateOnBlur={true}
+            >
+              {({ values, isValid, setFieldValue }) => {
+                setIsValidForm(isValid);
+                return (
+                  <Form className="flex flex-col gap-4">
+                    <div className="max-h-[55vh] overflow-y-auto px-1">
                       <FieldArray name="members">
-                        {() => (
-                          <>
-                            {values.members.map((member, index) => (
-                              <div key={index} className="grid grid-cols-3 gap-4 mb-4 p-1">
-                                <div className="relative">
-                                  <TextInput
-                                    name={`members.${index}.address`}
-                                    label="Address"
-                                    placeholder="manifest1..."
-                                    value={member.address}
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                      setFieldValue(`members.${index}.address`, e.target.value);
-                                      dispatch({
-                                        type: 'UPDATE_MEMBER',
-                                        index,
-                                        field: 'address',
-                                        value: e.target.value,
-                                      });
-                                    }}
-                                    className={`input input-bordered w-full ${
-                                      index === 0 ? 'rounded-tr-none rounded-br-none' : ''
-                                    }`}
-                                  />
-                                  {index === 0 && (
+                        {({ remove, push }) => {
+                          addMemberRef.current = () => {
+                            push({ address: '', name: '', weight: '1' });
+                            dispatch({
+                              type: 'ADD_MEMBER',
+                              member: { address: '', name: '', weight: '1' },
+                            });
+                          };
+                          return (
+                            <>
+                              {values.members.map((member, index) => (
+                                <div
+                                  key={index}
+                                  className="flex relative flex-row dark:bg-[#FFFFFF0A] bg-[#FFFFFF] p-4 gap-2 mb-4 rounded-lg items-end"
+                                >
+                                  {index > 0 && (
+                                    <div className=" absolute -top-2 left-2  text-xs">
+                                      #{index + 1}
+                                    </div>
+                                  )}
+
+                                  <div className="flex-grow relative">
+                                    <Field name={`members.${index}.address`}>
+                                      {({ field, meta }: FieldProps) => (
+                                        <div className="relative">
+                                          <TextInput
+                                            showError={false}
+                                            label="Address"
+                                            {...field}
+                                            type="text"
+                                            placeholder="manifest1..."
+                                            className={`input input-bordered w-full ${
+                                              meta.touched && meta.error ? 'input-error' : ''
+                                            }`}
+                                            rightElement={
+                                              <button
+                                                type="button"
+                                                onClick={() => {
+                                                  setFieldValue(
+                                                    `members.${index}.address`,
+                                                    address
+                                                  );
+                                                  dispatch({
+                                                    type: 'UPDATE_MEMBER',
+                                                    index,
+                                                    field: 'address',
+                                                    value: address,
+                                                  });
+                                                }}
+                                                className="btn btn-primary btn-sm text-white absolute right-2 top-1/2 transform -translate-y-1/2"
+                                              >
+                                                <PiAddressBook className="w-5 h-5" />
+                                              </button>
+                                            }
+                                            onChange={e => {
+                                              field.onChange(e);
+                                              dispatch({
+                                                type: 'UPDATE_MEMBER',
+                                                index,
+                                                field: 'address',
+                                                value: e.target.value,
+                                              });
+                                            }}
+                                          />
+                                          {meta.touched && meta.error && (
+                                            <div
+                                              className="tooltip tooltip-bottom tooltip-open tooltip-error bottom-0 absolute left-1/2 transform -translate-x-1/2 translate-y-full mt-1 z-50 text-white text-xs"
+                                              data-tip={meta.error}
+                                            >
+                                              <div className="w-0 h-0"></div>
+                                            </div>
+                                          )}
+                                        </div>
+                                      )}
+                                    </Field>
+                                  </div>
+                                  <div className="flex-grow relative">
+                                    <Field name={`members.${index}.name`}>
+                                      {({ field, meta }: FieldProps) => (
+                                        <div className="relative">
+                                          <TextInput
+                                            showError={false}
+                                            label="Name"
+                                            {...field}
+                                            type="text"
+                                            placeholder="Alice"
+                                            className={`input input-bordered w-full ${
+                                              meta.touched && meta.error ? 'input-error' : ''
+                                            }`}
+                                            onChange={e => {
+                                              field.onChange(e);
+                                              dispatch({
+                                                type: 'UPDATE_MEMBER',
+                                                index,
+                                                field: 'name',
+                                                value: e.target.value,
+                                              });
+                                            }}
+                                          />
+                                          {meta.touched && meta.error && (
+                                            <div
+                                              className="tooltip tooltip-bottom tooltip-open bottom-0 tooltip-error absolute left-1/2 transform -translate-x-1/2 translate-y-full mt-1 z-50 text-white text-xs"
+                                              data-tip={meta.error}
+                                            >
+                                              <div className="w-0 h-0"></div>
+                                            </div>
+                                          )}
+                                        </div>
+                                      )}
+                                    </Field>
+                                  </div>
+                                  <div className="flex-grow relative">
+                                    <Field name={`members.${index}.weight`}>
+                                      {({ field, meta }: FieldProps) => (
+                                        <div className="relative">
+                                          <NumberInput
+                                            showError={false}
+                                            label="Weight"
+                                            {...field}
+                                            type="number"
+                                            min="1"
+                                            placeholder="1"
+                                            className={`input input-bordered w-full ${
+                                              meta.touched && meta.error ? 'input-error' : ''
+                                            }`}
+                                            onChange={e => {
+                                              const value = Math.max(
+                                                1,
+                                                parseInt(e.target.value) || 1
+                                              );
+                                              field.onChange(e);
+                                              setFieldValue(
+                                                `members.${index}.weight`,
+                                                value.toString()
+                                              );
+                                              dispatch({
+                                                type: 'UPDATE_MEMBER',
+                                                index,
+                                                field: 'weight',
+                                                value: value.toString(),
+                                              });
+                                            }}
+                                          />
+                                          {meta.touched && meta.error && (
+                                            <div
+                                              className="tooltip tooltip-bottom tooltip-open tooltip-error bottom-0 absolute left-1/2 transform -translate-x-1/2 translate-y-full mt-1 z-50 text-white text-xs"
+                                              data-tip={meta.error}
+                                            >
+                                              <div className="w-0 h-0"></div>
+                                            </div>
+                                          )}
+                                        </div>
+                                      )}
+                                    </Field>
+                                  </div>
+                                  {index > 0 && (
                                     <button
                                       type="button"
+                                      className=" absolute top-3 right-5 btn btn-error text-white btn-sm"
                                       onClick={() => {
-                                        setFieldValue(`members.${index}.address`, address);
+                                        remove(index);
                                         dispatch({
-                                          type: 'UPDATE_MEMBER',
+                                          type: 'REMOVE_MEMBER',
                                           index,
-                                          field: 'address',
-                                          value: address,
                                         });
                                       }}
-                                      aria-label="Paste address"
-                                      className="btn btn-primary rounded-tr-lg rounded-br-lg rounded-bl-none rounded-tl-none"
                                     >
-                                      <PiAddressBook className="w-6 h-6" />
+                                      <TrashIcon className="w-5 h-5" />
                                     </button>
                                   )}
                                 </div>
-                                <TextInput
-                                  name={`members.${index}.name`}
-                                  label="Name"
-                                  placeholder="Alice"
-                                  value={member.name}
-                                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                    setFieldValue(`members.${index}.name`, e.target.value);
-                                    dispatch({
-                                      type: 'UPDATE_MEMBER',
-                                      index,
-                                      field: 'name',
-                                      value: e.target.value,
-                                    });
-                                  }}
-                                  className="input input-bordered w-full"
-                                />
-                                <NumberInput
-                                  name={`members.${index}.weight`}
-                                  label="Weight"
-                                  placeholder="1"
-                                  value={member.weight}
-                                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                    const value = Math.max(1, parseInt(e.target.value) || 1);
-                                    setFieldValue(`members.${index}.weight`, value);
-                                    dispatch({
-                                      type: 'UPDATE_MEMBER',
-                                      index,
-                                      field: 'weight',
-                                      value: value.toString(),
-                                    });
-                                  }}
-                                  min={1}
-                                  className="input input-bordered w-full"
-                                />
-                              </div>
-                            ))}
-                          </>
-                        )}
+                              ))}
+                            </>
+                          );
+                        }}
                       </FieldArray>
                     </div>
-
                     <button
-                      type="submit"
-                      className="btn btn-primary w-full"
-                      disabled={!isValid || numberOfMembers === 0}
-                      onClick={() => nextStep()}
+                      type="button"
+                      className="btn btn-gradient w-full"
+                      onClick={() => addMemberRef.current()}
                     >
-                      Next: Confirmation
+                      <PlusIcon className="w-5 h-5 mr-2" /> Add member
                     </button>
                   </Form>
-                )}
-              </Formik>
-
-              <div className="flex space-x-3 ga-4 mt-6">
-                <button
-                  onClick={prevStep}
-                  className="text-center btn btn-neutral items-center w-1/2 py-2.5 sm:py-3.5 text-sm font-medium focus:outline-none rounded-lg border"
-                >
-                  Prev: Group Policy
-                </button>
-                <a className="text-center items-center w-1/2 py-2.5 sm:py-3.5 text-sm font-medium"></a>
-              </div>
-            </div>
+                );
+              }}
+            </Formik>
           </div>
         </div>
+      </div>
+      <div className="flex space-x-3 mt-6 mx-auto w-full">
+        <button onClick={prevStep} className="btn btn-neutral py-2.5 sm:py-3.5 w-1/2">
+          Back: Group Details
+        </button>
+        <button
+          type="submit"
+          className="w-1/2 btn px-5 py-2.5 sm:py-3.5 btn-gradient text-white disabled:text-black"
+          onClick={() => nextStep()}
+          disabled={!isValidForm}
+        >
+          Next: Confirmation
+        </button>
       </div>
     </section>
   );

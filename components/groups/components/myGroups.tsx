@@ -107,12 +107,12 @@ export function YourGroups({
               </Link>
             </div>
           </div>
-          <div className="overflow-x-auto w-full">
+          <div className="overflow-x-auto max-h-[87vh] w-full">
             <div className="max-w-8xl mx-auto">
               {' '}
               {/* Center the table */}
               <table className="table w-full border-separate border-spacing-y-3">
-                <thead>
+                <thead className="sticky top-0 bg-[#F0F0FF] dark:bg-[#0E0A1F]">
                   <tr className="text-sm font-medium">
                     <th className="bg-transparent w-1/6">Group Name</th>
                     <th className="bg-transparent w-1/6">Active proposals</th>
@@ -203,6 +203,13 @@ function GroupRow({
 
   const { balance } = useBalance(policyAddress);
 
+  const getAuthor = (authors: string | string[] | undefined): string => {
+    if (Array.isArray(authors)) {
+      return authors[0] || 'Unknown';
+    }
+    return authors || 'Unknown';
+  };
+
   return (
     <tr
       className="hover:bg-base-200 text-black dark:text-white rounded-lg cursor-pointer"
@@ -226,8 +233,8 @@ function GroupRow({
       </td>
       <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6">
         {truncateString(
-          group.ipfsMetadata?.authors ?? 'Unknown',
-          group.ipfsMetadata?.authors?.startsWith('manifest1') ? 6 : 24
+          getAuthor(group.ipfsMetadata?.authors),
+          getAuthor(group.ipfsMetadata?.authors).startsWith('manifest1') ? 6 : 24
         )}
       </td>
       <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6">

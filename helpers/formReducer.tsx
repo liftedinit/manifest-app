@@ -6,9 +6,7 @@ import { Coin } from '@cosmjs/stargate';
 export type FormData = {
   title: string;
   authors: string | string[];
-  summary: string;
   description: string;
-  forumLink: string;
   votingPeriod: Duration;
   votingThreshold: string;
   members: { address: string; name: string; weight: string }[];
@@ -56,7 +54,8 @@ export type Action =
       field: keyof FormData['members'][0];
       value: any;
     }
-  | { type: 'ADD_MEMBER'; member: FormData['members'][0] };
+  | { type: 'ADD_MEMBER'; member: FormData['members'][0] }
+  | { type: 'REMOVE_MEMBER'; index: number };
 
 // Reducers
 export const formDataReducer = (state: FormData, action: Action): FormData => {
@@ -98,6 +97,12 @@ export const formDataReducer = (state: FormData, action: Action): FormData => {
       return {
         ...state,
         members: [...state.members, action.member],
+      };
+
+    case 'REMOVE_MEMBER':
+      return {
+        ...state,
+        members: state.members.filter((_, index) => index !== action.index),
       };
 
     default:

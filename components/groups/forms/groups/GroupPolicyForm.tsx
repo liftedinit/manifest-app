@@ -33,6 +33,7 @@ export default function GroupPolicyForm({
     minutes: 0,
     seconds: 0,
   });
+  const [isValidForm, setIsValidForm] = useState(false);
 
   const updateField = (field: keyof FormData, value: any) => {
     dispatch({ type: 'UPDATE_FIELD', field, value });
@@ -53,7 +54,7 @@ export default function GroupPolicyForm({
   return (
     <section className="">
       <div className="lg:flex mx-auto">
-        <div className="flex items-center mx-auto md:w-[800px] dark:bg-[#FFFFFF0F] bg-[#FFFFFF] p-[24px] rounded-[24px]">
+        <div className="flex items-center mx-auto w-full dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-[24px] rounded-[24px]">
           <div className="w-full">
             <h1 className="mb-4 text-xl font-extrabold tracking-tight sm:mb-6 leading-tight border-b-[0.5px] dark:border-[#ffffff8e] border-b-[black] pb-4">
               Group Policy
@@ -66,87 +67,91 @@ export default function GroupPolicyForm({
               validationSchema={GroupPolicySchema}
               onSubmit={nextStep}
               validateOnChange={true}
+              validateOnBlur={true}
             >
-              {({ isValid, dirty, setFieldValue }) => (
-                <Form className="min-h-[330px] flex flex-col gap-4">
-                  <div>
-                    <label className="block mb-2 text-sm font-medium">Voting Period</label>
-                    <div className="grid grid-cols-4 gap-2">
+              {({ isValid, dirty, setFieldValue }) => {
+                setIsValidForm(isValid && dirty);
+                return (
+                  <Form className="min-h-[330px] flex flex-col gap-4">
+                    <div>
+                      <label className="block mb-2 text-sm font-medium">Voting Period</label>
+                      <div className="grid grid-cols-4 gap-2">
+                        <NumberInput
+                          name="votingPeriod.days"
+                          placeholder="Days"
+                          label="Days"
+                          value={votingPeriod.days}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            const value = Math.max(0, parseInt(e.target.value) || 0);
+                            setVotingPeriod(prev => ({ ...prev, days: value }));
+                            setFieldValue('votingPeriod.days', value);
+                          }}
+                          min={0}
+                        />
+                        <NumberInput
+                          name="votingPeriod.hours"
+                          placeholder="Hours"
+                          label="Hours"
+                          value={votingPeriod.hours}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            const value = Math.max(0, parseInt(e.target.value) || 0);
+                            setVotingPeriod(prev => ({ ...prev, hours: value }));
+                            setFieldValue('votingPeriod.hours', value);
+                          }}
+                          min={0}
+                        />
+                        <NumberInput
+                          name="votingPeriod.minutes"
+                          placeholder="Minutes"
+                          label="Minutes"
+                          value={votingPeriod.minutes}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            const value = Math.max(0, parseInt(e.target.value) || 0);
+                            setVotingPeriod(prev => ({ ...prev, minutes: value }));
+                            setFieldValue('votingPeriod.minutes', value);
+                          }}
+                          min={0}
+                        />
+                        <NumberInput
+                          name="votingPeriod.seconds"
+                          placeholder="Seconds"
+                          label="Seconds"
+                          value={votingPeriod.seconds}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            const value = Math.max(0, parseInt(e.target.value) || 0);
+                            setVotingPeriod(prev => ({ ...prev, seconds: value }));
+                            setFieldValue('votingPeriod.seconds', value);
+                          }}
+                          min={0}
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block mb-2 text-sm font-medium">
+                        Qualified Majority (Number of total required votes)
+                      </label>
                       <NumberInput
-                        name="votingPeriod.days"
-                        placeholder="Days"
-                        label="Days"
-                        value={votingPeriod.days}
+                        name="votingThreshold"
+                        placeholder="e.g. (1)"
+                        label=""
+                        value={formData.votingThreshold}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          const value = Math.max(0, parseInt(e.target.value) || 0);
-                          setVotingPeriod(prev => ({ ...prev, days: value }));
-                          setFieldValue('votingPeriod.days', value);
+                          const value = Math.max(1, parseInt(e.target.value));
+                          updateField('votingThreshold', value.toString());
+                          setFieldValue('votingThreshold', value);
                         }}
-                        min={0}
-                      />
-                      <NumberInput
-                        name="votingPeriod.hours"
-                        placeholder="Hours"
-                        label="Hours"
-                        value={votingPeriod.hours}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          const value = Math.max(0, parseInt(e.target.value) || 0);
-                          setVotingPeriod(prev => ({ ...prev, hours: value }));
-                          setFieldValue('votingPeriod.hours', value);
-                        }}
-                        min={0}
-                      />
-                      <NumberInput
-                        name="votingPeriod.minutes"
-                        placeholder="Minutes"
-                        label="Minutes"
-                        value={votingPeriod.minutes}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          const value = Math.max(0, parseInt(e.target.value) || 0);
-                          setVotingPeriod(prev => ({ ...prev, minutes: value }));
-                          setFieldValue('votingPeriod.minutes', value);
-                        }}
-                        min={0}
-                      />
-                      <NumberInput
-                        name="votingPeriod.seconds"
-                        placeholder="Seconds"
-                        label="Seconds"
-                        value={votingPeriod.seconds}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          const value = Math.max(0, parseInt(e.target.value) || 0);
-                          setVotingPeriod(prev => ({ ...prev, seconds: value }));
-                          setFieldValue('votingPeriod.seconds', value);
-                        }}
-                        min={0}
+                        min={1}
                       />
                     </div>
-                  </div>
-
-                  <div>
-                    <label className="block mb-2 text-sm font-medium">
-                      Qualified Majority (Number of total required votes)
-                    </label>
-                    <NumberInput
-                      name="votingThreshold"
-                      placeholder="e.g. (1)"
-                      label=""
-                      value={formData.votingThreshold}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        const value = Math.max(1, parseInt(e.target.value));
-                        updateField('votingThreshold', value.toString());
-                        setFieldValue('votingThreshold', value);
-                      }}
-                      min={1}
-                    />
-                  </div>
-                </Form>
-              )}
+                  </Form>
+                );
+              }}
             </Formik>
           </div>
         </div>
       </div>
-      <div className="flex space-x-3 px-4 mt-6 mx-auto max-w-3xl">
+      <div className="flex space-x-3 mt-6 mx-auto w-full">
         <button onClick={prevStep} className="btn btn-neutral py-2.5 sm:py-3.5 w-1/2">
           Back: Group Details
         </button>
@@ -155,7 +160,7 @@ export default function GroupPolicyForm({
           className="w-1/2 btn px-5 py-2.5 sm:py-3.5 btn-gradient text-white disabled:text-black"
           onClick={() => nextStep()}
           disabled={
-            !formData.votingThreshold ||
+            !isValidForm ||
             (votingPeriod.days === 0 &&
               votingPeriod.hours === 0 &&
               votingPeriod.minutes === 0 &&

@@ -1,103 +1,110 @@
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { FormData } from '@/helpers';
 import Link from 'next/link';
+import { secondsToHumanReadable } from '@/utils/string';
+import { useGroupsByMember } from '@/hooks';
 
 export default function Success({
   formData,
-  prevStep,
+  address,
 }: Readonly<{
   formData: FormData;
-  prevStep: () => void;
+  address: string;
 }>) {
   const renderAuthors = () => {
-    if (formData.authors.startsWith('manifest')) {
-      return <TruncatedAddressWithCopy address={formData.authors} slice={14} />;
-    } else if (formData.authors.includes(',')) {
+    if (Array.isArray(formData.authors)) {
+      return formData.authors.map((author, index) => (
+        <div
+          key={index}
+          className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg flex items-center"
+        >
+          {author.trim().startsWith('manifest') ? (
+            <TruncatedAddressWithCopy address={author.trim()} slice={14} />
+          ) : (
+            <span>{author.trim()}</span>
+          )}
+        </div>
+      ));
+    } else {
       return (
-        <div className="flex flex-wrap gap-2">
-          {formData.authors.split(',').map((author, index) => (
-            <div key={index}>
-              {author.trim().startsWith('manifest') ? (
-                <TruncatedAddressWithCopy address={author.trim()} slice={14} />
-              ) : (
-                <span>{author.trim()}</span>
-              )}
-            </div>
-          ))}
+        <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg flex items-center">
+          {formData.authors.trim().startsWith('manifest') ? (
+            <TruncatedAddressWithCopy address={formData.authors.trim()} slice={14} />
+          ) : (
+            <span>{formData.authors.trim()}</span>
+          )}
         </div>
       );
-    } else {
-      return <span>{formData.authors}</span>;
     }
   };
 
+  const { groupByMemberData } = useGroupsByMember(address);
+  const recentGroup = groupByMemberData?.groups[groupByMemberData.groups.length - 1];
+
   return (
-    <section className="lg:max-h-[90vh] max-h-screen lg:mt-1 mt-12  flex items-center justify-center ">
-      <div className="max-w-2xl mx-auto bg-base-300 shadow-lg rounded-lg p-8 text-white">
-        <h1 className="text-3xl font-bold mb-4">Success!</h1>
-        <p className="text-lg mb-2 text-pretty">
-          Your transaction was successfully signed and broadcasted.
-        </p>
-        <p className="text-md text-gray-300 mb-6 text-pretty">
-          You may now interact with your group by adding members, submitting or voting on proposals,
-          and changing group parameters.
-        </p>
-        {/*
-          TODO: Verify the render is correct.
-                I changed the <p> to a <div> here because <div> (in TruncatedAddressWithCopy) cannot be a descendant of <p>
-        */}
-        <div className="text-md text-gray-300 mb-6 text-pretty">
-          Remember to fund your group by sending tokens to the policy address{' '}
-          <span>
-            <TruncatedAddressWithCopy address="address" slice={24} />
-          </span>
+    <section>
+      <div className="w-full dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-[24px] rounded-[24px]">
+        <div className="flex justify-center p-4 rounded-[8px] mb-6 w-full dark:bg-[#FAFAFA1F] bg-[#A087FF1F] items-center">
+          <h1 className="text-xl text-primary font-bold">Success!</h1>
         </div>
-        <div className="border-t border-gray-700 pt-4">
-          <h2 className="text-2xl font-semibold mb-4">Group Details</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="text-md font-light text-gray-400">TITLE</h3>
-              <p className="text-lg font-medium">{formData.title}</p>
-            </div>
-            <div>
-              <h3 className="text-md font-light text-gray-400">AUTHORS</h3>
-              {/*
-                TODO: Verify the render is correct.
-                      I changed the <p> to a <div> here because <div> (in TruncatedAddressWithCopy) cannot be a descendant of <p>
-              */}
-              <div className="text-lg font-medium">{renderAuthors()}</div>
-            </div>
-            <div className="col-span-1 md:col-span-2">
-              <h3 className="text-md font-light text-gray-400">SUMMARY</h3>
-              <p className="text-lg font-medium">{formData.summary}</p>
-            </div>
-            <div className="col-span-1 md:col-span-2 max-h-28 overflow-y-auto">
-              <h3 className="text-md font-light text-gray-400">DESCRIPTION</h3>
-              <p className="text-lg font-medium">{formData.description}</p>
-            </div>
-            <div>
-              <h3 className="text-md font-light text-gray-400">FORUM LINK</h3>
-              <p className="text-lg font-medium">{formData.forumLink}</p>
-            </div>
-            <div>
-              <h3 className="text-md font-light text-gray-400">VOTING PERIOD</h3>
-              <p className="text-lg font-medium">
-                {formData.votingPeriod.seconds.toString()} seconds
-              </p>
-            </div>
-            <div>
-              <h3 className="text-md font-light text-gray-400">VOTING THRESHOLD</h3>
-              <p className="text-lg font-medium">{formData.votingThreshold}</p>
+
+        <div className="space-y-6">
+          <p className="text-lg mb-2">Your transaction was successfully signed and broadcasted.</p>
+          <p className="text-md text-gray-400 mb-6">
+            You may now interact with your group by adding members, submitting or voting on
+            proposals, and changing group parameters.
+          </p>
+          <div className="text-md text-gray-400 mb-6 flex-col flex gap-2 ">
+            <span>Remember to fund your group by sending tokens to the policy address </span>
+            <TruncatedAddressWithCopy address={recentGroup?.policies[0].address} slice={24} />
+          </div>
+
+          {/* Group Information */}
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Group Information</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg">
+                <label className="text-sm text-gray-400">Voting period</label>
+                <div>{secondsToHumanReadable(Number(formData.votingPeriod.seconds))}</div>
+              </div>
+              <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg">
+                <label className="text-sm text-gray-400">Qualified Majority</label>
+                <div>
+                  {formData.votingThreshold} / {formData.members.length}
+                </div>
+              </div>
             </div>
           </div>
-          <div className="mt-6">
-            <div className=" w-full   justify-between items-center">
-              <Link href={'/groups'} legacyBehavior>
-                <button className="btn btn-md btn-secondary w-full">Back to Groups Page</button>
-              </Link>
+
+          {/* Authors */}
+          <div className="max-h-28 overflow-y-auto">
+            <h2 className="text-xl font-semibold mb-4">Authors</h2>
+            <div className="grid grid-cols-3 gap-4">{renderAuthors()}</div>
+          </div>
+
+          {/* Members */}
+          <div className="max-h-44 overflow-y-auto">
+            <h2 className="text-xl font-semibold mb-4">Members</h2>
+            <div className="grid grid-cols-3 gap-4">
+              {formData.members.map((member, index) => (
+                <div key={index} className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg">
+                  <div className="text-sm text-gray-400">Address</div>
+                  <TruncatedAddressWithCopy address={member.address} slice={14} />
+                  <div className="text-sm text-gray-400 mt-2">Name</div>
+                  <div>{member.name}</div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
+      </div>
+      <div className="flex space-x-3 mt-6 mx-auto w-full">
+        <Link href="/groups" className="w-1/2">
+          <button className="btn btn-neutral w-full text-white">Back to Groups Page</button>
+        </Link>
+        <Link href={`/groups/${recentGroup?.policies[0].address}`} className="w-1/2">
+          <button className="btn btn-gradient w-full text-white">View Group</button>
+        </Link>
       </div>
     </section>
   );

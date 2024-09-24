@@ -7,26 +7,26 @@ import { useTx } from '@/hooks/useTx';
 import { cosmos } from '@chalabi/manifestjs';
 import { ThresholdDecisionPolicy } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { Duration } from '@chalabi/manifestjs/dist/codegen/google/protobuf/duration';
-import { useChain } from '@cosmos-kit/react';
-
-export default function ConfirmationModal({
+import { secondsToHumanReadable } from '@/utils/string';
+export default function ConfirmationForm({
   nextStep,
   prevStep,
   formData,
+  address,
 }: Readonly<{
   nextStep: () => void;
   prevStep: () => void;
   formData: FormData;
+  address: string;
 }>) {
-  const { address } = useChain('manifest');
   const { createGroupWithPolicy } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const [isSigning, setIsSigning] = useState(false);
   const groupMetadata = {
     title: formData.title,
     authors: formData.authors,
-    summary: formData.summary,
+
     details: formData.description,
-    proposalForumURL: formData.forumLink,
+
     voteOptionContext: '',
   };
 
@@ -97,138 +97,97 @@ export default function ConfirmationModal({
     }
   };
 
-  const renderAuthors = () => {
-    if (Array.isArray(formData.authors)) {
-      return formData.authors.map((author, index) => (
-        <div key={index}>
-          {author.trim().startsWith('manifest') ? (
-            <TruncatedAddressWithCopy address={author.trim()} slice={14} />
-          ) : (
-            <span>{author.trim()}</span>
-          )}
-        </div>
-      ));
-    } else {
-      if (formData.authors.startsWith('manifest')) {
-        return <TruncatedAddressWithCopy address={formData.authors} slice={14} />;
-      } else if (formData.authors.includes(',')) {
-        return formData.authors
-          .split(',')
-          .map((author, index) => (
-            <div key={index}>
-              {author.trim().startsWith('manifest') ? (
-                <TruncatedAddressWithCopy address={author.trim()} slice={14} />
-              ) : (
-                <span>{author.trim()}</span>
-              )}
-            </div>
-          ));
-      } else {
-        return <span>{formData.authors}</span>;
-      }
-    }
-  };
-
   return (
-    <section className="">
-      <div className="lg:flex  mx-auto">
-        <div className="flex items-center mx-auto md:w-[42rem] px-4 md:px-8 xl:px-0">
-          <div className="w-full">
-            <h1 className="mb-4 text-2xl font-extrabold tracking-tight sm:mb-6 leading-tight">
-              Confirmation
-            </h1>
-            <form className="min-h-[330px] sm:max-h-[590px] overflow-y-auto">
-              {/* Group Details & Policy Flex */}
+    <section>
+      <div className="w-full dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-[24px] rounded-[24px]">
+        <div className="flex justify-center p-4 rounded-[8px] mb-6 w-full dark:bg-[#FAFAFA1F] bg-[#A087FF1F] items-center">
+          <h1 className="text-xl text-primary font-bold">{formData.title}</h1>
+        </div>
 
-              {/* Group Details */}
-              <div className="flex w-full flex-col gap-2 justify-between items-start">
-                <label className="block  text-lg font-light">GROUP DETAILS</label>
-                <div className="grid gap-5 sm:grid-cols-2 bg-base-300 shadow w-full rounded-lg p-4">
-                  <div className="flex flex-col gap-2">
-                    <a className="text-sm font-light text-gray-400">GROUP TITLE</a>
-                    <div className="max-h-24  overflow-y-auto rounded-md bg-base-100 p-4">
-                      <a className="text-lg">{formData.title}</a>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <a className="text-sm font-light text-gray-400">AUTHORS</a>
-                    <div className="max-h-24 h-full  overflow-y-auto rounded-md bg-base-100 p-4">
-                      {renderAuthors()}
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-2 h-full ">
-                    <a className="text-sm font-light text-gray-400">SUMMARY</a>
-                    <div className="max-h-24  overflow-y-auto rounded-md bg-base-100 p-4">
-                      <a className="text-sm">{formData.summary}</a>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-2 ">
-                    <a className="text-sm font-light text-gray-400">DESCRIPTION</a>
-                    <div className="max-h-24  overflow-y-auto rounded-md bg-base-100 p-4">
-                      <a className="text-sm">{formData.description}</a>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-2 ">
-                    <a className="text-sm font-light text-gray-400">THRESHOLD</a>
-                    <div className="max-h-24  overflow-y-auto rounded-md bg-base-100 p-4">
-                      <a className="text-sm">{formData.votingThreshold}</a>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-2 ">
-                    <a className="text-sm font-light text-gray-400">VOTING PERIOD</a>
-                    <div className="max-h-24  overflow-y-auto rounded-md bg-base-100 p-4">
-                      <a className="text-sm"> {formData.votingPeriod.seconds.toString()}</a>
-                    </div>
-                  </div>
+        <div className="space-y-6">
+          {/* Group Information */}
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Group Information</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg">
+                <label className="text-sm text-gray-400">Voting period</label>
+                <div>{secondsToHumanReadable(Number(formData.votingPeriod.seconds))}</div>
+              </div>
+              <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg">
+                <label className="text-sm text-gray-400">Qualified Majority</label>
+                <div>
+                  {formData.votingThreshold} / {formData.members.length}
                 </div>
               </div>
-              <label className="block mb-2 text-lg font-light mt-2">MEMBERS</label>
-              <div className="flex flex-col bg-base-300 max-h-96 overflow-y-auto shadow rounded-lg p-4">
-                {formData.members.map((member, index) => (
+            </div>
+            <div className="mt-4 dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg">
+              <label className="text-sm text-gray-400">Description</label>
+              <div>{formData.description}</div>
+            </div>
+          </div>
+
+          {/* Authors */}
+          <div className="max-h-28 overflow-y-auto">
+            <h2 className="text-xl font-semibold mb-4">Authors</h2>
+            <div className=" grid grid-cols-3 gap-4">
+              {Array.isArray(formData.authors) ? (
+                formData.authors.map((author, index) => (
                   <div
                     key={index}
-                    className="flex flex-col bg-base-100 p-4 mb-4 rounded-md relative"
+                    className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg flex items-center"
                   >
-                    <div className="absolute top-2 right-4"># {index + 1}</div>
-                    <div className="grid sm:grid-cols-3 gap-6">
-                      <div className="flex flex-col">
-                        <a className="text-sm font-light text-gray-400">ADDRESS</a>
-                        <TruncatedAddressWithCopy address={member.address} slice={14} />
-                      </div>
-                      <div className="flex flex-col">
-                        <a className="text-sm font-light text-gray-400">NAME</a>
-                        <a className="text-md">{member.name}</a>
-                      </div>
-                      <div className="flex flex-col">
-                        <a className="text-sm font-light text-gray-400">WEIGHT</a>
-                        <a className="text-md">{member.weight}</a>
-                      </div>
-                    </div>
+                    {author.trim().startsWith('manifest1') ? (
+                      <TruncatedAddressWithCopy address={author.trim()} slice={14} />
+                    ) : (
+                      <span>{author.trim()}</span>
+                    )}
                   </div>
-                ))}
-              </div>
-            </form>
-            <div className="flex space-x-3 ga-4 mt-6">
-              <button
-                onClick={prevStep}
-                className="text-center items-center w-1/2 py-2.5 sm:py-3.5 btn btn-neutral"
-              >
-                Prev: Member Info
-              </button>
-              <button
-                onClick={handleConfirm}
-                disabled={isSigning || !address}
-                className="w-1/2 px-5 py-2.5 sm:py-3.5 btn btn-primary"
-              >
-                {isSigning ? (
-                  <span className="loading loading-dots loading-sm"></span>
-                ) : (
-                  'Sign Transaction'
-                )}
-              </button>
+                ))
+              ) : (
+                <div className="bg-[#2A2A38] p-4 rounded-lg flex items-center">
+                  {formData.authors.trim().startsWith('manifest1') ? (
+                    <TruncatedAddressWithCopy address={formData.authors.trim()} slice={14} />
+                  ) : (
+                    <span>{formData.authors.trim()}</span>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Members */}
+          <div className="max-h-44 overflow-y-auto">
+            <h2 className="text-xl font-semibold mb-4">Members</h2>
+            <div className="grid grid-cols-3 gap-4">
+              {formData.members.map((member, index) => (
+                <div key={index} className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg">
+                  <div className="text-sm text-gray-400">Address</div>
+                  <TruncatedAddressWithCopy address={member.address} slice={14} />
+                  <div className="text-sm text-gray-400 mt-2">Name</div>
+                  <div>{member.name}</div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
+
+        {/* Buttons */}
+      </div>
+      <div className="flex space-x-3 mt-6 mx-auto w-full">
+        <button onClick={prevStep} className="btn btn-neutral  w-1/2">
+          Back: Member Info
+        </button>
+        <button
+          onClick={handleConfirm}
+          disabled={isSigning || !address}
+          className="w-1/2 btn  btn-gradient text-white "
+        >
+          {isSigning ? (
+            <span className="loading loading-dots loading-sm"></span>
+          ) : (
+            'Sign Transaction'
+          )}
+        </button>
       </div>
     </section>
   );

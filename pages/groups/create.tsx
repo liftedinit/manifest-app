@@ -16,9 +16,7 @@ import { GroupsIcon } from '@/components';
 const initialFormData: FormData = {
   title: '',
   authors: '',
-  summary: '',
   description: '',
-  forumLink: '',
   votingPeriod: {} as Duration,
   votingThreshold: '',
   members: [{ address: '', name: '', weight: '' }],
@@ -30,7 +28,7 @@ export default function CreateGroup() {
   const { address } = useChain(chainName);
   console.log(formData);
   const nextStep = () => {
-    if (currentStep < 4) {
+    if (currentStep < 5) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -134,12 +132,17 @@ export default function CreateGroup() {
           )}
           {currentStep === 4 && (
             <div className="transition-opacity duration-300 animate-fadeIn">
-              <ConfirmationForm formData={formData} prevStep={prevStep} nextStep={nextStep} />
+              <ConfirmationForm
+                address={address ?? ''}
+                formData={formData}
+                prevStep={prevStep}
+                nextStep={nextStep}
+              />
             </div>
           )}
           {currentStep === 5 && (
             <div className="transition-opacity duration-300 animate-fadeIn">
-              <Success formData={formData} prevStep={prevStep} />
+              <Success address={address ?? ''} formData={formData} />
             </div>
           )}
         </div>

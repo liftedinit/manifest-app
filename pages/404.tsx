@@ -2,24 +2,22 @@ import { ChevronRightIcon } from '@heroicons/react/20/solid';
 import {
   BookmarkSquareIcon,
   BookOpenIcon,
-  QueueListIcon,
   RssIcon,
   MagnifyingGlassCircleIcon,
 } from '@heroicons/react/24/solid';
 import Head from 'next/head';
 import Link from 'next/link';
-import { SVGProps } from 'react';
 
 const links = [
   {
     name: 'Docs',
-    href: '#',
+    href: 'https://github.com/liftedinit/manifest-ledger',
     description: 'Learn how to sync nodes, query data, and use the Manifest Network.',
     icon: BookOpenIcon,
   },
   {
     name: 'Explorer',
-    href: '#',
+    href: 'https://manifest-explorer.vercel.app/',
     description: 'Search for transactions, wallets, and other chain data.',
     icon: MagnifyingGlassCircleIcon,
   },
@@ -83,8 +81,7 @@ export default function FourOhFour() {
           })}
         </script>
       </Head>
-      <main className="mx-auto w-full max-w-7xl px-6 pb-16 pt-10 sm:pb-24 lg:px-8">
-        <img className="mx-auto h-10 w-auto sm:h-12" src="/darkLogo.png" alt="Your Company" />
+      <main className="mx-auto w-full max-w-7xl px-6 pb-16 sm:pb-24 lg:px-8">
         <div className="mx-auto mt-20 max-w-2xl text-center sm:mt-24">
           <p className="text-base font-semibold leading-8 ">404</p>
           <h1 className="mt-4 text-3xl font-bold tracking-tight  sm:text-5xl">
@@ -103,7 +100,7 @@ export default function FourOhFour() {
             {links.map((link, linkIdx) => (
               <li key={linkIdx} className="relative flex gap-x-6 py-6">
                 <div className="flex h-10 w-10 flex-none items-center justify-center rounded-lg shadow-sm ring-1 ring-primary bg-base-200">
-                  <link.icon className="h-6 w-6 text-accent" aria-hidden="true" />
+                  <link.icon className="h-6 w-6 text-primary" aria-hidden="true" />
                 </div>
                 <div className="flex-auto">
                   <h3 className="text-sm font-semibold leading-6 ">
@@ -112,7 +109,7 @@ export default function FourOhFour() {
                       {link.name}
                     </a>
                   </h3>
-                  <p className="mt-2 text-sm leading-6 font-light text-neutral ">
+                  <p className="mt-2 text-sm leading-6 font-light dark:text-gray-400 text-gray-600 ">
                     {link.description}
                   </p>
                 </div>

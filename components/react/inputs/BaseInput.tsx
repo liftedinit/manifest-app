@@ -6,11 +6,13 @@ interface BaseInputProps {
   name: string;
   className?: string;
   rightElement?: React.ReactNode;
+  showError?: boolean;
 }
 
 export const BaseInput: React.FC<BaseInputProps & React.InputHTMLAttributes<HTMLInputElement>> = ({
   label,
   rightElement,
+  showError = true,
   ...props
 }) => {
   const [field, meta] = useField(props);
@@ -34,7 +36,7 @@ export const BaseInput: React.FC<BaseInputProps & React.InputHTMLAttributes<HTML
           <div className="absolute inset-y-0 right-0 flex items-center pr-3">{rightElement}</div>
         )}
       </div>
-      {meta.touched && meta.error ? (
+      {meta.touched && meta.error && showError ? (
         <label className="label">
           <span className="label-text-alt text-error">{meta.error}</span>
         </label>

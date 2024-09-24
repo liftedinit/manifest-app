@@ -16,3 +16,23 @@ export const isValidIPFSCID = (cid: string): boolean => {
   const cidV1Regex = /^b[A-Za-z2-7]{58}$/;
   return cidV0Regex.test(cid) || cidV1Regex.test(cid);
 };
+
+export function secondsToHumanReadable(seconds: number): string {
+  const days = Math.floor(seconds / 86400);
+  const hours = Math.floor((seconds % 86400) / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remainingSeconds = seconds % 60;
+
+  const parts = [];
+  if (days > 0) parts.push(`${days} day${days !== 1 ? 's' : ''}`);
+  if (hours > 0) parts.push(`${hours} hour${hours !== 1 ? 's' : ''}`);
+  if (minutes > 0) parts.push(`${minutes} minute${minutes !== 1 ? 's' : ''}`);
+  if (remainingSeconds > 0 || parts.length === 0)
+    parts.push(`${remainingSeconds} second${remainingSeconds !== 1 ? 's' : ''}`);
+
+  return parts.join(' ');
+}
+
+export function isValidManifestAddress(value: string): boolean {
+  return /^manifest[a-zA-Z0-9]{32,}$/.test(value);
+}
