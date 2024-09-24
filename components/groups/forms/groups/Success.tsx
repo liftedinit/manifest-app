@@ -102,7 +102,7 @@ export default function Success({
         <Link href="/groups" className="w-1/2">
           <button className="btn btn-neutral w-full text-white">Back to Groups Page</button>
         </Link>
-        <Link href={`/groups/${recentGroup?.policies[0].address}`} className="w-1/2">
+        <Link href={`/groups?policyAddress=${recentGroup?.policies[0].address}`} className="w-1/2">
           <button className="btn btn-gradient w-full text-white">View Group</button>
         </Link>
       </div>

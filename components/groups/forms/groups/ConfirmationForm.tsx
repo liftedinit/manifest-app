@@ -107,34 +107,43 @@ export default function ConfirmationForm({
         <div className="space-y-6">
           {/* Group Information */}
           <div>
-            <h2 className="text-xl font-semibold mb-4">Group Information</h2>
+            <h2 className="text-xl font-semibold mb-4 dark:text-[#FFFFFF99]">Group Information</h2>
             <div className="grid grid-cols-2 gap-4">
-              <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg">
-                <label className="text-sm text-gray-400">Voting period</label>
-                <div>{secondsToHumanReadable(Number(formData.votingPeriod.seconds))}</div>
+              <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-[12px]">
+                <label className="text-sm dark:text-[#FFFFFF66]">Voting period</label>
+                <div className="dark:text-[#FFFFFF99]">
+                  {secondsToHumanReadable(Number(formData.votingPeriod.seconds))}
+                </div>
               </div>
-              <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg">
-                <label className="text-sm text-gray-400">Qualified Majority</label>
-                <div>
+              <div className="dark:bg-[#2A2A38] bg-[#FFFFFF]  p-4 rounded-[12px] ">
+                <label className="text-sm dark:text-[#FFFFFF66]">Qualified Majority</label>
+                <div className="dark:text-[#FFFFFF99]">
                   {formData.votingThreshold} / {formData.members.length}
                 </div>
               </div>
             </div>
-            <div className="mt-4 dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg">
-              <label className="text-sm text-gray-400">Description</label>
-              <div>{formData.description}</div>
+            <div className="mt-4 dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-[12px]">
+              <label className="text-sm dark:text-[#FFFFFF66]">Description</label>
+              <div
+                className="overflow-hidden text-ellipsis whitespace-nowrap dark:text-[#FFFFFF99]"
+                title={formData.description}
+              >
+                {formData.description.length > 200
+                  ? `${formData.description.slice(0, 200)}...`
+                  : formData.description}
+              </div>
             </div>
           </div>
 
           {/* Authors */}
           <div className="max-h-28 overflow-y-auto">
-            <h2 className="text-xl font-semibold mb-4">Authors</h2>
+            <h2 className="text-xl font-semibold mb-4 dark:text-[#FFFFFF99]">Authors</h2>
             <div className=" grid grid-cols-3 gap-4">
               {Array.isArray(formData.authors) ? (
                 formData.authors.map((author, index) => (
                   <div
                     key={index}
-                    className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg flex items-center"
+                    className="dark:bg-[#2A2A38] bg-[#FFFFFF] dark:text-[#FFFFFF99] p-4 rounded-lg flex items-center"
                   >
                     {author.trim().startsWith('manifest1') ? (
                       <TruncatedAddressWithCopy address={author.trim()} slice={14} />
@@ -144,7 +153,7 @@ export default function ConfirmationForm({
                   </div>
                 ))
               ) : (
-                <div className="bg-[#2A2A38] p-4 rounded-lg flex items-center">
+                <div className="bg-[#2A2A38] p-4 dark:text-[#FFFFFF99] rounded-lg flex items-center">
                   {formData.authors.trim().startsWith('manifest1') ? (
                     <TruncatedAddressWithCopy address={formData.authors.trim()} slice={14} />
                   ) : (
@@ -157,14 +166,14 @@ export default function ConfirmationForm({
 
           {/* Members */}
           <div className="max-h-44 overflow-y-auto">
-            <h2 className="text-xl font-semibold mb-4">Members</h2>
+            <h2 className="text-xl font-semibold mb-4 dark:text-[#FFFFFF99]">Members</h2>
             <div className="grid grid-cols-3 gap-4">
               {formData.members.map((member, index) => (
                 <div key={index} className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg">
-                  <div className="text-sm text-gray-400">Address</div>
+                  <div className="text-sm dark:text-[#FFFFFF66]">Address</div>
                   <TruncatedAddressWithCopy address={member.address} slice={14} />
-                  <div className="text-sm text-gray-400 mt-2">Name</div>
-                  <div>{member.name}</div>
+                  <div className="text-sm dark:text-[#FFFFFF66] mt-2">Name</div>
+                  <div className="dark:text-[#FFFFFF99]">{member.name}</div>
                 </div>
               ))}
             </div>

@@ -12,7 +12,15 @@ const MemberSchema = Yup.object().shape({
 });
 
 const MemberInfoSchema = Yup.object().shape({
-  members: Yup.array().of(MemberSchema).min(1, 'At least one member is required'),
+  members: Yup.array()
+    .of(MemberSchema)
+    .min(1, 'At least one member is required')
+    .test('unique-address', 'Addresses must be unique', function (members) {
+      if (!members) return true;
+      const addresses = members.map(member => member.address);
+      const uniqueAddresses = new Set(addresses);
+      return uniqueAddresses.size === addresses.length;
+    }),
 });
 
 export default function MemberInfoForm({
@@ -36,7 +44,7 @@ export default function MemberInfoForm({
       <div className="lg:flex mx-auto">
         <div className="flex items-center mx-auto w-full dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-[24px] rounded-[24px]">
           <div className="w-full">
-            <h1 className="mb-4 text-xl font-extrabold tracking-tight sm:mb-6 leading-tight border-b-[0.5px] dark:border-[#ffffff8e] border-b-[black] pb-4">
+            <h1 className="mb-4 text-xl font-extrabold tracking-tight sm:mb-6 leading-tight border-b-[0.5px] dark:text-[#FFFFFF99] dark:border-[#FFFFFF99] border-b-[black] pb-4">
               Member Info
             </h1>
             <Formik
@@ -47,7 +55,7 @@ export default function MemberInfoForm({
               validateOnChange={true}
               validateOnBlur={true}
             >
-              {({ values, isValid, setFieldValue }) => {
+              {({ values, isValid, setFieldValue, errors }) => {
                 setIsValidForm(isValid);
                 return (
                   <Form className="flex flex-col gap-4">

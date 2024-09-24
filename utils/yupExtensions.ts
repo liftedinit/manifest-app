@@ -1,5 +1,6 @@
 import * as Yup from 'yup';
 import { containsProfanity } from '@/utils/profanityFilter';
+import { bech32 } from '@scure/base'; // Updated import
 
 declare module 'yup' {
   interface StringSchema {
@@ -22,14 +23,36 @@ Yup.addMethod<Yup.StringSchema>(Yup.string, 'noProfanity', function (message) {
 Yup.addMethod<Yup.StringSchema>(Yup.string, 'manifestAddress', function (message) {
   return this.test('manifest-address', message, function (value) {
     const { path, createError } = this;
-    return (
-      !value ||
-      /^manifest1[a-zA-Z0-9]{37,}$/.test(value) ||
-      createError({
+    if (!value) return true;
+
+    try {
+      const decoded = bech32.decode(value);
+
+      const expectedPrefix = 'manifest';
+      if (decoded.prefix !== expectedPrefix) {
+        return createError({
+          path,
+          message: message || `Invalid address prefix; expected '${expectedPrefix}'`,
+        });
+      }
+
+      const minLength = 32;
+      const maxLength = 64;
+
+      if (decoded.words.length < minLength || decoded.words.length > maxLength) {
+        return createError({
+          path,
+          message: message || 'Invalid address length',
+        });
+      }
+
+      return true;
+    } catch (error) {
+      return createError({
         path,
-        message: message || 'Please enter a valid manifest address',
-      })
-    );
+        message: message || 'Please enter a valid Bech32 address',
+      });
+    }
   });
 });
 

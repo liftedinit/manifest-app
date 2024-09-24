@@ -56,7 +56,7 @@ export default function GroupPolicyForm({
       <div className="lg:flex mx-auto">
         <div className="flex items-center mx-auto w-full dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-[24px] rounded-[24px]">
           <div className="w-full">
-            <h1 className="mb-4 text-xl font-extrabold tracking-tight sm:mb-6 leading-tight border-b-[0.5px] dark:border-[#ffffff8e] border-b-[black] pb-4">
+            <h1 className="mb-4 text-xl font-extrabold tracking-tight sm:mb-6 leading-tight border-b-[0.5px] dark:text-[#FFFFFF99] dark:border-[#FFFFFF99] border-b-[black] pb-4">
               Group Policy
             </h1>
             <Formik
@@ -74,7 +74,9 @@ export default function GroupPolicyForm({
                 return (
                   <Form className="min-h-[330px] flex flex-col gap-4">
                     <div>
-                      <label className="block mb-2 text-sm font-medium">Voting Period</label>
+                      <label className="block text-sm mb-1 font-medium dark:text-[#FFFFFF99]">
+                        Voting Period
+                      </label>
                       <div className="grid grid-cols-4 gap-2">
                         <NumberInput
                           name="votingPeriod.days"
@@ -128,7 +130,7 @@ export default function GroupPolicyForm({
                     </div>
 
                     <div>
-                      <label className="block mb-2 text-sm font-medium">
+                      <label className="block mb-1 text-sm font-medium dark:text-[#FFFFFF99]">
                         Qualified Majority (Number of total required votes)
                       </label>
                       <NumberInput
