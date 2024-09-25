@@ -5,7 +5,7 @@ import ConfirmationForm from '@/components/groups/forms/proposals/ConfirmationFo
 import ProposalDetails from '@/components/groups/forms/proposals/ProposalDetailsForm';
 import ProposalMetadataForm from '@/components/groups/forms/proposals/ProposalMetadataForm';
 import ProposalMessages from '@/components/groups/forms/proposals/ProposalMessages';
-import { ProposalFormData, proposalFormDataReducer, ProposalAction } from '@/helpers/formReducer';
+import { ProposalFormData, proposalFormDataReducer } from '@/helpers/formReducer';
 import Head from 'next/head';
 import { chainName } from '@/config';
 import { useChain } from '@cosmos-kit/react';
@@ -115,32 +115,14 @@ export default function SubmitProposal() {
           })}
         </script>
       </Head>
-      {!isWalletConnected && (
-        <div className="mt-24 p-4 gap-4 flex flex-col max-w-5xl  lg:flex-row md:flex-col sm:flex-col xs:flex-col rounded-md bg-base-200/20 blur-40 shadow-lg transition-opacity duration-300 ease-in-out animate-fadeIn">
-          <section className=" transition-opacity duration-300 ease-in-out animate-fadeIn">
-            <div className="grid max-w-screen-xl bg-base-100 p-12 rounded-md  mx-auto lg:gap-8 xl:gap-0  lg:grid-cols-12">
-              <div className="mr-auto place-self-center lg:col-span-7">
-                <h1 className="max-w-2xl mb-4 text-2xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl ">
-                  Connect your wallet!
-                </h1>
-                <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl text-balance">
-                  Use the button below to connect your wallet and submit a proposal.
-                </p>
-                <WalletSection chainName={chainName} />
-              </div>
-              <div className="hidden lg:mt-0 lg:col-span-5 lg:flex">
-                <FaVoteYea className="w-52 h-52 ml-20 text-[#8DDFD4]/80" />
-              </div>
-            </div>
-          </section>
-        </div>
-      )}
-      {isWalletConnected && (
-        <div className="w-full flex flex-col gap-12 justify-between my-auto items-center animate-fadeIn max-w-4xl mt-10">
+      {!isWalletConnected ? (
+        <WalletNotConnected />
+      ) : (
+        <div className="w-full justify-between space-y-8 min-h-screen items-center animate-fadeIn mt-4 overflow-hidden">
           {currentStep != 5 && <StepIndicator steps={steps} currentStep={currentStep} />}
 
           {currentStep === 1 && (
-            <div className="transition-opacity duration-300 animate-fadeIn">
+            <div className="transition-opacity duration-300 animate-fadeIn w-full">
               <ProposalDetails
                 formData={formData}
                 dispatch={dispatch}
@@ -188,5 +170,28 @@ export default function SubmitProposal() {
         </div>
       )}
     </div>
+  );
+}
+
+function WalletNotConnected() {
+  return (
+    <section className="transition-opacity duration-300 h-[80vh] ease-in-out animate-fadeIn w-full flex items-center justify-center overflow-hidden">
+      <div className="grid max-w-4xl bg-base-300 p-12 rounded-md w-full mx-auto gap-8 lg:grid-cols-12">
+        <div className="mr-auto place-self-center lg:col-span-7">
+          <h1 className="max-w-2xl mb-4 text-2xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl">
+            Connect your wallet!
+          </h1>
+          <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl">
+            Use the button below to connect your wallet and submit a proposal.
+          </p>
+          <div className="w-[50%]">
+            <WalletSection chainName={chainName} />
+          </div>
+        </div>
+        <div className="hidden lg:mt-0 lg:ml-24 lg:col-span-5 lg:flex">
+          <FaVoteYea className="h-60 w-60 text-primary" />
+        </div>
+      </div>
+    </section>
   );
 }

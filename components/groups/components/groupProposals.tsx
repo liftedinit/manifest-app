@@ -30,7 +30,7 @@ export default function GroupProposals({
 }) {
   const { proposals, isProposalsLoading, isProposalsError, refetchProposals } =
     useProposalsByPolicyAccount(policyAddress);
-  console.log(proposals);
+
   const [selectedProposal, setSelectedProposal] = useState<ProposalSDKType | null>(null);
   const [tallies, setTallies] = useState<
     { proposalId: bigint; tally: QueryTallyResultResponseSDKType }[]

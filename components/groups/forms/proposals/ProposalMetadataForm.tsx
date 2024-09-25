@@ -49,10 +49,10 @@ export default function ProposalMetadataForm({
 
   return (
     <section className="">
-      <div className="lg:flex  mx-auto">
-        <div className="flex items-center mx-auto md:w-[42rem] px-4 md:px-8 xl:px-0">
+      <div className="lg:flex mx-auto">
+        <div className="flex items-center mx-auto w-full dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-[24px] rounded-[24px]">
           <div className="w-full">
-            <h1 className="mb-4 text-2xl font-extrabold tracking-tight sm:mb-6 leading-tight">
+            <h1 className="mb-4 text-xl font-extrabold tracking-tight sm:mb-6 leading-tight border-b-[0.5px] dark:text-[#FFFFFF99] dark:border-[#FFFFFF99] border-b-[black] pb-4">
               Proposal Metadata
             </h1>
             <Formik
@@ -62,52 +62,50 @@ export default function ProposalMetadataForm({
               validateOnChange={true}
             >
               {({ isValid, dirty, setFieldValue }) => (
-                <Form className="min-h-[330px]">
-                  <div className="grid gap-5 my-6 sm:grid-cols-2">
-                    <TextInput
-                      label="Title"
-                      name="title"
-                      placeholder="Type here"
-                      value={formData.metadata.title}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        handleChange('title', e.target.value);
-                        setFieldValue('title', e.target.value);
-                      }}
-                    />
-                    <TextInput
-                      label="Authors"
-                      name="authors"
-                      placeholder="Type here"
-                      value={formData.metadata.authors}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        handleChange('authors', e.target.value);
-                        setFieldValue('authors', e.target.value);
-                      }}
-                    />
-                    <TextArea
-                      label="Summary"
-                      name="summary"
-                      placeholder="Short Description"
-                      value={formData.metadata.summary}
-                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                        handleChange('summary', e.target.value);
-                        setFieldValue('summary', e.target.value);
-                      }}
-                    />
-                    <TextArea
-                      label="Details"
-                      name="details"
-                      placeholder="Long Description"
-                      value={formData.metadata.details}
-                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                        handleChange('details', e.target.value);
-                        setFieldValue('details', e.target.value);
-                      }}
-                    />
-                  </div>
+                <Form className="min-h-[330px] flex flex-col gap-4">
+                  <TextInput
+                    label="Title"
+                    name="title"
+                    placeholder="Type here"
+                    value={formData.metadata.title}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      handleChange('title', e.target.value);
+                      setFieldValue('title', e.target.value);
+                    }}
+                  />
+                  <TextInput
+                    label="Authors"
+                    name="authors"
+                    placeholder="Type here"
+                    value={formData.metadata.authors}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      handleChange('authors', e.target.value);
+                      setFieldValue('authors', e.target.value);
+                    }}
+                  />
+                  <TextArea
+                    label="Summary"
+                    name="summary"
+                    placeholder="Short Description"
+                    value={formData.metadata.summary}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                      handleChange('summary', e.target.value);
+                      setFieldValue('summary', e.target.value);
+                    }}
+                  />
+                  <TextArea
+                    label="Details"
+                    name="details"
+                    placeholder="Long Description"
+                    value={formData.metadata.details}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                      handleChange('details', e.target.value);
+                      setFieldValue('details', e.target.value);
+                    }}
+                  />
                   <button
                     type="submit"
-                    className="w-full mt-4 btn btn-primary"
+                    className="w-full mt-4 btn btn-gradient text-white"
                     disabled={!isValid || !dirty}
                   >
                     Next: Confirmation
@@ -116,12 +114,9 @@ export default function ProposalMetadataForm({
               )}
             </Formik>
             <div className="flex space-x-3 ga-4 mt-6">
-              <button
-                onClick={prevStep}
-                className="text-center items-center w-1/2 py-2.5 sm:py-3.5 btn btn-neutral"
-              >
+              <button onClick={prevStep} className="btn btn-neutral w-1/2 py-2.5 sm:py-3.5">
                 <span className="hidden sm:inline">Prev: Messages</span>
-                <span className="sm:hidden"> Prev: TXs</span>
+                <span className="sm:hidden">Prev: TXs</span>
               </button>
             </div>
           </div>

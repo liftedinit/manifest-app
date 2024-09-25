@@ -1,12 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { ProposalFormData, ProposalAction, Message, MessageFields } from '@/helpers/formReducer';
-
 import * as initialMessages from './messages';
-import { FiArrowUp, FiMinusCircle, FiPlusCircle } from 'react-icons/fi';
+import { FiArrowUp, FiMinusCircle, FiPlusCircle, FiEdit, FiFilter, FiSearch } from 'react-icons/fi';
 import { TextInput } from '@/components/react/inputs';
-import { isValidAddress } from '@/utils/string';
 import { Formik, Form, Field, FieldProps, FormikProps } from 'formik';
-
 import Yup from '@/utils/yupExtensions';
 
 export default function ProposalMessages({
@@ -23,6 +20,50 @@ export default function ProposalMessages({
   const [isFormValid, setIsFormValid] = useState(false);
   const [visibleMessages, setVisibleMessages] = useState<boolean[]>(
     formData.messages.map(() => false)
+  );
+  const [editingMessageIndex, setEditingMessageIndex] = useState<number | null>(null);
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+
+  const messageCategories = [
+    'All',
+    'Admins',
+    'Group Management',
+    'Proposal Actions',
+    'Financial',
+    'System',
+  ];
+
+  const messageTypes = [
+    { name: 'send', category: 'Financial' },
+
+    { name: 'removeValidator', category: 'Admins' },
+    { name: 'removePendingValidator', category: 'Admins' },
+    { name: 'updatePoaParams', category: 'System' },
+    { name: 'updateStakingParams', category: 'System' },
+    { name: 'setPower', category: 'Group Management' },
+    { name: 'updateManifestParams', category: 'System' },
+    { name: 'payoutStakeholders', category: 'Financial' },
+    { name: 'updateGroupAdmin', category: 'Group Management' },
+    { name: 'updateGroupMembers', category: 'Group Management' },
+    { name: 'updateGroupMetadata', category: 'Group Management' },
+    { name: 'updateGroupPolicyAdmin', category: 'Group Management' },
+    { name: 'createGroupWithPolicy', category: 'Group Management' },
+    { name: 'submitProposal', category: 'Proposal Actions' },
+    { name: 'vote', category: 'Proposal Actions' },
+    { name: 'withdrawProposal', category: 'Proposal Actions' },
+    { name: 'exec', category: 'Proposal Actions' },
+    { name: 'leaveGroup', category: 'Group Management' },
+    { name: 'multiSend', category: 'Financial' },
+    { name: 'softwareUpgrade', category: 'System' },
+    { name: 'cancelUpgrade', category: 'System' },
+  ];
+
+  const filteredMessageTypes = messageTypes.filter(
+    type =>
+      (selectedCategory === 'All' || type.category === selectedCategory) &&
+      type.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const isMessageValid = (message: Message): boolean => {
@@ -44,10 +85,6 @@ export default function ProposalMessages({
     const valid = formData.messages.every(isMessageValid);
     setIsFormValid(valid);
   };
-
-  useEffect(() => {
-    checkFormValidity();
-  }, [formData.messages]);
 
   const handleAddMessage = () => {
     dispatch({
@@ -93,7 +130,7 @@ export default function ProposalMessages({
             validator_address: '',
           };
           break;
-        case 'removePending':
+        case 'removePendingValidator':
           updatedMessage = {
             ...initialMessages.initialRemovePendingMessage,
             type: value,
@@ -352,171 +389,188 @@ export default function ProposalMessages({
     nextStep();
   };
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const filteredMessageTypes = [
-    'send',
-    'customMessage',
-    'removeValidator',
-    'removePending',
-    'updatePoaParams',
-    'updateStakingParams',
-    'setPower',
-    'updateManifestParams',
-    'payoutStakeholders',
-    'updateGroupAdmin',
-    'updateGroupMembers',
-    'updateGroupMetadata',
-    'updateGroupPolicyAdmin',
-    'createGroupWithPolicy',
-    'submitProposal',
-    'vote',
-    'withdrawProposal',
-    'exec',
-    'leaveGroup',
-    'multiSend',
-    'softwareUpgrade',
-    'cancelUpgrade',
-  ].filter(type => type.toLowerCase().includes(searchTerm.toLowerCase()));
+  const openMessageTypeModal = (index: number) => {
+    setEditingMessageIndex(index);
+    document.getElementById('message_type_modal')?.showModal();
+  };
+
+  const selectMessageType = (type: string) => {
+    if (editingMessageIndex !== null) {
+      handleChangeMessage(editingMessageIndex, 'type', type);
+    }
+    document.getElementById('message_type_modal')?.close();
+  };
 
   return (
-    <section className="w-full px-4 sm:px-0">
+    <section className="">
       <div className="lg:flex mx-auto">
-        <div className="flex items-center mx-auto w-screen px-6 md:px-0 md:w-[42rem] xl:px-0">
+        <div className="flex items-center mx-auto w-full dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-[24px] rounded-[24px]">
           <div className="w-full">
-            <div className="w-full">
-              <div className="flex flex-row justify-between items-center mb-6">
-                <h1 className="text-2xl font-extrabold tracking-tight  leading-tight">Messages</h1>
-                <div className="flex gap-2  ">
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-primary"
-                    onClick={handleAddMessage}
-                    aria-label={'add-message-btn'}
-                  >
-                    <span>
-                      <FiPlusCircle className="text-lg text-white" />
-                    </span>
-                  </button>
-                </div>
+            <h1 className="mb-4 text-xl font-extrabold tracking-tight sm:mb-6 leading-tight border-b-[0.5px] dark:text-[#FFFFFF99] dark:border-[#FFFFFF99] border-b-[black] pb-4">
+              Proposal Messages
+            </h1>
+            <div className="min-h-[330px] flex flex-col gap-4">
+              <div className="flex justify-between items-center mb-4">
+                <div className="text-sm font-medium">Messages</div>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-primary"
+                  onClick={handleAddMessage}
+                  aria-label="add-message-btn"
+                >
+                  <FiPlusCircle className="text-lg" />
+                  <span className="ml-1">Add Message</span>
+                </button>
               </div>
-
-              <div className="min-h-[330px]">
-                <div className="overflow-y-auto max-h-[550px] min-h-[330px]">
-                  <div className="space-y-6">
-                    {formData.messages.map((message, index) => (
-                      <div
-                        key={index}
-                        className={`bg-base-300 shadow rounded-lg p-4 mb-4 animate-fadeIn`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex flex-row items-center gap-4">
-                            <span className="text-lg font-bold">#{index + 1}</span>
-
-                            <div className="dropdown">
-                              <button tabIndex={0} className="btn m-1 btn-sm btn-neutral">
-                                {message.type}
-                              </button>
-                              <ul
-                                tabIndex={0}
-                                className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-[26.5rem] max-h-56 overflow-y-auto"
-                              >
-                                <li className="sticky top-0 bg-base-100 z-10 hover:bg-transparent">
-                                  <div className="px-2 py-1">
-                                    <input
-                                      type="text"
-                                      placeholder="Search Messages"
-                                      className="input input-sm w-full pr-8 focus:outline-none focus:ring-0 border-none bg-transparent"
-                                      onChange={e => setSearchTerm(e.target.value)}
-                                      style={{ boxShadow: 'none' }}
-                                    />
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      className="h-5 w-5 absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"
-                                      fill="none"
-                                      viewBox="0 0 24 24"
-                                      stroke="currentColor"
-                                    >
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                                      />
-                                    </svg>
-                                  </div>
-                                </li>
-                                {filteredMessageTypes.map(type => (
-                                  <li key={type}>
-                                    <button
-                                      aria-label={`message-type-btn-${type}`}
-                                      onClick={() => handleChangeMessage(index, 'type', type)}
-                                    >
-                                      {type.replace(/([A-Z])/g, ' $1').trim()}
-                                    </button>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          </div>
-                          <div>
-                            <button
-                              type="button"
-                              className="btn btn-secondary btn-xs"
-                              onClick={() => handleRemoveMessage(index)}
-                              aria-label={'remove-message-btn'}
-                            >
-                              <span>
-                                <FiMinusCircle className="text-xs text-white" />
-                              </span>
-                            </button>
-                            <button
-                              type="button"
-                              className="btn btn-xs btn-primary ml-2"
-                              onClick={() => toggleVisibility(index)}
-                              disabled={!message.type}
-                              aria-label="Toggle message visibility"
-                            >
-                              <span
-                                className={`transition-all duration-400 ${
-                                  visibleMessages[index] ? 'rotate-0' : 'rotate-180'
-                                }`}
-                              >
-                                <FiArrowUp className="text-xs" />
-                              </span>
-                            </button>
-                          </div>
-                        </div>
-                        {visibleMessages[index] && (
-                          <div className="mt-4">{renderMessageFields(message, index)}</div>
-                        )}
+              <div className="overflow-y-auto max-h-[510px] ">
+                {formData.messages.map((message, index) => (
+                  <div key={index} className="bg-base-200 rounded-lg p-4 mb-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold">#{index + 1}</span>
+                        <button
+                          className="btn btn-sm btn-neutral"
+                          onClick={() => openMessageTypeModal(index)}
+                        >
+                          {message.type || 'Select Type'}
+                          <FiEdit className="ml-2" />
+                        </button>
                       </div>
-                    ))}
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          className="btn btn-ghost btn-sm"
+                          onClick={() => handleRemoveMessage(index)}
+                          aria-label="remove-message-btn"
+                        >
+                          <FiMinusCircle className="text-lg" />
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-ghost btn-sm"
+                          onClick={() => toggleVisibility(index)}
+                          disabled={!message.type}
+                          aria-label="toggle-message-visibility"
+                        >
+                          <FiArrowUp
+                            className={`text-lg transition-transform duration-300 ${visibleMessages[index] ? 'rotate-0' : 'rotate-180'}`}
+                          />
+                        </button>
+                      </div>
+                    </div>
+                    {visibleMessages[index] && (
+                      <div className="mt-4">{renderMessageFields(message, index)}</div>
+                    )}
                   </div>
-                </div>
-
-                <button
-                  onClick={handleNextStep}
-                  className="btn mt-4 btn-primary w-full"
-                  disabled={formData.messages.length === 0}
-                >
-                  Next: Proposal Metadata
-                </button>
-              </div>
-
-              <div className="flex space-x-3 ga-4 mt-6">
-                <button
-                  onClick={prevStep}
-                  className="text-center btn btn-neutral items-center w-1/2 py-2.5 sm:py-3.5 text-sm font-medium focus:outline-none rounded-lg border"
-                >
-                  <span className="hidden sm:inline">Prev: Proposal Details</span>
-                  <span className="sm:hidden"> Prev: Info</span>
-                </button>
-                <a className="text-center items-center w-1/2 py-2.5 sm:py-3.5 text-sm font-medium"></a>
+                ))}
               </div>
             </div>
           </div>
         </div>
       </div>
+      <div className="flex space-x-3 mt-6 mx-auto w-full">
+        <button onClick={prevStep} className="btn btn-neutral py-2.5 sm:py-3.5 w-1/2">
+          <span className="hidden sm:inline">Prev: Proposal Details</span>
+          <span className="sm:hidden">Prev: Details</span>
+        </button>
+        <button
+          onClick={nextStep}
+          className="w-1/2 btn py-2.5 sm:py-3.5 btn-gradient text-white disabled:text-black"
+          disabled={formData.messages.length === 0}
+        >
+          Next: Proposal Metadata
+        </button>
+      </div>
+
+      {/* Message Type Selection Modal */}
+      <dialog id="message_type_modal" className="modal">
+        <div className="modal-box bg-[#FFFFFF] dark:bg-[#1D192D] rounded-[24px] max-w-4xl h-full max-h-[700px] p-6">
+          <form method="dialog">
+            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+          </form>
+          <h3 className="text-lg font-semibold mb-4">Select Message Type</h3>
+
+          <div className="flex flex-col md:flex-row gap-4 mb-4">
+            <div className="flex-1">
+              <label className="label">
+                <span className="label-text">Search</span>
+              </label>
+              <div className="relative">
+                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search message types"
+                  className="input dark:text-[#FFFFFF99] text-[#161616] border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full 
+                  autofill:bg-[#E0E0FF0A] autofill:dark:bg-[#E0E0FF0A]
+                  focus:bg-[#E0E0FF0A] focus:dark:bg-[#E0E0FF0A] pl-10"
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="flex-1 md:flex-initial">
+              <label className="label">
+                <span className="label-text">Category</span>
+              </label>
+              <div className="dropdown w-full dropdown-left cursor-pointer">
+                <label
+                  tabIndex={0}
+                  className="btn min-w-[200px] dark:text-[#FFFFFF99] text-[#161616] border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full flex items-center justify-between"
+                >
+                  {selectedCategory}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-4 h-4 ml-2"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                    />
+                  </svg>
+                </label>
+                <ul
+                  tabIndex={0}
+                  className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+                >
+                  {messageCategories.map(category => (
+                    <li key={category}>
+                      <a onClick={() => setSelectedCategory(category)}>{category}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 max-h-[500px] overflow-y-auto">
+            {filteredMessageTypes.map(type => (
+              <div
+                key={type.name}
+                className="bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] border border-base-300 rounded-lg shadow-sm p-4"
+              >
+                <h4 className="text-lg font-semibold mb-2">
+                  {type.name.replace(/([A-Z])/g, ' $1').trim()}
+                </h4>
+                <p className="text-sm text-base-content opacity-70 mb-4">{type.category}</p>
+                <button
+                  onClick={() => selectMessageType(type.name)}
+                  className="w-full btn btn-primary"
+                >
+                  Select
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
     </section>
   );
 }
