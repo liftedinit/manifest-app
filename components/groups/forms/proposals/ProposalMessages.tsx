@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { ProposalFormData, ProposalAction, Message, MessageFields } from '@/helpers/formReducer';
 import * as initialMessages from './messages';
-import { FiArrowUp, FiMinusCircle, FiPlusCircle, FiEdit, FiFilter, FiSearch } from 'react-icons/fi';
+
 import { TextInput } from '@/components/react/inputs';
 import { Formik, Form, Field, FieldProps, FormikProps } from 'formik';
 import Yup from '@/utils/yupExtensions';
-
+import { ArrowRightIcon, ArrowUpIcon, MinusIcon, SearchIcon, PlusIcon } from '@/components/icons';
+import { FiEdit } from 'react-icons/fi';
 export default function ProposalMessages({
   formData,
   dispatch,
@@ -46,11 +47,9 @@ export default function ProposalMessages({
     { name: 'updateManifestParams', category: 'System' },
     { name: 'payoutStakeholders', category: 'Financial' },
     { name: 'updateGroupAdmin', category: 'Group Management' },
-    { name: 'updateGroupMembers', category: 'Group Management' },
     { name: 'updateGroupMetadata', category: 'Group Management' },
     { name: 'updateGroupPolicyAdmin', category: 'Group Management' },
-    { name: 'createGroupWithPolicy', category: 'Group Management' },
-    { name: 'submitProposal', category: 'Proposal Actions' },
+
     { name: 'vote', category: 'Proposal Actions' },
     { name: 'withdrawProposal', category: 'Proposal Actions' },
     { name: 'exec', category: 'Proposal Actions' },
@@ -66,23 +65,8 @@ export default function ProposalMessages({
       type.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const isMessageValid = (message: Message): boolean => {
-    const checkFields = (obj: any): boolean => {
-      for (const key in obj) {
-        if (typeof obj[key] === 'object' && obj[key] !== null) {
-          if (!checkFields(obj[key])) return false;
-        } else if (obj[key] === '' || obj[key] === undefined) {
-          return false;
-        }
-      }
-      return true;
-    };
-
-    return checkFields(message);
-  };
-
   const checkFormValidity = () => {
-    const valid = formData.messages.every(isMessageValid);
+    const valid = formData.messages.length > 0 && formData.messages.some(isMessageValid);
     setIsFormValid(valid);
   };
 
@@ -99,10 +83,6 @@ export default function ProposalMessages({
     dispatch({ type: 'REMOVE_MESSAGE', index });
     setVisibleMessages(visibleMessages.filter((_, i) => i !== index));
     checkFormValidity();
-  };
-
-  const toggleVisibility = (index: number) => {
-    setVisibleMessages(visibleMessages.map((visible, i) => (i === index ? !visible : visible)));
   };
 
   const handleChangeMessage = (index: number, field: MessageFields, value: any) => {
@@ -267,10 +247,17 @@ export default function ProposalMessages({
           if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
             schema[key] = generateValidationSchema(value);
           } else {
-            schema[key] = Yup.string().required(`${key} is required`);
+            schema[key] = Yup.string()
+              .required(`${key.charAt(0).toUpperCase() + key.slice(1)} is required`)
+              .noProfanity();
 
-            if (key.includes('address')) {
-              schema[key] = schema[key].manifestAddress();
+            if (
+              key.includes('address') ||
+              key === 'sender' ||
+              key === 'admin' ||
+              key === 'new_admin'
+            ) {
+              schema[key] = schema[key].manifestAddress().required('Address is required');
             } else if (key.includes('amount')) {
               schema[key] = Yup.number()
                 .positive('Amount must be positive')
@@ -285,12 +272,18 @@ export default function ProposalMessages({
     const validationSchema = generateValidationSchema(object);
 
     const renderField = (fieldPath: string, fieldValue: any, formikProps: FormikProps<any>) => {
-      const { setFieldValue, errors, touched } = formikProps;
+      const { setFieldValue } = formikProps;
       if (typeof fieldValue === 'object' && fieldValue !== null && !Array.isArray(fieldValue)) {
         return (
           <div key={fieldPath} className="mb-4">
             <h3 className="text-lg font-semibold mb-2 text-primary">
-              {fieldPath.split('.').pop()?.replace(/_/g, ' ')}
+              {fieldPath
+                .split('.')
+                .pop()
+                ?.replace(/_/g, ' ')
+                .split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ')}
             </h3>
             <div className="pl-4 border-l-2 border-primary">
               {Object.entries(fieldValue).map(([key, value]) =>
@@ -303,19 +296,27 @@ export default function ProposalMessages({
         return (
           <Field key={fieldPath} name={fieldPath}>
             {({ field }: FieldProps) => (
-              <label className="flex items-center">
+              <label className="flex items-center mb-2">
                 <input
                   type="checkbox"
                   {...field}
                   checked={field.value}
-                  className="checkbox checkbox-sm mr-2"
+                  className="checkbox checkbox-primary checkbox-sm mr-2"
                   onChange={e => {
                     field.onChange(e);
                     handleChange(fieldPath, e.target.checked);
                     setFieldValue(fieldPath, e.target.checked);
                   }}
                 />
-                <span className="capitalize">{fieldPath.split('.').pop()?.replace(/_/g, ' ')}</span>
+                <span className="capitalize">
+                  {fieldPath
+                    .split('.')
+                    .pop()
+                    ?.replace(/_/g, ' ')
+                    .split(' ')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ')}
+                </span>
               </label>
             )}
           </Field>
@@ -324,10 +325,24 @@ export default function ProposalMessages({
         return (
           <Field key={fieldPath} name={fieldPath}>
             {({ field }: FieldProps) => (
-              <div className="">
+              <div className="mb-4">
                 <TextInput
-                  label={fieldPath.split('.').pop()?.replace(/_/g, ' ') ?? ''}
-                  placeholder={`Enter ${fieldPath.split('.').pop()?.replace(/_/g, ' ')}`}
+                  label={
+                    fieldPath
+                      .split('.')
+                      .pop()
+                      ?.replace(/_/g, ' ')
+                      .split(' ')
+                      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                      .join(' ') ?? ''
+                  }
+                  placeholder={`Enter ${fieldPath
+                    .split('.')
+                    .pop()
+                    ?.replace(/_/g, ' ')
+                    .split(' ')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ')}`}
                   {...field}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     field.onChange(e);
@@ -379,14 +394,10 @@ export default function ProposalMessages({
     };
 
     return (
-      <div className="bg-base-100 p-6 rounded-lg shadow-inner">
+      <div className="p-1 rounded-lg">
         {renderInputs(message, (field, value) => handleChange(field, value))}
       </div>
     );
-  };
-
-  const handleNextStep = () => {
-    nextStep();
   };
 
   const openMessageTypeModal = (index: number) => {
@@ -401,66 +412,93 @@ export default function ProposalMessages({
     document.getElementById('message_type_modal')?.close();
   };
 
+  const openMessageModal = (index: number) => {
+    setEditingMessageIndex(index);
+    document.getElementById('message_edit_modal')?.showModal();
+  };
+
+  const closeMessageModal = () => {
+    setEditingMessageIndex(null);
+    document.getElementById('message_edit_modal')?.close();
+  };
+
+  const isMessageValid = (message: Message): boolean => {
+    if (!message || Object.keys(message).length === 0) return false;
+
+    const checkFields = (obj: any): boolean => {
+      for (const key in obj) {
+        if (typeof obj[key] === 'object' && obj[key] !== null) {
+          if (!checkFields(obj[key])) return false;
+        } else if (obj[key] === '' || obj[key] === undefined) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    return checkFields(message);
+  };
+
   return (
     <section className="">
       <div className="lg:flex mx-auto">
         <div className="flex items-center mx-auto w-full dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-[24px] rounded-[24px]">
           <div className="w-full">
-            <h1 className="mb-4 text-xl font-extrabold tracking-tight sm:mb-6 leading-tight border-b-[0.5px] dark:text-[#FFFFFF99] dark:border-[#FFFFFF99] border-b-[black] pb-4">
-              Proposal Messages
-            </h1>
+            <div className="flex justify-between items-center border-b-[0.5px] mb-4 dark:border-[#FFFFFF99] sm:mb-6 border-b-[black] pb-4">
+              <h1 className="text-xl font-extrabold tracking-tight  leading-tight  dark:text-[#FFFFFF99]  ">
+                Proposal Messages
+              </h1>
+              <button
+                type="button"
+                className="btn btn-sm btn-primary text-white"
+                onClick={handleAddMessage}
+                aria-label="add-message-btn"
+              >
+                <PlusIcon className="text-lg" />
+                <span className="ml-1">Add Message</span>
+              </button>
+            </div>
+
             <div className="min-h-[330px] flex flex-col gap-4">
-              <div className="flex justify-between items-center mb-4">
-                <div className="text-sm font-medium">Messages</div>
-                <button
-                  type="button"
-                  className="btn btn-sm btn-primary"
-                  onClick={handleAddMessage}
-                  aria-label="add-message-btn"
-                >
-                  <FiPlusCircle className="text-lg" />
-                  <span className="ml-1">Add Message</span>
-                </button>
-              </div>
-              <div className="overflow-y-auto max-h-[510px] ">
+              <div className="overflow-y-auto max-h-[550px] ">
                 {formData.messages.map((message, index) => (
-                  <div key={index} className="bg-base-200 rounded-lg p-4 mb-4">
+                  <div key={index} className="bg-[#FFFFFF] dark:bg-[#E0E0FF0A] rounded-lg p-4 mb-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-bold">#{index + 1}</span>
                         <button
-                          className="btn btn-sm btn-neutral"
+                          className="btn btn-sm rounded-[12px] ml-4 border-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
                           onClick={() => openMessageTypeModal(index)}
                         >
-                          {message.type || 'Select Type'}
-                          <FiEdit className="ml-2" />
+                          {message.type
+                            .replace(/([A-Z])/g, ' $1')
+                            .trim()
+                            .split(' ')
+                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                            .join(' ') || 'Select Type'}
+                          <ArrowRightIcon className="ml-2 text-primary rotate-180" />
                         </button>
                       </div>
                       <div className="flex gap-2">
                         <button
                           type="button"
-                          className="btn btn-ghost btn-sm"
+                          className="btn btn-error btn-sm"
                           onClick={() => handleRemoveMessage(index)}
                           aria-label="remove-message-btn"
                         >
-                          <FiMinusCircle className="text-lg" />
+                          <MinusIcon className="text-lg text-white" />
                         </button>
                         <button
                           type="button"
-                          className="btn btn-ghost btn-sm"
-                          onClick={() => toggleVisibility(index)}
+                          className="btn btn-primary btn-sm"
+                          onClick={() => openMessageModal(index)}
                           disabled={!message.type}
-                          aria-label="toggle-message-visibility"
+                          aria-label="edit-message-btn"
                         >
-                          <FiArrowUp
-                            className={`text-lg transition-transform duration-300 ${visibleMessages[index] ? 'rotate-0' : 'rotate-180'}`}
-                          />
+                          <FiEdit className="text-lg text-white" />
                         </button>
                       </div>
                     </div>
-                    {visibleMessages[index] && (
-                      <div className="mt-4">{renderMessageFields(message, index)}</div>
-                    )}
                   </div>
                 ))}
               </div>
@@ -476,7 +514,7 @@ export default function ProposalMessages({
         <button
           onClick={nextStep}
           className="w-1/2 btn py-2.5 sm:py-3.5 btn-gradient text-white disabled:text-black"
-          disabled={formData.messages.length === 0}
+          disabled={!isFormValid}
         >
           Next: Proposal Metadata
         </button>
@@ -496,7 +534,7 @@ export default function ProposalMessages({
                 <span className="label-text">Search</span>
               </label>
               <div className="relative">
-                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
                   placeholder="Search message types"
@@ -512,30 +550,17 @@ export default function ProposalMessages({
               <label className="label">
                 <span className="label-text">Category</span>
               </label>
-              <div className="dropdown w-full dropdown-left cursor-pointer">
+              <div className="dropdown w-full dropdown-end cursor-pointer">
                 <label
                   tabIndex={0}
                   className="btn min-w-[200px] dark:text-[#FFFFFF99] text-[#161616] border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full flex items-center justify-between"
                 >
                   {selectedCategory}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="w-4 h-4 ml-2"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-                    />
-                  </svg>
+                  <ArrowRightIcon className="text-xs dark:text-[#FFFFFF99] text-[#161616] -rotate-90" />
                 </label>
                 <ul
                   tabIndex={0}
-                  className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+                  className="dropdown-content z-[1] menu p-2 shadow bg-base-300 rounded-box w-full"
                 >
                   {messageCategories.map(category => (
                     <li key={category}>
@@ -569,6 +594,34 @@ export default function ProposalMessages({
         </div>
         <form method="dialog" className="modal-backdrop">
           <button>close</button>
+        </form>
+      </dialog>
+
+      {/* Message Edit Modal */}
+      <dialog id="message_edit_modal" className="modal">
+        <div className="modal-box bg-[#FFFFFF] dark:bg-[#1D192D] rounded-[24px] max-w-4xl p-6">
+          <form method="dialog">
+            <button
+              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+              onClick={closeMessageModal}
+            >
+              ✕
+            </button>
+          </form>
+          <h3 className="text-xl font-extrabold tracking-tight leading-tight border-b-[0.5px] dark:border-[#FFFFFF99] border-b-[black] pb-4 mb-4">
+            Edit{' '}
+            {formData.messages[editingMessageIndex ?? 0].type.charAt(0).toUpperCase() +
+              formData.messages[editingMessageIndex ?? 0].type.slice(1)}{' '}
+            Message
+          </h3>
+          {editingMessageIndex !== null && (
+            <div className="overflow-y-auto max-h-[600px]">
+              {renderMessageFields(formData.messages[editingMessageIndex], editingMessageIndex)}
+            </div>
+          )}
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button onClick={closeMessageModal}>close</button>
         </form>
       </dialog>
     </section>

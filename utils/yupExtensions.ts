@@ -28,11 +28,11 @@ Yup.addMethod<Yup.StringSchema>(Yup.string, 'manifestAddress', function (message
     try {
       const decoded = bech32.decode(value);
 
-      const expectedPrefix = 'manifest';
-      if (decoded.prefix !== expectedPrefix) {
+      const validPrefixes = ['manifest', 'manifestvaloper', 'manifestvalcons'];
+      if (!validPrefixes.includes(decoded.prefix)) {
         return createError({
           path,
-          message: message || `Invalid address prefix; expected '${expectedPrefix}'`,
+          message: message || `Invalid address prefix; expected one of ${validPrefixes.join(', ')}`,
         });
       }
 
