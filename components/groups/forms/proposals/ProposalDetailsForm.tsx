@@ -53,8 +53,8 @@ export default function ProposalDetails({
               onSubmit={nextStep}
               validateOnChange={true}
             >
-              {({ isValid, dirty, setFieldValue, handleChange }) => {
-                setIsValidForm(isValid && dirty);
+              {({ isValid, setFieldValue, handleChange }) => {
+                setIsValidForm(isValid);
                 return (
                   <Form className="min-h-[330px] flex flex-col gap-4">
                     <TextInput

@@ -37,7 +37,7 @@ import {
   MsgCancelUpgrade,
 } from '@chalabi/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
 
-export default function ConfirmationModal({
+export default function ConfirmationForm({
   policyAddress,
   nextStep,
   prevStep,
@@ -285,112 +285,92 @@ export default function ConfirmationModal({
   };
 
   return (
-    <section className="">
-      <div className="lg:flex  mx-auto">
-        <div className="flex items-center mx-auto md:w-[42rem] px-4 md:px-8 xl:px-0">
-          <div className="w-full">
-            <h1 className="mb-4 text-2xl font-extrabold tracking-tight sm:mb-6 leading-tight">
-              Confirmation
-            </h1>
-            <div className="divider divider-vertical md:hidden block" />
-            <form className="min-h-[330px] sm:max-h-[590px] overflow-y-auto">
-              {/* Proposal Details & Message Flex */}
-              <div className="flex flex-row justify-between items-start gap-5">
-                {/* Proposal Details */}
-                <div className="flex w-1/2 flex-col gap-2 justify-between items-start">
-                  <label className="block  text-lg font-light" aria-label={'proposal-details'}>
-                    DETAILS
-                  </label>
-                  <div className="grid gap-5 mb-4 sm:grid-cols-1 bg-base-300 h-40 shadow w-full rounded-lg p-4">
-                    <div>
-                      <label
-                        htmlFor="full-name"
-                        className="block mb-2 text-sm font-medium text-gray-400"
-                      >
-                        TITLE
-                      </label>
-                      <a className="font-medium mb-4">{formData.title}</a>
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="email"
-                        className="block mb-2 text-sm font-medium text-gray-400"
-                      >
-                        AUTHORS
-                      </label>
-                      <TruncatedAddressWithCopy address={formData.proposers} slice={14} />
-                    </div>
-                  </div>
-                </div>
-                {/* Proposal Messages  */}
-                <div className="flex flex-col gap-2 justify-between items-start  w-1/2">
-                  <label className="block text-lg font-light">MESSAGES</label>
-                  <div className="flex flex-col w-full bg-base-300 shadow h-40 overflow-y-auto rounded-lg p-4">
-                    {formData.messages.map((message, index) => (
-                      <div
-                        key={index}
-                        className="flex flex-col bg-base-100 p-2 mb-3 h-18 rounded-md relative"
-                      >
-                        <div className="absolute top-2 right-4"># {index + 1}</div>
-                        <div className="grid sm:grid-cols-2 gap-6">
-                          <div className="flex flex-col">
-                            <a className="text-sm font-light text-gray-400">TYPE</a>
-                            <a className="text-md">{message.type}</a>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+    <section>
+      <div className="w-full dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-[24px] rounded-[24px]">
+        <div className="flex justify-center p-4 rounded-[8px] mb-6 w-full dark:bg-[#FAFAFA1F] bg-[#A087FF1F] items-center">
+          <h1 className="text-xl text-primary font-bold">{formData.title}</h1>
+        </div>
 
-              <label className="block mb-2 text-lg font-light mt-2">METADATA</label>
-              <div className="flex flex-col bg-base-300 shadow rounded-lg p-4">
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="flex flex-col">
-                    <a className="text-sm font-light text-gray-400">AUTHORS</a>
-                    <a className="text-xl mt-2">{formData.metadata.authors}</a>
-                  </div>
-                  <div className="flex flex-col">
-                    <a className="text-sm font-light text-gray-400">TITLE</a>
-                    <a className="text-xl mt-2">{formData.metadata.title}</a>
-                  </div>
-                </div>
-                <div className="flex flex-col mt-4 w-full">
-                  <a className="text-sm font-light text-gray-400">SUMMARY</a>
-                  <div className="max-h-24 mt-2 overflow-y-auto rounded-md bg-base-100 p-4">
-                    <a className="text-sm">{formData.metadata.summary}</a>
-                  </div>
-                </div>
-                <div className="flex flex-col mt-4">
-                  <a className="text-sm font-light text-gray-400">DETAILS</a>
-                  <div
-                    className="max-h-24 mt-2 overflow-y-auto rounded-md bg-base-100 p-4"
-                    aria-label={'meta-details'}
-                  >
-                    <a className="text-sm text-pretty">{formData.metadata.details}</a>
-                  </div>
+        <div className="space-y-6">
+          {/* Proposal Information */}
+          <div>
+            <h2 className="text-xl font-semibold mb-4 dark:text-[#FFFFFF99]">
+              Proposal Information
+            </h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-[12px]">
+                <label className="text-sm dark:text-[#FFFFFF66]">Proposer</label>
+                <TruncatedAddressWithCopy address={formData.proposers} slice={14} />
+              </div>
+              <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-[12px]">
+                <label className="text-sm dark:text-[#FFFFFF66]">Summary</label>
+                <div
+                  className="overflow-hidden text-ellipsis whitespace-nowrap dark:text-[#FFFFFF99]"
+                  title={formData.metadata.summary}
+                >
+                  {formData.metadata.summary.length > 100
+                    ? `${formData.metadata.summary.slice(0, 100)}...`
+                    : formData.metadata.summary}
                 </div>
               </div>
-            </form>
-            <div className="flex flex-row  justify-between w-full max-w-[41rem] gap-4 mt-6">
-              <button onClick={prevStep} className="w-1/2 py-2.5 sm:py-3.5 btn btn-neutral">
-                Prev: Metadata
-              </button>
-              <button
-                onClick={handleConfirm}
-                disabled={isSigning || !address}
-                className="w-1/2  py-2.5 sm:py-3.5 btn btn-primary"
-              >
-                {isSigning ? (
-                  <span className="loading loading-dots loading-sm"></span>
-                ) : (
-                  'Sign Transaction'
-                )}
-              </button>
+            </div>
+          </div>
+
+          {/* Messages */}
+          <div className="max-h-32 overflow-y-auto">
+            <h2 className="text-xl font-semibold mb-4 dark:text-[#FFFFFF99]">Messages</h2>
+            <div className="grid grid-cols-4 gap-4">
+              {formData.messages.map((message, index) => (
+                <div key={index} className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg">
+                  <div className="text-sm dark:text-[#FFFFFF66]">Type</div>
+                  <div className="dark:text-[#FFFFFF99] truncate" title={message.type}>
+                    {message.type}
+                  </div>
+                  {/* Add more message details here if needed */}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Metadata */}
+          <div className="max-h-50 overflow-y-auto">
+            <h2 className="text-xl font-semibold mb-4 dark:text-[#FFFFFF99]">Metadata</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg">
+                <div className="text-sm dark:text-[#FFFFFF66]">Authors</div>
+                <div className="dark:text-[#FFFFFF99]">{formData.metadata.authors}</div>
+              </div>
+              <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg">
+                <div className="text-sm dark:text-[#FFFFFF66]">Title</div>
+                <div className="dark:text-[#FFFFFF99]">{formData.metadata.title}</div>
+              </div>
+            </div>
+            <div className="mt-4 dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg">
+              <div className="text-sm dark:text-[#FFFFFF66]">Details</div>
+              <div className="dark:text-[#FFFFFF99] max-h-20 overflow-y-auto">
+                {formData.metadata.details}
+              </div>
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Buttons */}
+      <div className="flex space-x-3 mt-6 mx-auto w-full">
+        <button onClick={prevStep} className="btn btn-neutral w-1/2">
+          Back: Metadata
+        </button>
+        <button
+          onClick={handleConfirm}
+          disabled={isSigning || !address}
+          className="w-1/2 btn btn-gradient text-white"
+        >
+          {isSigning ? (
+            <span className="loading loading-dots loading-sm"></span>
+          ) : (
+            'Sign Transaction'
+          )}
+        </button>
       </div>
     </section>
   );

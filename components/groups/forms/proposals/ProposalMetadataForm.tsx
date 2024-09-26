@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { ProposalFormData, ProposalAction } from '@/helpers/formReducer';
@@ -46,6 +46,7 @@ export default function ProposalMetadataForm({
       },
     });
   };
+  const [isValid, setIsValid] = useState(false);
 
   return (
     <section className="">
@@ -61,66 +62,76 @@ export default function ProposalMetadataForm({
               onSubmit={nextStep}
               validateOnChange={true}
             >
-              {({ isValid, dirty, setFieldValue }) => (
-                <Form className="min-h-[330px] flex flex-col gap-4">
-                  <TextInput
-                    label="Title"
-                    name="title"
-                    placeholder="Type here"
-                    value={formData.metadata.title}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      handleChange('title', e.target.value);
-                      setFieldValue('title', e.target.value);
-                    }}
-                  />
-                  <TextInput
-                    label="Authors"
-                    name="authors"
-                    placeholder="Type here"
-                    value={formData.metadata.authors}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      handleChange('authors', e.target.value);
-                      setFieldValue('authors', e.target.value);
-                    }}
-                  />
-                  <TextArea
-                    label="Summary"
-                    name="summary"
-                    placeholder="Short Description"
-                    value={formData.metadata.summary}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                      handleChange('summary', e.target.value);
-                      setFieldValue('summary', e.target.value);
-                    }}
-                  />
-                  <TextArea
-                    label="Details"
-                    name="details"
-                    placeholder="Long Description"
-                    value={formData.metadata.details}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                      handleChange('details', e.target.value);
-                      setFieldValue('details', e.target.value);
-                    }}
-                  />
-                  <button
-                    type="submit"
-                    className="w-full mt-4 btn btn-gradient text-white"
-                    disabled={!isValid || !dirty}
-                  >
-                    Next: Confirmation
-                  </button>
-                </Form>
-              )}
+              {({ setFieldValue, isValid }) => {
+                setIsValid(isValid);
+
+                return (
+                  <Form className="min-h-[330px] flex flex-col gap-4">
+                    <TextInput
+                      label="Title"
+                      name="title"
+                      placeholder="Type here"
+                      value={formData.metadata.title}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        handleChange('title', e.target.value);
+                        setFieldValue('title', e.target.value);
+                      }}
+                    />
+                    <TextInput
+                      label="Authors"
+                      name="authors"
+                      placeholder="Type here"
+                      value={formData.metadata.authors}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        handleChange('authors', e.target.value);
+                        setFieldValue('authors', e.target.value);
+                      }}
+                    />
+                    <TextArea
+                      label="Summary"
+                      name="summary"
+                      placeholder="Short Description"
+                      value={formData.metadata.summary}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                        handleChange('summary', e.target.value);
+                        setFieldValue('summary', e.target.value);
+                      }}
+                    />
+                    <TextArea
+                      label="Details"
+                      name="details"
+                      placeholder="Long Description"
+                      value={formData.metadata.details}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                        handleChange('details', e.target.value);
+                        setFieldValue('details', e.target.value);
+                      }}
+                    />
+                  </Form>
+                );
+              }}
             </Formik>
-            <div className="flex space-x-3 ga-4 mt-6">
-              <button onClick={prevStep} className="btn btn-neutral w-1/2 py-2.5 sm:py-3.5">
-                <span className="hidden sm:inline">Prev: Messages</span>
-                <span className="sm:hidden">Prev: TXs</span>
-              </button>
-            </div>
           </div>
         </div>
+      </div>
+      <div className="flex space-x-3 mt-6 mx-auto w-full">
+        <button onClick={prevStep} className="btn btn-neutral py-2.5 sm:py-3.5 w-1/2">
+          <span className="hidden sm:inline">Prev: Messages</span>
+          <span className="sm:hidden">Prev: TXs</span>
+        </button>
+        <button
+          onClick={nextStep}
+          disabled={
+            !isValid ||
+            !formData.metadata.title ||
+            !formData.metadata.authors ||
+            !formData.metadata.summary ||
+            !formData.metadata.details
+          }
+          className="w-1/2 btn py-2.5 sm:py-3.5 btn-gradient text-white disabled:text-black"
+        >
+          Next: Confirmation
+        </button>
       </div>
     </section>
   );

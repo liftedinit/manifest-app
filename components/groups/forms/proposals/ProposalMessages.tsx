@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { ProposalFormData, ProposalAction, Message, MessageFields } from '@/helpers/formReducer';
 import * as initialMessages from './messages';
 
@@ -64,11 +64,6 @@ export default function ProposalMessages({
       (selectedCategory === 'All' || type.category === selectedCategory) &&
       type.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const checkFormValidity = () => {
-    const valid = formData.messages.length > 0 && formData.messages.some(isMessageValid);
-    setIsFormValid(valid);
-  };
 
   const handleAddMessage = () => {
     dispatch({
@@ -247,9 +242,9 @@ export default function ProposalMessages({
           if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
             schema[key] = generateValidationSchema(value);
           } else {
-            schema[key] = Yup.string()
-              .required(`${key.charAt(0).toUpperCase() + key.slice(1)} is required`)
-              .noProfanity();
+            schema[key] = Yup.string().required(
+              `${key.charAt(0).toUpperCase() + key.slice(1)} is required`
+            );
 
             if (
               key.includes('address') ||
@@ -402,34 +397,35 @@ export default function ProposalMessages({
 
   const openMessageTypeModal = (index: number) => {
     setEditingMessageIndex(index);
-    document.getElementById('message_type_modal')?.showModal();
+    (document.getElementById('message_type_modal') as HTMLDialogElement)?.showModal();
   };
 
   const selectMessageType = (type: string) => {
     if (editingMessageIndex !== null) {
       handleChangeMessage(editingMessageIndex, 'type', type);
     }
-    document.getElementById('message_type_modal')?.close();
+    (document.getElementById('message_type_modal') as HTMLDialogElement)?.close();
   };
 
   const openMessageModal = (index: number) => {
     setEditingMessageIndex(index);
-    document.getElementById('message_edit_modal')?.showModal();
+    (document.getElementById('message_edit_modal') as HTMLDialogElement)?.showModal();
   };
 
   const closeMessageModal = () => {
     setEditingMessageIndex(null);
-    document.getElementById('message_edit_modal')?.close();
+    (document.getElementById('message_edit_modal') as HTMLDialogElement)?.close();
   };
 
-  const isMessageValid = (message: Message): boolean => {
+  const isMessageValid = React.useCallback((message: Message): boolean => {
     if (!message || Object.keys(message).length === 0) return false;
+    if (!message.type) return false;
 
     const checkFields = (obj: any): boolean => {
       for (const key in obj) {
         if (typeof obj[key] === 'object' && obj[key] !== null) {
           if (!checkFields(obj[key])) return false;
-        } else if (obj[key] === '' || obj[key] === undefined) {
+        } else if (obj[key] === '' || obj[key] === undefined || obj[key] === null) {
           return false;
         }
       }
@@ -437,7 +433,16 @@ export default function ProposalMessages({
     };
 
     return checkFields(message);
-  };
+  }, []);
+
+  const checkFormValidity = useCallback(() => {
+    const valid = formData.messages.length > 0 && formData.messages.every(isMessageValid);
+    setIsFormValid(valid);
+  }, [formData, isMessageValid]);
+
+  useEffect(() => {
+    checkFormValidity();
+  }, [formData, checkFormValidity]);
 
   return (
     <section className="">
