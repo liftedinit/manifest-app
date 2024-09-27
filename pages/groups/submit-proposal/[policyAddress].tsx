@@ -164,7 +164,7 @@ export default function SubmitProposal() {
           )}
           {currentStep === 5 && (
             <div className="transition-opacity duration-300 animate-fadeIn">
-              <Success formData={formData} prevStep={prevStep} />
+              <Success formData={formData} />
             </div>
           )}
         </div>

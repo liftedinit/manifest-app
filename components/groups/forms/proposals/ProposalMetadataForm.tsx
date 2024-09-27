@@ -121,13 +121,6 @@ export default function ProposalMetadataForm({
         </button>
         <button
           onClick={nextStep}
-          disabled={
-            !isValid ||
-            !formData.metadata.title ||
-            !formData.metadata.authors ||
-            !formData.metadata.summary ||
-            !formData.metadata.details
-          }
           className="w-1/2 btn py-2.5 sm:py-3.5 btn-gradient text-white disabled:text-black"
         >
           Next: Confirmation

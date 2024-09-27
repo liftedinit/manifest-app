@@ -12,7 +12,17 @@ type DisplayDataToSignProps = {
   address: string;
 };
 
-const DisplayDataToSign = ({ data, address }: DisplayDataToSignProps) => {
+const DisplayDataToSign = ({
+  data,
+  address,
+  className,
+  addressClassName,
+  txInfoClassName,
+}: DisplayDataToSignProps & {
+  className?: string;
+  addressClassName?: string;
+  txInfoClassName?: string;
+}) => {
   const decodeBodyBytes = (bodyBytes: Uint8Array) => {
     try {
       const decodedBody = TxBody.decode(bodyBytes);
@@ -80,16 +90,14 @@ const DisplayDataToSign = ({ data, address }: DisplayDataToSignProps) => {
   };
 
   return (
-    <div className="p-4 z-[100] flex flex-col w-full gap-3">
-      <div className="flex flex-col gap-1">
-        <a>Address</a>
-        <pre className="bg-base-200 p-4 rounded-md text-sm overflow-auto max-h-48 ">{address}</pre>
+    <div className={className}>
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-medium">Address</span>
+        <pre className={addressClassName}>{address}</pre>
       </div>
-      <div className="flex flex-col gap-1">
-        <a>Tx Info</a>
-        <pre className="bg-base-200 p-4 rounded-md text-sm overflow-auto max-h-96 ">
-          {formatValue(data.value)}
-        </pre>
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-medium">Tx Info</span>
+        <pre className={txInfoClassName}>{formatValue(data.value)}</pre>
       </div>
     </div>
   );
@@ -126,22 +134,28 @@ const SignModal = ({
 
   return (
     <dialog id="sign-modal" className="modal top-0 right-0">
-      <div className="modal-box max-w-md w-full">
-        <div className="flex justify-between items-center border-b pb-2 border-gray-600">
+      <div className="modal-box max-w-lg w-full dark:bg-[#1D192D] bg-[#FFFFFF] rounded-lg shadow-xl">
+        <div className="flex justify-between items-center pb-4">
           <div className="flex items-center gap-3">
-            <img src={walletIconString} alt="Wallet type logo" className="flex-shrink-0 aspect-1" />
-            <h3 className="text-xl font-medium">{walletName?.toString()} Direct Signer</h3>
+            <img src={walletIconString} alt="Wallet type logo" className="w-8 h-8" />
+            <h3 className="text-xl font-semibold">{walletName?.toString()} Direct Signer</h3>
           </div>
           <button className="btn btn-sm btn-circle btn-ghost" onClick={onClose}>
             ✕
           </button>
         </div>
 
-        <DisplayDataToSign data={data} address={address ?? ''} />
+        <DisplayDataToSign
+          data={data}
+          address={address ?? ''}
+          className="space-y-4"
+          addressClassName="p-3 rounded-md text-sm overflow-auto h-12 dark:bg-[#E0E0FF0A] bg-[#E0E0FF0A] dark:border-[#FFFFFF33] border-[#00000033] border"
+          txInfoClassName="p-3 rounded-md text-sm overflow-auto h-[32rem] dark:bg-[#E0E0FF0A] bg-[#E0E0FF0A] dark:border-[#FFFFFF33] border-[#00000033] border"
+        />
 
-        <div className="modal-action px-8 -mt-0 justify-center gap-4">
+        <div className="modal-action mt-6 flex justify-between gap-4">
           <button
-            className="btn btn-secondary w-1/2"
+            className="btn flex-1 rounded-[12px] focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
             onClick={() => {
               reject();
               onClose();
@@ -150,7 +164,7 @@ const SignModal = ({
             Reject
           </button>
           <button
-            className="btn btn-primary w-1/2"
+            className="btn btn-gradient flex-1 rounded-[12px]"
             onClick={() => {
               approve();
               onClose();

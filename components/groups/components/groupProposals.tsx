@@ -8,6 +8,7 @@ import {
 import { QueryTallyResultResponseSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/query';
 import Link from 'next/link';
 import { SearchIcon } from '@/components/icons';
+import { useRouter } from 'next/router';
 
 import VoteDetailsModal from '@/components/groups/modals/voteDetailsModal';
 import { useGroupsByMember } from '@/hooks/useQueries';
@@ -68,9 +69,35 @@ export default function GroupProposals({
     );
   };
   console.log(filterProposals(proposals));
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const { proposalId } = router.query;
+    if (proposalId && typeof proposalId === 'string' && proposals.length > 0) {
+      const proposalToOpen = proposals.find(p => p.id.toString() === proposalId);
+      if (proposalToOpen) {
+        setSelectedProposal(proposalToOpen);
+        setTimeout(() => {
+          const modal = document.getElementById(`vote_modal_${proposalId}`) as HTMLDialogElement;
+          if (modal) {
+            modal.showModal();
+          }
+        }, 0);
+      } else {
+        console.warn(`Proposal with ID ${proposalId} not found`);
+        // Optionally, remove the invalid proposalId from the URL
+        router.push(`/groups?policyAddress=${policyAddress}`, undefined, { shallow: true });
+      }
+    }
+  }, [router.query, proposals, policyAddress]);
+
   const handleRowClick = (proposal: ProposalSDKType) => {
     setSelectedProposal(proposal);
-    //  Timeout to ensure the state has been updated and the modal is available
+    // Update URL without navigating
+    router.push(`/groups?policyAddress=${policyAddress}&proposalId=${proposal.id}`, undefined, {
+      shallow: true,
+    });
     setTimeout(() => {
       const modal = document.getElementById(`vote_modal_${proposal.id}`) as HTMLDialogElement;
       if (modal) {
@@ -79,6 +106,12 @@ export default function GroupProposals({
         console.error(`Modal not found for proposal ${proposal.id}`);
       }
     }, 0);
+  };
+
+  const closeModal = () => {
+    setSelectedProposal(null);
+    // Remove proposalId from URL when closing the modal
+    router.push(`/groups?policyAddress=${policyAddress}`, undefined, { shallow: true });
   };
 
   function isProposalPassing(tally: QueryTallyResultResponseSDKType) {
@@ -235,20 +268,7 @@ export default function GroupProposals({
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
             />
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
+            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           </div>
           <Link href={`/groups/submit-proposal/${policyAddress}`} passHref>
             <button className="btn btn-gradient rounded-[12px] w-[140px] text-white h-[52px]">
@@ -341,20 +361,18 @@ export default function GroupProposals({
         <div className="text-center py-8 text-gray-500">No proposals found</div>
       )}
 
-      {proposals.map(proposal => (
-        <VoteDetailsModal
-          key={proposal.id.toString()}
-          tallies={tally ?? ({} as QueryTallyResultResponseSDKType)}
-          votes={votes ?? []}
-          members={members}
-          proposal={proposal}
-          admin={admin}
-          modalId={`vote_modal_${proposal.id}`}
-          refetchVotes={refetchVotes}
-          refetchTally={refetchTally}
-          refetchProposals={refetchProposals}
-        />
-      ))}
+      <VoteDetailsModal
+        key={selectedProposal?.id.toString() ?? ''}
+        tallies={tally ?? ({} as QueryTallyResultResponseSDKType)}
+        votes={votes ?? []}
+        members={members}
+        proposal={selectedProposal ?? ({} as ProposalSDKType)}
+        modalId={`vote_modal_${selectedProposal?.id}`}
+        refetchVotes={refetchVotes}
+        refetchTally={refetchTally}
+        refetchProposals={refetchProposals}
+        onClose={closeModal} // Add this prop
+      />
 
       <GroupInfo
         group={

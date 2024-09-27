@@ -1,3 +1,5 @@
+//TODO: When we update the manifestjs version the errors here will be fixed
+
 import React from 'react';
 import { useFeeEstimation } from '@/hooks/useFeeEstimation';
 import { uploadJsonToIPFS } from '@/hooks/useIpfs';
@@ -262,7 +264,7 @@ export default function ConfirmationForm({
   const handleConfirm = async () => {
     setIsSigning(true);
     const CID = await uploadMetaDataToIPFS();
-    //TODO: messages are not being processed correctly. Message info is not being passed to getMessageObject
+
     const messages: Any[] = formData.messages.map(message => getMessageObject(message));
 
     const msg = cosmos.group.v1.MessageComposer.withTypeUrl.submitProposal({

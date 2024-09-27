@@ -4,19 +4,20 @@ import Link from 'next/link';
 
 export default function ProposalSuccess({
   formData,
-  prevStep,
 }: Readonly<{
   formData: ProposalFormData;
-  prevStep: () => void;
 }>) {
   const renderProposers = () => {
     if (formData.proposers.startsWith('manifest')) {
       return <TruncatedAddressWithCopy address={formData.proposers} slice={14} />;
     } else if (formData.proposers.includes(',')) {
       return (
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-3 gap-4">
           {formData.proposers.split(',').map((proposer, index) => (
-            <div key={index}>
+            <div
+              key={index}
+              className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg flex items-center"
+            >
               {proposer.trim().startsWith('manifest') ? (
                 <TruncatedAddressWithCopy address={proposer.trim()} slice={14} />
               ) : (
@@ -27,62 +28,81 @@ export default function ProposalSuccess({
         </div>
       );
     } else {
-      return <span>{formData.proposers}</span>;
+      return (
+        <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg flex items-center">
+          <span>{formData.proposers}</span>
+        </div>
+      );
     }
   };
 
   return (
-    <section className="lg:max-h-[90vh] max-h-screen lg:mt-1 mt-12  flex items-center justify-center ">
-      <div className="max-w-2xl mx-auto bg-base-300 shadow-lg rounded-lg p-8 text-white">
-        <h1 className="text-3xl font-bold mb-4">Proposal Submitted Successfully!</h1>
-        <p className="text-lg mb-2 text-pretty">
-          Your proposal has been successfully submitted to the group.
-        </p>
-        <p className="text-md text-gray-300 mb-6 text-pretty">
-          Group members can now vote on your proposal. The voting period will last for the duration
-          specified in the group&apos;s settings.
-        </p>
-        <div className="border-t border-gray-700 pt-4">
-          <h2 className="text-2xl font-semibold mb-4">Proposal Details</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="text-md font-light text-gray-400">TITLE</h3>
-              <p className="text-lg font-medium">{formData.title}</p>
+    <section>
+      <div className="w-full dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-[24px] rounded-[24px]">
+        <div className="flex justify-center p-4 rounded-[8px] mb-6 w-full dark:bg-[#FAFAFA1F] bg-[#A087FF1F] items-center">
+          <h1 className="text-xl text-primary font-bold">Proposal Submitted Successfully!</h1>
+        </div>
+
+        <div className="space-y-6">
+          <p className="text-lg mb-2">
+            Your proposal has been successfully submitted to the group.
+          </p>
+          <p className="text-md text-gray-400 mb-6">
+            Group members can now vote on your proposal. The voting period will last for the
+            duration specified in the group&apos;s settings.
+          </p>
+
+          {/* Proposal Details */}
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Proposal Details</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg">
+                <label className="text-sm text-gray-400">TITLE</label>
+                <div>{formData.title}</div>
+              </div>
+              <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg">
+                <label className="text-sm text-gray-400">SUMMARY</label>
+                <div>{formData.metadata.summary}</div>
+              </div>
             </div>
-            <div>
-              <h3 className="text-md font-light text-gray-400">PROPOSER(S)</h3>
-              {/*
-                TODO: Verify the render is correct.
-                      I changed the <p> to a <div> here because <div> (in TruncatedAddressWithCopy) cannot be a descendant of <p>
-              */}
-              <div className="text-lg font-medium">{renderProposers()}</div>
+          </div>
+
+          {/* Proposers */}
+          <div className="max-h-28 overflow-y-auto">
+            <h2 className="text-xl font-semibold mb-4">Proposer(s)</h2>
+            {renderProposers()}
+          </div>
+
+          {/* Details */}
+          <div className="max-h-44 overflow-y-auto">
+            <h2 className="text-xl font-semibold mb-4">Details</h2>
+            <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg">
+              <p>{formData.metadata.details}</p>
             </div>
-            <div className="col-span-1 md:col-span-2">
-              <h3 className="text-md font-light text-gray-400">SUMMARY</h3>
-              <p className="text-lg font-medium">{formData.metadata.summary}</p>
-            </div>
-            <div className="col-span-1 md:col-span-2 max-h-28 overflow-y-auto">
-              <h3 className="text-md font-light text-gray-400">DETAILS</h3>
-              <p className="text-lg font-medium">{formData.metadata.details}</p>
-            </div>
-            <div className="col-span-1 md:col-span-2">
-              <h3 className="text-md font-light text-gray-400">MESSAGES</h3>
+          </div>
+
+          {/* Messages */}
+          <div className="max-h-44 overflow-y-auto">
+            <h2 className="text-xl font-semibold mb-4">Messages</h2>
+            <div className="grid grid-cols-2 gap-4">
               {formData.messages.map((message, index) => (
-                <div key={index} className="mb-2">
-                  <p className="text-md font-medium">Type: {message.type}</p>
+                <div key={index} className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg">
+                  <div className="text-sm text-gray-400">Type</div>
+                  <div>{message.type}</div>
                   {/* You can add more specific message details here if needed */}
                 </div>
               ))}
             </div>
           </div>
-          <div className="mt-6">
-            <div className="w-full justify-between items-center">
-              <Link href="/groups" legacyBehavior>
-                <button className="btn btn-md btn-secondary w-full">Back to Groups Page</button>
-              </Link>
-            </div>
-          </div>
         </div>
+      </div>
+      <div className="flex space-x-3 mt-6 mx-auto w-full">
+        <Link href="/groups" className="w-1/2">
+          <button className="btn btn-neutral w-full">Back to Groups Page</button>
+        </Link>
+        <Link href="/groups" className="w-1/2">
+          <button className="btn btn-gradient w-full text-white">View Proposal</button>
+        </Link>
       </div>
     </section>
   );

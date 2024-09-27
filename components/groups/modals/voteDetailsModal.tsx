@@ -23,7 +23,7 @@ import { useTheme } from '@/contexts/theme';
 import CountdownTimer from '../components/CountdownTimer';
 import { useFeeEstimation } from '@/hooks';
 import ScrollableFade from '@/components/react/scrollableFade';
-
+import { TrashIcon } from '@heroicons/react/24/outline';
 const Chart = dynamic(() => import('react-apexcharts'), {
   ssr: false,
 }) as any;
@@ -37,7 +37,7 @@ function VoteDetailsModal({
   votes,
   members,
   proposal,
-  admin,
+  onClose,
   modalId,
   refetchVotes,
   refetchTally,
@@ -47,12 +47,13 @@ function VoteDetailsModal({
   votes: VoteSDKType[];
   members: MemberSDKType[];
   proposal: ProposalSDKType;
-  admin: string;
+  onClose: () => void;
   modalId: string;
   refetchVotes: () => void;
   refetchTally: () => void;
   refetchProposals: () => void;
 }) {
+  const [isSigning, setIsSigning] = useState(false);
   const voteMap = useMemo(
     () =>
       votes?.reduce<VoteMap>((acc, vote) => {
@@ -120,7 +121,7 @@ function VoteDetailsModal({
   const options: ApexOptions = {
     chart: {
       type: 'bar',
-      height: 350,
+
       toolbar: {
         tools: {
           download: false,
@@ -183,7 +184,7 @@ function VoteDetailsModal({
         data: chartData,
       },
     ],
-    colors: ['#78f59599', '#fe6565b0', '#fcd4779a', '#a885f8a1'],
+    colors: ['#00D515', '#F54562', '#FBBD23', '#3B82F6'],
     tooltip: {
       enabled: false,
     },
@@ -205,34 +206,41 @@ function VoteDetailsModal({
   });
 
   const executeProposal = async () => {
+    setIsSigning(true);
     try {
       const fee = await estimateFee(address ?? '', [msgExec]);
       await tx([msgExec], {
         fee,
         onSuccess: () => {
+          setIsSigning(false);
           refetchTally();
           refetchVotes();
           refetchProposals();
-          setIsGridVisible(false);
         },
       });
+      setIsSigning(false);
     } catch (error) {
+      setIsSigning(false);
       console.error('Failed to execute proposal: ', error);
     }
   };
 
   const executeWithdrawl = async () => {
+    setIsSigning(true);
     try {
       const fee = await estimateFee(address ?? '', [msgWithdraw]);
       await tx([msgWithdraw], {
         fee,
         onSuccess: () => {
+          setIsSigning(false);
           refetchTally();
           refetchVotes();
           refetchProposals();
         },
       });
+      setIsSigning(false);
     } catch (error) {
+      setIsSigning(false);
       console.error('Failed to execute proposal: ', error);
     }
   };
@@ -290,12 +298,6 @@ function VoteDetailsModal({
     return () => clearInterval(interval);
   }, [proposal?.voting_period_end]);
 
-  const [isGridVisible, setIsGridVisible] = useState(false);
-
-  const handleButtonClick = () => {
-    setIsGridVisible(prev => !prev);
-  };
-
   const proposalClosed =
     countdownValues.days +
       countdownValues.hours +
@@ -308,8 +310,6 @@ function VoteDetailsModal({
   const userVoteOption = userHasVoted
     ? votes?.find(vote => vote.voter.toLowerCase().trim() === address)?.option
     : null;
-
-  const userVotedStatus = useMemo(() => userHasVoted, [votes]);
 
   const importantFields: { [key: string]: string[] } = {
     '/cosmos.bank.v1beta1.MsgSend': ['from_address', 'to_address', 'amount'],
@@ -377,34 +377,66 @@ function VoteDetailsModal({
     }
   };
 
+  const handleVoteButtonClick = () => {
+    const voteModal = document.getElementById('vote_modal') as HTMLDialogElement;
+    if (voteModal) {
+      voteModal.showModal();
+    }
+  };
+
+  const getButtonState = useMemo(() => {
+    const isAccepted =
+      proposal.status === ('PROPOSAL_STATUS_ACCEPTED' as unknown as ProposalStatus);
+    const isRejected =
+      proposal.status === ('PROPOSAL_STATUS_REJECTED' as unknown as ProposalStatus);
+    const isNotRun =
+      proposal.executor_result ===
+      ('PROPOSAL_EXECUTOR_RESULT_NOT_RUN' as unknown as ProposalExecutorResult);
+    const isFailure =
+      proposal.executor_result ===
+      ('PROPOSAL_EXECUTOR_RESULT_FAILURE' as unknown as ProposalExecutorResult);
+    const isClosed = proposal?.status === ('PROPOSAL_STATUS_CLOSED' as unknown as ProposalStatus);
+    const isProposer = proposal?.proposers?.includes(address ?? '');
+
+    if (isAccepted && isNotRun) {
+      return { action: 'execute', label: 'Execute' };
+    } else if (isNotRun && proposalClosed && !isRejected) {
+      return { action: 'execute', label: 'Execute' };
+    } else if (!isClosed && !proposalClosed && !userHasVoted) {
+      return { action: 'vote', label: 'Vote' };
+    } else if (isRejected || isFailure || userHasVoted || (isProposer && !isNotRun)) {
+      return { action: 'remove', label: 'Remove' };
+    }
+    return { action: null, label: null };
+  }, [proposal, proposalClosed, userHasVoted, address]);
+
   return (
     <dialog id={modalId} className="modal">
-      <div className="modal-box relative max-w-4xl min-h-96  flex flex-col md:flex-row md:ml-20  rounded-lg shadow">
-        <form method="dialog">
-          <button className="btn btn-sm btn-circle btn-ghost absolute right-1 top-1">✕</button>
+      <div className="modal-box relative max-w-4xl min-h-96 flex flex-col md:flex-row md:ml-20 -mt-12 rounded-[24px] shadow-lg dark:bg-[#1D192D] bg-[#FFFFFF] transition-all duration-300">
+        <form method="dialog" onSubmit={onClose}>
+          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
         </form>
-        <div className="flex flex-col flex-grow w-full">
+        <div className="flex flex-col flex-grow w-full p-2 space-y-6">
           <div className="flex flex-row justify-between items-center">
-            <div className="flex flex-row gap-2">
-              <p>#&nbsp;{proposal?.id.toString()}</p>
-
-              <span className="badge badge-lg items-center shadow-lg justify-center badge-primary">
+            <div className="flex flex-row gap-2 items-center">
+              <p className="text-xl font-bold">#{proposal?.id?.toString() ?? '0'}</p>
+              <span className="badge badge-lg shadow-lg justify-center badge-primary rounded-full">
                 {getStatusLabel(proposal)}
               </span>
             </div>
             {userHasVoted && (
               <div className="flex flex-row gap-2 justify-center items-center">
-                <span>your vote</span>
+                <span className="text-sm">Your vote:</span>
                 <span
-                  className={`items-center justify-center badge badge-lg ${
+                  className={`badge badge-lg rounded-full ${
                     userVoteOption?.toString() === 'VOTE_OPTION_YES'
-                      ? 'bg-green-500/50'
+                      ? 'bg-success'
                       : userVoteOption?.toString() === 'VOTE_OPTION_NO'
-                        ? 'bg-red-500/50'
+                        ? 'bg-error'
                         : userVoteOption?.toString() === 'VOTE_OPTION_NO_WITH_VETO'
-                          ? 'bg-yellow-500/50'
+                          ? 'bg-warning'
                           : userVoteOption?.toString() === 'VOTE_OPTION_ABSTAIN'
-                            ? 'bg-purple-500/50'
+                            ? 'bg-info'
                             : ''
                   }`}
                 >
@@ -413,147 +445,155 @@ function VoteDetailsModal({
               </div>
             )}
           </div>
-          <div className="flex flex-col justify-start  items-start">
-            <p className="text-md font-light mt-6   text-pretty">TITLE</p>
-            <h1 className="text-3xl mb-4">{proposal?.title}</h1>
-            <span className="text-md font-light mt-2  ">SUBMITTED</span>
-            <span className="text-sm ">
+          <div className="flex flex-col justify-start items-start">
+            <p className="text-sm font-light text-gray-500 dark:text-gray-400">TITLE</p>
+            <h1 className="text-2xl font-bold">{proposal?.title}</h1>
+            <span className="text-sm font-light text-gray-500 dark:text-gray-400 mt-2">
+              SUBMITTED
+            </span>
+            <span className="text-sm">
               {new Date(proposal?.submit_time).toDateString().toLocaleString()}
             </span>
           </div>
-          <div className="divider divider-vertical"></div>
-          <div>
-            <p className="text-md font-light  ">SUMMARY</p>
-            <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
-              <p className="text-md text-pretty">{proposal?.summary}</p>
+          <div className="divider my-"></div>
+          <div className="w-full">
+            <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2 ">SUMMARY</p>
+            <div className="dark:bg-[#FFFFFF0F] bg-[#0000000A] rounded-[12px] p-4">
+              <p className="text-sm">{proposal?.summary}</p>
             </div>
           </div>
-          <p className="text-md font-light mt-4">MESSAGES</p>
-          <ScrollableFade>
-            {proposal.messages.map((message: any, index: number) => {
-              const messageType = message['@type'];
-              const fieldsToShow = importantFields[messageType] || defaultFields;
+          <div className="w-full">
+            <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2 ">MESSAGES</p>
+            <div className="dark:bg-[#FFFFFF0F] bg-[#0000000A]  rounded-[12px] p-4 overflow-y-auto max-h-[20rem]">
+              {proposal?.messages?.map((message: any, index: number) => {
+                const messageType = message['@type'];
+                const fieldsToShow = importantFields[messageType] || defaultFields;
 
-              return (
-                <div key={index} className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
-                  <h3 className="text-lg font-semibold mb-4">
-                    {messageType.split('.').pop().replace('Msg', '')}
-                  </h3>
-                  <div>{fieldsToShow.map(field => renderMessageField(field, message[field]))}</div>
-                </div>
-              );
-            })}
-          </ScrollableFade>
-
-          <div className="mb-4 hidden md:block w-full">
-            <p className="text-md font-light mt-4  ">VOTING COUNTDOWN</p>
+                return (
+                  <div key={index} className="mb-4">
+                    <h3 className="text-lg font-semibold mb-2">
+                      {messageType.split('.').pop().replace('Msg', '')}
+                    </h3>
+                    <div>
+                      {fieldsToShow.map(field => renderMessageField(field, message[field]))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <div className="hidden md:block w-full">
+            <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
+              VOTING COUNTDOWN
+            </p>
             <CountdownTimer endTime={new Date(proposal?.voting_period_end)} />
           </div>
         </div>
         <div className="divider divider-horizontal"></div>
-        <div className="flex flex-col w-full relative flex-grow items-start justify-start">
-          <p className="text-md font-light mt-2  ">TALLY</p>
-          <div className="w-full ">
-            <Chart options={options} series={[{ data: chartData }]} type="bar" height={200} />
-          </div>
-          <p className="text-md font-light mt-4  ">MEMBERS</p>
-          <div className="overflow-x-auto w-full min-h-96 max-h-96 rounded-md  overflow-y-auto">
-            <table className="min-w-full table-pin-rows shadow mt-4 table-auto text-sm text-left">
-              <thead className="text-xs rounded-t-md uppercase ">
-                <tr>
-                  <th scope="col" className="px-6 py-3">
-                    Address
-                  </th>
-                  <th scope="col" className="px-6 py-3">
-                    Weight
-                  </th>
-                  <th scope="col" className="px-6 py-3">
-                    Vote
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {/* Mapping over members */}
-                {normalizedMembers?.map((member, index) => {
-                  const memberVote = voteMap[member?.address];
-                  return (
-                    <tr key={index}>
-                      <td className="px-6 py-4">
-                        <TruncatedAddressWithCopy slice={8} address={member?.address} />
-                      </td>
-                      <td className="px-6 py-4">{member?.weight}</td>
-                      <td className="px-6 py-4">{optionToVote(memberVote?.toString()) || 'N/A'}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-            <div className="mb-4 mt-8 md:hidden block ">
-              <p className="text-md font-light mt-4  ">VOTING COUNTDOWN</p>
-              <CountdownTimer endTime={new Date(proposal.voting_period_end)} />
+        <div className="flex flex-col w-full relative flex-grow items-start justify-start p-6 space-y-6">
+          <div className="w-full">
+            <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">TALLY</p>
+            <div className="dark:bg-[#FFFFFF0F] bg-[#0000000A] rounded-[12px] w-full">
+              <Chart options={options} series={[{ data: chartData }]} type="bar" height={200} />
             </div>
           </div>
+          <div className="w-full">
+            <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">MEMBERS</p>
+            <div className="dark:bg-[#FFFFFF0F] bg-[#0000000A] rounded-[12px] p-4 w-full">
+              <div className="overflow-x-auto w-full min-h-64 max-h-[22.5rem]  overflow-y-auto">
+                <table className="table-auto w-full text-sm">
+                  <thead className="text-xs uppercase bg-base-200 rounded-t-[12px]">
+                    <tr>
+                      <th scope="col" className="px-6 py-3">
+                        Address
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        Weight
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        Vote
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {normalizedMembers?.map((member, index) => {
+                      const memberVote = voteMap[member?.address];
+                      return (
+                        <tr key={index} className="border-b dark:border-gray-700">
+                          <td className="px-6 py-4">
+                            <TruncatedAddressWithCopy slice={8} address={member?.address} />
+                          </td>
+                          <td className="px-6 py-4">{member?.weight}</td>
+                          <td className="px-6 py-4">
+                            {optionToVote(memberVote?.toString()) || 'N/A'}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div className="md:hidden block w-full">
+            <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
+              VOTING COUNTDOWN
+            </p>
+            <CountdownTimer endTime={new Date(proposal.voting_period_end)} />
+          </div>
           <div className="w-full relative">
-            {proposal.status === ('PROPOSAL_STATUS_ACCEPTED' as unknown as ProposalStatus) &&
-            proposal.executor_result ===
-              ('PROPOSAL_EXECUTOR_RESULT_NOT_RUN' as unknown as ProposalExecutorResult) ? (
-              <button className="btn w-full btn-primary ml-auto mt-4" onClick={executeProposal}>
-                Execute
-              </button>
-            ) : proposal.executor_result ===
-                ('PROPOSAL_EXECUTOR_RESULT_NOT_RUN' as unknown as ProposalExecutorResult) &&
-              proposalClosed &&
-              proposal.status !== ('PROPOSAL_STATUS_REJECTED' as unknown as ProposalStatus) ? (
-              <button className="btn w-full btn-primary ml-auto mt-4" onClick={executeProposal}>
-                Execute
-              </button>
-            ) : proposal.status !== ('PROPOSAL_STATUS_CLOSED' as unknown as ProposalStatus) &&
-              !proposalClosed &&
-              userHasVoted === false ? (
-              <>
-                <button
-                  disabled={!address || userVotedStatus}
-                  className="btn w-full btn-primary ml-auto mt-4 border-r-4 border-r-primaryShadow border-b-4 border-b-primaryShadow"
-                  onClick={handleButtonClick}
-                >
-                  Vote
-                </button>
-                {proposal.proposers.includes(address ?? '') && (
-                  <button
-                    className=" absolute top-3 right-[0.3rem] btn btn-xs w-1/8 mx-auto btn-secondary ml-auto mt-2"
-                    onClick={executeWithdrawl}
-                  >
-                    X
-                  </button>
-                )}
-              </>
-            ) : proposal.status === ('PROPOSAL_STATUS_REJECTED' as unknown as ProposalStatus) ||
-              proposal.executor_result ===
-                ('PROPOSAL_EXECUTOR_RESULT_FAILURE' as unknown as ProposalExecutorResult) ||
-              (userHasVoted === true &&
-                proposal.status != ('PROPOSAL_STATUS_REJECTED' as unknown as ProposalStatus)) ||
-              proposal.executor_result !=
-                ('PROPOSAL_EXECUTOR_RESULT_FAILURE' as unknown as ProposalExecutorResult) ? (
+            {getButtonState.action && (
               <button
-                disabled={!proposal.proposers.includes(address ?? '')}
-                className="btn w-full btn-primary ml-auto mt-4"
-                onClick={executeWithdrawl}
+                disabled={
+                  getButtonState.action === 'remove' &&
+                  !proposal?.proposers?.includes(address ?? '')
+                }
+                className="btn w-full btn-primary text-white rounded-[12px]"
+                onClick={() => {
+                  switch (getButtonState.action) {
+                    case 'execute':
+                      executeProposal();
+                      break;
+                    case 'vote':
+                      handleVoteButtonClick();
+                      break;
+                    case 'remove':
+                      executeWithdrawl();
+                      break;
+                  }
+                }}
               >
-                Remove
+                {getButtonState.label}
               </button>
-            ) : null}
+            )}
+            {proposal?.proposers?.includes(address ?? '') &&
+              proposal?.status !== ('PROPOSAL_STATUS_CLOSED' as unknown as ProposalStatus) &&
+              !proposalClosed &&
+              userHasVoted === false && (
+                <button
+                  className="btn btn-xs text-white btn-error absolute top-3 right-3 rounded-lg"
+                  onClick={executeWithdrawl}
+                >
+                  {isSigning ? (
+                    <div className="loading loading-dots loading-sm" />
+                  ) : (
+                    <TrashIcon className="w-4 h-4" />
+                  )}
+                </button>
+              )}
           </div>
 
-          {isGridVisible && !userHasVoted && (
-            <VotingPopup
-              proposalId={proposal.id}
-              isGridVisible={isGridVisible}
-              refetch={refetchVotes || refetchTally || refetchProposals}
-            />
-          )}
+          <VotingPopup
+            proposalId={proposal?.id ?? 0n}
+            refetch={() => {
+              refetchVotes();
+              refetchTally();
+              refetchProposals();
+            }}
+          />
         </div>
       </div>
-      <form method="dialog" className="modal-backdrop">
+      <form method="dialog" className="modal-backdrop" onSubmit={onClose}>
         <button>close</button>
       </form>
     </dialog>

@@ -1,3 +1,6 @@
+//TODO: Some messages expect the addres field to be the groups policy address.
+//This needs to be considered within the relevant message types or else the proposal fails
+
 import React, { useState, useCallback, useEffect } from 'react';
 import { ProposalFormData, ProposalAction, Message, MessageFields } from '@/helpers/formReducer';
 import * as initialMessages from './messages';
@@ -77,6 +80,11 @@ export default function ProposalMessages({
   const handleRemoveMessage = (index: number) => {
     dispatch({ type: 'REMOVE_MESSAGE', index });
     setVisibleMessages(visibleMessages.filter((_, i) => i !== index));
+    if (editingMessageIndex === index) {
+      setEditingMessageIndex(null);
+    } else if (editingMessageIndex !== null && editingMessageIndex > index) {
+      setEditingMessageIndex(editingMessageIndex - 1);
+    }
     checkFormValidity();
   };
 
@@ -615,11 +623,13 @@ export default function ProposalMessages({
           </form>
           <h3 className="text-xl font-extrabold tracking-tight leading-tight border-b-[0.5px] dark:border-[#FFFFFF99] border-b-[black] pb-4 mb-4">
             Edit{' '}
-            {formData.messages[editingMessageIndex ?? 0].type.charAt(0).toUpperCase() +
-              formData.messages[editingMessageIndex ?? 0].type.slice(1)}{' '}
+            {editingMessageIndex !== null && formData.messages[editingMessageIndex]
+              ? formData.messages[editingMessageIndex].type.charAt(0).toUpperCase() +
+                formData.messages[editingMessageIndex].type.slice(1)
+              : 'Message'}{' '}
             Message
           </h3>
-          {editingMessageIndex !== null && (
+          {editingMessageIndex !== null && formData.messages[editingMessageIndex] && (
             <div className="overflow-y-auto max-h-[600px]">
               {renderMessageFields(formData.messages[editingMessageIndex], editingMessageIndex)}
             </div>
