@@ -1,10 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useProposalsByPolicyAccount, useTallyCount, useVotesByProposal } from '@/hooks/useQueries';
-import {
-  ProposalSDKType,
-  ProposalStatus,
-  ProposalExecutorResult,
-} from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { ProposalSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { QueryTallyResultResponseSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/query';
 import Link from 'next/link';
 import { SearchIcon } from '@/components/icons';
@@ -19,25 +15,30 @@ import ProfileAvatar from '@/utils/identicon';
 import { GroupInfo } from '../modals/groupInfo';
 import { ExtendedGroupType } from '@/hooks/useQueries';
 import { MemberManagementModal } from '../modals/memberManagmentModal';
+import { ThresholdDecisionPolicy } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
+
+type GroupProposalsProps = {
+  policyAddress: string;
+  groupName: string;
+  onBack: () => void;
+  policyThreshold: ThresholdDecisionPolicy;
+};
 
 export default function GroupProposals({
   policyAddress,
   groupName,
   onBack,
-}: {
-  policyAddress: string;
-  groupName: string;
-  onBack: () => void;
-}) {
+  policyThreshold,
+}: GroupProposalsProps) {
   const { proposals, isProposalsLoading, isProposalsError, refetchProposals } =
     useProposalsByPolicyAccount(policyAddress);
 
   const [selectedProposal, setSelectedProposal] = useState<ProposalSDKType | null>(null);
-  const [tallies, setTallies] = useState<
+  const [tallies, _setTallies] = useState<
     { proposalId: bigint; tally: QueryTallyResultResponseSDKType }[]
   >([]);
   const [members, setMembers] = useState<MemberSDKType[]>([]);
-  const [admin, setAdmin] = useState<string>('');
+
   const [searchTerm, setSearchTerm] = useState('');
 
   // Convert proposalId to string before passing it to the hooks
@@ -47,19 +48,6 @@ export default function GroupProposals({
   const { tally, refetchTally } = useTallyCount(proposalId);
   const { votes, refetchVotes } = useVotesByProposal(proposalId);
 
-  const updateTally = (proposalId: bigint, newTally: QueryTallyResultResponseSDKType) => {
-    setTallies(prevTallies => {
-      const existingTallyIndex = prevTallies.findIndex(item => item.proposalId === proposalId);
-      if (existingTallyIndex >= 0) {
-        const newTallies = [...prevTallies];
-        newTallies[existingTallyIndex] = { proposalId, tally: newTally };
-        return newTallies;
-      } else {
-        return [...prevTallies, { proposalId, tally: newTally }];
-      }
-    });
-  };
-  console.log(proposals);
   const filterProposals = (proposals: ProposalSDKType[]) => {
     return proposals.filter(
       proposal =>
@@ -68,7 +56,6 @@ export default function GroupProposals({
         proposal.status.toString() !== 'PROPOSAL_STATUS_WITHDRAWN'
     );
   };
-  console.log(filterProposals(proposals));
 
   const router = useRouter();
 
@@ -115,19 +102,34 @@ export default function GroupProposals({
   };
 
   function isProposalPassing(tally: QueryTallyResultResponseSDKType) {
-    const yesCount = parseFloat(tally?.tally?.yes_count ?? '0');
-    const noCount = parseFloat(tally?.tally?.no_count ?? '0');
-    const noWithVetoCount = parseFloat(tally?.tally?.no_with_veto_count ?? '0');
-    const abstainCount = parseFloat(tally?.tally?.abstain_count ?? '0');
+    const yesCount = BigInt(tally?.tally?.yes_count ?? '0');
+    const noCount = BigInt(tally?.tally?.no_count ?? '0');
+    const noWithVetoCount = BigInt(tally?.tally?.no_with_veto_count ?? '0');
+    const abstainCount = BigInt(tally?.tally?.abstain_count ?? '0');
 
-    const passingThreshold = yesCount > noCount;
+    const totalVotes = yesCount + noCount + noWithVetoCount + abstainCount;
+    console.log(
+      'totalVotes',
+      totalVotes,
+      'threshold',
+      BigInt(policyThreshold.threshold),
+      'isThresholdReached',
+      totalVotes >= BigInt(policyThreshold.threshold)
+    );
+    // Check if threshold is reached
+    const threshold = BigInt(policyThreshold.threshold);
+    const isThresholdReached = totalVotes >= threshold;
+
+    // Determine if passing based on vote distribution
+    const isPassing = isThresholdReached && yesCount > noCount + noWithVetoCount;
 
     return {
-      isPassing: passingThreshold,
+      isPassing,
       yesCount,
       noCount,
       noWithVetoCount,
       abstainCount,
+      isThresholdReached,
     };
   }
 
@@ -299,9 +301,11 @@ export default function GroupProposals({
             <tbody className="space-y-4">
               {filteredProposals.map(proposal => {
                 const proposalTally = tallies.find(t => t.proposalId === proposal.id);
-                const { isPassing = false } = proposalTally
+
+                const { isPassing, isThresholdReached } = proposalTally
                   ? isProposalPassing(proposalTally.tally)
-                  : {};
+                  : { isPassing: false, isThresholdReached: false };
+
                 const endTime = new Date(proposal?.voting_period_end);
                 const now = new Date();
                 const msPerMinute = 1000 * 60;
@@ -326,6 +330,24 @@ export default function GroupProposals({
                 } else {
                   timeLeft = 'less than a minute';
                 }
+
+                let status;
+                if (
+                  BigInt(tally?.tally?.yes_count ?? '0') > BigInt(policyThreshold.threshold) &&
+                  BigInt(tally?.tally?.yes_count ?? '0') >
+                    BigInt(tally?.tally?.no_count ?? '0') +
+                      BigInt(tally?.tally?.no_with_veto_count ?? '0')
+                ) {
+                  status = 'Passing';
+                } else if (
+                  BigInt(tally?.tally?.yes_count ?? '0') <
+                  BigInt(tally?.tally?.no_count ?? '0') +
+                    BigInt(tally?.tally?.no_with_veto_count ?? '0')
+                ) {
+                  status = 'Failing';
+                } else {
+                  status = 'Pending';
+                }
                 return (
                   <tr
                     key={proposal.id.toString()}
@@ -342,15 +364,7 @@ export default function GroupProposals({
                     <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF]">
                       {getHumanReadableType((proposal.messages[0] as any)['@type'])}
                     </td>
-                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px]">
-                      {isPassing && diff > 0
-                        ? 'Passing'
-                        : isPassing && diff <= 0
-                          ? 'Passed'
-                          : diff > 0
-                            ? 'Failing'
-                            : 'Failed'}
-                    </td>
+                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px]">{status}</td>
                   </tr>
                 );
               })}

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { chainName } from '@/config';
 import { useFeeEstimation, useGroupsByAdmin, useTx } from '@/hooks';
-import { cosmos, manifest, osmosis } from '@chalabi/manifestjs';
+import { cosmos, manifest, osmosis, liftedinit } from '@chalabi/manifestjs';
 import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { PiAddressBook, PiPlusCircle, PiMinusCircle } from 'react-icons/pi';
 import { shiftDigits } from '@/utils';
 import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
-import { MsgPayout } from '@chalabi/manifestjs/dist/codegen/manifest/v1/tx';
+import { MsgPayout } from '@chalabi/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
 import { MultiMintModal } from '../modals/multiMfxMintModal';
 import { useToast } from '@/contexts';
 import { Formik, Form } from 'formik';
@@ -42,7 +42,7 @@ export default function MintForm({
   const { tx } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
   const { mint } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
-  const { payout } = manifest.v1.MessageComposer.withTypeUrl;
+  const { payout } = liftedinit.manifest.v1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
   const exponent = denom?.denom_units?.find(unit => unit.denom === denom.display)?.exponent || 0;

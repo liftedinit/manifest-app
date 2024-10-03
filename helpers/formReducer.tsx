@@ -289,11 +289,9 @@ export type CancelUpgradeMessage = {
 export type Message =
   | SendMessage
   | CustomMessage
-  | UpdatePoaParamsMessage
   | RemovePendingMessage
   | SetPowerMessage
   | UpdateStakingParamsMessage
-  | UpdateManifestParamsMessage
   | PayoutStakeholdersMessage
   | UpdateGroupAdminMessage
   | UpdateGroupMembersMessage
@@ -313,12 +311,10 @@ export type Message =
 export type MessageFields =
   | keyof SendMessage
   | keyof CustomMessage
-  | keyof UpdatePoaParamsMessage
   | keyof RemoveValidatorMessage
   | keyof RemovePendingMessage
   | keyof SetPowerMessage
   | keyof UpdateStakingParamsMessage
-  | keyof UpdateManifestParamsMessage
   | keyof PayoutStakeholdersMessage
   | keyof UpdateGroupAdminMessage
   | keyof UpdateGroupMembersMessage

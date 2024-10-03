@@ -3,7 +3,6 @@ import dynamic from 'next/dynamic';
 
 import {
   MemberSDKType,
-  Proposal,
   ProposalExecutorResult,
   ProposalSDKType,
   ProposalStatus,
@@ -14,7 +13,7 @@ import { QueryTallyResultResponseSDKType } from '@chalabi/manifestjs/dist/codege
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import VotingPopup from './voteModal';
 import { ApexOptions } from 'apexcharts';
-import { shiftDigits } from '@/utils';
+
 import { useChain } from '@cosmos-kit/react';
 import { chainName } from '@/config';
 import { useTx } from '@/hooks/useTx';
@@ -22,7 +21,7 @@ import { cosmos } from '@chalabi/manifestjs';
 import { useTheme } from '@/contexts/theme';
 import CountdownTimer from '../components/CountdownTimer';
 import { useFeeEstimation } from '@/hooks';
-import ScrollableFade from '@/components/react/scrollableFade';
+
 import { TrashIcon } from '@heroicons/react/24/outline';
 const Chart = dynamic(() => import('react-apexcharts'), {
   ssr: false,

@@ -4,7 +4,7 @@ import { cosmos, strangelove_ventures } from '@chalabi/manifestjs';
 import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgRemoveValidator } from '@chalabi/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
 import { useChain } from '@cosmos-kit/react';
-import React from 'react';
+import React, { useState } from 'react';
 import { PiWarning } from 'react-icons/pi';
 
 interface WarningModalProps {
@@ -28,8 +28,10 @@ export function WarningModal({
   const { removePending, removeValidator } =
     strangelove_ventures.poa.v1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
+  const [isSigning, setIsSigning] = useState(false);
 
   const handleAccept = async () => {
+    setIsSigning(true);
     const msgRemoveActive = removeValidator({
       sender: admin ?? '',
       validatorAddress: address,
@@ -60,13 +62,19 @@ export function WarningModal({
     const fee = await estimateFee(userAddress ?? '', [groupProposalMsg]);
     await tx([groupProposalMsg], {
       fee,
-      onSuccess: () => {},
+      onSuccess: () => {
+        setIsSigning(false);
+      },
     });
+    setIsSigning(false);
   };
 
   return (
     <dialog id={modalId} className="modal">
-      <form method="dialog" className="modal-box">
+      <form
+        method="dialog"
+        className="modal-box text-black dark:text-white dark:bg-[#1D192D] bg-[#FFFFFF]"
+      >
         <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
         <div className="p-4 ">
           <div className="flex flex-col gap-2 items-center mb-6">
@@ -84,10 +92,17 @@ export function WarningModal({
         <div className="modal-action">
           <button
             type="button"
-            className="btn btn-secondary w-1/2 mx-auto -mt-2"
+            className="btn btn-error text-white w-1/2 mx-auto -mt-2"
             onClick={handleAccept}
+            disabled={isSigning}
           >
-            {isActive ? 'Remove From Active Set' : 'Remove From Pending List'}
+            {isSigning ? (
+              <span className="loading loading-dots loading-sm"></span>
+            ) : isActive ? (
+              'Remove From Active Set'
+            ) : (
+              'Remove From Pending List'
+            )}
           </button>
         </div>
       </form>

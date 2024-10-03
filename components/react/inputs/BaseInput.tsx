@@ -2,7 +2,7 @@ import React from 'react';
 import { useField } from 'formik';
 
 interface BaseInputProps {
-  label: string;
+  label?: string;
   name: string;
   className?: string;
   rightElement?: React.ReactNode;
@@ -21,9 +21,11 @@ export const BaseInput: React.FC<BaseInputProps & React.InputHTMLAttributes<HTML
   const id = props.id || props.name;
   return (
     <div className="form-control w-full">
-      <label className="label" htmlFor={id}>
-        <span className="label-text text-[#00000099] dark:text-[#FFFFFF99]">{label}</span>
-      </label>
+      {label && (
+        <label className="label" htmlFor={id}>
+          <span className="label-text text-[#00000099] dark:text-[#FFFFFF99]">{label}</span>
+        </label>
+      )}
       <div className="relative">
         <input
           id={id}

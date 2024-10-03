@@ -87,18 +87,18 @@ export const Connected = ({
         </p>
         <div className="flex items-center">
           {balance?.amount ? (
-            <p className="text-md text-[#FFFFFF99] font-bold ml-2">
+            <p className="text-md dark:text-[#FFFFFF99] text-black font-bold ml-2">
               {shiftDigits(balance?.amount ?? '', -6)}
             </p>
           ) : (
             <div className="loading w-16 h-8"></div>
           )}
-          <p className="text-md ml-2 text-[#FFFFFF99]">MFX</p>
+          <p className="text-md ml-2 dark:text-[#FFFFFF99] text-black">MFX</p>
         </div>
       </div>
 
       <button
-        className="w-full btn btn-disconnect-gradient rounded-lg transition duration-200 flex items-center justify-center"
+        className="w-full btn btn-disconnect-gradient rounded-lg transition duration-200 flex items-center text-white justify-center"
         onClick={() => {
           disconnect();
           onClose();

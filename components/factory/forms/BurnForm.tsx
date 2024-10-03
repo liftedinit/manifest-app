@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { chainName } from '@/config';
 import { useTokenFactoryBalance, useFeeEstimation, useTx } from '@/hooks';
-import { cosmos, manifest, osmosis } from '@chalabi/manifestjs';
+import { cosmos, osmosis, liftedinit } from '@chalabi/manifestjs';
 import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { PiAddressBook } from 'react-icons/pi';
 import { shiftDigits } from '@/utils';
 import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
-import { MsgBurnHeldBalance } from '@chalabi/manifestjs/dist/codegen/manifest/v1/tx';
+import { MsgBurnHeldBalance } from '@chalabi/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
 import { MultiBurnModal } from '../modals/multiMfxBurnModal';
 import { useToast } from '@/contexts';
 import { Formik, Form } from 'formik';
@@ -42,7 +42,7 @@ export default function BurnForm({
   const { tx } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
   const { burn } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
-  const { burnHeldBalance } = manifest.v1.MessageComposer.withTypeUrl;
+  const { burnHeldBalance } = liftedinit.manifest.v1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const { setToastMessage } = useToast();
   const exponent = denom?.denom_units?.find(unit => unit.denom === denom.display)?.exponent || 0;

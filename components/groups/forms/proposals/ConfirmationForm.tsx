@@ -4,7 +4,7 @@ import React from 'react';
 import { useFeeEstimation } from '@/hooks/useFeeEstimation';
 import { uploadJsonToIPFS } from '@/hooks/useIpfs';
 import { useTx } from '@/hooks/useTx';
-import { manifest, strangelove_ventures, cosmos } from '@chalabi/manifestjs';
+import { manifest, strangelove_ventures, cosmos, liftedinit } from '@chalabi/manifestjs';
 import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
 
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
@@ -16,7 +16,6 @@ import {
   MsgRemoveValidator,
   MsgSetPower,
   MsgUpdateStakingParams,
-  MsgUpdateParams as MsgUpdatePoaParams,
 } from '@chalabi/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
 import {
   MsgCreateGroupWithPolicy,
@@ -32,8 +31,8 @@ import {
 } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/tx';
 import {
   MsgPayout,
-  MsgUpdateParams as MsgUpdateManifestParams,
-} from '@chalabi/manifestjs/dist/codegen/manifest/v1/tx';
+  MsgBurnHeldBalance,
+} from '@chalabi/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
 import {
   MsgSoftwareUpgrade,
   MsgCancelUpgrade,
@@ -54,12 +53,11 @@ export default function ConfirmationForm({
 }>) {
   type MessageTypeMap = {
     send: MsgSend;
-    updatePoaParams: MsgUpdatePoaParams;
     removeValidator: MsgRemoveValidator;
     removePending: MsgRemovePending;
     updateStakingParams: MsgUpdateStakingParams;
     setPower: MsgSetPower;
-    updateManifestParams: MsgUpdateManifestParams;
+
     payoutStakeholders: MsgPayout;
     updateGroupAdmin: MsgUpdateGroupAdmin;
     updateGroupMembers: MsgUpdateGroupMembers;
@@ -80,29 +78,27 @@ export default function ConfirmationForm({
   const messageTypeToComposer: {
     [K in keyof MessageTypeMap]: (value: MessageTypeMap[K]) => any;
   } = {
-    send: cosmos.bank.v1beta1.MessageComposer.withTypeUrl.send,
-    updatePoaParams: strangelove_ventures.poa.v1.MessageComposer.withTypeUrl.updateParams,
-    removeValidator: strangelove_ventures.poa.v1.MessageComposer.withTypeUrl.removeValidator,
-    removePending: strangelove_ventures.poa.v1.MessageComposer.withTypeUrl.removePending,
-    updateStakingParams:
-      strangelove_ventures.poa.v1.MessageComposer.withTypeUrl.updateStakingParams,
-    setPower: strangelove_ventures.poa.v1.MessageComposer.withTypeUrl.setPower,
-    updateManifestParams: manifest.v1.MessageComposer.withTypeUrl.updateParams,
-    payoutStakeholders: manifest.v1.MessageComposer.withTypeUrl.payout,
-    updateGroupAdmin: cosmos.group.v1.MessageComposer.withTypeUrl.updateGroupAdmin,
-    updateGroupMembers: cosmos.group.v1.MessageComposer.withTypeUrl.updateGroupMembers,
-    updateGroupMetadata: cosmos.group.v1.MessageComposer.withTypeUrl.updateGroupMetadata,
-    updateGroupPolicyAdmin: cosmos.group.v1.MessageComposer.withTypeUrl.updateGroupPolicyAdmin,
-    createGroupWithPolicy: cosmos.group.v1.MessageComposer.withTypeUrl.createGroupWithPolicy,
-    submitProposal: cosmos.group.v1.MessageComposer.withTypeUrl.submitProposal,
-    vote: cosmos.group.v1.MessageComposer.withTypeUrl.vote,
-    withdrawProposal: cosmos.group.v1.MessageComposer.withTypeUrl.withdrawProposal,
-    customMessage: cosmos.bank.v1beta1.MessageComposer.withTypeUrl.send,
-    exec: cosmos.group.v1.MessageComposer.withTypeUrl.exec,
-    leaveGroup: cosmos.group.v1.MessageComposer.withTypeUrl.leaveGroup,
-    multiSend: cosmos.bank.v1beta1.MessageComposer.withTypeUrl.multiSend,
-    softwareUpgrade: cosmos.upgrade.v1beta1.MessageComposer.withTypeUrl.softwareUpgrade,
-    cancelUpgrade: cosmos.upgrade.v1beta1.MessageComposer.withTypeUrl.cancelUpgrade,
+    send: cosmos.bank.v1beta1.MessageComposer.encoded.send,
+    removeValidator: strangelove_ventures.poa.v1.MessageComposer.encoded.removeValidator,
+    removePending: strangelove_ventures.poa.v1.MessageComposer.encoded.removePending,
+    updateStakingParams: strangelove_ventures.poa.v1.MessageComposer.encoded.updateStakingParams,
+    setPower: strangelove_ventures.poa.v1.MessageComposer.encoded.setPower,
+
+    payoutStakeholders: liftedinit.manifest.v1.MessageComposer.encoded.payout,
+    updateGroupAdmin: cosmos.group.v1.MessageComposer.encoded.updateGroupAdmin,
+    updateGroupMembers: cosmos.group.v1.MessageComposer.encoded.updateGroupMembers,
+    updateGroupMetadata: cosmos.group.v1.MessageComposer.encoded.updateGroupMetadata,
+    updateGroupPolicyAdmin: cosmos.group.v1.MessageComposer.encoded.updateGroupPolicyAdmin,
+    createGroupWithPolicy: cosmos.group.v1.MessageComposer.encoded.createGroupWithPolicy,
+    submitProposal: cosmos.group.v1.MessageComposer.encoded.submitProposal,
+    vote: cosmos.group.v1.MessageComposer.encoded.vote,
+    withdrawProposal: cosmos.group.v1.MessageComposer.encoded.withdrawProposal,
+    customMessage: cosmos.bank.v1beta1.MessageComposer.encoded.send,
+    exec: cosmos.group.v1.MessageComposer.encoded.exec,
+    leaveGroup: cosmos.group.v1.MessageComposer.encoded.leaveGroup,
+    multiSend: cosmos.bank.v1beta1.MessageComposer.encoded.multiSend,
+    softwareUpgrade: cosmos.upgrade.v1beta1.MessageComposer.encoded.softwareUpgrade,
+    cancelUpgrade: cosmos.upgrade.v1beta1.MessageComposer.encoded.cancelUpgrade,
   };
   const snakeToCamel = (str: string): string =>
     str.replace(/([-_][a-z])/gi, $1 => $1.toUpperCase().replace('-', '').replace('_', ''));
@@ -146,88 +142,10 @@ export default function ConfirmationForm({
         throw new Error(`Invalid composedMessage structure for type: ${message.type}`);
       }
 
-      let encodeFunction;
-      switch (message.type) {
-        case 'send':
-          encodeFunction = MsgSend.encode;
-          break;
-        case 'updatePoaParams':
-          encodeFunction = MsgUpdatePoaParams.encode;
-          break;
-        case 'removeValidator':
-          encodeFunction = MsgRemoveValidator.encode;
-          break;
-        case 'removePending':
-          encodeFunction = MsgRemovePending.encode;
-          break;
-        case 'updateStakingParams':
-          encodeFunction = MsgUpdateStakingParams.encode;
-          break;
-        case 'setPower':
-          encodeFunction = MsgSetPower.encode;
-          break;
-        case 'updateManifestParams':
-          encodeFunction = MsgUpdateManifestParams.encode;
-          break;
-        case 'payoutStakeholders':
-          encodeFunction = MsgPayout.encode;
-          break;
-        case 'updateGroupAdmin':
-          encodeFunction = MsgUpdateGroupAdmin.encode;
-          break;
-        case 'updateGroupMembers':
-          encodeFunction = MsgUpdateGroupMembers.encode;
-          break;
-        case 'updateGroupMetadata':
-          encodeFunction = MsgUpdateGroupMetadata.encode;
-          break;
-        case 'updateGroupPolicyAdmin':
-          encodeFunction = MsgUpdateGroupPolicyAdmin.encode;
-          break;
-        case 'createGroupWithPolicy':
-          encodeFunction = MsgCreateGroupWithPolicy.encode;
-          break;
-        case 'submitProposal':
-          encodeFunction = MsgSubmitProposal.encode;
-          break;
-        case 'vote':
-          encodeFunction = MsgVote.encode;
-          break;
-        case 'withdrawProposal':
-          encodeFunction = MsgWithdrawProposal.encode;
-          break;
-        case 'exec':
-          encodeFunction = MsgExec.encode;
-          break;
-        case 'leaveGroup':
-          encodeFunction = MsgLeaveGroup.encode;
-          break;
-        case 'multiSend':
-          encodeFunction = MsgMultiSend.encode;
-          break;
-        case 'softwareUpgrade':
-          encodeFunction = MsgSoftwareUpgrade.encode;
-          break;
-        case 'cancelUpgrade':
-          encodeFunction = MsgCancelUpgrade.encode;
-          break;
-        case 'customMessage':
-          encodeFunction = MsgSend.encode;
-          break;
-        default:
-          throw new Error(`No encode function found for message type: ${message.type}`);
-      }
-
-      if (!encodeFunction) {
-        throw new Error(`Encode function not set for message type: ${message.type}`);
-      }
-
       try {
-        const encodedValue = encodeFunction(composedMessage.value).finish();
-
         const anyMessage = Any.fromPartial({
           typeUrl: composedMessage.typeUrl,
-          value: encodedValue,
+          value: composedMessage.value,
         });
 
         return anyMessage;
@@ -267,7 +185,7 @@ export default function ConfirmationForm({
 
     const messages: Any[] = formData.messages.map(message => getMessageObject(message));
 
-    const msg = cosmos.group.v1.MessageComposer.withTypeUrl.submitProposal({
+    const msg = cosmos.group.v1.MessageComposer.fromPartial.submitProposal({
       groupPolicyAddress: policyAddress,
       messages: messages,
       metadata: CID,

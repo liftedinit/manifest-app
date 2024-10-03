@@ -3,7 +3,7 @@ import { useTx } from '@/hooks/useTx';
 import { cosmos } from '@chalabi/manifestjs';
 import { useChain } from '@cosmos-kit/react';
 import React, { useState } from 'react';
-
+import { CloseIcon } from '@/components/icons';
 function VotingPopup({ proposalId, refetch }: { proposalId: bigint; refetch: () => void }) {
   const { estimateFee } = useFeeEstimation('manifest');
   const { tx } = useTx('manifest');
@@ -12,10 +12,7 @@ function VotingPopup({ proposalId, refetch }: { proposalId: bigint; refetch: () 
 
   const { vote } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
-  console.log('VotingPopup - proposalId:', proposalId);
-
   const handleVote = async (option: number) => {
-    console.log('Handling vote for proposal:', proposalId, 'with option:', option);
     const msg = vote({
       proposalId: proposalId,
       voter: address ?? '',
@@ -23,7 +20,7 @@ function VotingPopup({ proposalId, refetch }: { proposalId: bigint; refetch: () 
       metadata: '',
       exec: 0,
     });
-    console.log('Vote message:', msg);
+
     const fee = await estimateFee(address ?? '', [msg]);
     try {
       await tx([msg], {
@@ -49,7 +46,7 @@ function VotingPopup({ proposalId, refetch }: { proposalId: bigint; refetch: () 
   return (
     <>
       <dialog id="vote_modal" className="modal modal-bottom  sm:modal-middle">
-        <form method="dialog" className="modal-box dark:bg-[#1D192D] bg-[#FFFFFF]">
+        <form method="dialog" className="modal-box relative dark:bg-[#1D192D] bg-[#FFFFFF]">
           <h3 className="font-bold text-lg mb-4">
             Cast Your Vote for Proposal #{proposalId.toString()}
           </h3>
@@ -68,11 +65,17 @@ function VotingPopup({ proposalId, refetch }: { proposalId: bigint; refetch: () 
               Abstain
             </button>
           </div>
-          <div className="modal-action">
-            <button className="btn" onClick={closeModal}>
-              Close
+          <div className="modal-action ">
+            <button
+              className="btn btn-sm absolute top-2 right-2 btn-circle btn-ghost"
+              onClick={closeModal}
+            >
+              <CloseIcon className="w-2 h-2" />
             </button>
           </div>
+        </form>
+        <form method="dialog" className="modal-backdrop">
+          <button>close</button>
         </form>
       </dialog>
     </>

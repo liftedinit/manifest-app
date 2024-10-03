@@ -4,6 +4,12 @@ import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { useToast } from '@/contexts/toastContext';
 import { useState } from 'react';
 
+function uint8ArrayToHexString(uint8Array: Uint8Array): string {
+  return Array.from(uint8Array)
+    .map(byte => byte.toString(16).padStart(2, '0'))
+    .join('');
+}
+
 interface Msg {
   typeUrl: string;
   value: any;
@@ -40,6 +46,7 @@ export const useTx = (chainName: string) => {
         options.fee || (await estimateFee(msgs)),
         options.memo || ''
       );
+      console.log(uint8ArrayToHexString(signed.bodyBytes));
       setToastMessage({
         type: 'alert-info',
         title: 'Broadcasting',

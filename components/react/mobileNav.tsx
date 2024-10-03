@@ -61,7 +61,7 @@ export default function MobileNav() {
           <ul className="menu p-4 w-80 min-h-full bg-[#F4F4FF] dark:bg-[#1D192D] space-y-3 text-base-content">
             <div className="flex flex-row justify-between items-center">
               <div className="flex flex-row gap-4 justify-between items-center">
-                <img src={'/logo.svg'} alt="logo" width={42} height={42} />
+                <Image src={'/logo.svg'} alt="logo" width={42} height={42} />
                 <span className="text-2xl leadin-tight text-balance ">Alberto</span>
               </div>
 

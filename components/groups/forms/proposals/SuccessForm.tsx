@@ -1,12 +1,15 @@
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { ProposalFormData } from '@/helpers';
+import { useProposalsByPolicyAccount } from '@/hooks';
 import Link from 'next/link';
-
+import { useRouter } from 'next/router';
 export default function ProposalSuccess({
   formData,
 }: Readonly<{
   formData: ProposalFormData;
 }>) {
+  const router = useRouter();
+  const policyAddress = router.query.policyAddress;
   const renderProposers = () => {
     if (formData.proposers.startsWith('manifest')) {
       return <TruncatedAddressWithCopy address={formData.proposers} slice={14} />;
@@ -36,6 +39,8 @@ export default function ProposalSuccess({
     }
   };
 
+  const { proposals } = useProposalsByPolicyAccount(policyAddress as string);
+  const mostRecentProposalCount = proposals[proposals.length - 1]?.id;
   return (
     <section>
       <div className="w-full dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-[24px] rounded-[24px]">
@@ -97,10 +102,13 @@ export default function ProposalSuccess({
         </div>
       </div>
       <div className="flex space-x-3 mt-6 mx-auto w-full">
-        <Link href="/groups" className="w-1/2">
+        <Link href={`/groups?policyAddress=${policyAddress}`} className="w-1/2">
           <button className="btn btn-neutral w-full">Back to Groups Page</button>
         </Link>
-        <Link href="/groups" className="w-1/2">
+        <Link
+          href={`/groups?policyAddress=${policyAddress}&proposalId=${mostRecentProposalCount}`}
+          className="w-1/2"
+        >
           <button className="btn btn-gradient w-full text-white">View Proposal</button>
         </Link>
       </div>

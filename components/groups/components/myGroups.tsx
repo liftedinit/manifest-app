@@ -22,6 +22,7 @@ export function YourGroups({
   const [selectedGroup, setSelectedGroup] = useState<{
     policyAddress: string;
     name: string;
+    threshold: string;
   } | null>(null);
   const router = useRouter();
 
@@ -38,6 +39,7 @@ export function YourGroups({
         setSelectedGroup({
           policyAddress,
           name: group.ipfsMetadata?.title ?? 'Untitled Group',
+          threshold: group.policies[0]?.decision_policy?.threshold ?? '0',
         });
       }
     }
@@ -50,8 +52,8 @@ export function YourGroups({
     }
   }, [selectedGroup]);
 
-  const handleSelectGroup = (policyAddress: string, groupName: string) => {
-    setSelectedGroup({ policyAddress, name: groupName });
+  const handleSelectGroup = (policyAddress: string, groupName: string, threshold: string) => {
+    setSelectedGroup({ policyAddress, name: groupName, threshold });
     router.push(`/groups?policyAddress=${policyAddress}`, undefined, { shallow: true });
   };
 
@@ -156,7 +158,13 @@ export function YourGroups({
                           key={index}
                           group={group}
                           proposals={proposals[group.policies[0].address]}
-                          onSelectGroup={handleSelectGroup}
+                          onSelectGroup={(policyAddress, groupName) =>
+                            handleSelectGroup(
+                              policyAddress,
+                              groupName,
+                              group.policies[0]?.decision_policy?.threshold ?? '0'
+                            )
+                          }
                         />
                       ))}
                 </tbody>
@@ -173,6 +181,7 @@ export function YourGroups({
             policyAddress={selectedGroup.policyAddress}
             groupName={selectedGroup.name}
             onBack={handleBack}
+            policyThreshold={selectedGroup}
           />
         )}
       </div>
@@ -187,7 +196,7 @@ function GroupRow({
 }: {
   group: any;
   proposals: ProposalSDKType[];
-  onSelectGroup: (policyAddress: string, groupName: string) => void;
+  onSelectGroup: (policyAddress: string, groupName: string, threshold: string) => void;
 }) {
   const policyAddress = group.policies[0]?.address;
   const groupName = group.ipfsMetadata?.title ?? 'Untitled Group';
@@ -215,7 +224,11 @@ function GroupRow({
       className="hover:bg-base-200 text-black dark:text-white rounded-lg cursor-pointer"
       onClick={e => {
         e.stopPropagation();
-        onSelectGroup(policyAddress, groupName);
+        onSelectGroup(
+          policyAddress,
+          groupName,
+          group.policies[0]?.decision_policy?.threshold ?? '0'
+        );
       }}
     >
       <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] w-1/6">

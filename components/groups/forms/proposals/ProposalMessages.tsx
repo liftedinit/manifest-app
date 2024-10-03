@@ -44,7 +44,6 @@ export default function ProposalMessages({
 
     { name: 'removeValidator', category: 'Admins' },
     { name: 'removePendingValidator', category: 'Admins' },
-    { name: 'updatePoaParams', category: 'System' },
     { name: 'updateStakingParams', category: 'System' },
     { name: 'setPower', category: 'Group Management' },
     { name: 'updateManifestParams', category: 'System' },
@@ -119,12 +118,7 @@ export default function ProposalMessages({
             type: value,
           };
           break;
-        case 'updatePoaParams':
-          updatedMessage = {
-            ...initialMessages.initialUpdatePoaParamsMessage,
-            type: value,
-          };
-          break;
+
         case 'updateStakingParams':
           updatedMessage = {
             ...initialMessages.initialUpdateStakingParamsMessage,
@@ -573,7 +567,7 @@ export default function ProposalMessages({
                 </label>
                 <ul
                   tabIndex={0}
-                  className="dropdown-content z-[1] menu p-2 shadow bg-base-300 rounded-box w-full"
+                  className="dropdown-content z-[1] menu p-2 mt-2 shadow bg-base-300 rounded-box w-full"
                 >
                   {messageCategories.map(category => (
                     <li key={category}>
