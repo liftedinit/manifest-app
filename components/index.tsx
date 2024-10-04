@@ -6,3 +6,4 @@ export * from './admins';
 export * from './factory';
 export * from './bank';
 export * from './icons';
+export * from './divider';

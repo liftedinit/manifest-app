@@ -25,6 +25,8 @@ import SideNav from '../components/react/sideNav';
 import { Chain } from '@chain-registry/types';
 import { SigningStargateClientOptions, AminoTypes } from '@cosmjs/stargate';
 import {
+  strangeloveVenturesAminoConverters,
+  strangeloveVenturesProtoRegistry,
   liftedinitAminoConverters,
   liftedinitProtoRegistry,
   osmosisAminoConverters,
@@ -58,11 +60,16 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
   // signer options to support amino signing for all the different modules we use
   const signerOptions: SignerOptions = {
     signingStargate: (_chain: string | Chain): SigningStargateClientOptions | undefined => {
-      const mergedRegistry = new Registry([...cosmosProtoRegistry, ...osmosisProtoRegistry]);
+      const mergedRegistry = new Registry([
+        ...cosmosProtoRegistry,
+        ...osmosisProtoRegistry,
+        ...strangeloveVenturesProtoRegistry,
+      ]);
       const mergedAminoTypes = new AminoTypes({
         ...cosmosAminoConverters,
         ...liftedinitAminoConverters,
         ...osmosisAminoConverters,
+        ...strangeloveVenturesAminoConverters,
       });
       return {
         aminoTypes: mergedAminoTypes,

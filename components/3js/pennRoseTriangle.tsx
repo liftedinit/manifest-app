@@ -1,110 +1,221 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useEffect } from 'react';
 import * as THREE from 'three';
+import { useThree } from '@react-three/fiber';
 
-function PenroseTriangle({ rotationAngle = 0 }) {
+function PenroseTriangle({
+  animationProgress = 0,
+  rotationProgress = 0,
+  onLoad,
+}: {
+  animationProgress?: number;
+  rotationProgress?: number;
+  onLoad?: () => void;
+}) {
   const groupRef = useRef<THREE.Group>(null);
+  const { size, scene } = useThree();
 
-  // Define the metallic purple material
-  const material = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({
-        color: '#A287FF',
-        metalness: 1,
-        roughness: 0.1,
+  // Calculate scale based on screen size
+  const scale = useMemo(() => {
+    const baseScale = 1;
+    const minScale = 0.5;
+    const maxScale = 1.5;
+
+    let scaleFactor;
+    if (size.width < 768) {
+      scaleFactor = 0.7; // Mobile
+    } else if (size.width < 1024) {
+      scaleFactor = 0.85; // Tablet
+    } else {
+      scaleFactor = 1; // Desktop
+    }
+
+    return Math.max(minScale, Math.min(maxScale, baseScale * scaleFactor));
+  }, [size.width]);
+
+  // Update the material to use the new color palette
+  const materials = useMemo(
+    () => ({
+      main: new THREE.MeshStandardMaterial({
+        color: '#FFB3F1',
+        metalness: 0.8,
+        roughness: 0.2,
         envMapIntensity: 1,
         side: THREE.DoubleSide,
       }),
+      secondary: new THREE.MeshStandardMaterial({
+        color: '#FFB3F1',
+        metalness: 0.8,
+        roughness: 0.2,
+        envMapIntensity: 1,
+        side: THREE.DoubleSide,
+      }),
+      accent: new THREE.MeshStandardMaterial({
+        color: '#8993CE',
+        metalness: 0.8,
+        roughness: 0.2,
+        envMapIntensity: 1,
+        side: THREE.DoubleSide,
+      }),
+    }),
     []
   );
 
+  // Calculate positions based on animation progress
+  const bottomPosition = useMemo(() => {
+    const startY = 175 * scale;
+    const endY = 50 * scale;
+    const y = THREE.MathUtils.lerp(startY, endY, animationProgress);
+    return [0, y, -150 * scale];
+  }, [animationProgress, scale]);
+
+  const topPosition = useMemo(() => {
+    const startY = 175 * scale;
+    const endY = 300 * scale;
+    const y = THREE.MathUtils.lerp(startY, endY, animationProgress);
+    return [100 * scale, y, 0];
+  }, [animationProgress, scale]);
+
+  // Calculate rotation based on rotation progress
+  const groupRotation = useMemo(() => {
+    return [0, rotationProgress * Math.PI * 2, 0]; // Rotate around Y-axis
+  }, [rotationProgress]);
+
+  useEffect(() => {
+    if (groupRef.current) {
+      // Ensure all meshes are loaded
+      const meshes = groupRef.current.children.filter(child => child instanceof THREE.Mesh);
+      let loadedCount = 0;
+
+      const checkAllLoaded = () => {
+        loadedCount++;
+        if (loadedCount === meshes.length) {
+          // All meshes are loaded
+          onLoad?.();
+        }
+      };
+
+      meshes.forEach(mesh => {
+        if (mesh instanceof THREE.Mesh) {
+          const material = mesh.material as THREE.MeshStandardMaterial;
+          if (material.map) {
+            (material.map as any).addEventListener('load', checkAllLoaded);
+          } else {
+            checkAllLoaded();
+          }
+        } else {
+          checkAllLoaded();
+        }
+      });
+    }
+  }, [onLoad]);
+
   return (
-    <group ref={groupRef} position={[150, -100, 0]}>
-      {/* Middle post (unchanged) */}
-      <mesh position={[0, 175, 0]} material={material}>
-        <boxGeometry args={[50, 300, 50]} />
+    <group
+      ref={groupRef}
+      position={[150 * scale, 0 * scale, 0]}
+      rotation={new THREE.Euler(...groupRotation)}
+      scale={[scale, scale, scale]}
+    >
+      {/* Update all mesh components to use the new materials */}
+      <mesh position={[0, 175 * scale, 0]} material={materials.main} castShadow receiveShadow>
+        <boxGeometry args={[50 * scale, 300 * scale, 50 * scale]} />
       </mesh>
 
-      {/* Rotating group for bottom and top sections */}
-      <group rotation={[0, rotationAngle, 0]}>
-        {/* Bottom Box */}
-        <mesh position={[0, 50, -150]} material={material}>
-          <boxGeometry args={[50, 50, 300]} />
-        </mesh>
+      <mesh
+        position={new THREE.Vector3(...bottomPosition)}
+        material={materials.secondary}
+        castShadow
+        receiveShadow
+      >
+        <boxGeometry args={[50 * scale, 50 * scale, 300 * scale]} />
+      </mesh>
 
-        {/* Top Box */}
-        <mesh position={[100, 300, 0]} material={material}>
-          <boxGeometry args={[150, 50, 50]} />
-        </mesh>
+      <mesh
+        position={new THREE.Vector3(...topPosition)}
+        material={materials.accent}
+        castShadow
+        receiveShadow
+      >
+        <boxGeometry args={[150 * scale, 50 * scale, 50 * scale]} />
+      </mesh>
 
-        {/* Top Plane */}
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[200, 325, 0]} material={material}>
-          <planeGeometry args={[50, 50]} />
-        </mesh>
+      <mesh
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[200 * scale, topPosition[1] + 25 * scale, 0]}
+        material={materials.accent}
+        castShadow
+        receiveShadow
+      >
+        <planeGeometry args={[50 * scale, 50 * scale]} />
+      </mesh>
 
-        {/* Top Triangles */}
-        <mesh
-          geometry={(() => {
-            const geometry = new THREE.BufferGeometry();
-            const vertices = new Float32Array([
-              // Triangle vertices
-              0,
-              0,
-              0, // Vertex 0
-              50,
-              0,
-              0, // Vertex 1
-              50,
-              50,
-              0, // Vertex 2
-            ]);
-            geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-            geometry.setIndex([
-              0,
-              1,
-              2, // Single face
-            ]);
+      {/* Update both triangle meshes */}
+      <mesh
+        geometry={(() => {
+          const geometry = new THREE.BufferGeometry();
+          const vertices = new Float32Array([
+            // Triangle vertices
+            0,
+            0,
+            0, // Vertex 0
+            50,
+            0,
+            0, // Vertex 1
+            50,
+            50,
+            0, // Vertex 2
+          ]);
+          geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+          geometry.setIndex([
+            0,
+            1,
+            2, // Single face
+          ]);
 
-            // Compute normals for correct lighting
-            geometry.computeVertexNormals();
+          // Compute normals for correct lighting
+          geometry.computeVertexNormals();
 
-            return geometry;
-          })()}
-          rotation={[0, 0, Math.PI]}
-          position={[225, 325, 25]}
-          material={material}
-        />
-        <mesh
-          geometry={(() => {
-            const geometry = new THREE.BufferGeometry();
-            const vertices = new Float32Array([
-              // Triangle vertices
-              0,
-              0,
-              0, // Vertex 0
-              50,
-              0,
-              0, // Vertex 1
-              50,
-              50,
-              0, // Vertex 2
-            ]);
-            geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-            geometry.setIndex([
-              0,
-              1,
-              2, // Single face
-            ]);
+          return geometry;
+        })()}
+        rotation={[0, 0, Math.PI]}
+        position={[225 * scale, topPosition[1] + 25 * scale, 25 * scale]}
+        material={materials.accent}
+        castShadow
+        receiveShadow
+      />
+      <mesh
+        geometry={(() => {
+          const geometry = new THREE.BufferGeometry();
+          const vertices = new Float32Array([
+            // Triangle vertices
+            0,
+            0,
+            0, // Vertex 0
+            50,
+            0,
+            0, // Vertex 1
+            50,
+            50,
+            0, // Vertex 2
+          ]);
+          geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+          geometry.setIndex([
+            0,
+            1,
+            2, // Single face
+          ]);
 
-            // Compute normals for correct lighting
-            geometry.computeVertexNormals();
+          // Compute normals for correct lighting
+          geometry.computeVertexNormals();
 
-            return geometry;
-          })()}
-          rotation={[0, 0, Math.PI]}
-          position={[225, 325, -25]}
-          material={material}
-        />
-      </group>
+          return geometry;
+        })()}
+        rotation={[0, 0, Math.PI]}
+        position={[225 * scale, topPosition[1] + 25 * scale, -25 * scale]}
+        material={materials.accent}
+        castShadow
+        receiveShadow
+      />
     </group>
   );
 }

@@ -1,12 +1,11 @@
-import { PiSunThin, PiMoonThin, PiGearSixThin } from 'react-icons/pi';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { MdWallet } from 'react-icons/md';
+
 import { useRouter } from 'next/router';
 import { IconWallet, WalletSection } from '../wallet';
 import { useTheme } from '@/contexts/theme';
-import { RiSettings4Fill } from 'react-icons/ri';
+
 import SettingsModal from './settingsModal';
 import {
   AdminsIcon,

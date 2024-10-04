@@ -5,7 +5,7 @@ import { Environment } from '@react-three/drei';
 import * as THREE from 'three';
 
 function createExtrudedGeometry(extrusion: number) {
-  const originalGeometry = new THREE.IcosahedronGeometry(1, 0);
+  const originalGeometry = new THREE.IcosahedronGeometry(3, 0);
   const extrudedGeometry = new THREE.BufferGeometry();
 
   const positions = originalGeometry.attributes.position.array as Float32Array;
@@ -121,7 +121,7 @@ function AnimatedMesh({
   const extrusionAmountRef = useRef(0);
 
   const geometry = useMemo(() => {
-    return createExtrudedGeometry(0); // Start with no extrusion
+    return createExtrudedGeometry(2); // Start with no extrusion
   }, []);
 
   // Create material
@@ -153,7 +153,7 @@ function AnimatedMesh({
         meshRef.current.geometry = newGeometry;
       }
 
-      const scale = 1 - distanceFromCenter * 0.1;
+      const scale = 1 - distanceFromCenter * 0.01;
       const finalScale = Math.max(scale, 0.5) * scaleFactor;
       meshRef.current.scale.setScalar(finalScale);
 
