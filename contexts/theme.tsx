@@ -1,7 +1,7 @@
 import { createContext, ReactNode, useContext, useState, useEffect, useCallback } from 'react';
 
 export interface ThemeContext {
-  theme: 'dark' | 'light';
+  theme: 'light' | 'dark';
   toggleTheme: () => void;
 }
 
@@ -14,12 +14,12 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState<'dark' | 'light'>('light');
 
   useEffect(() => {
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      document.documentElement.classList.add('dark');
-      setTheme('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
+    if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+      document.documentElement.classList.add('light');
       setTheme('light');
+    } else {
+      document.documentElement.classList.remove('light');
+      setTheme('dark');
     }
   }, []);
 

@@ -160,7 +160,7 @@ function PenroseTriangleScene({ onLoad }: { onLoad: () => void }) {
       </Suspense>
 
       {/* Adjust the plane to be closer to the Penrose Triangle */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -50, 0]} receiveShadow>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -140, 0]} receiveShadow>
         <planeGeometry args={[2000, 2000]} />
         <shadowMaterial transparent opacity={0.2} />
       </mesh>

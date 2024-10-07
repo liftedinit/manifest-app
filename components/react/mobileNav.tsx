@@ -1,19 +1,18 @@
 import { useTheme } from '@/contexts/theme';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+
 import {
-  PiBankThin,
-  PiUsersFourThin,
-  PiFactoryThin,
-  PiChalkboardTeacherThin,
-  PiCoinsThin,
-  PiHamburgerLight,
-  PiMoonThin,
-  PiSunThin,
-} from 'react-icons/pi';
+  GroupsIcon,
+  BankIcon,
+  FactoryIcon,
+  AdminsIcon,
+  LightIcon,
+  DarkIcon,
+} from '@/components/icons';
 import { WalletSection } from '../wallet';
 import { RiMenuUnfoldFill } from 'react-icons/ri';
+import { useState } from 'react';
 
 export default function MobileNav() {
   const NavItem: React.FC<{ Icon: React.ElementType; href: string }> = ({ Icon, href }) => {
@@ -21,7 +20,7 @@ export default function MobileNav() {
       <li>
         <Link href={href} legacyBehavior>
           <div className="flex flex-row justify-start items-center transition-all duration-300 ease-in-out text-primary">
-            <Icon className="w-8 h-8  " />
+            <Icon className="w-8 h-8" />
             <span className="text-2xl">{href.slice(1, 12)}</span>
           </div>
         </Link>
@@ -29,21 +28,8 @@ export default function MobileNav() {
     );
   };
 
-  const [isdark, setIsdark] = useState(false);
-
-  const { toggleTheme } = useTheme();
-
-  useEffect(() => {
-    const storedIsDark = localStorage.getItem('isdark');
-    if (storedIsDark) {
-      setIsdark(JSON.parse(storedIsDark));
-      toggleTheme();
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('isdark', JSON.stringify(isdark));
-  }, [isdark]);
+  const { toggleTheme, theme } = useTheme();
+  const [isDark, setIsDark] = useState(theme === 'dark');
 
   return (
     <>
@@ -62,34 +48,36 @@ export default function MobileNav() {
             <div className="flex flex-row justify-between items-center">
               <div className="flex flex-row gap-4 justify-between items-center">
                 <Image src={'/logo.svg'} alt="logo" width={42} height={42} />
-                <span className="text-2xl leadin-tight text-balance ">Alberto</span>
+                <span className="text-2xl leading-tight text-balance">Alberto</span>
               </div>
 
-              <label className="swap swap-rotate hover:text-primary transition-all duration-300 ease-in-out">
+              {/* Updated Theme Toggle */}
+              <label className="swap swap-rotate text-[#00000066] dark:text-[#FFFFFF66] hover:text-primary dark:hover:text-primary transition-all duration-300 ease-in-out">
                 <input
                   type="checkbox"
                   className="theme-controller hidden"
-                  value="light"
-                  checked={isdark}
+                  checked={isDark}
                   onChange={() => {
-                    setIsdark(!isdark);
+                    setIsDark(!isDark);
                     toggleTheme();
                   }}
                 />
 
-                <PiSunThin className="swap-on  fill-current w-8 h-8 " />
+                {/* Moon Icon for Dark Mode */}
+                <DarkIcon className="swap-on fill-current w-8 h-8" />
 
-                <PiMoonThin className="swap-off fill-current w-8 h-8" />
+                {/* Sun Icon for Light Mode */}
+                <LightIcon className="swap-off fill-current w-8 h-8" />
               </label>
             </div>
             <div className="divider divider-horizon"></div>
-            <NavItem Icon={PiCoinsThin} href="/bank" />
-            <NavItem Icon={PiUsersFourThin} href="/groups" />
-            <NavItem Icon={PiChalkboardTeacherThin} href="/admins" />
-            <NavItem Icon={PiFactoryThin} href="/factory" />
+            <NavItem Icon={BankIcon} href="/bank" />
+            <NavItem Icon={GroupsIcon} href="/groups" />
+            <NavItem Icon={AdminsIcon} href="/admins" />
+            <NavItem Icon={FactoryIcon} href="/factory" />
 
             <div className="divider divider-horizon"></div>
-            <div className="justify-between items-center ">
+            <div className="justify-between items-center">
               <WalletSection chainName="manifest" />
             </div>
           </ul>

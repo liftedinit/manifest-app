@@ -1,5 +1,5 @@
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Suspense, useRef, useMemo } from 'react';
+import { Suspense, useRef, useMemo, useEffect } from 'react';
 import { Mesh, Vector3, BufferAttribute } from 'three';
 import { Environment, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
@@ -11,6 +11,7 @@ function AnimatedMesh({
   offset = 0,
   index,
   shape = 'icosahedron',
+  onLoad,
 }: {
   scaleFactor: number;
   extrusionMultiplier: number;
@@ -18,6 +19,7 @@ function AnimatedMesh({
   offset?: number;
   index: number;
   shape: 'icosahedron' | 'octahedron' | 'tetrahedron' | 'cube';
+  onLoad?: () => void;
 }) {
   const meshRef = useRef<Mesh>(null);
   const extrusionRef = useRef<{ value: number } | null>(null);
@@ -31,7 +33,7 @@ function AnimatedMesh({
           : THREE.BoxGeometry;
   // Create custom geometry with face normals
   const geometry = useMemo(() => {
-    const geo = new shapeGeo(5, 0);
+    const geo = new shapeGeo(4.5, 0);
     const positions = geo.attributes.position.array as Float32Array;
     const faceNormals = new Float32Array(positions.length);
 
@@ -119,36 +121,50 @@ function AnimatedMesh({
     }
   });
 
+  useEffect(() => {
+    if (meshRef.current) {
+      // Mesh is loaded
+      onLoad?.();
+    }
+  }, [onLoad]);
+
   return <mesh ref={meshRef} geometry={geometry} material={material} />;
 }
 
 export default function AnimatedShape({
   shape,
+  onLoad,
 }: {
   shape: 'icosahedron' | 'octahedron' | 'tetrahedron' | 'cube';
+  onLoad?: () => void;
 }) {
-  const levels = 3; // Number of nested icosahedrons
+  const levels = 3; // Number of nested shapes
   const meshes = [];
+  const loadedMeshes = useRef(0);
+
+  const handleMeshLoad = () => {
+    loadedMeshes.current += 1;
+    if (loadedMeshes.current === levels) {
+      onLoad?.();
+    }
+  };
 
   for (let i = 0; i < levels; i++) {
-    const scaleFactor = 1 - i * 0.2; // Adjust scale for each level
-
-    // Adjust extrusionMultiplier to decrease more rapidly for inner shapes
-    const extrusionMultiplier = 0.5 / (i + 1); // Decrease extrusion for inner shapes
-
-    // Slower animation for inner shapes
-    const speed = 0.2 - i * 0.05; // Slower overall, even slower for inner shapes
-    const offset = (i * Math.PI) / 2; // Offset animation to create interesting patterns
+    const scaleFactor = 1 - i * 0.2;
+    const extrusionMultiplier = 0.5 / (i + 1);
+    const speed = 0.2 - i * 0.05;
+    const offset = (i * Math.PI) / 2;
 
     meshes.push(
       <AnimatedMesh
-        shape={shape}
         key={i}
+        shape={shape}
         scaleFactor={scaleFactor}
         extrusionMultiplier={extrusionMultiplier}
         speed={speed}
         offset={offset}
         index={i}
+        onLoad={handleMeshLoad}
       />
     );
   }

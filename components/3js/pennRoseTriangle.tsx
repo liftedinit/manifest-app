@@ -1,6 +1,7 @@
 import { useMemo, useRef, useEffect } from 'react';
 import * as THREE from 'three';
 import { useThree } from '@react-three/fiber';
+import { Text } from '@react-three/drei';
 
 function PenroseTriangle({
   animationProgress = 0,
@@ -12,7 +13,7 @@ function PenroseTriangle({
   onLoad?: () => void;
 }) {
   const groupRef = useRef<THREE.Group>(null);
-  const { size, scene } = useThree();
+  const { size } = useThree();
 
   // Calculate scale based on screen size
   const scale = useMemo(() => {
@@ -55,6 +56,12 @@ function PenroseTriangle({
         roughness: 0.2,
         envMapIntensity: 1,
         side: THREE.DoubleSide,
+      }),
+      text: new THREE.MeshStandardMaterial({
+        color: '#a196f6',
+        metalness: 0.9,
+        roughness: 0.1,
+        envMapIntensity: 1.5,
       }),
     }),
     []
@@ -112,13 +119,28 @@ function PenroseTriangle({
   return (
     <group
       ref={groupRef}
-      position={[150 * scale, 0 * scale, 0]}
+      position={[150 * scale, -100 * scale, 0]}
       rotation={new THREE.Euler(...groupRotation)}
       scale={[scale, scale, scale]}
     >
       {/* Update all mesh components to use the new materials */}
       <mesh position={[0, 175 * scale, 0]} material={materials.main} castShadow receiveShadow>
         <boxGeometry args={[50 * scale, 300 * scale, 50 * scale]} />
+
+        {/* Add text to the faces of the middle section */}
+
+        <Text
+          depthOffset={-100}
+          position={[0, 0, 30 * scale]}
+          rotation={[0, 0, Math.PI / 2]}
+          fontSize={40 * scale}
+          anchorX="center"
+          anchorY="middle"
+          material={materials.text}
+          lineHeight={2}
+        >
+          ALBERTO
+        </Text>
       </mesh>
 
       <mesh

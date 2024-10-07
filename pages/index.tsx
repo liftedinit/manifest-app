@@ -5,7 +5,8 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { BankIcon, GroupsIcon, AdminsIcon, FactoryIcon } from '@/components/icons';
 import { useInView } from 'react-intersection-observer';
-// Dynamic import for 3D components
+import Link from 'next/link';
+
 const PenroseTriangleScene = dynamic(() => import('@/components/3js/pennRoseTriangleScene'), {
   ssr: false,
   loading: () => null,
@@ -16,7 +17,11 @@ const AnimatedAsterisk = dynamic(() => import('@/components/3js/animatedAsterisk
   loading: () => null,
 });
 
-// Add this new component
+const AnimatedShape = dynamic(() => import('@/components/3js/animatedMesh'), {
+  ssr: false,
+  loading: () => null,
+});
+
 const FadeInSection = ({
   children,
   threshold = 0.1,
@@ -38,8 +43,6 @@ const FadeInSection = ({
     </div>
   );
 };
-
-import DiagonalDivider from '@/components/divider';
 
 export default function Home() {
   const [is3DReady, setIs3DReady] = useState(false);
@@ -73,8 +76,9 @@ export default function Home() {
       )}
 
       <div className={`min-h-screen ${is3DReady ? '' : 'opacity-0'}`}>
+        {/* Main Hero */}
         <Element name="hero" id="hero">
-          <section className="relative h-screen overflow-hidden py-20 sm:py-24 md:py-28 lg:py-32">
+          <section className="relative h-screen overflow-hidden py-20 sm:py-24 md:py-28 lg:py-44">
             <div className="max-w-7xl mx-auto">
               <div className="relative z-10 pb-8  sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
                 <main className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
@@ -104,9 +108,14 @@ export default function Home() {
                 </main>
               </div>
             </div>
-            <div className="lg:absolute lg:inset-y-0 lg:right-0 w-full">
+            {/* <div className="lg:absolute lg:inset-y-0 lg:right-0 w-full">
               <div className="w-full h-full">
                 <PenroseTriangleScene onLoad={handle3DLoad} />
+              </div>
+            </div> */}
+            <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
+              <div className="h-56 w-full sm:h-72 md:h-80 lg:h-full lg:w-full ">
+                <AnimatedShape shape="icosahedron" onLoad={handle3DLoad} />
               </div>
             </div>
           </section>
@@ -117,46 +126,20 @@ export default function Home() {
             <section className="min-h-screen py-20 sm:py-24 md:py-28 lg:py-32 relative overflow-hidden">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div>
-                  <h2 className="text-3xl font-extrabold text-center mb-12">How it works</h2>
+                  <h2 className="text-3xl font-extrabold text-center mb-8">
+                    Alberto leverages cutting-edge modules
+                  </h2>
                   <h3 className="text-5xl font-bold text-center text-primary mb-16">
-                    More modules more connectivity
+                    Innovative governance & enhanced accessibility
                   </h3>
 
-                  {/* Update the grid of boxes */}
+                  {/* box row */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
                     {/* First Box */}
                     <div className="group relative text-center p-4 rounded-2xl shadow-lg overflow-hidden transition-all duration-300 ease-in-out hover:bg-gradient-to-br hover:from-white/80 hover:to-transparent dark:hover:from-base-300/80 dark:hover:to-transparent backdrop-blur-sm bg-white/60 dark:bg-base-300/60 hover:scale-105">
-                      {/* AnimatedAsterisk behind the content */}
                       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0">
-                        <AnimatedAsterisk />
+                        <AnimatedAsterisk onLoad={handle3DLoad} />
                       </div>
-                      <div className="w-full h-full p-4 rounded-2xl backdrop-blur-sm pointer-events-none ">
-                        {/* Content above with pointer-events: none */}
-                        <div className="relative z-10 pointer-events-none">
-                          <Image
-                            src={'/3dGroup.svg'}
-                            alt="Groups Module"
-                            width={0}
-                            height={0}
-                            className="w-32 h-32 mx-auto mb-2 rounded-full"
-                          />
-                          <h4 className="text-xl font-semibold mb-2">Groups Module</h4>
-                          <h5 className="text-2xl font-bold mb-4">DAO&apos;s without the hassle</h5>
-                          <p className="text-gray-400">
-                            Using the groups module, Manifest allows you to create and manage your
-                            DAOs.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Second Box */}
-                    <div className="group relative text-center p-4 rounded-2xl shadow-lg overflow-hidden transition-all duration-300 ease-in-out hover:bg-gradient-to-br hover:from-white/80 hover:to-transparent dark:hover:from-base-300/80 dark:hover:to-transparent backdrop-blur-sm bg-white/60 dark:bg-base-300/60 hover:scale-105">
-                      {/* AnimatedAsterisk behind the content */}
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0">
-                        <AnimatedAsterisk />
-                      </div>
-                      {/* Content above with pointer-events: none */}
                       <div className="w-full h-full p-4 rounded-2xl backdrop-blur-sm pointer-events-none ">
                         <div className="relative z-10 pointer-events-none">
                           <Image
@@ -167,10 +150,34 @@ export default function Home() {
                             className="w-32 h-32 mx-auto mb-2 rounded-full"
                           />
                           <h4 className="text-xl font-semibold mb-2">Proof of Authority</h4>
-                          <h5 className="text-2xl font-bold mb-4">The first of its kind</h5>
-                          <p className="text-gray-400">
-                            Using the POA module, Manifest network is secured via a handpicked set
-                            of validators.
+                          <h5 className="text-2xl font-bold mb-4">Pioneering Implementation</h5>
+                          <p className="text-gray-400 group-hover:text-black dark:group-hover:text-white">
+                            Alberto is the first to implement the POA module, replacing traditional
+                            Proof of Stake with administrator-controlled validator selection.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Second Box */}
+                    <div className="group relative text-center p-4 rounded-2xl shadow-lg overflow-hidden transition-all duration-300 ease-in-out hover:bg-gradient-to-br hover:from-white/80 hover:to-transparent dark:hover:from-base-300/80 dark:hover:to-transparent backdrop-blur-sm bg-white/60 dark:bg-base-300/60 hover:scale-105">
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0">
+                        <AnimatedAsterisk onLoad={handle3DLoad} />
+                      </div>
+                      <div className="w-full h-full p-4 rounded-2xl backdrop-blur-sm pointer-events-none ">
+                        <div className="relative z-10 pointer-events-none">
+                          <Image
+                            src={'/3dGroup.svg'}
+                            alt="Groups Module"
+                            width={0}
+                            height={0}
+                            className="w-32 h-32 mx-auto mb-2 rounded-full"
+                          />
+                          <h4 className="text-xl font-semibold mb-2">Groups Module</h4>
+                          <h5 className="text-2xl font-bold mb-4">Flexible DAO-like Structures</h5>
+                          <p className="text-gray-400 group-hover:text-black dark:group-hover:text-white">
+                            Create and manage multi-member groups capable of submitting any type of
+                            transaction, enabling DAO-like governance.
                           </p>
                         </div>
                       </div>
@@ -178,25 +185,23 @@ export default function Home() {
 
                     {/* Third Box */}
                     <div className="group relative text-center p-4 rounded-2xl shadow-lg overflow-hidden transition-all duration-300 ease-in-out hover:bg-gradient-to-br hover:from-white/80 hover:to-transparent dark:hover:from-base-300/80 dark:hover:to-transparent backdrop-blur-sm bg-white/60 dark:bg-base-300/60 hover:scale-105">
-                      {/* AnimatedAsterisk behind the content */}
                       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0">
-                        <AnimatedAsterisk />
+                        <AnimatedAsterisk onLoad={handle3DLoad} />
                       </div>
-                      {/* Content above with pointer-events: none */}
                       <div className="w-full h-full p-4 rounded-2xl backdrop-blur-sm pointer-events-none ">
                         <div className="relative z-10 pointer-events-none">
                           <Image
                             src={'/3dWallet.svg'}
-                            alt="More Wallet Options"
+                            alt="Wallet Support"
                             width={0}
                             height={0}
                             className="w-32 h-32 mx-auto mb-2 rounded-full"
                           />
-                          <h4 className="text-xl font-semibold mb-2">More Wallet Options</h4>
-                          <h5 className="text-2xl font-bold mb-4">Not just another Keplr app</h5>
-                          <p className="text-gray-400">
-                            Using Web3Auth, Alberto enables users to connect with a seed phrase or
-                            social account.
+                          <h4 className="text-xl font-semibold mb-2">Diverse Wallet Support</h4>
+                          <h5 className="text-2xl font-bold mb-4">Accessible to All</h5>
+                          <p className="text-gray-400 group-hover:text-black dark:group-hover:text-white">
+                            Connect seamlessly with social, hardware, and various other wallet
+                            types, including Keplr and other providers.
                           </p>
                         </div>
                       </div>
@@ -208,14 +213,10 @@ export default function Home() {
           </Element>
         </FadeInSection>
 
+        {/* Resources */}
         <FadeInSection>
           <Element name="resources" id="resources" className="pt-20 sm:pt-24 md:pt-28 lg:pt-32">
             <section className="relative min-h-screen py-20 sm:py-24 md:py-28 lg:py-32">
-              {/* <div className="absolute inset-0 z-0">
-                <div className="w-full h-full">
-                  <AnimatedShape shape={'icosahedron'} />
-                </div>
-              </div> */}
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   <div className="bg-white/60 dark:bg-base-300/60 backdrop-blur-sm p-6 sm:p-8 rounded-lg shadow-lg">
@@ -225,19 +226,19 @@ export default function Home() {
                       <div className="absolute bottom-0 left-16 sm:left-20 w-10 sm:w-12 h-10 sm:h-12 bg-gray-300 rounded-full"></div>
                     </div>
                     <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">
-                      Peek under Alberto&apos;s hood—
+                      The first chain to use the
                       <br />
-                      Tech, economics, and more.
+                      Proof of Authority module
                     </h3>
                     <p className="text-gray-600 dark:text-gray-400 mb-4 sm:mb-6 text-sm sm:text-base">
-                      Understand how Alberto sets its ecosystem up for sustainable growth. Dive into
-                      its tech stack, innovative modules, intuitive tooling, and more.
+                      Learn how our implementation of POA module secures the network while enabling
+                      fast, efficient consensus. A first of its kind in the Cosmos ecosystem.
                     </p>
                     <a
                       href="#"
                       className="text-primary font-semibold hover:underline text-sm sm:text-base"
                     >
-                      Explore the Technical Overview &gt;
+                      Explore the POA Technical Overview &gt;
                     </a>
                   </div>
                   <div className="bg-white/60 dark:bg-base-300/60 backdrop-blur-sm p-6 sm:p-8 rounded-lg shadow-lg">
@@ -247,32 +248,32 @@ export default function Home() {
                       <div className="absolute right-12 sm:right-16 bottom-0 w-12 sm:w-16 h-12 sm:h-16 bg-primary rounded-full"></div>
                     </div>
                     <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">
-                      All of Alberto&apos;s papers,
+                      Lifted Initiative: Pioneering
                       <br />
-                      all in one place.
+                      decentralized AI infrastructure
                     </h3>
                     <p className="text-gray-600 dark:text-gray-400 mb-4 sm:mb-6 text-sm sm:text-base">
-                      Dive into the Protocol&apos;s economic, technical, and lightpapers, as well as
-                      other detailed documents to fully understand the power of Alberto.
+                      Explore how our parent company, Lifted Initiative, is pushing the boundaries
+                      of open, decentralized compute and AI agents, with Alberto at the forefront.
                     </p>
                     <a
                       href="#"
                       className="text-primary font-semibold hover:underline text-sm sm:text-base"
                     >
-                      Access All Papers &gt;
+                      Learn about Lifted Initiative &gt;
                     </a>
                   </div>
                 </div>
 
-                {/* New section with icons */}
-                <div className="mt-8 bg-white/60 backdrop-blur-sm dark:bg-base-300/60 p-6 sm:p-8 rounded-lg shadow-lg">
-                  <div className="flex flex-row gap-6 justify-between items-center">
+                {/* Navigation Explanation */}
+                <div className="mt-8 bg-white/60 dark:bg-base-300/60 backdrop-blur-sm p-8 rounded-lg shadow-lg">
+                  <div className="grid grid-cols-1 gap-y-12 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-4 lg:gap-x-8">
                     {[
                       {
                         name: 'Bank',
                         Icon: BankIcon,
                         href: '/bank',
-                        description: 'Interact with all your tokens on Manifest',
+                        description: 'Interact with all your tokens on the Manifest network',
                       },
                       {
                         name: 'Groups',
@@ -294,17 +295,17 @@ export default function Home() {
                           'The token factory allows you to create new tokens on the network',
                       },
                     ].map(({ name, Icon, href, description }) => (
-                      <div key={name} className="flex items-center  space-x-4">
-                        <a href={href} className="flex flex-col items-center w-24">
-                          <Icon className="w-12 h-12 text-primary mb-2" />
-                          <span className="text-sm font-bold text-gray-800 dark:text-gray-200">
+                      <Link key={name} href={href} legacyBehavior>
+                        <div className="group cursor-pointer transition-all duration-300 ease-in-out hover:bg-white/20 dark:hover:bg-base-200/20 rounded-lg p-4">
+                          <Icon className="h-16 w-auto text-[#00000066] dark:text-white transition-colors duration-300 ease-in-out group-hover:text-primary dark:group-hover:text-primary" />
+                          <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100 group-hover:text-primary transition-colors duration-300 ease-in-out">
                             {name}
-                          </span>
-                        </a>
-                        <p className="text-sm p-2 bg-base-300/60 rounded-lg text-gray-600 dark:text-gray-400">
-                          {description}
-                        </p>
-                      </div>
+                          </h3>
+                          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors duration-300 ease-in-out">
+                            {description}
+                          </p>
+                        </div>
+                      </Link>
                     ))}
                   </div>
                 </div>

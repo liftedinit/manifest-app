@@ -2,10 +2,10 @@ import React, { useState, useMemo } from 'react';
 import { DenomImage } from '@/components/factory';
 import { shiftDigits } from '@/utils';
 import { CombinedBalanceInfo } from '@/pages/bank';
-import { DenomInfoModal } from '@/components/factory';
+import { DenomInfo } from '@/components/factory';
 import { PiMagnifyingGlass } from 'react-icons/pi';
 import { ArrowUpIcon } from '@/components/icons';
-
+import { truncateString } from '@/utils';
 interface TokenListProps {
   balances: CombinedBalanceInfo[] | undefined;
   isLoading: boolean;
@@ -59,7 +59,7 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
           <p className="text-center text-[#00000099] dark:text-[#FFFFFF99]">No tokens found!</p>
         </div>
       ) : (
-        <div className="space-y-2 max-h-[400px] overflow-y-auto">
+        <div className="space-y-2 max-h-screen overflow-y-auto">
           {filteredBalances.map(balance => (
             <div
               key={balance.denom}
@@ -72,7 +72,7 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
                 </div>
                 <div>
                   <p className="font-semibold text-[#161616] dark:text-white">
-                    {balance.metadata?.display}
+                    {truncateString(balance.metadata?.display ?? '', 12)}
                   </p>
                   <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99]">
                     {balance.metadata?.denom_units[0]?.denom.split('/').pop()}
@@ -85,7 +85,7 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
                     balance.amount,
                     -Number(balance.metadata?.denom_units[1]?.exponent) ?? 6
                   )}{' '}
-                  {balance.metadata?.symbol}
+                  {truncateString(balance.metadata?.display ?? '', 12)}
                 </p>
               </div>
               <div>
@@ -105,7 +105,7 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
       )}
 
       {/* DenomInfoModal */}
-      {selectedDenom && <DenomInfoModal denom={selectedDenom} modalId="denom-info-modal" />}
+      {selectedDenom && <DenomInfo denom={selectedDenom} modalId="denom-info-modal" />}
     </div>
   );
 }

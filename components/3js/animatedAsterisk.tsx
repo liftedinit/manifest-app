@@ -1,5 +1,5 @@
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Suspense, useRef, useMemo } from 'react';
+import { Suspense, useRef, useMemo, useEffect } from 'react';
 import { Mesh, Vector3, BufferAttribute, BufferGeometry } from 'three';
 import { Environment } from '@react-three/drei';
 import * as THREE from 'three';
@@ -113,9 +113,11 @@ function createExtrudedGeometry(extrusion: number) {
 function AnimatedMesh({
   scaleFactor,
   extrusionMultiplier,
+  onLoad,
 }: {
   scaleFactor: number;
   extrusionMultiplier: number;
+  onLoad?: () => void;
 }) {
   const meshRef = useRef<Mesh>(null);
   const extrusionAmountRef = useRef(0);
@@ -165,21 +167,39 @@ function AnimatedMesh({
     }
   });
 
+  useEffect(() => {
+    if (meshRef.current) {
+      // Mesh is loaded
+      onLoad?.();
+    }
+  }, [onLoad]);
+
   return <mesh ref={meshRef} geometry={geometry} material={material} />;
 }
 
-export default function AnimatedAsterisk() {
+export default function AnimatedAsterisk({ onLoad }: { onLoad?: () => void }) {
   const levels = 3; // Number of nested icosahedrons
   const meshes = [];
+  const loadedMeshes = useRef(0);
+
+  const handleMeshLoad = () => {
+    loadedMeshes.current += 1;
+    if (loadedMeshes.current === levels) {
+      onLoad?.();
+    }
+  };
 
   for (let i = 0; i < levels; i++) {
     const scaleFactor = 1 - i * 0.2; // Adjust scale for each level
-
-    // Adjust extrusionMultiplier to decrease more rapidly for inner shapes
     const extrusionMultiplier = 2 / Math.pow(2, i); // Halve the multiplier at each level
 
     meshes.push(
-      <AnimatedMesh key={i} scaleFactor={scaleFactor} extrusionMultiplier={extrusionMultiplier} />
+      <AnimatedMesh
+        key={i}
+        scaleFactor={scaleFactor}
+        extrusionMultiplier={extrusionMultiplier}
+        onLoad={handleMeshLoad}
+      />
     );
   }
 

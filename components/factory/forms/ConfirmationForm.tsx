@@ -48,7 +48,7 @@ export default function ConfirmationForm({
           ],
           base: fullDenom,
           display: formData.display,
-          name: formData.name,
+          name: formData.display,
           symbol: formData.symbol,
           uri: formData.uri,
           uriHash: formData.uriHash,
@@ -84,7 +84,7 @@ export default function ConfirmationForm({
       <h2 className="text-2xl font-bold mb-4">Token Information</h2>
       <div className="bg-base-300 rounded-lg p-4 mb-6 flex-grow overflow-auto max-h-[34rem]">
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
-          {renderField('Token Name', formData.name)}
+          {renderField('Token Name', formData.display)}
           {renderField('Symbol', formData.symbol)}
           {renderField('Display', formData.display)}
           {renderField('Subdenom', formData.subdenom)}

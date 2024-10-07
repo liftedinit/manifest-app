@@ -9,6 +9,8 @@ import GroupProposals from './groupProposals';
 import { useBalance } from '@/hooks/useQueries';
 import { shiftDigits } from '@/utils';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import { SearchIcon } from '@/components/icons';
+
 export function YourGroups({
   groups,
   proposals,
@@ -24,6 +26,7 @@ export function YourGroups({
     name: string;
     threshold: string;
   } | null>(null);
+  const [showContent, setShowContent] = useState(false);
   const router = useRouter();
 
   const filteredGroups = groups.groups.filter(group =>
@@ -51,6 +54,15 @@ export function YourGroups({
       window.scrollTo(0, 0);
     }
   }, [selectedGroup]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      const timer = setTimeout(() => {
+        setShowContent(true);
+      }, 900); // 300ms buffer, adjust as needed
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading]);
 
   const handleSelectGroup = (policyAddress: string, groupName: string, threshold: string) => {
     setSelectedGroup({ policyAddress, name: groupName, threshold });
@@ -84,20 +96,7 @@ export function YourGroups({
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                 />
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
+                <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 " />
               </div>
             </div>
 
@@ -112,7 +111,7 @@ export function YourGroups({
           <div className="overflow-x-auto max-h-[87vh] w-full">
             <div className="max-w-8xl mx-auto">
               {' '}
-              {/* Center the table */}
+              {/* table */}
               <table className="table w-full border-separate border-spacing-y-3">
                 <thead className="sticky top-0 bg-[#F0F0FF] dark:bg-[#0E0A1F]">
                   <tr className="text-sm font-medium">
@@ -125,35 +124,37 @@ export function YourGroups({
                   </tr>
                 </thead>
                 <tbody className="space-y-4">
-                  {isLoading
-                    ? Array(5)
+                  {isLoading || !showContent
+                    ? // Skeleton
+                      Array(12)
                         .fill(0)
                         .map((_, index) => (
                           <tr key={index}>
                             <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] w-1/6">
                               <div className="flex items-center space-x-3">
-                                <div className="skeleton w-10 h-10 rounded-full shrink-0"></div>
-                                <div className="skeleton h-4 w-24"></div>
+                                <div className="skeleton w-10 h-8 rounded-full shrink-0"></div>
+                                <div className="skeleton h-3 w-24"></div>
                               </div>
                             </td>
                             <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6">
-                              <div className="skeleton h-4 w-8"></div>
+                              <div className="skeleton h-2 w-8"></div>
                             </td>
                             <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6">
-                              <div className="skeleton h-4 w-24"></div>
+                              <div className="skeleton h-2 w-24"></div>
                             </td>
                             <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6">
-                              <div className="skeleton h-4 w-16"></div>
+                              <div className="skeleton h-2 w-16"></div>
                             </td>
                             <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6">
-                              <div className="skeleton h-4 w-20"></div>
+                              <div className="skeleton h-2 w-20"></div>
                             </td>
                             <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px] w-1/6">
-                              <div className="skeleton h-4 w-32"></div>
+                              <div className="skeleton h-2 w-32"></div>
                             </td>
                           </tr>
                         ))
-                    : filteredGroups.map((group, index) => (
+                    : // content
+                      filteredGroups.map((group, index) => (
                         <GroupRow
                           key={index}
                           group={group}
@@ -221,7 +222,7 @@ function GroupRow({
 
   return (
     <tr
-      className="hover:bg-base-200 text-black dark:text-white rounded-lg cursor-pointer"
+      className="hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] dark:bg-[#FFFFFF0F] bg-[#FFFFFF] text-black dark:text-white rounded-lg cursor-pointer"
       onClick={e => {
         e.stopPropagation();
         onSelectGroup(
@@ -231,30 +232,28 @@ function GroupRow({
         );
       }}
     >
-      <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] w-1/6">
+      <td className=" rounded-l-[12px] w-1/6">
         <div className="flex items-center space-x-3">
           <ProfileAvatar walletAddress={group.policies[0]?.address ?? ''} />
           <span className="font-medium">{truncateString(groupName, 24)}</span>
         </div>
       </td>
-      <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6">
+      <td className=" w-1/6">
         {activeProposals.length > 0 ? (
           <span className="badge badge-primary badge-sm">{activeProposals.length}</span>
         ) : (
           '-'
         )}
       </td>
-      <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6">
+      <td className=" w-1/6">
         {truncateString(
           getAuthor(group.ipfsMetadata?.authors),
           getAuthor(group.ipfsMetadata?.authors).startsWith('manifest1') ? 6 : 24
         )}
       </td>
-      <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6">
-        {shiftDigits(balance?.amount ?? '0', -6)} MFX
-      </td>
-      <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6">{`${group.policies[0]?.decision_policy?.threshold ?? '0'} / ${group.total_weight ?? '0'}`}</td>
-      <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px] w-1/6">
+      <td className=" w-1/6">{shiftDigits(balance?.amount ?? '0', -6)} MFX</td>
+      <td className=" w-1/6">{`${group.policies[0]?.decision_policy?.threshold ?? '0'} / ${group.total_weight ?? '0'}`}</td>
+      <td className="rounded-r-[12px] w-1/6">
         <TruncatedAddressWithCopy address={policyAddress} slice={12} />
       </td>
     </tr>

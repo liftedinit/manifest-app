@@ -53,9 +53,7 @@ export default function MintForm({
       .positive('Amount must be positive')
       .required('Amount is required')
       .max(1e12, 'Amount is too large'),
-    recipient: Yup.string()
-      .required('Recipient address is required')
-      .manifestAddress('Invalid address format'),
+    recipient: Yup.string().required('Recipient address is required').manifestAddress(),
   });
 
   const handleMint = async () => {
@@ -188,20 +186,40 @@ export default function MintForm({
           <>
             <div className="grid grid-cols-2 gap-6">
               <div>
-                <p className="text-sm text-gray-500">NAME</p>
-                <p className="font-semibold text-md max-w-[20ch] truncate">{denom.name}</p>
+                <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">NAME</p>
+                <div className="bg-base-300 p-4 rounded-md">
+                  <p className="font-semibold text-md max-w-[20ch] truncate text-black dark:text-white">
+                    {denom.name}
+                  </p>
+                </div>
               </div>
               <div>
-                <p className="text-sm text-gray-500">YOUR BALANCE</p>
-                <p className="font-semibold text-md">{shiftDigits(balance, -exponent)}</p>
+                <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
+                  YOUR BALANCE
+                </p>
+                <div className="bg-base-300 p-4 rounded-md">
+                  <p className="font-semibold text-md text-black dark:text-white">
+                    {shiftDigits(balance, -exponent)}
+                  </p>
+                </div>
               </div>
               <div>
-                <p className="text-md text-gray-500">EXPONENT</p>
-                <p className="font-semibold text-md">{denom?.denom_units[1]?.exponent}</p>
+                <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">EXPONENT</p>
+                <div className="bg-base-300 p-4 rounded-md">
+                  <p className="font-semibold text-md text-black dark:text-white">
+                    {denom?.denom_units[1]?.exponent}
+                  </p>
+                </div>
               </div>
               <div>
-                <p className="text-md text-gray-500">CIRCULATING SUPPLY</p>
-                <p className="font-semibold text-md max-w-[20ch] truncate">{denom.display}</p>
+                <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
+                  CIRCULATING SUPPLY
+                </p>
+                <div className="bg-base-300 p-4 rounded-md">
+                  <p className="font-semibold text-md max-w-[20ch] truncate text-black dark:text-white">
+                    {denom.display}
+                  </p>
+                </div>
               </div>
             </div>
             <Formik
@@ -217,11 +235,11 @@ export default function MintForm({
             >
               {({ isValid, dirty, setFieldValue, errors, touched }) => (
                 <Form>
-                  <div className="flex space-x-4 mt-8 ">
-                    <div className="flex-1">
+                  <div className="flex space-x-4 mt-8">
+                    <div className="flex-grow relative">
                       <NumberInput
+                        showError={false}
                         label="AMOUNT"
-                        aria-label="mint-amount-input"
                         name="amount"
                         placeholder="Enter amount"
                         value={amount}
@@ -229,35 +247,60 @@ export default function MintForm({
                           setAmount(e.target.value);
                           setFieldValue('amount', e.target.value);
                         }}
+                        className={`input input-bordered w-full ${
+                          touched.amount && errors.amount ? 'input-error' : ''
+                        }`}
                       />
-                    </div>
-                    <div className="flex-1 ">
-                      <div className="flex flex-row items-center">
-                        <TextInput
-                          label="RECIPIENT"
-                          aria-label="mint-recipient-input"
-                          name="recipient"
-                          placeholder="Recipient address"
-                          value={recipient}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                            setRecipient(e.target.value);
-                            setFieldValue('recipient', e.target.value);
-                          }}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setRecipient(address)}
-                          className="btn btn-primary btn-sm h-10 rounded-tr-lg rounded-br-lg rounded-bl-none rounded-tl-none"
+                      {touched.amount && errors.amount && (
+                        <div
+                          className="tooltip tooltip-bottom tooltip-open tooltip-error bottom-0 absolute left-1/2 transform -translate-x-1/2 translate-y-full mt-1 z-50 text-white text-xs"
+                          data-tip={errors.amount}
                         >
-                          <PiAddressBook className="w-6 h-6" />
-                        </button>
-                      </div>
+                          <div className="w-0 h-0"></div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-grow relative">
+                      <TextInput
+                        showError={false}
+                        label="RECIPIENT"
+                        name="recipient"
+                        placeholder="Recipient address"
+                        value={recipient}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          setRecipient(e.target.value);
+                          setFieldValue('recipient', e.target.value);
+                        }}
+                        className={`input input-bordered w-full ${
+                          touched.recipient && errors.recipient ? 'input-error' : ''
+                        }`}
+                        rightElement={
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setRecipient(address);
+                              setFieldValue('recipient', address);
+                            }}
+                            className="btn btn-primary btn-sm text-white absolute right-2 top-1/2 transform -translate-y-1/2"
+                          >
+                            <PiAddressBook className="w-5 h-5" />
+                          </button>
+                        }
+                      />
+                      {touched.recipient && errors.recipient && (
+                        <div
+                          className="tooltip tooltip-bottom tooltip-open tooltip-error bottom-0 absolute left-1/2 transform -translate-x-1/2 translate-y-full mt-1 z-50 text-white text-xs"
+                          data-tip={errors.recipient}
+                        >
+                          <div className="w-0 h-0"></div>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="flex justify-end mt-6 space-x-2">
                     <button
                       type="submit"
-                      className="btn btn-primary btn-md flex-grow"
+                      className="btn btn-gradient btn-md flex-grow text-white"
                       disabled={isSigning || !isValid || !dirty}
                     >
                       {isSigning ? (

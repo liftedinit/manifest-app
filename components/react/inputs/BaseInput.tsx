@@ -1,6 +1,6 @@
 import React from 'react';
 import { useField } from 'formik';
-
+import { QuestionIcon } from '@/components/icons';
 interface BaseInputProps {
   label?: string;
   name: string;
@@ -8,12 +8,14 @@ interface BaseInputProps {
   rightElement?: React.ReactNode;
   showError?: boolean;
   leftElement?: React.ReactNode;
+  helperText?: string;
 }
 
 export const BaseInput: React.FC<BaseInputProps & React.InputHTMLAttributes<HTMLInputElement>> = ({
   label,
   rightElement,
   leftElement,
+  helperText,
   showError = true,
   ...props
 }) => {
@@ -21,11 +23,18 @@ export const BaseInput: React.FC<BaseInputProps & React.InputHTMLAttributes<HTML
   const id = props.id || props.name;
   return (
     <div className="form-control w-full">
-      {label && (
-        <label className="label" htmlFor={id}>
-          <span className="label-text text-[#00000099] dark:text-[#FFFFFF99]">{label}</span>
-        </label>
-      )}
+      <div className="flex justify-between items-center">
+        {label && (
+          <label className="label" htmlFor={id}>
+            <span className="label-text text-[#00000099] dark:text-[#FFFFFF99]">{label}</span>
+          </label>
+        )}
+        {helperText && (
+          <span className="text-sm flex-row flex items-center justify-between gap-2 text-[#00000099] dark:text-[#FFFFFF99]">
+            <QuestionIcon className="w-4 h-4" /> {helperText}
+          </span>
+        )}
+      </div>
       <div className="relative">
         <input
           id={id}

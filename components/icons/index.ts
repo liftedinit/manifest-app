@@ -22,3 +22,6 @@ export * from './BroadcastingIcon';
 export * from './ReceiveIcon';
 export * from './SendIcon';
 export * from './ArrowRightIcon';
+export * from './BurnIcon';
+export * from './MintIcon';
+export * from './QuestionIcon';

@@ -79,7 +79,7 @@ export default function ValidatorList({
         {filteredValidators.map(validator => (
           <tr
             key={validator.operator_address}
-            className="bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg cursor-pointer transition-colors"
+            className="bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg cursor-pointer"
             onClick={() => handleRowClick(validator)}
           >
             <td className="rounded-l-[12px] py-4">
@@ -109,7 +109,7 @@ export default function ValidatorList({
                   e.stopPropagation();
                   handleRemove(validator);
                 }}
-                className="btn btn-error btn-sm text-white  transition-colors"
+                className="btn btn-error btn-sm text-white "
               >
                 <TrashIcon className="w-5 h-5" />
               </button>
@@ -144,7 +144,7 @@ export default function ValidatorList({
         <div className="flex mb-6 w-full h-[3.5rem] rounded-xl p-1 bg-[#0000000A] dark:bg-[#FFFFFF0F]">
           <button
             onClick={() => setActive(true)}
-            className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl transition-colors ${
+            className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl  ${
               active
                 ? 'dark:bg-[#FFFFFF1F] bg-[#FFFFFF] text-[#161616] dark:text-white'
                 : 'text-[#808080]'
@@ -154,7 +154,7 @@ export default function ValidatorList({
           </button>
           <button
             onClick={() => setActive(false)}
-            className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl transition-colors ${
+            className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl  ${
               !active
                 ? 'dark:bg-[#FFFFFF1F] bg-[#FFFFFF] text-[#161616] dark:text-white'
                 : 'text-[#808080]'

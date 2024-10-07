@@ -6,8 +6,36 @@ declare module 'yup' {
   interface StringSchema {
     noProfanity(message?: string): this;
     manifestAddress(message?: string): this;
+    simulateDenomCreation(simulateFn: () => Promise<boolean>, message?: string): this;
   }
 }
+
+Yup.addMethod<Yup.StringSchema>(
+  Yup.string,
+  'simulateDenomCreation',
+  function (simulateFn, message) {
+    return this.test('simulate-denom-creation', message, async function (value) {
+      const { path, createError } = this;
+      if (!value) return true;
+
+      try {
+        const isValid = await simulateFn();
+        if (!isValid) {
+          return createError({
+            path,
+            message: message || 'This denom cannot be created',
+          });
+        }
+        return true;
+      } catch (error) {
+        return createError({
+          path,
+          message: message || 'Error during denom creation simulation',
+        });
+      }
+    });
+  }
+);
 
 Yup.addMethod<Yup.StringSchema>(Yup.string, 'noProfanity', function (message) {
   return this.test('no-profanity', message, function (value) {
@@ -26,7 +54,10 @@ Yup.addMethod<Yup.StringSchema>(Yup.string, 'manifestAddress', function (message
     if (!value) return true;
 
     try {
-      const decoded = bech32.decode(value);
+      if (!value.includes('1')) {
+        throw new Error('Invalid bech32 address format');
+      }
+      const decoded = bech32.decode(value as `${string}1${string}`);
 
       const validPrefixes = ['manifest', 'manifestvaloper', 'manifestvalcons'];
       if (!validPrefixes.includes(decoded.prefix)) {

@@ -14,11 +14,7 @@ export default function Groups() {
   const { groupByMemberData, isGroupByMemberLoading, isGroupByMemberError, refetchGroupByMember } =
     useGroupsByMember(address ?? '');
 
-  const [selectedPolicyAddress, setSelectedPolicyAddress] = useState<string | null>(null);
-
-  const handleGroupSelect = (policyAddress: string) => {
-    setSelectedPolicyAddress(policyAddress);
-  };
+  const [selectedPolicyAddress, _setSelectedPolicyAddress] = useState<string | null>(null);
 
   const groupPolicyAddresses =
     groupByMemberData?.groups?.map(group => group.policies[0].address) ?? [];
@@ -30,7 +26,7 @@ export default function Groups() {
   const isError = isGroupByMemberError || isProposalsError;
 
   return (
-    <div className="min-h-screen relative py-4 px-2 mx-auto text-white mt-12 md:-mt-4">
+    <div className="min-h-screen relative py-4 px-2 mx-auto text-white mt-12 md:mt-0">
       <Head>
         <title>Groups - Alberto</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -78,8 +74,12 @@ export default function Groups() {
         <div className="w-full mx-auto">
           {!isWalletConnected ? (
             <WalletNotConnected />
+          ) : isLoading ? (
+            <div className="text-center">Loading...</div>
           ) : isError ? (
             <div className="text-center text-error">Error loading groups or proposals</div>
+          ) : groupByMemberData?.groups.length === 0 ? (
+            <NoGroupsFound />
           ) : (
             <>
               <YourGroups
@@ -112,7 +112,7 @@ function WalletNotConnected() {
     <section className="transition-opacity duration-300 h-[80vh] ease-in-out animate-fadeIn w-full flex items-center justify-center">
       <div className="grid max-w-4xl bg-base-300 p-12 rounded-md w-full mx-auto gap-8 lg:grid-cols-12">
         <div className="mr-auto place-self-center lg:col-span-7">
-          <h1 className="max-w-2xl mb-4 text-2xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl">
+          <h1 className="max-w-2xl mb-4 text-2xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white text-black">
             Connect your wallet!
           </h1>
           <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl">
@@ -132,12 +132,23 @@ function WalletNotConnected() {
 
 function NoGroupsFound() {
   return (
-    <div className="flex flex-col items-center justify-center w-full h-64">
-      <h2 className="text-2xl font-bold mb-4">No Groups Found</h2>
-      <p className="text-gray-600 mb-6">You are not a member of any groups yet.</p>
-      <Link href="/groups/create" passHref>
-        <button className="btn btn-gradient">Create a New Group</button>
-      </Link>
-    </div>
+    <section className="transition-opacity duration-300 h-[80vh] ease-in-out animate-fadeIn w-full flex items-center justify-center">
+      <div className="grid max-w-4xl bg-base-300 p-12 rounded-md w-full mx-auto gap-8 lg:grid-cols-12">
+        <div className="mr-auto place-self-center lg:col-span-7">
+          <h1 className="max-w-2xl mb-4 text-2xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white text-black">
+            No Groups Found
+          </h1>
+          <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl">
+            You are not a member of any groups yet. Create a new group to get started!
+          </p>
+          <Link href="/groups/create" passHref>
+            <button className="btn btn-gradient">Create a New Group</button>
+          </Link>
+        </div>
+        <div className="hidden lg:mt-0 lg:ml-24 lg:col-span-5 lg:flex">
+          <GroupsIcon className="h-60 w-60 text-primary" />
+        </div>
+      </div>
+    </section>
   );
 }

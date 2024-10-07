@@ -91,7 +91,7 @@ export const Connected = ({
               {shiftDigits(balance?.amount ?? '', -6)}
             </p>
           ) : (
-            <div className="loading w-16 h-8"></div>
+            <div className="loading loading-dots w-8 h-8"></div>
           )}
           <p className="text-md ml-2 dark:text-[#FFFFFF99] text-black">MFX</p>
         </div>

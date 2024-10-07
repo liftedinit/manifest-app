@@ -7,3 +7,4 @@ export * from './string';
 export * from './identicon';
 export * from './profanityFilter';
 export * from './yupExtensions';
+export * from './transactionUtils';

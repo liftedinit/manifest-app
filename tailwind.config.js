@@ -168,7 +168,7 @@ module.exports = {
             cursor: 'not-allowed',
             border: 'none',
             boxShadow: 'none',
-            textColor: '#000000',
+            textColor: '#fffcfc',
           },
         },
       };
