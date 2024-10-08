@@ -195,24 +195,22 @@ export default function TokenDetails({
                                 tabIndex={0}
                                 className="dropdown-content z-[1] menu p-2 mt-2 shadow bg-base-300 rounded-box w-full max-h-60 overflow-y-auto"
                               >
-                                {tokenExponents.map(
-                                  ({ exponent, subdenom, letter, description }) => (
-                                    <li key={exponent}>
-                                      <a
-                                        onClick={() => {
-                                          updateDenomUnit(1, 'exponent', exponent);
-                                          setFieldValue('denomUnits[1].exponent', exponent);
-                                        }}
-                                        className="flex justify-between items-center"
-                                      >
-                                        <span>{exponent}</span>
-                                        <span className="text-xs opacity-70">
-                                          {letter && `(${letter})`}
-                                        </span>
-                                      </a>
-                                    </li>
-                                  )
-                                )}
+                                {tokenExponents.map(({ exponent, letter }) => (
+                                  <li key={exponent}>
+                                    <a
+                                      onClick={() => {
+                                        updateDenomUnit(1, 'exponent', exponent);
+                                        setFieldValue('denomUnits[1].exponent', exponent);
+                                      }}
+                                      className="flex justify-between items-center"
+                                    >
+                                      <span>{exponent}</span>
+                                      <span className="text-xs opacity-70">
+                                        {letter && `(${letter})`}
+                                      </span>
+                                    </a>
+                                  </li>
+                                ))}
                               </ul>
                             </div>
                           </div>
