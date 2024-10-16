@@ -12,6 +12,7 @@ import { useToast } from '@/contexts';
 import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { NumberInput, TextInput } from '@/components/react/inputs';
+import { ExtendedMetadataSDKType, truncateString } from '@/utils';
 
 interface BurnPair {
   address: string;
@@ -25,21 +26,23 @@ export default function BurnForm({
   address,
   refetch,
   balance,
+  totalSupply,
 }: Readonly<{
   isAdmin: boolean;
   admin: string;
-  denom: MetadataSDKType;
+  denom: ExtendedMetadataSDKType;
   address: string;
   refetch: () => void;
   balance: string;
+  totalSupply: string;
 }>) {
   const [amount, setAmount] = useState('');
   const [recipient, setRecipient] = useState(address);
-  const [isSigning, setIsSigning] = useState(false);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [burnPairs, setBurnPairs] = useState<BurnPair[]>([{ address: '', amount: '' }]);
 
-  const { tx } = useTx(chainName);
+  const { tx, isSigning, setIsSigning } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
   const { burn } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
   const { burnHeldBalance } = liftedinit.manifest.v1.MessageComposer.withTypeUrl;
@@ -176,10 +179,10 @@ export default function BurnForm({
 
   return (
     <div className="animate-fadeIn text-sm z-10">
-      <div className="rounded-lg mb-8">
+      <div className="rounded-lg">
         {isMFX && !isAdmin ? (
-          <div className="w-full p-2 justify-center items-center my-auto h-full mt-24 leading-tight text-xl flex flex-col font-medium text-pretty">
-            <span>You are not affiliated with any PoA Admin entity.</span>
+          <div className="w-full p-2 justify-center items-center my-auto leading-tight text-xl flex flex-col font-medium text-pretty">
+            <span>You must be apart of the admin group to burn MFX.</span>
           </div>
         ) : (
           <>
@@ -202,140 +205,151 @@ export default function BurnForm({
                   </p>
                 </div>
               </div>
-              <div>
-                <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">EXPONENT</p>
-                <div className="bg-base-300 p-4 rounded-md">
-                  <p className="font-semibold text-md text-black dark:text-white">
-                    {denom?.denom_units[1]?.exponent}
+              {denom?.denom_units[1]?.exponent && (
+                <div>
+                  <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
+                    EXPONENT
                   </p>
-                </div>
-              </div>
-              <div>
-                <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
-                  CIRCULATING SUPPLY
-                </p>
-                <div className="bg-base-300 p-4 rounded-md">
-                  <p className="font-semibold text-md max-w-[20ch] truncate text-black dark:text-white">
-                    {denom.display}
-                  </p>
-                </div>
-              </div>
-            </div>
-            <Formik
-              initialValues={{ amount: '', recipient: address }}
-              validationSchema={BurnSchema}
-              onSubmit={values => {
-                setAmount(values.amount);
-                setRecipient(values.recipient);
-                handleBurn();
-              }}
-              validateOnChange={true}
-              validateOnBlur={true}
-            >
-              {({ isValid, dirty, setFieldValue, errors, touched }) => (
-                <Form>
-                  <div className="flex space-x-4 mt-8">
-                    <div className="flex-grow relative">
-                      <NumberInput
-                        showError={false}
-                        label="AMOUNT"
-                        name="amount"
-                        placeholder="Enter amount"
-                        value={amount}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          setAmount(e.target.value);
-                          setFieldValue('amount', e.target.value);
-                        }}
-                        className={`input input-bordered w-full ${
-                          touched.amount && errors.amount ? 'input-error' : ''
-                        }`}
-                      />
-                      {touched.amount && errors.amount && (
-                        <div
-                          className="tooltip tooltip-bottom tooltip-open tooltip-error bottom-0 absolute left-1/2 transform -translate-x-1/2 translate-y-full mt-1 z-50 text-white text-xs"
-                          data-tip={errors.amount}
-                        >
-                          <div className="w-0 h-0"></div>
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-grow relative">
-                      <TextInput
-                        showError={false}
-                        label="RECIPIENT"
-                        name="recipient"
-                        placeholder="Recipient address"
-                        value={recipient}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          setRecipient(e.target.value);
-                          setFieldValue('recipient', e.target.value);
-                        }}
-                        className={`input input-bordered w-full ${
-                          touched.recipient && errors.recipient ? 'input-error' : ''
-                        }`}
-                        rightElement={
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setRecipient(address);
-                              setFieldValue('recipient', address);
-                            }}
-                            className="btn btn-primary btn-sm text-white absolute right-2 top-1/2 transform -translate-y-1/2"
-                          >
-                            <PiAddressBook className="w-5 h-5" />
-                          </button>
-                        }
-                      />
-                      {touched.recipient && errors.recipient && (
-                        <div
-                          className="tooltip tooltip-bottom tooltip-open tooltip-error bottom-0 absolute left-1/2 transform -translate-x-1/2 translate-y-full mt-1 z-50 text-white text-xs"
-                          data-tip={errors.recipient}
-                        >
-                          <div className="w-0 h-0"></div>
-                        </div>
-                      )}
-                    </div>
+                  <div className="bg-base-300 p-4 rounded-md">
+                    <p className="font-semibold text-md text-black dark:text-white">
+                      {denom?.denom_units[1]?.exponent}
+                    </p>
                   </div>
-                  <div className="flex justify-end mt-6 space-x-2">
-                    <button
-                      type="submit"
-                      className="btn btn-error disabled:bg-error/40 disabled:text-white/40 btn-md flex-grow text-white"
-                      disabled={isSigning || !isValid || !dirty}
-                    >
-                      {isSigning ? (
-                        <span className="loading loading-dots loading-xs"></span>
-                      ) : (
-                        'Burn'
-                      )}
-                    </button>
-                    {isMFX && (
-                      <button
-                        onClick={() => setIsModalOpen(true)}
-                        className="btn btn-secondary btn-md"
-                        aria-label={'multi-burn-btn'}
-                      >
-                        Multi Burn
-                      </button>
-                    )}
-                  </div>
-                </Form>
+                </div>
               )}
-            </Formik>
-            {isMFX && (
-              <MultiBurnModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                burnPairs={burnPairs}
-                updateBurnPair={updateBurnPair}
-                addBurnPair={addBurnPair}
-                removeBurnPair={removeBurnPair}
-                handleMultiBurn={handleMultiBurn}
-                isSigning={isSigning}
-              />
+              {totalSupply !== '0' && (
+                <div>
+                  <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
+                    CIRCULATING SUPPLY
+                  </p>
+                  <div className="bg-base-300 p-4 rounded-md">
+                    <p className="font-semibold text-md max-w-[20ch] truncate text-black dark:text-white">
+                      {shiftDigits(totalSupply, -exponent)} {denom.display.toUpperCase()}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+            {!denom.base.includes('umfx') && (
+              <Formik
+                initialValues={{ amount: '', recipient: address }}
+                validationSchema={BurnSchema}
+                onSubmit={values => {
+                  setAmount(values.amount);
+                  setRecipient(values.recipient);
+                  handleBurn();
+                }}
+                validateOnChange={true}
+                validateOnBlur={true}
+              >
+                {({ isValid, dirty, setFieldValue, errors, touched }) => (
+                  <Form>
+                    <div className="flex space-x-4 mt-8">
+                      <div className="flex-grow relative">
+                        <NumberInput
+                          showError={false}
+                          label="AMOUNT"
+                          name="amount"
+                          placeholder="Enter amount"
+                          value={amount}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            setAmount(e.target.value);
+                            setFieldValue('amount', e.target.value);
+                          }}
+                          className={`input input-bordered w-full ${
+                            touched.amount && errors.amount ? 'input-error' : ''
+                          }`}
+                        />
+                        {touched.amount && errors.amount && (
+                          <div
+                            className="tooltip tooltip-bottom tooltip-open tooltip-error bottom-0 absolute left-1/2 transform -translate-x-1/2 translate-y-full mt-1 z-50 text-white text-xs"
+                            data-tip={errors.amount}
+                          >
+                            <div className="w-0 h-0"></div>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-grow relative">
+                        <TextInput
+                          showError={false}
+                          label="RECIPIENT"
+                          name="recipient"
+                          placeholder="Recipient address"
+                          value={recipient}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            setRecipient(e.target.value);
+                            setFieldValue('recipient', e.target.value);
+                          }}
+                          className={`input input-bordered w-full transition-none ${
+                            touched.recipient && errors.recipient ? 'input-error' : ''
+                          }`}
+                          rightElement={
+                            <button
+                              type="button"
+                              style={{ transition: 'none' }}
+                              onClick={() => {
+                                setRecipient(address);
+                                setFieldValue('recipient', address);
+                              }}
+                              className="btn btn-primary transition-none btn-sm text-white absolute right-2 top-1/2 -translate-y-1/2"
+                            >
+                              <PiAddressBook className="w-5 h-5" />
+                            </button>
+                          }
+                        />
+                        {touched.recipient && errors.recipient && (
+                          <div
+                            className="tooltip tooltip-bottom tooltip-open tooltip-error bottom-0 absolute left-1/2 transform -translate-x-1/2 translate-y-full mt-1 z-50 text-white text-xs"
+                            data-tip={errors.recipient}
+                          >
+                            <div className="w-0 h-0"></div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex justify-end mt-6">
+                      <button
+                        type="submit"
+                        className="btn btn-error disabled:bg-error/40 disabled:text-white/40 btn-md flex-grow text-white"
+                        disabled={isSigning || !isValid || !dirty}
+                      >
+                        {isSigning ? (
+                          <span className="loading loading-dots loading-xs"></span>
+                        ) : (
+                          `Burn ${truncateString(denom.display ?? 'Denom', 20).toUpperCase()}`
+                        )}
+                      </button>
+                    </div>
+                  </Form>
+                )}
+              </Formik>
             )}
           </>
         )}
       </div>
+      {isMFX && (
+        <button
+          type="button"
+          onClick={() => setIsModalOpen(true)}
+          className="btn btn-error btn-md flex-grow w-full text-white mt-6 disabled:bg-error/40 disabled:text-white/40"
+          aria-label="multi-burn-button"
+          disabled={!isAdmin}
+        >
+          Multi Burn
+        </button>
+      )}
+      {isMFX && (
+        <MultiBurnModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          burnPairs={burnPairs}
+          updateBurnPair={updateBurnPair}
+          addBurnPair={addBurnPair}
+          removeBurnPair={removeBurnPair}
+          handleMultiBurn={handleMultiBurn}
+          isSigning={isSigning}
+        />
+      )}
     </div>
   );
 }

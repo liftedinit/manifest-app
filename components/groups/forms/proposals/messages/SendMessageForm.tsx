@@ -1,73 +1,65 @@
-import React, { useState } from 'react';
-import { chainName } from '@/config';
-import { useFeeEstimation, useTx } from '@/hooks';
-import { cosmos } from '@chalabi/manifestjs';
+import React, { useMemo, useState } from 'react';
+import { Formik, Form } from 'formik';
+import { TextInput } from '@/components/react/inputs';
+import Yup from '@/utils/yupExtensions';
+import { useTokenBalances, useTokenBalancesResolved, useTokenFactoryDenomsMetadata } from '@/hooks';
+import { CombinedBalanceInfo } from '@/utils/types'; // Import the CombinedBalanceInfo type
+import { DenomImage } from '@/components/factory';
 import { PiCaretDownBold } from 'react-icons/pi';
 import { shiftDigits, truncateString } from '@/utils';
-import { CombinedBalanceInfo } from '@/utils/types';
-import { DenomImage } from '@/components/factory';
-import { Formik, Form } from 'formik';
-import Yup from '@/utils/yupExtensions';
-import { TextInput } from '@/components/react/inputs';
 
-export default function SendForm({
-  address,
-  balances,
-  isBalancesLoading,
-  refetchBalances,
-  refetchHistory,
-  ibcChains,
-}: Readonly<{
+interface SendMessageFormProps {
   address: string;
-  balances: CombinedBalanceInfo[];
-  isBalancesLoading: boolean;
-  refetchBalances: () => void;
-  refetchHistory: () => void;
-  ibcChains: { prefix: string }[];
-}>) {
-  const [isSending, setIsSending] = useState(false);
+  message: any;
+  index: number;
+  handleChange: (field: string, value: any) => void;
+}
+
+const SendMessageForm: React.FC<SendMessageFormProps> = ({
+  address,
+  message,
+  index,
+  handleChange,
+}) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [feeWarning, setFeeWarning] = useState('');
-  const { tx } = useTx(chainName);
-  const { estimateFee } = useFeeEstimation(chainName);
-  const { send } = cosmos.bank.v1beta1.MessageComposer.withTypeUrl;
 
-  const filteredBalances = balances?.filter(token =>
+  // Fetch token balances, resolved balances, and metadata
+  const { balances, isBalancesLoading } = useTokenBalances(address);
+  const { balances: resolvedBalances, isBalancesLoading: resolvedLoading } =
+    useTokenBalancesResolved(address);
+  const { metadatas, isMetadatasLoading } = useTokenFactoryDenomsMetadata();
+
+  // Combine balances with metadata
+  const combinedBalances = useMemo(() => {
+    if (!balances || !resolvedBalances || !metadatas) return [];
+
+    return balances.map((coreBalance): CombinedBalanceInfo => {
+      const resolvedBalance = resolvedBalances.find(
+        rb => rb.denom === coreBalance.denom || rb.denom === coreBalance.denom.split('/').pop()
+      );
+      const metadata = metadatas.metadatas.find(m => m.base === coreBalance.denom);
+
+      return {
+        denom: resolvedBalance?.denom || coreBalance.denom,
+        coreDenom: coreBalance.denom,
+        amount: coreBalance.amount,
+        metadata: metadata || null,
+      };
+    });
+  }, [balances, resolvedBalances, metadatas]);
+
+  const filteredBalances = combinedBalances?.filter(token =>
     token.metadata?.display.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const initialSelectedToken =
-    balances?.find(token => token.denom === 'umfx') || balances?.[0] || null;
+    combinedBalances?.find(token => token.denom === 'umfx') || combinedBalances?.[0] || null;
 
   const validationSchema = Yup.object().shape({
-    recipient: Yup.string().required('Recipient is required').manifestAddress(),
-    amount: Yup.number()
-      .required('Amount is required')
-      .positive('Amount must be positive')
-      .test('sufficient-balance', 'Amount exceeds balance', function (value) {
-        const { selectedToken } = this.parent;
-        if (!selectedToken || !value) return true;
-
-        const exponent = selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-        const balance = parseFloat(selectedToken.amount) / Math.pow(10, exponent);
-
-        return value <= balance;
-      })
-      .test('leave-for-fees', '', function (value) {
-        const { selectedToken } = this.parent;
-        if (!selectedToken || !value || selectedToken.denom !== 'umfx') return true;
-
-        const exponent = selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-        const balance = parseFloat(selectedToken.amount) / Math.pow(10, exponent);
-
-        if (value > balance - 0.09) {
-          setFeeWarning('Remember to leave tokens for fees!');
-        } else {
-          setFeeWarning('');
-        }
-
-        return true;
-      }),
+    amount: Yup.number().required('Amount is required').positive('Amount must be positive'),
+    to_address: Yup.string().required('Recipient address is required').manifestAddress(),
+    denom: Yup.string().required('Denomination is required'),
     selectedToken: Yup.object().required('Please select a token'),
     memo: Yup.string().max(255, 'Memo must be less than 255 characters'),
   });
@@ -76,62 +68,23 @@ export default function SendForm({
     return amount.toFixed(decimals).replace(/\.?0+$/, '');
   };
 
-  const handleSend = async (values: {
-    recipient: string;
-    amount: string;
-    selectedToken: CombinedBalanceInfo;
-    memo: string;
-  }) => {
-    setIsSending(true);
-    try {
-      const exponent = values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-      const amountInBaseUnits = Math.floor(
-        parseFloat(values.amount) * Math.pow(10, exponent)
-      ).toString();
-
-      const msg = send({
-        fromAddress: address,
-        toAddress: values.recipient,
-        amount: [{ denom: values.selectedToken.coreDenom, amount: amountInBaseUnits }],
-      });
-
-      const fee = await estimateFee(address, [msg]);
-      await tx([msg], {
-        memo: values.memo,
-        fee,
-        onSuccess: () => {
-          refetchBalances();
-          refetchHistory();
-        },
-      });
-    } catch (error) {
-      console.error('Error during sending:', error);
-    } finally {
-      setIsSending(false);
-    }
-  };
-
   return (
-    <div
-      style={{ borderRadius: '24px' }}
-      className="text-sm bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] px-6 pb-6 pt-4 w-full h-full"
-    >
+    <div style={{ borderRadius: '24px' }} className="text-sm w-full h-full p-2">
       <Formik
         initialValues={{
-          recipient: '',
           amount: '',
+          to_address: message.to_address ?? '',
+          memo: message.memo ?? '',
           selectedToken: initialSelectedToken,
-          memo: '',
         }}
         validationSchema={validationSchema}
-        onSubmit={handleSend}
+        onSubmit={() => {}}
         validateOnChange={true}
-        validateOnBlur={true}
-        enableReinitialize={true}
       >
-        {({ isValid, dirty, setFieldValue, values, errors, touched }) => (
-          <Form className="space-y-6 flex flex-col items-center max-w-md mx-auto">
+        {({ values, setFieldValue, errors }) => (
+          <Form className="space-y-6 flex flex-col items-center mx-auto">
             <div className="w-full space-y-4">
+              {/* Amount Input */}
               <div className="w-full">
                 <label className="label">
                   <span className="label-text text-md font-medium text-[#00000099] dark:text-[#FFFFFF99]">
@@ -149,6 +102,7 @@ export default function SendForm({
                       const value = e.target.value;
                       if (/^\d*\.?\d*$/.test(value) && parseFloat(value) >= 0) {
                         setFieldValue('amount', value);
+                        handleChange('amount', value);
                       }
                     }}
                     onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -214,7 +168,11 @@ export default function SendForm({
                           filteredBalances?.map(token => (
                             <li
                               key={token.coreDenom}
-                              onClick={() => setFieldValue('selectedToken', token)}
+                              onClick={() => {
+                                setFieldValue('selectedToken', token);
+                                setFieldValue('denom', token.coreDenom);
+                                handleChange('denom', token.coreDenom);
+                              }}
                               className="flex justify-start mb-2"
                               aria-label={token.metadata?.display}
                             >
@@ -236,10 +194,15 @@ export default function SendForm({
                     <span>
                       Balance:{'  '}
                       {values.selectedToken
-                        ? shiftDigits(
-                            Number(values.selectedToken.amount),
-                            -(values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6)
-                          )
+                        ? (() => {
+                            const exponent =
+                              values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
+                            const amount = shiftDigits(
+                              Number(values.selectedToken.amount),
+                              -exponent
+                            );
+                            return Number(amount) < 0.01 ? '> 0.01' : amount;
+                          })()
                         : '0'}
                     </span>
 
@@ -272,29 +235,36 @@ export default function SendForm({
                         const formattedAmount = formatAmount(adjustedMaxAmount, decimals);
 
                         setFieldValue('amount', formattedAmount);
+                        handleChange('amount', formattedAmount);
                       }}
                     >
                       MAX
                     </button>
                   </div>
-                  {errors.amount && <div className="text-red-500 text-xs">{errors.amount}</div>}
+                  {errors.amount && typeof errors.amount === 'string' && (
+                    <div className="text-red-500 text-xs">{errors.amount}</div>
+                  )}
                   {feeWarning && !errors.amount && (
                     <div className="text-yellow-500 text-xs">{feeWarning}</div>
                   )}
                 </div>
               </div>
 
+              {/* Recipient Input */}
               <TextInput
                 label="Send To"
-                name="recipient"
+                name="to_address"
                 placeholder="Enter address"
-                value={values.recipient}
+                value={values.to_address}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  setFieldValue('recipient', e.target.value);
+                  setFieldValue('to_address', e.target.value);
+                  handleChange('to_address', e.target.value);
                 }}
                 className="input-md w-full"
                 style={{ borderRadius: '12px' }}
               />
+
+              {/* Memo Input */}
               <TextInput
                 label="Memo (optional)"
                 name="memo"
@@ -303,24 +273,16 @@ export default function SendForm({
                 value={values.memo}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   setFieldValue('memo', e.target.value);
+                  handleChange('memo', e.target.value);
                 }}
                 className="input-md w-full"
               />
-            </div>
-
-            <div className="w-full mt-6">
-              <button
-                type="submit"
-                className="btn btn-gradient w-full text-white"
-                disabled={isSending || !isValid || !dirty}
-                aria-label="send-btn"
-              >
-                {isSending ? <span className="loading loading-dots loading-xs"></span> : 'Send'}
-              </button>
             </div>
           </Form>
         )}
       </Formik>
     </div>
   );
-}
+};
+
+export default SendMessageForm;

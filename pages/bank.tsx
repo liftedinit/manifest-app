@@ -18,12 +18,7 @@ import Head from 'next/head';
 import React, { useMemo } from 'react';
 import { HistoryBox } from '@/components';
 import { BankIcon } from '@/components/icons';
-export type CombinedBalanceInfo = {
-  denom: string;
-  coreDenom: string;
-  amount: string;
-  metadata: MetadataSDKType | null;
-};
+import { CombinedBalanceInfo } from '@/utils/types';
 
 export default function Bank() {
   const { address, isWalletConnected } = useChain(chainName);

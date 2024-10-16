@@ -4,17 +4,34 @@ import Yup from '@/utils/yupExtensions';
 import { Action, FormData } from '@/helpers/formReducer';
 import { NumberInput } from '@/components/react/inputs';
 
-const GroupPolicySchema = Yup.object().shape({
-  votingPeriod: Yup.object().shape({
-    days: Yup.number().min(0, 'Must be 0 or greater'),
-    hours: Yup.number().min(0, 'Must be 0 or greater'),
-    minutes: Yup.number().min(0, 'Must be 0 or greater'),
-    seconds: Yup.number().min(0, 'Must be 0 or greater'),
-  }),
-  votingThreshold: Yup.number()
-    .required('Voting threshold is required')
-    .min(1, 'Minimum voting threshold is 1'),
-});
+const createGroupPolicySchema = (maxVotingThreshold: number) =>
+  Yup.object().shape({
+    votingPeriod: Yup.object()
+      .shape({
+        days: Yup.number().min(0).required('Required'),
+        hours: Yup.number().min(0).required('Required'),
+        minutes: Yup.number().min(0).required('Required'),
+        seconds: Yup.number().min(0).required('Required'),
+      })
+      .test('min-total-time', 'Voting period must be at least 30 minutes', value => {
+        const { days, hours, minutes, seconds } = value || {};
+        const totalSeconds =
+          (days || 0) * 86400 + (hours || 0) * 3600 + (minutes || 0) * 60 + (seconds || 0);
+        return totalSeconds >= 1800;
+      }),
+    votingThreshold: Yup.number()
+      .required('Required')
+      .min(1)
+      .test(
+        'max-voting-threshold',
+        `Voting threshold cannot exceed total member weight (${maxVotingThreshold})`,
+        value => {
+          // Allow any value if totalMemberWeight is zero
+          if (maxVotingThreshold === Number.MAX_SAFE_INTEGER) return true;
+          return value <= maxVotingThreshold;
+        }
+      ),
+  });
 
 export default function GroupPolicyForm({
   nextStep,
@@ -51,6 +68,15 @@ export default function GroupPolicyForm({
     });
   }, [votingPeriod]);
 
+  // Calculate total member weight from formData.members
+  const totalMemberWeight = formData.members.reduce(
+    (acc, member) => acc + Number(member.weight || 0),
+    0
+  );
+
+  // Handle case when totalMemberWeight is zero
+  const maxVotingThreshold = totalMemberWeight > 0 ? totalMemberWeight : Number.MAX_SAFE_INTEGER;
+
   return (
     <section className="">
       <div className="lg:flex mx-auto">
@@ -64,13 +90,13 @@ export default function GroupPolicyForm({
                 votingPeriod: votingPeriod,
                 votingThreshold: formData.votingThreshold || '',
               }}
-              validationSchema={GroupPolicySchema}
+              validationSchema={createGroupPolicySchema(totalMemberWeight)}
               onSubmit={nextStep}
               validateOnChange={true}
               validateOnBlur={true}
             >
-              {({ isValid, dirty, setFieldValue }) => {
-                setIsValidForm(isValid && dirty);
+              {({ isValid, setFieldValue, errors }) => {
+                setIsValidForm(isValid);
                 return (
                   <Form className="min-h-[330px] flex flex-col gap-4">
                     <div>
@@ -127,6 +153,10 @@ export default function GroupPolicyForm({
                           min={0}
                         />
                       </div>
+                      {/* Display validation error below the voting period inputs */}
+                      {errors.votingPeriod && typeof errors.votingPeriod === 'string' && (
+                        <div className="text-red-500 text-sm mt-1">{errors.votingPeriod}</div>
+                      )}
                     </div>
 
                     <div>
@@ -135,12 +165,11 @@ export default function GroupPolicyForm({
                       </label>
                       <NumberInput
                         name="votingThreshold"
-                        placeholder="e.g. (1)"
-                        label=""
+                        placeholder="e.g., 1"
                         value={formData.votingThreshold}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          const value = Math.max(1, parseInt(e.target.value));
-                          updateField('votingThreshold', value.toString());
+                        onChange={e => {
+                          const value = Math.max(1, parseInt(e.target.value) || 1);
+                          dispatch({ type: 'UPDATE_FIELD', field: 'votingThreshold', value });
                           setFieldValue('votingThreshold', value);
                         }}
                         min={1}

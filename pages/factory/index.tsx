@@ -7,6 +7,7 @@ import {
   useTokenFactoryBalance,
   useTokenFactoryDenoms,
   useTokenFactoryDenomsMetadata,
+  useTotalSupply,
 } from '@/hooks';
 import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { useChain } from '@cosmos-kit/react';
@@ -16,6 +17,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { chainName } from '@/config';
 import { CoinSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/base/v1beta1/coin';
 import { FactoryIcon } from '@/components';
+import { ExtendedMetadataSDKType } from '@/utils';
+import { MFX_TOKEN_DATA } from '@/utils/constants';
 
 export default function Factory() {
   const { address, isWalletConnected } = useChain(chainName);
@@ -24,57 +27,52 @@ export default function Factory() {
   );
   const { metadatas, isMetadatasLoading, isMetadatasError, refetchMetadatas } =
     useTokenFactoryDenomsMetadata();
+  const { balances, isBalancesLoading, isBalancesError, refetchBalances } = useTokenBalances(
+    address ?? ''
+  );
 
-  const [selectedDenom, setSelectedDenom] = useState<string | null>(null);
-  const [selectedDenomMetadata, setSelectedDenomMetadata] = useState<MetadataSDKType | null>(null);
+  const { totalSupply, isTotalSupplyLoading, isTotalSupplyError, refetchTotalSupply } =
+    useTotalSupply();
 
-  const [balance, setBalance] = useState<CoinSDKType | null>(null);
-  const [isBalanceLoading, setIsBalanceLoading] = useState(false);
+  console.log(totalSupply);
 
-  const {
-    balance: fetchedBalance,
-    refetchBalance,
-    isBalanceLoading: isFetchingBalance,
-  } = useTokenFactoryBalance(address ?? '', selectedDenomMetadata?.base ?? '');
-
-  useEffect(() => {
-    if (selectedDenomMetadata) {
-      setIsBalanceLoading(true);
-      refetchBalance().then(() => {
-        setIsBalanceLoading(false);
-      });
-    }
-  }, [selectedDenomMetadata, refetchBalance]);
-
-  useEffect(() => {
-    if (fetchedBalance) {
-      setBalance(fetchedBalance);
-    }
-  }, [fetchedBalance]);
-
-  // Combine denoms and metadatas
+  // Combine denoms, metadatas, balances, and total supply
   const combinedData = useMemo(() => {
-    if (denoms && metadatas) {
-      return denoms.denoms
+    if (denoms && metadatas && balances && totalSupply) {
+      const mfxBalance = balances.find(bal => bal.denom === 'umfx')?.amount || '0';
+      const mfxSupply = totalSupply.find(supply => supply.denom === 'umfx')?.amount || '0';
+      const mfxToken: ExtendedMetadataSDKType = {
+        ...MFX_TOKEN_DATA,
+        balance: mfxBalance,
+        totalSupply: mfxSupply,
+      };
+
+      const otherTokens = denoms.denoms
+        .filter(denom => denom !== 'umfx')
         .map((denom: string) => {
-          return metadatas.metadatas.find(meta => meta.base === denom) || null;
+          const metadata = metadatas.metadatas.find(meta => meta.base === denom);
+          const balance = balances.find(bal => bal.denom === denom);
+          const supply = totalSupply.find(supply => supply.denom === denom);
+          return metadata
+            ? {
+                ...metadata,
+                balance: balance?.amount || '0',
+                totalSupply: supply?.amount || '0',
+              }
+            : null;
         })
-        .filter((meta: MetadataSDKType | null) => meta !== null) as MetadataSDKType[];
+        .filter((meta): meta is ExtendedMetadataSDKType => meta !== null);
+
+      return [mfxToken, ...otherTokens];
     }
     return [];
-  }, [denoms, metadatas]);
-
-  const handleDenomSelect = (denom: MetadataSDKType) => {
-    setSelectedDenom(denom.base);
-    setSelectedDenomMetadata(denom);
-  };
+  }, [denoms, metadatas, balances, totalSupply]);
 
   const refetch = async () => {
     refetchDenoms();
     refetchMetadatas();
-    if (selectedDenomMetadata) {
-      refetchBalance();
-    }
+    refetchBalances();
+    refetchTotalSupply();
   };
 
   return (
@@ -100,12 +98,12 @@ export default function Factory() {
             <>
               <MyDenoms
                 denoms={combinedData}
-                isLoading={isDenomsLoading || isMetadatasLoading}
-                isError={isDenomsError || isMetadatasError}
+                isLoading={
+                  isDenomsLoading || isMetadatasLoading || isBalancesLoading || isTotalSupplyLoading
+                }
+                isError={isDenomsError || isMetadatasError || isBalancesError || isTotalSupplyError}
                 refetchDenoms={refetch}
-                onSelectDenom={handleDenomSelect}
                 address={address ?? ''}
-                balance={balance?.amount ?? '0'}
               />
             </>
           )}

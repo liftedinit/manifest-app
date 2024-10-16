@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import TxInfoModal from '../modals/txInfo';
-import { shiftDigits } from '@/utils';
+import { shiftDigits, truncateString } from '@/utils';
 import { formatDenom } from '@/components';
 import { useTokenFactoryDenomsMetadata } from '@/hooks';
 import { SendIcon, ReceiveIcon } from '@/components/icons';
@@ -101,10 +101,20 @@ export function HistoryBox({
                           return <DenomImage key={index} denom={metadata} />;
                         })}
                       </div>
-                      <div>
-                        <p className="font-semibold text-[#161616] dark:text-white">
-                          {tx.data.from_address === address ? 'Sent' : 'Received'}
-                        </p>
+                      <div className="">
+                        <div className="flex flex-row items-center gap-2">
+                          <p className="font-semibold text-[#161616] dark:text-white">
+                            {tx.data.from_address === address ? 'Sent' : 'Received'}
+                          </p>
+                          <p className="font-semibold text-[#161616] dark:text-white">
+                            {tx.data.amount.map((amt, index) => {
+                              const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
+                              return metadata?.display.startsWith('factory')
+                                ? metadata?.display?.split('/').pop()?.toUpperCase()
+                                : truncateString(metadata?.display ?? 'Select', 10).toUpperCase();
+                            })}
+                          </p>
+                        </div>
                         <div className="address-copy" onClick={e => e.stopPropagation()}>
                           <TruncatedAddressWithCopy
                             address={

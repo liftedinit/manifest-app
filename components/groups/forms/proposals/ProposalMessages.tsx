@@ -8,8 +8,14 @@ import * as initialMessages from './messages';
 import { TextInput } from '@/components/react/inputs';
 import { Formik, Form, Field, FieldProps, FormikProps } from 'formik';
 import Yup from '@/utils/yupExtensions';
-import { ArrowRightIcon, ArrowUpIcon, MinusIcon, SearchIcon, PlusIcon } from '@/components/icons';
+import { ArrowRightIcon, MinusIcon, SearchIcon, PlusIcon } from '@/components/icons';
 import { FiEdit } from 'react-icons/fi';
+import SendMessageForm from './messages/SendMessageForm';
+
+const customMessageComponents: Record<string, React.FC<any>> = {
+  send: SendMessageForm,
+};
+
 export default function ProposalMessages({
   formData,
   dispatch,
@@ -390,11 +396,27 @@ export default function ProposalMessages({
       dispatch({ type: 'UPDATE_MESSAGE', index, message: updatedMessage });
     };
 
-    return (
-      <div className="p-1 rounded-lg">
-        {renderInputs(message, (field, value) => handleChange(field, value))}
-      </div>
-    );
+    // Get the custom component for the message type if it exists
+    const CustomComponent = customMessageComponents[message.type];
+
+    if (CustomComponent) {
+      // Render the custom component
+      return (
+        <CustomComponent
+          message={message}
+          index={index}
+          handleChange={handleChange}
+          address={'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'}
+        />
+      );
+    } else {
+      // Render the default inputs for other message types
+      return (
+        <div className="p-1 rounded-lg">
+          {renderInputs(message, (field, value) => handleChange(field, value))}
+        </div>
+      );
+    }
   };
 
   const openMessageTypeModal = (index: number) => {

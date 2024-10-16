@@ -4,7 +4,7 @@ import IbcSendForm from '../forms/ibcSendForm';
 import { PiCaretDownBold } from 'react-icons/pi';
 import Image from 'next/image';
 import { CoinSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/base/v1beta1/coin';
-import { CombinedBalanceInfo } from '@/pages/bank';
+import { CombinedBalanceInfo } from '@/utils/types';
 
 export interface IbcChain {
   id: string;

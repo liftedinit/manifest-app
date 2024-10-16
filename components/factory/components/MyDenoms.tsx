@@ -1,49 +1,34 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
-import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { DenomImage } from './DenomImage';
 import Link from 'next/link';
 import { truncateString } from '@/utils';
 import { SearchIcon, MintIcon, BurnIcon } from '@/components/icons';
-import { DenomInfo } from '@/components/factory/modals/denomInfo';
+import { DenomInfoModal } from '@/components/factory/modals/denomInfo';
 import MintModal from '@/components/factory/modals/MintModal';
 import BurnModal from '@/components/factory/modals/BurnModal';
-
-const MFX_TOKEN_DATA: MetadataSDKType = {
-  description: 'The native token of the Manifest Chain',
-  denom_units: [
-    { denom: 'umfx', exponent: 0, aliases: [] },
-    { denom: 'mfx', exponent: 6, aliases: [] },
-  ],
-  base: 'umfx',
-  display: 'mfx',
-  name: 'Manifest',
-  symbol: 'MFX',
-  uri: '',
-  uri_hash: '',
-};
+import { UpdateDenomMetadataModal } from '@/components/factory/modals/updateDenomMetadata';
+import { PiInfo } from 'react-icons/pi';
+import { ExtendedMetadataSDKType, shiftDigits } from '@/utils';
+import { MFX_TOKEN_DATA } from '@/utils/constants';
 
 export default function MyDenoms({
   denoms,
   isLoading,
   isError,
   refetchDenoms,
-  onSelectDenom,
   address,
-  balance,
 }: {
-  denoms: MetadataSDKType[];
+  denoms: ExtendedMetadataSDKType[];
   isLoading: boolean;
   isError: Error | null | boolean;
   refetchDenoms: () => void;
-  onSelectDenom: (denom: MetadataSDKType) => void;
   address: string;
-  balance: string;
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
   const [showContent, setShowContent] = useState(false);
-  const [selectedDenom, setSelectedDenom] = useState<MetadataSDKType | null>(null);
+  const [selectedDenom, setSelectedDenom] = useState<ExtendedMetadataSDKType | null>(null);
   const [modalType, setModalType] = useState<'mint' | 'burn' | null>(null);
 
   useEffect(() => {
@@ -55,13 +40,22 @@ export default function MyDenoms({
     }
   }, [isLoading]);
 
-  const handleDenomSelect = (denom: MetadataSDKType) => {
-    onSelectDenom(denom);
+  const handleDenomSelect = (denom: ExtendedMetadataSDKType) => {
     setSelectedDenom(denom);
     router.push(`/factory?denom=${denom?.base}`, undefined, { shallow: true });
   };
 
-  const allDenoms = useMemo(() => [MFX_TOKEN_DATA, ...denoms], [denoms]);
+  const allDenoms = useMemo(() => {
+    const mfxBalance = denoms.find(denom => denom.base === 'umfx')?.balance || '0';
+    const mfxSupply = denoms.find(denom => denom.base === 'umfx')?.totalSupply || '0';
+    const mfxWithBalance: ExtendedMetadataSDKType = {
+      ...MFX_TOKEN_DATA,
+      balance: mfxBalance,
+      totalSupply: mfxSupply,
+    };
+    return [mfxWithBalance, ...denoms.filter(denom => denom.base !== 'umfx')];
+  }, [denoms]);
+
   useEffect(() => {
     const { denom, action } = router.query;
     if (denom && typeof denom === 'string') {
@@ -91,9 +85,19 @@ export default function MyDenoms({
     router.push('/factory', undefined, { shallow: true });
   };
 
+  const handleUpdateModal = (denom: ExtendedMetadataSDKType) => {
+    setSelectedDenom(denom);
+    const modal = document.getElementById('update-denom-metadata-modal') as HTMLDialogElement;
+    if (modal) {
+      modal.showModal();
+    }
+  };
+
   const filteredDenoms = allDenoms.filter(denom =>
     denom?.display.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  console.log(denoms);
 
   return (
     <div className="relative w-full overflow-hidden">
@@ -131,9 +135,10 @@ export default function MyDenoms({
             <table className="table w-full border-separate border-spacing-y-3">
               <thead className="sticky top-0 bg-[#F0F0FF] dark:bg-[#0E0A1F]">
                 <tr className="text-sm font-medium">
-                  <th className="bg-transparent w-1/5">Token</th>
-                  <th className="bg-transparent w-1/5">Symbol</th>
-                  <th className="bg-transparent w-2/5">Description</th>
+                  <th className="bg-transparent w-1/5 lg:table-cell hidden">Token</th>
+                  <th className="bg-transparent w-1/5 sm:table-cell hidden">Symbol</th>
+                  <th className="bg-transparent w-1/5 md:table-cell hidden">Total Supply</th>
+                  <th className="bg-transparent w-2/5">Your Balance</th>
                   <th className="bg-transparent w-1/5">Actions</th>
                 </tr>
               </thead>
@@ -143,26 +148,29 @@ export default function MyDenoms({
                       .fill(0)
                       .map((_, index) => (
                         <tr key={index}>
-                          <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] w-1/5">
+                          <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] w-1/5 lg:table-cell hidden">
                             <div className="flex items-center space-x-3">
                               <div className="skeleton w-10 h-8 rounded-full shrink-0"></div>
                               <div className="skeleton h-3 w-24"></div>
                             </div>
                           </td>
-                          <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/5">
+                          <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/5 sm:table-cell hidden">
                             <div className="skeleton h-2 w-8"></div>
                           </td>
-                          <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-2/5">
+                          <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-2/5 md:table-cell hidden">
                             <div className="skeleton h-2 w-24"></div>
+                          </td>
+                          <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-2/5">
+                            <div className="skeleton h-2 w-32"></div>
                           </td>
                           <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px] w-1/5">
                             <div className="skeleton h-2 w-32"></div>
                           </td>
                         </tr>
                       ))
-                  : filteredDenoms.map((denom, index) => (
+                  : filteredDenoms.map(denom => (
                       <TokenRow
-                        key={index}
+                        key={denom.base}
                         denom={denom}
                         onSelectDenom={() => handleDenomSelect(denom)}
                         onMint={() => {
@@ -179,6 +187,7 @@ export default function MyDenoms({
                             shallow: true,
                           });
                         }}
+                        onUpdate={() => handleUpdateModal(denom)}
                       />
                     ))}
               </tbody>
@@ -186,12 +195,13 @@ export default function MyDenoms({
           </div>
         </div>
       </div>
-      <DenomInfo denom={selectedDenom} modalId="denom-info-modal" />
+      <DenomInfoModal denom={selectedDenom} modalId="denom-info-modal" />
       <MintModal
         denom={selectedDenom}
         address={address}
         refetch={refetchDenoms}
-        balance={balance}
+        balance={selectedDenom?.balance ?? '0'}
+        totalSupply={selectedDenom?.totalSupply ?? '0'}
         isOpen={modalType === 'mint'}
         onClose={handleCloseModal}
       />
@@ -199,9 +209,18 @@ export default function MyDenoms({
         denom={selectedDenom}
         address={address}
         refetch={refetchDenoms}
-        balance={balance}
+        balance={selectedDenom?.balance ?? '0'}
+        totalSupply={selectedDenom?.totalSupply ?? '0'}
         isOpen={modalType === 'burn'}
         onClose={handleCloseModal}
+      />
+      <UpdateDenomMetadataModal
+        modalId="update-denom-metadata-modal"
+        denom={selectedDenom}
+        address={address}
+        onSuccess={() => {
+          refetchDenoms();
+        }}
       />
     </div>
   );
@@ -212,44 +231,77 @@ function TokenRow({
   onSelectDenom,
   onMint,
   onBurn,
+  onUpdate,
 }: {
-  denom: MetadataSDKType;
+  denom: ExtendedMetadataSDKType;
   onSelectDenom: () => void;
   onMint: () => void;
   onBurn: () => void;
+  onUpdate: () => void;
 }) {
   return (
     <tr
-      className="hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] dark:bg-[#FFFFFF0F] bg-[#FFFFFF] text-black dark:text-white rounded-lg  cursor-pointer"
+      className="hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] dark:bg-[#FFFFFF0F] bg-[#FFFFFF] text-black dark:text-white rounded-lg cursor-pointer"
       onClick={onSelectDenom}
     >
-      <td className=" rounded-l-[12px] w-1/5">
+      <td className="rounded-l-[12px] w-1/4 lg:table-cell hidden">
         <div className="flex items-center space-x-3">
           <DenomImage denom={denom} />
           <span className="font-medium">{truncateString(denom.display, 24)}</span>
         </div>
       </td>
-      <td className=" w-1/5">{denom.symbol}</td>
-      <td className=" w-2/5">{truncateString(denom.description, 50)}</td>
-      <td className=" rounded-r-[12px] w-1/5">
+      <td className="w-1/4 sm:table-cell hidden">{truncateString(denom.symbol, 20)}</td>
+      <td className="w-2/4 sm:w-1/4">
+        <div className="flex flex-col sm:flex-row sm:items-center">
+          <span className="sm:mr-2">
+            {shiftDigits(denom.totalSupply, -denom.denom_units[1]?.exponent)}
+          </span>
+          <span className=" font-extralight ">
+            {truncateString(denom.display, 10).toUpperCase()}
+          </span>
+        </div>
+      </td>
+      <td className="w-2/4 sm:w-1/4">
+        <div className="flex flex-col sm:flex-row sm:items-center">
+          <span className="sm:mr-2">
+            {shiftDigits(denom.balance, -denom.denom_units[1]?.exponent)}
+          </span>
+          <span className="font-extralight ">
+            {truncateString(denom.display, 10).toUpperCase()}
+          </span>
+        </div>
+      </td>
+      <td className="rounded-r-[12px] w-1/4">
         <div className="flex space-x-2">
           <button
-            className="btn btn-sm btn-outline btn-primary"
+            className="btn btn-sm btn-outline btn-square  btn-primary group"
             onClick={e => {
               e.stopPropagation();
               onMint();
             }}
           >
-            <MintIcon className="w-4 h-4" />
+            <MintIcon className="w-5 h-5 text-current group-hover:text-white" />
           </button>
+
           <button
-            className="btn btn-sm btn-outline btn-error"
+            className="btn btn-sm btn-outline btn-square  btn-error group"
             onClick={e => {
               e.stopPropagation();
               onBurn();
             }}
           >
-            <BurnIcon className="w-4 h-4" />
+            <BurnIcon className="w-5 h-5 text-current group-hover:text-white" />
+          </button>
+
+          <button
+            disabled={denom.base.includes('umfx')}
+            className="btn btn-sm btn-square btn-outline btn-info group"
+            onClick={e => {
+              e.stopPropagation();
+              onUpdate();
+            }}
+          >
+            <PiInfo className="w-5 h-5 text-current group-hover:text-white" />
           </button>
         </div>
       </td>

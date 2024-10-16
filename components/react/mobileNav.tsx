@@ -56,18 +56,15 @@ export default function MobileNav() {
                 <input
                   type="checkbox"
                   className="theme-controller hidden"
+                  value="light"
                   checked={isDark}
                   onChange={() => {
                     setIsDark(!isDark);
                     toggleTheme();
                   }}
                 />
-
-                {/* Moon Icon for Dark Mode */}
-                <DarkIcon className="swap-on fill-current w-8 h-8" />
-
-                {/* Sun Icon for Light Mode */}
-                <LightIcon className="swap-off fill-current w-8 h-8" />
+                <DarkIcon className="swap-on fill-current w-9 h-9 duration-300" />
+                <LightIcon className="swap-off fill-current w-9 h-9 duration-300" />
               </label>
             </div>
             <div className="divider divider-horizon"></div>

@@ -31,9 +31,8 @@ export function MemberManagementModal({
   address,
   onUpdate,
 }: MemberManagementModalProps) {
-  const { tx } = useTx(chainName);
+  const { tx, isSigning, setIsSigning } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
-  const [isSigning, setIsSigning] = useState(false);
 
   const validationSchema = Yup.object().shape({
     members: Yup.array().of(
@@ -170,7 +169,7 @@ export function MemberManagementModal({
             onSubmit={handleConfirm}
             enableReinitialize
           >
-            {({ values, errors, touched }) => (
+            {({ values, errors, touched, isValid }) => (
               <Form>
                 <div className="flex items-center mb-4 px-4 text-sm text-gray-400">
                   <div className="w-[10%] ml-3">#</div>

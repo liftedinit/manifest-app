@@ -378,6 +378,30 @@ export const useBalance = (address: string) => {
   };
 };
 
+export const useTotalSupply = () => {
+  const { lcdQueryClient } = useLcdQueryClient();
+
+  const fetchBalances = async () => {
+    if (!lcdQueryClient) {
+      throw new Error('LCD Client not ready');
+    }
+    return await lcdQueryClient.cosmos.bank.v1beta1.totalSupply({});
+  };
+
+  const totalSupplyQuery = useQuery({
+    queryKey: ['totalSupply'],
+    queryFn: fetchBalances,
+    enabled: !!lcdQueryClient,
+    staleTime: Infinity,
+  });
+  return {
+    totalSupply: totalSupplyQuery.data?.supply,
+    isTotalSupplyLoading: totalSupplyQuery.isLoading,
+    isTotalSupplyError: totalSupplyQuery.isError,
+    refetchTotalSupply: totalSupplyQuery.refetch,
+  };
+};
+
 export const useTokenFactoryBalance = (address: string, denom: string) => {
   const { lcdQueryClient } = useLcdQueryClient();
 

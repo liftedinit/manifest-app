@@ -38,8 +38,8 @@ export function ValidatorDetailsModal({
   validatorVPArray: { vp: bigint; moniker: string }[];
 }>) {
   const [power, setPowerInput] = useState(validator?.consensus_power?.toString() || '');
-  const [isSigning, setIsSigning] = useState(false);
-  const { tx } = useTx(chainName);
+
+  const { tx, isSigning, setIsSigning } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
   const { address: userAddress } = useChain(chainName);
 

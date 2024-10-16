@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import Link from 'next/link';
 import Confetti from 'react-confetti';
 import { CloseIcon, CopyIcon, BroadcastingIcon } from './icons';
+
 export interface ToastMessage {
   type: string;
   title: string;
@@ -61,8 +63,8 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
     }
   };
 
-  return (
-    <div className="fixed inset-0 pointer-events-none flex items-end justify-end p-4 z-[9999]">
+  const toastContent = (
+    <div className="fixed inset-0 pointer-events-none flex items-end justify-end p-4 z-[10000]">
       <div className="toast toast-end toast-bottom flex flex-col justify-start items-center text-left pointer-events-auto">
         <div
           ref={toastRef}
@@ -139,4 +141,6 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
       </div>
     </div>
   );
+
+  return typeof window !== 'undefined' ? ReactDOM.createPortal(toastContent, document.body) : null;
 };

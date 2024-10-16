@@ -43,8 +43,8 @@ export default function CreateGroup() {
 
   const steps = [
     { label: 'Details', step: 1 },
-    { label: 'Policy', step: 2 },
-    { label: 'Members', step: 3 },
+    { label: 'Members', step: 2 },
+    { label: 'Policy', step: 3 },
     { label: 'Confirmation', step: 4 },
   ];
 
@@ -111,7 +111,8 @@ export default function CreateGroup() {
           )}
           {currentStep === 2 && (
             <div className="transition-opacity duration-300 animate-fadeIn">
-              <GroupPolicyForm
+              <MemberInfoForm
+                address={address ?? ''}
                 formData={formData}
                 dispatch={dispatch}
                 nextStep={nextStep}
@@ -121,8 +122,7 @@ export default function CreateGroup() {
           )}
           {currentStep === 3 && (
             <div className="transition-opacity duration-300 animate-fadeIn">
-              <MemberInfoForm
-                address={address ?? ''}
+              <GroupPolicyForm
                 formData={formData}
                 dispatch={dispatch}
                 nextStep={nextStep}

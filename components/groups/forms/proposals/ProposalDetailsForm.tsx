@@ -31,7 +31,6 @@ export default function ProposalDetails({
   dispatch: React.Dispatch<ProposalAction>;
   address: string;
 }>) {
-  const [isValidForm, setIsValidForm] = useState(false);
   const router = useRouter();
   const policyAddress = router.query.policyAddress as string;
 
@@ -41,21 +40,20 @@ export default function ProposalDetails({
 
   return (
     <section className="">
-      <div className="lg:flex mx-auto">
-        <div className="flex items-center mx-auto w-full dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-[24px] rounded-[24px]">
-          <div className="w-full">
-            <h1 className="mb-4 text-xl font-extrabold tracking-tight sm:mb-6 leading-tight border-b-[0.5px] dark:text-[#FFFFFF99] dark:border-[#FFFFFF99] border-b-[black] pb-4">
-              Proposal details
-            </h1>
-            <Formik
-              initialValues={formData}
-              validationSchema={ProposalSchema}
-              onSubmit={nextStep}
-              validateOnChange={true}
-            >
-              {({ isValid, setFieldValue, handleChange }) => {
-                setIsValidForm(isValid);
-                return (
+      <Formik
+        initialValues={formData}
+        validationSchema={ProposalSchema}
+        onSubmit={nextStep}
+        validateOnChange={true}
+      >
+        {({ isValid, setFieldValue, handleChange }) => (
+          <>
+            <div className="lg:flex mx-auto">
+              <div className="flex items-center mx-auto w-full dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-[24px] rounded-[24px]">
+                <div className="w-full">
+                  <h1 className="mb-4 text-xl font-extrabold tracking-tight sm:mb-6 leading-tight border-b-[0.5px] dark:text-[#FFFFFF99] dark:border-[#FFFFFF99] border-b-[black] pb-4">
+                    Proposal details
+                  </h1>
                   <Form className="min-h-[330px] flex flex-col gap-4">
                     <TextInput
                       label="Proposal Title"
@@ -101,28 +99,28 @@ export default function ProposalDetails({
                       }}
                     />
                   </Form>
-                );
-              }}
-            </Formik>
-          </div>
-        </div>
-      </div>
-      <div className="flex space-x-3  mt-6 mx-auto w-full">
-        <Link href={`/groups?policyAddress=${policyAddress}`} legacyBehavior>
-          <button className="btn btn-neutral py-2.5 sm:py-3.5 w-1/2">
-            <span className="hidden sm:inline">Back: Proposals Page</span>
-            <span className="sm:hidden">Back: Proposals</span>
-          </button>
-        </Link>
-        <button
-          type="submit"
-          className="w-1/2 btn  py-2.5 sm:py-3.5 btn-gradient text-white disabled:text-black"
-          onClick={nextStep}
-          disabled={!isValidForm}
-        >
-          Next: Proposal Messages
-        </button>
-      </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex space-x-3  mt-6 mx-auto w-full">
+              <Link href={`/groups?policyAddress=${policyAddress}`} legacyBehavior>
+                <button className="btn btn-neutral py-2.5 sm:py-3.5 w-1/2">
+                  <span className="hidden sm:inline">Back: Proposals Page</span>
+                  <span className="sm:hidden">Back: Proposals</span>
+                </button>
+              </Link>
+              <button
+                type="submit"
+                className="w-1/2 btn  py-2.5 sm:py-3.5 btn-gradient text-white disabled:text-black"
+                onClick={nextStep}
+                disabled={!isValid}
+              >
+                Next: Proposal Messages
+              </button>
+            </div>
+          </>
+        )}
+      </Formik>
     </section>
   );
 }

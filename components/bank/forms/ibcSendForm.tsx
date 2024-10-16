@@ -4,14 +4,14 @@ import { useFeeEstimation, useTx } from '@/hooks';
 import { ibc } from '@chalabi/manifestjs';
 import { getIbcInfo } from '@/utils';
 import { PiAddressBook, PiCaretDownBold } from 'react-icons/pi';
-import { CombinedBalanceInfo } from '@/pages/bank';
+import { CombinedBalanceInfo } from '@/utils/types';
 import { DenomImage } from '@/components/factory';
 import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { TextInput } from '@/components/react/inputs';
 import { IbcChain } from '../components/sendBox';
 import Image from 'next/image';
-import { shiftDigits } from '@/utils';
+import { shiftDigits, truncateString } from '@/utils';
 
 export default function IbcSendForm({
   address,
@@ -192,7 +192,7 @@ export default function IbcSendForm({
 
                 <ul
                   tabIndex={0}
-                  className="dropdown-content z-[100] menu p-2 shadow dark:bg-[#0E0A1F] bg-[#F0F0FF] rounded-lg w-full mt-1 dark:text-[#FFFFFF] text-[#161616]"
+                  className="dropdown-content z-[100] menu p-2 shadow bg-base-300 rounded-lg w-full mt-1 dark:text-[#FFFFFF] text-[#161616]"
                 >
                   {ibcChains.map(chain => (
                     <li key={chain.id}>
@@ -241,12 +241,17 @@ export default function IbcSendForm({
                         className="btn btn-sm h-full px-3 bg-[#FFFFFF] dark:bg-[#FFFFFF0F] border-none hover:bg-transparent"
                       >
                         <DenomImage denom={values.selectedToken?.metadata} />
-                        {values.selectedToken?.metadata?.display.toUpperCase() ?? 'Select'}
+                        {values.selectedToken?.metadata?.display.startsWith('factory')
+                          ? values.selectedToken?.metadata?.display?.split('/').pop()?.toUpperCase()
+                          : truncateString(
+                              values.selectedToken?.metadata?.display ?? 'Select',
+                              10
+                            ).toUpperCase()}
                         <PiCaretDownBold className="ml-1" />
                       </label>
                       <ul
                         tabIndex={0}
-                        className="dropdown-content z-[100] menu p-2 shadow  dark:bg-[#0E0A1F] bg-[#F0F0FF]  rounded-lg w-full mt-1 h-62 max-h-62 min-h-62 min-w-44 overflow-y-auto dark:text-[#FFFFFF] text-[#161616]"
+                        className="dropdown-content z-[100] menu p-2 shadow  bg-base-300  rounded-lg w-full mt-1 h-62 max-h-62 min-h-62 min-w-44 overflow-y-auto dark:text-[#FFFFFF] text-[#161616]"
                       >
                         <li className="sticky top-0 bg-transparent z-10 hover:bg-transparent mb-2">
                           <div className="px-2 py-1">
@@ -287,7 +292,9 @@ export default function IbcSendForm({
                             >
                               <a className="flex-row justify-start gap-3 items-center w-full">
                                 <DenomImage denom={token.metadata} />
-                                {token.metadata?.display.toUpperCase()}
+                                {token.metadata?.display.startsWith('factory')
+                                  ? token.metadata?.display.split('/').pop()?.toUpperCase()
+                                  : truncateString(token.metadata?.display ?? '', 10).toUpperCase()}
                               </a>
                             </li>
                           ))
@@ -308,7 +315,12 @@ export default function IbcSendForm({
                         : '0'}
                     </span>
                     <span className="">
-                      {values.selectedToken?.metadata?.display?.toUpperCase() || ''}
+                      {values.selectedToken?.metadata?.display?.startsWith('factory')
+                        ? values.selectedToken?.metadata?.display?.split('/').pop()?.toUpperCase()
+                        : truncateString(
+                            values.selectedToken?.metadata?.display ?? '',
+                            10
+                          ).toUpperCase()}
                     </span>
                     <button
                       type="button"

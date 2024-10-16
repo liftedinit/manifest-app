@@ -39,7 +39,7 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
   const [localStatus, setLocalStatus] = useState(status);
 
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: ReturnType<typeof setTimeout>;
 
     if (status === WalletStatus.Connecting) {
       timeoutId = setTimeout(() => {
@@ -91,7 +91,7 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
 
     return (
       <button
-        className="btn w-full transition-all border-0 duration-300 ease-in-out  text-white btn-gradient"
+        className="btn w-full  border-0 duration-300 ease-in-out  text-white btn-gradient"
         onClick={onClick}
       >
         <buttonData.icon className="w-5 h-5 mr-2" />
@@ -101,10 +101,10 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
   }, [localStatus, connect, openView, username, address]);
 
   return (
-    <div className="w-full transition-all duration-300 ease-in-out relative">
+    <div className="w-full  duration-300 ease-in-out relative">
       {status === WalletStatus.Connected ? (
         <div
-          className="bg-[#0000000A] dark:bg-[#FFFFFF0F] rounded-lg p-4 transition-all duration-300 ease-in-out relative h-48"
+          className="bg-[#0000000A] dark:bg-[#FFFFFF0F] rounded-lg p-4  duration-300 ease-in-out relative h-48"
           style={{
             backgroundImage: 'url("/flower.svg")',
             backgroundSize: 'cover',
@@ -141,7 +141,7 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
                   fontSize: '0.37rem',
                   backgroundColor: 'transparent',
                 }}
-                className=" btn btn-ghost -mt-1 focus:outline-none transition-colors duration-200"
+                className=" btn btn-ghost -mt-1 focus:outline-none s duration-200"
                 id="copyButton2"
               >
                 <CopyIcon className="w-4 h-4  hover:text-primary" />
@@ -208,12 +208,12 @@ export const IconWallet: React.FC<WalletSectionProps> = ({ chainName }) => {
               ? onClick
               : () => {}
           }
-          className={`flex justify-center items-center w-8 h-8 hover:text-primary transition-all duration-200 ease-in-out  ${status === WalletStatus.Disconnected || status === WalletStatus.Rejected ? 'cursor-pointer' : 'cursor-default'}`}
+          className={`flex justify-center items-center w-8 h-8 hover:text-primary  duration-200 ease-in-out  ${status === WalletStatus.Disconnected || status === WalletStatus.Rejected ? 'cursor-pointer' : 'cursor-default'}`}
         >
           <buttonData.icon className="w-8 h-8" />
         </button>
         {status === WalletStatus.Connected && (
-          <div className="absolute -top-4 -right-8 mt-[-0.5rem] mr-[-0.5rem] bg-[#F4F4FF] dark:bg-[#191526] rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-out">
+          <div className="absolute -top-4 -right-8 mt-[-0.5rem] mr-[-0.5rem] bg-[#F4F4FF] dark:bg-[#191526] rounded-md shadow-lg opacity-0 group-hover:opacity-100  duration-200 ease-in-out">
             <button
               className="p-2 hover:text-primary rounded-t-md w-full flex justify-center items-center"
               id="copyButton"

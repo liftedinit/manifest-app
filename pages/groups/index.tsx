@@ -70,12 +70,16 @@ export default function Groups() {
           })}
         </script>
       </Head>
-      <div className="flex-grow animate-fadeIn transition-all duration-300">
+      <div className="flex-grow animate-fadeIn h-screen transition-all duration-300">
         <div className="w-full mx-auto">
           {!isWalletConnected ? (
             <WalletNotConnected />
           ) : isLoading ? (
-            <div className="text-center">Loading...</div>
+            <YourGroups
+              groups={groupByMemberData ?? { groups: [] }}
+              proposals={proposalsByPolicyAccount}
+              isLoading={isLoading}
+            />
           ) : isError ? (
             <div className="text-center text-error">Error loading groups or proposals</div>
           ) : groupByMemberData?.groups.length === 0 ? (

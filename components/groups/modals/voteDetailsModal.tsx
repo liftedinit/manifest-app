@@ -52,7 +52,6 @@ function VoteDetailsModal({
   refetchTally: () => void;
   refetchProposals: () => void;
 }) {
-  const [isSigning, setIsSigning] = useState(false);
   const voteMap = useMemo(
     () =>
       votes?.reduce<VoteMap>((acc, vote) => {
@@ -188,7 +187,7 @@ function VoteDetailsModal({
       enabled: false,
     },
   };
-  const { tx } = useTx(chainName);
+  const { tx, isSigning, setIsSigning } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
 
   const { exec } = cosmos.group.v1.MessageComposer.withTypeUrl;
@@ -411,7 +410,7 @@ function VoteDetailsModal({
 
   return (
     <dialog id={modalId} className="modal">
-      <div className="modal-box relative max-w-4xl min-h-96 flex flex-col md:flex-row md:ml-20 -mt-12 rounded-[24px] shadow-lg dark:bg-[#1D192D] bg-[#FFFFFF] transition-all duration-300">
+      <div className="modal-box relative max-w-4xl min-h-96 flex flex-col md:flex-row md:ml-20 -mt-12 rounded-[24px] shadow-lg dark:bg-[#1D192D] bg-[#FFFFFF] transition-all duration-300 z-[1000]">
         <form method="dialog" onSubmit={onClose}>
           <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
         </form>
@@ -562,7 +561,11 @@ function VoteDetailsModal({
                   }
                 }}
               >
-                {getButtonState.label}
+                {isSigning ? (
+                  <div className="loading loading-dots loading-sm" />
+                ) : (
+                  getButtonState.label
+                )}
               </button>
             )}
             {proposal?.proposers?.includes(address ?? '') &&

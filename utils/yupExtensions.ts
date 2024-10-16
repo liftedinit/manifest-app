@@ -7,6 +7,7 @@ declare module 'yup' {
     noProfanity(message?: string): this;
     manifestAddress(message?: string): this;
     simulateDenomCreation(simulateFn: () => Promise<boolean>, message?: string): this;
+    simulateDenomMetadata(simulateFn: () => Promise<boolean>, message?: string): this;
   }
 }
 
@@ -15,6 +16,33 @@ Yup.addMethod<Yup.StringSchema>(
   'simulateDenomCreation',
   function (simulateFn, message) {
     return this.test('simulate-denom-creation', message, async function (value) {
+      const { path, createError } = this;
+      if (!value) return true;
+
+      try {
+        const isValid = await simulateFn();
+        if (!isValid) {
+          return createError({
+            path,
+            message: message || 'This denom cannot be created',
+          });
+        }
+        return true;
+      } catch (error) {
+        return createError({
+          path,
+          message: message || 'Error during denom creation simulation',
+        });
+      }
+    });
+  }
+);
+
+Yup.addMethod<Yup.StringSchema>(
+  Yup.string,
+  'simulateDenomMetadata',
+  function (simulateFn, message) {
+    return this.test('simulate-denom-metadata', message, async function (value) {
       const { path, createError } = this;
       if (!value) return true;
 

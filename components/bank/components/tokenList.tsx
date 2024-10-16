@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { DenomImage } from '@/components/factory';
 import { shiftDigits } from '@/utils';
-import { CombinedBalanceInfo } from '@/pages/bank';
-import { DenomInfo } from '@/components/factory';
+import { CombinedBalanceInfo } from '@/utils/types';
+import { DenomInfoModal } from '@/components/factory';
 import { PiMagnifyingGlass } from 'react-icons/pi';
 import { ArrowUpIcon } from '@/components/icons';
 import { truncateString } from '@/utils';
@@ -105,7 +105,7 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
       )}
 
       {/* DenomInfoModal */}
-      {selectedDenom && <DenomInfo denom={selectedDenom} modalId="denom-info-modal" />}
+      {selectedDenom && <DenomInfoModal denom={selectedDenom} modalId="denom-info-modal" />}
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { FaExternalLinkAlt } from 'react-icons/fa';
 import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { useRouter } from 'next/router';
 
-export const DenomInfo: React.FC<{
+export const DenomInfoModal: React.FC<{
   denom: MetadataSDKType | null;
   modalId: string;
 }> = ({ denom, modalId }) => {
@@ -29,11 +29,18 @@ export const DenomInfo: React.FC<{
           <div>
             <InfoItem label="NAME" value={denom?.name ?? 'No name available'} />
             <InfoItem label="SYMBOL" value={denom?.symbol ?? 'No symbol available'} />
-            <InfoItem
-              label="DESCRIPTION"
-              value={denom?.description ?? 'No description available'}
-            />
-            <InfoItem label="EXPONENT" value={denom?.denom_units[1]?.exponent?.toString() ?? '0'} />
+            {denom?.description && (
+              <InfoItem
+                label="DESCRIPTION"
+                value={denom?.description ?? 'No description available'}
+              />
+            )}
+            {denom?.denom_units[1]?.exponent && (
+              <InfoItem
+                label="EXPONENT"
+                value={denom?.denom_units[1]?.exponent?.toString() ?? '0'}
+              />
+            )}
           </div>
           <div>
             {denom?.denom_units?.map((unit: any, index: number) => (
@@ -63,8 +70,6 @@ export const DenomInfo: React.FC<{
   );
 };
 
-DenomInfo.displayName = 'DenomInfoModal';
-
 function InfoItem({
   label,
   value,
@@ -77,7 +82,7 @@ function InfoItem({
   return (
     <div className="mb-4 flex flex-col">
       <p className="text-sm font-semibold text-[#00000099] dark:text-[#FFFFFF99] mb-2">{label}</p>
-      <div className="bg-[#FFFFFF66] dark:bg-[#FFFFFF1A] rounded-[16px] p-4 flex-grow">
+      <div className="bg-base-300 rounded-[16px] p-4 flex-grow">
         {isAddress ? (
           <div className="flex items-center">
             <TruncatedAddressWithCopy address={value} slice={8} />

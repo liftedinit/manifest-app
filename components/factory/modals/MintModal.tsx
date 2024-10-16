@@ -2,19 +2,22 @@ import React from 'react';
 import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import MintForm from '@/components/factory/forms/MintForm';
 import { useGroupsByAdmin, usePoaGetAdmin } from '@/hooks';
+import { ExtendedMetadataSDKType, truncateString } from '@/utils';
 
 export default function MintModal({
   denom,
   address,
   refetch,
   balance,
+  totalSupply,
   isOpen,
   onClose,
 }: {
-  denom: MetadataSDKType | null;
+  denom: ExtendedMetadataSDKType | null;
   address: string;
   refetch: () => void;
   balance: string;
+  totalSupply: string;
   isOpen: boolean;
   onClose: () => void;
 }) {
@@ -38,7 +41,10 @@ export default function MintModal({
           </button>
         </form>
         <h3 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">
-          Mint {denom.display}
+          Mint{' '}
+          <span className="font-light text-primary">
+            {truncateString(denom.display ?? 'Denom', 20).toUpperCase()}
+          </span>
         </h3>
         <div className="py-4">
           {isLoading ? (
@@ -50,6 +56,7 @@ export default function MintModal({
               isAdmin={isAdmin ?? false}
               admin={poaAdmin ?? ''}
               balance={balance}
+              totalSupply={totalSupply}
               refetch={refetch}
               address={address}
               denom={denom}

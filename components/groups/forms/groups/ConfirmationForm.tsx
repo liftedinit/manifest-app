@@ -20,7 +20,7 @@ export default function ConfirmationForm({
   address: string;
 }>) {
   const { createGroupWithPolicy } = cosmos.group.v1.MessageComposer.withTypeUrl;
-  const [isSigning, setIsSigning] = useState(false);
+
   const groupMetadata = {
     title: formData.title,
     authors: formData.authors,
@@ -33,7 +33,7 @@ export default function ConfirmationForm({
   // Convert the object to a JSON string
   const jsonString = JSON.stringify(groupMetadata);
 
-  const { tx } = useTx('manifest');
+  const { tx, isSigning, setIsSigning } = useTx('manifest');
   const { estimateFee } = useFeeEstimation('manifest');
 
   const uploadMetaDataToIPFS = async () => {

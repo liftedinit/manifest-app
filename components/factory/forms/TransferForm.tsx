@@ -19,8 +19,8 @@ export default function TransferForm({
   const [amount, setAmount] = useState('');
   const [fromAddress, setFromAddress] = useState(address);
   const [toAddress, setToAddress] = useState('');
-  const [isSigning, setIsSigning] = useState(false);
-  const { tx } = useTx(chainName);
+
+  const { tx, isSigning, setIsSigning } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
   const { forceTransfer } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
 

@@ -104,12 +104,7 @@ export default function CreateToken() {
 
           {currentStep === 1 && (
             <div className="transition-opacity duration-300 animate-fadeIn mx-auto">
-              <CreateDenom
-                formData={formData}
-                dispatch={dispatch}
-                nextStep={nextStep}
-                address={address ?? ''}
-              />
+              <CreateDenom formData={formData} dispatch={dispatch} nextStep={nextStep} />
             </div>
           )}
           {currentStep === 2 && (

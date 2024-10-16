@@ -4,7 +4,7 @@ import {
   ParamsSDKType,
 } from '@chalabi/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
 import { ExtendedValidatorSDKType, TransactionGroup } from '@/components';
-import { CombinedBalanceInfo } from '@/pages/bank';
+import { CombinedBalanceInfo } from '@/utils/types';
 import { ExtendedGroupType } from '@/hooks';
 import {
   ProposalExecutorResult,
@@ -473,9 +473,9 @@ export const mockTokenFormData = {
 export const mockGroupFormData: FormData = {
   title: 'Test Group',
   authors: 'manifest1author',
-  summary: 'This is a test group',
+
   description: 'Detailed description of the test group',
-  forumLink: 'http://forumlink.com',
+
   votingPeriod: { seconds: BigInt(3600), nanos: 0 },
   votingThreshold: '2',
   members: [

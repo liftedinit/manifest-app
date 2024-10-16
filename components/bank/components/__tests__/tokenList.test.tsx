@@ -3,13 +3,19 @@ import React from 'react';
 import matchers from '@testing-library/jest-dom/matchers';
 import { fireEvent, render, screen, cleanup, within } from '@testing-library/react';
 import TokenList from '@/components/bank/components/tokenList';
-import { CombinedBalanceInfo } from '@/pages/bank';
+import { CombinedBalanceInfo } from '@/utils/types';
 
 const mockBalances: CombinedBalanceInfo[] = [
   {
     denom: 'utoken1',
     amount: '1000',
+    coreDenom: 'token1',
     metadata: {
+      name: 'Token 1',
+      uri: 'https://token1.com',
+      uri_hash: 'hash1',
+      description: 'My First Token',
+      base: 'token1',
       display: 'Token 1',
       symbol: 'TK1',
       denom_units: [
@@ -17,16 +23,17 @@ const mockBalances: CombinedBalanceInfo[] = [
         { denom: 'token1', exponent: 6, aliases: ['token1'] },
       ],
     },
-    description: 'My First Token',
-    base: 'token1',
-    name: 'Token 1',
-    uri: 'https://token1.com',
-    uri_hash: 'hash1',
   },
   {
     denom: 'utoken2',
     amount: '2000',
+    coreDenom: 'token2',
     metadata: {
+      name: 'Token 2',
+      uri: 'https://token2.com',
+      uri_hash: 'hash2',
+      description: 'My Second Token',
+      base: 'token2',
       display: 'Token 2',
       symbol: 'TK2',
       denom_units: [
@@ -34,11 +41,6 @@ const mockBalances: CombinedBalanceInfo[] = [
         { denom: 'token2', exponent: 6, aliases: ['token2'] },
       ],
     },
-    description: 'My Second Token',
-    base: 'token2',
-    name: 'Token 2',
-    uri: 'https://token2.com',
-    uri_hash: 'hash2',
   },
 ];
 

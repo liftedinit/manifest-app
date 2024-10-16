@@ -22,13 +22,12 @@ export function WarningModal({
   address,
   isActive,
 }: Readonly<WarningModalProps>) {
-  const { tx } = useTx(chainName);
+  const { tx, isSigning, setIsSigning } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
   const { address: userAddress } = useChain(chainName);
   const { removePending, removeValidator } =
     strangelove_ventures.poa.v1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
-  const [isSigning, setIsSigning] = useState(false);
 
   const handleAccept = async () => {
     setIsSigning(true);

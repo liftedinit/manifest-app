@@ -59,7 +59,7 @@ export function YourGroups({
     if (!isLoading) {
       const timer = setTimeout(() => {
         setShowContent(true);
-      }, 900); // 300ms buffer, adjust as needed
+      }, 900); // 900ms buffer
       return () => clearTimeout(timer);
     }
   }, [isLoading]);
