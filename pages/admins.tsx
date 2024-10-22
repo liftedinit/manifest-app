@@ -18,11 +18,11 @@ export default function Admins() {
   const { groupByAdmin, isGroupByAdminLoading } = useGroupsByAdmin(
     poaAdmin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'
   );
-  console.log(groupByAdmin, poaAdmin);
+
   const group = groupByAdmin?.groups?.[0];
 
-  const isMember = group?.members?.some(member => member?.member?.address === address);
-
+  const isMember = group?.members?.some(member => member?.address === address);
+  console.log(groupByAdmin, poaAdmin, isMember);
   return (
     <div className="min-h-screen relative py-4 px-2 mx-auto text-white mt-12 md:mt-0">
       <Head>

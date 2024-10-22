@@ -1,18 +1,18 @@
 import { Dialog } from '@headlessui/react';
-import {
-  XMarkIcon,
-  ArrowRightOnRectangleIcon,
-  ClipboardIcon,
-  CheckIcon,
-} from '@heroicons/react/24/outline';
+import { XMarkIcon, ArrowRightOnRectangleIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { ChevronLeftIcon } from '@heroicons/react/20/solid';
 import { useState } from 'react';
 import ProfileAvatar from '@/utils/identicon';
 import { useBalance } from '@/hooks/useQueries';
+import { CopyIcon } from '@/components/icons';
 import { shiftDigits, truncateString } from '@/utils';
+import Image from 'next/image';
+import { PiAddressBook } from 'react-icons/pi';
+import { Contacts } from './Contacts';
 
 export const Connected = ({
   onClose,
+  logo,
   onReturn,
   disconnect,
   name,
@@ -20,6 +20,7 @@ export const Connected = ({
   address,
 }: {
   onClose: () => void;
+  logo: string;
   onReturn: () => void;
   disconnect: () => void;
   name: string;
@@ -28,6 +29,7 @@ export const Connected = ({
 }) => {
   const { balance } = useBalance(address ?? '');
   const [copied, setCopied] = useState(false);
+  const [showContacts, setShowContacts] = useState(false);
 
   const copyAddress = () => {
     if (address) {
@@ -36,6 +38,10 @@ export const Connected = ({
       setTimeout(() => setCopied(false), 2000);
     }
   };
+
+  if (showContacts) {
+    return <Contacts onClose={onClose} onReturn={() => setShowContacts(false)} />;
+  }
 
   return (
     <div className="p-2 w-full mx-auto pt-4">
@@ -47,9 +53,12 @@ export const Connected = ({
         >
           <ChevronLeftIcon className="w-5 h-5" aria-hidden="true" />
         </button>
-        <Dialog.Title as="h3" className="text-md font-semibold">
-          {name}
-        </Dialog.Title>
+        <div className="flex flex-row gap-2 items-center">
+          <Image height={0} width={0} src={logo} alt={name} className="w-8 h-8 rounded-full mr-2" />
+          <Dialog.Title as="h3" className="text-md font-semibold">
+            {name}
+          </Dialog.Title>
+        </div>
         <button
           type="button"
           className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
@@ -58,29 +67,35 @@ export const Connected = ({
           <XMarkIcon className="w-5 h-5" aria-hidden="true" />
         </button>
       </div>
-
-      <div className="flex items-center mb-6">
-        <ProfileAvatar walletAddress={address ?? ''} size={60} />
-        <div className="ml-4">
-          <p className="text-lg font-semibold">{username || 'Anonymous'}</p>
-          <div className="flex items-center">
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {truncateString(address || '', 12)}
-            </p>
-            <button
-              onClick={copyAddress}
-              className="ml-2 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
-            >
-              {copied ? (
-                <CheckIcon className="w-4 h-4 text-green-500" />
-              ) : (
-                <ClipboardIcon className="w-4 h-4 text-gray-500" />
-              )}
-            </button>
+      <div className="flex items-center flex-row justify-between mb-6">
+        <div className="flex items-center ">
+          <ProfileAvatar walletAddress={address ?? ''} size={60} />
+          <div className="ml-4">
+            <p className="text-lg font-semibold">{username || 'Anonymous'}</p>
+            <div className="flex items-center">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {truncateString(address || '', 12)}
+              </p>
+              <button
+                onClick={copyAddress}
+                className="ml-2 p-1 rounded-full hover:bg-[#FFFFFFCC] dark:hover:bg-[#FFFFFF0F]  transition-colors duration-200"
+              >
+                {copied ? (
+                  <CheckIcon className="w-4 h-4 text-green-500" />
+                ) : (
+                  <CopyIcon className="w-4 h-4 text-gray-500" />
+                )}
+              </button>
+            </div>
           </div>
         </div>
+        <button
+          onClick={() => setShowContacts(true)}
+          className="ml-2 p-1 rounded-full hover:bg-[#FFFFFFCC] dark:hover:bg-[#FFFFFF0F] btn btn-ghost btn-md transition-colors duration-200"
+        >
+          <PiAddressBook className="w-8 h-8 text-primary" />
+        </button>
       </div>
-
       <div className="bg-base-300 dark:bg-base-300 rounded-lg py-3 px-2 mb-4">
         <p className="text-sm leading-4 tracking-wider text-gray-500 dark:text-gray-400 mb-1 ml-2">
           Balance
@@ -88,7 +103,9 @@ export const Connected = ({
         <div className="flex items-center">
           {balance?.amount ? (
             <p className="text-md dark:text-[#FFFFFF99] text-black font-bold ml-2">
-              {shiftDigits(balance?.amount ?? '', -6)}
+              {Number(shiftDigits(balance?.amount ?? '', -6)).toLocaleString(undefined, {
+                maximumFractionDigits: 6,
+              })}
             </p>
           ) : (
             <div className="loading loading-dots w-8 h-8"></div>

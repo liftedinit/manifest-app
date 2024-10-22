@@ -59,7 +59,7 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
           <p className="text-center text-[#00000099] dark:text-[#FFFFFF99]">No tokens found!</p>
         </div>
       ) : (
-        <div className="space-y-2 max-h-screen overflow-y-auto">
+        <div className="space-y-2 max-h-[88vh] overflow-y-auto">
           {filteredBalances.map(balance => (
             <div
               key={balance.denom}
@@ -81,10 +81,11 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
               </div>
               <div className="text-center">
                 <p className="font-semibold text-[#161616] dark:text-white">
-                  {shiftDigits(
-                    balance.amount,
-                    -Number(balance.metadata?.denom_units[1]?.exponent) ?? 6
-                  )}{' '}
+                  {Number(
+                    shiftDigits(balance.amount, -(balance.metadata?.denom_units[1]?.exponent ?? 6))
+                  ).toLocaleString(undefined, {
+                    maximumFractionDigits: balance.metadata?.denom_units[1]?.exponent ?? 6,
+                  })}
                   {truncateString(balance.metadata?.display ?? '', 12)}
                 </p>
               </div>

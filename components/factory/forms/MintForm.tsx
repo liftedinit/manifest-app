@@ -204,7 +204,9 @@ export default function MintForm({
                 </p>
                 <div className="bg-base-300 p-4 rounded-md">
                   <p className="font-semibold text-md text-black dark:text-white">
-                    {shiftDigits(balance, -exponent)}
+                    {Number(shiftDigits(balance, -exponent)).toLocaleString(undefined, {
+                      maximumFractionDigits: exponent,
+                    })}
                   </p>
                 </div>
               </div>
@@ -227,7 +229,10 @@ export default function MintForm({
                   </p>
                   <div className="bg-base-300 p-4 rounded-md">
                     <p className="font-semibold text-md max-w-[20ch] truncate text-black dark:text-white">
-                      {shiftDigits(totalSupply, -exponent)} {denom.display.toUpperCase()}
+                      {Number(shiftDigits(totalSupply, -exponent)).toLocaleString(undefined, {
+                        maximumFractionDigits: exponent,
+                      })}{' '}
+                      {denom.display.toUpperCase()}
                     </p>
                   </div>
                 </div>

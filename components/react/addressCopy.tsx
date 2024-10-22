@@ -13,7 +13,7 @@ export const TruncatedAddressWithCopy = ({
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: ReturnType<typeof setTimeout>;
     if (copied) {
       timer = setTimeout(() => setCopied(false), 2000);
     }
@@ -50,7 +50,7 @@ export const AddressWithCopy = ({ address }: { address: string }) => {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: ReturnType<typeof setTimeout>;
     if (copied) {
       timer = setTimeout(() => setCopied(false), 2000);
     }

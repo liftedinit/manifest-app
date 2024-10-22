@@ -5,6 +5,7 @@ import { useCallback, Fragment, useState, useMemo, useEffect } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { Connected, Connecting, Error, NotExist, QRCode, WalletList } from './views';
 import { useRouter } from 'next/router';
+import { ToastProvider } from '@/contexts/toastContext';
 
 export enum ModalView {
   WalletList,
@@ -14,6 +15,7 @@ export enum ModalView {
   Error,
   NotExist,
 }
+
 export const TailwindModal: React.FC<WalletModalProps> = ({ isOpen, setOpen, walletRepo }) => {
   const router = useRouter();
 
@@ -187,7 +189,9 @@ export const TailwindModal: React.FC<WalletModalProps> = ({ isOpen, setOpen, wal
               <Dialog.Panel
                 className={`relative transform w-full overflow-hidden rounded-xl dark:bg-[#1D192D] bg-[#FFFF] px-4 pt-2.5 pb-4 [min-height:18rem] text-left shadow-xl transition-all sm:my-8 sm:w-full ${currentView === ModalView.WalletList ? 'sm:max-w-sm' : 'sm:max-w-2xl'} sm:p-4`}
               >
-                <div className="h-full">{_render}</div>
+                <ToastProvider>
+                  <div className="h-full">{_render}</div>
+                </ToastProvider>
               </Dialog.Panel>
             </Transition.Child>
           </div>

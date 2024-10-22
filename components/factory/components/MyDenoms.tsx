@@ -254,7 +254,12 @@ function TokenRow({
       <td className="w-2/4 sm:w-1/4">
         <div className="flex flex-col sm:flex-row sm:items-center">
           <span className="sm:mr-2">
-            {shiftDigits(denom.totalSupply, -denom.denom_units[1]?.exponent)}
+            {Number(shiftDigits(denom.totalSupply, -denom.denom_units[1]?.exponent)).toLocaleString(
+              undefined,
+              {
+                maximumFractionDigits: denom.denom_units[1]?.exponent ?? 6,
+              }
+            )}
           </span>
           <span className=" font-extralight ">
             {truncateString(denom.display, 10).toUpperCase()}
@@ -264,7 +269,12 @@ function TokenRow({
       <td className="w-2/4 sm:w-1/4">
         <div className="flex flex-col sm:flex-row sm:items-center">
           <span className="sm:mr-2">
-            {shiftDigits(denom.balance, -denom.denom_units[1]?.exponent)}
+            {Number(shiftDigits(denom.balance, -denom.denom_units[1]?.exponent)).toLocaleString(
+              undefined,
+              {
+                maximumFractionDigits: denom.denom_units[1]?.exponent ?? 6,
+              }
+            )}
           </span>
           <span className="font-extralight ">
             {truncateString(denom.display, 10).toUpperCase()}

@@ -9,6 +9,7 @@ import { DenomImage } from '@/components/factory';
 import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { TextInput } from '@/components/react/inputs';
+import { SearchIcon } from '@/components/icons';
 
 export default function SendForm({
   address,
@@ -16,14 +17,12 @@ export default function SendForm({
   isBalancesLoading,
   refetchBalances,
   refetchHistory,
-  ibcChains,
 }: Readonly<{
   address: string;
   balances: CombinedBalanceInfo[];
   isBalancesLoading: boolean;
   refetchBalances: () => void;
   refetchHistory: () => void;
-  ibcChains: { prefix: string }[];
 }>) {
   const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -32,12 +31,18 @@ export default function SendForm({
   const { estimateFee } = useFeeEstimation(chainName);
   const { send } = cosmos.bank.v1beta1.MessageComposer.withTypeUrl;
 
-  const filteredBalances = balances?.filter(token =>
-    token.metadata?.display.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredBalances = balances?.filter(token => {
+    const displayName = token.metadata?.display ?? token.denom;
+    return displayName.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   const initialSelectedToken =
-    balances?.find(token => token.denom === 'umfx') || balances?.[0] || null;
+    balances?.find(token => token.coreDenom === 'umfx') || balances?.[0] || null;
+
+  // Return null or loading indicator if balances are not loaded
+  if (isBalancesLoading || !initialSelectedToken) {
+    return null; // Or render a loading component
+  }
 
   const validationSchema = Yup.object().shape({
     recipient: Yup.string().required('Recipient is required').manifestAddress(),
@@ -169,60 +174,56 @@ export default function SendForm({
                           <DenomImage denom={values.selectedToken?.metadata} />
                         ) : null}
 
-                        {values.selectedToken?.metadata?.display.startsWith('factory')
-                          ? values.selectedToken?.metadata?.display?.split('/').pop()?.toUpperCase()
-                          : truncateString(
-                              values.selectedToken?.metadata?.display ?? 'Select',
-                              10
-                            ).toUpperCase()}
+                        {(() => {
+                          const tokenDisplayName =
+                            values.selectedToken?.metadata?.display ??
+                            values.selectedToken?.denom ??
+                            'Select';
+
+                          return tokenDisplayName.startsWith('factory')
+                            ? tokenDisplayName.split('/').pop()?.toUpperCase()
+                            : truncateString(tokenDisplayName, 10).toUpperCase();
+                        })()}
                         <PiCaretDownBold className="ml-1" />
                       </label>
                       <ul
                         tabIndex={0}
-                        className="dropdown-content z-[100] menu p-2 shadow bg-base-300 rounded-lg w-full mt-1 h-62 max-h-62 min-h-62 min-w-44 overflow-y-auto dark:text-[#FFFFFF] text-[#161616]"
+                        className="dropdown-content z-20 p-2 shadow bg-base-300 rounded-lg w-full mt-1 max-h-72 min-w-44 overflow-y-auto dark:text-[#FFFFFF] text-[#161616]"
                       >
-                        <li className="sticky top-0 bg-transparent z-10 hover:bg-transparent mb-2">
-                          <div className="px-2 py-1">
+                        <li className=" bg-base-300 z-30 hover:bg-transparent h-full mb-2">
+                          <div className="px-2 py-1 relative">
                             <input
                               type="text"
                               placeholder="Search tokens..."
-                              className="input input-sm w-full pr-8 focus:outline-none focus:ring-0 border-none bg-transparent"
+                              className="input input-sm w-full pr-8 focus:outline-none focus:ring-0 border  border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A]"
                               onChange={e => setSearchTerm(e.target.value)}
-                              style={{ boxShadow: 'none' }}
+                              style={{ boxShadow: 'none', borderRadius: '8px' }}
                             />
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-5 w-5 absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                              />
-                            </svg>
+                            <SearchIcon className="h-5 w-5 absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                           </div>
                         </li>
                         {isBalancesLoading ? (
                           <li>
-                            <a>Loading tokens...</a>
+                            <a className="block px-4 py-2">Loading tokens...</a>
                           </li>
                         ) : (
                           filteredBalances?.map(token => (
                             <li
                               key={token.coreDenom}
                               onClick={() => setFieldValue('selectedToken', token)}
-                              className="flex justify-start mb-2"
+                              className="hover:bg-[#E0E0FF33] dark:hover:bg-[#FFFFFF0F] cursor-pointer rounded-lg"
                               aria-label={token.metadata?.display}
                             >
-                              <a className="flex-row justify-start gap-3 items-center w-full">
+                              <a className="flex flex-row items-center gap-2 px-2 py-2">
                                 <DenomImage denom={token?.metadata} />
-                                {token.metadata?.display.startsWith('factory')
-                                  ? token.metadata?.display.split('/').pop()?.toUpperCase()
-                                  : truncateString(token.metadata?.display ?? '', 10).toUpperCase()}
+                                <span className="truncate">
+                                  {token.metadata?.display.startsWith('factory')
+                                    ? token.metadata?.display.split('/').pop()?.toUpperCase()
+                                    : truncateString(
+                                        token.metadata?.display ?? '',
+                                        10
+                                      ).toUpperCase()}
+                                </span>
                               </a>
                             </li>
                           ))
@@ -236,10 +237,15 @@ export default function SendForm({
                     <span>
                       Balance:{'  '}
                       {values.selectedToken
-                        ? shiftDigits(
-                            Number(values.selectedToken.amount),
-                            -(values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6)
-                          )
+                        ? Number(
+                            shiftDigits(
+                              Number(values.selectedToken.amount),
+                              -(values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6)
+                            )
+                          ).toLocaleString(undefined, {
+                            maximumFractionDigits:
+                              values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6,
+                          })
                         : '0'}
                     </span>
 

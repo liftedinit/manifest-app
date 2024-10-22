@@ -1,27 +1,47 @@
-//TODO: Some messages expect the addres field to be the groups policy address.
-//This needs to be considered within the relevant message types or else the proposal fails
-
-import React, { useState, useCallback, useEffect } from 'react';
-import { ProposalFormData, ProposalAction, Message, MessageFields } from '@/helpers/formReducer';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import {
+  ProposalFormData,
+  ProposalAction,
+  Message,
+  MessageFields,
+  SendMessage,
+} from '@/helpers/formReducer';
 import * as initialMessages from './messages';
 
 import { TextInput } from '@/components/react/inputs';
 import { Formik, Form, Field, FieldProps, FormikProps } from 'formik';
 import Yup from '@/utils/yupExtensions';
-import { ArrowRightIcon, MinusIcon, SearchIcon, PlusIcon } from '@/components/icons';
+import { ArrowRightIcon, ArrowUpIcon, MinusIcon, SearchIcon, PlusIcon } from '@/components/icons';
 import { FiEdit } from 'react-icons/fi';
-import SendMessageForm from './messages/SendMessageForm';
+import { useTokenBalances, useTokenBalancesResolved, useTokenFactoryDenomsMetadata } from '@/hooks';
+import { DenomImage } from '@/components/factory';
+import { PiCaretDownBold } from 'react-icons/pi';
+import { shiftDigits, truncateString } from '@/utils';
+import { CombinedBalanceInfo } from '@/utils/types';
+import Decimal from 'decimal.js';
 
-const customMessageComponents: Record<string, React.FC<any>> = {
-  send: SendMessageForm,
-};
+// Define the prop types for CustomSendMessageFields
+interface CustomSendMessageFieldsProps {
+  policyAddress: string;
+  address: string;
+  message: SendMessage;
+  index: number;
+  handleChange: (field: string, value: any) => void;
+  updateValidity: (index: number, isValid: boolean) => void;
+  combinedBalances: CombinedBalanceInfo[];
+  isBalancesLoading: boolean;
+}
 
 export default function ProposalMessages({
+  policyAddress,
+  address,
   formData,
   dispatch,
   nextStep,
   prevStep,
 }: Readonly<{
+  policyAddress: string;
+  address: string;
   nextStep: () => void;
   prevStep: () => void;
   formData: ProposalFormData;
@@ -73,24 +93,57 @@ export default function ProposalMessages({
       type.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const [isMessageValidArray, setIsMessageValidArray] = useState<boolean[]>(
+    formData.messages.map(() => false)
+  );
+
+  const updateMessageValidity = (index: number, isValid: boolean) => {
+    setIsMessageValidArray(prevState => {
+      const newState = [...prevState];
+      newState[index] = isValid;
+      return newState;
+    });
+  };
+
+  const checkFormValidity = useCallback(() => {
+    const valid = formData.messages.length > 0 && isMessageValidArray.every(isValid => isValid);
+
+    setIsFormValid(valid);
+  }, [formData.messages.length, isMessageValidArray]);
+
+  useEffect(() => {
+    checkFormValidity();
+  }, [isMessageValidArray, checkFormValidity]);
+
   const handleAddMessage = () => {
+    let newMessage: Message = initialMessages.initialSendMessage;
+
+    // If the message type is 'send', set the from_address to policyAddress
+    if (newMessage.type === 'send') {
+      newMessage = {
+        ...newMessage,
+        from_address: policyAddress,
+      };
+    }
+
     dispatch({
       type: 'ADD_MESSAGE',
-      message: initialMessages.initialSendMessage,
+      message: newMessage,
     });
+
     setVisibleMessages([...visibleMessages, false]);
-    checkFormValidity();
+    setIsMessageValidArray([...isMessageValidArray, false]); // Add false for the new message
   };
 
   const handleRemoveMessage = (index: number) => {
     dispatch({ type: 'REMOVE_MESSAGE', index });
     setVisibleMessages(visibleMessages.filter((_, i) => i !== index));
+    setIsMessageValidArray(isMessageValidArray.filter((_, i) => i !== index));
     if (editingMessageIndex === index) {
       setEditingMessageIndex(null);
     } else if (editingMessageIndex !== null && editingMessageIndex > index) {
       setEditingMessageIndex(editingMessageIndex - 1);
     }
-    checkFormValidity();
   };
 
   const handleChangeMessage = (index: number, field: MessageFields, value: any) => {
@@ -234,13 +287,13 @@ export default function ProposalMessages({
       (updatedMessage as any)[field as string] = value;
     }
     dispatch({ type: 'UPDATE_MESSAGE', index, message: updatedMessage });
-    checkFormValidity();
   };
 
   const renderInputs = (
     object: Record<string, any>,
     handleChange: (field: string, value: any) => void,
-    path = ''
+    path = '',
+    index: number
   ) => {
     const generateValidationSchema = (obj: Record<string, any>): any => {
       return Yup.object().shape(
@@ -366,6 +419,10 @@ export default function ProposalMessages({
         validationSchema={validationSchema}
         onSubmit={() => {}}
         validateOnChange={true}
+        validate={values => {
+          const isValid = validationSchema.isValidSync(values);
+          updateMessageValidity(index, isValid);
+        }}
       >
         {(formikProps: FormikProps<typeof object>) => (
           <Form>
@@ -379,10 +436,6 @@ export default function ProposalMessages({
   };
 
   const renderMessageFields = (message: Message, index: number) => {
-    interface Message {
-      [key: string]: any;
-    }
-
     const handleChange = (field: string, value: any) => {
       const fieldPath = field.split('.');
       let updatedMessage: any = { ...formData.messages[index] };
@@ -396,24 +449,23 @@ export default function ProposalMessages({
       dispatch({ type: 'UPDATE_MESSAGE', index, message: updatedMessage });
     };
 
-    // Get the custom component for the message type if it exists
-    const CustomComponent = customMessageComponents[message.type];
-
-    if (CustomComponent) {
-      // Render the custom component
+    if (message.type === 'send') {
       return (
-        <CustomComponent
-          message={message}
+        <CustomSendMessageFields
+          policyAddress={policyAddress}
+          address={address}
+          message={message as SendMessage}
           index={index}
           handleChange={handleChange}
-          address={'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'}
+          updateValidity={updateMessageValidity}
+          combinedBalances={combinedBalances}
+          isBalancesLoading={isBalancesLoading}
         />
       );
     } else {
-      // Render the default inputs for other message types
       return (
         <div className="p-1 rounded-lg">
-          {renderInputs(message, (field, value) => handleChange(field, value))}
+          {renderInputs(message, (field, value) => handleChange(field, value), '', index)}
         </div>
       );
     }
@@ -459,14 +511,29 @@ export default function ProposalMessages({
     return checkFields(message);
   }, []);
 
-  const checkFormValidity = useCallback(() => {
-    const valid = formData.messages.length > 0 && formData.messages.every(isMessageValid);
-    setIsFormValid(valid);
-  }, [formData, isMessageValid]);
+  // Import necessary hooks and states for token balances and metadata
+  const { balances, isBalancesLoading } = useTokenBalances(policyAddress);
+  const { balances: resolvedBalances } = useTokenBalancesResolved(policyAddress);
+  const { metadatas } = useTokenFactoryDenomsMetadata();
 
-  useEffect(() => {
-    checkFormValidity();
-  }, [formData, checkFormValidity]);
+  // Combine balances with metadata
+  const combinedBalances = useMemo(() => {
+    if (!balances || !resolvedBalances || !metadatas) return [];
+
+    return balances.map((coreBalance): CombinedBalanceInfo => {
+      const resolvedBalance = resolvedBalances.find(
+        rb => rb.denom === coreBalance.denom || rb.denom === coreBalance.denom.split('/').pop()
+      );
+      const metadata = metadatas.metadatas.find(m => m.base === coreBalance.denom);
+
+      return {
+        denom: resolvedBalance?.denom || coreBalance.denom,
+        coreDenom: coreBalance.denom,
+        amount: coreBalance.amount,
+        metadata: metadata || null,
+      };
+    });
+  }, [balances, resolvedBalances, metadatas]);
 
   return (
     <section className="">
@@ -658,3 +725,291 @@ export default function ProposalMessages({
     </section>
   );
 }
+
+const CustomSendMessageFields: React.FC<CustomSendMessageFieldsProps> = ({
+  policyAddress,
+  address,
+  message,
+  index,
+  handleChange,
+  updateValidity,
+  combinedBalances,
+  isBalancesLoading,
+}) => {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredBalances = combinedBalances?.filter(token =>
+    token.metadata?.display.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const initialSelectedToken = useMemo(() => {
+    return (
+      combinedBalances?.find(token => token.coreDenom === message.amount.denom) ||
+      combinedBalances?.find(token => token.denom === 'umfx') ||
+      combinedBalances?.[0] ||
+      null
+    );
+  }, [combinedBalances, message.amount.denom]);
+
+  const validationSchema = Yup.object().shape({
+    amount: Yup.number()
+      .typeError('Amount must be a number')
+      .required('Amount is required')
+      .positive('Amount must be positive'),
+    to_address: Yup.string().required('Recipient address is required').manifestAddress(),
+    denom: Yup.string().required('Denomination is required'),
+    selectedToken: Yup.object().required('Please select a token'),
+  });
+
+  return (
+    <div style={{ borderRadius: '24px' }} className="text-sm w-full h-full p-2">
+      <Formik
+        initialValues={{
+          amount: message.amount.amount
+            ? new Decimal(message.amount.amount)
+                .div(
+                  new Decimal(10).pow(initialSelectedToken?.metadata?.denom_units[1]?.exponent ?? 6)
+                )
+                .toString()
+            : '',
+          from_address: policyAddress,
+          to_address: message.to_address || address,
+          selectedToken: initialSelectedToken,
+          denom: message.amount.denom || '',
+        }}
+        validationSchema={validationSchema}
+        onSubmit={() => {}}
+        validateOnChange={true}
+        enableReinitialize={true}
+        validate={values => {
+          const isValid = validationSchema.isValidSync(values);
+          updateValidity(index, isValid);
+        }}
+      >
+        {({ values, setFieldValue, errors, touched }) => (
+          <Form className="space-y-6 flex flex-col items-center mx-auto">
+            <div className="w-full space-y-4">
+              {/* Amount Input with Token Selector */}
+              <div className="w-full">
+                <label className="label">
+                  <span className="label-text text-md font-medium text-[#00000099] dark:text-[#FFFFFF99]">
+                    Amount
+                  </span>
+                </label>
+                <div className="relative">
+                  <input
+                    className="input input-md border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full pr-24 dark:text-[#FFFFFF] text-[#161616]"
+                    name="amount"
+                    placeholder="0.00"
+                    style={{ borderRadius: '12px' }}
+                    value={values.amount}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      const value = e.target.value;
+                      if (/^\d*\.?\d*$/.test(value) && parseFloat(value) >= 0) {
+                        setFieldValue('amount', value);
+
+                        if (values.selectedToken) {
+                          const exponent =
+                            values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
+                          const amountMinimalUnits = new Decimal(value)
+                            .times(new Decimal(10).pow(exponent))
+                            .toFixed(0);
+
+                          handleChange('amount.amount', amountMinimalUnits);
+                        } else {
+                          handleChange('amount.amount', value);
+                        }
+                      }
+                    }}
+                    onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                      if (!/[\d.]/.test(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
+                  />
+
+                  <div className="absolute inset-y-1 right-1 flex items-center">
+                    <div className="dropdown dropdown-end h-full">
+                      <label
+                        aria-label="token-selector"
+                        tabIndex={0}
+                        className="btn btn-sm h-full px-3 bg-[#FFFFFF] dark:bg-[#FFFFFF0F] border-none hover:bg-transparent flex items-center"
+                      >
+                        {values.selectedToken?.metadata ? (
+                          <DenomImage denom={values.selectedToken?.metadata} />
+                        ) : null}
+
+                        {values.selectedToken?.metadata?.display.startsWith('factory')
+                          ? values.selectedToken?.metadata?.display.split('/').pop()?.toUpperCase()
+                          : truncateString(
+                              values.selectedToken?.metadata?.display ?? 'Select',
+                              10
+                            ).toUpperCase()}
+                        <PiCaretDownBold className="ml-1" />
+                      </label>
+                      <ul
+                        tabIndex={0}
+                        className="dropdown-content z-50 menu p-2 shadow bg-base-300 rounded-lg w-44 mt-1 max-h-60 overflow-y-auto dark:text-[#FFFFFF] text-[#161616]"
+                      >
+                        <li className="sticky top-0 bg-transparent z-10 overflow-y-auto hover:bg-transparent mb-2">
+                          <div className="px-2 py-1">
+                            <input
+                              type="text"
+                              placeholder="Search tokens..."
+                              className="input input-sm w-full pr-8 focus:outline-none focus:ring-0 border-none bg-transparent"
+                              onChange={e => setSearchTerm(e.target.value)}
+                              style={{ boxShadow: 'none' }}
+                            />
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-5 w-5 absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                              />
+                            </svg>
+                          </div>
+                        </li>
+                        {isBalancesLoading ? (
+                          <li>
+                            <a>Loading tokens...</a>
+                          </li>
+                        ) : (
+                          filteredBalances?.map(token => (
+                            <li
+                              key={token.coreDenom}
+                              onClick={() => {
+                                setFieldValue('selectedToken', token);
+                                setFieldValue('denom', token.coreDenom);
+                                handleChange('amount.denom', token.coreDenom);
+
+                                // Reset amount when token changes
+                                setFieldValue('amount', '');
+                                handleChange('amount.amount', '');
+                              }}
+                              className="flex justify-start mb-2 cursor-pointer"
+                              aria-label={token.metadata?.display}
+                            >
+                              <a className="flex-row justify-start gap-3 items-center w-full">
+                                <DenomImage denom={token?.metadata} />
+                                {token.metadata?.display.startsWith('factory')
+                                  ? token.metadata?.display.split('/').pop()?.toUpperCase()
+                                  : truncateString(token.metadata?.display ?? '', 10).toUpperCase()}
+                              </a>
+                            </li>
+                          ))
+                        )}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-xs mt-1 flex justify-between text-[#00000099] dark:text-[#FFFFFF99]">
+                  <div className="flex flex-row gap-1 ml-1">
+                    <span>
+                      Balance:{' '}
+                      {values.selectedToken
+                        ? (() => {
+                            const exponent =
+                              values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
+                            const amount = new Decimal(values.selectedToken.amount).div(
+                              new Decimal(10).pow(exponent)
+                            );
+                            return amount.lessThan(0.01) ? '> 0.01' : amount.toString();
+                          })()
+                        : '0'}
+                    </span>
+
+                    <span className="">
+                      {values.selectedToken?.metadata?.display?.startsWith('factory')
+                        ? values.selectedToken?.metadata?.display?.split('/').pop()?.toUpperCase()
+                        : truncateString(
+                            values.selectedToken?.metadata?.display ?? '',
+                            10
+                          ).toUpperCase()}
+                    </span>
+                    <button
+                      type="button"
+                      className="text-xs text-primary"
+                      onClick={() => {
+                        if (!values.selectedToken) return;
+
+                        const exponent =
+                          values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
+                        const maxAmount = new Decimal(values.selectedToken.amount).div(
+                          new Decimal(10).pow(exponent)
+                        );
+
+                        let adjustedMaxAmount = maxAmount;
+                        if (values.selectedToken.denom === 'umfx') {
+                          adjustedMaxAmount = Decimal.max(0, maxAmount.minus(0.1));
+                        }
+
+                        const formattedAmount = adjustedMaxAmount.toString();
+
+                        setFieldValue('amount', formattedAmount);
+
+                        // Set the amount in minimal units
+                        const amountMinimalUnits = adjustedMaxAmount
+                          .times(new Decimal(10).pow(exponent))
+                          .toFixed(0);
+
+                        handleChange('amount.amount', amountMinimalUnits);
+                      }}
+                    >
+                      MAX
+                    </button>
+                  </div>
+                  {errors.amount && typeof errors.amount === 'string' && (
+                    <div className="text-red-500 text-xs">{errors.amount}</div>
+                  )}
+                </div>
+              </div>
+
+              {/* Recipient Input */}
+              <TextInput
+                label="Send To"
+                name="to_address"
+                placeholder="Enter address"
+                value={values.to_address}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  setFieldValue('to_address', e.target.value);
+                  handleChange('to_address', e.target.value);
+                }}
+                className="input-md w-full"
+                style={{ borderRadius: '12px' }}
+              />
+              <TextInput
+                label="From Address"
+                name="from_address"
+                placeholder="Enter address"
+                value={policyAddress}
+                onChange={() => {}}
+                className="input-md w-full"
+                style={{ borderRadius: '12px' }}
+                disabled
+              />
+            </div>
+            {/* Display validation errors */}
+            {Object.keys(errors).map(key => {
+              const errorKey = key as keyof typeof errors;
+              const touchedKey = key as keyof typeof touched;
+              return touched[touchedKey] && errors[errorKey] ? (
+                <div key={key} className="text-red-500 text-xs">
+                  {typeof errors[errorKey] === 'string'
+                    ? (errors[errorKey] as string)
+                    : JSON.stringify(errors[errorKey])}
+                </div>
+              ) : null;
+            })}
+          </Form>
+        )}
+      </Formik>
+    </div>
+  );
+};

@@ -1,13 +1,13 @@
 import { AssetList, Chain } from '@chain-registry/types';
 export const chainName = process.env.NEXT_PUBLIC_CHAIN ?? 'manifest';
 const mainNetRPC =
-  process.env.NEXT_PUBLIC_MAINNET_RPC ?? 'https://nodes.chandrastation.com/rpc/manifest/';
+  process.env.NEXT_PUBLIC_MAINNET_RPC ?? 'https://nodes.liftedinit.tech/manifest/testnet/rpc';
 const mainNetAPI =
-  process.env.NEXT_PUBLIC_MAINNET_API ?? 'https://nodes.chandrastation.com/api/manifest/';
+  process.env.NEXT_PUBLIC_MAINNET_API ?? 'https://nodes.liftedinit.tech/manifest/testnet/api';
 const testNetRPC =
-  process.env.NEXT_PUBLIC_TESTNET_RPC ?? 'https://manifest-beta-rpc.liftedinit.tech/ ';
+  process.env.NEXT_PUBLIC_TESTNET_RPC ?? 'https://nodes.chandrastation.com/rpc/manifest/';
 const testNetAPI =
-  process.env.NEXT_PUBLIC_TESTNET_API ?? 'https://manifest-beta-rest.liftedinit.tech/ ';
+  process.env.NEXT_PUBLIC_TESTNET_API ?? 'https://nodes.chandrastation.com/api/manifest/';
 
 export const manifestChain: Chain = {
   chain_name: 'manifest',
@@ -15,7 +15,7 @@ export const manifestChain: Chain = {
   network_type: 'testnet',
   website: '',
   pretty_name: 'Manifest Testnet',
-  chain_id: process.env.NEXT_PUBLIC_CHAIN_ID ?? 'manifest-1',
+  chain_id: process.env.NEXT_PUBLIC_CHAIN_ID ?? 'manifest-ledger-testnet',
   bech32_prefix: 'manifest',
   daemon_name: 'manifest',
   node_home: '$HOME/.manifest',
@@ -40,10 +40,10 @@ export const manifestChain: Chain = {
     fee_tokens: [
       {
         denom: 'umfx',
-        fixed_min_gas_price: 0.001,
-        low_gas_price: 0.001,
-        average_gas_price: 0.001,
-        high_gas_price: 0.001,
+        fixed_min_gas_price: 0.02,
+        low_gas_price: 0.01,
+        average_gas_price: 0.022,
+        high_gas_price: 0.034,
       },
     ],
   },
@@ -121,7 +121,7 @@ export const manifestTestnetChain: Chain = {
   network_type: 'testnet',
   website: '',
   pretty_name: 'Manifest Testnet',
-  chain_id: process.env.NEXT_PUBLIC_TESTNET_CHAIN_ID ?? 'manifest-ledger-beta',
+  chain_id: process.env.NEXT_PUBLIC_TESTNET_CHAIN_ID ?? 'manifest-1',
   bech32_prefix: 'manifest',
   daemon_name: 'manifest',
   node_home: '$HOME/.manifest',
@@ -146,10 +146,10 @@ export const manifestTestnetChain: Chain = {
     fee_tokens: [
       {
         denom: 'umfx',
-        fixed_min_gas_price: 0.001,
-        low_gas_price: 0.004,
-        average_gas_price: 0.008,
-        high_gas_price: 0.01,
+        fixed_min_gas_price: 0.02,
+        low_gas_price: 0.01,
+        average_gas_price: 0.022,
+        high_gas_price: 0.034,
       },
     ],
   },

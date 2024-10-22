@@ -63,29 +63,35 @@ export default function SendBox({
           Cross-Chain Transfer
         </button>
       </div>
-      {activeTab === 'cross-chain' ? (
-        <IbcSendForm
-          isIbcTransfer={true}
-          setIsIbcTransfer={() => {}}
-          ibcChains={ibcChains}
-          selectedChain={selectedChain}
-          setSelectedChain={setSelectedChain}
-          address={address}
-          destinationChain={selectedChain}
-          balances={balances}
-          isBalancesLoading={isBalancesLoading}
-          refetchBalances={refetchBalances}
-          refetchHistory={refetchHistory}
-        />
+
+      {isBalancesLoading || !balances ? (
+        <div className="skeleton h-[300px] w-full"></div>
       ) : (
-        <SendForm
-          ibcChains={ibcChains}
-          address={address}
-          balances={balances}
-          isBalancesLoading={isBalancesLoading}
-          refetchBalances={refetchBalances}
-          refetchHistory={refetchHistory}
-        />
+        <>
+          {activeTab === 'cross-chain' ? (
+            <IbcSendForm
+              isIbcTransfer={true}
+              setIsIbcTransfer={() => {}}
+              ibcChains={ibcChains}
+              selectedChain={selectedChain}
+              setSelectedChain={setSelectedChain}
+              address={address}
+              destinationChain={selectedChain}
+              balances={balances}
+              isBalancesLoading={isBalancesLoading}
+              refetchBalances={refetchBalances}
+              refetchHistory={refetchHistory}
+            />
+          ) : (
+            <SendForm
+              address={address}
+              balances={balances}
+              isBalancesLoading={isBalancesLoading}
+              refetchBalances={refetchBalances}
+              refetchHistory={refetchHistory}
+            />
+          )}
+        </>
       )}
     </div>
   );

@@ -3,22 +3,20 @@ import SendBox from '@/components/bank/components/sendBox';
 import TokenList from '@/components/bank/components/tokenList';
 import { chainName } from '@/config';
 import {
-  useGroupsByAdmin,
   useSendTxIncludingAddressQuery,
-  useSendTxQuery,
   useTokenBalances,
   useTokenBalancesResolved,
   useTokenFactoryDenoms,
   useTokenFactoryDenomsMetadata,
 } from '@/hooks';
-import { CoinSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/base/v1beta1/coin';
-import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+
 import { useChain } from '@cosmos-kit/react';
 import Head from 'next/head';
 import React, { useMemo } from 'react';
 import { HistoryBox } from '@/components';
 import { BankIcon } from '@/components/icons';
 import { CombinedBalanceInfo } from '@/utils/types';
+import { MFX_TOKEN_DATA } from '@/utils/constants'; // Import MFX_TOKEN_DATA
 
 export default function Bank() {
   const { address, isWalletConnected } = useChain(chainName);
@@ -28,31 +26,48 @@ export default function Bank() {
     isBalancesLoading: resolvedLoading,
     refetchBalances: resolveRefetch,
   } = useTokenBalancesResolved(address ?? '');
-  const { denoms, isDenomsLoading } = useTokenFactoryDenoms(address ?? '');
+
   const { metadatas, isMetadatasLoading } = useTokenFactoryDenomsMetadata();
 
   const combinedBalances = useMemo(() => {
     if (!balances || !resolvedBalances || !metadatas) return [];
 
-    return balances.map((coreBalance: { denom: string; amount: any }): CombinedBalanceInfo => {
-      const resolvedBalance = resolvedBalances.find(
-        (rb: { denom: string | undefined }) =>
-          rb.denom === coreBalance.denom || rb.denom === coreBalance.denom.split('/').pop()
-      );
-      const metadata = metadatas.metadatas.find(
-        (m: { base: string }) => m.base === coreBalance.denom
-      );
+    // Find 'umfx' balance (mfx token)
+    const mfxCoreBalance = balances.find(b => b.denom === 'umfx');
+    const mfxResolvedBalance = resolvedBalances.find(rb => rb.denom === 'mfx');
 
-      return {
-        denom: resolvedBalance?.denom || coreBalance.denom,
-        coreDenom: coreBalance.denom,
-        amount: coreBalance.amount,
-        metadata: metadata || null,
-      };
-    });
+    // Create combined balance for 'mfx'
+    const mfxCombinedBalance: CombinedBalanceInfo | null = mfxCoreBalance
+      ? {
+          denom: mfxResolvedBalance?.denom || 'mfx',
+          coreDenom: 'umfx',
+          amount: mfxCoreBalance.amount,
+          metadata: MFX_TOKEN_DATA,
+        }
+      : null;
+
+    // Process other balances
+    const otherBalances = balances
+      .filter(coreBalance => coreBalance.denom !== 'umfx')
+      .map((coreBalance): CombinedBalanceInfo => {
+        const resolvedBalance = resolvedBalances.find(
+          rb => rb.denom === coreBalance.denom || rb.denom === coreBalance.denom.split('/').pop()
+        );
+        const metadata = metadatas.metadatas.find(m => m.base === coreBalance.denom);
+
+        return {
+          denom: resolvedBalance?.denom || coreBalance.denom,
+          coreDenom: coreBalance.denom,
+          amount: coreBalance.amount,
+          metadata: metadata || null,
+        };
+      });
+
+    // Combine 'mfx' with other balances
+    return mfxCombinedBalance ? [mfxCombinedBalance, ...otherBalances] : otherBalances;
   }, [balances, resolvedBalances, metadatas]);
 
-  const isLoading = isBalancesLoading || resolvedLoading || isDenomsLoading || isMetadatasLoading;
+  const isLoading = isBalancesLoading || resolvedLoading || isMetadatasLoading;
 
   const { sendTxs, refetch } = useSendTxIncludingAddressQuery(address ?? '');
 
@@ -137,19 +152,15 @@ export default function Bank() {
                 <div className="xl:w-1/3 lg:w-1/2 w-full flex flex-col gap-6 max-h-screen min-h-screen">
                   <SendBox
                     balances={combinedBalances}
-                    isBalancesLoading={resolvedLoading}
-                    refetchBalances={refetchBalances}
+                    isBalancesLoading={isLoading}
+                    refetchBalances={refetchBalances || resolveRefetch}
                     refetchHistory={refetch}
                     address={address ?? ''}
                   />
-                  <HistoryBox
-                    address={address ?? ''}
-                    send={sendTxs ?? []}
-                    isLoading={resolvedLoading}
-                  />
+                  <HistoryBox address={address ?? ''} send={sendTxs ?? []} isLoading={isLoading} />
                 </div>
                 <div className="xl:w-2/3 lg:w-1/2 w-full lg:flex-1 -mt-6">
-                  <TokenList balances={combinedBalances} isLoading={resolvedLoading} />
+                  <TokenList balances={combinedBalances} isLoading={isLoading} />
                 </div>
               </div>
             )

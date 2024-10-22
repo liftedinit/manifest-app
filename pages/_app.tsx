@@ -172,8 +172,8 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
       isLazy: true,
       endpoints: {
         manifest: {
-          rpc: [selectedEndpoint?.rpc ?? 'https://nodes.chandrastation.com/rpc/manifest/'],
-          rest: [selectedEndpoint?.api ?? 'https://nodes.chandrastation.com/api/manifest/'],
+          rpc: [selectedEndpoint?.rpc ?? 'https://nodes.liftedinit.tech/manifest/testnet/rpc'],
+          rest: [selectedEndpoint?.api ?? 'https://nodes.liftedinit.tech/manifest/testnet/api'],
         },
       },
     }),

@@ -184,7 +184,7 @@ export default function ConfirmationForm({
     const CID = await uploadMetaDataToIPFS();
 
     const messages: Any[] = formData.messages.map(message => getMessageObject(message));
-
+    console.log(formData.messages);
     const msg = cosmos.group.v1.MessageComposer.fromPartial.submitProposal({
       groupPolicyAddress: policyAddress,
       messages: messages,

@@ -1,21 +1,18 @@
 import { WalletSection } from '@/components';
 import MyDenoms from '@/components/factory/components/MyDenoms';
 import {
-  useBalance,
-  useGroupsByAdmin,
   useTokenBalances,
-  useTokenFactoryBalance,
   useTokenFactoryDenoms,
   useTokenFactoryDenomsMetadata,
   useTotalSupply,
 } from '@/hooks';
-import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+
 import { useChain } from '@cosmos-kit/react';
 import Head from 'next/head';
-import Link from 'next/link';
-import React, { useState, useEffect, useMemo } from 'react';
+
+import React, { useMemo } from 'react';
 import { chainName } from '@/config';
-import { CoinSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/base/v1beta1/coin';
+
 import { FactoryIcon } from '@/components';
 import { ExtendedMetadataSDKType } from '@/utils';
 import { MFX_TOKEN_DATA } from '@/utils/constants';
@@ -93,7 +90,7 @@ export default function Factory() {
           {!isWalletConnected ? (
             <WalletNotConnected />
           ) : !denoms ? (
-            <div className="text-center text-error">Error loading tokens</div>
+            <div className="text-center my-auto text-error">Error loading tokens</div>
           ) : (
             <>
               <MyDenoms

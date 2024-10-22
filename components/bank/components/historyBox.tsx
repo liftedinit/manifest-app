@@ -32,7 +32,7 @@ export function HistoryBox({
   const [selectedTx, setSelectedTx] = useState<TransactionGroup | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const { metadatas } = useTokenFactoryDenomsMetadata();
-
+  console.log(metadatas);
   function formatDateShort(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleString('en-US', {
@@ -63,7 +63,7 @@ export function HistoryBox({
   }, [send]);
 
   return (
-    <div className="w-full mx-auto rounded-[24px] mt-4  h-full md:h-1/2">
+    <div className="w-full mx-auto rounded-[24px] mt-4  h-full md:h-1/3">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xl font-semibold text-[#161616] dark:text-white">
           Transaction History
@@ -78,7 +78,7 @@ export function HistoryBox({
           </p>
         </div>
       ) : (
-        <div className="space-y-4 max-h-[400px] overflow-y-auto">
+        <div className="space-y-4 max-h-[240px] overflow-y-auto">
           {Object.entries(groupedTransactions).map(([date, transactions]) => (
             <div key={date}>
               <h4 className="text-sm font-medium text-[#00000099] dark:text-[#FFFFFF99] mb-2">

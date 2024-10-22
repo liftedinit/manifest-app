@@ -11,3 +11,8 @@ export type CombinedBalanceInfo = {
   amount: string;
   metadata: MetadataSDKType | null;
 };
+
+export type Contact = {
+  name: string;
+  address: string;
+};

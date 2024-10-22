@@ -30,7 +30,7 @@ export function YourGroups({
   const router = useRouter();
 
   const filteredGroups = groups.groups.filter(group =>
-    group.ipfsMetadata?.title?.toLowerCase().includes(searchTerm.toLowerCase())
+    (group.ipfsMetadata?.title || 'Untitled Group').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   useEffect(() => {
@@ -65,7 +65,7 @@ export function YourGroups({
   }, [isLoading]);
 
   const handleSelectGroup = (policyAddress: string, groupName: string, threshold: string) => {
-    setSelectedGroup({ policyAddress, name: groupName, threshold });
+    setSelectedGroup({ policyAddress, name: groupName || 'Untitled Group', threshold });
     router.push(`/groups?policyAddress=${policyAddress}`, undefined, { shallow: true });
   };
 
@@ -199,8 +199,8 @@ function GroupRow({
   proposals: ProposalSDKType[];
   onSelectGroup: (policyAddress: string, groupName: string, threshold: string) => void;
 }) {
-  const policyAddress = group.policies[0]?.address;
-  const groupName = group.ipfsMetadata?.title ?? 'Untitled Group';
+  const policyAddress = group.policies[0]?.address || '';
+  const groupName = group.ipfsMetadata?.title || 'Untitled Group';
   const filterActiveProposals = (proposals: ProposalSDKType[]) => {
     return proposals?.filter(
       proposal =>
@@ -234,7 +234,7 @@ function GroupRow({
     >
       <td className=" rounded-l-[12px] w-1/6">
         <div className="flex items-center space-x-3">
-          <ProfileAvatar walletAddress={group.policies[0]?.address ?? ''} />
+          <ProfileAvatar walletAddress={policyAddress} />
           <span className="font-medium">{truncateString(groupName, 24)}</span>
         </div>
       </td>
@@ -247,11 +247,16 @@ function GroupRow({
       </td>
       <td className=" w-1/6">
         {truncateString(
-          getAuthor(group.ipfsMetadata?.authors),
-          getAuthor(group.ipfsMetadata?.authors).startsWith('manifest1') ? 6 : 24
+          getAuthor(group.ipfsMetadata?.authors) || 'Unknown',
+          getAuthor(group.ipfsMetadata?.authors || '').startsWith('manifest1') ? 6 : 24
         )}
       </td>
-      <td className=" w-1/6">{shiftDigits(balance?.amount ?? '0', -6)} MFX</td>
+      <td className=" w-1/6">
+        {Number(shiftDigits(balance?.amount ?? '0', -6)).toLocaleString(undefined, {
+          maximumFractionDigits: 6,
+        })}{' '}
+        MFX
+      </td>
       <td className=" w-1/6">{`${group.policies[0]?.decision_policy?.threshold ?? '0'} / ${group.total_weight ?? '0'}`}</td>
       <td className="rounded-r-[12px] w-1/6">
         <TruncatedAddressWithCopy address={policyAddress} slice={12} />

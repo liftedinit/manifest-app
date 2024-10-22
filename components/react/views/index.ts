@@ -4,3 +4,4 @@ export * from './Error';
 export * from './NotExist';
 export * from './QRCode';
 export * from './WalletList';
+export * from './Contacts';

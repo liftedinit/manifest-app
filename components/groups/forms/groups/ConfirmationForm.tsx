@@ -8,6 +8,7 @@ import { cosmos } from '@chalabi/manifestjs';
 import { ThresholdDecisionPolicy } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { Duration } from '@chalabi/manifestjs/dist/codegen/google/protobuf/duration';
 import { secondsToHumanReadable } from '@/utils/string';
+
 export default function ConfirmationForm({
   nextStep,
   prevStep,
@@ -24,9 +25,7 @@ export default function ConfirmationForm({
   const groupMetadata = {
     title: formData.title,
     authors: formData.authors,
-
     details: formData.description,
-
     voteOptionContext: '',
   };
 
@@ -47,7 +46,7 @@ export default function ConfirmationForm({
   };
 
   const thresholdMsg = {
-    threshold: formData.votingThreshold,
+    threshold: formData.votingThreshold.toString(), // Convert to string
     windows: {
       votingPeriod: formData.votingPeriod,
       minExecutionPeriod: minExecutionPeriod,
@@ -76,8 +75,8 @@ export default function ConfirmationForm({
         groupPolicyMetadata: '',
         groupPolicyAsAdmin: true,
         decisionPolicy: {
-          threshold: formData.votingThreshold,
-          percentage: formData.votingThreshold,
+          threshold: formData.votingThreshold.toString(), // Convert to string
+          percentage: formData.votingThreshold.toString(), // Convert to string
           value: threshholdPolicy,
           typeUrl: typeUrl,
         },

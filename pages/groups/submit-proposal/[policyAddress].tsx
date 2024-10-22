@@ -134,6 +134,8 @@ export default function SubmitProposal() {
           {currentStep === 2 && (
             <div className="transition-opacity duration-300 animate-fadeIn">
               <ProposalMessages
+                policyAddress={policyAddress as string}
+                address={address as string}
                 formData={formData}
                 dispatch={dispatch}
                 nextStep={nextStep}
