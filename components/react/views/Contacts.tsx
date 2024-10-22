@@ -1,7 +1,7 @@
 import { Dialog } from '@headlessui/react';
 import { XMarkIcon, ChevronLeftIcon, PencilIcon } from '@heroicons/react/24/outline';
-import { useState, useEffect, useCallback } from 'react';
-import { PiAddressBook, PiMagnifyingGlass } from 'react-icons/pi';
+import { useState, useCallback } from 'react';
+import { PiAddressBook } from 'react-icons/pi';
 import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { TextInput } from '@/components/react/inputs';
@@ -10,6 +10,7 @@ import { TruncatedAddressWithCopy } from '../addressCopy';
 import { useContacts } from '@/hooks/useContacts';
 import { saveAs } from 'file-saver';
 import { useToast } from '@/contexts/toastContext';
+import { SearchIcon } from '@/components/icons';
 
 export const Contacts = ({ onClose, onReturn }: { onClose: () => void; onReturn: () => void }) => {
   const { contacts, addContact, updateContact, removeContact, importContacts, exportContacts } =
@@ -200,7 +201,7 @@ export const Contacts = ({ onClose, onReturn }: { onClose: () => void; onReturn:
           onChange={e => setSearchTerm(e.target.value)}
           style={{ borderRadius: '12px' }}
         />
-        <PiMagnifyingGlass className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#00000099] dark:text-[#FFFFFF99]" />
+        <SearchIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#00000099] dark:text-[#FFFFFF99]" />
       </div>
 
       {filteredContacts.length > 0 ? (
@@ -256,7 +257,7 @@ export const Contacts = ({ onClose, onReturn }: { onClose: () => void; onReturn:
               return (
                 <div
                   key={index}
-                  className="flex items-center justify-between p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px]"
+                  className="flex items-center justify-between p-4 bg-[#0000000A] dark:bg-[#FFFFFF0F] rounded-[16px]"
                 >
                   <div>
                     <p className="text-lg font-semibold text-[#161616] dark:text-white">
