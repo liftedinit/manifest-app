@@ -30,7 +30,8 @@ export function HistoryBox({
   address: string;
 }) {
   const [selectedTx, setSelectedTx] = useState<TransactionGroup | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+
+  const [infoExponent, setInfoExponent] = useState(6);
   const { metadatas } = useTokenFactoryDenomsMetadata();
   console.log(metadatas);
   function formatDateShort(dateString: string): string {
@@ -111,7 +112,10 @@ export function HistoryBox({
                               const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
                               return metadata?.display.startsWith('factory')
                                 ? metadata?.display?.split('/').pop()?.toUpperCase()
-                                : truncateString(metadata?.display ?? 'Select', 10).toUpperCase();
+                                : truncateString(
+                                    metadata?.display ?? metadata?.symbol ?? '',
+                                    10
+                                  ).toUpperCase();
                             })}
                           </p>
                         </div>
@@ -136,7 +140,8 @@ export function HistoryBox({
                           .map(amt => {
                             const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
                             const exponent = Number(metadata?.denom_units[1]?.exponent) || 6;
-                            return `${shiftDigits(amt.amount, -exponent)} ${formatDenom(amt.denom)}`;
+
+                            return `${Number(shiftDigits(amt.amount, -exponent)).toLocaleString(undefined, { maximumFractionDigits: exponent })} ${formatDenom(amt.denom)}`;
                           })
                           .join(', ')}
                       </p>

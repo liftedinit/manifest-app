@@ -102,7 +102,7 @@ export default function ProposalDetails({
                 </div>
               </div>
             </div>
-            <div className="flex space-x-3  mt-6 mx-auto w-full">
+            <div className="flex flex-row gap-6  mt-6 mx-auto w-full">
               <Link href={`/groups?policyAddress=${policyAddress}`} legacyBehavior>
                 <button className="btn btn-neutral py-2.5 sm:py-3.5 w-1/2">
                   <span className="hidden sm:inline">Back: Proposals Page</span>

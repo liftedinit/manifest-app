@@ -85,8 +85,8 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
                     shiftDigits(balance.amount, -(balance.metadata?.denom_units[1]?.exponent ?? 6))
                   ).toLocaleString(undefined, {
                     maximumFractionDigits: balance.metadata?.denom_units[1]?.exponent ?? 6,
-                  })}
-                  {truncateString(balance.metadata?.display ?? '', 12)}
+                  })}{' '}
+                  {truncateString(balance.metadata?.display ?? '', 12).toUpperCase()}
                 </p>
               </div>
               <div>

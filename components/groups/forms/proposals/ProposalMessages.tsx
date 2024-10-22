@@ -19,6 +19,7 @@ import { PiCaretDownBold } from 'react-icons/pi';
 import { shiftDigits, truncateString } from '@/utils';
 import { CombinedBalanceInfo } from '@/utils/types';
 import Decimal from 'decimal.js';
+import { MFX_TOKEN_DATA } from '@/utils/constants';
 
 // Define the prop types for CustomSendMessageFields
 interface CustomSendMessageFieldsProps {
@@ -122,7 +123,12 @@ export default function ProposalMessages({
     if (newMessage.type === 'send') {
       newMessage = {
         ...newMessage,
+        amount: {
+          denom: 'umfx',
+          amount: '0',
+        },
         from_address: policyAddress,
+        to_address: address,
       };
     }
 
@@ -155,6 +161,12 @@ export default function ProposalMessages({
           updatedMessage = {
             ...initialMessages.initialSendMessage,
             type: value,
+            amount: {
+              denom: 'umfx',
+              amount: '0',
+            },
+            from_address: policyAddress,
+            to_address: address,
           };
           break;
         case 'customMessage':
@@ -520,19 +532,39 @@ export default function ProposalMessages({
   const combinedBalances = useMemo(() => {
     if (!balances || !resolvedBalances || !metadatas) return [];
 
-    return balances.map((coreBalance): CombinedBalanceInfo => {
-      const resolvedBalance = resolvedBalances.find(
-        rb => rb.denom === coreBalance.denom || rb.denom === coreBalance.denom.split('/').pop()
-      );
-      const metadata = metadatas.metadatas.find(m => m.base === coreBalance.denom);
+    // Find 'umfx' balance (mfx token)
+    const mfxCoreBalance = balances.find(b => b.denom === 'umfx');
+    const mfxResolvedBalance = resolvedBalances.find(rb => rb.denom === 'mfx');
 
-      return {
-        denom: resolvedBalance?.denom || coreBalance.denom,
-        coreDenom: coreBalance.denom,
-        amount: coreBalance.amount,
-        metadata: metadata || null,
-      };
-    });
+    // Create combined balance for 'mfx'
+    const mfxCombinedBalance: CombinedBalanceInfo | null = mfxCoreBalance
+      ? {
+          denom: mfxResolvedBalance?.denom || 'mfx',
+          coreDenom: 'umfx',
+          amount: mfxCoreBalance.amount,
+          metadata: MFX_TOKEN_DATA,
+        }
+      : null;
+
+    // Process other balances
+    const otherBalances = balances
+      .filter(coreBalance => coreBalance.denom !== 'umfx')
+      .map((coreBalance): CombinedBalanceInfo => {
+        const resolvedBalance = resolvedBalances.find(
+          rb => rb.denom === coreBalance.denom || rb.denom === coreBalance.denom.split('/').pop()
+        );
+        const metadata = metadatas.metadatas.find(m => m.base === coreBalance.denom);
+
+        return {
+          denom: resolvedBalance?.denom || coreBalance.denom,
+          coreDenom: coreBalance.denom,
+          amount: coreBalance.amount,
+          metadata: metadata || null,
+        };
+      });
+
+    // Combine 'mfx' with other balances
+    return mfxCombinedBalance ? [mfxCombinedBalance, ...otherBalances] : otherBalances;
   }, [balances, resolvedBalances, metadatas]);
 
   return (
@@ -738,9 +770,10 @@ const CustomSendMessageFields: React.FC<CustomSendMessageFieldsProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredBalances = combinedBalances?.filter(token =>
-    token.metadata?.display.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredBalances = combinedBalances?.filter(token => {
+    const displayName = token.metadata?.display ?? token.denom;
+    return displayName.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   const initialSelectedToken = useMemo(() => {
     return (
@@ -760,6 +793,10 @@ const CustomSendMessageFields: React.FC<CustomSendMessageFieldsProps> = ({
     denom: Yup.string().required('Denomination is required'),
     selectedToken: Yup.object().required('Please select a token'),
   });
+
+  const formatAmount = (amount: number, decimals: number) => {
+    return amount.toFixed(decimals).replace(/\.?0+$/, '');
+  };
 
   return (
     <div style={{ borderRadius: '24px' }} className="text-sm w-full h-full p-2">
@@ -838,13 +875,15 @@ const CustomSendMessageFields: React.FC<CustomSendMessageFieldsProps> = ({
                         {values.selectedToken?.metadata ? (
                           <DenomImage denom={values.selectedToken?.metadata} />
                         ) : null}
-
-                        {values.selectedToken?.metadata?.display.startsWith('factory')
-                          ? values.selectedToken?.metadata?.display.split('/').pop()?.toUpperCase()
-                          : truncateString(
-                              values.selectedToken?.metadata?.display ?? 'Select',
-                              10
-                            ).toUpperCase()}
+                        {(() => {
+                          const tokenDisplayName =
+                            values.selectedToken?.metadata?.display ??
+                            values.selectedToken?.denom ??
+                            'Select';
+                          return tokenDisplayName.startsWith('factory')
+                            ? tokenDisplayName.split('/').pop()?.toUpperCase()
+                            : truncateString(tokenDisplayName, 10).toUpperCase();
+                        })()}
                         <PiCaretDownBold className="ml-1" />
                       </label>
                       <ul
@@ -860,20 +899,7 @@ const CustomSendMessageFields: React.FC<CustomSendMessageFieldsProps> = ({
                               onChange={e => setSearchTerm(e.target.value)}
                               style={{ boxShadow: 'none' }}
                             />
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-5 w-5 absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                              />
-                            </svg>
+                            <SearchIcon className="h-5 w-5 absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
                           </div>
                         </li>
                         {isBalancesLoading ? (
@@ -917,21 +943,26 @@ const CustomSendMessageFields: React.FC<CustomSendMessageFieldsProps> = ({
                         ? (() => {
                             const exponent =
                               values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-                            const amount = new Decimal(values.selectedToken.amount).div(
-                              new Decimal(10).pow(exponent)
-                            );
-                            return amount.lessThan(0.01) ? '> 0.01' : amount.toString();
+                            const amount = Number(
+                              shiftDigits(values.selectedToken.amount, -exponent)
+                            ).toLocaleString(undefined, {
+                              maximumFractionDigits: exponent,
+                            });
+                            return Number(amount) < 0.01 ? '< 0.01' : amount;
                           })()
                         : '0'}
                     </span>
 
                     <span className="">
-                      {values.selectedToken?.metadata?.display?.startsWith('factory')
-                        ? values.selectedToken?.metadata?.display?.split('/').pop()?.toUpperCase()
-                        : truncateString(
-                            values.selectedToken?.metadata?.display ?? '',
-                            10
-                          ).toUpperCase()}
+                      {(() => {
+                        const tokenDisplayName =
+                          values.selectedToken?.metadata?.display ??
+                          values.selectedToken?.denom ??
+                          'Select';
+                        return tokenDisplayName.startsWith('factory')
+                          ? tokenDisplayName.split('/').pop()?.toUpperCase()
+                          : truncateString(tokenDisplayName, 10).toUpperCase();
+                      })()}
                     </span>
                     <button
                       type="button"
@@ -941,31 +972,31 @@ const CustomSendMessageFields: React.FC<CustomSendMessageFieldsProps> = ({
 
                         const exponent =
                           values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-                        const maxAmount = new Decimal(values.selectedToken.amount).div(
-                          new Decimal(10).pow(exponent)
-                        );
+                        const maxAmount =
+                          Number(values.selectedToken.amount) / Math.pow(10, exponent);
 
                         let adjustedMaxAmount = maxAmount;
                         if (values.selectedToken.denom === 'umfx') {
-                          adjustedMaxAmount = Decimal.max(0, maxAmount.minus(0.1));
+                          adjustedMaxAmount = Math.max(0, maxAmount - 0.1);
                         }
 
-                        const formattedAmount = adjustedMaxAmount.toString();
+                        const decimals =
+                          values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
+                        const formattedAmount = formatAmount(adjustedMaxAmount, decimals);
 
                         setFieldValue('amount', formattedAmount);
 
                         // Set the amount in minimal units
-                        const amountMinimalUnits = adjustedMaxAmount
+                        const amountMinimalUnits = new Decimal(formattedAmount)
                           .times(new Decimal(10).pow(exponent))
                           .toFixed(0);
-
                         handleChange('amount.amount', amountMinimalUnits);
                       }}
                     >
                       MAX
                     </button>
                   </div>
-                  {errors.amount && typeof errors.amount === 'string' && (
+                  {errors.amount && touched.amount && (
                     <div className="text-red-500 text-xs">{errors.amount}</div>
                   )}
                 </div>
@@ -975,10 +1006,9 @@ const CustomSendMessageFields: React.FC<CustomSendMessageFieldsProps> = ({
               <TextInput
                 label="Send To"
                 name="to_address"
-                placeholder="Enter address"
-                value={values.to_address}
+                placeholder="Enter recipient address"
+                value={message.to_address}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  setFieldValue('to_address', e.target.value);
                   handleChange('to_address', e.target.value);
                 }}
                 className="input-md w-full"

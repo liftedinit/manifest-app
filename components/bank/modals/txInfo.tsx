@@ -60,7 +60,10 @@ export default function TxInfoModal({ tx, isOpen, onClose }: TxInfoModalProps) {
               <div className="bg-[#FFFFFF66] dark:bg-[#FFFFFF1A] rounded-[16px] p-4">
                 {tx.data.amount.map((amt, index) => (
                   <p key={index} className="text-[#161616] dark:text-white">
-                    {shiftDigits(amt.amount, -6)} {formatDenom(amt.denom)}
+                    {Number(shiftDigits(amt.amount, -6)).toLocaleString(undefined, {
+                      maximumFractionDigits: 6,
+                    })}{' '}
+                    {formatDenom(amt.denom)}
                   </p>
                 ))}
               </div>
