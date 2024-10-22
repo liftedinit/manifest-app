@@ -21,10 +21,7 @@ export default function Success({
         <p className="text-md text-gray-300 mb-6 text-pretty">
           You can now mint, burn, or change the admin of your tokens and send them to other wallets.
         </p>
-        {/*
-          TODO: Verify the render is correct.
-                I changed the <p> to a <div> here because <div> (in TruncatedAddressWithCopy) cannot be a descendant of <p>
-        */}
+
         <div className="text-md text-gray-300 mb-6 text-pretty">
           The full denom of your token is:{' '}
           <span className="font-semibold">

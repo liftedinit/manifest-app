@@ -10,7 +10,6 @@ import BurnModal from '@/components/factory/modals/BurnModal';
 import { UpdateDenomMetadataModal } from '@/components/factory/modals/updateDenomMetadata';
 import { PiInfo } from 'react-icons/pi';
 import { ExtendedMetadataSDKType, shiftDigits } from '@/utils';
-import { MFX_TOKEN_DATA } from '@/utils/constants';
 
 export default function MyDenoms({
   denoms,
@@ -27,46 +26,24 @@ export default function MyDenoms({
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
-  const [showContent, setShowContent] = useState(false);
   const [selectedDenom, setSelectedDenom] = useState<ExtendedMetadataSDKType | null>(null);
   const [modalType, setModalType] = useState<'mint' | 'burn' | null>(null);
-
-  useEffect(() => {
-    if (!isLoading) {
-      const timer = setTimeout(() => {
-        setShowContent(true);
-      }, 900);
-      return () => clearTimeout(timer);
-    }
-  }, [isLoading]);
 
   const handleDenomSelect = (denom: ExtendedMetadataSDKType) => {
     setSelectedDenom(denom);
     router.push(`/factory?denom=${denom?.base}`, undefined, { shallow: true });
   };
 
-  const allDenoms = useMemo(() => {
-    const mfxBalance = denoms.find(denom => denom.base === 'umfx')?.balance || '0';
-    const mfxSupply = denoms.find(denom => denom.base === 'umfx')?.totalSupply || '0';
-    const mfxWithBalance: ExtendedMetadataSDKType = {
-      ...MFX_TOKEN_DATA,
-      balance: mfxBalance,
-      totalSupply: mfxSupply,
-    };
-    return [mfxWithBalance, ...denoms.filter(denom => denom.base !== 'umfx')];
-  }, [denoms]);
-
   useEffect(() => {
     const { denom, action } = router.query;
     if (denom && typeof denom === 'string') {
       const decodedDenom = decodeURIComponent(denom);
-      const metadata = allDenoms.find(d => d.base === decodedDenom);
+      const metadata = denoms.find(d => d.base === decodedDenom);
       if (metadata) {
         setSelectedDenom(metadata);
         if (action === 'mint' || action === 'burn') {
           setModalType(action);
         } else {
-          // Open the DenomInfo modal
           const modal = document.getElementById('denom-info-modal') as HTMLDialogElement;
           if (modal) {
             modal.showModal();
@@ -77,7 +54,7 @@ export default function MyDenoms({
       setSelectedDenom(null);
       setModalType(null);
     }
-  }, [router.query, allDenoms]);
+  }, [router.query, denoms]);
 
   const handleCloseModal = () => {
     setSelectedDenom(null);
@@ -93,11 +70,16 @@ export default function MyDenoms({
     }
   };
 
-  const filteredDenoms = allDenoms.filter(denom =>
-    denom?.display.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredDenoms = useMemo(() => {
+    return denoms.filter(denom => denom?.display.toLowerCase().includes(searchQuery.toLowerCase()));
+  }, [denoms, searchQuery]);
 
-  console.log(denoms);
+  console.log('MyDenoms render', {
+    isLoading,
+    isError,
+    denomsLength: denoms.length,
+    filteredDenomsLength: filteredDenoms.length,
+  });
 
   return (
     <div className="relative w-full overflow-hidden">
@@ -143,7 +125,7 @@ export default function MyDenoms({
                 </tr>
               </thead>
               <tbody className="space-y-4">
-                {isLoading || !showContent
+                {isLoading
                   ? Array(12)
                       .fill(0)
                       .map((_, index) => (

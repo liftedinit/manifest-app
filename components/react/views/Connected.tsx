@@ -108,7 +108,7 @@ export const Connected = ({
               })}
             </p>
           ) : (
-            <div className="loading loading-dots w-8 h-8"></div>
+            <div className="skeleton w-32 h-4"></div>
           )}
           <p className="text-md ml-2 dark:text-[#FFFFFF99] text-black">MFX</p>
         </div>

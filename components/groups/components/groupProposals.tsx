@@ -196,10 +196,14 @@ export default function GroupProposals({
         setMembers(
           group.members.map(member => ({
             ...member.member,
+            address: member?.member?.address || '',
+            weight: member?.member?.weight || '0',
+            metadata: member?.member?.metadata || '',
+            added_at: member?.member?.added_at || new Date(),
             isCoreMember: true,
             isActive: true,
-            isAdmin: member.member.address === group.admin,
-            isPolicyAdmin: member.member.address === group.policies[0]?.admin,
+            isAdmin: member?.member?.address === group.admin,
+            isPolicyAdmin: member?.member?.address === group.policies[0]?.admin,
           }))
         );
         setGroupId(group.id.toString());

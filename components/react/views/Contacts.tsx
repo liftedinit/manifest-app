@@ -205,7 +205,7 @@ export const Contacts = ({ onClose, onReturn }: { onClose: () => void; onReturn:
       </div>
 
       {filteredContacts.length > 0 ? (
-        <div className="mb-6 max-h-[60vh] overflow-y-auto space-y-2">
+        <div className="mb-6 max-h-[37vh] overflow-y-auto space-y-2">
           {filteredContacts.map((contact, index) => {
             if (editingIndex === index) {
               // Render the edit form
@@ -217,7 +217,7 @@ export const Contacts = ({ onClose, onReturn }: { onClose: () => void; onReturn:
                   onSubmit={values => handleSaveContact(index, values)}
                 >
                   {({ isValid, dirty }) => (
-                    <Form className="space-y-2 p-2 bg-base-300 dark:bg-base-300 rounded-lg mb-2">
+                    <Form className="space-y-2 p-2 bg-[#0000000A] dark:bg-[#FFFFFF0F] rounded-lg mb-2">
                       <TextInput
                         label="Name"
                         name="name"
@@ -236,13 +236,13 @@ export const Contacts = ({ onClose, onReturn }: { onClose: () => void; onReturn:
                         <button
                           type="button"
                           onClick={() => setEditingIndex(null)}
-                          className="btn rounded-[12px] focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A] btn-xs mr-2"
+                          className="btn  focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A] btn-xs mr-2"
                         >
                           Cancel
                         </button>
                         <button
                           type="submit"
-                          className="btn btn-primary btn-xs"
+                          className="btn btn-gradient btn-xs"
                           disabled={!isValid || !dirty}
                         >
                           Save

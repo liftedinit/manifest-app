@@ -19,23 +19,18 @@ import { MFX_TOKEN_DATA } from '@/utils/constants';
 
 export default function Factory() {
   const { address, isWalletConnected } = useChain(chainName);
-  const { denoms, isDenomsLoading, isDenomsError, refetchDenoms } = useTokenFactoryDenoms(
-    address ?? ''
-  );
-  const { metadatas, isMetadatasLoading, isMetadatasError, refetchMetadatas } =
-    useTokenFactoryDenomsMetadata();
-  const { balances, isBalancesLoading, isBalancesError, refetchBalances } = useTokenBalances(
-    address ?? ''
-  );
+  const { denoms, isDenomsLoading, isDenomsError } = useTokenFactoryDenoms(address ?? '');
+  const { metadatas, isMetadatasLoading, isMetadatasError } = useTokenFactoryDenomsMetadata();
+  const { balances, isBalancesLoading, isBalancesError } = useTokenBalances(address ?? '');
+  const { totalSupply, isTotalSupplyLoading, isTotalSupplyError } = useTotalSupply();
 
-  const { totalSupply, isTotalSupplyLoading, isTotalSupplyError, refetchTotalSupply } =
-    useTotalSupply();
+  const isLoading =
+    isDenomsLoading || isMetadatasLoading || isBalancesLoading || isTotalSupplyLoading;
+  const isError = isDenomsError || isMetadatasError || isBalancesError || isTotalSupplyError;
 
-  console.log(totalSupply);
-
-  // Combine denoms, metadatas, balances, and total supply
   const combinedData = useMemo(() => {
-    if (denoms && metadatas && balances && totalSupply) {
+    console.log('Recalculating combinedData', { denoms, metadatas, balances, totalSupply });
+    if (denoms?.denoms && metadatas?.metadatas && balances && totalSupply) {
       const mfxBalance = balances.find(bal => bal.denom === 'umfx')?.amount || '0';
       const mfxSupply = totalSupply.find(supply => supply.denom === 'umfx')?.amount || '0';
       const mfxToken: ExtendedMetadataSDKType = {
@@ -65,12 +60,18 @@ export default function Factory() {
     return [];
   }, [denoms, metadatas, balances, totalSupply]);
 
-  const refetch = async () => {
-    refetchDenoms();
-    refetchMetadatas();
-    refetchBalances();
-    refetchTotalSupply();
-  };
+  const isDataReady = combinedData.length > 0;
+
+  console.log('Factory render', {
+    isLoading,
+    isError,
+    isDataReady,
+    combinedDataLength: combinedData.length,
+    denomsLength: denoms?.denoms?.length,
+    metadatasLength: metadatas?.metadatas?.length,
+    balancesLength: balances?.length,
+    totalSupplyLength: totalSupply?.length,
+  });
 
   return (
     <div className="min-h-screen relative py-4 px-2 mx-auto text-white mt-12 md:mt-0">
@@ -89,20 +90,28 @@ export default function Factory() {
         <div className="w-full mx-auto">
           {!isWalletConnected ? (
             <WalletNotConnected />
-          ) : !denoms ? (
-            <div className="text-center my-auto text-error">Error loading tokens</div>
+          ) : isLoading ? (
+            <MyDenoms
+              denoms={combinedData}
+              isLoading={isLoading}
+              isError={isError}
+              refetchDenoms={() => {}}
+              address={address ?? ''}
+            />
+          ) : isError ? (
+            <div className="text-center my-auto text-error">
+              Error loading tokens. Please try again.
+            </div>
+          ) : !isDataReady ? (
+            <div className="text-center my-auto">No token data available.</div>
           ) : (
-            <>
-              <MyDenoms
-                denoms={combinedData}
-                isLoading={
-                  isDenomsLoading || isMetadatasLoading || isBalancesLoading || isTotalSupplyLoading
-                }
-                isError={isDenomsError || isMetadatasError || isBalancesError || isTotalSupplyError}
-                refetchDenoms={refetch}
-                address={address ?? ''}
-              />
-            </>
+            <MyDenoms
+              denoms={combinedData}
+              isLoading={isLoading}
+              isError={isError}
+              refetchDenoms={() => {}}
+              address={address ?? ''}
+            />
           )}
         </div>
       </div>

@@ -78,7 +78,7 @@ export function HistoryBox({
           </p>
         </div>
       ) : (
-        <div className="space-y-4 max-h-[240px] overflow-y-auto">
+        <div className="space-y-4 max-h-[280px] overflow-y-auto">
           {Object.entries(groupedTransactions).map(([date, transactions]) => (
             <div key={date}>
               <h4 className="text-sm font-medium text-[#00000099] dark:text-[#FFFFFF99] mb-2">

@@ -9,6 +9,10 @@ import { ExtendedValidatorSDKType } from '@/components';
 import { useManifestLcdQueryClient } from './useManifestLcdQueryClient';
 import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import axios from 'axios';
+import {
+  GroupMemberSDKType,
+  GroupPolicyInfoSDKType,
+} from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
 export interface IPFSMetadata {
   title: string;
   authors: string | string[];
@@ -20,8 +24,8 @@ export interface IPFSMetadata {
 
 export type ExtendedGroupType = QueryGroupsByMemberResponseSDKType['groups'][0] & {
   ipfsMetadata: IPFSMetadata | null;
-  policies: any[]; // TODO: Define type
-  members: any[]; // TODO: Define type
+  policies: GroupPolicyInfoSDKType[];
+  members: GroupMemberSDKType[];
 };
 
 export interface ExtendedQueryGroupsByMemberResponseSDKType {
@@ -136,14 +140,17 @@ export const useGroupsByAdmin = (admin: string) => {
             lcdQueryClient?.cosmos.group.v1.groupMembers({ groupId: group.id })
           );
           const ipfsPromises = groupQuery.data.groups.map(group =>
-            fetch(`https://nodes.chandrastation.com/ipfs/gateway/${group.metadata}`).then(
-              response => {
+            fetch(`https://nodes.chandrastation.com/ipfs/gateway/${group.metadata}`)
+              .then(response => {
                 if (!response.ok) {
                   throw new Error(`HTTP error! Status: ${response.status}`);
                 }
                 return response.json() as Promise<IPFSMetadata>;
-              }
-            )
+              })
+              .catch(err => {
+                console.warn(`Failed to fetch IPFS metadata for group #${group.id}:`, err);
+                return null;
+              })
           );
 
           const [policiesResults, membersResults, ipfsResults] = await Promise.all([
@@ -154,7 +161,7 @@ export const useGroupsByAdmin = (admin: string) => {
 
           const groupsWithAllData = groupQuery.data.groups.map((group, index) => ({
             ...group,
-            ipfsMetadata: ipfsResults[index],
+            ipfsMetadata: ipfsResults[index] || null,
             policies: policiesResults[index]?.group_policies || [],
             members: membersResults[index]?.members || [],
           }));
@@ -596,7 +603,7 @@ export const useTokenFactoryDenoms = (address: string) => {
   };
 
   const denomsQuery = useQuery({
-    queryKey: ['denoms'],
+    queryKey: [address + 'denoms'],
     queryFn: fetchDenoms,
     enabled: !!lcdQueryClient && !!address,
     staleTime: 0,

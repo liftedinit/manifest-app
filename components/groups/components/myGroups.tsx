@@ -4,7 +4,10 @@ import { truncateString } from '@/utils';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { ProposalSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
+import {
+  ProposalSDKType,
+  ThresholdDecisionPolicySDKType,
+} from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
 import GroupProposals from './groupProposals';
 import { useBalance } from '@/hooks/useQueries';
 import { shiftDigits } from '@/utils';
@@ -26,7 +29,7 @@ export function YourGroups({
     name: string;
     threshold: string;
   } | null>(null);
-  const [showContent, setShowContent] = useState(false);
+
   const router = useRouter();
 
   const filteredGroups = groups.groups.filter(group =>
@@ -42,7 +45,9 @@ export function YourGroups({
         setSelectedGroup({
           policyAddress,
           name: group.ipfsMetadata?.title ?? 'Untitled Group',
-          threshold: group.policies[0]?.decision_policy?.threshold ?? '0',
+          threshold:
+            (group.policies[0]?.decision_policy as ThresholdDecisionPolicySDKType)?.threshold ??
+            '0',
         });
       }
     }
@@ -54,15 +59,6 @@ export function YourGroups({
       window.scrollTo(0, 0);
     }
   }, [selectedGroup]);
-
-  useEffect(() => {
-    if (!isLoading) {
-      const timer = setTimeout(() => {
-        setShowContent(true);
-      }, 900); // 900ms buffer
-      return () => clearTimeout(timer);
-    }
-  }, [isLoading]);
 
   const handleSelectGroup = (policyAddress: string, groupName: string, threshold: string) => {
     setSelectedGroup({ policyAddress, name: groupName || 'Untitled Group', threshold });
@@ -124,7 +120,7 @@ export function YourGroups({
                   </tr>
                 </thead>
                 <tbody className="space-y-4">
-                  {isLoading || !showContent
+                  {isLoading
                     ? // Skeleton
                       Array(12)
                         .fill(0)
@@ -163,7 +159,8 @@ export function YourGroups({
                             handleSelectGroup(
                               policyAddress,
                               groupName,
-                              group.policies[0]?.decision_policy?.threshold ?? '0'
+                              (group.policies[0]?.decision_policy as ThresholdDecisionPolicySDKType)
+                                ?.threshold ?? '0'
                             )
                           }
                         />

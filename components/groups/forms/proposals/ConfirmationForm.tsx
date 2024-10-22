@@ -1,5 +1,3 @@
-//TODO: When we update the manifestjs version the errors here will be fixed
-
 import React from 'react';
 import { useFeeEstimation } from '@/hooks/useFeeEstimation';
 import { uploadJsonToIPFS } from '@/hooks/useIpfs';
