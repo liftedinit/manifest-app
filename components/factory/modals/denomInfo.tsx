@@ -7,22 +7,14 @@ import { useRouter } from 'next/router';
 export const DenomInfoModal: React.FC<{
   denom: MetadataSDKType | null;
   modalId: string;
-}> = ({ denom, modalId }) => {
-  const router = useRouter();
-
-  const handleClose = () => {
-    const { pathname, query } = router;
-    const { denom: _, ...restQuery } = query;
-    router.push({ pathname, query: restQuery }, undefined, { shallow: true });
-  };
-
+  isOpen: boolean;
+  onClose: () => void;
+}> = ({ denom, modalId, isOpen, onClose }) => {
   return (
-    <dialog id={modalId} className="modal">
+    <dialog id={modalId} className={`modal ${isOpen ? 'modal-open' : ''}`}>
       <div className="modal-box max-w-4xl mx-auto rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg">
-        <form method="dialog" onSubmit={handleClose}>
-          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]">
-            ✕
-          </button>
+        <form method="dialog" onSubmit={onClose}>
+          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
         </form>
         <h3 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">Denom Details</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -63,7 +55,7 @@ export const DenomInfoModal: React.FC<{
           <InfoItem label="DISPLAY" value={denom?.display ?? 'No display available'} />
         </div>
       </div>
-      <form method="dialog" className="modal-backdrop" onSubmit={handleClose}>
+      <form method="dialog" className="modal-backdrop" onSubmit={onClose}>
         <button>close</button>
       </form>
     </dialog>

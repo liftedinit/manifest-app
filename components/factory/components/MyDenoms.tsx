@@ -10,6 +10,8 @@ import BurnModal from '@/components/factory/modals/BurnModal';
 import { UpdateDenomMetadataModal } from '@/components/factory/modals/updateDenomMetadata';
 import { PiInfo } from 'react-icons/pi';
 import { ExtendedMetadataSDKType, shiftDigits } from '@/utils';
+import { MultiMintModal } from '@/components/factory/modals';
+import { MultiBurnModal } from '../modals/multiMfxBurnModal';
 
 export default function MyDenoms({
   denoms,
@@ -27,11 +29,20 @@ export default function MyDenoms({
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
   const [selectedDenom, setSelectedDenom] = useState<ExtendedMetadataSDKType | null>(null);
-  const [modalType, setModalType] = useState<'mint' | 'burn' | null>(null);
+  const [modalType, setModalType] = useState<
+    'mint' | 'burn' | 'multimint' | 'multiburn' | 'update' | null
+  >(null);
 
   const handleDenomSelect = (denom: ExtendedMetadataSDKType) => {
-    setSelectedDenom(denom);
-    router.push(`/factory?denom=${denom?.base}`, undefined, { shallow: true });
+    if (!modalType) {
+      // Only show denom info if no other modal is active
+      setSelectedDenom(denom);
+      setModalType(null); // Ensure no other modal type is set
+      const modal = document.getElementById('denom-info-modal') as HTMLDialogElement;
+      if (modal) {
+        modal.showModal();
+      }
+    }
   };
 
   useEffect(() => {
@@ -41,9 +52,15 @@ export default function MyDenoms({
       const metadata = denoms.find(d => d.base === decodedDenom);
       if (metadata) {
         setSelectedDenom(metadata);
-        if (action === 'mint' || action === 'burn') {
-          setModalType(action);
+        if (
+          action === 'mint' ||
+          action === 'burn' ||
+          action === 'multimint' ||
+          action === 'multiburn'
+        ) {
+          setModalType(action as 'mint' | 'burn' | 'multimint' | 'multiburn');
         } else {
+          // Only show denom info if no other action is specified
           const modal = document.getElementById('denom-info-modal') as HTMLDialogElement;
           if (modal) {
             modal.showModal();
@@ -62,12 +79,32 @@ export default function MyDenoms({
     router.push('/factory', undefined, { shallow: true });
   };
 
-  const handleUpdateModal = (denom: ExtendedMetadataSDKType) => {
+  const handleUpdateModal = (denom: ExtendedMetadataSDKType, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation(); // Stop event from bubbling up to the row
     setSelectedDenom(denom);
+    // Important: Don't show the denom info modal
+    setModalType('update'); // Add this new modal type
     const modal = document.getElementById('update-denom-metadata-modal') as HTMLDialogElement;
     if (modal) {
       modal.showModal();
     }
+  };
+
+  const handleSwitchToMultiMint = () => {
+    setModalType('multimint');
+    // Update URL if needed
+    router.push(`/factory?denom=${selectedDenom?.base}&action=multimint`, undefined, {
+      shallow: true,
+    });
+  };
+
+  const handleSwitchToMultiBurn = () => {
+    setModalType('multiburn'); // Set the modal type to multiburn
+    // Update URL if needed
+    router.push(`/factory?denom=${selectedDenom?.base}&action=multiburn`, undefined, {
+      shallow: true,
+    });
   };
 
   const filteredDenoms = useMemo(() => {
@@ -155,21 +192,17 @@ export default function MyDenoms({
                         key={denom.base}
                         denom={denom}
                         onSelectDenom={() => handleDenomSelect(denom)}
-                        onMint={() => {
+                        onMint={e => {
+                          e.stopPropagation();
                           setSelectedDenom(denom);
                           setModalType('mint');
-                          router.push(`/factory?denom=${denom.base}&action=mint`, undefined, {
-                            shallow: true,
-                          });
                         }}
-                        onBurn={() => {
+                        onBurn={e => {
+                          e.stopPropagation();
                           setSelectedDenom(denom);
                           setModalType('burn');
-                          router.push(`/factory?denom=${denom.base}&action=burn`, undefined, {
-                            shallow: true,
-                          });
                         }}
-                        onUpdate={() => handleUpdateModal(denom)}
+                        onUpdate={e => handleUpdateModal(denom, e)}
                       />
                     ))}
               </tbody>
@@ -177,7 +210,12 @@ export default function MyDenoms({
           </div>
         </div>
       </div>
-      <DenomInfoModal denom={selectedDenom} modalId="denom-info-modal" />
+      <DenomInfoModal
+        denom={selectedDenom}
+        modalId="denom-info-modal"
+        isOpen={!!selectedDenom && !modalType}
+        onClose={handleCloseModal}
+      />
       <MintModal
         denom={selectedDenom}
         address={address}
@@ -186,6 +224,7 @@ export default function MyDenoms({
         totalSupply={selectedDenom?.totalSupply ?? '0'}
         isOpen={modalType === 'mint'}
         onClose={handleCloseModal}
+        onSwitchToMultiMint={handleSwitchToMultiMint}
       />
       <BurnModal
         denom={selectedDenom}
@@ -195,6 +234,7 @@ export default function MyDenoms({
         totalSupply={selectedDenom?.totalSupply ?? '0'}
         isOpen={modalType === 'burn'}
         onClose={handleCloseModal}
+        onSwitchToMultiBurn={handleSwitchToMultiBurn}
       />
       <UpdateDenomMetadataModal
         modalId="update-denom-metadata-modal"
@@ -203,6 +243,44 @@ export default function MyDenoms({
         onSuccess={() => {
           refetchDenoms();
         }}
+      />
+      <MultiMintModal
+        isOpen={modalType === 'multimint'}
+        onClose={handleCloseModal}
+        payoutPairs={[{ address: '', amount: '' }]} // Initialize with empty pair
+        updatePayoutPair={(index, field, value) => {
+          // ... existing update logic ...
+        }}
+        addPayoutPair={() => {
+          // ... existing add logic ...
+        }}
+        removePayoutPair={index => {
+          // ... existing remove logic ...
+        }}
+        handleMultiMint={async () => {
+          // ... existing multi mint logic ...
+          handleCloseModal();
+        }}
+        isSigning={false}
+      />
+      <MultiBurnModal
+        isOpen={modalType === 'multiburn'}
+        onClose={handleCloseModal}
+        burnPairs={[{ address: '', amount: '' }]}
+        updateBurnPair={(index, field, value) => {
+          // Implementation will be handled in BurnForm
+        }}
+        addBurnPair={() => {
+          // Implementation will be handled in BurnForm
+        }}
+        removeBurnPair={index => {
+          // Implementation will be handled in BurnForm
+        }}
+        handleMultiBurn={async () => {
+          // Implementation will be handled in BurnForm
+          handleCloseModal();
+        }}
+        isSigning={false}
       />
     </div>
   );
@@ -217,9 +295,9 @@ function TokenRow({
 }: {
   denom: ExtendedMetadataSDKType;
   onSelectDenom: () => void;
-  onMint: () => void;
-  onBurn: () => void;
-  onUpdate: () => void;
+  onMint: (e: React.MouseEvent) => void;
+  onBurn: (e: React.MouseEvent) => void;
+  onUpdate: (e: React.MouseEvent) => void;
 }) {
   return (
     <tr
@@ -263,25 +341,16 @@ function TokenRow({
           </span>
         </div>
       </td>
-      <td className="rounded-r-[12px] w-1/4">
+      <td
+        className="rounded-r-[12px] w-1/4"
+        onClick={e => e.stopPropagation()} // Stop propagation at the cell level
+      >
         <div className="flex space-x-2">
-          <button
-            className="btn btn-sm btn-outline btn-square  btn-primary group"
-            onClick={e => {
-              e.stopPropagation();
-              onMint();
-            }}
-          >
+          <button className="btn btn-sm btn-outline btn-square btn-primary group" onClick={onMint}>
             <MintIcon className="w-5 h-5 text-current group-hover:text-white" />
           </button>
 
-          <button
-            className="btn btn-sm btn-outline btn-square  btn-error group"
-            onClick={e => {
-              e.stopPropagation();
-              onBurn();
-            }}
-          >
+          <button className="btn btn-sm btn-outline btn-square btn-error group" onClick={onBurn}>
             <BurnIcon className="w-5 h-5 text-current group-hover:text-white" />
           </button>
 
@@ -289,8 +358,9 @@ function TokenRow({
             disabled={denom.base.includes('umfx')}
             className="btn btn-sm btn-square btn-outline btn-info group"
             onClick={e => {
+              e.preventDefault();
               e.stopPropagation();
-              onUpdate();
+              onUpdate(e);
             }}
           >
             <PiInfo className="w-5 h-5 text-current group-hover:text-white" />

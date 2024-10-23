@@ -12,6 +12,7 @@ export default function BurnModal({
   totalSupply,
   isOpen,
   onClose,
+  onSwitchToMultiBurn,
 }: {
   denom: ExtendedMetadataSDKType | null;
   address: string;
@@ -20,6 +21,7 @@ export default function BurnModal({
   totalSupply: string;
   isOpen: boolean;
   onClose: () => void;
+  onSwitchToMultiBurn: () => void;
 }) {
   const { poaAdmin, isPoaAdminLoading } = usePoaGetAdmin();
   const { groupByAdmin, isGroupByAdminLoading } = useGroupsByAdmin(
@@ -31,6 +33,10 @@ export default function BurnModal({
   const isLoading = isPoaAdminLoading || isGroupByAdminLoading;
 
   if (!denom) return null;
+
+  const handleMultiBurnOpen = () => {
+    onSwitchToMultiBurn();
+  };
 
   return (
     <dialog id={`burn-modal-${denom.base}`} className={`modal ${isOpen ? 'modal-open' : ''}`}>
@@ -46,20 +52,19 @@ export default function BurnModal({
             {truncateString(denom.display ?? 'Denom', 20).toUpperCase()}
           </span>
         </h3>
-        <div className="">
+        <div className="py-4">
           {isLoading ? (
-            <div className="w-full h-full flex flex-col">
-              <div className="skeleton h-[17rem] max-h-72 w-full"></div>
-            </div>
+            <div className="skeleton h-[17rem] max-h-72 w-full"></div>
           ) : (
             <BurnForm
               isAdmin={isAdmin ?? false}
               admin={poaAdmin ?? ''}
               balance={balance}
+              totalSupply={totalSupply}
               refetch={refetch}
               address={address}
               denom={denom}
-              totalSupply={totalSupply}
+              onMultiBurnClick={handleMultiBurnOpen}
             />
           )}
         </div>

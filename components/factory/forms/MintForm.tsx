@@ -27,6 +27,7 @@ export default function MintForm({
   refetch,
   balance,
   totalSupply,
+  onMultiMintClick,
 }: Readonly<{
   isAdmin: boolean;
   admin: string;
@@ -35,12 +36,11 @@ export default function MintForm({
   refetch: () => void;
   balance: string;
   totalSupply: string;
+  onMultiMintClick: () => void;
 }>) {
   const [amount, setAmount] = useState('');
   const [recipient, setRecipient] = useState(address);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [payoutPairs, setPayoutPairs] = useState<PayoutPair[]>([{ address: '', amount: '' }]);
   const { setToastMessage } = useToast();
   const { tx, isSigning, setIsSigning } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
@@ -117,67 +117,6 @@ export default function MintForm({
     } finally {
       setIsSigning(false);
     }
-  };
-
-  const handleMultiMint = async () => {
-    if (payoutPairs.some(pair => !pair.address || !pair.amount || isNaN(Number(pair.amount)))) {
-      setToastMessage({
-        type: 'alert-error',
-        title: 'Missing fields',
-        description: 'Please fill in all fields with valid values.',
-        bgColor: '#e74c3c',
-      });
-      return;
-    }
-    setIsSigning(true);
-    try {
-      const payoutMsg = payout({
-        authority: admin ?? '',
-        payoutPairs: payoutPairs.map(pair => ({
-          address: pair.address,
-          coin: {
-            denom: denom.base,
-            amount: BigInt(parseFloat(pair.amount) * Math.pow(10, exponent)).toString(),
-          },
-        })),
-      });
-      const encodedMessage = Any.fromAmino({
-        type: payoutMsg.typeUrl,
-        value: MsgPayout.encode(payoutMsg.value).finish(),
-      });
-      const msg = submitProposal({
-        groupPolicyAddress: admin ?? '',
-        messages: [encodedMessage],
-        metadata: '',
-        proposers: [address ?? ''],
-        title: `Manifest Module Control: Multi Mint MFX`,
-        summary: `This proposal includes multiple mint actions for MFX.`,
-        exec: 0,
-      });
-
-      const fee = await estimateFee(address ?? '', [msg]);
-      await tx([msg], {
-        fee,
-        onSuccess: () => {
-          setPayoutPairs([{ address: '', amount: '' }]);
-          setIsModalOpen(false);
-          refetch();
-        },
-      });
-    } catch (error) {
-      console.error('Error during multi-minting:', error);
-    } finally {
-      setIsSigning(false);
-    }
-  };
-
-  const addPayoutPair = () => setPayoutPairs([...payoutPairs, { address: '', amount: '' }]);
-  const removePayoutPair = (index: number) =>
-    setPayoutPairs(payoutPairs.filter((_, i) => i !== index));
-  const updatePayoutPair = (index: number, field: 'address' | 'amount', value: string) => {
-    const newPairs = [...payoutPairs];
-    newPairs[index][field] = value;
-    setPayoutPairs(newPairs);
   };
 
   return (
@@ -334,24 +273,13 @@ export default function MintForm({
                 )}
               </Formik>
             )}
-
-            <MultiMintModal
-              isOpen={isModalOpen}
-              onClose={() => setIsModalOpen(false)}
-              payoutPairs={payoutPairs}
-              updatePayoutPair={updatePayoutPair}
-              addPayoutPair={addPayoutPair}
-              removePayoutPair={removePayoutPair}
-              handleMultiMint={handleMultiMint}
-              isSigning={isSigning}
-            />
           </>
         )}
       </div>
       {isMFX && (
         <button
           type="button"
-          onClick={() => setIsModalOpen(true)}
+          onClick={onMultiMintClick}
           className="btn btn-gradient btn-md flex-grow w-full text-white mt-6"
           aria-label="multi-mint-button"
           disabled={!isAdmin}

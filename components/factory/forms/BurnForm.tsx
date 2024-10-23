@@ -19,6 +19,17 @@ interface BurnPair {
   amount: string;
 }
 
+interface BurnFormProps {
+  isAdmin: boolean;
+  admin: string;
+  denom: ExtendedMetadataSDKType;
+  address: string;
+  refetch: () => void;
+  balance: string;
+  totalSupply: string;
+  onMultiBurnClick: () => void;
+}
+
 export default function BurnForm({
   isAdmin,
   admin,
@@ -27,15 +38,8 @@ export default function BurnForm({
   refetch,
   balance,
   totalSupply,
-}: Readonly<{
-  isAdmin: boolean;
-  admin: string;
-  denom: ExtendedMetadataSDKType;
-  address: string;
-  refetch: () => void;
-  balance: string;
-  totalSupply: string;
-}>) {
+  onMultiBurnClick,
+}: BurnFormProps) {
   const [amount, setAmount] = useState('');
   const [recipient, setRecipient] = useState(address);
 
@@ -330,25 +334,13 @@ export default function BurnForm({
       {isMFX && (
         <button
           type="button"
-          onClick={() => setIsModalOpen(true)}
-          className="btn btn-error btn-md flex-grow w-full text-white mt-6 disabled:bg-error/40 disabled:text-white/40"
+          onClick={onMultiBurnClick}
+          className="btn btn-error btn-md flex-grow w-full text-white mt-6"
           aria-label="multi-burn-button"
           disabled={!isAdmin}
         >
           Multi Burn
         </button>
-      )}
-      {isMFX && (
-        <MultiBurnModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          burnPairs={burnPairs}
-          updateBurnPair={updateBurnPair}
-          addBurnPair={addBurnPair}
-          removeBurnPair={removeBurnPair}
-          handleMultiBurn={handleMultiBurn}
-          isSigning={isSigning}
-        />
       )}
     </div>
   );
