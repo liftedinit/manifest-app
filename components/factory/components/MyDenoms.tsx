@@ -12,7 +12,7 @@ import { PiInfo } from 'react-icons/pi';
 import { ExtendedMetadataSDKType, shiftDigits } from '@/utils';
 import { MultiMintModal } from '@/components/factory/modals';
 import { MultiBurnModal } from '../modals/multiMfxBurnModal';
-
+import { usePoaGetAdmin } from '@/hooks';
 export default function MyDenoms({
   denoms,
   isLoading,
@@ -44,6 +44,8 @@ export default function MyDenoms({
       }
     }
   };
+
+  const { poaAdmin, isPoaAdminLoading } = usePoaGetAdmin();
 
   useEffect(() => {
     const { denom, action } = router.query;
@@ -217,6 +219,8 @@ export default function MyDenoms({
         onClose={handleCloseModal}
       />
       <MintModal
+        admin={poaAdmin ?? ''}
+        isPoaAdminLoading={isPoaAdminLoading}
         denom={selectedDenom}
         address={address}
         refetch={refetchDenoms}
@@ -245,42 +249,22 @@ export default function MyDenoms({
         }}
       />
       <MultiMintModal
+        admin={poaAdmin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'}
+        address={address}
+        denom={selectedDenom}
+        exponent={selectedDenom?.denom_units[1]?.exponent ?? 0}
+        refetch={refetchDenoms}
         isOpen={modalType === 'multimint'}
         onClose={handleCloseModal}
-        payoutPairs={[{ address: '', amount: '' }]} // Initialize with empty pair
-        updatePayoutPair={(index, field, value) => {
-          // ... existing update logic ...
-        }}
-        addPayoutPair={() => {
-          // ... existing add logic ...
-        }}
-        removePayoutPair={index => {
-          // ... existing remove logic ...
-        }}
-        handleMultiMint={async () => {
-          // ... existing multi mint logic ...
-          handleCloseModal();
-        }}
-        isSigning={false}
       />
       <MultiBurnModal
+        admin={address}
+        address={address}
+        denom={selectedDenom}
+        exponent={selectedDenom?.denom_units[1]?.exponent ?? 0}
+        refetch={refetchDenoms}
         isOpen={modalType === 'multiburn'}
         onClose={handleCloseModal}
-        burnPairs={[{ address: '', amount: '' }]}
-        updateBurnPair={(index, field, value) => {
-          // Implementation will be handled in BurnForm
-        }}
-        addBurnPair={() => {
-          // Implementation will be handled in BurnForm
-        }}
-        removeBurnPair={index => {
-          // Implementation will be handled in BurnForm
-        }}
-        handleMultiBurn={async () => {
-          // Implementation will be handled in BurnForm
-          handleCloseModal();
-        }}
-        isSigning={false}
       />
     </div>
   );
@@ -341,16 +325,17 @@ function TokenRow({
           </span>
         </div>
       </td>
-      <td
-        className="rounded-r-[12px] w-1/4"
-        onClick={e => e.stopPropagation()} // Stop propagation at the cell level
-      >
+      <td className="rounded-r-[12px] w-1/4" onClick={e => e.stopPropagation()}>
         <div className="flex space-x-2">
           <button className="btn btn-sm btn-outline btn-square btn-primary group" onClick={onMint}>
             <MintIcon className="w-5 h-5 text-current group-hover:text-white" />
           </button>
 
-          <button className="btn btn-sm btn-outline btn-square btn-error group" onClick={onBurn}>
+          <button
+            disabled={denom.base.includes('umfx')}
+            className="btn btn-sm btn-outline btn-square btn-error group"
+            onClick={onBurn}
+          >
             <BurnIcon className="w-5 h-5 text-current group-hover:text-white" />
           </button>
 

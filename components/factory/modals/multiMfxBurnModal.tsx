@@ -1,10 +1,15 @@
-import React from 'react';
-import { PiPlusCircle, PiMinusCircle } from 'react-icons/pi';
+// TODO: Double check that this file is unecessary
+import React, { useState } from 'react';
+
 import { Formik, Form, FieldArray, Field, FieldProps } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { NumberInput, TextInput } from '@/components/react/inputs';
 import { PiAddressBook } from 'react-icons/pi';
 import { PlusIcon, MinusIcon } from '@/components/icons';
+import { useTx, useFeeEstimation } from '@/hooks';
+import { chainName } from '@/config';
+import { cosmos, osmosis } from '@chalabi/manifestjs';
+import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
 
 interface BurnPair {
   address: string;
@@ -14,12 +19,11 @@ interface BurnPair {
 interface MultiBurnModalProps {
   isOpen: boolean;
   onClose: () => void;
-  burnPairs: BurnPair[];
-  updateBurnPair: (index: number, field: 'address' | 'amount', value: string) => void;
-  addBurnPair: () => void;
-  removeBurnPair: (index: number) => void;
-  handleMultiBurn: () => void;
-  isSigning: boolean;
+  admin: string;
+  address: string;
+  denom: any;
+  exponent: number;
+  refetch: () => void;
 }
 
 const BurnPairSchema = Yup.object().shape({
@@ -42,13 +46,79 @@ const MultiBurnSchema = Yup.object().shape({
 export function MultiBurnModal({
   isOpen,
   onClose,
-  burnPairs,
-  updateBurnPair,
-  addBurnPair,
-  removeBurnPair,
-  handleMultiBurn,
-  isSigning,
+  admin,
+  address,
+  denom,
+  exponent,
+  refetch,
 }: MultiBurnModalProps) {
+  const [burnPairs, setBurnPairs] = useState([{ address: '', amount: '' }]);
+  const { tx, isSigning, setIsSigning } = useTx(chainName);
+  const { estimateFee } = useFeeEstimation(chainName);
+  const { burn } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
+  const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
+
+  const updateBurnPair = (index: number, field: 'address' | 'amount', value: string) => {
+    const newPairs = [...burnPairs];
+    newPairs[index] = { ...newPairs[index], [field]: value };
+    setBurnPairs(newPairs);
+  };
+
+  const addBurnPair = () => {
+    setBurnPairs([...burnPairs, { address: '', amount: '' }]);
+  };
+
+  const removeBurnPair = (index: number) => {
+    setBurnPairs(burnPairs.filter((_, i) => i !== index));
+  };
+
+  const handleMultiBurn = async (values: { burnPairs: BurnPair[] }) => {
+    setIsSigning(true);
+    try {
+      const messages = values.burnPairs.map(pair =>
+        burn({
+          sender: pair.address,
+          burnFromAddress: pair.address,
+          amount: {
+            denom: denom.base,
+            amount: BigInt(parseFloat(pair.amount) * Math.pow(10, exponent)).toString(),
+          },
+        })
+      );
+
+      const encodedMessages = messages.map(msg =>
+        Any.fromPartial({
+          typeUrl: msg.typeUrl,
+          // @ts-ignore
+          value: msg.value,
+        })
+      );
+
+      const msg = submitProposal({
+        groupPolicyAddress: admin,
+        messages: encodedMessages,
+        metadata: '',
+        proposers: [address],
+        title: `Manifest Module Control: Multi Burn MFX`,
+        summary: `This proposal includes a multi-burn action for MFX.`,
+        exec: 0,
+      });
+
+      const fee = await estimateFee(address, [msg]);
+      await tx([msg], {
+        fee,
+        onSuccess: () => {
+          refetch();
+          onClose();
+        },
+      });
+    } catch (error) {
+      console.error('Error during multi-burn:', error);
+    } finally {
+      setIsSigning(false);
+    }
+  };
+
   return (
     <dialog id="multi_burn_modal" className={`modal ${isOpen ? 'modal-open' : ''}`}>
       <div className="modal-box max-w-4xl mx-auto min-h-[30vh] max-h-[70vh] rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg overflow-y-auto">

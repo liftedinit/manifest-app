@@ -14,11 +14,6 @@ import Yup from '@/utils/yupExtensions';
 import { NumberInput, TextInput } from '@/components/react/inputs';
 import { ExtendedMetadataSDKType, truncateString } from '@/utils';
 
-interface PayoutPair {
-  address: string;
-  amount: string;
-}
-
 export default function MintForm({
   isAdmin,
   admin,
@@ -41,12 +36,9 @@ export default function MintForm({
   const [amount, setAmount] = useState('');
   const [recipient, setRecipient] = useState(address);
 
-  const { setToastMessage } = useToast();
   const { tx, isSigning, setIsSigning } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
   const { mint } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
-  const { payout } = liftedinit.manifest.v1.MessageComposer.withTypeUrl;
-  const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
   const exponent =
     denom?.denom_units?.find((unit: { denom: string }) => unit.denom === denom.display)?.exponent ||
@@ -70,39 +62,15 @@ export default function MintForm({
       const amountInBaseUnits = BigInt(parseFloat(amount) * Math.pow(10, exponent)).toString();
 
       let msg;
-      if (isMFX) {
-        const payoutMsg = payout({
-          authority: admin ?? '',
-          payoutPairs: [
-            {
-              address: recipient,
-              coin: { denom: denom.base, amount: amountInBaseUnits },
-            },
-          ],
-        });
-        const encodedMessage = Any.fromPartial({
-          typeUrl: payoutMsg.typeUrl,
-          value: MsgPayout.encode(payoutMsg.value).finish(),
-        });
-        msg = submitProposal({
-          groupPolicyAddress: admin ?? '',
-          messages: [encodedMessage],
-          metadata: '',
-          proposers: [address ?? ''],
-          title: `Manifest Module Control: Mint MFX`,
-          summary: `This proposal includes a mint action for MFX.`,
-          exec: 0,
-        });
-      } else {
-        msg = mint({
-          amount: {
-            amount: amountInBaseUnits,
-            denom: denom.base,
-          },
-          sender: address,
-          mintToAddress: recipient,
-        });
-      }
+
+      msg = mint({
+        amount: {
+          amount: amountInBaseUnits,
+          denom: denom.base,
+        },
+        sender: address,
+        mintToAddress: recipient,
+      });
 
       const fee = await estimateFee(address ?? '', [msg]);
       await tx([msg], {

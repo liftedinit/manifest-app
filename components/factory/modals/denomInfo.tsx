@@ -7,8 +7,8 @@ import { useRouter } from 'next/router';
 export const DenomInfoModal: React.FC<{
   denom: MetadataSDKType | null;
   modalId: string;
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen?: boolean;
+  onClose?: () => void;
 }> = ({ denom, modalId, isOpen, onClose }) => {
   return (
     <dialog id={modalId} className={`modal ${isOpen ? 'modal-open' : ''}`}>

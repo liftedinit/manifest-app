@@ -29,7 +29,6 @@ export default function Factory() {
   const isError = isDenomsError || isMetadatasError || isBalancesError || isTotalSupplyError;
 
   const combinedData = useMemo(() => {
-    console.log('Recalculating combinedData', { denoms, metadatas, balances, totalSupply });
     if (denoms?.denoms && metadatas?.metadatas && balances && totalSupply) {
       const mfxBalance = balances.find(bal => bal.denom === 'umfx')?.amount || '0';
       const mfxSupply = totalSupply.find(supply => supply.denom === 'umfx')?.amount || '0';

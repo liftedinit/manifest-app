@@ -13,7 +13,9 @@ export default function MintModal({
   totalSupply,
   isOpen,
   onClose,
-  onSwitchToMultiMint, // Add this prop
+  onSwitchToMultiMint,
+  admin,
+  isPoaAdminLoading,
 }: {
   denom: ExtendedMetadataSDKType | null;
   address: string;
@@ -22,14 +24,14 @@ export default function MintModal({
   totalSupply: string;
   isOpen: boolean;
   onClose: () => void;
-  onSwitchToMultiMint: () => void; // New prop
+  onSwitchToMultiMint: () => void;
+  admin: string;
+  isPoaAdminLoading: boolean;
 }) {
   const [isMultiMintOpen, setIsMultiMintOpen] = useState(false);
-  const [payoutPairs, setPayoutPairs] = useState([{ address: '', amount: '' }]);
 
-  const { poaAdmin, isPoaAdminLoading } = usePoaGetAdmin();
   const { groupByAdmin, isGroupByAdminLoading } = useGroupsByAdmin(
-    poaAdmin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'
+    admin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'
   );
 
   const members = groupByAdmin?.groups?.[0]?.members;
@@ -39,7 +41,7 @@ export default function MintModal({
   if (!denom) return null;
 
   const handleMultiMintOpen = () => {
-    onSwitchToMultiMint(); // Use the new prop instead of managing state internally
+    onSwitchToMultiMint();
   };
 
   const handleMultiMintClose = () => {
@@ -67,7 +69,7 @@ export default function MintModal({
             ) : (
               <MintForm
                 isAdmin={isAdmin ?? false}
-                admin={poaAdmin ?? ''}
+                admin={admin ?? ''}
                 balance={balance}
                 totalSupply={totalSupply}
                 refetch={refetch}
@@ -83,23 +85,14 @@ export default function MintModal({
         </form>
       </dialog>
 
-      {/* Render MultiMintModal at the same level */}
       <MultiMintModal
         isOpen={isMultiMintOpen}
         onClose={handleMultiMintClose}
-        payoutPairs={payoutPairs}
-        updatePayoutPair={(index, field, value) => {
-          const newPairs = [...payoutPairs];
-          newPairs[index][field] = value;
-          setPayoutPairs(newPairs);
-        }}
-        addPayoutPair={() => setPayoutPairs([...payoutPairs, { address: '', amount: '' }])}
-        removePayoutPair={index => setPayoutPairs(payoutPairs.filter((_, i) => i !== index))}
-        handleMultiMint={async () => {
-          // ... handle multi mint logic ...
-          handleMultiMintClose();
-        }}
-        isSigning={false} // Add your signing state here
+        admin={admin ?? ''}
+        address={address}
+        denom={denom}
+        exponent={denom?.denom_units?.[1]?.exponent || 0}
+        refetch={refetch}
       />
     </>
   );

@@ -1,10 +1,14 @@
-// MultiMintModal.tsx
-import React, { useRef } from 'react';
+import React, { useState } from 'react';
 import { Formik, Form, FieldArray, Field, FieldProps } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { NumberInput, TextInput } from '@/components/react/inputs';
 import { PiAddressBook } from 'react-icons/pi';
-import { TrashIcon, PlusIcon, MinusIcon } from '@/components/icons';
+import { PlusIcon, MinusIcon } from '@/components/icons';
+import { useTx, useFeeEstimation } from '@/hooks';
+import { chainName } from '@/config';
+import { cosmos, liftedinit } from '@chalabi/manifestjs';
+import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
+import { MsgPayout } from '@chalabi/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
 
 interface PayoutPair {
   address: string;
@@ -14,12 +18,11 @@ interface PayoutPair {
 interface MultiMintModalProps {
   isOpen: boolean;
   onClose: () => void;
-  payoutPairs: PayoutPair[];
-  updatePayoutPair: (index: number, field: 'address' | 'amount', value: string) => void;
-  addPayoutPair: () => void;
-  removePayoutPair: (index: number) => void;
-  handleMultiMint: () => void;
-  isSigning: boolean;
+  admin: string;
+  address: string;
+  denom: any;
+  exponent: number;
+  refetch: () => void;
 }
 
 const PayoutPairSchema = Yup.object().shape({
@@ -42,13 +45,76 @@ const MultiMintSchema = Yup.object().shape({
 export function MultiMintModal({
   isOpen,
   onClose,
-  payoutPairs,
-  updatePayoutPair,
-  addPayoutPair,
-  removePayoutPair,
-  handleMultiMint,
-  isSigning,
+  admin,
+  address,
+  denom,
+  exponent,
+  refetch,
 }: MultiMintModalProps) {
+  const [payoutPairs, setPayoutPairs] = useState([{ address: '', amount: '' }]);
+  const { tx, isSigning, setIsSigning } = useTx(chainName);
+  const { estimateFee } = useFeeEstimation(chainName);
+  const { payout } = liftedinit.manifest.v1.MessageComposer.withTypeUrl;
+  const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
+
+  const updatePayoutPair = (index: number, field: 'address' | 'amount', value: string) => {
+    const newPairs = [...payoutPairs];
+    newPairs[index] = { ...newPairs[index], [field]: value };
+    setPayoutPairs(newPairs);
+  };
+
+  const addPayoutPair = () => {
+    setPayoutPairs([...payoutPairs, { address: '', amount: '' }]);
+  };
+
+  const removePayoutPair = (index: number) => {
+    setPayoutPairs(payoutPairs.filter((_, i) => i !== index));
+  };
+
+  const handleMultiMint = async (values: { payoutPairs: PayoutPair[] }) => {
+    setIsSigning(true);
+    try {
+      const payoutMsg = payout({
+        authority: admin,
+        payoutPairs: values.payoutPairs.map(pair => ({
+          address: pair.address,
+          coin: {
+            denom: denom.base,
+            amount: BigInt(parseFloat(pair.amount) * Math.pow(10, exponent)).toString(),
+          },
+        })),
+      });
+
+      const encodedMessage = Any.fromPartial({
+        typeUrl: payoutMsg.typeUrl,
+        value: MsgPayout.encode(payoutMsg.value).finish(),
+      });
+
+      const msg = submitProposal({
+        groupPolicyAddress: admin,
+        messages: [encodedMessage],
+        metadata: '',
+        proposers: [address],
+        title: `Manifest Module Control: Multi Mint MFX`,
+        summary: `This proposal includes a multi-mint action for MFX.`,
+        exec: 0,
+      });
+
+      const fee = await estimateFee(address, [msg]);
+      await tx([msg], {
+        fee,
+        onSuccess: () => {
+          refetch();
+          onClose();
+        },
+      });
+    } catch (error) {
+      console.error('Error during multi-mint:', error);
+    } finally {
+      setIsSigning(false);
+    }
+  };
+
   return (
     <dialog id="multi_mint_modal" className={`modal ${isOpen ? 'modal-open' : ''}`}>
       <div className="modal-box max-w-4xl mx-auto min-h-[30vh] max-h-[70vh] rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg overflow-y-auto">
