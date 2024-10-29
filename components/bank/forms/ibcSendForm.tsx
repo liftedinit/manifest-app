@@ -3,7 +3,7 @@ import { chainName } from '@/config';
 import { useFeeEstimation, useTx } from '@/hooks';
 import { ibc } from '@chalabi/manifestjs';
 import { getIbcInfo } from '@/utils';
-import { PiAddressBook, PiCaretDownBold } from 'react-icons/pi';
+import { PiCaretDownBold } from 'react-icons/pi';
 import { MdContacts } from 'react-icons/md';
 import { CombinedBalanceInfo } from '@/utils/types';
 import { DenomImage } from '@/components/factory';
@@ -15,6 +15,7 @@ import Image from 'next/image';
 import { shiftDigits, truncateString } from '@/utils';
 import { SearchIcon } from '@/components/icons';
 import { MFX_TOKEN_DATA } from '@/utils/constants'; // Import MFX_TOKEN_DATA
+import { TailwindModal } from '@/components/react/modal';
 
 export default function IbcSendForm({
   address,
@@ -47,6 +48,7 @@ export default function IbcSendForm({
   const { tx } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
   const { transfer } = ibc.applications.transfer.v1.MessageComposer.withTypeUrl;
+  const [isContactsOpen, setIsContactsOpen] = useState(false);
 
   // Adjusted filter logic to handle undefined metadata
   const filteredBalances = balances?.filter(token => {
@@ -386,6 +388,16 @@ export default function IbcSendForm({
                 }}
                 className="input-md w-full"
                 style={{ borderRadius: '12px' }}
+                rightElement={
+                  <button
+                    type="button"
+                    aria-label="contacts-btn"
+                    onClick={() => setIsContactsOpen(true)}
+                    className="btn btn-primary btn-sm text-white"
+                  >
+                    <MdContacts className="w-5 h-5" />
+                  </button>
+                }
               />
 
               <TextInput
@@ -411,6 +423,15 @@ export default function IbcSendForm({
                 {isSending ? <span className="loading loading-dots loading-xs"></span> : 'Send'}
               </button>
             </div>
+            <TailwindModal
+              isOpen={isContactsOpen}
+              setOpen={setIsContactsOpen}
+              showContacts={true}
+              currentAddress={address}
+              onSelect={(selectedAddress: string) => {
+                setFieldValue('recipient', selectedAddress);
+              }}
+            />
           </Form>
         )}
       </Formik>

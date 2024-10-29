@@ -10,6 +10,8 @@ import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { TextInput } from '@/components/react/inputs';
 import { SearchIcon } from '@/components/icons';
+import { TailwindModal } from '@/components/react/modal';
+import { MdContacts } from 'react-icons/md';
 
 export default function SendForm({
   address,
@@ -30,6 +32,7 @@ export default function SendForm({
   const { tx } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
   const { send } = cosmos.bank.v1beta1.MessageComposer.withTypeUrl;
+  const [isContactsOpen, setIsContactsOpen] = useState(false);
 
   const filteredBalances = balances?.filter(token => {
     const displayName = token.metadata?.display ?? token.denom;
@@ -300,6 +303,16 @@ export default function SendForm({
                 }}
                 className="input-md w-full"
                 style={{ borderRadius: '12px' }}
+                rightElement={
+                  <button
+                    type="button"
+                    aria-label="contacts-btn"
+                    onClick={() => setIsContactsOpen(true)}
+                    className="btn btn-primary btn-sm text-white"
+                  >
+                    <MdContacts className="w-5 h-5" />
+                  </button>
+                }
               />
               <TextInput
                 label="Memo (optional)"
@@ -324,6 +337,15 @@ export default function SendForm({
                 {isSending ? <span className="loading loading-dots loading-xs"></span> : 'Send'}
               </button>
             </div>
+            <TailwindModal
+              isOpen={isContactsOpen}
+              setOpen={setIsContactsOpen}
+              showContacts={true}
+              currentAddress={address}
+              onSelect={(selectedAddress: string) => {
+                setFieldValue('recipient', selectedAddress);
+              }}
+            />
           </Form>
         )}
       </Formik>

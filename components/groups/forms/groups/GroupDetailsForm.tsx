@@ -8,6 +8,8 @@ import { TextInput, TextArea } from '@/components/react/inputs';
 import { TrashIcon, PlusIcon } from '@/components/icons';
 import { isValidManifestAddress } from '@/utils/string';
 import { MdContacts } from 'react-icons/md';
+import { TailwindModal } from '@/components/react/modal';
+
 const GroupSchema = Yup.object().shape({
   title: Yup.string()
     .required('Title is required')
@@ -66,6 +68,8 @@ export default function GroupDetails({
   address: string;
 }>) {
   const [isValidForm, setIsValidForm] = useState(false);
+  const [isContactsOpen, setIsContactsOpen] = useState(false);
+  const [activeAuthorIndex, setActiveAuthorIndex] = useState<number | null>(null);
 
   const authors = Array.isArray(formData.authors)
     ? formData.authors
@@ -151,16 +155,18 @@ export default function GroupDetails({
                                     <TrashIcon className="w-5 h-5" />
                                   </button>
                                 ) : (
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      setFieldValue('authors', [address]);
-                                      updateField('authors', [address]);
-                                    }}
-                                    className="btn btn-primary btn-sm text-white"
-                                  >
-                                    <MdContacts className="w-5 h-5" />
-                                  </button>
+                                  <div className="flex gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setActiveAuthorIndex(index);
+                                        setIsContactsOpen(true);
+                                      }}
+                                      className="btn btn-primary btn-sm text-white"
+                                    >
+                                      <MdContacts className="w-5 h-5" />
+                                    </button>
+                                  </div>
                                 )
                               }
                             />
@@ -180,6 +186,21 @@ export default function GroupDetails({
                         <PlusIcon className="mr-2" /> Add Author
                       </button>
                     </div>
+                    <TailwindModal
+                      isOpen={isContactsOpen}
+                      setOpen={setIsContactsOpen}
+                      showContacts={true}
+                      currentAddress={address}
+                      onSelect={(selectedAddress: string) => {
+                        if (activeAuthorIndex !== null) {
+                          const newAuthors = [...authors];
+                          newAuthors[activeAuthorIndex] = selectedAddress;
+                          setFieldValue('authors', newAuthors);
+                          updateField('authors', newAuthors);
+                          setActiveAuthorIndex(null);
+                        }
+                      }}
+                    />
                   </Form>
                 );
               }}
@@ -187,6 +208,7 @@ export default function GroupDetails({
           </div>
         </div>
       </div>
+
       <div className="flex space-x-3  mt-6 mx-auto w-full">
         <Link href="/groups" legacyBehavior>
           <button className="btn btn-neutral py-2.5 sm:py-3.5 w-1/2">

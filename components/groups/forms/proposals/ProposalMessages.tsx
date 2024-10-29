@@ -20,6 +20,8 @@ import { shiftDigits, truncateString } from '@/utils';
 import { CombinedBalanceInfo } from '@/utils/types';
 import Decimal from 'decimal.js';
 import { MFX_TOKEN_DATA } from '@/utils/constants';
+import { MdContacts } from 'react-icons/md';
+import { TailwindModal } from '@/components/react';
 
 // Define the prop types for CustomSendMessageFields
 interface CustomSendMessageFieldsProps {
@@ -31,6 +33,7 @@ interface CustomSendMessageFieldsProps {
   updateValidity: (index: number, isValid: boolean) => void;
   combinedBalances: CombinedBalanceInfo[];
   isBalancesLoading: boolean;
+  currentAddress?: string;
 }
 
 export default function ProposalMessages({
@@ -472,6 +475,7 @@ export default function ProposalMessages({
           updateValidity={updateMessageValidity}
           combinedBalances={combinedBalances}
           isBalancesLoading={isBalancesLoading}
+          currentAddress={address}
         />
       );
     } else {
@@ -767,8 +771,10 @@ const CustomSendMessageFields: React.FC<CustomSendMessageFieldsProps> = ({
   updateValidity,
   combinedBalances,
   isBalancesLoading,
+  currentAddress,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [isContactsOpen, setIsContactsOpen] = useState(false);
 
   const filteredBalances = combinedBalances?.filter(token => {
     const displayName = token.metadata?.display ?? token.denom;
@@ -1013,6 +1019,16 @@ const CustomSendMessageFields: React.FC<CustomSendMessageFieldsProps> = ({
                 }}
                 className="input-md w-full"
                 style={{ borderRadius: '12px' }}
+                rightElement={
+                  <button
+                    type="button"
+                    aria-label="contacts-btn"
+                    onClick={() => setIsContactsOpen(true)}
+                    className="btn btn-primary btn-sm text-white"
+                  >
+                    <MdContacts className="w-5 h-5" />
+                  </button>
+                }
               />
               <TextInput
                 label="From Address"
@@ -1040,6 +1056,16 @@ const CustomSendMessageFields: React.FC<CustomSendMessageFieldsProps> = ({
           </Form>
         )}
       </Formik>
+
+      <TailwindModal
+        isOpen={isContactsOpen}
+        setOpen={setIsContactsOpen}
+        showContacts={true}
+        onSelect={(selectedAddress: string) => {
+          handleChange('to_address', selectedAddress);
+          setIsContactsOpen(false);
+        }}
+      />
     </div>
   );
 };

@@ -5,6 +5,8 @@ import { Formik, Form, FieldArray, Field, FieldProps } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { TrashIcon, PlusIcon } from '@/components/icons';
 import { NumberInput, TextInput } from '@/components/react';
+import { TailwindModal } from '@/components/react/modal';
+
 const MemberSchema = Yup.object().shape({
   address: Yup.string().manifestAddress().required('Required'),
   name: Yup.string().required('Required').noProfanity('Profanity is not allowed'),
@@ -37,6 +39,8 @@ export default function MemberInfoForm({
   address: string;
 }>) {
   const [isValidForm, setIsValidForm] = useState(false);
+  const [isContactsOpen, setIsContactsOpen] = useState(false);
+  const [activeMemberIndex, setActiveMemberIndex] = useState<number | null>(null);
   const addMemberRef = useRef<() => void>(() => {});
 
   return (
@@ -99,18 +103,10 @@ export default function MemberInfoForm({
                                               <button
                                                 type="button"
                                                 onClick={() => {
-                                                  setFieldValue(
-                                                    `members.${index}.address`,
-                                                    address
-                                                  );
-                                                  dispatch({
-                                                    type: 'UPDATE_MEMBER',
-                                                    index,
-                                                    field: 'address',
-                                                    value: address,
-                                                  });
+                                                  setActiveMemberIndex(index);
+                                                  setIsContactsOpen(true);
                                                 }}
-                                                className="btn btn-primary btn-sm text-white absolute right-2 top-1/2 transform -translate-y-1/2"
+                                                className="btn btn-primary btn-sm text-white"
                                               >
                                                 <MdContacts className="w-5 h-5" />
                                               </button>
@@ -245,6 +241,23 @@ export default function MemberInfoForm({
                     >
                       <PlusIcon className="w-5 h-5 mr-2" /> Add member
                     </button>
+                    <TailwindModal
+                      isOpen={isContactsOpen}
+                      setOpen={setIsContactsOpen}
+                      showContacts={true}
+                      onSelect={(selectedAddress: string) => {
+                        if (activeMemberIndex !== null) {
+                          setFieldValue(`members.${activeMemberIndex}.address`, selectedAddress);
+                          dispatch({
+                            type: 'UPDATE_MEMBER',
+                            index: activeMemberIndex,
+                            field: 'address',
+                            value: selectedAddress,
+                          });
+                          setActiveMemberIndex(null);
+                        }
+                      }}
+                    />
                   </Form>
                 );
               }}
@@ -252,6 +265,7 @@ export default function MemberInfoForm({
           </div>
         </div>
       </div>
+
       <div className="flex space-x-3 mt-6 mx-auto w-full">
         <button onClick={prevStep} className="btn btn-neutral py-2.5 sm:py-3.5 w-1/2">
           Back: Group Details
