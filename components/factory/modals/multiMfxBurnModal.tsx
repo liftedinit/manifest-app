@@ -4,8 +4,9 @@ import React, { useState } from 'react';
 import { Formik, Form, FieldArray, Field, FieldProps } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { NumberInput, TextInput } from '@/components/react/inputs';
-import { PiAddressBook } from 'react-icons/pi';
+
 import { PlusIcon, MinusIcon } from '@/components/icons';
+import { MdContacts } from 'react-icons/md';
 import { useTx, useFeeEstimation } from '@/hooks';
 import { chainName } from '@/config';
 import { cosmos, osmosis } from '@chalabi/manifestjs';
@@ -190,7 +191,7 @@ export function MultiBurnModal({
                                           }}
                                           className="btn btn-primary btn-sm text-white absolute right-2 top-1/2 transform -translate-y-1/2"
                                         >
-                                          <PiAddressBook className="w-5 h-5" />
+                                          <MdContacts className="w-5 h-5" />
                                         </button>
                                       }
                                     />

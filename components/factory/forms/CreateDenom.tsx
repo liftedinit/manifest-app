@@ -30,8 +30,6 @@ export default function CreateDenom({
       ),
   });
 
-  // Define the token exponents array
-
   return (
     <section>
       <div className="lg:flex mx-auto w-full flex-col items-center justify-between">

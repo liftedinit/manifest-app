@@ -4,6 +4,7 @@ import { useFeeEstimation, useTx } from '@/hooks';
 import { ibc } from '@chalabi/manifestjs';
 import { getIbcInfo } from '@/utils';
 import { PiAddressBook, PiCaretDownBold } from 'react-icons/pi';
+import { MdContacts } from 'react-icons/md';
 import { CombinedBalanceInfo } from '@/utils/types';
 import { DenomImage } from '@/components/factory';
 import { Formik, Form } from 'formik';

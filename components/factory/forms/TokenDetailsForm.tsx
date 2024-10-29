@@ -24,7 +24,7 @@ export default function TokenDetails({
       .noProfanity()
       .test('display-contains-subdenom', 'Display must contain subdenom', function (value) {
         const subdenom = this.parent.subdenom;
-        return value.includes(subdenom.slice(1));
+        return value.toLowerCase().includes(subdenom.slice(1).toLowerCase());
       }),
     description: Yup.string()
       .required('Description is required')
@@ -90,8 +90,9 @@ export default function TokenDetails({
                         name="display"
                         value={formData.display}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          updateField('display', e.target.value);
-                          updateField('symbol', e.target.value);
+                          const value = e.target.value;
+                          updateField('display', value);
+                          updateField('symbol', value.toUpperCase());
                           handleChange(e);
                         }}
                       />

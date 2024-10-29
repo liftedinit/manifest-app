@@ -34,12 +34,12 @@ import {
   cosmosAminoConverters,
   cosmosProtoRegistry,
 } from '@chalabi/manifestjs';
-import { ToastProvider } from '@/contexts';
+import { ToastProvider, ContactsModalProvider } from '@/contexts';
 import { useTheme } from '@/contexts/theme';
 import MobileNav from '@/components/react/mobileNav';
-import EndpointSelector from '@/components/react/endpointSelector';
 
 import { useEndpointStore } from '@/store/endpointStore';
+import EndpointSelector from '@/components/react/endpointSelector';
 
 // websocket stuff might delete
 // import * as Ably from "ably";
@@ -219,34 +219,41 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
         >
           <ThemeProvider>
             <ToastProvider>
-              <div className="flex min-h-screen bg-background-color relative">
-                <div className="hidden md:block">
-                  <SideNav isDrawerVisible={isDrawerVisible} setDrawerVisible={setDrawerVisible} />
-                </div>
+              <ContactsModalProvider>
+                <div className="flex min-h-screen bg-background-color relative">
+                  <div className="hidden md:block">
+                    <SideNav
+                      isDrawerVisible={isDrawerVisible}
+                      setDrawerVisible={setDrawerVisible}
+                    />
+                  </div>
 
-                <div
-                  className={`flex-1 transition-all duration-300 ease-in-out ml-0 
+                  <div
+                    className={`flex-1 transition-all duration-300 ease-in-out ml-0 
                     ${isDrawerVisible ? 'md:ml-[17rem]' : 'md:ml-36'}  relative z-0`}
-                >
-                  <MobileNav />
-                  <main className="p-6 relative z-10">
-                    <Component {...pageProps} />
-                  </main>
+                  >
+                    <MobileNav />
+                    <main className="p-6 relative z-10">
+                      <Component {...pageProps} />
+                    </main>
+                  </div>
                 </div>
-              </div>
 
-              {/* Web3auth signing modal */}
-              {isBrowser &&
-                createPortal(
-                  <SignModal
-                    visible={web3AuthPrompt !== undefined}
-                    onClose={() => web3AuthPrompt?.resolve(false)}
-                    data={web3AuthPrompt?.signData ?? ({} as SignData)}
-                    approve={() => web3AuthPrompt?.resolve(true)}
-                    reject={() => web3AuthPrompt?.resolve(false)}
-                  />,
-                  document.body
-                )}
+                <EndpointSelector />
+
+                {/* Web3auth signing modal */}
+                {isBrowser &&
+                  createPortal(
+                    <SignModal
+                      visible={web3AuthPrompt !== undefined}
+                      onClose={() => web3AuthPrompt?.resolve(false)}
+                      data={web3AuthPrompt?.signData ?? ({} as SignData)}
+                      approve={() => web3AuthPrompt?.resolve(true)}
+                      reject={() => web3AuthPrompt?.resolve(false)}
+                    />,
+                    document.body
+                  )}
+              </ContactsModalProvider>
             </ToastProvider>
           </ThemeProvider>
         </ChainProvider>

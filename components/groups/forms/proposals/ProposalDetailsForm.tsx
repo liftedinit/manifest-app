@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { ProposalFormData, ProposalAction } from '@/helpers/formReducer';
-import { PiAddressBook } from 'react-icons/pi';
+import { MdContacts } from 'react-icons/md';
 import { TextInput, TextArea } from '@/components/react/inputs';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { TailwindModal } from '@/components/react';
+import { Contacts } from '@/components/react/views/Contacts';
 
 const ProposalSchema = Yup.object().shape({
   title: Yup.string()
@@ -33,6 +35,7 @@ export default function ProposalDetails({
 }>) {
   const router = useRouter();
   const policyAddress = router.query.policyAddress as string;
+  const [isContactsOpen, setIsContactsOpen] = useState(false);
 
   const updateField = (field: keyof ProposalFormData, value: any) => {
     dispatch({ type: 'UPDATE_FIELD', field, value });
@@ -48,6 +51,18 @@ export default function ProposalDetails({
       >
         {({ isValid, setFieldValue, handleChange }) => (
           <>
+            <TailwindModal
+              isOpen={isContactsOpen}
+              setOpen={setIsContactsOpen}
+              showContacts={true}
+              currentAddress={address}
+              onSelect={(selectedAddress: string) => {
+                setFieldValue('proposers', selectedAddress);
+                updateField('proposers', selectedAddress);
+                setIsContactsOpen(false);
+              }}
+            />
+
             <div className="lg:flex mx-auto">
               <div className="flex items-center mx-auto w-full dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-[24px] rounded-[24px]">
                 <div className="w-full">
@@ -77,14 +92,11 @@ export default function ProposalDetails({
                       rightElement={
                         <button
                           type="button"
-                          aria-label="address-btn"
-                          onClick={() => {
-                            setFieldValue('proposers', address);
-                            updateField('proposers', address);
-                          }}
+                          aria-label="contacts-btn"
+                          onClick={() => setIsContactsOpen(true)}
                           className="btn btn-primary btn-sm text-white"
                         >
-                          <PiAddressBook className="w-5 h-5" />
+                          <MdContacts className="w-5 h-5" />
                         </button>
                       }
                     />

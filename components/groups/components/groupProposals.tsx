@@ -389,7 +389,7 @@ export default function GroupProposals({
         refetchVotes={refetchVotes}
         refetchTally={refetchTally}
         refetchProposals={refetchProposals}
-        onClose={closeModal} // Add this prop
+        onClose={closeModal}
       />
 
       <GroupInfo

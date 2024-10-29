@@ -3,7 +3,7 @@ import type { ChainWalletBase, WalletModalProps } from 'cosmos-kit';
 import { WalletStatus } from 'cosmos-kit';
 import { useCallback, Fragment, useState, useMemo, useEffect } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { Connected, Connecting, Error, NotExist, QRCode, WalletList } from './views';
+import { Connected, Connecting, Error, NotExist, QRCode, WalletList, Contacts } from './views';
 import { useRouter } from 'next/router';
 import { ToastProvider } from '@/contexts/toastContext';
 
@@ -14,9 +14,16 @@ export enum ModalView {
   Connected,
   Error,
   NotExist,
+  Contacts,
 }
 
-export const TailwindModal: React.FC<WalletModalProps> = ({ isOpen, setOpen, walletRepo }) => {
+export const TailwindModal: React.FC<
+  WalletModalProps & {
+    showContacts?: boolean;
+    onSelect?: (address: string) => void;
+    currentAddress?: string;
+  }
+> = ({ isOpen, setOpen, walletRepo, showContacts = false, onSelect, currentAddress }) => {
   const router = useRouter();
 
   const [currentView, setCurrentView] = useState<ModalView>(ModalView.WalletList);
@@ -30,28 +37,32 @@ export const TailwindModal: React.FC<WalletModalProps> = ({ isOpen, setOpen, wal
 
   useEffect(() => {
     if (isOpen) {
-      switch (walletStatus) {
-        case WalletStatus.Disconnected:
-          setCurrentView(ModalView.WalletList);
-          break;
-        case WalletStatus.Connecting:
-          setCurrentView(ModalView.Connecting);
-          break;
-        case WalletStatus.Connected:
-          setCurrentView(ModalView.Connected);
-          break;
-        case WalletStatus.Error:
-          setCurrentView(ModalView.Error);
-          break;
-        case WalletStatus.Rejected:
-          setCurrentView(ModalView.Error);
-          break;
-        case WalletStatus.NotExist:
-          setCurrentView(ModalView.NotExist);
-          break;
+      if (showContacts) {
+        setCurrentView(ModalView.Contacts);
+      } else {
+        switch (walletStatus) {
+          case WalletStatus.Disconnected:
+            setCurrentView(ModalView.WalletList);
+            break;
+          case WalletStatus.Connecting:
+            setCurrentView(ModalView.Connecting);
+            break;
+          case WalletStatus.Connected:
+            setCurrentView(ModalView.Connected);
+            break;
+          case WalletStatus.Error:
+            setCurrentView(ModalView.Error);
+            break;
+          case WalletStatus.Rejected:
+            setCurrentView(ModalView.Error);
+            break;
+          case WalletStatus.NotExist:
+            setCurrentView(ModalView.NotExist);
+            break;
+        }
       }
     }
-  }, [isOpen, walletStatus, currentWalletName]);
+  }, [isOpen, walletStatus, currentWalletName, showContacts]);
 
   const onWalletClicked = useCallback(
     (name: string) => {
@@ -147,17 +158,30 @@ export const TailwindModal: React.FC<WalletModalProps> = ({ isOpen, setOpen, wal
             name={currentWalletData?.prettyName!}
           />
         );
+      case ModalView.Contacts:
+        return (
+          <Contacts
+            onClose={onCloseModal}
+            onReturn={walletRepo ? () => setCurrentView(ModalView.WalletList) : undefined}
+            selectionMode={Boolean(onSelect)}
+            onSelect={onSelect}
+            currentAddress={currentAddress}
+          />
+        );
     }
   }, [
     currentView,
     onCloseModal,
     onWalletClicked,
+    walletRepo,
     walletRepo?.wallets,
     currentWalletData,
     current,
     qrWallet?.qrUrl.data,
     qrWallet?.walletInfo.prettyName,
     router,
+    onSelect,
+    currentAddress,
   ]);
 
   return (

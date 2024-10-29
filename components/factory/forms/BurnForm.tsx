@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { chainName } from '@/config';
 import { useTokenFactoryBalance, useFeeEstimation, useTx } from '@/hooks';
 import { cosmos, osmosis, liftedinit } from '@chalabi/manifestjs';
-import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
-import { PiAddressBook } from 'react-icons/pi';
+
+import { MdContacts } from 'react-icons/md';
 import { shiftDigits } from '@/utils';
 import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgBurnHeldBalance } from '@chalabi/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
@@ -297,7 +297,7 @@ export default function BurnForm({
                               }}
                               className="btn btn-primary transition-none btn-sm text-white absolute right-2 top-1/2 -translate-y-1/2"
                             >
-                              <PiAddressBook className="w-5 h-5" />
+                              <MdContacts className="w-5 h-5" />
                             </button>
                           }
                         />

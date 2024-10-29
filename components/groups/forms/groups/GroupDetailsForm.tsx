@@ -3,11 +3,11 @@ import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { Action, FormData } from '@/helpers/formReducer';
 import Link from 'next/link';
-import { PiAddressBook } from 'react-icons/pi';
+
 import { TextInput, TextArea } from '@/components/react/inputs';
 import { TrashIcon, PlusIcon } from '@/components/icons';
 import { isValidManifestAddress } from '@/utils/string';
-
+import { MdContacts } from 'react-icons/md';
 const GroupSchema = Yup.object().shape({
   title: Yup.string()
     .required('Title is required')
@@ -159,7 +159,7 @@ export default function GroupDetails({
                                     }}
                                     className="btn btn-primary btn-sm text-white"
                                   >
-                                    <PiAddressBook className="w-5 h-5" />
+                                    <MdContacts className="w-5 h-5" />
                                   </button>
                                 )
                               }

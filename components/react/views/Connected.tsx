@@ -7,7 +7,7 @@ import { useBalance } from '@/hooks/useQueries';
 import { CopyIcon } from '@/components/icons';
 import { shiftDigits, truncateString } from '@/utils';
 import Image from 'next/image';
-import { PiAddressBook } from 'react-icons/pi';
+import { MdContacts } from 'react-icons/md';
 import { Contacts } from './Contacts';
 
 export const Connected = ({
@@ -93,7 +93,7 @@ export const Connected = ({
           onClick={() => setShowContacts(true)}
           className="ml-2 p-1 rounded-full hover:bg-[#FFFFFFCC] dark:hover:bg-[#FFFFFF0F] btn btn-ghost btn-md transition-colors duration-200"
         >
-          <PiAddressBook className="w-8 h-8 text-primary" />
+          <MdContacts className="w-8 h-8 text-primary" />
         </button>
       </div>
       <div className="bg-base-300 dark:bg-base-300 rounded-lg py-3 px-2 mb-4">

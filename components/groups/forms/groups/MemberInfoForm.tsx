@@ -1,6 +1,6 @@
 import { Action, FormData } from '@/helpers/formReducer';
 import React, { useState, useEffect, useRef } from 'react';
-import { PiAddressBook } from 'react-icons/pi';
+import { MdContacts } from 'react-icons/md';
 import { Formik, Form, FieldArray, Field, FieldProps } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { TrashIcon, PlusIcon } from '@/components/icons';
@@ -112,7 +112,7 @@ export default function MemberInfoForm({
                                                 }}
                                                 className="btn btn-primary btn-sm text-white absolute right-2 top-1/2 transform -translate-y-1/2"
                                               >
-                                                <PiAddressBook className="w-5 h-5" />
+                                                <MdContacts className="w-5 h-5" />
                                               </button>
                                             }
                                             onChange={e => {

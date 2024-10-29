@@ -5,7 +5,10 @@ import { TextInput, TextArea, NumberInput } from '@/components/react/inputs';
 
 import { useTx, useFeeEstimation } from '@/hooks';
 import { chainName } from '@/config';
-import { ThresholdDecisionPolicy } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
+import {
+  ThresholdDecisionPolicy,
+  ThresholdDecisionPolicySDKType,
+} from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { cosmos } from '@chalabi/manifestjs';
 import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
 import { ExtendedGroupType } from '@/hooks';
@@ -32,8 +35,9 @@ export function UpdateGroupModal({
   const maybeDetails = maybeIpfsMetadata?.details ?? '';
   const maybePolicies = group?.policies?.[0];
   const maybeDecisionPolicy = maybePolicies?.decision_policy;
-  const maybeThreshold = maybeDecisionPolicy?.threshold ?? '';
-  const maybeVotingPeriod = maybeDecisionPolicy?.windows?.voting_period;
+  const maybeThreshold = (maybeDecisionPolicy as ThresholdDecisionPolicySDKType)?.threshold ?? '';
+  const maybeVotingPeriod = (maybeDecisionPolicy as ThresholdDecisionPolicySDKType)?.windows
+    ?.voting_period;
   const maybeMembers = group?.members;
 
   const { updateGroupMetadata, updateGroupPolicyDecisionPolicy, updateGroupPolicyMetadata } =

@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-
+import { Contacts } from './views/Contacts';
 import { useRouter } from 'next/router';
 import { IconWallet, WalletSection } from '../wallet';
 import { useTheme } from '@/contexts/theme';
+import { useCallback } from 'react';
+import { TailwindModal } from './modal';
 
 import SettingsModal from './settingsModal';
 import {
@@ -16,6 +18,7 @@ import {
   LightIcon,
 } from '@/components/icons';
 import EndpointSelector from './endpointSelector';
+import { MdContacts, MdOutlineNetworkPing } from 'react-icons/md';
 
 interface SideNavProps {
   isDrawerVisible: boolean;
@@ -25,10 +28,17 @@ interface SideNavProps {
 export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavProps) {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isdark, setIsdark] = useState(false);
+  const [isContactsOpen, setContactsOpen] = useState(false);
 
   const { toggleTheme, theme } = useTheme();
 
   const toggleDrawer = () => setDrawerVisible(!isDrawerVisible);
+
+  const [isOpen, setOpen] = useState(false);
+
+  const onCloseModal = useCallback(() => {
+    setOpen(false);
+  }, [setOpen]);
 
   const NavItem: React.FC<{
     Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
@@ -75,15 +85,24 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
         <NavItem Icon={FactoryIcon} href="/factory" />
       </ul>
       <div className="mt-auto flex flex-col items-center space-y-6 dark:bg-[#FFFFFF0F] bg-[#0000000A] rounded-lg p-4 w-[75%]">
+        <button
+          onClick={() => {
+            const modal = document.getElementById('endpoint_selector_modal') as HTMLDialogElement;
+            if (modal) modal.showModal();
+          }}
+          className="flex justify-center w-full text-[#00000066] dark:text-[#FFFFFF66] hover:text-primary dark:hover:text-primary transition-all duration-300 ease-in-out"
+        >
+          <MdOutlineNetworkPing className="w-8 h-8" />
+        </button>
+        <button
+          onClick={() => setContactsOpen(true)}
+          className="flex justify-center w-full text-[#00000066] dark:text-[#FFFFFF66] hover:text-primary dark:hover:text-primary transition-all duration-300 ease-in-out"
+        >
+          <MdContacts className="w-8 h-8" />
+        </button>
         <div className="flex justify-center w-full text-[#00000066] dark:text-[#FFFFFF66]">
           <IconWallet chainName="manifest" />
         </div>
-        {/* <button
-          onClick={() => setIsSettingsModalOpen(true)}
-          className="hover:text-primary transition-all text-gray-500 duration-300 ease-in-out"
-        >
-          <RiSettings4Fill className="w-8 h-8" />
-        </button> */}
         <label className="swap swap-rotate text-[#00000066] dark:text-[#FFFFFF66] hover:text-primary dark:hover:text-primary transition-all duration-300 ease-in-out">
           <input
             type="checkbox"
@@ -143,6 +162,27 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
         <NavDrawer Icon={FactoryIcon} href="/factory" label="Factory" />
       </ul>
       <div className="mt-auto">
+        <div className="flex flex-col space-y-2 mb-4">
+          <button
+            onClick={() => {
+              const modal = document.getElementById('endpoint_selector_modal') as HTMLDialogElement;
+              if (modal) modal.showModal();
+            }}
+            className="flex items-center p-2 text-base font-normal rounded-lg text-[#00000066] dark:text-[#FFFFFF66] hover:bg-base-300 hover:text-primary dark:hover:text-primary dark:hover:bg-base-300 transition duration-300 ease-in-out"
+          >
+            <MdOutlineNetworkPing className="w-8 h-8 mr-6" />
+            <span className="text-xl">Endpoints</span>
+          </button>
+
+          <button
+            onClick={() => setContactsOpen(true)}
+            className="flex items-center p-2 text-base font-normal rounded-lg text-[#00000066] dark:text-[#FFFFFF66] hover:bg-base-300 hover:text-primary dark:hover:text-primary dark:hover:bg-base-300 transition duration-300 ease-in-out"
+          >
+            <MdContacts className="w-8 h-8 mr-6" />
+            <span className="text-xl">Contacts</span>
+          </button>
+        </div>
+
         <div className="flex items-center justify-between mb-2">
           {/* Theme toggle */}
           <div className="relative w-full h-[3.6rem] bg-[#0000000A] dark:bg-[#FFFFFF0F] rounded-xl">
@@ -220,7 +260,12 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
           ></path>
         </svg>
       </button>
-      <SettingsModal isOpen={isSettingsModalOpen} onClose={() => setIsSettingsModalOpen(false)} />
+      <TailwindModal
+        isOpen={isContactsOpen}
+        setOpen={setContactsOpen}
+        showContacts={true}
+        onSelect={undefined}
+      />
     </>
   );
 }

@@ -21,40 +21,6 @@ interface EndpointState {
   updateEndpointHealth: () => Promise<Endpoint[]>;
 }
 
-const validateRPCEndpoint = async (rpc: string): Promise<boolean> => {
-  try {
-    const url = new URL('status', rpc.trim());
-    const response = await fetch(url.toString());
-
-    const data = await response.json();
-
-    if (data.result && data.result.node_info && data.result.sync_info) {
-      const networkMatches =
-        data.result.node_info.network ===
-        (process.env.NEXT_PUBLIC_CHAIN_ID || process.env.NEXT_PUBLIC_TESTNET_CHAIN_ID);
-      const isNotCatchingUp = !data.result.sync_info.catching_up;
-
-      return true;
-    } else {
-      return false;
-    }
-  } catch (error) {
-    console.error('Error validating RPC endpoint:', error);
-    return false;
-  }
-};
-
-const validateAPIEndpoint = async (api: string): Promise<boolean> => {
-  try {
-    const url = new URL('cosmos/base/tendermint/v1beta1/syncing', api.trim());
-    const response = await fetch(url.toString());
-    return response.ok;
-  } catch (error) {
-    console.error('Error validating API endpoint:', error);
-    return false;
-  }
-};
-
 const defaultEndpoints: Endpoint[] = [
   {
     rpc: process.env.NEXT_PUBLIC_MAINNET_RPC_URL || '',
@@ -87,35 +53,28 @@ export const useEndpointStore = create(
       },
       addEndpoint: async (rpc: string, api: string) => {
         try {
-          const isRPCValid = await validateRPCEndpoint(rpc);
-          const isAPIValid = await validateAPIEndpoint(api);
+          const rpcResponse = await fetch(`${rpc.trim()}/status`);
+          const rpcData = await rpcResponse.json();
 
-          if (isRPCValid && isAPIValid) {
-            const rpcResponse = await fetch(`${rpc.trim()}status`);
-            const rpcData = await rpcResponse.json();
+          const network =
+            rpcData.result.node_info.network ===
+            (process.env.NEXT_PUBLIC_CHAIN_ID || process.env.NEXT_PUBLIC_TESTNET_CHAIN_ID)
+              ? 'mainnet'
+              : 'testnet';
 
-            const network =
-              rpcData.result.node_info.network ===
-              (process.env.NEXT_PUBLIC_CHAIN_ID || process.env.NEXT_PUBLIC_TESTNET_CHAIN_ID)
-                ? 'mainnet'
-                : 'testnet';
+          const newEndpoint: Endpoint = {
+            rpc: rpc.trim(),
+            api: api.trim(),
+            provider: `Custom (${network})`,
+            isHealthy: true,
+            network,
+            custom: true,
+          };
 
-            const newEndpoint: Endpoint = {
-              rpc: rpc.trim(),
-              api: api.trim(),
-              provider: `Custom (${network})`,
-              isHealthy: true,
-              network,
-              custom: true,
-            };
-
-            const { endpoints } = get();
-            set({
-              endpoints: [...endpoints, newEndpoint],
-            });
-          } else {
-            throw new Error('Invalid endpoint(s). Please check the URLs and try again.');
-          }
+          const { endpoints } = get();
+          set({
+            endpoints: [...endpoints, newEndpoint],
+          });
         } catch (error) {
           console.error('Error in addEndpoint:', error);
           throw error;
@@ -136,15 +95,49 @@ export const useEndpointStore = create(
       updateEndpointHealth: async () => {
         const { endpoints } = get();
         const updatedEndpoints = await Promise.all(
-          endpoints.map(async endpoint => ({
-            ...endpoint,
-            isHealthy:
-              (await validateRPCEndpoint(endpoint.rpc)) &&
-              (await validateAPIEndpoint(endpoint.api)),
-          }))
+          endpoints.map(async endpoint => {
+            try {
+              const rpcResponse = await fetch(endpoint.rpc.trim(), {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  jsonrpc: '2.0',
+                  id: 1,
+                  method: 'status',
+                  params: [],
+                }),
+              });
+
+              const baseApiUrl = endpoint.api.trim().endsWith('/')
+                ? endpoint.api.trim().slice(0, -1)
+                : endpoint.api.trim();
+              const apiResponse = await fetch(
+                `${baseApiUrl}/cosmos/base/tendermint/v1beta1/syncing`
+              );
+
+              const rpcData = await rpcResponse.json();
+              const isHealthy =
+                rpcResponse.ok &&
+                apiResponse.ok &&
+                rpcData?.result?.sync_info?.catching_up === false;
+
+              return {
+                ...endpoint,
+                isHealthy,
+              };
+            } catch (error) {
+              console.error('Error checking endpoint health:', error);
+              return {
+                ...endpoint,
+                isHealthy: false,
+              };
+            }
+          })
         );
         set({ endpoints: updatedEndpoints });
-        return updatedEndpoints; // Return the updated endpoints
+        return updatedEndpoints;
       },
     }),
     {

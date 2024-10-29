@@ -1,7 +1,7 @@
 import { Dialog } from '@headlessui/react';
 import { XMarkIcon, ChevronLeftIcon, PencilIcon } from '@heroicons/react/24/outline';
 import { useState, useCallback } from 'react';
-import { PiAddressBook } from 'react-icons/pi';
+import { MdContacts } from 'react-icons/md';
 import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { TextInput } from '@/components/react/inputs';
@@ -12,7 +12,19 @@ import { saveAs } from 'file-saver';
 import { useToast } from '@/contexts/toastContext';
 import { SearchIcon } from '@/components/icons';
 
-export const Contacts = ({ onClose, onReturn }: { onClose: () => void; onReturn: () => void }) => {
+export const Contacts = ({
+  onClose,
+  onReturn,
+  selectionMode = false,
+  onSelect,
+  currentAddress,
+}: {
+  onClose: () => void;
+  onReturn?: () => void;
+  selectionMode?: boolean;
+  onSelect?: (address: string) => void;
+  currentAddress?: string;
+}) => {
   const { contacts, addContact, updateContact, removeContact, importContacts, exportContacts } =
     useContacts();
   const [isAdding, setIsAdding] = useState(false);
@@ -107,13 +119,17 @@ export const Contacts = ({ onClose, onReturn }: { onClose: () => void; onReturn:
     return (
       <div className="p-2 w-full mx-auto pt-4">
         <div className="flex justify-between items-center -mt-4 mb-6">
-          <button
-            type="button"
-            className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
-            onClick={() => setIsAdding(false)}
-          >
-            <ChevronLeftIcon className="w-5 h-5" aria-hidden="true" />
-          </button>
+          {onReturn ? (
+            <button
+              type="button"
+              className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+              onClick={onReturn}
+            >
+              <ChevronLeftIcon className="w-5 h-5" aria-hidden="true" />
+            </button>
+          ) : (
+            <div className="w-9 h-9" />
+          )}
           <Dialog.Title as="h3" className="text-md font-semibold">
             Add Contact
           </Dialog.Title>
@@ -169,17 +185,21 @@ export const Contacts = ({ onClose, onReturn }: { onClose: () => void; onReturn:
   return (
     <div className="p-2 w-full mx-auto pt-4">
       <div className="flex justify-between items-center -mt-4 mb-6">
-        <button
-          type="button"
-          className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
-          onClick={onReturn}
-        >
-          <ChevronLeftIcon className="w-5 h-5" aria-hidden="true" />
-        </button>
+        {onReturn ? (
+          <button
+            type="button"
+            className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+            onClick={onReturn}
+          >
+            <ChevronLeftIcon className="w-5 h-5" aria-hidden="true" />
+          </button>
+        ) : (
+          <div className="w-9 h-9" />
+        )}
         <div className="flex flex-row gap-2 items-center">
-          <PiAddressBook className="w-8 h-8 text-primary" />
+          <MdContacts className="w-8 h-8 text-primary" />
           <Dialog.Title as="h3" className="text-md font-semibold">
-            Contacts
+            {selectionMode ? 'Select Contact' : 'Contacts'}
           </Dialog.Title>
         </div>
         <button
@@ -190,6 +210,20 @@ export const Contacts = ({ onClose, onReturn }: { onClose: () => void; onReturn:
           <XMarkIcon className="w-5 h-5" aria-hidden="true" />
         </button>
       </div>
+
+      {selectionMode && currentAddress && (
+        <button
+          onClick={() => {
+            if (onSelect) {
+              onSelect(currentAddress);
+              onClose();
+            }
+          }}
+          className="btn btn-gradient w-full mb-4"
+        >
+          Use My Address
+        </button>
+      )}
 
       {/* Search Input */}
       <div className="relative mb-4">
@@ -207,8 +241,8 @@ export const Contacts = ({ onClose, onReturn }: { onClose: () => void; onReturn:
       {filteredContacts.length > 0 ? (
         <div className="mb-6 max-h-[37vh] overflow-y-auto space-y-2">
           {filteredContacts.map((contact, index) => {
-            if (editingIndex === index) {
-              // Render the edit form
+            if (editingIndex === index && !selectionMode) {
+              // Only show edit form if not in selection mode
               return (
                 <Formik
                   key={index}
@@ -253,34 +287,63 @@ export const Contacts = ({ onClose, onReturn }: { onClose: () => void; onReturn:
                 </Formik>
               );
             } else {
-              // Render the contact display
               return (
                 <div
                   key={index}
-                  className="flex items-center justify-between p-4 bg-[#0000000A] dark:bg-[#FFFFFF0F] rounded-[16px]"
+                  className={`
+                    flex items-center justify-between p-4 
+                    bg-[#0000000A] dark:bg-[#FFFFFF0F] 
+                    rounded-[16px] 
+                    ${
+                      selectionMode
+                        ? `
+                      cursor-pointer 
+                      hover:bg-primary hover:bg-opacity-10
+                      dark:hover:bg-primary dark:hover:bg-opacity-10
+                  
+                      transform transition-all duration-200 
+                      
+                    `
+                        : ''
+                    }
+                  `}
+                  onClick={() => {
+                    if (selectionMode && onSelect) {
+                      onSelect(contact.address);
+                      onClose();
+                    }
+                  }}
                 >
                   <div>
-                    <p className="text-lg font-semibold text-[#161616] dark:text-white">
+                    <p
+                      className={`
+                      text-lg font-semibold 
+                      text-[#161616] dark:text-white
+                      ${selectionMode ? 'group-hover:text-primary' : ''}
+                    `}
+                    >
                       {contact.name}
                     </p>
                     <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99]">
                       <TruncatedAddressWithCopy address={contact.address} slice={24} />
                     </p>
                   </div>
-                  <div className="flex items-center">
-                    <button
-                      onClick={() => setEditingIndex(index)}
-                      className="ml-2 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 text-blue-500"
-                    >
-                      <PencilIcon className="w-5 h-5" aria-hidden="true" />
-                    </button>
-                    <button
-                      onClick={() => handleRemoveContact(index)}
-                      className="ml-2 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 text-red-500"
-                    >
-                      <XMarkIcon className="w-5 h-5" aria-hidden="true" />
-                    </button>
-                  </div>
+                  {!selectionMode && (
+                    <div className="flex items-center">
+                      <button
+                        onClick={() => setEditingIndex(index)}
+                        className="ml-2 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 text-blue-500"
+                      >
+                        <PencilIcon className="w-5 h-5" aria-hidden="true" />
+                      </button>
+                      <button
+                        onClick={() => handleRemoveContact(index)}
+                        className="ml-2 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 text-red-500"
+                      >
+                        <XMarkIcon className="w-5 h-5" aria-hidden="true" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               );
             }
@@ -290,20 +353,23 @@ export const Contacts = ({ onClose, onReturn }: { onClose: () => void; onReturn:
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">No contacts found.</p>
       )}
 
-      <button onClick={() => setIsAdding(true)} className="btn btn-gradient w-full">
-        Add New Contact
-      </button>
+      {!selectionMode && (
+        <>
+          <button onClick={() => setIsAdding(true)} className="btn btn-gradient w-full">
+            Add New Contact
+          </button>
 
-      {/* Add Import/Export buttons */}
-      <div className="flex w-full flex-row gap-2 justify-between mt-6">
-        <label className="btn w-[48%] btn-primary btn-outline btn-sm">
-          Import Contacts
-          <input type="file" className="hidden" onChange={handleImport} accept=".json" />
-        </label>
-        <button onClick={handleExport} className="btn btn-sm btn-primary w-[48%] btn-outline">
-          Export Contacts
-        </button>
-      </div>
+          <div className="flex w-full flex-row gap-2 justify-between mt-6">
+            <label className="btn w-[48%] btn-primary btn-outline btn-sm">
+              Import Contacts
+              <input type="file" className="hidden" onChange={handleImport} accept=".json" />
+            </label>
+            <button onClick={handleExport} className="btn btn-sm btn-primary w-[48%] btn-outline">
+              Export Contacts
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 };

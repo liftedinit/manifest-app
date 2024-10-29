@@ -4,6 +4,7 @@ import { shiftDigits } from '@/utils';
 import ProfileAvatar from '@/utils/identicon';
 import { ExtendedGroupType } from '@/hooks/useQueries';
 import { UpdateGroupModal } from './updateGroupModal';
+import { ThresholdDecisionPolicySDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
 
 interface GroupInfoProps {
   group: ExtendedGroupType | null;
@@ -16,12 +17,13 @@ export function GroupInfo({ group, policyAddress, address, onUpdate }: GroupInfo
   if (!group || !group.policies || group.policies.length === 0) return null;
 
   const policy = group.policies[0];
-  const votingPeriod = policy?.decision_policy?.windows?.voting_period;
+  const votingPeriod = (group.policies[0]?.decision_policy as ThresholdDecisionPolicySDKType)
+    ?.windows?.voting_period;
   const votingPeriodDays = votingPeriod
-    ? Math.floor(parseInt(votingPeriod.slice(0, -1)) / 86400)
+    ? Math.floor(parseInt(votingPeriod?.seconds?.toString() ?? '0') / 86400)
     : 0;
 
-  const threshold = policy?.decision_policy?.threshold ?? '0';
+  const threshold = (policy?.decision_policy as ThresholdDecisionPolicySDKType)?.threshold ?? '0';
 
   const renderAuthors = () => {
     const authors = group.ipfsMetadata?.authors;
@@ -106,7 +108,12 @@ export function GroupInfo({ group, policyAddress, address, onUpdate }: GroupInfo
       <form method="dialog" className="modal-backdrop">
         <button>close</button>
       </form>
-      <UpdateGroupModal group={group} policyAddress={policyAddress} address={address} />
+      <UpdateGroupModal
+        group={group}
+        policyAddress={policyAddress}
+        address={address}
+        onUpdate={onUpdate}
+      />
     </dialog>
   );
 }

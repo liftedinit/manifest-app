@@ -3,8 +3,8 @@ import { chainName } from '@/config';
 import { useFeeEstimation, useTx } from '@/hooks';
 import { osmosis } from '@chalabi/manifestjs';
 import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
-import { PiAddressBook, PiSwap } from 'react-icons/pi';
-
+import { PiSwap } from 'react-icons/pi';
+import { MdContacts } from 'react-icons/md';
 export default function TransferForm({
   denom,
   address,
@@ -118,7 +118,7 @@ export default function TransferForm({
               onClick={handleFromAddressBookClick}
               className="btn btn-primary btn-sm  h-10 rounded-tr-lg rounded-br-lg rounded-bl-none rounded-tl-none"
             >
-              <PiAddressBook className="w-6 h-6" />
+              <MdContacts className="w-6 h-6" />
             </button>
           </div>
         </div>
@@ -143,7 +143,7 @@ export default function TransferForm({
               onClick={handleToAddressBookClick}
               className="btn btn-primary btn-sm  h-10 rounded-tr-lg rounded-br-lg rounded-bl-none rounded-tl-none"
             >
-              <PiAddressBook className="w-6 h-6" />
+              <MdContacts className="w-6 h-6" />
             </button>
           </div>
         </div>
