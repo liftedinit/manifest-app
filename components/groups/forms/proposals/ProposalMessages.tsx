@@ -1023,7 +1023,10 @@ const CustomSendMessageFields: React.FC<CustomSendMessageFieldsProps> = ({
                   <button
                     type="button"
                     aria-label="contacts-btn"
-                    onClick={() => setIsContactsOpen(true)}
+                    onClick={() => {
+                      (document.getElementById('message_edit_modal') as HTMLDialogElement)?.close();
+                      setIsContactsOpen(true);
+                    }}
                     className="btn btn-primary btn-sm text-white"
                   >
                     <MdContacts className="w-5 h-5" />
@@ -1061,10 +1064,12 @@ const CustomSendMessageFields: React.FC<CustomSendMessageFieldsProps> = ({
         isOpen={isContactsOpen}
         setOpen={setIsContactsOpen}
         showContacts={true}
+        showMessageEditModal={true}
         onSelect={(selectedAddress: string) => {
           handleChange('to_address', selectedAddress);
           setIsContactsOpen(false);
         }}
+        currentAddress={currentAddress}
       />
     </div>
   );

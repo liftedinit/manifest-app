@@ -18,12 +18,16 @@ export const Contacts = ({
   selectionMode = false,
   onSelect,
   currentAddress,
+  showMemberManagementModal = false,
+  showMessageEditModal = false,
 }: {
   onClose: () => void;
   onReturn?: () => void;
   selectionMode?: boolean;
   onSelect?: (address: string) => void;
   currentAddress?: string;
+  showMemberManagementModal?: boolean;
+  showMessageEditModal?: boolean;
 }) => {
   const { contacts, addContact, updateContact, removeContact, importContacts, exportContacts } =
     useContacts();
@@ -217,6 +221,14 @@ export const Contacts = ({
             if (onSelect) {
               onSelect(currentAddress);
               onClose();
+              if (showMemberManagementModal) {
+                (
+                  document.getElementById('member-management-modal') as HTMLDialogElement
+                ).showModal();
+              }
+              if (showMessageEditModal) {
+                (document.getElementById('message_edit_modal') as HTMLDialogElement).showModal();
+              }
             }
           }}
           className="btn btn-gradient w-full mb-4"
@@ -251,7 +263,7 @@ export const Contacts = ({
                   onSubmit={values => handleSaveContact(index, values)}
                 >
                   {({ isValid, dirty }) => (
-                    <Form className="space-y-2 p-2 bg-[#0000000A] dark:bg-[#FFFFFF0F] rounded-lg mb-2">
+                    <Form className="space-y-2 p-2 bg-[#0000000A] dark:bg-[#FFFFFF0F] rounded-xl mb-2">
                       <TextInput
                         label="Name"
                         name="name"
@@ -311,6 +323,16 @@ export const Contacts = ({
                     if (selectionMode && onSelect) {
                       onSelect(contact.address);
                       onClose();
+                      if (showMemberManagementModal) {
+                        (
+                          document.getElementById('member-management-modal') as HTMLDialogElement
+                        ).showModal();
+                      }
+                      if (showMessageEditModal) {
+                        (
+                          document.getElementById('message_edit_modal') as HTMLDialogElement
+                        ).showModal();
+                      }
                     }
                   }}
                 >

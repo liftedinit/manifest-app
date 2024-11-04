@@ -1,8 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 import type { ChainWalletBase, WalletModalProps } from 'cosmos-kit';
 import { WalletStatus } from 'cosmos-kit';
-import { useCallback, Fragment, useState, useMemo, useEffect } from 'react';
-import { Dialog, Transition } from '@headlessui/react';
+import React, { useCallback, Fragment, useState, useMemo, useEffect } from 'react';
+import { Dialog, Transition, Portal } from '@headlessui/react';
 import { Connected, Connecting, Error, NotExist, QRCode, WalletList, Contacts } from './views';
 import { useRouter } from 'next/router';
 import { ToastProvider } from '@/contexts/toastContext';
@@ -22,8 +22,19 @@ export const TailwindModal: React.FC<
     showContacts?: boolean;
     onSelect?: (address: string) => void;
     currentAddress?: string;
+    showMemberManagementModal?: boolean;
+    showMessageEditModal?: boolean;
   }
-> = ({ isOpen, setOpen, walletRepo, showContacts = false, onSelect, currentAddress }) => {
+> = ({
+  isOpen,
+  setOpen,
+  walletRepo,
+  showContacts = false,
+  onSelect,
+  currentAddress,
+  showMemberManagementModal = false,
+  showMessageEditModal = false,
+}) => {
   const router = useRouter();
 
   const [currentView, setCurrentView] = useState<ModalView>(ModalView.WalletList);
@@ -166,6 +177,8 @@ export const TailwindModal: React.FC<
             selectionMode={Boolean(onSelect)}
             onSelect={onSelect}
             currentAddress={currentAddress}
+            showMemberManagementModal={showMemberManagementModal}
+            showMessageEditModal={showMessageEditModal}
           />
         );
     }
@@ -182,45 +195,53 @@ export const TailwindModal: React.FC<
     router,
     onSelect,
     currentAddress,
+    showMemberManagementModal,
+    showMessageEditModal,
   ]);
 
   return (
     <Transition.Root show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-[9999]" onClose={onCloseModal}>
-        <Transition.Child
-          as={Fragment}
-          enter="ease-out duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
-          <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity" />
-        </Transition.Child>
-
-        <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex items-end justify-center min-h-full p-4 text-center sm:items-center sm:p-0">
+      <Portal>
+        <Dialog as="div" className="relative z-[9999]" onClose={onCloseModal}>
+          <div className="fixed inset-0">
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300"
-              enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-              enterTo="opacity-100 translate-y-0 sm:scale-100"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
               leave="ease-in duration-200"
-              leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-              leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
             >
-              <Dialog.Panel
-                className={`relative transform w-full overflow-hidden rounded-xl dark:bg-[#1D192D] bg-[#FFFF] px-4 pt-2.5 pb-4 [min-height:18rem] text-left shadow-xl transition-all sm:my-8 sm:w-full ${currentView === ModalView.WalletList ? 'sm:max-w-sm' : 'sm:max-w-2xl'} sm:p-4`}
-              >
-                <ToastProvider>
-                  <div className="h-full">{_render}</div>
-                </ToastProvider>
-              </Dialog.Panel>
+              <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity" />
             </Transition.Child>
+
+            <div className="fixed inset-0 overflow-y-auto">
+              <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                  enterTo="opacity-100 translate-y-0 sm:scale-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+                  leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                >
+                  <Dialog.Panel
+                    className={`relative transform overflow-hidden rounded-xl dark:bg-[#1D192D] bg-[#FFFF] px-4 pt-2.5 pb-4 [min-height:18rem] text-left shadow-xl transition-all sm:my-8 sm:w-full ${
+                      currentView === ModalView.WalletList ? 'sm:max-w-sm' : 'sm:max-w-2xl'
+                    } sm:p-4`}
+                  >
+                    <ToastProvider>
+                      <div className="h-full">{_render}</div>
+                    </ToastProvider>
+                  </Dialog.Panel>
+                </Transition.Child>
+              </div>
+            </div>
           </div>
-        </div>
-      </Dialog>
+        </Dialog>
+      </Portal>
     </Transition.Root>
   );
 };

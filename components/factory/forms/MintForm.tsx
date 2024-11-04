@@ -10,6 +10,7 @@ import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { NumberInput, TextInput } from '@/components/react/inputs';
 import { ExtendedMetadataSDKType, truncateString } from '@/utils';
+import { TailwindModal } from '@/components/react/modal';
 
 export default function MintForm({
   isAdmin,
@@ -32,6 +33,7 @@ export default function MintForm({
 }>) {
   const [amount, setAmount] = useState('');
   const [recipient, setRecipient] = useState(address);
+  const [isContactsOpen, setIsContactsOpen] = useState(false);
 
   const { tx, isSigning, setIsSigning } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
@@ -199,10 +201,7 @@ export default function MintForm({
                             <button
                               type="button"
                               style={{ transition: 'none' }}
-                              onClick={() => {
-                                setRecipient(address);
-                                setFieldValue('recipient', address);
-                              }}
+                              onClick={() => setIsContactsOpen(true)}
                               className="btn btn-primary transition-none btn-sm text-white absolute right-2 top-1/2 -translate-y-1/2"
                             >
                               <MdContacts className="w-5 h-5" />
@@ -234,6 +233,15 @@ export default function MintForm({
                         </button>
                       )}
                     </div>
+                    <TailwindModal
+                      isOpen={isContactsOpen}
+                      setOpen={setIsContactsOpen}
+                      showContacts={true}
+                      onSelect={(selectedAddress: string) => {
+                        setRecipient(selectedAddress);
+                        setFieldValue('recipient', selectedAddress);
+                      }}
+                    />
                   </Form>
                 )}
               </Formik>

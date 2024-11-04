@@ -16,6 +16,7 @@ import { GroupInfo } from '../modals/groupInfo';
 import { ExtendedGroupType } from '@/hooks/useQueries';
 import { MemberManagementModal } from '../modals/memberManagmentModal';
 import { ThresholdDecisionPolicy } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { TailwindModal } from '@/components/react';
 
 type GroupProposalsProps = {
   policyAddress: string;
