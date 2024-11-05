@@ -34,7 +34,7 @@
     "@chain-registry/assets": "^1.64.83",
     "@liftedinit/manifestjs": "0.0.1-alpha.19",
     "@cosmjs/cosmwasm-stargate": "0.32.4",
-    "@cosmjs/stargate": "0.32.4",
+    "@cosmjs/stargate": "npm:@liftedinit/stargate@0.32.4-ll.3",
     "@cosmos-kit/react": "2.18.0",
     "@cosmos-kit/web3auth": "2.11.0",
     "@fontsource/manrope": "^5.0.21",
