@@ -95,7 +95,7 @@ export const useTx = (chainName: string) => {
           type: 'alert-success',
           title: 'Transaction Successful',
           description: `Transaction completed successfully`,
-          link: `https://manifest-explorer.vercel.app/manifest/tx/${res?.transactionHash}`,
+          link: `https://testnet.manifest.explorers.guru/transaction/${res?.transactionHash}`,
           bgColor: '#2ecc71',
         });
         return options.returnError ? { error: null } : undefined;

@@ -79,7 +79,7 @@ function InfoItem({
           <div className="flex items-center">
             <TruncatedAddressWithCopy address={value} slice={8} />
             <a
-              href={`https://manifest-explorer.vercel.app/manifest/account/${value}`}
+              href={`https://testnet.manifest.explorers.guru/account/${value}`}
               target="_blank"
               rel="noopener noreferrer"
               className="ml-2 text-primary hover:text-primary/50"

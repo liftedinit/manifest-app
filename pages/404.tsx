@@ -17,7 +17,7 @@ const links = [
   },
   {
     name: 'Explorer',
-    href: 'https://manifest-explorer.vercel.app/',
+    href: 'https://testnet.manifest.explorers.guru/',
     description: 'Search for transactions, wallets, and other chain data.',
     icon: MagnifyingGlassCircleIcon,
   },
