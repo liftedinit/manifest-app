@@ -236,8 +236,9 @@ export default function GroupProposals({
   };
 
   return (
-    <div className="space-y-4 w-full pt-4 text-black dark:text-white">
-      <div className="flex items-center justify-between mb-12">
+    <div className="h-full flex flex-col p-4">
+      {/* Header section */}
+      <div className="flex items-center justify-between mb-8">
         <div className="flex items-center space-x-6">
           <button
             onClick={onBack}
@@ -264,6 +265,7 @@ export default function GroupProposals({
         </div>
       </div>
 
+      {/* Search and New Proposal section */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold">Proposals</h2>
         <div className="flex items-center space-x-4">
@@ -285,14 +287,15 @@ export default function GroupProposals({
         </div>
       </div>
 
-      {isProposalsLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <span className="loading loading-spinner loading-lg"></span>
-        </div>
-      ) : isProposalsError ? (
-        <div className="text-center text-error">Error loading proposals</div>
-      ) : filteredProposals.length > 0 ? (
-        <div className="overflow-x-auto w-full">
+      {/* Table section - will fill remaining space */}
+      <div className="flex-1 overflow-auto">
+        {isProposalsLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <span className="loading loading-spinner loading-lg"></span>
+          </div>
+        ) : isProposalsError ? (
+          <div className="text-center text-error">Error loading proposals</div>
+        ) : filteredProposals.length > 0 ? (
           <table className="table w-full border-separate border-spacing-y-3">
             <thead>
               <tr className="text-sm font-medium">
@@ -375,11 +378,12 @@ export default function GroupProposals({
               })}
             </tbody>
           </table>
-        </div>
-      ) : (
-        <div className="text-center py-8 text-gray-500">No proposals found</div>
-      )}
+        ) : (
+          <div className="text-center py-8 text-gray-500">No proposals found</div>
+        )}
+      </div>
 
+      {/* Modals */}
       <VoteDetailsModal
         key={selectedProposal?.id.toString() ?? ''}
         tallies={tally ?? ({} as QueryTallyResultResponseSDKType)}

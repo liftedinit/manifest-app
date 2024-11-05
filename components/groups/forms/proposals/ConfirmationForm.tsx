@@ -2,7 +2,7 @@ import React from 'react';
 import { useFeeEstimation } from '@/hooks/useFeeEstimation';
 import { uploadJsonToIPFS } from '@/hooks/useIpfs';
 import { useTx } from '@/hooks/useTx';
-import { manifest, strangelove_ventures, cosmos, liftedinit } from '@chalabi/manifestjs';
+import { strangelove_ventures, cosmos, liftedinit } from '@chalabi/manifestjs';
 import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
 
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
@@ -127,8 +127,9 @@ export default function ConfirmationForm({
       if (messageData.amount && !Array.isArray(messageData.amount)) {
         messageData.amount = [messageData.amount];
       }
+      console.log({ messageData });
       const composedMessage = composer(messageData as MessageTypeMap[typeof message.type]);
-
+      console.log({ composedMessage });
       if (!composedMessage || !composedMessage.value) {
         console.error('Composed message or its value is undefined:', composedMessage);
         throw new Error(`Failed to compose message for type: ${message.type}`);
@@ -183,6 +184,7 @@ export default function ConfirmationForm({
 
     const messages: Any[] = formData.messages.map(message => getMessageObject(message));
     console.log(formData.messages);
+    console.log({ messages });
     const msg = cosmos.group.v1.MessageComposer.fromPartial.submitProposal({
       groupPolicyAddress: policyAddress,
       messages: messages,
@@ -192,7 +194,7 @@ export default function ConfirmationForm({
       summary: formData.metadata.summary,
       exec: 0,
     });
-
+    console.log({ msg });
     const fee = await estimateFee(address ?? '', [msg]);
     await tx([msg], {
       fee,

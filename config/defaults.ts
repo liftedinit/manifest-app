@@ -121,7 +121,7 @@ export const manifestTestnetChain: Chain = {
   network_type: 'testnet',
   website: '',
   pretty_name: 'Manifest Testnet',
-  chain_id: process.env.NEXT_PUBLIC_TESTNET_CHAIN_ID ?? 'manifest-1',
+  chain_id: process.env.NEXT_PUBLIC_TESTNET_CHAIN_ID ?? 'manifest-ledger-beta',
   bech32_prefix: 'manifest',
   daemon_name: 'manifest',
   node_home: '$HOME/.manifest',

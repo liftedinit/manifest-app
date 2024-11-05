@@ -732,56 +732,94 @@ export const useTokenBalancesResolved = (address: string) => {
   };
 };
 
-export const useSendTxQuery = () => {
-  const fetchTransactions = async () => {
-    const url = 'http://localhost:9000/transactions/send';
-    const response = await axios.get(url);
-    return response.data;
-  };
-  const sendQuery = useQuery({
-    queryKey: ['sendTx'],
-    queryFn: fetchTransactions,
-    enabled: true,
-  });
+interface TransactionAmount {
+  amount: string;
+  denom: string;
+}
+
+interface TransactionMessage {
+  '@type': string;
+  amount: TransactionAmount[];
+  toAddress: string;
+  fromAddress: string;
+}
+
+interface TransactionResponse {
+  height: string;
+  txhash: string;
+  timestamp: string;
+}
+
+// Helper function to transform API response to match your component's expected format
+const transformTransaction = (tx: any) => {
+  // Handle both direct MsgSend and nested group proposal MsgSend
+  let message: TransactionMessage;
+  if (tx.data.tx.body.messages[0]['@type'] === '/cosmos.bank.v1beta1.MsgSend') {
+    message = tx.data.tx.body.messages[0];
+  } else if (
+    tx.data.tx.body.messages[0]['@type'] === '/cosmos.group.v1.MsgSubmitProposal' &&
+    tx.data.tx.body.messages[0].messages?.[0]?.['@type'] === '/cosmos.bank.v1beta1.MsgSend'
+  ) {
+    message = tx.data.tx.body.messages[0].messages[0];
+  } else {
+    return null;
+  }
 
   return {
-    sendTxs: sendQuery.data,
-    isLoading: sendQuery.isLoading,
-    isError: sendQuery.isError,
-    error: sendQuery.error,
-  };
-};
-
-export const useIbcTransferTxQuery = () => {
-  const fetchTransactions = async () => {
-    const url = 'http://localhost:9000/transactions/ibc_transfer';
-    const response = await axios.get(url);
-    return response.data;
-  };
-  const sendQuery = useQuery({
-    queryKey: ['transferTx'],
-    queryFn: fetchTransactions,
-    enabled: true,
-  });
-
-  return {
-    sendTxs: sendQuery.data,
-    isLoading: sendQuery.isLoading,
-    isError: sendQuery.isError,
-    error: sendQuery.error,
+    tx_hash: tx.id,
+    block_number: parseInt(tx.data.txResponse.height),
+    formatted_date: tx.data.txResponse.timestamp,
+    data: {
+      from_address: message.fromAddress,
+      to_address: message.toAddress,
+      amount: message.amount.map((amt: TransactionAmount) => ({
+        amount: amt.amount,
+        denom: amt.denom,
+      })),
+    },
   };
 };
 
 export const useSendTxIncludingAddressQuery = (address: string, direction?: 'send' | 'receive') => {
   const fetchTransactions = async () => {
-    let url = `http://localhost:9000/transactions/send/${address}`;
+    const baseUrl = 'https://testnet-indexer.liftedinit.tech/transactions';
 
-    if (direction) {
-      url += `/${direction}`;
-    }
+    // Build query for both direct MsgSend and nested group proposal MsgSend
+    const query = `
+      or=(
+        and(
+          data->tx->body->messages->0->>@type.eq./cosmos.bank.v1beta1.MsgSend,
+          or(
+            data->tx->body->messages->0->>fromAddress.eq.${address},
+            data->tx->body->messages->0->>toAddress.eq.${address}
+          )
+        ),
+        and(
+          data->tx->body->messages->0->>@type.eq./cosmos.group.v1.MsgSubmitProposal,
+          data->tx->body->messages->0->messages->0->>@type.eq./cosmos.bank.v1beta1.MsgSend,
+          or(
+            data->tx->body->messages->0->messages->0->>fromAddress.eq.${address},
+            data->tx->body->messages->0->messages->0->>toAddress.eq.${address}
+          )
+        )
+      )`;
 
-    const response = await axios.get(url);
-    return response.data;
+    const response = await axios.get(
+      `${baseUrl}?${query.replace(/\s+/g, '')}&order=data->txResponse->height.desc`
+    );
+
+    // Transform the data to match your component's expected format
+    const transactions = response.data
+      .map(transformTransaction)
+      .filter((tx: any) => tx !== null)
+      .filter((tx: any) => {
+        if (!direction) return true;
+        if (direction === 'send') return tx.data.from_address === address;
+        if (direction === 'receive') return tx.data.to_address === address;
+        return true;
+      });
+
+    return transactions;
   };
 
   const queryKey = ['sendTx', address, direction];
@@ -798,5 +836,29 @@ export const useSendTxIncludingAddressQuery = (address: string, direction?: 'sen
     isError: sendQuery.isError,
     error: sendQuery.error,
     refetch: sendQuery.refetch,
+  };
+};
+
+// If you still need these separate queries, they can be implemented similarly
+export const useSendTxQuery = () => {
+  const fetchTransactions = async () => {
+    const baseUrl = 'https://testnet-indexer.liftedinit.tech/transactions';
+    const query = `data->tx->body->messages->0->>@type=eq./cosmos.bank.v1beta1.MsgSend`;
+
+    const response = await axios.get(`${baseUrl}?${query}`);
+    return response.data.map(transformTransaction).filter((tx: any) => tx !== null);
+  };
+
+  const sendQuery = useQuery({
+    queryKey: ['sendTx'],
+    queryFn: fetchTransactions,
+    enabled: true,
+  });
+
+  return {
+    sendTxs: sendQuery.data,
+    isLoading: sendQuery.isLoading,
+    isError: sendQuery.isError,
+    error: sendQuery.error,
   };
 };

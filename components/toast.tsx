@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import ReactDOM from 'react-dom';
+
 import Link from 'next/link';
 import Confetti from 'react-confetti';
 import { CloseIcon, CopyIcon, BroadcastingIcon } from './icons';
@@ -64,17 +64,26 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
   };
 
   const toastContent = (
-    <div className="fixed inset-0 pointer-events-none flex items-end justify-end p-4 z-[10000]">
+    <div
+      className="fixed inset-0 pointer-events-none flex items-end justify-end p-4"
+      style={{
+        zIndex: 100000,
+        position: 'fixed',
+      }}
+    >
       <div className="toast toast-end toast-bottom flex flex-col justify-start items-center text-left pointer-events-auto">
         <div
           ref={toastRef}
-          style={{ borderRadius: '30px' }}
+          style={{
+            borderRadius: '30px',
+            position: 'relative',
+          }}
           className={`alert ${toastMessage.type} w-96 relative
             transition-all duration-300 ease-in-out
             ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}
             ${prevMessage && prevMessage.type !== toastMessage.type ? 'animate-pulse' : ''}
             bg-white dark:bg-[#0E0A1F] border-2 ${getBorderColor(toastMessage.type)}
-            text-black dark:text-white shadow-lg  overflow-hidden`}
+            text-black dark:text-white shadow-lg overflow-hidden`}
         >
           {toastMessage.type === 'alert-success' && (
             <Confetti
@@ -142,5 +151,5 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
     </div>
   );
 
-  return typeof window !== 'undefined' ? ReactDOM.createPortal(toastContent, document.body) : null;
+  return typeof window !== 'undefined' ? toastContent : null;
 };

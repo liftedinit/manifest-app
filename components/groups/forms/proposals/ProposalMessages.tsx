@@ -11,7 +11,7 @@ import * as initialMessages from './messages';
 import { TextInput } from '@/components/react/inputs';
 import { Formik, Form, Field, FieldProps, FormikProps } from 'formik';
 import Yup from '@/utils/yupExtensions';
-import { ArrowRightIcon, ArrowUpIcon, MinusIcon, SearchIcon, PlusIcon } from '@/components/icons';
+import { ArrowRightIcon, MinusIcon, SearchIcon, PlusIcon } from '@/components/icons';
 import { FiEdit } from 'react-icons/fi';
 import { useTokenBalances, useTokenBalancesResolved, useTokenFactoryDenomsMetadata } from '@/hooks';
 import { DenomImage } from '@/components/factory';
@@ -120,28 +120,25 @@ export default function ProposalMessages({
   }, [isMessageValidArray, checkFormValidity]);
 
   const handleAddMessage = () => {
-    let newMessage: Message = initialMessages.initialSendMessage;
+    // Create a properly initialized send message with all required fields
+    const newMessage: SendMessage = {
+      type: 'send',
+      from_address: policyAddress,
+      to_address: address,
+      amount: {
+        denom: 'umfx',
+        amount: '0',
+      },
+    };
 
-    // If the message type is 'send', set the from_address to policyAddress
-    if (newMessage.type === 'send') {
-      newMessage = {
-        ...newMessage,
-        amount: {
-          denom: 'umfx',
-          amount: '0',
-        },
-        from_address: policyAddress,
-        to_address: address,
-      };
-    }
-
+    // Add the new message
     dispatch({
       type: 'ADD_MESSAGE',
       message: newMessage,
     });
 
     setVisibleMessages([...visibleMessages, false]);
-    setIsMessageValidArray([...isMessageValidArray, false]); // Add false for the new message
+    setIsMessageValidArray([...isMessageValidArray, false]);
   };
 
   const handleRemoveMessage = (index: number) => {
@@ -155,153 +152,184 @@ export default function ProposalMessages({
     }
   };
 
-  const handleChangeMessage = (index: number, field: MessageFields, value: any) => {
-    let updatedMessage = { ...formData.messages[index] };
-
-    if (field === 'type') {
-      switch (value) {
-        case 'send':
-          updatedMessage = {
-            ...initialMessages.initialSendMessage,
-            type: value,
-            amount: {
-              denom: 'umfx',
-              amount: '0',
-            },
-            from_address: policyAddress,
-            to_address: address,
-          };
-          break;
-        case 'customMessage':
-          updatedMessage = {
-            ...initialMessages.initialCustomMessage,
-            type: value,
-          };
-          break;
-        case 'removeValidator':
-          updatedMessage = {
-            ...initialMessages.initialRemoveValidatorMessage,
-            type: value,
-            sender: '',
-            validator_address: '',
-          };
-          break;
-        case 'removePendingValidator':
-          updatedMessage = {
-            ...initialMessages.initialRemovePendingMessage,
-            type: value,
-          };
-          break;
-
-        case 'updateStakingParams':
-          updatedMessage = {
-            ...initialMessages.initialUpdateStakingParamsMessage,
-            type: value,
-          };
-          break;
-        case 'setPower':
-          updatedMessage = {
-            ...initialMessages.initialSetPowerMessage,
-            type: value,
-          };
-          break;
-        case 'updateManifestParams':
-          updatedMessage = {
-            ...initialMessages.initialUpdateManifestParamsMessage,
-            type: value,
-          };
-          break;
-        case 'payoutStakeholders':
-          updatedMessage = {
-            ...initialMessages.initialPayoutStakeholdersMessage,
-            type: value,
-          };
-          break;
-        case 'updateGroupAdmin':
-          updatedMessage = {
-            ...initialMessages.initialUpdateGroupAdminMessage,
-            type: value,
-          };
-          break;
-        case 'updateGroupMembers':
-          updatedMessage = {
-            ...initialMessages.initialUpdateGroupMembersMessage,
-            type: value,
-          };
-          break;
-        case 'updateGroupMetadata':
-          updatedMessage = {
-            ...initialMessages.initialUpdateGroupMetadataMessage,
-            type: value,
-          };
-          break;
-        case 'updateGroupPolicyAdmin':
-          updatedMessage = {
-            ...initialMessages.initialUpdateGroupPolicyAdminMessage,
-            type: value,
-          };
-          break;
-        case 'createGroupWithPolicy':
-          updatedMessage = {
-            ...initialMessages.initialCreateGroupWithPolicyMessage,
-            type: value,
-          };
-          break;
-        case 'submitProposal':
-          updatedMessage = {
-            ...initialMessages.initialSubmitProposalMessage,
-            type: value,
-          };
-          break;
-        case 'vote':
-          updatedMessage = {
-            ...initialMessages.initialVoteMessage,
-            type: value,
-          };
-          break;
-        case 'withdrawProposal':
-          updatedMessage = {
-            ...initialMessages.initialWithdrawProposalMessage,
-            type: value,
-          };
-          break;
-        case 'exec':
-          updatedMessage = {
-            ...initialMessages.initialExecMessage,
-            type: value,
-          };
-          break;
-        case 'leaveGroup':
-          updatedMessage = {
-            ...initialMessages.initialLeaveGroupMessage,
-            type: value,
-          };
-          break;
-        case 'multiSend':
-          updatedMessage = {
-            ...initialMessages.initialMultiSendMessage,
-            type: value,
-          };
-          break;
-        case 'softwareUpgrade':
-          updatedMessage = {
-            ...initialMessages.initialSoftwareUpgradeMessage,
-            type: value,
-          };
-          break;
-        case 'cancelUpgrade':
-          updatedMessage = {
-            ...initialMessages.initialCancelUpgradeMessage,
-            type: value,
-          };
-          break;
-        default:
-          break;
-      }
+  const handleChangeMessage = (index: number, field: MessageFields | '', value: any) => {
+    if (field === '') {
+      // Handle complete message update
+      dispatch({ type: 'UPDATE_MESSAGE', index, message: value });
     } else {
-      (updatedMessage as any)[field as string] = value;
+      // Handle individual field updates
+      let updatedMessage = { ...formData.messages[index] };
+
+      if (field === 'type') {
+        switch (value) {
+          case 'send':
+            updatedMessage = {
+              ...initialMessages.initialSendMessage,
+              type: value,
+              amount: {
+                denom: 'umfx',
+                amount: '0',
+              },
+              from_address: policyAddress,
+              to_address: address,
+            };
+            dispatch({ type: 'UPDATE_MESSAGE', index, message: updatedMessage });
+            break;
+          case 'customMessage':
+            updatedMessage = {
+              ...initialMessages.initialCustomMessage,
+              type: value,
+            };
+            break;
+          case 'removeValidator':
+            updatedMessage = {
+              ...initialMessages.initialRemoveValidatorMessage,
+              type: value,
+              sender: policyAddress,
+              validator_address: '',
+            };
+            break;
+          case 'removePendingValidator':
+            updatedMessage = {
+              ...initialMessages.initialRemovePendingMessage,
+              type: value,
+            };
+            break;
+
+          case 'updateStakingParams':
+            updatedMessage = {
+              ...initialMessages.initialUpdateStakingParamsMessage,
+              type: value,
+            };
+            break;
+          case 'setPower':
+            updatedMessage = {
+              ...initialMessages.initialSetPowerMessage,
+              type: value,
+            };
+            break;
+          case 'updateManifestParams':
+            updatedMessage = {
+              ...initialMessages.initialUpdateManifestParamsMessage,
+              type: value,
+            };
+            break;
+          case 'payoutStakeholders':
+            updatedMessage = {
+              ...initialMessages.initialPayoutStakeholdersMessage,
+              type: value,
+            };
+            break;
+          case 'updateGroupAdmin':
+            updatedMessage = {
+              ...initialMessages.initialUpdateGroupAdminMessage,
+              type: value,
+            };
+            break;
+          case 'updateGroupMembers':
+            updatedMessage = {
+              ...initialMessages.initialUpdateGroupMembersMessage,
+              type: value,
+            };
+            break;
+          case 'updateGroupMetadata':
+            updatedMessage = {
+              ...initialMessages.initialUpdateGroupMetadataMessage,
+              type: value,
+            };
+            break;
+          case 'updateGroupPolicyAdmin':
+            updatedMessage = {
+              ...initialMessages.initialUpdateGroupPolicyAdminMessage,
+              type: value,
+            };
+            break;
+          case 'createGroupWithPolicy':
+            updatedMessage = {
+              ...initialMessages.initialCreateGroupWithPolicyMessage,
+              type: value,
+            };
+            break;
+          case 'submitProposal':
+            updatedMessage = {
+              ...initialMessages.initialSubmitProposalMessage,
+              type: value,
+            };
+            break;
+          case 'vote':
+            updatedMessage = {
+              ...initialMessages.initialVoteMessage,
+              type: value,
+            };
+            break;
+          case 'withdrawProposal':
+            updatedMessage = {
+              ...initialMessages.initialWithdrawProposalMessage,
+              type: value,
+            };
+            break;
+          case 'exec':
+            updatedMessage = {
+              ...initialMessages.initialExecMessage,
+              type: value,
+            };
+            break;
+          case 'leaveGroup':
+            updatedMessage = {
+              ...initialMessages.initialLeaveGroupMessage,
+              type: value,
+            };
+            break;
+          case 'multiSend':
+            updatedMessage = {
+              ...initialMessages.initialMultiSendMessage,
+              type: value,
+            };
+            break;
+          case 'softwareUpgrade':
+            updatedMessage = {
+              ...initialMessages.initialSoftwareUpgradeMessage,
+              type: value,
+            };
+            break;
+          case 'cancelUpgrade':
+            updatedMessage = {
+              ...initialMessages.initialCancelUpgradeMessage,
+              type: value,
+            };
+            break;
+          default:
+            updatedMessage = {
+              // @ts-ignore
+              ...initialMessages[`initial${value.charAt(0).toUpperCase() + value.slice(1)}Message`],
+              type: value,
+            };
+            // Set sender/from fields to policyAddress
+            if ('sender' in updatedMessage) {
+              updatedMessage.sender = policyAddress;
+            }
+            if ('from_address' in updatedMessage) {
+              updatedMessage.from_address = policyAddress;
+            }
+            break;
+        }
+      } else {
+        // For field updates, automatically set sender/from fields
+        if (field.includes('sender') || field.includes('from')) {
+          value = policyAddress;
+        }
+        if (updatedMessage.type === 'send') {
+          updatedMessage = {
+            ...updatedMessage,
+            [field]: value,
+            from_address: policyAddress,
+          };
+        } else {
+          (updatedMessage as any)[field] = value;
+        }
+      }
+      dispatch({ type: 'UPDATE_MESSAGE', index, message: updatedMessage });
     }
-    dispatch({ type: 'UPDATE_MESSAGE', index, message: updatedMessage });
   };
 
   const renderInputs = (
@@ -804,22 +832,23 @@ const CustomSendMessageFields: React.FC<CustomSendMessageFieldsProps> = ({
     return amount.toFixed(decimals).replace(/\.?0+$/, '');
   };
 
+  // Update initial values to include the from and to addresses
+  const initialValues = {
+    amount: message.amount.amount
+      ? new Decimal(message.amount.amount)
+          .div(new Decimal(10).pow(initialSelectedToken?.metadata?.denom_units[1]?.exponent ?? 6))
+          .toString()
+      : '',
+    from_address: policyAddress,
+    to_address: address,
+    selectedToken: initialSelectedToken,
+    denom: message.amount.denom || '',
+  };
+
   return (
     <div style={{ borderRadius: '24px' }} className="text-sm w-full h-full p-2">
       <Formik
-        initialValues={{
-          amount: message.amount.amount
-            ? new Decimal(message.amount.amount)
-                .div(
-                  new Decimal(10).pow(initialSelectedToken?.metadata?.denom_units[1]?.exponent ?? 6)
-                )
-                .toString()
-            : '',
-          from_address: policyAddress,
-          to_address: message.to_address || address,
-          selectedToken: initialSelectedToken,
-          denom: message.amount.denom || '',
-        }}
+        initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={() => {}}
         validateOnChange={true}
@@ -827,6 +856,28 @@ const CustomSendMessageFields: React.FC<CustomSendMessageFieldsProps> = ({
         validate={values => {
           const isValid = validationSchema.isValidSync(values);
           updateValidity(index, isValid);
+
+          // Create complete message object with all required fields
+          const updatedMessage: SendMessage = {
+            type: 'send',
+            from_address: values.from_address,
+            to_address: values.to_address,
+            amount: {
+              denom: values.selectedToken?.coreDenom || 'umfx',
+              amount: values.amount
+                ? new Decimal(values.amount)
+                    .times(
+                      new Decimal(10).pow(
+                        values.selectedToken?.metadata?.denom_units[1]?.exponent ?? 6
+                      )
+                    )
+                    .toFixed(0)
+                : '0',
+            },
+          };
+
+          // Update the entire message object
+          handleChange('', updatedMessage);
         }}
       >
         {({ values, setFieldValue, errors, touched }) => (
@@ -876,7 +927,7 @@ const CustomSendMessageFields: React.FC<CustomSendMessageFieldsProps> = ({
                       <label
                         aria-label="token-selector"
                         tabIndex={0}
-                        className="btn btn-sm h-full px-3 bg-[#FFFFFF] dark:bg-[#FFFFFF0F] border-none hover:bg-transparent flex items-center"
+                        className="btn btn-sm h-full px-3 bg-[#FFFFFF] dark:bg-[#FFFFFF0F] border-none hover:bg-transparent"
                       >
                         {values.selectedToken?.metadata ? (
                           <DenomImage denom={values.selectedToken?.metadata} />
@@ -894,23 +945,23 @@ const CustomSendMessageFields: React.FC<CustomSendMessageFieldsProps> = ({
                       </label>
                       <ul
                         tabIndex={0}
-                        className="dropdown-content z-50 menu p-2 shadow bg-base-300 rounded-lg w-44 mt-1 max-h-60 overflow-y-auto dark:text-[#FFFFFF] text-[#161616]"
+                        className="dropdown-content z-20 p-2 shadow bg-base-300 rounded-lg w-full mt-1 max-h-[12.5rem] min-w-44 overflow-y-auto dark:text-[#FFFFFF] text-[#161616]"
                       >
-                        <li className="sticky top-0 bg-transparent z-10 overflow-y-auto hover:bg-transparent mb-2">
-                          <div className="px-2 py-1">
+                        <li className="bg-base-300 z-30 hover:bg-transparent h-full mb-2">
+                          <div className="px-2 py-1 relative">
                             <input
                               type="text"
                               placeholder="Search tokens..."
-                              className="input input-sm w-full pr-8 focus:outline-none focus:ring-0 border-none bg-transparent"
+                              className="input input-sm w-full pr-8 focus:outline-none focus:ring-0 border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A]"
                               onChange={e => setSearchTerm(e.target.value)}
-                              style={{ boxShadow: 'none' }}
+                              style={{ boxShadow: 'none', borderRadius: '8px' }}
                             />
-                            <SearchIcon className="h-5 w-5 absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                            <SearchIcon className="h-5 w-5 absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                           </div>
                         </li>
                         {isBalancesLoading ? (
                           <li>
-                            <a>Loading tokens...</a>
+                            <a className="block px-4 py-2">Loading tokens...</a>
                           </li>
                         ) : (
                           filteredBalances?.map(token => (
@@ -920,19 +971,23 @@ const CustomSendMessageFields: React.FC<CustomSendMessageFieldsProps> = ({
                                 setFieldValue('selectedToken', token);
                                 setFieldValue('denom', token.coreDenom);
                                 handleChange('amount.denom', token.coreDenom);
-
                                 // Reset amount when token changes
                                 setFieldValue('amount', '');
                                 handleChange('amount.amount', '');
                               }}
-                              className="flex justify-start mb-2 cursor-pointer"
+                              className="hover:bg-[#E0E0FF33] dark:hover:bg-[#FFFFFF0F] cursor-pointer rounded-lg"
                               aria-label={token.metadata?.display}
                             >
-                              <a className="flex-row justify-start gap-3 items-center w-full">
+                              <a className="flex flex-row items-center gap-2 px-2 py-2">
                                 <DenomImage denom={token?.metadata} />
-                                {token.metadata?.display.startsWith('factory')
-                                  ? token.metadata?.display.split('/').pop()?.toUpperCase()
-                                  : truncateString(token.metadata?.display ?? '', 10).toUpperCase()}
+                                <span className="truncate">
+                                  {token.metadata?.display.startsWith('factory')
+                                    ? token.metadata?.display.split('/').pop()?.toUpperCase()
+                                    : truncateString(
+                                        token.metadata?.display ?? '',
+                                        10
+                                      ).toUpperCase()}
+                                </span>
                               </a>
                             </li>
                           ))
@@ -1008,14 +1063,16 @@ const CustomSendMessageFields: React.FC<CustomSendMessageFieldsProps> = ({
                 </div>
               </div>
 
-              {/* Recipient Input */}
+              {/* Editable To Address Input */}
               <TextInput
                 label="Send To"
                 name="to_address"
                 placeholder="Enter recipient address"
-                value={message.to_address}
+                value={values.to_address}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  handleChange('to_address', e.target.value);
+                  const newAddress = e.target.value;
+                  setFieldValue('to_address', newAddress);
+                  handleChange('to_address', newAddress);
                 }}
                 className="input-md w-full"
                 style={{ borderRadius: '12px' }}
@@ -1033,15 +1090,14 @@ const CustomSendMessageFields: React.FC<CustomSendMessageFieldsProps> = ({
                   </button>
                 }
               />
+              {/* Fixed From Address Input */}
               <TextInput
                 label="From Address"
                 name="from_address"
-                placeholder="Enter address"
                 value={policyAddress}
-                onChange={() => {}}
                 className="input-md w-full"
                 style={{ borderRadius: '12px' }}
-                disabled
+                disabled={true}
               />
             </div>
             {/* Display validation errors */}
@@ -1059,13 +1115,13 @@ const CustomSendMessageFields: React.FC<CustomSendMessageFieldsProps> = ({
           </Form>
         )}
       </Formik>
-
       <TailwindModal
         isOpen={isContactsOpen}
         setOpen={setIsContactsOpen}
         showContacts={true}
         showMessageEditModal={true}
         onSelect={(selectedAddress: string) => {
+          // Update only the to_address
           handleChange('to_address', selectedAddress);
           setIsContactsOpen(false);
         }}

@@ -339,6 +339,11 @@ function VoteDetailsModal({
   const defaultFields = ['@type'];
 
   const renderMessageField = (key: string, value: any, depth: number = 0): JSX.Element => {
+    const truncateText = (text: string, maxLength: number = 30) => {
+      if (text.length <= maxLength) return text;
+      return `${text.substring(0, maxLength)}...`;
+    };
+
     if (typeof value === 'object' && value !== null) {
       if (Array.isArray(value)) {
         return (
@@ -368,7 +373,7 @@ function VoteDetailsModal({
           {typeof value === 'string' && value.match(/^[a-zA-Z0-9]{40,}$/) ? (
             <TruncatedAddressWithCopy slice={14} address={value} />
           ) : (
-            <p>{String(value)}</p>
+            <p title={String(value)}>{truncateText(String(value))}</p>
           )}
         </div>
       );
@@ -500,15 +505,15 @@ function VoteDetailsModal({
             <div className="dark:bg-[#FFFFFF0F] bg-[#0000000A] rounded-[12px] p-4 w-full">
               <div className="overflow-x-auto w-full min-h-64 max-h-[22.5rem]  overflow-y-auto">
                 <table className="table-auto w-full text-sm">
-                  <thead className="text-xs uppercase bg-base-200 rounded-t-[12px]">
+                  <thead className="text-xs uppercase bg-base-200">
                     <tr>
-                      <th scope="col" className="px-6 py-3">
+                      <th scope="col" className="px-6 py-3 first:rounded-tl-[12px]">
                         Address
                       </th>
                       <th scope="col" className="px-6 py-3">
                         Weight
                       </th>
-                      <th scope="col" className="px-6 py-3">
+                      <th scope="col" className="px-6 py-3 last:rounded-tr-[12px]">
                         Vote
                       </th>
                     </tr>

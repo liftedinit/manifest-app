@@ -215,16 +215,36 @@ export function UpdateGroupModal({
     name: Yup.string()
       .max(24, 'Name must be at most 24 characters')
       .noProfanity('Profanity is not allowed')
-      .required('Required'),
-    authors: Yup.string().noProfanity('Profanity is not allowed').required('Required'),
+      .when(['threshold', 'votingPeriod'], {
+        is: (threshold: number, votingPeriod: any) => {
+          // Convert both values to numbers for comparison
+          const hasThresholdChange = Number(threshold) !== Number(maybeThreshold);
+          const totalSeconds =
+            (Number(votingPeriod?.days) || 0) * 86400 +
+            (Number(votingPeriod?.hours) || 0) * 3600 +
+            (Number(votingPeriod?.minutes) || 0) * 60 +
+            (Number(votingPeriod?.seconds) || 0);
+          const originalSeconds = Number(maybeVotingPeriod?.seconds) || 0;
+          const hasVotingPeriodChange = totalSeconds !== originalSeconds;
+
+          return hasThresholdChange || hasVotingPeriodChange;
+        },
+        then: schema => schema.optional(),
+        otherwise: schema =>
+          schema.when(['authors', 'summary', 'forum', 'description'], {
+            is: (authors: string, summary: string, forum: string, description: string) =>
+              !authors && !summary && !forum && !description,
+            then: schema => schema.required('At least one metadata field is required'),
+            otherwise: schema => schema.optional(),
+          }),
+      }),
+    authors: Yup.string().noProfanity('Profanity is not allowed').optional(),
     summary: Yup.string()
       .noProfanity('Profanity is not allowed')
-      .required('Required')
       .min(10, 'Summary must be at least 10 characters')
-      .max(500, 'Summary must not exceed 500 characters'),
-    threshold: Yup.number()
-      .required('Threshold is required')
-      .min(1, 'Threshold must be at least 1'),
+      .max(500, 'Summary must not exceed 500 characters')
+      .optional(),
+    threshold: Yup.number().min(1, 'Threshold must be at least 1').optional(),
     votingPeriod: Yup.object()
       .shape({
         days: Yup.number().min(0, 'Must be 0 or greater').required('Required'),
@@ -233,6 +253,9 @@ export function UpdateGroupModal({
         seconds: Yup.number().min(0, 'Must be 0 or greater').required('Required'),
       })
       .test('min-total-time', 'Voting period must be at least 30 minutes', function (value) {
+        // Only validate if voting period is being updated
+        if (!value || Object.values(value).every(v => v === 0)) return true;
+
         const { days, hours, minutes, seconds } = value;
         const totalSeconds =
           (Number(days) || 0) * 86400 +
@@ -241,16 +264,37 @@ export function UpdateGroupModal({
           (Number(seconds) || 0);
         return totalSeconds >= 1800;
       }),
-    forum: Yup.string()
-      .url('Invalid URL')
-      .noProfanity('Profanity is not allowed')
-      .required('Required'),
+    forum: Yup.string().url('Invalid URL').noProfanity('Profanity is not allowed').optional(),
     description: Yup.string()
       .noProfanity('Profanity is not allowed')
-      .required('Required')
       .min(10, 'Description must be at least 10 characters')
-      .max(500, 'Description must not exceed 500 characters'),
+      .max(500, 'Description must not exceed 500 characters')
+      .optional(),
   });
+
+  const hasAnyChanges = (values: any) => {
+    // Check metadata changes
+    const hasMetadataChanges =
+      values.name !== maybeTitle ||
+      values.authors !== maybeAuthors ||
+      values.summary !== maybeSummary ||
+      values.forum !== maybeProposalForumURL ||
+      values.description !== maybeDetails;
+
+    // Check policy changes
+    const hasThresholdChange = values.threshold !== maybeThreshold;
+
+    // Check voting period changes
+    const totalSeconds =
+      (Number(values.votingPeriod.days) || 0) * 86400 +
+      (Number(values.votingPeriod.hours) || 0) * 3600 +
+      (Number(values.votingPeriod.minutes) || 0) * 60 +
+      (Number(values.votingPeriod.seconds) || 0);
+    const originalSeconds = Number(maybeVotingPeriod?.seconds) || 0;
+    const hasVotingPeriodChange = totalSeconds !== originalSeconds;
+
+    return hasMetadataChanges || hasThresholdChange || hasVotingPeriodChange;
+  };
 
   return (
     <dialog id="update-group-modal" className="modal">
@@ -423,11 +467,7 @@ export function UpdateGroupModal({
                   type="submit"
                   className="btn btn-gradient ml-4 text-white"
                   onClick={() => handleConfirm(values)}
-                  disabled={
-                    isSigning ||
-                    !isValid ||
-                    (windowSeconds === 0 && values.threshold === maybeThreshold)
-                  }
+                  disabled={isSigning || !isValid || !hasAnyChanges(values)}
                 >
                   {isSigning ? 'Signing...' : 'Update'}
                 </button>

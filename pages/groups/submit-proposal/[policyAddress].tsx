@@ -22,17 +22,7 @@ export default function SubmitProposal() {
     title: '',
     proposers: '',
     summary: '',
-    messages: [
-      {
-        type: 'send',
-        from_address: '',
-        to_address: '',
-        amount: {
-          denom: '',
-          amount: '',
-        },
-      },
-    ],
+    messages: [],
     metadata: {
       title: '',
       authors: '',

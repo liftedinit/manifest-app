@@ -181,44 +181,44 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
   );
 
   return (
-    <QueryClientProvider client={client}>
-      <ReactQueryDevtools />
-      {isLoading ? (
-        <div className="fixed inset-0 flex flex-col items-center justify-center  z-50">
-          <div className="loading w-[8rem] loading-ring text-primary mb-4"></div>
-          <p className="text-xl font-semibold">Swapping endpoints...</p>
-        </div>
-      ) : (
-        <ChainProvider
-          key={endpointKey}
-          chains={
-            selectedEndpoint?.network === 'testnet' ? [manifestTestnetChain] : [manifestChain]
-          }
-          assetLists={
-            selectedEndpoint?.network === 'testnet' ? [manifestTestnetAssets] : [manifestAssets]
-          }
-          // @ts-ignore
-          wallets={combinedWallets}
-          logLevel="NONE"
-          endpointOptions={endpointOptions}
-          walletConnectOptions={{
-            signClient: {
-              projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_KEY ?? '',
-              relayUrl: 'wss://relay.walletconnect.org',
-              metadata: {
-                name: 'Alberto',
-                description: 'Manifest Network Web App',
-                url: 'https://alberto.com',
-                icons: [],
+    <ToastProvider>
+      <QueryClientProvider client={client}>
+        <ReactQueryDevtools />
+        {isLoading ? (
+          <div className="fixed inset-0 flex flex-col items-center justify-center z-50">
+            <div className="loading w-[8rem] loading-ring text-primary mb-4"></div>
+            <p className="text-xl font-semibold">Swapping endpoints...</p>
+          </div>
+        ) : (
+          <ChainProvider
+            key={endpointKey}
+            chains={
+              selectedEndpoint?.network === 'testnet' ? [manifestTestnetChain] : [manifestChain]
+            }
+            assetLists={
+              selectedEndpoint?.network === 'testnet' ? [manifestTestnetAssets] : [manifestAssets]
+            }
+            // @ts-ignore
+            wallets={combinedWallets}
+            logLevel="NONE"
+            endpointOptions={endpointOptions}
+            walletConnectOptions={{
+              signClient: {
+                projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_KEY ?? '',
+                relayUrl: 'wss://relay.walletconnect.org',
+                metadata: {
+                  name: 'Alberto',
+                  description: 'Manifest Network Web App',
+                  url: 'https://alberto.com',
+                  icons: [],
+                },
               },
-            },
-          }}
-          signerOptions={signerOptions}
-          // @ts-ignore
-          walletModal={TailwindModal}
-        >
-          <ThemeProvider>
-            <ToastProvider>
+            }}
+            signerOptions={signerOptions}
+            // @ts-ignore
+            walletModal={TailwindModal}
+          >
+            <ThemeProvider>
               <ContactsModalProvider>
                 <div className="flex min-h-screen bg-background-color relative">
                   <div className="hidden md:block">
@@ -254,11 +254,11 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
                     document.body
                   )}
               </ContactsModalProvider>
-            </ToastProvider>
-          </ThemeProvider>
-        </ChainProvider>
-      )}
-    </QueryClientProvider>
+            </ThemeProvider>
+          </ChainProvider>
+        )}
+      </QueryClientProvider>
+    </ToastProvider>
   );
 }
 

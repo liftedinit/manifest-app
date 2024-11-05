@@ -12,9 +12,7 @@
     "remove": "rm -rf node_modules/ bun.lockb $HOME/.bun/install/cache/",
     "update-deps": "bunx npm-check-updates --root --format group -i",
     "test:coverage": "bun test --coverage",
-
     "test:coverage:lcov": "bun run test:coverage --coverage-reporter=lcov --coverage-dir ./coverage",
-
     "coverage:upload": "codecov"
   },
   "author": "Joseph Chalabi",
@@ -28,13 +26,15 @@
     "react-dom": "18.2.0",
     "@types/react": "18.0.25",
     "@types/react-dom": "18.0.9",
-    "**/@chain-registry/types": "0.25.0"
+    "**/@chain-registry/types": "0.25.0",
+    "@cosmjs/stargate": "npm:@liftedinit/stargate@0.32.4-ll.3",
+    "**/@cosmjs/stargate": "npm:@liftedinit/stargate@0.32.4-ll.3"
   },
   "dependencies": {
     "@chain-registry/assets": "^1.64.83",
-    "@chalabi/manifestjs": "1.2.9",
+    "@chalabi/manifestjs": "0.0.1-alpha.18",
     "@cosmjs/cosmwasm-stargate": "0.32.4",
-    "@cosmjs/stargate": "0.32.4",
+    "@cosmjs/stargate": "npm:@liftedinit/stargate@0.32.4-ll.3",
     "@cosmos-kit/react": "2.18.0",
     "@cosmos-kit/web3auth": "2.11.0",
     "@fontsource/manrope": "^5.0.21",

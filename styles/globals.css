@@ -19,13 +19,16 @@ input:-webkit-autofill:active {
   }
 }
 
-
 ::selection {
-  background-color: #a187ff75; 
-  color: #FFFFFF; 
+  background-color: #a187ff75;
+  color: #ffffff;
 }
 
 ::-moz-selection {
-  background-color: #a187ff75; 
-  color: #FFFFFF; 
+  background-color: #a187ff75;
+  color: #ffffff;
+}
+
+[data-toast-container='true'] {
+  z-index: 100000;
 }

@@ -51,9 +51,8 @@ const whitelist = new Set([
   'sussex',
   'middlesex',
   'therapist',
-  'asset'
+  'asset',
 ]);
-
 
 export const containsProfanity = (text: string) => {
   // Convert text to lowercase for case-insensitive matching

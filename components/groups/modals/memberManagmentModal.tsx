@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Formik, Form, Field, FieldProps } from 'formik';
 
 import * as Yup from 'yup';
@@ -54,6 +54,7 @@ export function MemberManagementModal({
       ...member,
       isNew: false,
       markedForDeletion: false,
+      weight: member.weight || '1',
     }))
   );
 
@@ -63,6 +64,7 @@ export function MemberManagementModal({
         ...member,
         isNew: false,
         markedForDeletion: false,
+        weight: member.weight || '1',
       }))
     );
   }, [initialMembers]);
@@ -94,17 +96,22 @@ export function MemberManagementModal({
     ]);
   };
 
-  const buildMessages = () => {
+  const buildMessages = (formMembers: ExtendedMember[]) => {
     const messages: Any[] = [];
     const { updateGroupMembers } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
-    const memberUpdates = members
-      .filter(member => !member.markedForDeletion || member.isNew)
+    const memberUpdates = formMembers
+      .filter(member => {
+        const hasRequiredFields = member.address && member.metadata;
+        return hasRequiredFields || member.markedForDeletion || !member.isNew;
+      })
       .map(member => ({
         address: member.address,
         metadata: member.metadata,
-        weight: member.markedForDeletion ? '0' : member.weight,
+        weight: member.markedForDeletion ? '0' : member.weight || '1',
       }));
+
+    console.log('Member updates:', memberUpdates);
 
     const msg = updateGroupMembers({
       admin: groupAdmin,
@@ -121,30 +128,35 @@ export function MemberManagementModal({
     return messages;
   };
 
-  const handleConfirm = async () => {
+  const handleConfirm = async (values: { members: ExtendedMember[] }) => {
     setIsSigning(true);
 
-    const encodedMessages = buildMessages();
-    const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
-    const msg = submitProposal({
-      groupPolicyAddress: policyAddress,
-      proposers: [address],
-      metadata: '',
-      messages: encodedMessages,
-      exec: 0,
-      title: 'Update Group Members',
-      summary: 'Update Group Members',
-    });
+    try {
+      const encodedMessages = buildMessages(values.members);
+      const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
+      const msg = submitProposal({
+        groupPolicyAddress: policyAddress,
+        proposers: [address],
+        metadata: '',
+        messages: encodedMessages,
+        exec: 0,
+        title: 'Update Group Members',
+        summary: 'Update Group Members',
+      });
 
-    const fee = await estimateFee(address, [msg]);
-    await tx([msg], {
-      fee,
-      onSuccess: () => {
-        setIsSigning(false);
-        onUpdate();
-      },
-    });
-    setIsSigning(false);
+      const fee = await estimateFee(address, [msg]);
+      await tx([msg], {
+        fee,
+        onSuccess: () => {
+          setIsSigning(false);
+          onUpdate();
+        },
+      });
+    } catch (error) {
+      console.error('Error submitting proposal:', error);
+    } finally {
+      setIsSigning(false);
+    }
   };
 
   const [isContactsOpen, setIsContactsOpen] = useState(false);
@@ -155,10 +167,12 @@ export function MemberManagementModal({
     setIsContactsOpen(true);
   };
 
+  const submitFormRef = useRef<(() => void) | null>(null);
+
   return (
     <dialog id="member-management-modal" className="modal z-[150]">
       <div className="flex flex-col items-center w-full h-full">
-        <div className=" modal-box dark:bg-[#1D192D] bg-[#FFFFFF] rounded-[24px] max-w-[39rem] p-6 dark:text-white text-black">
+        <div className="modal-box dark:bg-[#1D192D] bg-[#FFFFFF] rounded-[24px] max-w-[39rem] p-6 dark:text-white text-black">
           <form method="dialog">
             <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
           </form>
@@ -179,134 +193,137 @@ export function MemberManagementModal({
             onSubmit={handleConfirm}
             enableReinitialize
           >
-            {({ values, errors, touched, isValid, setFieldValue }) => (
-              <>
-                <div className="z-[9999]">
-                  <TailwindModal
-                    isOpen={isContactsOpen}
-                    setOpen={setIsContactsOpen}
-                    showContacts={true}
-                    showMemberManagementModal={true}
-                    onSelect={(selectedAddress: string) => {
-                      if (activeIndex !== null) {
-                        const fieldName = `members.${activeIndex}.address`;
-                        setFieldValue(fieldName, selectedAddress);
-                      }
-                      setIsContactsOpen(false);
-                    }}
-                    currentAddress={address}
-                  />
-                </div>
-                <Form>
-                  <div className="flex items-center mb-4 px-4 text-sm text-gray-400">
-                    <div className="w-[10%] ml-3">#</div>
-                    <div className="w-[35%] ml-11">Name</div>
-                    <div className="w-[45%]">Address</div>
-                    <div className="w-[10%]"></div>
+            {({ values, errors, touched, isValid, setFieldValue, handleSubmit }) => {
+              submitFormRef.current = handleSubmit;
+              return (
+                <>
+                  <div className="z-[9999]">
+                    <TailwindModal
+                      isOpen={isContactsOpen}
+                      setOpen={setIsContactsOpen}
+                      showContacts={true}
+                      showMemberManagementModal={true}
+                      onSelect={(selectedAddress: string) => {
+                        if (activeIndex !== null) {
+                          const fieldName = `members.${activeIndex}.address`;
+                          setFieldValue(fieldName, selectedAddress);
+                        }
+                        setIsContactsOpen(false);
+                      }}
+                      currentAddress={address}
+                    />
                   </div>
-                  <div className="space-y-4 max-h-[420px] overflow-y-auto">
-                    {values.members.map((member, index) => (
-                      <div
-                        key={index}
-                        className={`flex items-center dark:bg-[#2D2A3E] bg-[#0000000A] rounded-[12px] p-3 ${
-                          member.markedForDeletion ? 'opacity-50' : ''
-                        }`}
-                      >
-                        <div className="w-[10%] text-center">{index + 1}</div>
-                        {/* Name Field with Daisy UI Tooltip */}
-                        <div className="w-[35%] ml-12 pr-6 relative">
-                          <Field name={`members.${index}.metadata`}>
-                            {({ field, meta }: FieldProps) => (
-                              <div>
-                                <input
-                                  {...field}
-                                  type="text"
-                                  className={`input input-sm focus:outline-none input-ghost  bg-transparent w-full max-w-xs  ${
-                                    meta.touched && meta.error ? 'input-error' : ''
-                                  }`}
-                                  placeholder="member name"
-                                  disabled={member.markedForDeletion}
-                                />
-                                {meta.touched && meta.error && (
-                                  <div
-                                    className="tooltip tooltip-bottom tooltip-open tooltip-primary dark:text-white text-white text-xs mt-1 absolute left-1/2 transform translate-y-7 -translate-x-4 z-50"
-                                    data-tip={meta.error}
-                                  >
-                                    {/* Invisible element to anchor the tooltip */}
-                                    <div className="w-0 h-0"></div>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </Field>
+                  <Form>
+                    <div className="flex items-center mb-4 px-4 text-sm text-gray-400">
+                      <div className="w-[10%] ml-3">#</div>
+                      <div className="w-[35%] ml-11">Name</div>
+                      <div className="w-[45%]">Address</div>
+                      <div className="w-[10%]"></div>
+                    </div>
+                    <div className="space-y-4 max-h-[420px] overflow-y-auto">
+                      {values.members.map((member, index) => (
+                        <div
+                          key={index}
+                          className={`flex items-center dark:bg-[#2D2A3E] bg-[#0000000A] rounded-[12px] p-3 ${
+                            member.markedForDeletion ? 'opacity-50' : ''
+                          }`}
+                        >
+                          <div className="w-[10%] text-center">{index + 1}</div>
+                          {/* Name Field with Daisy UI Tooltip */}
+                          <div className="w-[35%] ml-12 pr-6 relative">
+                            <Field name={`members.${index}.metadata`}>
+                              {({ field, meta }: FieldProps) => (
+                                <div>
+                                  <input
+                                    {...field}
+                                    type="text"
+                                    className={`input input-sm focus:outline-none input-ghost  bg-transparent w-full max-w-xs  ${
+                                      meta.touched && meta.error ? 'input-error' : ''
+                                    }`}
+                                    placeholder="member name"
+                                    disabled={member.markedForDeletion}
+                                  />
+                                  {meta.touched && meta.error && (
+                                    <div
+                                      className="tooltip tooltip-bottom tooltip-open tooltip-primary dark:text-white text-white text-xs mt-1 absolute left-1/2 transform translate-y-7 -translate-x-4 z-50"
+                                      data-tip={meta.error}
+                                    >
+                                      {/* Invisible element to anchor the tooltip */}
+                                      <div className="w-0 h-0"></div>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </Field>
+                          </div>
+                          {/* Address Field with Daisy UI Tooltip */}
+                          <div className="w-[45%] flex items-center relative">
+                            <Field name={`members.${index}.address`}>
+                              {({ field, meta }: FieldProps) => (
+                                <div className="flex-grow relative">
+                                  <input
+                                    {...field}
+                                    type="text"
+                                    className={`input input-sm focus:outline-none disabled:bg-transparent disabled:border-none bg-transparent input-ghost w-full ${
+                                      meta.touched && meta.error ? 'input-error' : ''
+                                    }`}
+                                    placeholder="manifest1..."
+                                    disabled={!member.isNew || member.markedForDeletion}
+                                  />
+                                  {member.isNew && !member.markedForDeletion && (
+                                    <button
+                                      type="button"
+                                      aria-label="contacts-btn"
+                                      onClick={() => {
+                                        handleContactButtonClick(index);
+                                        (
+                                          document.getElementById(
+                                            'member-management-modal'
+                                          ) as HTMLDialogElement
+                                        ).close();
+                                      }}
+                                      className="btn btn-primary btn-xs text-white absolute right-2 top-1"
+                                    >
+                                      <MdContacts className="w-4 h-4" />
+                                    </button>
+                                  )}
+                                  {meta.touched && meta.error && (
+                                    <div
+                                      className="tooltip tooltip-bottom tooltip-open tooltip-primary dark:text-white text-white text-xs mt-1 absolute left-1/2 transform translate-y-7 -translate-x-4 z-50"
+                                      data-tip={meta.error}
+                                    >
+                                      <div className="w-0 h-0"></div>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </Field>
+                            <button
+                              onClick={e => {
+                                e.preventDefault();
+                                navigator.clipboard.writeText(member.address);
+                              }}
+                              className="btn btn-ghost hover:bg-transparent btn-sm ml-2"
+                            >
+                              <CopyIcon className="w-4 h-4" />
+                            </button>
+                          </div>
+                          <div className="w-[10%] flex justify-end">
+                            <button
+                              type="button"
+                              onClick={() => handleMemberToggleDeletion(index)}
+                              className={`btn btn-primary btn-square rounded-[12px] btn-sm `}
+                            >
+                              <TrashIcon className="text-white w-5 h-5" />
+                            </button>
+                          </div>
                         </div>
-                        {/* Address Field with Daisy UI Tooltip */}
-                        <div className="w-[45%] flex items-center relative">
-                          <Field name={`members.${index}.address`}>
-                            {({ field, meta }: FieldProps) => (
-                              <div className="flex-grow relative">
-                                <input
-                                  {...field}
-                                  type="text"
-                                  className={`input input-sm focus:outline-none disabled:bg-transparent disabled:border-none bg-transparent input-ghost w-full ${
-                                    meta.touched && meta.error ? 'input-error' : ''
-                                  }`}
-                                  placeholder="manifest1..."
-                                  disabled={!member.isNew || member.markedForDeletion}
-                                />
-                                {member.isNew && !member.markedForDeletion && (
-                                  <button
-                                    type="button"
-                                    aria-label="contacts-btn"
-                                    onClick={() => {
-                                      handleContactButtonClick(index);
-                                      (
-                                        document.getElementById(
-                                          'member-management-modal'
-                                        ) as HTMLDialogElement
-                                      ).close();
-                                    }}
-                                    className="btn btn-primary btn-xs text-white absolute right-2 top-1"
-                                  >
-                                    <MdContacts className="w-4 h-4" />
-                                  </button>
-                                )}
-                                {meta.touched && meta.error && (
-                                  <div
-                                    className="tooltip tooltip-bottom tooltip-open tooltip-primary dark:text-white text-white text-xs mt-1 absolute left-1/2 transform translate-y-7 -translate-x-4 z-50"
-                                    data-tip={meta.error}
-                                  >
-                                    <div className="w-0 h-0"></div>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </Field>
-                          <button
-                            onClick={e => {
-                              e.preventDefault();
-                              navigator.clipboard.writeText(member.address);
-                            }}
-                            className="btn btn-ghost hover:bg-transparent btn-sm ml-2"
-                          >
-                            <CopyIcon className="w-4 h-4" />
-                          </button>
-                        </div>
-                        <div className="w-[10%] flex justify-end">
-                          <button
-                            type="button"
-                            onClick={() => handleMemberToggleDeletion(index)}
-                            className={`btn btn-primary btn-square rounded-[12px] btn-sm `}
-                          >
-                            <TrashIcon className="text-white w-5 h-5" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </Form>
-              </>
-            )}
+                      ))}
+                    </div>
+                  </Form>
+                </>
+              );
+            }}
           </Formik>
         </div>
 
@@ -321,9 +338,9 @@ export function MemberManagementModal({
             Cancel
           </button>
           <button
-            type="submit"
+            type="button"
             className="btn btn-gradient ml-4 text-white"
-            onClick={handleConfirm}
+            onClick={() => submitFormRef.current?.()}
             disabled={isSigning}
           >
             {isSigning ? 'Signing...' : 'Save Changes'}

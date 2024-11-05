@@ -73,53 +73,6 @@ export default function ValidatorList({
     setModalId(`validator-modal-${validator.operator_address}-${Date.now()}`);
   };
 
-  const renderTableContent = () => {
-    return (
-      <tbody>
-        {filteredValidators.map(validator => (
-          <tr
-            key={validator.operator_address}
-            className="bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg cursor-pointer"
-            onClick={() => handleRowClick(validator)}
-          >
-            <td className="rounded-l-[12px] py-4">
-              <div className="flex items-center space-x-3">
-                {validator.logo_url ? (
-                  <Image
-                    height={32}
-                    width={32}
-                    src={validator.logo_url}
-                    alt=""
-                    className="w-8 h-8 rounded-full"
-                  />
-                ) : (
-                  <ProfileAvatar walletAddress={validator.operator_address} size={32} />
-                )}
-                <span className="font-medium">{validator.description.moniker}</span>
-              </div>
-            </td>
-
-            <td className="py-4">
-              <TruncatedAddressWithCopy slice={10} address={validator.operator_address} />
-            </td>
-            <td className="py-4">{validator.consensus_power?.toString() ?? 'N/A'}</td>
-            <td className="rounded-r-[12px] py-4 text-right">
-              <button
-                onClick={e => {
-                  e.stopPropagation();
-                  handleRemove(validator);
-                }}
-                className="btn btn-error btn-sm text-white "
-              >
-                <TrashIcon className="w-5 h-5" />
-              </button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    );
-  };
-
   return (
     <div className="w-full max-w-screen mx-auto">
       <div className="">
@@ -164,20 +117,72 @@ export default function ValidatorList({
           </button>
         </div>
         <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-300px)]">
-          <table className="table w-full border-separate border-spacing-y-3">
-            <thead>
-              <tr className="text-sm font-medium text-[#808080]">
-                <th className="bg-transparent text-left sticky top-0 bg-base-100 z-10">Moniker</th>
+          {filteredValidators.length === 0 ? (
+            <div className="text-center py-8 text-[#808080]">
+              {active ? 'No active validators found' : 'No pending validators'}
+            </div>
+          ) : (
+            <table className="table w-full border-separate border-spacing-y-3">
+              <thead>
+                <tr className="text-sm font-medium text-[#808080]">
+                  <th className="bg-transparent text-left sticky top-0 bg-base-100 z-10">
+                    Moniker
+                  </th>
+                  <th className="bg-transparent text-left sticky top-0 bg-base-100 z-10">
+                    Address
+                  </th>
+                  <th className="bg-transparent text-left sticky top-0 bg-base-100 z-10">
+                    Consensus Power
+                  </th>
+                  <th className="bg-transparent text-right sticky top-0 bg-base-100 z-10">
+                    Remove
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredValidators.map(validator => (
+                  <tr
+                    key={validator.operator_address}
+                    className="bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg cursor-pointer"
+                    onClick={() => handleRowClick(validator)}
+                  >
+                    <td className="rounded-l-[12px] py-4">
+                      <div className="flex items-center space-x-3">
+                        {validator.logo_url ? (
+                          <Image
+                            height={32}
+                            width={32}
+                            src={validator.logo_url}
+                            alt=""
+                            className="w-8 h-8 rounded-full"
+                          />
+                        ) : (
+                          <ProfileAvatar walletAddress={validator.operator_address} size={32} />
+                        )}
+                        <span className="font-medium">{validator.description.moniker}</span>
+                      </div>
+                    </td>
 
-                <th className="bg-transparent text-left sticky top-0 bg-base-100 z-10">Address</th>
-                <th className="bg-transparent text-left sticky top-0 bg-base-100 z-10">
-                  Consensus Power
-                </th>
-                <th className="bg-transparent text-right sticky top-0 bg-base-100 z-10">Remove</th>
-              </tr>
-            </thead>
-            {renderTableContent()}
-          </table>
+                    <td className="py-4">
+                      <TruncatedAddressWithCopy slice={10} address={validator.operator_address} />
+                    </td>
+                    <td className="py-4">{validator.consensus_power?.toString() ?? 'N/A'}</td>
+                    <td className="rounded-r-[12px] py-4 text-right">
+                      <button
+                        onClick={e => {
+                          e.stopPropagation();
+                          handleRemove(validator);
+                        }}
+                        className="btn btn-error btn-sm text-white "
+                      >
+                        <TrashIcon className="w-5 h-5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
 

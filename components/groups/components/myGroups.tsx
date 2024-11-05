@@ -71,11 +71,13 @@ export function YourGroups({
   };
 
   return (
-    <div className="relative w-full overflow-hidden">
+    <div className="relative w-full h-screen overflow-hidden">
       <div
-        className={`transition-transform duration-300 ${selectedGroup ? '-translate-x-full' : 'translate-x-0'}`}
+        className={`absolute inset-0 transition-transform duration-300 ${
+          selectedGroup ? '-translate-x-full' : 'translate-x-0'
+        }`}
       >
-        <div className="space-y-4 w-full pt-4">
+        <div className="h-full flex flex-col p-4">
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center space-x-4">
               <h1
@@ -104,10 +106,8 @@ export function YourGroups({
               </Link>
             </div>
           </div>
-          <div className="overflow-x-auto max-h-[87vh] w-full">
+          <div className="flex-1 overflow-auto">
             <div className="max-w-8xl mx-auto">
-              {' '}
-              {/* table */}
               <table className="table w-full border-separate border-spacing-y-3">
                 <thead className="sticky top-0 bg-[#F0F0FF] dark:bg-[#0E0A1F]">
                   <tr className="text-sm font-medium">
@@ -172,7 +172,9 @@ export function YourGroups({
         </div>
       </div>
       <div
-        className={`absolute top-0 left-0 w-full h-full transition-transform duration-300 ${selectedGroup ? 'translate-x-0' : 'translate-x-full'}`}
+        className={`absolute inset-0 transition-transform duration-300 ${
+          selectedGroup ? 'translate-x-0' : 'translate-x-full'
+        }`}
       >
         {selectedGroup && (
           <GroupProposals

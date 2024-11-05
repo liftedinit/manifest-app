@@ -70,7 +70,7 @@ export default function Groups() {
           })}
         </script>
       </Head>
-      <div className="flex-grow animate-fadeIn h-screen transition-all duration-300">
+      <div className="flex-grow h-full animate-fadeIn h-screen transition-all duration-300">
         <div className="w-full mx-auto">
           {!isWalletConnected ? (
             <WalletNotConnected />
