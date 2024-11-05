@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ValidatorDetailsModal } from '../modals/validatorModal';
 import { WarningModal } from '../modals/warningModal';
-import { ValidatorSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
+import { ValidatorSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
 import ProfileAvatar from '@/utils/identicon';
 import Image from 'next/image';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';

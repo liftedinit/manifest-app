@@ -1,4 +1,4 @@
-import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 
 export interface ExtendedMetadataSDKType extends MetadataSDKType {
   balance: string;

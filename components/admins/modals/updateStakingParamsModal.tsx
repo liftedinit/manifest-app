@@ -1,9 +1,9 @@
 import { chainName } from '@/config';
 import { useFeeEstimation, useTx } from '@/hooks';
-import { strangelove_ventures, cosmos, manifest } from '@chalabi/manifestjs';
-import { ParamsSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
-import { MsgUpdateStakingParams } from '@chalabi/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
-import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
+import { strangelove_ventures, cosmos, manifest } from '@liftedinit/manifestjs';
+import { ParamsSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
+import { MsgUpdateStakingParams } from '@liftedinit/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
+import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import React, { useState, useEffect } from 'react';
 
 interface UpdateStakingParamsModalProps {

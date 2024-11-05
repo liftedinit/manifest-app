@@ -5,7 +5,7 @@ import Head from 'next/head';
 import React, { useState } from 'react';
 
 import { useGroupsByAdmin, usePendingValidators, usePoaGetAdmin, useValidators } from '@/hooks';
-import { ValidatorSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
+import { ValidatorSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
 import { PiWarning } from 'react-icons/pi';
 import { AdminsIcon } from '@/components/icons';
 import { SearchIcon } from '@/components/icons';

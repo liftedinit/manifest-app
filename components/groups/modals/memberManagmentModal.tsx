@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, FieldProps } from 'formik';
 
 import * as Yup from 'yup';
-import { cosmos } from '@chalabi/manifestjs';
+import { cosmos } from '@liftedinit/manifestjs';
 import { useTx, useFeeEstimation } from '@/hooks';
 import { chainName } from '@/config';
-import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
-import { MemberSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
+import { MemberSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { CopyIcon, TrashIcon } from '@/components/icons';
 
 interface ExtendedMember extends MemberSDKType {

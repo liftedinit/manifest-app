@@ -4,9 +4,9 @@ import { FormData } from '@/helpers/formReducer';
 import { useFeeEstimation } from '@/hooks/useFeeEstimation';
 import { uploadJsonToIPFS } from '@/hooks/useIpfs';
 import { useTx } from '@/hooks/useTx';
-import { cosmos } from '@chalabi/manifestjs';
-import { ThresholdDecisionPolicy } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
-import { Duration } from '@chalabi/manifestjs/dist/codegen/google/protobuf/duration';
+import { cosmos } from '@liftedinit/manifestjs';
+import { ThresholdDecisionPolicy } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { Duration } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/duration';
 import { secondsToHumanReadable } from '@/utils/string';
 
 export default function ConfirmationForm({

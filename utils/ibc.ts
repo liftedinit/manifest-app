@@ -1,7 +1,7 @@
 import { asset_lists as assetLists } from '@chain-registry/assets';
 import { Asset, AssetList } from '@chain-registry/types';
 import { assets, ibc } from 'chain-registry';
-import { Coin } from '@chalabi/manifestjs/dist/codegen/cosmos/base/v1beta1/coin';
+import { Coin } from '@liftedinit/manifestjs/dist/codegen/cosmos/base/v1beta1/coin';
 
 import { shiftDigits } from './maths';
 

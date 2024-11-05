@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { chainName } from '@/config';
 import { useFeeEstimation, useTx } from '@/hooks';
-import { osmosis } from '@chalabi/manifestjs';
+import { osmosis } from '@liftedinit/manifestjs';
 
 import { shiftDigits } from '@/utils';
 import { MdContacts } from 'react-icons/md';

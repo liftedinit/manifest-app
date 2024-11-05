@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useProposalsByPolicyAccount, useTallyCount, useVotesByProposal } from '@/hooks/useQueries';
-import { ProposalSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
-import { QueryTallyResultResponseSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/query';
+import { ProposalSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { QueryTallyResultResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
 import Link from 'next/link';
 import { SearchIcon } from '@/components/icons';
 import { useRouter } from 'next/router';
@@ -9,13 +9,13 @@ import { useRouter } from 'next/router';
 import VoteDetailsModal from '@/components/groups/modals/voteDetailsModal';
 import { useGroupsByMember } from '@/hooks/useQueries';
 import { useChain } from '@cosmos-kit/react';
-import { MemberSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { MemberSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { ArrowRightIcon } from '@/components/icons';
 import ProfileAvatar from '@/utils/identicon';
 import { GroupInfo } from '../modals/groupInfo';
 import { ExtendedGroupType } from '@/hooks/useQueries';
 import { MemberManagementModal } from '../modals/memberManagmentModal';
-import { ThresholdDecisionPolicy } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { ThresholdDecisionPolicy } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 
 type GroupProposalsProps = {
   policyAddress: string;

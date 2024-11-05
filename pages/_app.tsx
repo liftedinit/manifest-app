@@ -33,7 +33,7 @@ import {
   osmosisProtoRegistry,
   cosmosAminoConverters,
   cosmosProtoRegistry,
-} from '@chalabi/manifestjs';
+} from '@liftedinit/manifestjs';
 import { ToastProvider, ContactsModalProvider } from '@/contexts';
 import { useTheme } from '@/contexts/theme';
 import MobileNav from '@/components/react/mobileNav';

@@ -1,18 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useQueries, useQuery } from '@tanstack/react-query';
-import { QueryGroupsByMemberResponseSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/query';
+import { QueryGroupsByMemberResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
 
 import { useLcdQueryClient } from './useLcdQueryClient';
 import { usePoaLcdQueryClient } from './usePoaLcdQueryClient';
 import { getLogoUrls, isValidIPFSCID } from '@/utils';
 import { ExtendedValidatorSDKType } from '@/components';
 import { useManifestLcdQueryClient } from './useManifestLcdQueryClient';
-import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import axios from 'axios';
 import {
   GroupMemberSDKType,
   GroupPolicyInfoSDKType,
-} from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
+} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 export interface IPFSMetadata {
   title: string;
   authors: string | string[];

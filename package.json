@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "@chain-registry/assets": "^1.64.83",
-    "@chalabi/manifestjs": "1.2.9",
+    "@liftedinit/manifestjs": "0.0.1-alpha.19",
     "@cosmjs/cosmwasm-stargate": "0.32.4",
     "@cosmjs/stargate": "0.32.4",
     "@cosmos-kit/react": "2.18.0",

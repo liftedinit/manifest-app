@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { chainName } from '@/config';
 import { useFeeEstimation, useTx } from '@/hooks';
-import { ibc } from '@chalabi/manifestjs';
+import { ibc } from '@liftedinit/manifestjs';
 import { getIbcInfo } from '@/utils';
 import { PiAddressBook, PiCaretDownBold } from 'react-icons/pi';
 import { MdContacts } from 'react-icons/md';

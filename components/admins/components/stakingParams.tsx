@@ -1,5 +1,5 @@
 import React from 'react';
-import { ParamsSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
+import { ParamsSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
 import { UpdateStakingParamsModal } from '../modals/updateStakingParamsModal';
 
 interface StakingParamsProps {

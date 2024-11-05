@@ -7,7 +7,7 @@ import { useRouter } from 'next/router';
 import {
   ProposalSDKType,
   ThresholdDecisionPolicySDKType,
-} from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
+} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import GroupProposals from './groupProposals';
 import { useBalance } from '@/hooks/useQueries';
 import { shiftDigits } from '@/utils';

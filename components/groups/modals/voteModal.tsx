@@ -1,6 +1,6 @@
 import { useFeeEstimation } from '@/hooks';
 import { useTx } from '@/hooks/useTx';
-import { cosmos } from '@chalabi/manifestjs';
+import { cosmos } from '@liftedinit/manifestjs';
 import { useChain } from '@cosmos-kit/react';
 import React, { useState } from 'react';
 import { CloseIcon } from '@/components/icons';

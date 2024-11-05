@@ -1,9 +1,9 @@
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { shiftDigits } from '@/utils';
-import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { DenomInfoModal } from '../modals';
 import { UpdateDenomMetadataModal } from '../modals';
-import { CoinSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/base/v1beta1/coin';
+import { CoinSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/base/v1beta1/coin';
 
 export default function DenomInfo({
   denom,

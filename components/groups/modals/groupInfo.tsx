@@ -4,7 +4,7 @@ import { shiftDigits } from '@/utils';
 import ProfileAvatar from '@/utils/identicon';
 import { ExtendedGroupType } from '@/hooks/useQueries';
 import { UpdateGroupModal } from './updateGroupModal';
-import { ThresholdDecisionPolicySDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { ThresholdDecisionPolicySDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 
 interface GroupInfoProps {
   group: ExtendedGroupType | null;

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { TokenFormData } from '@/helpers/formReducer';
 import { useFeeEstimation } from '@/hooks/useFeeEstimation';
 import { useTx } from '@/hooks/useTx';
-import { osmosis } from '@chalabi/manifestjs';
+import { osmosis } from '@liftedinit/manifestjs';
 import { chainName } from '@/config';
 
 export default function ConfirmationForm({

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { chainName } from '@/config';
 import { useTokenFactoryBalance, useFeeEstimation, useTx } from '@/hooks';
-import { cosmos, osmosis, liftedinit } from '@chalabi/manifestjs';
+import { cosmos, osmosis, liftedinit } from '@liftedinit/manifestjs';
 
 import { MdContacts } from 'react-icons/md';
 import { shiftDigits } from '@/utils';
-import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
-import { MsgBurnHeldBalance } from '@chalabi/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
+import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
+import { MsgBurnHeldBalance } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
 import { MultiBurnModal } from '../modals/multiMfxBurnModal';
 import { useToast } from '@/contexts';
 import { Formik, Form } from 'formik';

@@ -4,7 +4,7 @@ import ConfirmationForm from '@/components/groups/forms/groups/ConfirmationForm'
 import GroupDetails from '@/components/groups/forms/groups/GroupDetailsForm';
 import GroupPolicyForm from '@/components/groups/forms/groups/GroupPolicyForm';
 import MemberInfoForm from '@/components/groups/forms/groups/MemberInfoForm';
-import { Duration } from '@chalabi/manifestjs/dist/codegen/google/protobuf/duration';
+import { Duration } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/duration';
 import StepIndicator from '@/components/groups/components/StepIndicator';
 import { useChain } from '@cosmos-kit/react';
 import { chainName } from '@/config';

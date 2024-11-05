@@ -4,7 +4,7 @@ import { screen, fireEvent, cleanup } from '@testing-library/react';
 import { UpdateStakingParamsModal } from '@/components/admins/modals/updateStakingParamsModal';
 import matchers from '@testing-library/jest-dom/matchers';
 import { renderWithChainProvider } from '@/tests/render';
-import { DurationSDKType } from '@chalabi/manifestjs/src/codegen/google/protobuf/duration';
+import { DurationSDKType } from '@liftedinit/manifestjs/src/codegen/google/protobuf/duration';
 
 expect.extend(matchers);
 

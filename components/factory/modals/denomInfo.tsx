@@ -1,7 +1,7 @@
 import React from 'react';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { FaExternalLinkAlt } from 'react-icons/fa';
-import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { useRouter } from 'next/router';
 
 export const DenomInfoModal: React.FC<{

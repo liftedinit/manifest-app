@@ -9,8 +9,8 @@ import { PlusIcon, MinusIcon } from '@/components/icons';
 import { MdContacts } from 'react-icons/md';
 import { useTx, useFeeEstimation } from '@/hooks';
 import { chainName } from '@/config';
-import { cosmos, osmosis } from '@chalabi/manifestjs';
-import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
+import { cosmos, osmosis } from '@liftedinit/manifestjs';
+import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 
 interface BurnPair {
   address: string;

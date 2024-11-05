@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { cosmos } from '@chalabi/manifestjs';
+import { cosmos } from '@liftedinit/manifestjs';
 import { useQuery } from '@tanstack/react-query';
 import { useChain } from '@cosmos-kit/react';
 import { chainName } from '../config';

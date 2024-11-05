@@ -7,9 +7,9 @@ import { MdContacts } from 'react-icons/md';
 import { PlusIcon, MinusIcon } from '@/components/icons';
 import { useTx, useFeeEstimation } from '@/hooks';
 import { chainName } from '@/config';
-import { cosmos, liftedinit } from '@chalabi/manifestjs';
-import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
-import { MsgPayout } from '@chalabi/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
+import { cosmos, liftedinit } from '@liftedinit/manifestjs';
+import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
+import { MsgPayout } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
 
 interface PayoutPair {
   address: string;

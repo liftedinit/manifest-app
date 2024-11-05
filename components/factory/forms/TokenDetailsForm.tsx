@@ -2,7 +2,7 @@ import React from 'react';
 import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { TokenAction, TokenFormData } from '@/helpers/formReducer';
-import { DenomUnit } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { DenomUnit } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { TextInput, TextArea } from '@/components/react/inputs';
 
 export default function TokenDetails({
