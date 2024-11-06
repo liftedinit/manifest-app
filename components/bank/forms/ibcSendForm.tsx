@@ -319,7 +319,7 @@ export default function IbcSendForm({
                                 <span className="truncate">
                                   {(() => {
                                     const tokenDisplayName =
-                                      token.metadata?.display ?? token.denom ?? '';
+                                      token.metadata?.display ?? token.denom ?? 'Select';
 
                                     return tokenDisplayName.startsWith('factory')
                                       ? tokenDisplayName.split('/').pop()?.toUpperCase()
@@ -355,7 +355,7 @@ export default function IbcSendForm({
                         const tokenDisplayName =
                           values.selectedToken?.metadata?.display ??
                           values.selectedToken?.denom ??
-                          '';
+                          'Select';
 
                         return tokenDisplayName.startsWith('factory')
                           ? tokenDisplayName.split('/').pop()?.toUpperCase()
