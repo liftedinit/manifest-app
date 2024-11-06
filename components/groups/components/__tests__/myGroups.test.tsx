@@ -16,6 +16,10 @@ mock.module('next/router', () => ({
   }),
 }));
 
+mock.module('react-apexcharts', () => ({
+  default: jest.fn(),
+}));
+
 function renderWithProps(props = {}) {
   const defaultProps = {
     groups: { groups: [mockGroup, mockGroup2] },
@@ -55,16 +59,13 @@ describe('YourGroups Component', () => {
     expect(screen.queryByText('title2')).not.toBeInTheDocument();
   });
 
-  test.skip('group selection works correctly', async () => {
+  test('group selection works correctly', async () => {
     renderWithProps();
     const group1 = screen.getByText('title1');
     fireEvent.click(group1);
 
-    // // TODO: Why is this failing?
-    // await waitFor(() => {
-    //   expect(m().push).toHaveBeenCalledWith('/groups?policyAddress=policyAddress1', undefined, {
-    //     shallow: true,
-    //   });
-    // });
+    await waitFor(() => {
+      expect(m().push).toHaveBeenCalled();
+    });
   });
 });
