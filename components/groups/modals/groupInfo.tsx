@@ -54,43 +54,44 @@ export function GroupInfo({ group, policyAddress, address, onUpdate }: GroupInfo
 
   const threshold = (policy?.decision_policy as ThresholdDecisionPolicySDKType)?.threshold ?? '0';
 
-  const renderAuthors = () => {
-    const authors = group.ipfsMetadata?.authors;
-    if (!authors) return <InfoItem label="Author" value="No author information" />;
+  function renderAuthors() {
+    const authors = group?.ipfsMetadata?.authors;
+
+    if (!authors) {
+      return <InfoItem label="Author" value="No author information" />;
+    }
+
+    const formatAddress = (author: string, index: number) => (
+      <InfoItem key={index} label="Address" value={author} isAddress={true} />
+    );
+
+    const formatAuthor = (author: string, index: number) => (
+      <InfoItem key={index} label={`Author ${index + 1}`} value={author} />
+    );
 
     if (typeof authors === 'string') {
       if (authors.startsWith('manifest1')) {
-        return (
-          <div className="grid grid-cols-2 gap-4">
-            <InfoItem label="Address" value={authors} isAddress={true} />
-          </div>
-        );
+        return <div className="grid grid-cols-2 gap-4">{formatAddress(authors, 0)}</div>;
       }
-      return <InfoItem label="Author" value={authors} />;
+      return formatAuthor(authors, 0);
     }
 
     if (Array.isArray(authors)) {
       const manifestAddresses = authors.filter(author => author.startsWith('manifest1'));
+
       if (manifestAddresses.length > 0) {
         return (
           <div className="grid grid-cols-2 gap-4">
-            {manifestAddresses.map((author, index) => (
-              <InfoItem key={index} label="Address" value={author} isAddress={true} />
-            ))}
+            {manifestAddresses.map((author, index) => formatAddress(author, index))}
           </div>
         );
       }
-      return (
-        <div>
-          {authors.map((author, index) => (
-            <InfoItem key={index} label={`Author ${index + 1}`} value={author} />
-          ))}
-        </div>
-      );
+
+      return <div>{authors.map((author, index) => formatAuthor(author, index))}</div>;
     }
 
     return <InfoItem label="Author" value="Invalid author information" />;
-  };
+  }
 
   return (
     <dialog id="group-info-modal" className="modal">
