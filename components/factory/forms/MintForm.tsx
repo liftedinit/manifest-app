@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { chainName } from '@/config';
 import { useFeeEstimation, useTx } from '@/hooks';
-import { osmosis } from '@chalabi/manifestjs';
+import { osmosis } from '@liftedinit/manifestjs';
 
 import { shiftDigits } from '@/utils';
 import { MdContacts } from 'react-icons/md';
@@ -53,7 +53,7 @@ export default function MintForm({
   });
 
   const handleMint = async () => {
-    if (!amount || isNaN(Number(amount))) {
+    if (!amount || Number.isNaN(Number(amount))) {
       return;
     }
     setIsSigning(true);
@@ -91,7 +91,7 @@ export default function MintForm({
       <div className="rounded-lg">
         {isMFX && !isAdmin ? (
           <div className="w-full p-2 justify-center items-center my-auto leading-tight text-xl flex flex-col font-medium text-pretty">
-            <span>You must be apart of the admin group to mint MFX.</span>
+            <span>You must be a member of the admin group to mint MFX.</span>
           </div>
         ) : (
           <>

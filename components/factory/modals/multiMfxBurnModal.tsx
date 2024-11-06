@@ -1,4 +1,3 @@
-// TODO: Double check that this file is unecessary
 import React, { useState } from 'react';
 
 import { Formik, Form, FieldArray, Field, FieldProps } from 'formik';
@@ -9,8 +8,10 @@ import { PlusIcon, MinusIcon } from '@/components/icons';
 import { MdContacts } from 'react-icons/md';
 import { useTx, useFeeEstimation } from '@/hooks';
 import { chainName } from '@/config';
-import { cosmos, osmosis } from '@chalabi/manifestjs';
-import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
+import { cosmos, osmosis, liftedinit } from '@liftedinit/manifestjs';
+import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
+
+import { ExtendedMetadataSDKType } from '@/utils';
 
 interface BurnPair {
   address: string;
@@ -22,7 +23,7 @@ interface MultiBurnModalProps {
   onClose: () => void;
   admin: string;
   address: string;
-  denom: any;
+  denom: ExtendedMetadataSDKType | null;
   exponent: number;
   refetch: () => void;
 }
@@ -56,7 +57,7 @@ export function MultiBurnModal({
   const [burnPairs, setBurnPairs] = useState([{ address: '', amount: '' }]);
   const { tx, isSigning, setIsSigning } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
-  const { burn } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
+  const { burnHeldBalance } = liftedinit.manifest.v1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
   const updateBurnPair = (index: number, field: 'address' | 'amount', value: string) => {
@@ -77,21 +78,21 @@ export function MultiBurnModal({
     setIsSigning(true);
     try {
       const messages = values.burnPairs.map(pair =>
-        burn({
-          sender: pair.address,
-          burnFromAddress: pair.address,
-          amount: {
-            denom: denom.base,
-            amount: BigInt(parseFloat(pair.amount) * Math.pow(10, exponent)).toString(),
-          },
+        burnHeldBalance({
+          authority: admin,
+          burnCoins: [
+            {
+              denom: denom?.base ?? '',
+              amount: BigInt(parseFloat(pair.amount) * Math.pow(10, exponent)).toString(),
+            },
+          ],
         })
       );
 
       const encodedMessages = messages.map(msg =>
         Any.fromPartial({
           typeUrl: msg.typeUrl,
-          // @ts-ignore
-          value: msg.value,
+          value: liftedinit.manifest.v1.MsgBurnHeldBalance.encode(msg.value).finish(),
         })
       );
 
@@ -121,14 +122,23 @@ export function MultiBurnModal({
   };
 
   return (
-    <dialog id="multi_burn_modal" className={`modal ${isOpen ? 'modal-open' : ''}`}>
+    <dialog
+      id="multi_burn_modal"
+      role="dialog"
+      aria-labelledby="modal-title"
+      aria-modal="true"
+      className={`modal ${isOpen ? 'modal-open' : ''}`}
+    >
       <div className="modal-box max-w-4xl mx-auto min-h-[30vh] max-h-[70vh] rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg overflow-y-auto">
         <form method="dialog" onSubmit={onClose}>
-          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]">
+          <button
+            aria-label="Close modal"
+            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]"
+          >
             ✕
           </button>
         </form>
-        <h3 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">
+        <h3 id="modal-title" className="text-xl font-semibold text-[#161616] dark:text-white mb-6">
           Multi Burn <span className="font-light text-primary">MFX</span>
         </h3>
         <div className="py-4 flex flex-col h-[calc(100%-4rem)]">
@@ -255,6 +265,7 @@ export function MultiBurnModal({
                     type="submit"
                     className="btn btn-error text-white"
                     disabled={isSigning || !isValid}
+                    aria-busy={isSigning}
                   >
                     {isSigning ? (
                       <span className="loading loading-dots loading-md"></span>

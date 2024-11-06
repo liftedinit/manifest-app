@@ -15,6 +15,7 @@ export default function CreateDenom({
   formData: TokenFormData;
   dispatch: React.Dispatch<TokenAction>;
 }>) {
+  const [isSimulating, setIsSimulating] = React.useState(false);
   const { simulateDenomCreation } = useSimulateDenomCreation();
 
   const DenomSchema = Yup.object().shape({
@@ -24,10 +25,14 @@ export default function CreateDenom({
       .min(4, 'Subdenom must be at least 4 characters')
       .max(44, 'Subdenom must not exceed 44 characters')
       .noProfanity('Profanity is not allowed')
-      .simulateDenomCreation(
-        () => simulateDenomCreation(formData.subdenom),
-        `The denom ${formData.subdenom} already exists`
-      ),
+      .simulateDenomCreation(async () => {
+        setIsSimulating(true);
+        try {
+          return await simulateDenomCreation(formData.subdenom);
+        } finally {
+          setIsSimulating(false);
+        }
+      }, `The denom ${formData.subdenom} already exists`),
   });
 
   return (
@@ -63,6 +68,14 @@ export default function CreateDenom({
                         });
                         setFieldValue('subdenom', e.target.value);
                       }}
+                      rightElement={
+                        isSimulating && (
+                          <div className="flex items-center gap-2">
+                            <span className="loading loading-spinner loading-sm" />
+                            <span className="text-sm text-gray-500">checking availability...</span>
+                          </div>
+                        )
+                      }
                     />
 
                     {/* Token Exponents Section */}

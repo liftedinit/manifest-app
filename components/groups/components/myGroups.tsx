@@ -7,7 +7,7 @@ import { useRouter } from 'next/router';
 import {
   ProposalSDKType,
   ThresholdDecisionPolicySDKType,
-} from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
+} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import GroupProposals from './groupProposals';
 import { useBalance } from '@/hooks/useQueries';
 import { shiftDigits } from '@/utils';
@@ -40,7 +40,9 @@ export function YourGroups({
     // Check if there's a policy address in the URL on component mount
     const { policyAddress } = router.query;
     if (policyAddress && typeof policyAddress === 'string') {
-      const group = groups.groups.find(g => g.policies[0]?.address === policyAddress);
+      const group = groups.groups.find(
+        g => g.policies && g.policies.length > 0 && g.policies[0]?.address === policyAddress
+      );
       if (group) {
         setSelectedGroup({
           policyAddress,
@@ -154,7 +156,11 @@ export function YourGroups({
                         <GroupRow
                           key={index}
                           group={group}
-                          proposals={proposals[group.policies[0].address]}
+                          proposals={
+                            group.policies && group.policies.length > 0
+                              ? proposals[group.policies[0].address]
+                              : []
+                          }
                           onSelectGroup={(policyAddress, groupName) =>
                             handleSelectGroup(
                               policyAddress,
@@ -198,7 +204,7 @@ function GroupRow({
   proposals: ProposalSDKType[];
   onSelectGroup: (policyAddress: string, groupName: string, threshold: string) => void;
 }) {
-  const policyAddress = group.policies[0]?.address || '';
+  const policyAddress = (group.policies && group.policies[0]?.address) || '';
   const groupName = group.ipfsMetadata?.title || 'Untitled Group';
   const filterActiveProposals = (proposals: ProposalSDKType[]) => {
     return proposals?.filter(
@@ -227,7 +233,7 @@ function GroupRow({
         onSelectGroup(
           policyAddress,
           groupName,
-          group.policies[0]?.decision_policy?.threshold ?? '0'
+          (group.policies && group.policies[0]?.decision_policy?.threshold) ?? '0'
         );
       }}
     >

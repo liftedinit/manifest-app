@@ -1,5 +1,5 @@
-import { DenomUnit } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
-import { Duration } from '@chalabi/manifestjs/dist/codegen/google/protobuf/duration';
+import { DenomUnit } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { Duration } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/duration';
 import { Coin } from '@cosmjs/stargate';
 
 // Schemas for form data

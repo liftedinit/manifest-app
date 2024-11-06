@@ -2,7 +2,7 @@ import { AssetList, Asset } from '@chain-registry/types';
 import BigNumber from 'bignumber.js';
 import { assets } from 'chain-registry';
 import dayjs from 'dayjs';
-import { Proposal, ProposalStatus } from '@chalabi/manifestjs/dist/codegen/cosmos/gov/v1/gov';
+import { Proposal, ProposalStatus } from '@liftedinit/manifestjs/dist/codegen/cosmos/gov/v1/gov';
 
 export const parseProposals = (proposals: Proposal[]) => {
   const sortedProposal = proposals.sort((a, b) => Number(b.id) - Number(a.id));

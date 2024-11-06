@@ -1,3 +1,5 @@
+import { CombinedBalanceInfo } from './types';
+
 export function truncateString(str: string, num: number) {
   if (str.length > num) {
     return str.slice(0, num) + '...' + str.slice(-6);
@@ -36,3 +38,13 @@ export function secondsToHumanReadable(seconds: number): string {
 export function isValidManifestAddress(value: string): boolean {
   return /^manifest[a-zA-Z0-9]{32,}$/.test(value);
 }
+
+export const formatTokenDisplayName = (token: {
+  metadata?: CombinedBalanceInfo;
+  denom?: string;
+}) => {
+  const tokenDisplayName = token?.metadata?.metadata?.display ?? token?.denom ?? '';
+  return tokenDisplayName.startsWith('factory')
+    ? tokenDisplayName.split('/').pop()?.toUpperCase()
+    : truncateString(tokenDisplayName, 10).toUpperCase();
+};

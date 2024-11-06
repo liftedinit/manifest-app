@@ -1,18 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useQueries, useQuery } from '@tanstack/react-query';
-import { QueryGroupsByMemberResponseSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/query';
+import { QueryGroupsByMemberResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
 
 import { useLcdQueryClient } from './useLcdQueryClient';
 import { usePoaLcdQueryClient } from './usePoaLcdQueryClient';
 import { getLogoUrls, isValidIPFSCID } from '@/utils';
 import { ExtendedValidatorSDKType } from '@/components';
 import { useManifestLcdQueryClient } from './useManifestLcdQueryClient';
-import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import axios from 'axios';
 import {
   GroupMemberSDKType,
   GroupPolicyInfoSDKType,
-} from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
+} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 export interface IPFSMetadata {
   title: string;
   authors: string | string[];
@@ -750,7 +750,7 @@ interface TransactionResponse {
   timestamp: string;
 }
 
-// Helper function to transform API response to match your component's expected format
+// Helper function to transform API response to match the component's expected format
 const transformTransaction = (tx: any) => {
   // Handle both direct MsgSend and nested group proposal MsgSend
   let message: TransactionMessage;
@@ -808,7 +808,7 @@ export const useSendTxIncludingAddressQuery = (address: string, direction?: 'sen
       `${baseUrl}?${query.replace(/\s+/g, '')}&order=data->txResponse->height.desc`
     );
 
-    // Transform the data to match your component's expected format
+    // Transform the data to match the component's expected format
     const transactions = response.data
       .map(transformTransaction)
       .filter((tx: any) => tx !== null)
@@ -839,7 +839,6 @@ export const useSendTxIncludingAddressQuery = (address: string, direction?: 'sen
   };
 };
 
-// If you still need these separate queries, they can be implemented similarly
 export const useSendTxQuery = () => {
   const fetchTransactions = async () => {
     const baseUrl = 'https://testnet-indexer.liftedinit.tech/transactions';
@@ -860,5 +859,35 @@ export const useSendTxQuery = () => {
     isLoading: sendQuery.isLoading,
     isError: sendQuery.isError,
     error: sendQuery.error,
+  };
+};
+
+export const useMultipleTallyCounts = (proposalIds: bigint[]) => {
+  const { lcdQueryClient } = useLcdQueryClient();
+
+  const tallyQueries = useQueries({
+    queries: proposalIds.map(proposalId => ({
+      queryKey: ['tallyInfo', proposalId.toString()],
+      queryFn: async () => {
+        if (!lcdQueryClient) {
+          throw new Error('LCD Client not ready');
+        }
+        return await lcdQueryClient.cosmos.group.v1.tallyResult({
+          proposalId: proposalId,
+        });
+      },
+      enabled: !!lcdQueryClient && !!proposalId,
+      staleTime: Infinity,
+    })),
+  });
+
+  return {
+    tallies: tallyQueries.map((query, index) => ({
+      proposalId: proposalIds[index],
+      tally: query.data,
+    })),
+    isLoading: tallyQueries.some(query => query.isLoading),
+    isError: tallyQueries.some(query => query.isError),
+    refetchTallies: () => tallyQueries.forEach(query => query.refetch()),
   };
 };

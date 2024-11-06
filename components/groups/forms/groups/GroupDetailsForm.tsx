@@ -97,7 +97,7 @@ export default function GroupDetails({
             >
               {({ isValid, setFieldValue, handleChange, values }) => {
                 setIsValidForm(isValid);
-                console.log(isValid);
+
                 return (
                   <Form className="min-h-[330px] flex flex-col gap-4">
                     <TextInput
@@ -223,7 +223,6 @@ export default function GroupDetails({
           disabled={
             !isValidForm ||
             !formData.authors ||
-            formData.authors.length === 0 ||
             formData.authors.length === 0 ||
             (Array.isArray(formData.authors) &&
               formData.authors.some(author => author.trim() === ''))

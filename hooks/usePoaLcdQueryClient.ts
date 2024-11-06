@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { manifest, strangelove_ventures } from '@chalabi/manifestjs';
+import { strangelove_ventures } from '@liftedinit/manifestjs';
 
 import { useQuery } from '@tanstack/react-query';
 import { useChain } from '@cosmos-kit/react';

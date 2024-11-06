@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { chainName } from '@/config';
 import { useFeeEstimation, useTx } from '@/hooks';
-import { osmosis } from '@chalabi/manifestjs';
-import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { osmosis } from '@liftedinit/manifestjs';
+import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { PiSwap } from 'react-icons/pi';
 import { MdContacts } from 'react-icons/md';
 export default function TransferForm({

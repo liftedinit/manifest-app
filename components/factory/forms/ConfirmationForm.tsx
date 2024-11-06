@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { TokenFormData } from '@/helpers/formReducer';
 import { useFeeEstimation } from '@/hooks/useFeeEstimation';
 import { useTx } from '@/hooks/useTx';
-import { osmosis } from '@chalabi/manifestjs';
+import { osmosis } from '@liftedinit/manifestjs';
 import { chainName } from '@/config';
 
 export default function ConfirmationForm({
@@ -56,7 +56,7 @@ export default function ConfirmationForm({
               aliases: [],
             },
             {
-              denom: formData.subdenom.slice(1),
+              denom: formData.subdenom.slice(1).toUpperCase(),
               exponent: 6,
               aliases: [],
             },
@@ -64,7 +64,7 @@ export default function ConfirmationForm({
           base: fullDenom,
           display: formData.display,
           name: formData.name,
-          symbol: formData.symbol || formData.display, // Use display as fallback if symbol is not set
+          symbol: formData.symbol || formData.display,
           uri: formData.uri,
           uriHash: formData.uriHash,
         },

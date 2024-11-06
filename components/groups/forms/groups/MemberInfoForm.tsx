@@ -125,6 +125,8 @@ export default function MemberInfoForm({
                                             <div
                                               className="tooltip tooltip-bottom tooltip-open tooltip-error bottom-0 absolute left-1/2 transform -translate-x-1/2 translate-y-full mt-1 z-50 text-white text-xs"
                                               data-tip={meta.error}
+                                              role="alert"
+                                              aria-live="polite"
                                             >
                                               <div className="w-0 h-0"></div>
                                             </div>

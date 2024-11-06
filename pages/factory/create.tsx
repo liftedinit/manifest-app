@@ -2,7 +2,7 @@ import React, { useState, useReducer } from 'react';
 import { tokenFormDataReducer, TokenFormData } from '@/helpers/formReducer';
 import ConfirmationForm from '@/components/factory/forms/ConfirmationForm';
 import TokenDetails from '@/components/factory/forms/TokenDetailsForm';
-import { Duration } from '@chalabi/manifestjs/dist/codegen/google/protobuf/duration';
+import { Duration } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/duration';
 import StepIndicator from '@/components/groups/components/StepIndicator';
 import { useChain } from '@cosmos-kit/react';
 import { chainName } from '@/config';

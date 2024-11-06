@@ -8,9 +8,9 @@ import { chainName } from '@/config';
 import {
   ThresholdDecisionPolicy,
   ThresholdDecisionPolicySDKType,
-} from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
-import { cosmos } from '@chalabi/manifestjs';
-import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
+} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { cosmos } from '@liftedinit/manifestjs';
+import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { ExtendedGroupType } from '@/hooks';
 
 export function UpdateGroupModal({

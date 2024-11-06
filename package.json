@@ -27,12 +27,11 @@
     "@types/react": "18.0.25",
     "@types/react-dom": "18.0.9",
     "**/@chain-registry/types": "0.25.0",
-    "@cosmjs/stargate": "npm:@liftedinit/stargate@0.32.4-ll.3",
     "**/@cosmjs/stargate": "npm:@liftedinit/stargate@0.32.4-ll.3"
   },
   "dependencies": {
     "@chain-registry/assets": "^1.64.83",
-    "@chalabi/manifestjs": "0.0.1-alpha.18",
+    "@liftedinit/manifestjs": "0.0.1-alpha.19",
     "@cosmjs/cosmwasm-stargate": "0.32.4",
     "@cosmjs/stargate": "npm:@liftedinit/stargate@0.32.4-ll.3",
     "@cosmos-kit/react": "2.18.0",

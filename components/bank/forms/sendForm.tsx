@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { chainName } from '@/config';
 import { useFeeEstimation, useTx } from '@/hooks';
-import { cosmos } from '@chalabi/manifestjs';
+import { cosmos } from '@liftedinit/manifestjs';
 import { PiCaretDownBold } from 'react-icons/pi';
 import { shiftDigits, truncateString } from '@/utils';
 import { CombinedBalanceInfo } from '@/utils/types';
@@ -68,13 +68,16 @@ export default function SendForm({
         const exponent = selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
         const balance = parseFloat(selectedToken.amount) / Math.pow(10, exponent);
 
-        if (value > balance - 0.09) {
+        const MIN_FEE_BUFFER = 0.09;
+        const hasInsufficientBuffer = value > balance - MIN_FEE_BUFFER;
+
+        if (hasInsufficientBuffer) {
           setFeeWarning('Remember to leave tokens for fees!');
         } else {
           setFeeWarning('');
         }
 
-        return true;
+        return !hasInsufficientBuffer;
       }),
     selectedToken: Yup.object().required('Please select a token'),
     memo: Yup.string().max(255, 'Memo must be less than 255 characters'),
@@ -150,6 +153,8 @@ export default function SendForm({
                   <input
                     className="input input-md border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full pr-24 dark:text-[#FFFFFF] text-[#161616]"
                     name="amount"
+                    inputMode="decimal"
+                    pattern="[0-9]*[.]?[0-9]*"
                     placeholder="0.00"
                     style={{ borderRadius: '12px' }}
                     value={values.amount}
@@ -191,6 +196,8 @@ export default function SendForm({
                       </label>
                       <ul
                         tabIndex={0}
+                        role="listbox"
+                        aria-label="Token selection"
                         className="dropdown-content z-20 p-2 shadow bg-base-300 rounded-lg w-full mt-1 max-h-72 min-w-44 overflow-y-auto dark:text-[#FFFFFF] text-[#161616]"
                       >
                         <li className=" bg-base-300 z-30 hover:bg-transparent h-full mb-2">

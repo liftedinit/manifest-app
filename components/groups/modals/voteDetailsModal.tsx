@@ -8,8 +8,8 @@ import {
   ProposalStatus,
   VoteOption,
   VoteSDKType,
-} from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
-import { QueryTallyResultResponseSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/query';
+} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { QueryTallyResultResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import VotingPopup from './voteModal';
 import { ApexOptions } from 'apexcharts';
@@ -17,7 +17,7 @@ import { ApexOptions } from 'apexcharts';
 import { useChain } from '@cosmos-kit/react';
 import { chainName } from '@/config';
 import { useTx } from '@/hooks/useTx';
-import { cosmos } from '@chalabi/manifestjs';
+import { cosmos } from '@liftedinit/manifestjs';
 import { useTheme } from '@/contexts/theme';
 import CountdownTimer from '../components/CountdownTimer';
 import { useFeeEstimation } from '@/hooks';
@@ -548,8 +548,9 @@ function VoteDetailsModal({
             {getButtonState.action && (
               <button
                 disabled={
-                  getButtonState.action === 'remove' &&
-                  !proposal?.proposers?.includes(address ?? '')
+                  isSigning ||
+                  (getButtonState.action === 'remove' &&
+                    !proposal?.proposers?.includes(address ?? ''))
                 }
                 className="btn w-full btn-primary text-white rounded-[12px]"
                 onClick={() => {
@@ -578,6 +579,7 @@ function VoteDetailsModal({
               !proposalClosed &&
               userHasVoted === false && (
                 <button
+                  disabled={isSigning || !proposal?.proposers?.includes(address ?? '')}
                   className="btn btn-xs text-white btn-error absolute top-3 right-3 rounded-lg"
                   onClick={executeWithdrawl}
                 >

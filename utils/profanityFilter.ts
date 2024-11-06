@@ -52,6 +52,8 @@ const whitelist = new Set([
   'middlesex',
   'therapist',
   'asset',
+  'massage',
+  'mass',
 ]);
 
 export const containsProfanity = (text: string) => {

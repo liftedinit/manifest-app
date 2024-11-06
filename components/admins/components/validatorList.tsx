@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ValidatorDetailsModal } from '../modals/validatorModal';
 import { WarningModal } from '../modals/warningModal';
-import { ValidatorSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
+import { ValidatorSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
 import ProfileAvatar from '@/utils/identicon';
 import Image from 'next/image';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
@@ -22,7 +22,6 @@ export default function ValidatorList({
   admin,
   activeValidators,
   pendingValidators,
-  isLoading,
 }: ValidatorListProps) {
   const [active, setActive] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -122,9 +121,13 @@ export default function ValidatorList({
               {active ? 'No active validators found' : 'No pending validators'}
             </div>
           ) : (
-            <table className="table w-full border-separate border-spacing-y-3">
+            <table
+              className="table w-full border-separate border-spacing-y-3"
+              role="grid"
+              aria-label="Validators list"
+            >
               <thead>
-                <tr className="text-sm font-medium text-[#808080]">
+                <tr className="text-sm font-medium text-[#808080]" role="row">
                   <th className="bg-transparent text-left sticky top-0 bg-base-100 z-10">
                     Moniker
                   </th>
@@ -145,6 +148,8 @@ export default function ValidatorList({
                     key={validator.operator_address}
                     className="bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg cursor-pointer"
                     onClick={() => handleRowClick(validator)}
+                    role="row"
+                    aria-label={`Validator ${validator.description.moniker}`}
                   >
                     <td className="rounded-l-[12px] py-4">
                       <div className="flex items-center space-x-3">

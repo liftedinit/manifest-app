@@ -125,7 +125,7 @@ export default function ProposalDetails({
                 type="submit"
                 className="w-1/2 btn  py-2.5 sm:py-3.5 btn-gradient text-white disabled:text-black"
                 onClick={nextStep}
-                disabled={!isValid}
+                disabled={!isValid || !formData.proposers}
               >
                 Next: Proposal Messages
               </button>

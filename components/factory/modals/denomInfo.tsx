@@ -1,7 +1,7 @@
 import React from 'react';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { FaExternalLinkAlt } from 'react-icons/fa';
-import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { useRouter } from 'next/router';
 
 export const DenomInfoModal: React.FC<{
@@ -11,10 +11,20 @@ export const DenomInfoModal: React.FC<{
   onClose?: () => void;
 }> = ({ denom, modalId, isOpen, onClose }) => {
   return (
-    <dialog id={modalId} className={`modal ${isOpen ? 'modal-open' : ''}`}>
+    <dialog
+      id={modalId}
+      className={`modal ${isOpen ? 'modal-open' : ''}`}
+      aria-labelledby="denom-info-title"
+      aria-modal="true"
+    >
       <div className="modal-box max-w-4xl mx-auto rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg">
         <form method="dialog" onSubmit={onClose}>
-          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+          <button
+            aria-label="Close modal"
+            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+          >
+            ✕
+          </button>
         </form>
         <h3 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">Denom Details</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -35,12 +45,21 @@ export const DenomInfoModal: React.FC<{
             )}
           </div>
           <div>
-            {denom?.denom_units?.map((unit: any, index: number) => (
-              <div key={index} className="mb-4">
-                <InfoItem label="DENOM" value={unit?.denom} />
-                <InfoItem label="ALIASES" value={unit?.aliases?.join(', ') || 'No aliases'} />
-              </div>
-            ))}
+            {denom?.denom_units?.map(
+              (
+                unit: {
+                  denom: string;
+                  aliases?: string[];
+                  exponent?: number;
+                },
+                index: number
+              ) => (
+                <div key={index} className="mb-4">
+                  <InfoItem label="DENOM" value={unit?.denom} />
+                  <InfoItem label="ALIASES" value={unit?.aliases?.join(', ') || 'No aliases'} />
+                </div>
+              )
+            )}
           </div>
         </div>
         <h4 className="text-lg font-semibold text-[#161616] dark:text-white mt-6  mb-4">
@@ -79,12 +98,14 @@ function InfoItem({
           <div className="flex items-center">
             <TruncatedAddressWithCopy address={value} slice={8} />
             <a
-              href={`https://testnet.manifest.explorers.guru/account/${value}`}
+              href={`${process.env.NEXT_PUBLIC_TESTNET_EXPLORER_URL}/account/${value}`}
               target="_blank"
+              aria-label={`View ${value} on block explorer (opens in new tab)`}
               rel="noopener noreferrer"
               className="ml-2 text-primary hover:text-primary/50"
             >
-              <FaExternalLinkAlt />
+              <FaExternalLinkAlt aria-hidden="true" />{' '}
+              <span className="sr-only">External link</span>
             </a>
           </div>
         ) : (

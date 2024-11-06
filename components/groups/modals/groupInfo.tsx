@@ -4,7 +4,7 @@ import { shiftDigits } from '@/utils';
 import ProfileAvatar from '@/utils/identicon';
 import { ExtendedGroupType } from '@/hooks/useQueries';
 import { UpdateGroupModal } from './updateGroupModal';
-import { ThresholdDecisionPolicySDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { ThresholdDecisionPolicySDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 
 interface GroupInfoProps {
   group: ExtendedGroupType | null;
@@ -19,9 +19,38 @@ export function GroupInfo({ group, policyAddress, address, onUpdate }: GroupInfo
   const policy = group.policies[0];
   const votingPeriod = (group.policies[0]?.decision_policy as ThresholdDecisionPolicySDKType)
     ?.windows?.voting_period;
-  const votingPeriodDays = votingPeriod
-    ? Math.floor(parseInt(votingPeriod?.seconds?.toString() ?? '0') / 86400)
-    : 0;
+  console.log({ votingPeriod });
+  const votingPeriodSeconds = (() => {
+    try {
+      if (!votingPeriod) return 0;
+      const seconds = Number(votingPeriod.toString().replace('s', ''));
+      if (isNaN(seconds) || seconds < 0) return 0;
+      return seconds;
+    } catch (error) {
+      console.error('Error parsing voting period:', error);
+      return 0;
+    }
+  })();
+
+  const votingPeriodDisplay = (() => {
+    try {
+      if (votingPeriodSeconds === 0) return 'No voting period';
+
+      if (votingPeriodSeconds >= 86400) {
+        const days = Math.floor(votingPeriodSeconds / 86400);
+        return `${days} day${days > 1 ? 's' : ''}`;
+      }
+      if (votingPeriodSeconds >= 3600) {
+        const hours = Math.floor(votingPeriodSeconds / 3600);
+        return `${hours} hour${hours > 1 ? 's' : ''}`;
+      }
+      const minutes = Math.max(1, Math.floor(votingPeriodSeconds / 60));
+      return `${minutes} minute${minutes > 1 ? 's' : ''}`;
+    } catch (error) {
+      console.error('Error calculating voting period display:', error);
+      return 'Invalid voting period';
+    }
+  })();
 
   const threshold = (policy?.decision_policy as ThresholdDecisionPolicySDKType)?.threshold ?? '0';
 
@@ -93,7 +122,7 @@ export function GroupInfo({ group, policyAddress, address, onUpdate }: GroupInfo
           <h4 className="font-semibold dark:text-[#FFFFFF99] text-[#00000099]">
             Group Information
           </h4>
-          <InfoItem label="Voting period" value={`${votingPeriodDays} days`} />
+          <InfoItem label="Voting period" value={votingPeriodDisplay} />
           <InfoItem label="Qualified Majority" value={threshold} />
           <InfoItem
             label="Description"

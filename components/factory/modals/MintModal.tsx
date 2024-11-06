@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MetadataSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import MintForm from '@/components/factory/forms/MintForm';
 import { useGroupsByAdmin, usePoaGetAdmin } from '@/hooks';
 import { ExtendedMetadataSDKType, truncateString } from '@/utils';
@@ -38,7 +38,13 @@ export default function MintModal({
   const isAdmin = members?.some(member => member?.member?.address === address);
   const isLoading = isPoaAdminLoading || isGroupByAdminLoading;
 
-  if (!denom) return null;
+  if (!denom || !address) {
+    console.warn('MintModal: Missing required props', { denom, address });
+    return null;
+  }
+
+  const safeBalance = balance || '0';
+  const safeTotalSupply = totalSupply || '0';
 
   const handleMultiMintOpen = () => {
     onSwitchToMultiMint();
@@ -69,9 +75,9 @@ export default function MintModal({
             ) : (
               <MintForm
                 isAdmin={isAdmin ?? false}
-                admin={admin ?? ''}
-                balance={balance}
-                totalSupply={totalSupply}
+                admin={admin}
+                balance={safeBalance}
+                totalSupply={safeTotalSupply}
                 refetch={refetch}
                 address={address}
                 denom={denom}

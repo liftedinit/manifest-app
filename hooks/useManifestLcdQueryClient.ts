@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { osmosis } from '@chalabi/manifestjs';
+import { osmosis } from '@liftedinit/manifestjs';
 
 import { useQuery } from '@tanstack/react-query';
 import { useChain } from '@cosmos-kit/react';

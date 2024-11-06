@@ -1,8 +1,8 @@
 import { Fragment, useEffect } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { SignData } from '@cosmos-kit/web3auth';
-import { SignDoc } from '@chalabi/manifestjs/dist/codegen/cosmos/tx/v1beta1/tx';
-import { TxBody, AuthInfo } from '@chalabi/manifestjs/dist/codegen/cosmos/tx/v1beta1/tx';
+import { SignDoc } from '@liftedinit/manifestjs/dist/codegen/cosmos/tx/v1beta1/tx';
+import { TxBody, AuthInfo } from '@liftedinit/manifestjs/dist/codegen/cosmos/tx/v1beta1/tx';
 import { decodePubkey } from '@cosmjs/proto-signing';
 import { useWallet, useChain } from '@cosmos-kit/react';
 import Image from 'next/image';

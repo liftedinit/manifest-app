@@ -2,15 +2,17 @@ import React, { useState } from 'react';
 import { Formik, Form, FieldArray, Field, FieldProps } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { NumberInput, TextInput } from '@/components/react/inputs';
+import { TailwindModal } from '@/components/react';
 
 import { MdContacts } from 'react-icons/md';
 import { PlusIcon, MinusIcon } from '@/components/icons';
 import { useTx, useFeeEstimation } from '@/hooks';
 import { chainName } from '@/config';
-import { cosmos, liftedinit } from '@chalabi/manifestjs';
-import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
-import { MsgPayout } from '@chalabi/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
-
+import { cosmos, liftedinit } from '@liftedinit/manifestjs';
+import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
+import { MsgPayout } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
+import { ExtendedMetadataSDKType } from '@/utils';
+//TODO: find max mint amount from team for mfx. Find tx size limit for max payout pairs
 interface PayoutPair {
   address: string;
   amount: string;
@@ -21,19 +23,23 @@ interface MultiMintModalProps {
   onClose: () => void;
   admin: string;
   address: string;
-  denom: any;
+  denom: ExtendedMetadataSDKType | null;
   exponent: number;
   refetch: () => void;
 }
 
 const PayoutPairSchema = Yup.object().shape({
   address: Yup.string().manifestAddress().required('Required'),
-  amount: Yup.number().positive('Amount must be positive').required('Required'),
+  amount: Yup.number()
+    .positive('Amount must be positive')
+    .required('Required')
+    .max(100000, 'Amount too large'),
 });
 
 const MultiMintSchema = Yup.object().shape({
   payoutPairs: Yup.array()
     .of(PayoutPairSchema)
+    .max(100, 'Maximum 100 payout pairs allowed')
     .min(1, 'At least one payout pair is required')
     .test('unique-address', 'Addresses must be unique', function (pairs) {
       if (!pairs) return true;
@@ -57,6 +63,8 @@ export function MultiMintModal({
   const { estimateFee } = useFeeEstimation(chainName);
   const { payout } = liftedinit.manifest.v1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
+  const [isContactsOpen, setIsContactsOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const updatePayoutPair = (index: number, field: 'address' | 'amount', value: string) => {
     const newPairs = [...payoutPairs];
@@ -80,7 +88,7 @@ export function MultiMintModal({
         payoutPairs: values.payoutPairs.map(pair => ({
           address: pair.address,
           coin: {
-            denom: denom.base,
+            denom: denom?.base ?? '',
             amount: BigInt(parseFloat(pair.amount) * Math.pow(10, exponent)).toString(),
           },
         })),
@@ -117,7 +125,12 @@ export function MultiMintModal({
   };
 
   return (
-    <dialog id="multi_mint_modal" className={`modal ${isOpen ? 'modal-open' : ''}`}>
+    <dialog
+      id="multi_mint_modal"
+      className={`modal ${isOpen ? 'modal-open' : ''}`}
+      aria-labelledby="modal-title"
+      aria-modal="true"
+    >
       <div className="modal-box max-w-4xl mx-auto min-h-[30vh] max-h-[70vh] rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg overflow-y-auto">
         <form method="dialog" onSubmit={onClose}>
           <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]">
@@ -183,8 +196,8 @@ export function MultiMintModal({
                                         <button
                                           type="button"
                                           onClick={() => {
-                                            updatePayoutPair(index, 'address', '');
-                                            setFieldValue(`payoutPairs.${index}.address`, '');
+                                            setSelectedIndex(index);
+                                            setIsContactsOpen(true);
                                           }}
                                           className="btn btn-primary btn-sm text-white absolute right-2 top-1/2 transform -translate-y-1/2"
                                         >
@@ -193,9 +206,10 @@ export function MultiMintModal({
                                       }
                                     />
                                     {meta.touched && meta.error && (
-                                      <div className="tooltip tooltip-bottom tooltip-open tooltip-error bottom-0 absolute left-1/2 transform -translate-x-1/2 translate-y-full mt-1 z-50 text-white text-xs">
-                                        <div className="w-0 h-0"></div>
-                                      </div>
+                                      <div
+                                        className="tooltip tooltip-bottom tooltip-open tooltip-error bottom-0 absolute left-1/2 transform -translate-x-1/2 translate-y-full mt-1 z-50 text-white text-xs"
+                                        data-tip={meta.error}
+                                      ></div>
                                     )}
                                   </div>
                                 )}
@@ -215,9 +229,10 @@ export function MultiMintModal({
                                       }`}
                                     />
                                     {meta.touched && meta.error && (
-                                      <div className="tooltip tooltip-bottom tooltip-open tooltip-error bottom-0 absolute left-1/2 transform -translate-x-1/2 translate-y-full mt-1 z-50 text-white text-xs">
-                                        <div className="w-0 h-0"></div>
-                                      </div>
+                                      <div
+                                        className="tooltip tooltip-bottom tooltip-open tooltip-error bottom-0 absolute left-1/2 transform -translate-x-1/2 translate-y-full mt-1 z-50 text-white text-xs"
+                                        data-tip={meta.error}
+                                      ></div>
                                     )}
                                   </div>
                                 )}
@@ -231,6 +246,7 @@ export function MultiMintModal({
                                   remove(index);
                                   removePayoutPair(index);
                                 }}
+                                aria-label="Remove payout pair"
                               >
                                 <MinusIcon className="w-5 h-5" />
                               </button>
@@ -258,6 +274,21 @@ export function MultiMintModal({
                     )}
                   </button>
                 </div>
+                <TailwindModal
+                  isOpen={isContactsOpen}
+                  setOpen={setIsContactsOpen}
+                  showContacts={true}
+                  currentAddress={address}
+                  onSelect={(selectedAddress: string) => {
+                    if (selectedIndex !== null) {
+                      // Update both the local state and Formik state
+                      updatePayoutPair(selectedIndex, 'address', selectedAddress);
+                      setFieldValue(`payoutPairs.${selectedIndex}.address`, selectedAddress);
+                    }
+                    setIsContactsOpen(false);
+                    setSelectedIndex(null);
+                  }}
+                />
               </Form>
             )}
           </Formik>

@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { chainName } from '@/config';
 import { useTokenFactoryBalance, useFeeEstimation, useTx } from '@/hooks';
-import { cosmos, osmosis, liftedinit } from '@chalabi/manifestjs';
+import { cosmos, osmosis, liftedinit } from '@liftedinit/manifestjs';
 
 import { MdContacts } from 'react-icons/md';
 import { shiftDigits } from '@/utils';
-import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
-import { MsgBurnHeldBalance } from '@chalabi/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
+import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
+import { MsgBurnHeldBalance } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
 import { MultiBurnModal } from '../modals/multiMfxBurnModal';
 import { useToast } from '@/contexts';
 import { Formik, Form } from 'formik';
@@ -14,7 +14,7 @@ import Yup from '@/utils/yupExtensions';
 import { NumberInput, TextInput } from '@/components/react/inputs';
 import { ExtendedMetadataSDKType, truncateString } from '@/utils';
 import { TailwindModal } from '@/components/react/modal';
-
+//TODO: burn target validation
 interface BurnPair {
   address: string;
   amount: string;
@@ -59,8 +59,9 @@ export default function BurnForm({
   const isMFX = denom.base.includes('mfx');
 
   const { balance: recipientBalance } = useTokenFactoryBalance(recipient ?? '', denom.base);
-  const balanceNumber = parseFloat(
-    shiftDigits(isMFX ? recipientBalance?.amount || '0' : balance, -exponent)
+  const balanceNumber = useMemo(
+    () => parseFloat(shiftDigits(isMFX ? recipientBalance?.amount || '0' : balance, -exponent)),
+    [recipientBalance?.amount, balance, exponent, isMFX]
   );
 
   const BurnSchema = Yup.object().shape({
@@ -75,7 +76,7 @@ export default function BurnForm({
   });
 
   const handleBurn = async () => {
-    if (!amount || isNaN(Number(amount))) {
+    if (!amount || Number.isNaN(Number(amount))) {
       return;
     }
     setIsSigning(true);

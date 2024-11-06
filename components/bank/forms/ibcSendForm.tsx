@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { chainName } from '@/config';
 import { useFeeEstimation, useTx } from '@/hooks';
-import { ibc } from '@chalabi/manifestjs';
+import { ibc } from '@liftedinit/manifestjs';
 import { getIbcInfo } from '@/utils';
 import { PiCaretDownBold } from 'react-icons/pi';
 import { MdContacts } from 'react-icons/md';
@@ -16,7 +16,9 @@ import { shiftDigits, truncateString } from '@/utils';
 import { SearchIcon } from '@/components/icons';
 import { MFX_TOKEN_DATA } from '@/utils/constants'; // Import MFX_TOKEN_DATA
 import { TailwindModal } from '@/components/react/modal';
+import { formatTokenDisplayName } from '@/utils';
 
+//TODO: use formatTokenDisplayName instead of repeating format
 export default function IbcSendForm({
   address,
   destinationChain,
@@ -51,10 +53,14 @@ export default function IbcSendForm({
   const [isContactsOpen, setIsContactsOpen] = useState(false);
 
   // Adjusted filter logic to handle undefined metadata
-  const filteredBalances = balances?.filter(token => {
-    const displayName = token.metadata?.display ?? token.denom;
-    return displayName.toLowerCase().includes(searchTerm.toLowerCase());
-  });
+  const filteredBalances = useMemo(
+    () =>
+      balances?.filter(token => {
+        const displayName = token.metadata?.display ?? token.denom;
+        return displayName.toLowerCase().includes(searchTerm.toLowerCase());
+      }),
+    [balances, searchTerm]
+  );
 
   // Set initialSelectedToken to 'mfx' if available
   const initialSelectedToken =
@@ -78,20 +84,14 @@ export default function IbcSendForm({
         const balance = parseFloat(selectedToken.amount) / Math.pow(10, exponent);
         return value <= balance;
       })
-      .test('leave-for-fees', '', function (value) {
+      .test('leave-for-fees', 'Insufficient balance for fees', function (value) {
         const { selectedToken } = this.parent;
         if (!selectedToken || !value || selectedToken.denom !== 'umfx') return true;
 
         const exponent = selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
         const balance = parseFloat(selectedToken.amount) / Math.pow(10, exponent);
 
-        if (value > balance - 0.09) {
-          setFeeWarning('Remember to leave tokens for fees!');
-        } else {
-          setFeeWarning('');
-        }
-
-        return true;
+        return value <= balance - 0.09;
       }),
     selectedToken: Yup.object().required('Please select a token'),
     memo: Yup.string().max(255, 'Memo must be less than 255 characters'),
@@ -181,6 +181,10 @@ export default function IbcSendForm({
                   <label
                     tabIndex={0}
                     aria-label="chain-selector"
+                    role="combobox"
+                    aria-expanded="false"
+                    aria-controls="chain-dropdown"
+                    aria-haspopup="listbox"
                     style={{ borderRadius: '12px' }}
                     className="btn   btn-md btn-dropdown w-full justify-between border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A]"
                   >
@@ -205,12 +209,20 @@ export default function IbcSendForm({
 
                 <ul
                   tabIndex={0}
+                  role="listbox"
                   className="dropdown-content z-[100] menu p-2 shadow bg-base-300 rounded-lg w-full mt-1 dark:text-[#FFFFFF] text-[#161616]"
                 >
                   {ibcChains.map(chain => (
-                    <li key={chain.id}>
+                    <li key={chain.id} role="option" aria-selected={selectedChain === chain.id}>
                       <a
                         onClick={() => setSelectedChain(chain.id)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            setSelectedChain(chain.id);
+                          }
+                        }}
+                        tabIndex={0}
                         className="flex items-center"
                         aria-label={chain.name}
                       >
@@ -237,11 +249,16 @@ export default function IbcSendForm({
                 <div className="relative">
                   <input
                     type="text"
+                    inputMode="decimal"
+                    pattern="[0-9]*[.]?[0-9]*"
                     name="amount"
                     placeholder="0.00"
                     value={values.amount}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      setFieldValue('amount', e.target.value);
+                      const value = e.target.value;
+                      if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                        setFieldValue('amount', e.target.value);
+                      }
                     }}
                     style={{ borderRadius: '12px' }}
                     className="input input-md border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full pr-24 dark:text-[#FFFFFF] text-[#161616]"

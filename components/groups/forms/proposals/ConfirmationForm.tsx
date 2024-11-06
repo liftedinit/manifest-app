@@ -2,19 +2,19 @@ import React from 'react';
 import { useFeeEstimation } from '@/hooks/useFeeEstimation';
 import { uploadJsonToIPFS } from '@/hooks/useIpfs';
 import { useTx } from '@/hooks/useTx';
-import { strangelove_ventures, cosmos, liftedinit } from '@chalabi/manifestjs';
-import { Any } from '@chalabi/manifestjs/dist/codegen/google/protobuf/any';
+import { strangelove_ventures, cosmos, liftedinit } from '@liftedinit/manifestjs';
+import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { ProposalFormData } from '@/helpers/formReducer';
 import { chainName } from '@/config';
-import { MsgMultiSend, MsgSend } from '@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
+import { MsgMultiSend, MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
 import {
   MsgRemovePending,
   MsgRemoveValidator,
   MsgSetPower,
   MsgUpdateStakingParams,
-} from '@chalabi/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
+} from '@liftedinit/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
 import {
   MsgCreateGroupWithPolicy,
   MsgExec,
@@ -26,15 +26,15 @@ import {
   MsgUpdateGroupPolicyAdmin,
   MsgVote,
   MsgWithdrawProposal,
-} from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/tx';
+} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
 import {
   MsgPayout,
   MsgBurnHeldBalance,
-} from '@chalabi/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
+} from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
 import {
   MsgSoftwareUpgrade,
   MsgCancelUpgrade,
-} from '@chalabi/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
+} from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
 
 export default function ConfirmationForm({
   policyAddress,

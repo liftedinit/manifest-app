@@ -95,7 +95,7 @@ function InfoItem({
           <div className="flex items-center">
             <TruncatedAddressWithCopy address={value} slice={8} />
             <a
-              href={`https://testnet.manifest.explorers.guru/${label === 'TRANSACTION HASH' ? 'transaction' : 'account'}/${label.includes('TRANSACTION') ? value.toUpperCase() : value}`}
+              href={`${process.env.NEXT_PUBLIC_TESTNET_EXPLORER_URL}/${label === 'TRANSACTION HASH' ? 'transaction' : 'account'}/${label.includes('TRANSACTION') ? value.toUpperCase() : value}`}
               target="_blank"
               rel="noopener noreferrer"
               className="ml-2 text-primary hover:text-primary/50"

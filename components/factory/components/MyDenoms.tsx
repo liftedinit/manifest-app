@@ -219,7 +219,7 @@ export default function MyDenoms({
         onClose={handleCloseModal}
       />
       <MintModal
-        admin={poaAdmin ?? ''}
+        admin={poaAdmin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'}
         isPoaAdminLoading={isPoaAdminLoading}
         denom={selectedDenom}
         address={address}
@@ -258,7 +258,7 @@ export default function MyDenoms({
         onClose={handleCloseModal}
       />
       <MultiBurnModal
-        admin={address}
+        admin={poaAdmin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'}
         address={address}
         denom={selectedDenom}
         exponent={selectedDenom?.denom_units[1]?.exponent ?? 0}
@@ -283,6 +283,23 @@ function TokenRow({
   onBurn: (e: React.MouseEvent) => void;
   onUpdate: (e: React.MouseEvent) => void;
 }) {
+  // Add safety checks for the values
+  const exponent = denom?.denom_units?.[1]?.exponent ?? 0;
+  const totalSupply = denom?.totalSupply ?? '0';
+  const balance = denom?.balance ?? '0';
+
+  // Format numbers safely
+  const formatAmount = (amount: string) => {
+    try {
+      return Number(shiftDigits(amount, -exponent)).toLocaleString(undefined, {
+        maximumFractionDigits: exponent,
+      });
+    } catch (error) {
+      console.warn('Error formatting amount:', error);
+      return '0';
+    }
+  };
+
   return (
     <tr
       className="hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] dark:bg-[#FFFFFF0F] bg-[#FFFFFF] text-black dark:text-white rounded-lg cursor-pointer"
@@ -297,31 +314,17 @@ function TokenRow({
       <td className="w-1/4 sm:table-cell hidden">{truncateString(denom.symbol, 20)}</td>
       <td className="w-2/4 sm:w-1/4">
         <div className="flex flex-col sm:flex-row sm:items-center">
-          <span className="sm:mr-2">
-            {Number(shiftDigits(denom.totalSupply, -denom.denom_units[1]?.exponent)).toLocaleString(
-              undefined,
-              {
-                maximumFractionDigits: denom.denom_units[1]?.exponent ?? 6,
-              }
-            )}
-          </span>
-          <span className=" font-extralight ">
-            {truncateString(denom.display, 10).toUpperCase()}
+          <span className="sm:mr-2">{formatAmount(totalSupply)}</span>
+          <span className="font-extralight">
+            {truncateString(denom?.display ?? '', 10).toUpperCase()}
           </span>
         </div>
       </td>
       <td className="w-2/4 sm:w-1/4">
         <div className="flex flex-col sm:flex-row sm:items-center">
-          <span className="sm:mr-2">
-            {Number(shiftDigits(denom.balance, -denom.denom_units[1]?.exponent)).toLocaleString(
-              undefined,
-              {
-                maximumFractionDigits: denom.denom_units[1]?.exponent ?? 6,
-              }
-            )}
-          </span>
-          <span className="font-extralight ">
-            {truncateString(denom.display, 10).toUpperCase()}
+          <span className="sm:mr-2">{formatAmount(balance)}</span>
+          <span className="font-extralight">
+            {truncateString(denom?.display ?? '', 10).toUpperCase()}
           </span>
         </div>
       </td>

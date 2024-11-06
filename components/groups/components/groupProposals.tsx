@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useProposalsByPolicyAccount, useTallyCount, useVotesByProposal } from '@/hooks/useQueries';
-import { ProposalSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
-import { QueryTallyResultResponseSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/query';
+import {
+  useProposalsByPolicyAccount,
+  useTallyCount,
+  useVotesByProposal,
+  useMultipleTallyCounts,
+} from '@/hooks/useQueries';
+import { ProposalSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { QueryTallyResultResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
 import Link from 'next/link';
 import { SearchIcon } from '@/components/icons';
 import { useRouter } from 'next/router';
@@ -9,14 +14,13 @@ import { useRouter } from 'next/router';
 import VoteDetailsModal from '@/components/groups/modals/voteDetailsModal';
 import { useGroupsByMember } from '@/hooks/useQueries';
 import { useChain } from '@cosmos-kit/react';
-import { MemberSDKType } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { MemberSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { ArrowRightIcon } from '@/components/icons';
 import ProfileAvatar from '@/utils/identicon';
 import { GroupInfo } from '../modals/groupInfo';
 import { ExtendedGroupType } from '@/hooks/useQueries';
 import { MemberManagementModal } from '../modals/memberManagmentModal';
-import { ThresholdDecisionPolicy } from '@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types';
-import { TailwindModal } from '@/components/react';
+import { ThresholdDecisionPolicy } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 
 type GroupProposalsProps = {
   policyAddress: string;
@@ -35,9 +39,6 @@ export default function GroupProposals({
     useProposalsByPolicyAccount(policyAddress);
 
   const [selectedProposal, setSelectedProposal] = useState<ProposalSDKType | null>(null);
-  const [tallies, _setTallies] = useState<
-    { proposalId: bigint; tally: QueryTallyResultResponseSDKType }[]
-  >([]);
   const [members, setMembers] = useState<MemberSDKType[]>([]);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -52,7 +53,6 @@ export default function GroupProposals({
   const filterProposals = (proposals: ProposalSDKType[]) => {
     return proposals.filter(
       proposal =>
-        proposal.status.toString() !== 'PROPOSAL_STATUS_ACCEPTED' &&
         proposal.status.toString() !== 'PROPOSAL_STATUS_REJECTED' &&
         proposal.status.toString() !== 'PROPOSAL_STATUS_WITHDRAWN'
     );
@@ -74,10 +74,11 @@ export default function GroupProposals({
         }, 0);
       } else {
         console.warn(`Proposal with ID ${proposalId} not found`);
-        // Optionally, remove the invalid proposalId from the URL
+        // remove the invalid proposalId from the URL
         router.push(`/groups?policyAddress=${policyAddress}`, undefined, { shallow: true });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.query, proposals, policyAddress]);
 
   const handleRowClick = (proposal: ProposalSDKType) => {
@@ -109,20 +110,17 @@ export default function GroupProposals({
     const abstainCount = BigInt(tally?.tally?.abstain_count ?? '0');
 
     const totalVotes = yesCount + noCount + noWithVetoCount + abstainCount;
-    console.log(
-      'totalVotes',
-      totalVotes,
-      'threshold',
-      BigInt(policyThreshold.threshold),
-      'isThresholdReached',
-      totalVotes >= BigInt(policyThreshold.threshold)
-    );
+    const totalNoVotes = noCount + noWithVetoCount;
+
     // Check if threshold is reached
     const threshold = BigInt(policyThreshold.threshold);
     const isThresholdReached = totalVotes >= threshold;
 
+    // Check for tie
+    const isTie = yesCount === totalNoVotes && yesCount > 0;
+
     // Determine if passing based on vote distribution
-    const isPassing = isThresholdReached && yesCount > noCount + noWithVetoCount;
+    const isPassing = isThresholdReached && yesCount > totalNoVotes;
 
     return {
       isPassing,
@@ -131,6 +129,7 @@ export default function GroupProposals({
       noWithVetoCount,
       abstainCount,
       isThresholdReached,
+      isTie,
     };
   }
 
@@ -192,7 +191,9 @@ export default function GroupProposals({
 
   useEffect(() => {
     if (groupByMemberData && policyAddress) {
-      const group = groupByMemberData.groups.find(g => g.policies[0]?.address === policyAddress);
+      const group = groupByMemberData.groups.find(
+        g => g.policies.length > 0 && g.policies[0]?.address === policyAddress
+      );
       if (group) {
         setMembers(
           group.members.map(member => ({
@@ -235,6 +236,8 @@ export default function GroupProposals({
     }
   };
 
+  const { tallies, isLoading: isTalliesLoading } = useMultipleTallyCounts(proposals.map(p => p.id));
+
   return (
     <div className="h-full flex flex-col p-4">
       {/* Header section */}
@@ -273,7 +276,7 @@ export default function GroupProposals({
             <input
               type="text"
               placeholder="Search for a group..."
-              className="input input-bordered w-[224px] h-[40px] rounded-[12px] border-none bg:[#0000000A] dark:bg-[#FFFFFF1F] pl-10"
+              className="input input-bordered w-[224px] h-[40px] rounded-[12px] border-none bg-[#0000000A] dark:bg-[#FFFFFF1F] pl-10"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
             />
@@ -308,12 +311,6 @@ export default function GroupProposals({
             </thead>
             <tbody className="space-y-4">
               {filteredProposals.map(proposal => {
-                const proposalTally = tallies.find(t => t.proposalId === proposal.id);
-
-                const { isPassing, isThresholdReached } = proposalTally
-                  ? isProposalPassing(proposalTally.tally)
-                  : { isPassing: false, isThresholdReached: false };
-
                 const endTime = new Date(proposal?.voting_period_end);
                 const now = new Date();
                 const msPerMinute = 1000 * 60;
@@ -339,22 +336,22 @@ export default function GroupProposals({
                   timeLeft = 'less than a minute';
                 }
 
-                let status;
-                if (
-                  BigInt(tally?.tally?.yes_count ?? '0') > BigInt(policyThreshold.threshold) &&
-                  BigInt(tally?.tally?.yes_count ?? '0') >
-                    BigInt(tally?.tally?.no_count ?? '0') +
-                      BigInt(tally?.tally?.no_with_veto_count ?? '0')
-                ) {
-                  status = 'Passing';
-                } else if (
-                  BigInt(tally?.tally?.yes_count ?? '0') <
-                  BigInt(tally?.tally?.no_count ?? '0') +
-                    BigInt(tally?.tally?.no_with_veto_count ?? '0')
-                ) {
-                  status = 'Failing';
-                } else {
-                  status = 'Pending';
+                const proposalTally = tallies.find(t => t.proposalId === proposal.id)?.tally;
+
+                let status = 'Pending';
+                if (proposal.status.toString() === 'PROPOSAL_STATUS_ACCEPTED') {
+                  status = 'Awaiting Execution';
+                } else if (proposal.status.toString() === 'PROPOSAL_STATUS_CLOSED') {
+                  status = 'Executed';
+                } else if (proposalTally) {
+                  const { isPassing, isThresholdReached, isTie } = isProposalPassing(proposalTally);
+                  if (isThresholdReached) {
+                    if (isTie) {
+                      status = 'Tie';
+                    } else {
+                      status = isPassing ? 'Passing' : 'Failing';
+                    }
+                  }
                 }
                 return (
                   <tr
@@ -372,7 +369,13 @@ export default function GroupProposals({
                     <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF]">
                       {getHumanReadableType((proposal.messages[0] as any)['@type'])}
                     </td>
-                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px]">{status}</td>
+                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px]">
+                      {isTalliesLoading ? (
+                        <span className="loading loading-spinner loading-xs"></span>
+                      ) : (
+                        status
+                      )}
+                    </td>
                   </tr>
                 );
               })}
