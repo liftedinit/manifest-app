@@ -75,7 +75,9 @@ describe('ValidatorDetailsModal Component', () => {
     fireEvent.change(input, { target: { value: '-1' } });
     fireEvent.blur(input);
     await waitFor(() => {
-      const errorMessage = screen.getByText(/power must be a non-negative number/i);
+      const errorMessage = screen.getByText(
+        (content, element) => element.dataset.tip === 'Power must be a non-negative number'
+      );
       expect(errorMessage).toBeInTheDocument();
     });
   });
