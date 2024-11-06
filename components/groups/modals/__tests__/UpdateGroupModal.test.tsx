@@ -83,19 +83,14 @@ describe('UpdateGroupModal Component Input State Changes', () => {
     expect(thresholdInput.value).toBe('2');
 
     // Test forum input
-    const forumInput = screen.getByLabelText('Forum') as HTMLInputElement;
+    const forumInput = screen.getByLabelText('Forum URL') as HTMLInputElement;
     fireEvent.change(forumInput, { target: { value: 'https://newforum.com' } });
     expect(forumInput.value).toBe('https://newforum.com');
 
-    // Test voting window input
-    const votingWindowInput = screen.getByLabelText('Voting Window') as HTMLInputElement;
-    fireEvent.change(votingWindowInput, { target: { value: '2' } });
-    expect(votingWindowInput.value).toBe('2');
-
     // Test voting unit select
-    const votingUnitSelect = screen.getByTitle('votingUnit') as HTMLSelectElement;
-    fireEvent.change(votingUnitSelect, { target: { value: 'weeks' } });
-    expect(votingUnitSelect.value).toBe('weeks');
+    const minutes = screen.getByLabelText('Minutes') as HTMLSelectElement;
+    fireEvent.change(minutes, { target: { value: '30' } });
+    expect(minutes.value).toBe('30');
 
     // Test description input
     const descriptionInput = screen.getByLabelText('Description') as HTMLTextAreaElement;
