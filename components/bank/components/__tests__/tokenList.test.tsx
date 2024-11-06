@@ -1,7 +1,7 @@
 import { test, expect, afterEach, describe } from 'bun:test';
 import React from 'react';
 import matchers from '@testing-library/jest-dom/matchers';
-import { fireEvent, render, screen, cleanup, within } from '@testing-library/react';
+import { fireEvent, render, screen, cleanup, within, waitFor } from '@testing-library/react';
 import TokenList from '@/components/bank/components/tokenList';
 import { CombinedBalanceInfo } from '@/utils/types';
 
@@ -75,19 +75,25 @@ describe('TokenList', () => {
     expect(screen.queryByText('Token 2')).not.toBeInTheDocument();
   });
 
-  test('opens modal with correct denomination information', () => {
+  test('opens modal with correct denomination information', async () => {
     render(<TokenList balances={mockBalances} isLoading={false} />);
-    const balanceRow = screen.getByText('Token 1', { selector: 'p.font-semibold' });
-    fireEvent.click(balanceRow);
+    const token1Container = screen.getByLabelText('utoken1');
+    const button = within(token1Container).getByRole('button');
+    fireEvent.click(button);
 
-    const modal = screen.getByLabelText('denom_info_modal');
-    expect(modal).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByLabelText('Close modal')).toBeInTheDocument();
+      expect(screen.getByText('NAME')).toBeInTheDocument();
+      expect(screen.getByText('SYMBOL')).toBeInTheDocument();
+      expect(screen.getByText('DESCRIPTION')).toBeInTheDocument();
+      expect(screen.getByText('EXPONENT')).toBeInTheDocument();
+    });
   });
 
   test('displays correct balance for each token', () => {
     render(<TokenList balances={mockBalances} isLoading={false} />);
-    expect(screen.getByText('0.001 TK1')).toBeInTheDocument();
-    expect(screen.getByText('0.002 TK2')).toBeInTheDocument();
+    expect(screen.getByText('0.001 TOKEN 1')).toBeInTheDocument();
+    expect(screen.getByText('0.002 TOKEN 2')).toBeInTheDocument();
   });
 
   test('displays correct base denomination for each token', () => {
