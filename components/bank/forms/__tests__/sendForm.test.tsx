@@ -1,4 +1,4 @@
-import { describe, test, afterEach, expect, jest } from 'bun:test';
+import { describe, test, afterEach, expect, jest, mock } from 'bun:test';
 import React from 'react';
 import { screen, cleanup, fireEvent, within } from '@testing-library/react';
 import SendForm from '@/components/bank/forms/sendForm';
@@ -7,6 +7,13 @@ import { mockBalances } from '@/tests/mock';
 import { renderWithChainProvider } from '@/tests/render';
 
 expect.extend(matchers);
+
+mock.module('next/router', () => ({
+  useRouter: jest.fn().mockReturnValue({
+    query: {},
+    push: jest.fn(),
+  }),
+}));
 
 function renderWithProps(props = {}) {
   const defaultProps = {
@@ -38,8 +45,8 @@ describe('SendForm Component', () => {
 
   test('empty balances', () => {
     renderWithProps({ balances: [] });
-    const tokenSelector = screen.getByText('Select');
-    expect(tokenSelector).toBeInTheDocument();
+    expect(screen.queryByText('Amount')).not.toBeInTheDocument();
+    expect(screen.queryByText('Send To')).not.toBeInTheDocument();
   });
 
   test('updates token dropdown correctly', () => {
