@@ -19,7 +19,6 @@ export function GroupInfo({ group, policyAddress, address, onUpdate }: GroupInfo
   const policy = group.policies[0];
   const votingPeriod = (group.policies[0]?.decision_policy as ThresholdDecisionPolicySDKType)
     ?.windows?.voting_period;
-  console.log({ votingPeriod });
   const votingPeriodSeconds = (() => {
     try {
       if (!votingPeriod) return 0;
@@ -52,7 +51,9 @@ export function GroupInfo({ group, policyAddress, address, onUpdate }: GroupInfo
     }
   })();
 
-  const threshold = (policy?.decision_policy as ThresholdDecisionPolicySDKType)?.threshold ?? '0';
+  const threshold =
+    (policy?.decision_policy as ThresholdDecisionPolicySDKType)?.threshold ??
+    'No threshold available';
 
   function renderAuthors() {
     const authors = group?.ipfsMetadata?.authors;
@@ -109,6 +110,7 @@ export function GroupInfo({ group, policyAddress, address, onUpdate }: GroupInfo
         <div className="flex justify-between items-center mb-6">
           <span className="text-xl font-semibold">Info</span>
           <button
+            aria-label={'update-btn'}
             className="btn btn-gradient text-white rounded-[12px] h-[52px] w-[140px]"
             onClick={() => {
               const modal = document.getElementById('update-group-modal') as HTMLDialogElement;
