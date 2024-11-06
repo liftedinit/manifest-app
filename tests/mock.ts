@@ -366,7 +366,7 @@ export const mockProposals: { [key: string]: ProposalSDKType[] } = {
   test_policy_address: [
     {
       id: 1n,
-      title: 'title1',
+      title: 'mytitle1',
       group_policy_address: 'policy1',
       summary: 'summary1',
       metadata: 'metadata1',
@@ -387,7 +387,7 @@ export const mockProposals: { [key: string]: ProposalSDKType[] } = {
     },
     {
       id: 2n,
-      title: 'title2',
+      title: 'mytitle2',
       group_policy_address: 'policy2',
       summary: 'summary2',
       metadata: 'metadata2',
@@ -404,7 +404,7 @@ export const mockProposals: { [key: string]: ProposalSDKType[] } = {
       },
       voting_period_end: new Date(),
       executor_result: ProposalExecutorResult.PROPOSAL_EXECUTOR_RESULT_SUCCESS,
-      messages: [],
+      messages: [{ ...anyMessage, type_url: '/cosmos.bank.v1beta1.MsgSend' }],
     },
   ],
   // The key should match the policy address from `mockGroup2`
