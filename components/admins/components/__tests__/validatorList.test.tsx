@@ -23,7 +23,7 @@ describe('ValidatorList', () => {
 
   test('renders correctly', () => {
     renderWithProps();
-    expect(screen.getByText('Active Validators')).toBeInTheDocument();
+    expect(screen.getByText('Active')).toBeInTheDocument();
     expect(screen.getByText('Validator One')).toBeInTheDocument();
     expect(screen.getByText('Validator Two')).toBeInTheDocument();
   });
@@ -40,7 +40,7 @@ describe('ValidatorList', () => {
   test('active/pending toggle works', () => {
     renderWithProps();
     fireEvent.click(screen.getByText('Pending'));
-    expect(screen.getByText('Pending Validators')).toBeInTheDocument();
+    expect(screen.getByText('Pending')).toBeInTheDocument();
     expect(screen.getByText('Validator Three')).toBeInTheDocument();
   });
 
