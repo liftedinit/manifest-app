@@ -367,7 +367,11 @@ export default function GroupProposals({
                     </td>
                     <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF]">{timeLeft}</td>
                     <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF]">
-                      {getHumanReadableType(proposal.messages[0]['type_url'])}
+                      {proposal.messages.length > 0
+                        ? proposal.messages.map((message, index) => (
+                            <div key={index}>{getHumanReadableType((message as any)['@type'])}</div>
+                          ))
+                        : 'No messages'}
                     </td>
                     <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px]">
                       {isTalliesLoading ? (

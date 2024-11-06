@@ -383,7 +383,7 @@ export const mockProposals: { [key: string]: ProposalSDKType[] } = {
       },
       voting_period_end: new Date(),
       executor_result: ProposalExecutorResult.PROPOSAL_EXECUTOR_RESULT_NOT_RUN,
-      messages: [{ ...anyMessage, type_url: '/cosmos.bank.v1beta1.MsgSend' }],
+      messages: [{ ...anyMessage, '@type': '/cosmos.bank.v1beta1.MsgSend' }], // TODO: The FE is using the `@type` field
     },
     {
       id: 2n,
@@ -404,7 +404,7 @@ export const mockProposals: { [key: string]: ProposalSDKType[] } = {
       },
       voting_period_end: new Date(),
       executor_result: ProposalExecutorResult.PROPOSAL_EXECUTOR_RESULT_SUCCESS,
-      messages: [{ ...anyMessage, type_url: '/cosmos.bank.v1beta1.MsgSend' }],
+      messages: [],
     },
   ],
   // The key should match the policy address from `mockGroup2`
