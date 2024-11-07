@@ -222,6 +222,7 @@ export default function MintForm({
                       {!denom.base.includes('umfx') && (
                         <button
                           type="submit"
+                          aria-label={`mint-btn-${denom.display}`}
                           className="btn btn-gradient btn-md flex-grow text-white"
                           disabled={isSigning || !isValid || !dirty}
                         >
