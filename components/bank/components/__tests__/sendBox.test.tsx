@@ -1,4 +1,4 @@
-import { test, expect, afterEach, describe } from 'bun:test';
+import { test, expect, afterEach, describe, mock, jest } from 'bun:test';
 import React from 'react';
 import matchers from '@testing-library/jest-dom/matchers';
 import { screen, cleanup, waitFor, fireEvent } from '@testing-library/react';
@@ -7,6 +7,15 @@ import { mockBalances } from '@/tests/mock';
 import { renderWithChainProvider } from '@/tests/render';
 
 expect.extend(matchers);
+
+// Mock next/router
+const m = jest.fn();
+mock.module('next/router', () => ({
+  useRouter: m.mockReturnValue({
+    query: {},
+    push: jest.fn(),
+  }),
+}));
 
 const renderWithProps = (props = {}) => {
   const defaultProps = {
