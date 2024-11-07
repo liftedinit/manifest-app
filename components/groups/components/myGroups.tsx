@@ -200,7 +200,7 @@ function GroupRow({
   proposals,
   onSelectGroup,
 }: {
-  group: any;
+  group: ExtendedQueryGroupsByMemberResponseSDKType['groups'][0];
   proposals: ProposalSDKType[];
   onSelectGroup: (policyAddress: string, groupName: string, threshold: string) => void;
 }) {
@@ -209,7 +209,6 @@ function GroupRow({
   const filterActiveProposals = (proposals: ProposalSDKType[]) => {
     return proposals?.filter(
       proposal =>
-        proposal.status.toString() !== 'PROPOSAL_STATUS_ACCEPTED' &&
         proposal.status.toString() !== 'PROPOSAL_STATUS_REJECTED' &&
         proposal.status.toString() !== 'PROPOSAL_STATUS_WITHDRAWN'
     );
@@ -233,7 +232,9 @@ function GroupRow({
         onSelectGroup(
           policyAddress,
           groupName,
-          (group.policies && group.policies[0]?.decision_policy?.threshold) ?? '0'
+          (group.policies &&
+            (group.policies[0]?.decision_policy as ThresholdDecisionPolicySDKType)?.threshold) ??
+            '0'
         );
       }}
     >
@@ -262,7 +263,7 @@ function GroupRow({
         })}{' '}
         MFX
       </td>
-      <td className=" w-1/6">{`${group.policies[0]?.decision_policy?.threshold ?? '0'} / ${group.total_weight ?? '0'}`}</td>
+      <td className=" w-1/6">{`${(group.policies[0]?.decision_policy as ThresholdDecisionPolicySDKType).threshold ?? '0'} / ${group.total_weight ?? '0'}`}</td>
       <td className="rounded-r-[12px] w-1/6">
         <TruncatedAddressWithCopy address={policyAddress} slice={12} />
       </td>

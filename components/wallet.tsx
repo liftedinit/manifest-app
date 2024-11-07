@@ -94,7 +94,7 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
         className="btn w-full  border-0 duration-300 ease-in-out  text-white btn-gradient"
         onClick={onClick}
       >
-        <buttonData.icon className="w-5 h-5 mr-2" />
+        <buttonData.icon className="w-5 h-5 mr-2 hidden md:block" />
         {buttonData.title}
       </button>
     );

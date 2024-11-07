@@ -229,10 +229,12 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
                   </div>
 
                   <div
-                    className={`flex-1 transition-all duration-300 ease-in-out ml-0 
-                    ${isDrawerVisible ? 'md:ml-[17rem]' : 'md:ml-36'}  relative z-0`}
+                    className={`flex-1 transition-all duration-300 ease-in-out 
+                    ml-0 lg:ml-36 ${isDrawerVisible ? 'lg:ml-[17rem]' : ''} relative z-0`}
                   >
-                    <MobileNav />
+                    <div className="lg:hidden pt-12">
+                      <MobileNav />
+                    </div>
                     <main className="p-6 relative z-10">
                       <Component {...pageProps} />
                     </main>

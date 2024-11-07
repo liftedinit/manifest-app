@@ -71,7 +71,6 @@ export default function ProposalMessages({
 
   const messageTypes = [
     { name: 'send', category: 'Financial' },
-
     { name: 'removeValidator', category: 'Admins' },
     { name: 'removePendingValidator', category: 'Admins' },
     { name: 'updateStakingParams', category: 'System' },
@@ -81,7 +80,6 @@ export default function ProposalMessages({
     { name: 'updateGroupAdmin', category: 'Group Management' },
     { name: 'updateGroupMetadata', category: 'Group Management' },
     { name: 'updateGroupPolicyAdmin', category: 'Group Management' },
-
     { name: 'vote', category: 'Proposal Actions' },
     { name: 'withdrawProposal', category: 'Proposal Actions' },
     { name: 'exec', category: 'Proposal Actions' },

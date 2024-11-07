@@ -38,8 +38,8 @@ export default function SendBox({
   ];
 
   return (
-    <div className="rounded-2xl w-full h-full md:h-1/2">
-      <div className="flex mb-6 w-full h-[3.5rem] rounded-xl p-1 bg-[#0000000A] dark:bg-[#FFFFFF0F]">
+    <div className="rounded-2xl w-full  ">
+      <div className="flex mb-4 md:mb-6 w-full h-[3.5rem] rounded-xl p-1 bg-[#0000000A] dark:bg-[#FFFFFF0F]">
         <button
           aria-label="send-tab"
           className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl transition-colors ${
@@ -64,35 +64,37 @@ export default function SendBox({
         </button>
       </div>
 
-      {isBalancesLoading || !balances ? (
-        <div className="skeleton h-[300px] w-full"></div>
-      ) : (
-        <>
-          {activeTab === 'cross-chain' ? (
-            <IbcSendForm
-              isIbcTransfer={true}
-              setIsIbcTransfer={() => {}}
-              ibcChains={ibcChains}
-              selectedChain={selectedChain}
-              setSelectedChain={setSelectedChain}
-              address={address}
-              destinationChain={selectedChain}
-              balances={balances}
-              isBalancesLoading={isBalancesLoading}
-              refetchBalances={refetchBalances}
-              refetchHistory={refetchHistory}
-            />
-          ) : (
-            <SendForm
-              address={address}
-              balances={balances}
-              isBalancesLoading={isBalancesLoading}
-              refetchBalances={refetchBalances}
-              refetchHistory={refetchHistory}
-            />
-          )}
-        </>
-      )}
+      <div className="">
+        {isBalancesLoading || !balances ? (
+          <div className="skeleton h-[300px] w-full"></div>
+        ) : (
+          <>
+            {activeTab === 'cross-chain' ? (
+              <IbcSendForm
+                isIbcTransfer={true}
+                setIsIbcTransfer={() => {}}
+                ibcChains={ibcChains}
+                selectedChain={selectedChain}
+                setSelectedChain={setSelectedChain}
+                address={address}
+                destinationChain={selectedChain}
+                balances={balances}
+                isBalancesLoading={isBalancesLoading}
+                refetchBalances={refetchBalances}
+                refetchHistory={refetchHistory}
+              />
+            ) : (
+              <SendForm
+                address={address}
+                balances={balances}
+                isBalancesLoading={isBalancesLoading}
+                refetchBalances={refetchBalances}
+                refetchHistory={refetchHistory}
+              />
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }

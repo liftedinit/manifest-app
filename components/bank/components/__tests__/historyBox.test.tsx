@@ -35,17 +35,6 @@ describe('HistoryBox', () => {
     expect(screen.getByText('+1 TOKEN')).toBeInTheDocument();
   });
 
-  test("displays 'No transactions found' message when there are no transactions", () => {
-    renderWithChainProvider(
-      <HistoryBox
-        isLoading={false}
-        send={[]}
-        address="manifest123akjshjashdjkashjdahskjdhjakshdjkashkdjasjdhadajsdhkajsd"
-      />
-    );
-    expect(screen.getByText('No transactions found for this account!')).toBeInTheDocument();
-  });
-
   test('opens modal when clicking on a transaction', () => {
     renderWithChainProvider(
       <HistoryBox

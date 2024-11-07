@@ -53,7 +53,7 @@ describe('TokenList', () => {
 
   test('renders correctly', () => {
     render(<TokenList balances={mockBalances} isLoading={false} />);
-    expect(screen.getByText('Your assets')).toBeInTheDocument();
+    expect(screen.getByText('Your Assets')).toBeInTheDocument();
   });
 
   test('displays loading skeleton when isLoading is true', () => {

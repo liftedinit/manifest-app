@@ -188,7 +188,7 @@ export default function ConfirmationForm({
       proposers: [formData.proposers],
       title: formData.title,
       summary: formData.metadata.summary,
-      exec: 0,
+      exec: 1,
     });
     const fee = await estimateFee(address ?? '', [msg]);
     await tx([msg], {
