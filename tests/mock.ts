@@ -462,7 +462,7 @@ export const mockTokenFormData = {
   subdenom: 'subtesttoken',
   description: 'This is a test token',
   denomUnits: [
-    { denom: 'testtoken', exponent: 0, aliases: [] },
+    { denom: 'factory/cosmos1address/subtesttoken', exponent: 0, aliases: [] },
     { denom: 'tt', exponent: 6, aliases: [] },
   ],
   uri: 'www.someuri.com',
