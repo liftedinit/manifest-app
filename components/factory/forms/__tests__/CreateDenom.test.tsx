@@ -1,4 +1,4 @@
-import { describe, test, afterEach, expect, jest } from 'bun:test';
+import { describe, test, afterEach, expect, jest, mock } from 'bun:test';
 import React from 'react';
 import { screen, cleanup, fireEvent, waitFor } from '@testing-library/react';
 import CreateDenom from '@/components/factory/forms/CreateDenom';
@@ -15,6 +15,12 @@ const mockProps = {
   address: 'cosmos1address',
 };
 
+mock.module('@/utils/transactionUtils', () => ({
+  useSimulateDenomCreation: jest.fn().mockReturnValue({
+    simulateDenomCreation: jest.fn().mockReturnValue(true),
+  }),
+}));
+
 describe('CreateDenom Component', () => {
   afterEach(cleanup);
 
@@ -26,7 +32,7 @@ describe('CreateDenom Component', () => {
 
   test('updates subdenom input correctly', async () => {
     renderWithChainProvider(<CreateDenom {...mockProps} />);
-    const subdenomInput = screen.getByPlaceholderText('udenom');
+    const subdenomInput = screen.getByPlaceholderText('utoken');
     fireEvent.change(subdenomInput, { target: { value: 'utest' } });
     await waitFor(() => {
       expect(mockProps.dispatch).toHaveBeenCalledWith({
@@ -39,20 +45,18 @@ describe('CreateDenom Component', () => {
 
   test('shows validation error for invalid subdenom', async () => {
     renderWithChainProvider(<CreateDenom {...mockProps} />);
-    const subdenomInput = screen.getByPlaceholderText('udenom');
+    const subdenomInput = screen.getByPlaceholderText('utoken');
     fireEvent.change(subdenomInput, { target: { value: 'invalid' } });
     fireEvent.blur(subdenomInput);
     await waitFor(() => {
-      expect(
-        screen.getByText('Subdenom must start with u, a, q, or g, followed by letters and numbers')
-      ).toBeInTheDocument();
+      expect(screen.getByText('Subdenom must start with the letter u')).toBeInTheDocument();
     });
   });
 
   test('confirm button is disabled when inputs are invalid', async () => {
     renderWithChainProvider(<CreateDenom {...mockProps} />);
     const confirmButton = screen.getByText('Next: Token Metadata');
-    const subdenomInput = screen.getByPlaceholderText('udenom');
+    const subdenomInput = screen.getByPlaceholderText('utoken');
     fireEvent.change(subdenomInput, { target: { value: 'invalid' } });
     await waitFor(() => {
       expect(confirmButton).toBeDisabled();
@@ -61,10 +65,11 @@ describe('CreateDenom Component', () => {
 
   test('confirm button is enabled when inputs are valid', async () => {
     renderWithChainProvider(<CreateDenom {...mockProps} />);
-    const subdenomInput = screen.getByPlaceholderText('udenom');
+    const confirmButton = screen.getByText('Next: Token Metadata');
+    const subdenomInput = screen.getByPlaceholderText('utoken');
     fireEvent.change(subdenomInput, { target: { value: 'utest' } });
+    fireEvent.blur(subdenomInput);
     await waitFor(() => {
-      const confirmButton = screen.getByText('Next: Token Metadata');
       expect(confirmButton).toBeEnabled();
     });
   });
