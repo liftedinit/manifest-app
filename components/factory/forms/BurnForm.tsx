@@ -315,6 +315,7 @@ export default function BurnForm({
                     <div className="flex justify-end mt-6">
                       <button
                         type="submit"
+                        aria-label={`burn-btn-${denom.base}`}
                         className="btn btn-error disabled:bg-error/40 disabled:text-white/40 btn-md flex-grow text-white"
                         disabled={isSigning || !isValid || !dirty}
                       >
