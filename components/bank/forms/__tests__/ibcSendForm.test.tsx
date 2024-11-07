@@ -1,12 +1,20 @@
-import { describe, test, afterEach, expect, jest } from 'bun:test';
+import { describe, test, afterEach, expect, jest, mock } from 'bun:test';
 import React from 'react';
-import { screen, cleanup, fireEvent, within } from '@testing-library/react';
+import { screen, cleanup, fireEvent } from '@testing-library/react';
 import IbcSendForm from '@/components/bank/forms/ibcSendForm';
 import matchers from '@testing-library/jest-dom/matchers';
 import { mockBalances } from '@/tests/mock';
 import { renderWithChainProvider } from '@/tests/render';
 
 expect.extend(matchers);
+
+// Mock next/router
+mock.module('next/router', () => ({
+  useRouter: jest.fn().mockReturnValue({
+    query: {},
+    push: jest.fn(),
+  }),
+}));
 
 function renderWithProps(props = {}) {
   const defaultProps = {
@@ -42,10 +50,11 @@ describe('IbcSendForm Component', () => {
     expect(screen.getByText('Chain')).toBeInTheDocument();
   });
 
-  test('empty balances', () => {
+  test('empty balances', async () => {
     renderWithProps({ balances: [] });
-    const tokenSelector = screen.getByText('Select');
-    expect(tokenSelector).toBeInTheDocument();
+    expect(screen.queryByText('Amount')).not.toBeInTheDocument();
+    expect(screen.queryByText('Send To')).not.toBeInTheDocument();
+    expect(screen.queryByText('Chain')).not.toBeInTheDocument();
   });
 
   test('updates token dropdown correctly', () => {

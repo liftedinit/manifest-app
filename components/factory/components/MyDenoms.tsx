@@ -113,13 +113,6 @@ export default function MyDenoms({
     return denoms.filter(denom => denom?.display.toLowerCase().includes(searchQuery.toLowerCase()));
   }, [denoms, searchQuery]);
 
-  console.log('MyDenoms render', {
-    isLoading,
-    isError,
-    denomsLength: denoms.length,
-    filteredDenomsLength: filteredDenoms.length,
-  });
-
   return (
     <div className="relative w-full overflow-hidden">
       <div className="space-y-4 w-full pt-4">
@@ -168,7 +161,7 @@ export default function MyDenoms({
                   ? Array(12)
                       .fill(0)
                       .map((_, index) => (
-                        <tr key={index}>
+                        <tr key={index} aria-label={`skeleton-${index}`}>
                           <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] w-1/5 lg:table-cell hidden">
                             <div className="flex items-center space-x-3">
                               <div className="skeleton w-10 h-8 rounded-full shrink-0"></div>

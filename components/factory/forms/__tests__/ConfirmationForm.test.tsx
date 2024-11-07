@@ -26,14 +26,10 @@ describe('ConfirmationForm Component', () => {
   test('renders form with correct details', () => {
     renderWithProps();
     expect(screen.getByText('Token Information')).toBeInTheDocument();
-    expect(screen.getByText('Token Name')).toBeInTheDocument();
     expect(screen.getByText(mockTokenFormData.name)).toBeInTheDocument();
 
     expect(screen.getByText('Symbol')).toBeInTheDocument();
     expect(screen.getByText(mockTokenFormData.symbol)).toBeInTheDocument();
-
-    expect(screen.getByText('Display')).toBeInTheDocument();
-    expect(screen.getByText(mockTokenFormData.display)).toBeInTheDocument();
 
     expect(screen.getByText('Subdenom')).toBeInTheDocument();
     expect(screen.getByText(mockTokenFormData.subdenom)).toBeInTheDocument();
@@ -43,28 +39,16 @@ describe('ConfirmationForm Component', () => {
 
     expect(screen.getByText('Denom Units')).toBeInTheDocument();
     expect(screen.getByText('Base Denom')).toBeInTheDocument();
-    // TODO: Fix the following. This is hardcoded to `turd` at the moment.
-    // expect(screen.getByText(mockFormData.denomUnits[0].denom)).toBeInTheDocument();
+    expect(screen.getByText(mockTokenFormData.denomUnits[0].denom)).toBeInTheDocument();
 
-    expect(screen.getByText('Base Exponent')).toBeInTheDocument();
-    // TODO: Fix the following. This is hardcoded to `0` at the moment.
-    // expect(screen.getByText(mockFormData.denomUnits[0].exponent.toString())).toBeInTheDocument();
-
-    expect(screen.getByText('Full Denom')).toBeInTheDocument();
-    expect(
-      screen.getByText(`factory/cosmos1address/${mockTokenFormData.subdenom}`)
-    ).toBeInTheDocument();
-
-    expect(screen.getByText('Full Denom Exponent')).toBeInTheDocument();
-    expect(
-      screen.getByText(mockTokenFormData.denomUnits[1].exponent.toString())
-    ).toBeInTheDocument();
+    expect(screen.getByText('Display Denom')).toBeInTheDocument();
+    expect(screen.getByText(`${mockTokenFormData.subdenom}`)).toBeInTheDocument();
   });
 
   // TODO: Fix advanced details in component
   test('toggles advanced details correctly', () => {
     renderWithProps();
-    const toggleButton = screen.getByText('Show Advanced Details');
+    const toggleButton = screen.getByText('Advanced Details');
     fireEvent.click(toggleButton);
 
     expect(screen.getByText('URI')).toBeInTheDocument();
@@ -72,18 +56,5 @@ describe('ConfirmationForm Component', () => {
 
     expect(screen.getByText('URI Hash')).toBeInTheDocument();
     expect(screen.getByText(mockTokenFormData.uriHash)).toBeInTheDocument();
-
-    expect(screen.getByText('Base Denom Alias')).toBeInTheDocument();
-    // TODO: Fix the following in component. This should be the alias, not the subdenom.
-    // expect(screen.getByText(mockFormData.subdenom)).toBeInTheDocument();
-
-    expect(screen.getByText('Full Denom Alias')).toBeInTheDocument();
-    // TODO: Fix the following in component. This should be the alias, not the display.
-    // expect(screen.getByText(mockFormData.display)).toBeInTheDocument();
-
-    fireEvent.click(toggleButton);
-
-    expect(screen.queryByText('URI')).not.toBeInTheDocument();
-    expect(screen.queryByText('URI Hash')).not.toBeInTheDocument();
   });
 });

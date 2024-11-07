@@ -1,4 +1,4 @@
-import { describe, test, afterEach, expect, jest, mock, afterAll } from 'bun:test';
+import { describe, test, afterEach, expect, jest, mock, beforeEach } from 'bun:test';
 import React from 'react';
 import { screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
 import ProposalsForPolicy from '@/components/groups/components/groupProposals';
@@ -43,10 +43,23 @@ mock.module('@/hooks/useQueries', () => ({
     isTallyError: false,
     refetchTally: jest.fn(),
   }),
+  useMultipleTallyCounts: jest.fn().mockReturnValue({
+    tallies: [
+      { proposalId: 1n, tally: undefined },
+      { proposalId: 2n, tally: undefined },
+    ],
+    isTalliesLoading: false,
+    isTalliesError: false,
+    refetchTallies: jest.fn(),
+  }),
   useVotesByProposal: jest.fn().mockReturnValue({
     votes: [],
     refetchVotes: jest.fn(),
   }),
+}));
+
+mock.module('react-apexcharts', () => ({
+  default: jest.fn(),
 }));
 
 const mockProps = {
@@ -69,7 +82,7 @@ describe('ProposalsForPolicy Component', () => {
       }),
     }));
     renderWithChainProvider(<ProposalsForPolicy {...mockProps} />);
-    expect(screen.getByLabelText('loading')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toBeInTheDocument();
   });
 
   test('renders error state correctly', () => {
@@ -95,23 +108,23 @@ describe('ProposalsForPolicy Component', () => {
       }),
     }));
     renderWithChainProvider(<ProposalsForPolicy {...mockProps} />);
-    expect(screen.getByText('No proposals found for this policy')).toBeInTheDocument();
+    expect(screen.getByText('No proposals found')).toBeInTheDocument();
   });
 
-  // // TODO: We need to rework how this component works.
-  // test("renders proposals list correctly", () => {
-  //   renderWithChainProvider(<ProposalsForPolicy {...mockProps} />);
-  //   expect(screen.getByText("Proposals")).toBeInTheDocument();
-  //   Object.keys(mockProposals).forEach((key) => {
-  //     const proposals = mockProposals[key];
-  //     proposals.forEach((proposal) => {
-  //       expect(
-  //         screen.getByText(`#${proposal.id.toString()}`),
-  //       ).toBeInTheDocument();
-  //       expect(
-  //         screen.getByText(proposal.title.toLowerCase()),
-  //       ).toBeInTheDocument();
-  //     });
-  //   });
-  // });
+  test('renders proposals list correctly', () => {
+    mock.module('@/hooks/useQueries', () => ({
+      useProposalsByPolicyAccount: jest.fn().mockReturnValue({
+        proposals: mockProposals['test_policy_address'],
+        isProposalsLoading: false,
+        isProposalsError: false,
+        refetchProposals: jest.fn(),
+      }),
+    }));
+    renderWithChainProvider(<ProposalsForPolicy {...mockProps} />);
+    expect(screen.getByText('Proposals')).toBeInTheDocument();
+    const proposals = mockProposals['test_policy_address'];
+    proposals.forEach(proposal => {
+      expect(screen.getByText(proposal.title.toLowerCase())).toBeInTheDocument();
+    });
+  });
 });

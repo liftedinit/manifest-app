@@ -247,6 +247,11 @@ export const mockGroup: ExtendedGroupType = {
   total_weight: '10',
   policies: [
     {
+      group_id: 1n,
+      admin: 'admin1',
+      metadata: 'metadata1',
+      version: 1n,
+      created_at: new Date(),
       address: 'test_policy_address',
       decision_policy: {
         threshold: '5',
@@ -255,25 +260,21 @@ export const mockGroup: ExtendedGroupType = {
   ],
   members: [
     {
-      group_id: 1,
+      group_id: 1n,
       member: {
         address: 'test_address1',
         weight: '5',
         metadata: 'test_metadata1',
-        added_at: Date.now(),
-        isCoreMember: true,
-        isActive: true,
+        added_at: new Date(),
       },
     },
     {
-      group_id: 1,
+      group_id: 1n,
       member: {
         address: 'test_address2',
         weight: '5',
         metadata: 'test_metadata2',
-        added_at: Date.now(),
-        isCoreMember: true,
-        isActive: true,
+        added_at: new Date(),
       },
     },
   ],
@@ -297,6 +298,11 @@ export const mockGroup2: ExtendedGroupType = {
   policies: [
     {
       address: 'test_policy_address2',
+      group_id: 2n,
+      admin: 'admin2',
+      metadata: 'metadata2',
+      version: 1n,
+      created_at: new Date(),
       decision_policy: {
         threshold: '5',
       },
@@ -304,25 +310,21 @@ export const mockGroup2: ExtendedGroupType = {
   ],
   members: [
     {
-      group_id: 2,
+      group_id: 2n,
       member: {
         address: 'test_address2',
         weight: '5',
         metadata: 'test_metadata2',
-        added_at: Date.now(),
-        isCoreMember: true,
-        isActive: true,
+        added_at: new Date(),
       },
     },
     {
-      group_id: 2,
+      group_id: 2n,
       member: {
         address: 'test_address3',
         weight: '5',
         metadata: 'test_metadata3',
-        added_at: Date.now(),
-        isCoreMember: true,
-        isActive: true,
+        added_at: new Date(),
       },
     },
   ],
@@ -364,7 +366,7 @@ export const mockProposals: { [key: string]: ProposalSDKType[] } = {
   test_policy_address: [
     {
       id: 1n,
-      title: 'title1',
+      title: 'mytitle1',
       group_policy_address: 'policy1',
       summary: 'summary1',
       metadata: 'metadata1',
@@ -381,11 +383,11 @@ export const mockProposals: { [key: string]: ProposalSDKType[] } = {
       },
       voting_period_end: new Date(),
       executor_result: ProposalExecutorResult.PROPOSAL_EXECUTOR_RESULT_NOT_RUN,
-      messages: [{ ...anyMessage, type_url: '/cosmos.bank.v1beta1.MsgSend' }],
+      messages: [{ ...anyMessage, '@type': '/cosmos.bank.v1beta1.MsgSend' }], // TODO: The FE is using the `@type` field
     },
     {
       id: 2n,
-      title: 'title2',
+      title: 'mytitle2',
       group_policy_address: 'policy2',
       summary: 'summary2',
       metadata: 'metadata2',
@@ -460,7 +462,7 @@ export const mockTokenFormData = {
   subdenom: 'subtesttoken',
   description: 'This is a test token',
   denomUnits: [
-    { denom: 'testtoken', exponent: 0, aliases: [] },
+    { denom: 'factory/cosmos1address/subtesttoken', exponent: 0, aliases: [] },
     { denom: 'tt', exponent: 6, aliases: [] },
   ],
   uri: 'www.someuri.com',

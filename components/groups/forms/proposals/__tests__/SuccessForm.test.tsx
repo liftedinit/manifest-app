@@ -40,7 +40,7 @@ describe('ProposalSuccess Component', () => {
     expect(screen.getByText(mockProps.formData.metadata.summary)).toBeDefined();
     expect(screen.getByText(mockProps.formData.metadata.details)).toBeDefined();
     mockProps.formData.messages.forEach(message => {
-      expect(screen.getByText(`Type: ${message.type}`)).toBeDefined();
+      expect(screen.getByText(`${message.type}`)).toBeDefined();
     });
   });
 

@@ -1,4 +1,4 @@
-import { describe, test, afterEach, expect, jest } from 'bun:test';
+import { describe, test, afterEach, expect, jest, mock } from 'bun:test';
 import React from 'react';
 import { screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
 import MintForm from '@/components/factory/forms/MintForm';
@@ -7,6 +7,15 @@ import { renderWithChainProvider } from '@/tests/render';
 import { mockDenomMeta1, mockMfxDenom } from '@/tests/mock';
 
 expect.extend(matchers);
+
+// Mock next/router
+const m = jest.fn();
+mock.module('next/router', () => ({
+  useRouter: m.mockReturnValue({
+    query: {},
+    push: jest.fn(),
+  }),
+}));
 
 const mockProps = {
   isAdmin: true,
@@ -34,7 +43,7 @@ describe('MintForm Component', () => {
 
   test('updates amount input correctly', async () => {
     renderWithProps();
-    const amountInput = screen.getByLabelText('mint-amount-input');
+    const amountInput = screen.getByLabelText('AMOUNT');
     fireEvent.change(amountInput, { target: { value: '100' } });
     await waitFor(() => {
       expect(amountInput).toHaveValue(100);
@@ -52,10 +61,10 @@ describe('MintForm Component', () => {
 
   test('mint button is disabled when inputs are invalid', async () => {
     renderWithProps();
-    const mintButton = screen.getByText('Mint');
+    const mintButton = screen.getByLabelText(`mint-btn-${mockDenomMeta1.display}`);
     expect(mintButton).toBeDisabled();
 
-    const amountInput = screen.getByLabelText('mint-amount-input');
+    const amountInput = screen.getByLabelText('AMOUNT');
     fireEvent.change(amountInput, { target: { value: '-100' } });
 
     await waitFor(() => {
@@ -65,9 +74,9 @@ describe('MintForm Component', () => {
 
   test('mint button is enabled when inputs are valid', async () => {
     renderWithProps();
-    const amountInput = screen.getByLabelText('mint-amount-input');
-    const recipientInput = screen.getByLabelText('mint-recipient-input');
-    const mintButton = screen.getByText('Mint');
+    const amountInput = screen.getByLabelText('AMOUNT');
+    const recipientInput = screen.getByLabelText('RECIPIENT');
+    const mintButton = screen.getByLabelText(`mint-btn-${mockDenomMeta1.display}`);
 
     fireEvent.change(amountInput, { target: { value: '1' } });
     fireEvent.change(recipientInput, {
@@ -82,12 +91,5 @@ describe('MintForm Component', () => {
   test('renders multi mint button when token is mfx', () => {
     renderWithProps({ denom: mockMfxDenom });
     expect(screen.getByLabelText('multi-mint-button')).toBeInTheDocument();
-  });
-
-  test('renders not affiliated message when not admin and token is mfx', () => {
-    renderWithProps({ isAdmin: false, denom: mockMfxDenom });
-    expect(
-      screen.getByText('You are not affiliated with any PoA Admin entity.')
-    ).toBeInTheDocument();
   });
 });

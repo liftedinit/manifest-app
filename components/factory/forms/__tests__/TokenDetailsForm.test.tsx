@@ -22,24 +22,22 @@ describe('TokenDetailsForm Component', () => {
   test('renders form with correct details', () => {
     renderWithChainProvider(<TokenDetailsForm {...mockProps} />);
     expect(screen.getByLabelText('Subdenom')).toBeInTheDocument();
-    expect(screen.getByLabelText('Display')).toBeInTheDocument();
+    expect(screen.getByLabelText('Ticker')).toBeInTheDocument();
     expect(screen.getByLabelText('Name')).toBeInTheDocument();
-    expect(screen.getByLabelText('Symbol')).toBeInTheDocument();
     expect(screen.getByLabelText('Description')).toBeInTheDocument();
-    expect(screen.getByLabelText('URI')).toBeInTheDocument();
-    expect(screen.getByLabelText('URI Hash')).toBeInTheDocument();
+    expect(screen.getByLabelText('Logo URL')).toBeInTheDocument();
   });
 
   test('updates form fields correctly', async () => {
     renderWithChainProvider(<TokenDetailsForm {...mockProps} />);
 
-    const displayInput = screen.getByLabelText('Display');
-    fireEvent.change(displayInput, { target: { value: 'New Display' } });
+    const tickerInput = screen.getByLabelText('Ticker');
+    fireEvent.change(tickerInput, { target: { value: 'FOOBAR' } });
     await waitFor(() => {
       expect(mockProps.dispatch).toHaveBeenCalledWith({
         type: 'UPDATE_FIELD',
         field: 'display',
-        value: 'New Display',
+        value: 'FOOBAR',
       });
     });
 
@@ -53,15 +51,8 @@ describe('TokenDetailsForm Component', () => {
       });
     });
 
-    const symbolInput = screen.getByLabelText('Symbol');
-    fireEvent.change(symbolInput, { target: { value: 'NS' } });
-    await waitFor(() => {
-      expect(mockProps.dispatch).toHaveBeenCalledWith({
-        type: 'UPDATE_FIELD',
-        field: 'symbol',
-        value: 'NS',
-      });
-    });
+    const subdenomInput = screen.getByLabelText('Subdenom');
+    expect(subdenomInput).toBeDisabled();
 
     const descriptionInput = screen.getByLabelText('Description');
     fireEvent.change(descriptionInput, { target: { value: 'New Description' } });
@@ -73,23 +64,13 @@ describe('TokenDetailsForm Component', () => {
       });
     });
 
-    const uriInput = screen.getByLabelText('URI');
-    fireEvent.change(uriInput, { target: { value: 'http://newuri.com' } });
+    const logoUriInput = screen.getByLabelText('Logo URL');
+    fireEvent.change(logoUriInput, { target: { value: 'http://newuri.com' } });
     await waitFor(() => {
       expect(mockProps.dispatch).toHaveBeenCalledWith({
         type: 'UPDATE_FIELD',
         field: 'uri',
         value: 'http://newuri.com',
-      });
-    });
-
-    const uriHashInput = screen.getByLabelText('URI Hash');
-    fireEvent.change(uriHashInput, { target: { value: 'newurihash' } });
-    await waitFor(() => {
-      expect(mockProps.dispatch).toHaveBeenCalledWith({
-        type: 'UPDATE_FIELD',
-        field: 'uriHash',
-        value: 'newurihash',
       });
     });
   });

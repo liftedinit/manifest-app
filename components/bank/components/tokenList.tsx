@@ -61,6 +61,7 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
               {filteredBalances.map(balance => (
                 <div
                   key={balance.denom}
+                  aria-label={balance.denom}
                   className="flex flex-row justify-between gap-4 items-center p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px] cursor-pointer hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] transition-colors"
                   onClick={() => openModal(balance.metadata)}
                 >

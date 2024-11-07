@@ -294,7 +294,7 @@ export default function GroupProposals({
       <div className="flex-1 overflow-auto">
         {isProposalsLoading ? (
           <div className="flex justify-center items-center h-64">
-            <span className="loading loading-spinner loading-lg"></span>
+            <span role="status" className="loading loading-spinner loading-lg"></span>
           </div>
         ) : isProposalsError ? (
           <div className="text-center text-error">Error loading proposals</div>
@@ -369,7 +369,11 @@ export default function GroupProposals({
                       {timeLeft}
                     </td>
                     <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] px-4 py-4 w-[25%]">
-                      {getHumanReadableType((proposal.messages[0] as any)['@type'])}
+                      {proposal.messages.length > 0
+                        ? proposal.messages.map((message, index) => (
+                            <div key={index}>{getHumanReadableType((message as any)['@type'])}</div>
+                          ))
+                        : 'No messages'}
                     </td>
                     <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px] px-4 py-4 w-[25%]">
                       {isTalliesLoading ? (

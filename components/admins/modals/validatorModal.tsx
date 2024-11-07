@@ -208,9 +208,9 @@ export function ValidatorDetailsModal({
                     <span className="text-sm text-gray-500 dark:text-gray-400">
                       OPERATOR ADDRESS
                     </span>
-                    <p className="text-md mt-2">
+                    <div className="text-md mt-2">
                       <TruncatedAddressWithCopy address={validator?.operator_address} slice={42} />
-                    </p>
+                    </div>
                   </div>
                   <div className="dark:bg-[#FFFFFF0F] bg-[#0000000A] rounded-[12px] p-4">
                     <div className="flex flex-row justify-between items-center relative">
