@@ -1,143 +1,173 @@
+import { useState, useEffect } from 'react';
 import {
-  ExtendedQueryGroupsByMemberResponseSDKType,
-  useGroupsByMember,
   useProposalsByPolicyAccount,
   useTallyCount,
   useVotesByProposal,
-} from "@/hooks/useQueries";
+  useMultipleTallyCounts,
+} from '@/hooks/useQueries';
+import { ProposalSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { QueryTallyResultResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
+import Link from 'next/link';
+import { SearchIcon } from '@/components/icons';
+import { useRouter } from 'next/router';
 
-import ProfileAvatar from "@/utils/identicon";
-import VoteDetailsModal from "@/components/groups/modals/voteDetailsModal";
-import { QueryTallyResultResponseSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/query";
-import {
-  MemberSDKType,
-  ProposalExecutorResult,
-  ProposalSDKType,
-  ProposalStatus,
-} from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types";
-import Link from "next/link";
-import { truncateString } from "@/utils";
-import { useEffect, useState } from "react";
-import { PiArrowDownLight } from "react-icons/pi";
-import { useRouter } from "next/router";
-import { useChain } from "@cosmos-kit/react";
-import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
+import VoteDetailsModal from '@/components/groups/modals/voteDetailsModal';
+import { useGroupsByMember } from '@/hooks/useQueries';
+import { useChain } from '@cosmos-kit/react';
+import { MemberSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { ArrowRightIcon } from '@/components/icons';
+import ProfileAvatar from '@/utils/identicon';
+import { GroupInfo } from '../modals/groupInfo';
+import { ExtendedGroupType } from '@/hooks/useQueries';
+import { MemberManagementModal } from '../modals/memberManagmentModal';
+import { ThresholdDecisionPolicy } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 
-export default function ProposalsForPolicy({
-  policyAddress,
-}: Readonly<{
+type GroupProposalsProps = {
   policyAddress: string;
-}>) {
-  const { address } = useChain("manifest");
+  groupName: string;
+  onBack: () => void;
+  policyThreshold: ThresholdDecisionPolicy;
+};
 
-  const [tallies, setTallies] = useState<
-    { proposalId: bigint; tally: QueryTallyResultResponseSDKType }[]
-  >([]);
-
-  const updateTally = (
-    proposalId: bigint,
-    newTally: QueryTallyResultResponseSDKType,
-  ) => {
-    setTallies((prevTallies) => {
-      const existingTallyIndex = prevTallies.findIndex(
-        (item) => item.proposalId === proposalId,
-      );
-
-      if (existingTallyIndex >= 0) {
-        const newTallies = [...prevTallies];
-        newTallies[existingTallyIndex] = { proposalId, tally: newTally };
-        return newTallies;
-      } else {
-        return [...prevTallies, { proposalId, tally: newTally }];
-      }
-    });
-  };
-
-  const [selectedProposal, setSelectedProposal] = useState(null);
-
-  const handleRowClick = (proposal: any) => {
-    setSelectedProposal(proposal);
-    const modal = document.getElementById(
-      `vote_modal_${proposal.id}`,
-    ) as HTMLDialogElement;
-    modal?.showModal();
-  };
-
-  const {
-    groupByMemberData,
-    isGroupByMemberLoading,
-    isGroupByMemberError,
-    refetchGroupByMember,
-  } = useGroupsByMember(address ?? "");
-
+export default function GroupProposals({
+  policyAddress,
+  groupName,
+  onBack,
+  policyThreshold,
+}: GroupProposalsProps) {
   const { proposals, isProposalsLoading, isProposalsError, refetchProposals } =
-    useProposalsByPolicyAccount(policyAddress ?? "");
+    useProposalsByPolicyAccount(policyAddress);
 
-  const members =
-    groupByMemberData?.groups.filter(
-      (group) => group.policies[0]?.address === policyAddress,
-    )[0]?.members ?? [];
-  const admin =
-    groupByMemberData.groups.filter(
-      (group) => group.policies[0]?.address === policyAddress,
-    )[0]?.admin ?? "";
-  const groupName =
-    groupByMemberData.groups.filter(
-      (group) => group.policies[0]?.address === policyAddress,
-    )[0]?.ipfsMetadata?.title ?? "";
+  const [selectedProposal, setSelectedProposal] = useState<ProposalSDKType | null>(null);
+  const [members, setMembers] = useState<MemberSDKType[]>([]);
+
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Convert proposalId to string before passing it to the hooks
+  const proposalId = selectedProposal?.id ?? 0n;
+
+  // Use the string version of the proposalId
+  const { tally, refetchTally } = useTallyCount(proposalId);
+  const { votes, refetchVotes } = useVotesByProposal(proposalId);
+
+  const filterProposals = (proposals: ProposalSDKType[]) => {
+    return proposals.filter(
+      proposal =>
+        proposal.status.toString() !== 'PROPOSAL_STATUS_REJECTED' &&
+        proposal.status.toString() !== 'PROPOSAL_STATUS_WITHDRAWN'
+    );
+  };
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const { proposalId } = router.query;
+    if (proposalId && typeof proposalId === 'string' && proposals.length > 0) {
+      const proposalToOpen = proposals.find(p => p.id.toString() === proposalId);
+      if (proposalToOpen) {
+        setSelectedProposal(proposalToOpen);
+        setTimeout(() => {
+          const modal = document.getElementById(`vote_modal_${proposalId}`) as HTMLDialogElement;
+          if (modal) {
+            modal.showModal();
+          }
+        }, 0);
+      } else {
+        console.warn(`Proposal with ID ${proposalId} not found`);
+        // remove the invalid proposalId from the URL
+        router.push(`/groups?policyAddress=${policyAddress}`, undefined, { shallow: true });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.query, proposals, policyAddress]);
+
+  const handleRowClick = (proposal: ProposalSDKType) => {
+    setSelectedProposal(proposal);
+    // Update URL without navigating
+    router.push(`/groups?policyAddress=${policyAddress}&proposalId=${proposal.id}`, undefined, {
+      shallow: true,
+    });
+    setTimeout(() => {
+      const modal = document.getElementById(`vote_modal_${proposal.id}`) as HTMLDialogElement;
+      if (modal) {
+        modal.showModal();
+      } else {
+        console.error(`Modal not found for proposal ${proposal.id}`);
+      }
+    }, 0);
+  };
+
+  const closeModal = () => {
+    setSelectedProposal(null);
+    // Remove proposalId from URL when closing the modal
+    router.push(`/groups?policyAddress=${policyAddress}`, undefined, { shallow: true });
+  };
 
   function isProposalPassing(tally: QueryTallyResultResponseSDKType) {
-    const yesCount = parseFloat(tally?.tally?.yes_count ?? "0");
-    const noCount = parseFloat(tally?.tally?.no_count ?? "0");
-    const noWithVetoCount = parseFloat(tally?.tally?.no_with_veto_count ?? "0");
-    const abstainCount = parseFloat(tally?.tally?.abstain_count ?? "0");
+    const yesCount = BigInt(tally?.tally?.yes_count ?? '0');
+    const noCount = BigInt(tally?.tally?.no_count ?? '0');
+    const noWithVetoCount = BigInt(tally?.tally?.no_with_veto_count ?? '0');
+    const abstainCount = BigInt(tally?.tally?.abstain_count ?? '0');
 
-    const passingThreshold = yesCount > noCount;
+    const totalVotes = yesCount + noCount + noWithVetoCount + abstainCount;
+    const totalNoVotes = noCount + noWithVetoCount;
+
+    // Check if threshold is reached
+    const threshold = BigInt(policyThreshold.threshold);
+    const isThresholdReached = totalVotes >= threshold;
+
+    // Check for tie
+    const isTie = yesCount === totalNoVotes && yesCount > 0;
+
+    // Determine if passing based on vote distribution
+    const isPassing = isThresholdReached && yesCount > totalNoVotes;
 
     return {
-      isPassing: passingThreshold,
+      isPassing,
       yesCount,
       noCount,
       noWithVetoCount,
       abstainCount,
+      isThresholdReached,
+      isTie,
     };
   }
 
   type ChainMessageType =
-    | "/cosmos.bank.v1beta1.MsgSend"
-    | "/strangelove_ventures.poa.v1.MsgSetPower"
-    | "/cosmos.group.v1.MsgCreateGroup"
-    | "/cosmos.group.v1.MsgUpdateGroupMembers"
-    | "/cosmos.group.v1.MsgUpdateGroupAdmin"
-    | "/cosmos.group.v1.MsgUpdateGroupMetadata"
-    | "/cosmos.group.v1.MsgCreateGroupPolicy"
-    | "/cosmos.group.v1.MsgCreateGroupWithPolicy"
-    | "/cosmos.group.v1.MsgSubmitProposal"
-    | "/cosmos.group.v1.MsgVote"
-    | "/cosmos.group.v1.MsgExec"
-    | "/cosmos.group.v1.MsgLeaveGroup"
-    | "/manifest.v1.MsgUpdateParams"
-    | "/manifest.v1.MsgPayout"
-    | "/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade"
-    | "/cosmos.upgrade.v1beta1.MsgCancelUpgrade";
+    | '/cosmos.bank.v1beta1.MsgSend'
+    | '/strangelove_ventures.poa.v1.MsgSetPower'
+    | '/cosmos.group.v1.MsgCreateGroup'
+    | '/cosmos.group.v1.MsgUpdateGroupMembers'
+    | '/cosmos.group.v1.MsgUpdateGroupAdmin'
+    | '/cosmos.group.v1.MsgUpdateGroupMetadata'
+    | '/cosmos.group.v1.MsgCreateGroupPolicy'
+    | '/cosmos.group.v1.MsgCreateGroupWithPolicy'
+    | '/cosmos.group.v1.MsgSubmitProposal'
+    | '/cosmos.group.v1.MsgVote'
+    | '/cosmos.group.v1.MsgExec'
+    | '/cosmos.group.v1.MsgLeaveGroup'
+    | '/manifest.v1.MsgUpdateParams'
+    | '/manifest.v1.MsgPayout'
+    | '/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade'
+    | '/cosmos.upgrade.v1beta1.MsgCancelUpgrade';
 
   const typeRegistry: Record<ChainMessageType, string> = {
-    "/cosmos.bank.v1beta1.MsgSend": "Send",
-    "/strangelove_ventures.poa.v1.MsgSetPower": "Set Power",
-    "/cosmos.group.v1.MsgCreateGroup": "Create Group",
-    "/cosmos.group.v1.MsgUpdateGroupMembers": "Update Group Members",
-    "/cosmos.group.v1.MsgUpdateGroupAdmin": "Update Group Admin",
-    "/cosmos.group.v1.MsgUpdateGroupMetadata": "Update Group Metadata",
-    "/cosmos.group.v1.MsgCreateGroupPolicy": "Create Group Policy",
-    "/cosmos.group.v1.MsgCreateGroupWithPolicy": "Create Group With Policy",
-    "/cosmos.group.v1.MsgSubmitProposal": "Submit Proposal",
-    "/cosmos.group.v1.MsgVote": "Vote",
-    "/cosmos.group.v1.MsgExec": "Execute Proposal",
-    "/cosmos.group.v1.MsgLeaveGroup": "Leave Group",
-    "/manifest.v1.MsgUpdateParams": "Update Manifest Params",
-    "/manifest.v1.MsgPayout": "Payout",
-    "/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade": "Software Upgrade",
-    "/cosmos.upgrade.v1beta1.MsgCancelUpgrade": "Cancel Upgrade",
+    '/cosmos.bank.v1beta1.MsgSend': 'Send',
+    '/strangelove_ventures.poa.v1.MsgSetPower': 'Set Power',
+    '/cosmos.group.v1.MsgCreateGroup': 'Create Group',
+    '/cosmos.group.v1.MsgUpdateGroupMembers': 'Update Group Members',
+    '/cosmos.group.v1.MsgUpdateGroupAdmin': 'Update Group Admin',
+    '/cosmos.group.v1.MsgUpdateGroupMetadata': 'Update Group Metadata',
+    '/cosmos.group.v1.MsgCreateGroupPolicy': 'Create Group Policy',
+    '/cosmos.group.v1.MsgCreateGroupWithPolicy': 'Create Group With Policy',
+    '/cosmos.group.v1.MsgSubmitProposal': 'Submit Proposal',
+    '/cosmos.group.v1.MsgVote': 'Vote',
+    '/cosmos.group.v1.MsgExec': 'Execute Proposal',
+    '/cosmos.group.v1.MsgLeaveGroup': 'Leave Group',
+    '/manifest.v1.MsgUpdateParams': 'Update Manifest Params',
+    '/manifest.v1.MsgPayout': 'Payout',
+    '/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade': 'Software Upgrade',
+    '/cosmos.upgrade.v1beta1.MsgCancelUpgrade': 'Cancel Upgrade',
   };
 
   function getHumanReadableType(type: string): string {
@@ -145,335 +175,255 @@ export default function ProposalsForPolicy({
     if (registeredType) {
       return registeredType;
     }
-    const parts = type.split(".");
+    const parts = type.split('.');
     const lastPart = parts[parts.length - 1];
     return lastPart
-      .replace("Msg", "")
-      .replace(/([A-Z])/g, " $1")
+      .replace('Msg', '')
+      .replace(/([A-Z])/g, ' $1')
       .trim();
   }
 
-  const filterProposals = (proposals: ProposalSDKType[]) => {
-    return proposals.filter(
-      (proposal) =>
-        proposal.status.toString() !== "PROPOSAL_STATUS_ACCEPTED" &&
-        proposal.status.toString() !== "PROPOSAL_STATUS_REJECTED" &&
-        proposal.status.toString() !== "PROPOSAL_STATUS_WITHDRAWN",
-    );
-  };
+  const { address } = useChain('manifest');
+  const { groupByMemberData } = useGroupsByMember(address ?? '');
 
-  return (
-    <section className="">
-      <div className="flex flex-col  max-w-5xl mx-auto w-full  ">
-        <div className="  rounded-md   w-full mt-4 justify-center  shadow  bg-base-200 items-center mx-auto transition-opacity duration-300 ease-in-out animate-fadeIn">
-          <div className="rounded-md px-4 py-2 bg-base-100   max-h-[23rem]  min-h-[23rem]  ">
-            <div className="px-4 py-2  flex flex-row justify-between items-center border-base-content">
-              <h3 className="text-lg font-bold leading-6">Proposals</h3>
-
-              <Link href={`/groups/submit-proposal/${policyAddress}`} passHref>
-                <button
-                  aria-disabled={!policyAddress}
-                  className="btn btn-xs btn-primary"
-                >
-                  New Proposal
-                </button>
-              </Link>
-            </div>
-            <div className="divider divider-horizon -mt-2"></div>
-            {isProposalsLoading ? (
-              <div
-                className="flex px-4 flex-col gap-4 w-full mx-auto justify-center mt-6 mb-[2.05rem]  items-center transition-opacity duration-300 ease-in-out animate-fadeIn"
-                aria-label={"loading"}
-              >
-                <div className="skeleton h-4 w-full "></div>
-                <div className="skeleton h-4 w-full "></div>
-                <div className="skeleton h-4 w-full "></div>
-                <div className="skeleton h-4 w-full "></div>
-                <div className="skeleton h-4 w-full "></div>
-                <div className="skeleton h-4 w-full "></div>
-                <div className="skeleton h-4 w-full "></div>
-                <div className="skeleton h-12 w-full "></div>
-              </div>
-            ) : isProposalsError ? (
-              <div className="py-2">Error loading proposals</div>
-            ) : (
-              <>
-                <div className="">
-                  {filterProposals(proposals)?.length === 0 && (
-                    <div className="flex flex-col my-36 gap-4 w-full mx-auto justify-center items-center transition-opacity duration-300 ease-in-out animate-fadeIn">
-                      <div className="text-center underline">
-                        No proposals found for this policy
-                      </div>
-                    </div>
-                  )}
-                  {filterProposals(proposals)?.length > 0 && (
-                    <div className="bg-base-300 -mt-2 flex p-4 rounded-md base-200 overflow-y-auto max-h-[15rem] min-h-[15rem] ">
-                      <table className="table w-full  z-0 transition-opacity bg-base-300 duration-300 ease-in-out animate-fadeIn text-left ">
-                        <thead className="bg-base-300 ">
-                          <tr className="w-full">
-                            <th className="w-1/6 bg-base-300">#</th>
-                            <th className="w-1/6 bg-base-300">Title</th>
-                            <th className="w-1/6 bg-base-300">Time Left</th>
-                            <th className="w-1/6 bg-base-300">Type</th>
-                            <th className="w-1/6 bg-base-300">Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {filterProposals(proposals)?.map(
-                            (proposal, index) => {
-                              // Find the corresponding tally for this proposal
-                              const proposalTally = tallies.find(
-                                (t) => t.proposalId === proposal.id,
-                              );
-                              const { isPassing = false } = proposalTally
-                                ? isProposalPassing(proposalTally.tally)
-                                : {};
-                              const endTime = new Date(
-                                proposal?.voting_period_end,
-                              );
-                              const now = new Date();
-                              const msPerMinute = 1000 * 60;
-                              const msPerHour = msPerMinute * 60;
-                              const msPerDay = msPerHour * 24;
-
-                              const diff = endTime.getTime() - now.getTime();
-
-                              let timeLeft: string;
-
-                              if (diff <= 0) {
-                                timeLeft = "none";
-                              } else if (diff >= msPerDay) {
-                                const days = Math.floor(diff / msPerDay);
-                                timeLeft = `${days} day${
-                                  days === 1 ? "" : "s"
-                                }`;
-                              } else if (diff >= msPerHour) {
-                                const hours = Math.floor(diff / msPerHour);
-                                timeLeft = `${hours} hour${
-                                  hours === 1 ? "" : "s"
-                                }`;
-                              } else if (diff >= msPerMinute) {
-                                const minutes = Math.floor(diff / msPerMinute);
-                                timeLeft = `${minutes} minute${
-                                  minutes === 1 ? "" : "s"
-                                }`;
-                              } else {
-                                timeLeft = "less than a minute";
-                              }
-                              return (
-                                <tr
-                                  onClick={() => handleRowClick(proposal)}
-                                  key={index}
-                                  style={{ maxHeight: "3rem" }}
-                                  className={`w-full
-                            hover:bg-base-200 !important 
-                            active:bg-base-100 
-                            focus:bg-base-300 focus:shadow-inner 
-                            transition-all duration-200 
-                            cursor-pointer `}
-                                >
-                                  <td className="">
-                                    #{proposal.id.toString()}
-                                  </td>
-                                  <td className="w-2/6 truncate">
-                                    {proposal.title.toLowerCase()}
-                                  </td>
-                                  <td className="w-1/6">
-                                    {diff <= 0 &&
-                                    proposal.executor_result ===
-                                      ("PROPOSAL_EXECUTOR_RESULT_NOT_RUN" as unknown as ProposalExecutorResult)
-                                      ? "none"
-                                      : timeLeft}
-                                  </td>
-                                  <td className="w-1/6 truncate ...">
-                                    {getHumanReadableType(
-                                      (proposal.messages[0] as any)["@type"],
-                                    )}
-                                  </td>
-                                  <td className="w-1/6">
-                                    {isPassing &&
-                                    diff > 0 &&
-                                    proposal.executor_result ===
-                                      ("PROPOSAL_EXECUTOR_RESULT_NOT_RUN" as unknown as ProposalExecutorResult)
-                                      ? "Passing"
-                                      : isPassing &&
-                                          diff <= 0 &&
-                                          proposal.executor_result ===
-                                            ("PROPOSAL_EXECUTOR_RESULT_NOT_RUN" as unknown as ProposalExecutorResult)
-                                        ? "Passed"
-                                        : (diff > 0 &&
-                                              proposal.executor_result ===
-                                                ("PROPOSAL_EXECUTOR_RESULT_FAILURE" as unknown as ProposalExecutorResult)) ||
-                                            (diff > 0 &&
-                                              proposal.status ===
-                                                ("PROPOSAL_STATUS_REJECTED" as unknown as ProposalStatus))
-                                          ? "Failed"
-                                          : "Failing"}
-                                  </td>
-                                  <Modal
-                                    admin={admin}
-                                    proposalId={proposal.id}
-                                    members={members}
-                                    proposal={proposal}
-                                    updateTally={updateTally}
-                                    refetchProposals={refetchProposals}
-                                  />
-                                </tr>
-                              );
-                            },
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-                {filterProposals(proposals).length > 0 && (
-                  <div className=" flex-row justify-center items-center mx-auto w-full hidden md:flex gap-4 transition-opacity  duration-300 ease-in-out animate-fadeIn h-16   rounded-md -mt-1 ">
-                    <div className="flex flex-col gap-1 justify-left w-1/4 items-center">
-                      <span className="text-xs  capitalize text-gray-400 hidden md:block">
-                        ACTIVE PROPOSALS
-                      </span>
-                      <span className="text-xs  capitalize text-gray-400 block md:hidden">
-                        ACTIVE
-                      </span>
-                      <span className="text-sm ">
-                        {filterProposals(proposals).length}
-                      </span>
-                    </div>
-                    <div className="flex flex-col gap-1 justify-left w-1/4 items-center ">
-                      <span className="text-xs  capitalize text-gray-400 hidden md:block">
-                        AWAITING EXECUTION
-                      </span>
-                      <span className="text-xs  capitalize text-gray-400 block md:hidden">
-                        EXECUTE
-                      </span>
-                      <span className="text-sm">
-                        {
-                          filterProposals(proposals).filter(
-                            (proposal) =>
-                              proposal.executor_result.toString() ===
-                                "PROPOSAL_EXECUTOR_RESULT_NOT_RUN" &&
-                              new Date(proposal.voting_period_end) < new Date(),
-                          ).length
-                        }
-                      </span>
-                    </div>
-                    <div className="flex flex-col gap-1 justify-center w-1/4 items-center ">
-                      <span className="text-xs  capitalize text-gray-400 hidden md:block">
-                        NAUGHTY MEMBER
-                      </span>
-                      <span className="text-xs  capitalize text-gray-400 block md:hidden">
-                        NAUGHTY
-                      </span>
-                      <span className="block md:hidden truncate">
-                        {
-                          <TruncatedAddressWithCopy
-                            address={address ?? ""}
-                            slice={2}
-                            size="small"
-                          />
-                        }
-                      </span>
-                      <span className="hidden md:block">
-                        <TruncatedAddressWithCopy
-                          address={address ?? ""}
-                          slice={8}
-                          size="small"
-                        />
-                      </span>
-                    </div>
-                    <div className="flex flex-col gap-1 justify-left w-1/4 items-center ">
-                      <span className="text-xs  capitalize text-gray-400 hidden md:block">
-                        ENDING SOON
-                      </span>
-                      <span className="text-xs capitalize text-gray-400 block md:hidden">
-                        ENDING
-                      </span>
-                      <span className="text-sm ">
-                        {(() => {
-                          const activeProposals = filterProposals(proposals);
-                          const now = new Date().getTime();
-                          const futureActiveProposals = activeProposals.filter(
-                            (proposal) =>
-                              new Date(proposal.voting_period_end).getTime() >
-                              now,
-                          );
-
-                          if (futureActiveProposals.length === 0) {
-                            return "No active proposals ending soon";
-                          }
-
-                          const closestEndingProposal =
-                            futureActiveProposals.reduce(
-                              (closest, proposal) => {
-                                const proposalDate = new Date(
-                                  proposal.voting_period_end,
-                                ).getTime();
-                                const closestDate = new Date(
-                                  closest.voting_period_end,
-                                ).getTime();
-
-                                return proposalDate - now < closestDate - now
-                                  ? proposal
-                                  : closest;
-                              },
-                            );
-
-                          return `#${closestEndingProposal.id.toString()}`;
-                        })()}
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Modal({
-  proposalId,
-  members,
-  proposal,
-  admin,
-  updateTally,
-  refetchProposals,
-}: {
-  proposalId: bigint;
-  members: MemberSDKType[];
-  proposal: ProposalSDKType;
-  admin: string;
-  updateTally: (
-    proposalId: bigint,
-    tally: QueryTallyResultResponseSDKType,
-  ) => void;
-  refetchProposals: () => void;
-}) {
-  const { tally, isTallyLoading, isTallyError, refetchTally } =
-    useTallyCount(proposalId);
+  const [groupId, setGroupId] = useState<string>('');
+  const [groupAdmin, setGroupAdmin] = useState<string>('');
 
   useEffect(() => {
-    if (tally) {
-      updateTally(proposalId, tally);
+    if (groupByMemberData && policyAddress) {
+      const group = groupByMemberData.groups.find(
+        g => g.policies.length > 0 && g.policies[0]?.address === policyAddress
+      );
+      if (group) {
+        setMembers(
+          group.members.map(member => ({
+            ...member.member,
+            address: member?.member?.address || '',
+            weight: member?.member?.weight || '0',
+            metadata: member?.member?.metadata || '',
+            added_at: member?.member?.added_at || new Date(),
+            isCoreMember: true,
+            isActive: true,
+            isAdmin: member?.member?.address === group.admin,
+            isPolicyAdmin: member?.member?.address === group.policies[0]?.admin,
+          }))
+        );
+        setGroupId(group.id.toString());
+        setGroupAdmin(group.admin);
+      }
     }
-  }, [tally]);
+  }, [groupByMemberData, policyAddress]);
 
-  const { votes, refetchVotes } = useVotesByProposal(proposalId);
+  const filteredProposals = filterProposals(proposals).filter(proposal =>
+    proposal.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const openInfoModal = () => {
+    const modal = document.getElementById('group-info-modal') as HTMLDialogElement | null;
+    if (modal) {
+      modal.showModal();
+    } else {
+      console.error("Modal element 'group-info-modal' not found");
+    }
+  };
+
+  const openMemberModal = () => {
+    const modal = document.getElementById('member-management-modal') as HTMLDialogElement | null;
+    if (modal) {
+      modal.showModal();
+    } else {
+      console.error("Modal element 'member-management-modal' not found");
+    }
+  };
+
+  const { tallies, isLoading: isTalliesLoading } = useMultipleTallyCounts(proposals.map(p => p.id));
 
   return (
-    <VoteDetailsModal
-      admin={admin}
-      members={members}
-      tallies={tally ?? ({} as QueryTallyResultResponseSDKType)}
-      votes={votes}
-      proposal={proposal}
-      modalId={`vote_modal_${proposal?.id}`}
-      refetchVotes={refetchVotes}
-      refetchTally={refetchTally}
-      refetchProposals={refetchProposals}
-    />
+    <div className="h-full flex flex-col p-4">
+      {/* Header section */}
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center space-x-6">
+          <button
+            onClick={onBack}
+            className="btn btn-circle rounded-[16px] dark:bg-[#FFFFFF0F] bg-[#FFFFFF] btn-md"
+          >
+            <ArrowRightIcon className="text-primary" />
+          </button>
+          <h1 className="text-2xl font-bold">{groupName}</h1>
+          <ProfileAvatar walletAddress={policyAddress} size={40} />
+        </div>
+        <div className="flex items-center space-x-4">
+          <button
+            className="btn w-[140px] h-[52px] rounded-[12px] focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
+            onClick={openInfoModal}
+          >
+            Info
+          </button>
+          <button
+            className="btn w-[140px] h-[52px] rounded-[12px] focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
+            onClick={openMemberModal}
+          >
+            Members
+          </button>
+        </div>
+      </div>
+
+      {/* Search and New Proposal section */}
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-semibold">Proposals</h2>
+        <div className="flex items-center space-x-4">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search for a group..."
+              className="input input-bordered w-[224px] h-[40px] rounded-[12px] border-none bg-[#0000000A] dark:bg-[#FFFFFF1F] pl-10"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+            />
+            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          </div>
+          <Link href={`/groups/submit-proposal/${policyAddress}`} passHref>
+            <button className="btn btn-gradient rounded-[12px] w-[140px] text-white h-[52px]">
+              New proposal
+            </button>
+          </Link>
+        </div>
+      </div>
+
+      {/* Table section - will fill remaining space */}
+      <div className="flex-1 overflow-auto">
+        {isProposalsLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <span role="status" className="loading loading-spinner loading-lg"></span>
+          </div>
+        ) : isProposalsError ? (
+          <div className="text-center text-error">Error loading proposals</div>
+        ) : filteredProposals.length > 0 ? (
+          <table className="table w-full border-separate border-spacing-y-3">
+            <thead>
+              <tr className="text-sm font-medium">
+                <th className="bg-transparent px-4 py-2 w-[25%]">#</th>
+                <th className="bg-transparent px-4 py-2 w-[25%]">Title</th>
+                <th className="bg-transparent px-4 py-2 w-[25%]">Time Left</th>
+                <th className="bg-transparent px-4 py-2 w-[25%]">Type</th>
+                <th className="bg-transparent px-4 py-2 w-[25%]">Status</th>
+              </tr>
+            </thead>
+            <tbody className="space-y-4">
+              {filteredProposals.map(proposal => {
+                const endTime = new Date(proposal?.voting_period_end);
+                const now = new Date();
+                const msPerMinute = 1000 * 60;
+                const msPerHour = msPerMinute * 60;
+                const msPerDay = msPerHour * 24;
+
+                const diff = endTime.getTime() - now.getTime();
+
+                let timeLeft: string;
+
+                if (diff <= 0) {
+                  timeLeft = 'none';
+                } else if (diff >= msPerDay) {
+                  const days = Math.floor(diff / msPerDay);
+                  timeLeft = `${days} day${days === 1 ? '' : 's'}`;
+                } else if (diff >= msPerHour) {
+                  const hours = Math.floor(diff / msPerHour);
+                  timeLeft = `${hours} hour${hours === 1 ? '' : 's'}`;
+                } else if (diff >= msPerMinute) {
+                  const minutes = Math.floor(diff / msPerMinute);
+                  timeLeft = `${minutes} minute${minutes === 1 ? '' : 's'}`;
+                } else {
+                  timeLeft = 'less than a minute';
+                }
+
+                const proposalTally = tallies.find(t => t.proposalId === proposal.id)?.tally;
+
+                let status = 'Pending';
+                if (proposal.status.toString() === 'PROPOSAL_STATUS_ACCEPTED') {
+                  status = 'Execute';
+                } else if (proposal.status.toString() === 'PROPOSAL_STATUS_CLOSED') {
+                  status = 'Executed';
+                } else if (proposalTally) {
+                  const { isPassing, isThresholdReached, isTie } = isProposalPassing(proposalTally);
+                  if (isThresholdReached) {
+                    if (isTie) {
+                      status = 'Tie';
+                    } else {
+                      status = isPassing ? 'Passing' : 'Failing';
+                    }
+                  }
+                }
+                return (
+                  <tr
+                    key={proposal.id.toString()}
+                    onClick={() => handleRowClick(proposal)}
+                    className="hover:bg-base-200 text-black dark:text-white rounded-lg cursor-pointer"
+                  >
+                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] px-4 py-4 w-[25%]">
+                      {proposal.id.toString()}
+                    </td>
+                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] truncate max-w-xs px-4 py-4 w-[25%]">
+                      {proposal.title}
+                    </td>
+                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] px-4 py-4 w-[25%]">
+                      {timeLeft}
+                    </td>
+                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] px-4 py-4 w-[25%]">
+                      {proposal.messages.length > 0
+                        ? proposal.messages.map((message, index) => (
+                            <div key={index}>{getHumanReadableType((message as any)['@type'])}</div>
+                          ))
+                        : 'No messages'}
+                    </td>
+                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px] px-4 py-4 w-[25%]">
+                      {isTalliesLoading ? (
+                        <span className="loading loading-spinner loading-xs"></span>
+                      ) : (
+                        status
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        ) : (
+          <div className="text-center py-8 text-gray-500">No proposals found</div>
+        )}
+      </div>
+
+      {/* Modals */}
+      <VoteDetailsModal
+        key={selectedProposal?.id.toString() ?? ''}
+        tallies={tally ?? ({} as QueryTallyResultResponseSDKType)}
+        votes={votes ?? []}
+        members={members}
+        proposal={selectedProposal ?? ({} as ProposalSDKType)}
+        modalId={`vote_modal_${selectedProposal?.id}`}
+        refetchVotes={refetchVotes}
+        refetchTally={refetchTally}
+        refetchProposals={refetchProposals}
+        onClose={closeModal}
+      />
+
+      <GroupInfo
+        group={
+          groupByMemberData?.groups.find(g => g.policies[0]?.address === policyAddress) ??
+          ({} as unknown as ExtendedGroupType)
+        }
+        address={address ?? ''}
+        policyAddress={policyAddress}
+        onUpdate={() => {}}
+      />
+
+      <MemberManagementModal
+        members={members}
+        groupId={groupId}
+        groupAdmin={groupAdmin}
+        policyAddress={policyAddress}
+        address={address ?? ''}
+        onUpdate={refetchProposals}
+      />
+    </div>
   );
 }

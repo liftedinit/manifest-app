@@ -1,9 +1,12 @@
-import React, { useState } from "react";
-import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
-import TxInfoModal from "../modals/txInfo";
-import { shiftDigits } from "@/utils";
-import { formatDenom } from "@/components";
+import React, { useState, useMemo } from 'react';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import TxInfoModal from '../modals/txInfo';
+import { shiftDigits, truncateString } from '@/utils';
+import { formatDenom } from '@/components';
+import { useTokenFactoryDenomsMetadata } from '@/hooks';
+import { SendIcon, ReceiveIcon } from '@/components/icons';
 
+import { DenomImage } from '@/components';
 interface Transaction {
   from_address: string;
   to_address: string;
@@ -28,12 +31,15 @@ export function HistoryBox({
 }) {
   const [selectedTx, setSelectedTx] = useState<TransactionGroup | null>(null);
 
+  const [infoExponent, setInfoExponent] = useState(6);
+  const { metadatas } = useTokenFactoryDenomsMetadata();
+  console.log(metadatas);
   function formatDateShort(dateString: string): string {
     const date = new Date(dateString);
-    return date.toLocaleString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
     });
   }
 
@@ -45,77 +51,103 @@ export function HistoryBox({
     setSelectedTx(null);
   };
 
+  const groupedTransactions = useMemo(() => {
+    const groups: { [key: string]: TransactionGroup[] } = {};
+    send.forEach(tx => {
+      const date = formatDateShort(tx.formatted_date);
+      if (!groups[date]) {
+        groups[date] = [];
+      }
+      groups[date].push(tx);
+    });
+    return groups;
+  }, [send]);
+
   return (
-    <div className="flex flex-col max-w-5xl mx-auto w-full">
-      <div className="rounded-md w-full justify-center shadow bg-base-200 items-center mx-auto transition-opacity duration-300 ease-in-out animate-fadeIn">
-        <div className="rounded-md px-4 py-2 bg-base-100 max-h-[18rem] min-h-[18rem]">
-          <div className="px-4 py-2 flex flex-row justify-between items-center border-base-content">
-            <h3 className="text-lg font-bold leading-6">Tx History</h3>
-          </div>
-          <div className="divider  -mt-2 mb-1"></div>
-          {send?.length > 0 ? (
-            <div className="overflow-x-auto relative shadow-md rounded-lg bg-base-300 max-h-[13rem] min-h-[13rem] transition-opacity duration-300 ease-in-out animate-fadeIn">
-              <table className="table w-full table-fixed rounded-md">
-                <thead className="sticky top-0 z-1 bg-base-300">
-                  <tr>
-                    <th className="px-6 py-3 w-1/4">Date</th>
-                    <th className="px-6 py-3 w-1/4">Type</th>
-                    <th className="px-6 py-3 w-1/4">Amount</th>
-                    <th className="px-6 py-3 w-1/4">Target</th>
-                  </tr>
-                </thead>
-                <tbody className="overflow-y-auto">
-                  {send?.map((tx: TransactionGroup) => (
-                    <tr
-                      key={tx.tx_hash}
-                      onClick={() => openModal(tx)}
-                      className="cursor-pointer hover:bg-base-200"
-                    >
-                      <td className="px-6 py-4">
-                        {formatDateShort(tx.formatted_date)}
-                      </td>
-                      <td className="px-6 py-4">
-                        {tx.data.from_address === address ? "Send" : "Receive"}
-                      </td>
-                      <td className="px-6 py-4">
+    <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg md:text-xl font-semibold text-[#161616] dark:text-white">
+          Transaction History
+        </h3>
+      </div>
+
+      <div className="flex-1 overflow-hidden h-full">
+        <div className="h-full overflow-y-auto">
+          {Object.entries(groupedTransactions).map(([date, transactions]) => (
+            <div key={date}>
+              <h4 className="text-sm font-medium text-[#00000099] dark:text-[#FFFFFF99] mb-2">
+                {date}
+              </h4>
+              <div className="space-y-2">
+                {transactions.map(tx => (
+                  <div
+                    key={tx.tx_hash}
+                    className="flex items-center justify-between p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px] cursor-pointer hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] transition-colors"
+                    onClick={() => openModal(tx)}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center">
+                        {tx.data.from_address === address ? <SendIcon /> : <ReceiveIcon />}
+                      </div>
+                      <div className="w-10 h-10 rounded-full overflow-hidden bg-[#0000000A] dark:bg-[#FFFFFF0F] flex items-center justify-center">
+                        {tx.data.amount.map((amt, index) => {
+                          const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
+                          return <DenomImage key={index} denom={metadata} />;
+                        })}
+                      </div>
+                      <div className="">
+                        <div className="flex flex-row items-center gap-2">
+                          <p className="font-semibold text-[#161616] dark:text-white">
+                            {tx.data.from_address === address ? 'Sent' : 'Received'}
+                          </p>
+                          <p className="font-semibold text-[#161616] dark:text-white">
+                            {tx.data.amount.map((amt, index) => {
+                              const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
+                              return metadata?.display.startsWith('factory')
+                                ? metadata?.display?.split('/').pop()?.toUpperCase()
+                                : truncateString(
+                                    metadata?.display ?? metadata?.symbol ?? '',
+                                    10
+                                  ).toUpperCase();
+                            })}
+                          </p>
+                        </div>
+                        <div className="address-copy" onClick={e => e.stopPropagation()}>
+                          <TruncatedAddressWithCopy
+                            address={
+                              tx.data.from_address === address
+                                ? tx.data.to_address
+                                : tx.data.from_address
+                            }
+                            slice={6}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p
+                        className={`font-semibold ${tx.data.from_address === address ? 'text-red-500' : 'text-green-500'}`}
+                      >
+                        {tx.data.from_address === address ? '-' : '+'}
                         {tx.data.amount
-                          .map(
-                            (amt) =>
-                              `${shiftDigits(amt.amount, -6)} ${formatDenom(
-                                amt.denom,
-                              )}`,
-                          )
-                          .join(", ")}
-                      </td>
-                      <td className="px-6 py-4">
-                        <TruncatedAddressWithCopy
-                          address={
-                            tx.data.from_address === address
-                              ? tx.data.to_address
-                              : tx.data.from_address
-                          }
-                          slice={6}
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                          .map(amt => {
+                            const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
+                            const exponent = Number(metadata?.denom_units[1]?.exponent) || 6;
+
+                            return `${Number(shiftDigits(amt.amount, -exponent)).toLocaleString(undefined, { maximumFractionDigits: exponent })} ${formatDenom(amt.denom)}`;
+                          })
+                          .join(', ')}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-          ) : (
-            <div className="text-center mt-24 underline">
-              No transactions found for this account!
-            </div>
-          )}
+          ))}
         </div>
       </div>
-      {selectedTx && (
-        <TxInfoModal
-          tx={selectedTx}
-          isOpen={!!selectedTx}
-          onClose={closeModal}
-        />
-      )}
+
+      {selectedTx && <TxInfoModal tx={selectedTx} isOpen={!!selectedTx} onClose={closeModal} />}
     </div>
   );
 }

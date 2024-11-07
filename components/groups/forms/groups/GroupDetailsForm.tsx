@@ -1,6 +1,60 @@
-import { Action, FormData } from "@/helpers/formReducer";
-import Link from "next/link";
-import { PiAddressBook } from "react-icons/pi";
+import React, { useState } from 'react';
+import { Formik, Form } from 'formik';
+import Yup from '@/utils/yupExtensions';
+import { Action, FormData } from '@/helpers/formReducer';
+import Link from 'next/link';
+
+import { TextInput, TextArea } from '@/components/react/inputs';
+import { TrashIcon, PlusIcon } from '@/components/icons';
+import { isValidManifestAddress } from '@/utils/string';
+import { MdContacts } from 'react-icons/md';
+import { TailwindModal } from '@/components/react/modal';
+
+const GroupSchema = Yup.object().shape({
+  title: Yup.string()
+    .required('Title is required')
+    .max(50, 'Title must not exceed 50 characters')
+    .noProfanity(),
+  authors: Yup.lazy(val =>
+    Array.isArray(val)
+      ? Yup.array()
+          .of(
+            Yup.string().test(
+              'author-validation',
+              'Invalid author name or address',
+              function (value) {
+                if (value?.startsWith('manifest')) {
+                  return isValidManifestAddress(value);
+                }
+                return Yup.string()
+                  .max(50, 'Author name must not exceed 50 characters')
+                  .noProfanity('Profanity is not allowed')
+                  .isValidSync(value);
+              }
+            )
+          )
+          .min(1, 'At least one author is required')
+      : Yup.string().test(
+          'single-author-validation',
+          'Invalid author name or address',
+          function (value) {
+            if (value?.startsWith('manifest')) {
+              return isValidManifestAddress(value);
+            }
+            return Yup.string()
+              .max(50, 'Author name must not exceed 50 characters')
+              .noProfanity('Profanity is not allowed')
+              .isValidSync(value);
+          }
+        )
+  ),
+
+  description: Yup.string()
+    .required('Description is required')
+    .min(20, 'Description must be at least 20 characters')
+    .max(1000, 'Description must not exceed 1000 characters')
+    .noProfanity('Profanity is not allowed'),
+});
 
 export default function GroupDetails({
   nextStep,
@@ -13,129 +67,169 @@ export default function GroupDetails({
   dispatch: React.Dispatch<Action>;
   address: string;
 }>) {
+  const [isValidForm, setIsValidForm] = useState(false);
+  const [isContactsOpen, setIsContactsOpen] = useState(false);
+  const [activeAuthorIndex, setActiveAuthorIndex] = useState<number | null>(null);
+
+  const authors = Array.isArray(formData.authors)
+    ? formData.authors
+    : [formData.authors].filter(Boolean);
+
   const updateField = (field: keyof FormData, value: any) => {
-    dispatch({ type: "UPDATE_FIELD", field, value });
+    dispatch({ type: 'UPDATE_FIELD', field, value });
   };
+
   return (
     <section className="">
-      <div className="lg:flex  mx-auto">
-        <div className="flex items-center mx-auto md:w-[42rem] px-4 md:px-8 xl:px-0">
+      <div className="lg:flex mx-auto">
+        <div className="flex items-center mx-auto w-full dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-[24px] rounded-[24px]">
           <div className="w-full">
-            <h1 className="mb-4 text-2xl font-extrabold tracking-tight  sm:mb-6 leding-tight ">
+            <h1 className="mb-4 text-xl font-extrabold tracking-tight sm:mb-6 leading-tight border-b-[0.5px] dark:text-[#FFFFFF99] dark:border-[#FFFFFF99] border-b-[black] pb-4">
               Group details
             </h1>
-            <form className=" min-h-[330px]">
-              <div className="grid gap-5 my-6 sm:grid-cols-2">
-                <div>
-                  <label
-                    htmlFor="full-name"
-                    className="block mb-2 text-sm font-medium"
-                  >
-                    Group Title
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Title"
-                    className="input input-bordered w-full max-w-xs"
-                    value={formData.title}
-                    onChange={(e) => updateField("title", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="block mb-2 text-sm font-medium "
-                  >
-                    Authors
-                  </label>
-                  <div className="flex flex-row justify-between items-center">
-                    {" "}
-                    <input
-                      type="text"
-                      placeholder="List of authors or address"
-                      className="input input-bordered rounded-tl-lg rounded-bl-lg rounded-tr-none rounded-br-none w-full max-w-xs "
-                      value={formData.authors}
-                      onChange={(e) => updateField("authors", e.target.value)}
-                    />{" "}
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        updateField("authors", address);
-                      }}
-                      className="btn btn-primary rounded-tr-lg rounded-br-lg  rounded-bl-none rounded-tl-none "
-                    >
-                      <PiAddressBook className="w-6 h-6" />
-                    </button>
-                  </div>
-                </div>
-                <div>
-                  <label
-                    htmlFor="password"
-                    className="block mb-2 text-sm font-medium  "
-                  >
-                    Summary
-                  </label>
-                  <textarea
-                    className="textarea textarea-bordered w-full max-w-xs"
-                    placeholder="Short Bio"
-                    value={formData.summary}
-                    onChange={(e) => updateField("summary", e.target.value)}
-                  ></textarea>
-                </div>
-                <div>
-                  <label
-                    htmlFor="confirm-password"
-                    className="block mb-2 text-sm font-medium "
-                  >
-                    Description
-                  </label>
-                  <textarea
-                    className="textarea textarea-bordered w-full max-w-xs"
-                    placeholder="Long Bio"
-                    value={formData.description}
-                    onChange={(e) => updateField("description", e.target.value)}
-                  ></textarea>
-                </div>
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="block mb-2 text-sm font-medium "
-                  >
-                    Forum Link
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Link to forum"
-                    className="input input-bordered w-full max-w-xs mb-4"
-                    value={formData.forumLink}
-                    onChange={(e) => updateField("forumLink", e.target.value)}
-                  />
-                </div>
-              </div>
-            </form>
-
-            <button
-              onClick={nextStep}
-              className="w-full  btn px-5 py-2.5 sm:py-3.5 btn-primary"
-              disabled={
-                !formData.title ||
-                !formData.authors ||
-                !formData.summary ||
-                !formData.description
-              }
+            <Formik
+              initialValues={{
+                ...formData,
+                authors: authors.length > 0 ? authors : [''],
+              }}
+              validationSchema={GroupSchema}
+              onSubmit={nextStep}
             >
-              Next: Group Policy
-            </button>
-            <div className="flex space-x-3 ga-4 mt-6">
-              <Link href={"/groups"} legacyBehavior>
-                <button className=" btn btn-neutral  py-2.5 sm:py-3.5  w-1/2 ">
-                  <span className="hidden sm:inline">Back: Groups Page</span>
-                  <span className="sm:hidden"> Back: Groups</span>
-                </button>
-              </Link>
-            </div>
+              {({ isValid, setFieldValue, handleChange, values }) => {
+                setIsValidForm(isValid);
+
+                return (
+                  <Form className="min-h-[330px] flex flex-col gap-4">
+                    <TextInput
+                      label="Group Title"
+                      name="title"
+                      placeholder="Title"
+                      value={formData.title}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        updateField('title', e.target.value);
+                        handleChange(e);
+                      }}
+                    />
+
+                    <TextArea
+                      label="Description"
+                      name="description"
+                      placeholder="Long Bio"
+                      value={formData.description}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                        updateField('description', e.target.value);
+                        handleChange(e);
+                      }}
+                    />
+
+                    {/* Authors section */}
+                    <div className="form-control w-full">
+                      <div className="max-h-[30vh] overflow-y-auto px-1">
+                        {values.authors.map((author, index) => (
+                          <div key={index} className="flex mb-2 items-center">
+                            <TextInput
+                              label="Author name or address"
+                              name={`authors[${index}]`}
+                              placeholder="Author name or address"
+                              value={author}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                const newAuthors = [...values.authors];
+                                newAuthors[index] = e.target.value;
+                                setFieldValue('authors', newAuthors);
+                                updateField('authors', newAuthors);
+                              }}
+                              className="flex-grow"
+                              rightElement={
+                                values.authors.length > 1 && index !== 0 ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const newAuthors = values.authors.filter(
+                                        (_, i) => i !== index
+                                      );
+                                      setFieldValue('authors', newAuthors);
+                                      updateField('authors', newAuthors);
+                                    }}
+                                    className="btn btn-error btn-sm text-white"
+                                  >
+                                    <TrashIcon className="w-5 h-5" />
+                                  </button>
+                                ) : (
+                                  <div className="flex gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setActiveAuthorIndex(index);
+                                        setIsContactsOpen(true);
+                                      }}
+                                      className="btn btn-primary btn-sm text-white"
+                                    >
+                                      <MdContacts className="w-5 h-5" />
+                                    </button>
+                                  </div>
+                                )
+                              }
+                            />
+                          </div>
+                        ))}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newAuthors = [...values.authors, ''];
+                          setFieldValue('authors', newAuthors);
+                          updateField('authors', newAuthors);
+                        }}
+                        className="btn btn-gradient text-white w-full mt-2"
+                      >
+                        <PlusIcon className="mr-2" /> Add Author
+                      </button>
+                    </div>
+                    <TailwindModal
+                      isOpen={isContactsOpen}
+                      setOpen={setIsContactsOpen}
+                      showContacts={true}
+                      currentAddress={address}
+                      onSelect={(selectedAddress: string) => {
+                        if (activeAuthorIndex !== null) {
+                          const newAuthors = [...authors];
+                          newAuthors[activeAuthorIndex] = selectedAddress;
+                          setFieldValue('authors', newAuthors);
+                          updateField('authors', newAuthors);
+                          setActiveAuthorIndex(null);
+                        }
+                      }}
+                    />
+                  </Form>
+                );
+              }}
+            </Formik>
           </div>
         </div>
+      </div>
+
+      <div className="flex space-x-3  mt-6 mx-auto w-full">
+        <Link href="/groups" legacyBehavior>
+          <button className="btn btn-neutral py-2.5 sm:py-3.5 w-1/2">
+            <span className="hidden sm:inline">Back: Groups Page</span>
+            <span className="sm:hidden">Back: Groups</span>
+          </button>
+        </Link>
+        <button
+          type="submit"
+          className="w-1/2 btn px-5 py-2.5 sm:py-3.5 btn-gradient text-white disabled:text-black"
+          onClick={nextStep}
+          disabled={
+            !isValidForm ||
+            !formData.authors ||
+            formData.authors.length === 0 ||
+            (Array.isArray(formData.authors) &&
+              formData.authors.some(author => author.trim() === ''))
+          }
+        >
+          Next: Group Policy
+        </button>
       </div>
     </section>
   );

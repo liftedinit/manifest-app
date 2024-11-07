@@ -1,1 +1,1 @@
-export * from "./txInfo";
+export * from './txInfo';

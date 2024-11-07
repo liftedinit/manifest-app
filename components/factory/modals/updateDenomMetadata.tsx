@@ -1,10 +1,23 @@
-import { useState } from "react";
-import { TokenFormData } from "@/helpers/formReducer";
-import { useFeeEstimation } from "@/hooks/useFeeEstimation";
-import { useTx } from "@/hooks/useTx";
-import { osmosis } from "@chalabi/manifestjs";
-import { chainName } from "@/config";
-import { DenomUnit } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
+import { useState } from 'react';
+import { TokenFormData } from '@/helpers/formReducer';
+import { useFeeEstimation } from '@/hooks/useFeeEstimation';
+import { useTx } from '@/hooks/useTx';
+import { osmosis } from '@liftedinit/manifestjs';
+import { chainName } from '@/config';
+import { Formik, Form } from 'formik';
+import Yup from '@/utils/yupExtensions';
+import { TextInput, TextArea } from '@/components/react/inputs';
+import { truncateString } from '@/utils';
+
+const TokenDetailsSchema = Yup.object().shape({
+  display: Yup.string().required('Display is required').noProfanity(),
+  name: Yup.string().required('Name is required').noProfanity(),
+  description: Yup.string()
+    .required('Description is required')
+    .min(10, 'Description must be at least 10 characters long')
+    .noProfanity(),
+  uri: Yup.string().url('Must be a valid URL'),
+});
 
 export function UpdateDenomMetadataModal({
   denom,
@@ -17,40 +30,45 @@ export function UpdateDenomMetadataModal({
   modalId: string;
   onSuccess: () => void;
 }) {
-  const [formData, setFormData] = useState<TokenFormData>({
-    name: denom.name,
-    symbol: denom.symbol,
-    description: denom.description,
-    display: denom.display,
-    base: denom.base,
-    denomUnits: denom.denom_units,
-    uri: denom.uri,
-    uriHash: denom.uri_hash,
-    subdenom: denom.base.split("/").pop() || "",
-    exponent: denom?.denom_units[1]?.exponent?.toString() ?? "6",
-    label: denom?.denom_units[1]?.denom ?? "mfx",
-  });
-
-  const [isSigning, setIsSigning] = useState(false);
-  const { tx } = useTx(chainName);
+  const baseDenom = denom?.base?.split('/').pop() || '';
+  const fullDenom = `factory/${address}/${baseDenom}`;
+  const formData = {
+    name: denom?.name || '',
+    symbol: denom?.symbol || denom?.display || '',
+    description: denom?.description || '',
+    display: denom?.display || '',
+    base: baseDenom || '',
+    denomUnits: denom?.denom_units || [
+      { denom: fullDenom, exponent: 0, aliases: [] },
+      { denom: baseDenom.slice(1), exponent: 6, aliases: [] },
+    ],
+    uri: denom?.uri || '',
+    uriHash: denom?.uri_hash || '',
+    subdenom: baseDenom,
+    exponent: '6',
+    label: fullDenom,
+  };
+  const { tx, isSigning, setIsSigning } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
-  const { setDenomMetadata } =
-    osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
+  const { setDenomMetadata } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
 
-  const handleUpdate = async () => {
+  const handleUpdate = async (values: TokenFormData) => {
     setIsSigning(true);
     try {
       const msg = setDenomMetadata({
         sender: address,
         metadata: {
-          description: formData.description,
-          denomUnits: formData.denomUnits,
-          base: formData.base,
-          display: formData.display,
-          name: formData.name,
-          symbol: formData.symbol,
-          uri: formData.uri,
-          uriHash: formData.uriHash,
+          description: values.description,
+          denomUnits: [
+            { denom: fullDenom, exponent: 0, aliases: [] },
+            { denom: values.display, exponent: 6, aliases: [] },
+          ],
+          base: fullDenom, // Use the full denom as the base
+          display: values.display,
+          name: values.name,
+          symbol: values.display,
+          uri: values.uri,
+          uriHash: '', // Leave this empty if you don't have a URI hash
         },
       });
 
@@ -64,241 +82,97 @@ export function UpdateDenomMetadataModal({
         },
       });
     } catch (error) {
-      console.error("Error during transaction setup:", error);
+      console.error('Error during transaction setup:', error);
     } finally {
       setIsSigning(false);
     }
   };
 
-  const updateField = (field: keyof TokenFormData, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const updateDenomUnit = (
-    index: number,
-    field: keyof DenomUnit,
-    value: any,
-  ) => {
-    const updatedDenomUnits = [...formData.denomUnits];
-    updatedDenomUnits[index] = { ...updatedDenomUnits[index], [field]: value };
-    updateField("denomUnits", updatedDenomUnits);
-  };
-
-  const isFormValid = () => {
-    return (
-      formData.subdenom &&
-      formData.display &&
-      formData.name &&
-      formData.description &&
-      formData.symbol &&
-      formData.denomUnits.length === 2 &&
-      formData.denomUnits[1].denom &&
-      [6, 9, 12, 18].includes(formData.denomUnits[1].exponent)
-    );
-  };
-
-  const fullDenom = `factory/${address}/${formData.subdenom}`;
-
   return (
-    <dialog id={modalId} className="modal z-[1000]">
-      <div className="modal-box max-w-4xl">
-        <h3 className="font-bold text-lg mb-4">Update Denom Metadata</h3>
-        <div className="divider divider-horizon -mt-4 -mb-0 "></div>
-        <form method="dialog">
-          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-            ✕
-          </button>
-        </form>
-        <div className="py-4 space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label htmlFor="display" className="block text-sm font-medium">
-                Display{" "}
-                <span className="text-xs text-gray-500">
-                  (How it&apos;s shown)
+    <dialog id={modalId} className="modal">
+      <Formik
+        initialValues={formData}
+        validationSchema={TokenDetailsSchema}
+        onSubmit={handleUpdate}
+        validateOnChange={true}
+        validateOnBlur={true}
+      >
+        {({ isValid, dirty, values, handleChange, handleSubmit }) => (
+          <div className="flex flex-col items-center w-full h-full">
+            <div className="modal-box max-w-4xl mx-auto p-6 bg-[#F4F4FF] dark:bg-[#1D192D] rounded-[24px] shadow-lg">
+              <form method="dialog">
+                <button
+                  type="button"
+                  className="btn btn-sm btn-circle btn-ghost absolute right-4 top-4 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]"
+                  onClick={() => {
+                    const modal = document.getElementById(modalId) as HTMLDialogElement;
+                    modal?.close();
+                  }}
+                >
+                  ✕
+                </button>
+              </form>
+              <h3 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">
+                Update Metadata for{' '}
+                <span className="font-light text-primary">
+                  {truncateString(denom?.display ?? 'DENOM', 30).toUpperCase()}
                 </span>
-              </label>
-              <input
-                type="text"
-                id="display"
-                className="input input-bordered w-full mt-1"
-                value={formData.display}
-                onChange={(e) => updateField("display", e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium">
-                Name <span className="text-xs text-gray-500">(Full name)</span>
-              </label>
-              <input
-                type="text"
-                id="name"
-                className="input input-bordered w-full mt-1"
-                value={formData.name}
-                onChange={(e) => updateField("name", e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="symbol" className="block text-sm font-medium">
-                Symbol{" "}
-                <span className="text-xs text-gray-500">(Short symbol)</span>
-              </label>
-              <input
-                type="text"
-                id="symbol"
-                className="input input-bordered w-full mt-1"
-                value={formData.symbol}
-                onChange={(e) => updateField("symbol", e.target.value)}
-                required
-              />
-            </div>
-          </div>
+              </h3>
+              <div className="divider divider-horizontal -mt-4 -mb-0"></div>
 
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium">
-              Description{" "}
-              <span className="text-xs text-gray-500">(Brief description)</span>
-            </label>
-            <textarea
-              id="description"
-              className="textarea textarea-bordered w-full mt-1"
-              rows={2}
-              value={formData.description}
-              onChange={(e) => updateField("description", e.target.value)}
-              required
-            ></textarea>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label htmlFor="uri" className="block text-sm font-medium">
-                URI{" "}
-                <span className="text-xs text-gray-500">(Info/image link)</span>
-              </label>
-              <input
-                type="text"
-                id="uri"
-                className="input input-bordered w-full mt-1"
-                value={formData.uri}
-                onChange={(e) => updateField("uri", e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="uriHash" className="block text-sm font-medium">
-                URI Hash{" "}
-                <span className="text-xs text-gray-500">(If applicable)</span>
-              </label>
-              <input
-                type="text"
-                id="uriHash"
-                className="input input-bordered w-full mt-1"
-                value={formData.uriHash}
-                onChange={(e) => updateField("uriHash", e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div>
-            <h2 className="text-lg font-semibold mb-2">Denom Units</h2>
-            <div className="space-y-2">
-              <div>
-                <label className="block text-sm font-medium">
-                  Base Denom{" "}
-                  <span className="text-xs text-gray-500">
-                    (Cannot be changed)
-                  </span>
-                </label>
-                <input
-                  type="text"
-                  className="input input-bordered w-full mt-1"
-                  value={fullDenom}
-                  disabled
-                />
-              </div>
-              <div className="flex space-x-2">
-                <div className="flex-grow">
-                  <label className="block text-sm font-medium">
-                    Additional Denom{" "}
-                    <span className="text-xs text-gray-500">
-                      (Display denom)
-                    </span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Denom"
-                    className="input input-bordered w-full mt-1"
-                    value={formData.denomUnits[1]?.denom || ""}
-                    onChange={(e) =>
-                      updateDenomUnit(1, "denom", e.target.value)
-                    }
-                    required
+              <Form className="py-4 space-y-6">
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <TextInput label="SUBDENOM" name="subdemom" value={fullDenom} disabled={true} />
+                  <TextInput label="NAME" name="name" value={values.name} onChange={handleChange} />
+                  <TextInput
+                    label="LOGO URL"
+                    name="uri"
+                    value={values.uri}
+                    onChange={handleChange}
+                  />
+                  <TextInput
+                    label="TICKER"
+                    name="display"
+                    value={values.display}
+                    onChange={handleChange}
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium">
-                    Exponent{" "}
-                    <span className="text-xs text-gray-500">(Decimals)</span>
-                  </label>
-                  <div className="dropdown dropdown-left mt-1 w-full">
-                    <label
-                      tabIndex={0}
-                      className="btn m-0 w-full input input-bordered flex justify-between items-center"
-                    >
-                      {formData.denomUnits[1]?.exponent || 6}
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className="w-4 h-4"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-                        />
-                      </svg>
-                    </label>
-                    <ul
-                      tabIndex={0}
-                      className="dropdown-content menu p-2 -mt-2 mr-2 shadow bg-base-300 rounded-lg w-full"
-                    >
-                      {[6, 9, 12, 18].map((exp) => (
-                        <li key={exp}>
-                          <a
-                            onClick={() => updateDenomUnit(1, "exponent", exp)}
-                          >
-                            {exp}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
+
+                <TextArea
+                  label="DESCRIPTION"
+                  name="description"
+                  value={values.description}
+                  onChange={handleChange}
+                />
+              </Form>
+            </div>
+            {/* Action buttons */}
+            <div className="mt-4 flex justify-center w-full">
+              <button
+                type="button"
+                className="btn btn-secondary dark:text-white text-black"
+                onClick={() => {
+                  const modal = document.getElementById(modalId) as HTMLDialogElement;
+                  modal?.close();
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="btn btn-gradient ml-4 text-white"
+                onClick={() => handleSubmit()}
+                disabled={isSigning || !isValid || !dirty}
+              >
+                {isSigning ? <span className="loading loading-dots"></span> : 'Update'}
+              </button>
             </div>
           </div>
-        </div>
-        <div className="modal-action">
-          <form method="dialog">
-            <button className="btn btn-neutral mr-2">Cancel</button>
-          </form>
-          <button
-            className="btn btn-primary max-w-[6rem] w-full"
-            onClick={handleUpdate}
-            disabled={isSigning || !isFormValid()}
-          >
-            {isSigning ? (
-              <span className="loading loading-spinner"></span>
-            ) : (
-              "Update"
-            )}
-          </button>
-        </div>
-      </div>
+        )}
+      </Formik>
+      <form method="dialog" className="modal-backdrop">
+        <button>close</button>
+      </form>
     </dialog>
   );
 }

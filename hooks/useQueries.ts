@@ -1,29 +1,32 @@
-import { useEffect, useState } from "react";
-import { useQueries, useQuery } from "@tanstack/react-query";
-import { QueryGroupsByMemberResponseSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/query";
+import { useEffect, useState } from 'react';
+import { useQueries, useQuery } from '@tanstack/react-query';
+import { QueryGroupsByMemberResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
 
-import { useLcdQueryClient } from "./useLcdQueryClient";
-import { usePoaLcdQueryClient } from "./usePoaLcdQueryClient";
-import { getLogoUrls, isValidIPFSCID } from "@/utils";
-import { ExtendedValidatorSDKType } from "@/components";
-import { useManifestLcdQueryClient } from "./useManifestLcdQueryClient";
-import { MetadataSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
-import axios from "axios";
+import { useLcdQueryClient } from './useLcdQueryClient';
+import { usePoaLcdQueryClient } from './usePoaLcdQueryClient';
+import { getLogoUrls, isValidIPFSCID } from '@/utils';
+import { ExtendedValidatorSDKType } from '@/components';
+import { useManifestLcdQueryClient } from './useManifestLcdQueryClient';
+import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import axios from 'axios';
+import {
+  GroupMemberSDKType,
+  GroupPolicyInfoSDKType,
+} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 export interface IPFSMetadata {
   title: string;
-  authors: string;
+  authors: string | string[];
   summary: string;
   details: string;
   proposalForumURL: string;
   voteOptionContext: string;
 }
 
-export type ExtendedGroupType =
-  QueryGroupsByMemberResponseSDKType["groups"][0] & {
-    ipfsMetadata: IPFSMetadata | null;
-    policies: any[]; // TODO: Define type
-    members: any[]; // TODO: Define type
-  };
+export type ExtendedGroupType = QueryGroupsByMemberResponseSDKType['groups'][0] & {
+  ipfsMetadata: IPFSMetadata | null;
+  policies: GroupPolicyInfoSDKType[];
+  members: GroupMemberSDKType[];
+};
 
 export interface ExtendedQueryGroupsByMemberResponseSDKType {
   groups: ExtendedGroupType[];
@@ -31,13 +34,14 @@ export interface ExtendedQueryGroupsByMemberResponseSDKType {
 
 export const useGroupsByMember = (address: string) => {
   const { lcdQueryClient } = useLcdQueryClient();
-  const [extendedGroups, setExtendedGroups] =
-    useState<ExtendedQueryGroupsByMemberResponseSDKType>({ groups: [] });
+  const [extendedGroups, setExtendedGroups] = useState<ExtendedQueryGroupsByMemberResponseSDKType>({
+    groups: [],
+  });
   const [allDataLoaded, setAllDataLoaded] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const groupQuery = useQuery({
-    queryKey: ["groupInfo", address],
+    queryKey: ['groupInfo', address],
     queryFn: () => lcdQueryClient?.cosmos.group.v1.groupsByMember({ address }),
     enabled: !!lcdQueryClient && !!address,
     staleTime: Infinity,
@@ -47,30 +51,25 @@ export const useGroupsByMember = (address: string) => {
     const fetchAdditionalData = async () => {
       if (groupQuery.data?.groups && !groupQuery.isLoading) {
         try {
-          const policyPromises = groupQuery.data.groups.map((group) =>
+          const policyPromises = groupQuery.data.groups.map(group =>
             lcdQueryClient?.cosmos.group.v1.groupPoliciesByGroup({
               groupId: group.id,
-            }),
+            })
           );
-          const memberPromises = groupQuery.data.groups.map((group) =>
-            lcdQueryClient?.cosmos.group.v1.groupMembers({ groupId: group.id }),
+          const memberPromises = groupQuery.data.groups.map(group =>
+            lcdQueryClient?.cosmos.group.v1.groupMembers({ groupId: group.id })
           );
-          const ipfsPromises = groupQuery.data.groups.map((group) => {
+          const ipfsPromises = groupQuery.data.groups.map(group => {
             if (isValidIPFSCID(group.metadata)) {
-              return fetch(
-                `https://nodes.chandrastation.com/ipfs/gateway/${group.metadata}`,
-              )
-                .then((response) => {
+              return fetch(`https://nodes.chandrastation.com/ipfs/gateway/${group.metadata}`)
+                .then(response => {
                   if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                   }
                   return response.json() as Promise<IPFSMetadata>;
                 })
-                .catch((err) => {
-                  console.error(
-                    `Invalid IPFS CID for group #${group?.id}`,
-                    err,
-                  );
+                .catch(err => {
+                  console.error(`Invalid IPFS CID for group #${group?.id}`, err);
                   return null;
                 });
             } else {
@@ -79,25 +78,22 @@ export const useGroupsByMember = (address: string) => {
             }
           });
 
-          const [policiesResults, membersResults, ipfsResults] =
-            await Promise.all([
-              Promise.all(policyPromises),
-              Promise.all(memberPromises),
-              Promise.all(ipfsPromises),
-            ]);
+          const [policiesResults, membersResults, ipfsResults] = await Promise.all([
+            Promise.all(policyPromises),
+            Promise.all(memberPromises),
+            Promise.all(ipfsPromises),
+          ]);
 
-          const groupsWithAllData = groupQuery.data.groups.map(
-            (group, index) => ({
-              ...group,
-              ipfsMetadata: ipfsResults[index],
-              policies: policiesResults[index]?.group_policies || [],
-              members: membersResults[index]?.members || [],
-            }),
-          );
+          const groupsWithAllData = groupQuery.data.groups.map((group, index) => ({
+            ...group,
+            ipfsMetadata: ipfsResults[index],
+            policies: policiesResults[index]?.group_policies || [],
+            members: membersResults[index]?.members || [],
+          }));
 
           setExtendedGroups({ groups: groupsWithAllData });
         } catch (err) {
-          console.error("Failed to fetch additional group data:", err);
+          console.error('Failed to fetch additional group data:', err);
           setError(err as Error);
         } finally {
           setAllDataLoaded(true);
@@ -118,13 +114,14 @@ export const useGroupsByMember = (address: string) => {
 
 export const useGroupsByAdmin = (admin: string) => {
   const { lcdQueryClient } = useLcdQueryClient();
-  const [extendedGroups, setExtendedGroups] =
-    useState<ExtendedQueryGroupsByMemberResponseSDKType>({ groups: [] });
+  const [extendedGroups, setExtendedGroups] = useState<ExtendedQueryGroupsByMemberResponseSDKType>({
+    groups: [],
+  });
   const [allDataLoaded, setAllDataLoaded] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const groupQuery = useQuery({
-    queryKey: ["groupInfo", admin],
+    queryKey: ['groupInfo', admin],
     queryFn: () => lcdQueryClient?.cosmos.group.v1.groupsByAdmin({ admin }),
     enabled: !!lcdQueryClient && !!admin,
     staleTime: Infinity,
@@ -134,44 +131,44 @@ export const useGroupsByAdmin = (admin: string) => {
     const fetchAdditionalData = async () => {
       if (groupQuery.data?.groups && !groupQuery.isLoading) {
         try {
-          const policyPromises = groupQuery.data.groups.map((group) =>
+          const policyPromises = groupQuery.data.groups.map(group =>
             lcdQueryClient?.cosmos.group.v1.groupPoliciesByGroup({
               groupId: group.id,
-            }),
+            })
           );
-          const memberPromises = groupQuery.data.groups.map((group) =>
-            lcdQueryClient?.cosmos.group.v1.groupMembers({ groupId: group.id }),
+          const memberPromises = groupQuery.data.groups.map(group =>
+            lcdQueryClient?.cosmos.group.v1.groupMembers({ groupId: group.id })
           );
-          const ipfsPromises = groupQuery.data.groups.map((group) =>
-            fetch(
-              `https://nodes.chandrastation.com/ipfs/gateway/${group.metadata}`,
-            ).then((response) => {
-              if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-              }
-              return response.json() as Promise<IPFSMetadata>;
-            }),
+          const ipfsPromises = groupQuery.data.groups.map(group =>
+            fetch(`https://nodes.chandrastation.com/ipfs/gateway/${group.metadata}`)
+              .then(response => {
+                if (!response.ok) {
+                  throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json() as Promise<IPFSMetadata>;
+              })
+              .catch(err => {
+                console.warn(`Failed to fetch IPFS metadata for group #${group.id}:`, err);
+                return null;
+              })
           );
 
-          const [policiesResults, membersResults, ipfsResults] =
-            await Promise.all([
-              Promise.all(policyPromises),
-              Promise.all(memberPromises),
-              Promise.all(ipfsPromises),
-            ]);
+          const [policiesResults, membersResults, ipfsResults] = await Promise.all([
+            Promise.all(policyPromises),
+            Promise.all(memberPromises),
+            Promise.all(ipfsPromises),
+          ]);
 
-          const groupsWithAllData = groupQuery.data.groups.map(
-            (group, index) => ({
-              ...group,
-              ipfsMetadata: ipfsResults[index],
-              policies: policiesResults[index]?.group_policies || [],
-              members: membersResults[index]?.members || [],
-            }),
-          );
+          const groupsWithAllData = groupQuery.data.groups.map((group, index) => ({
+            ...group,
+            ipfsMetadata: ipfsResults[index] || null,
+            policies: policiesResults[index]?.group_policies || [],
+            members: membersResults[index]?.members || [],
+          }));
 
           setExtendedGroups({ groups: groupsWithAllData });
         } catch (err) {
-          console.error("Failed to fetch additional group data:", err);
+          console.error('Failed to fetch additional group data:', err);
           setError(err as Error);
         } finally {
           setAllDataLoaded(true);
@@ -195,7 +192,7 @@ export const usePoliciesById = (groupId: bigint) => {
 
   const fetchGroupInfo = async () => {
     if (!lcdQueryClient) {
-      throw new Error("LCD Client not ready");
+      throw new Error('LCD Client not ready');
     }
     return await lcdQueryClient.cosmos.group.v1.groupPoliciesByGroup({
       groupId: groupId,
@@ -203,7 +200,7 @@ export const usePoliciesById = (groupId: bigint) => {
   };
 
   const policyQuery = useQuery({
-    queryKey: ["policyInfo", groupId],
+    queryKey: ['policyInfo', groupId],
     queryFn: fetchGroupInfo,
     enabled: !!lcdQueryClient && !!groupId,
     staleTime: Infinity,
@@ -222,7 +219,7 @@ export const useMembersById = (groupId: bigint) => {
 
   const fetchGroupInfo = async () => {
     if (!lcdQueryClient) {
-      throw new Error("LCD Client not ready");
+      throw new Error('LCD Client not ready');
     }
     return await lcdQueryClient.cosmos.group.v1.groupMembers({
       groupId: groupId,
@@ -230,7 +227,7 @@ export const useMembersById = (groupId: bigint) => {
   };
 
   const memberQuery = useQuery({
-    queryKey: ["memberInfo", groupId],
+    queryKey: ['memberInfo', groupId],
     queryFn: fetchGroupInfo,
     enabled: !!lcdQueryClient && !!groupId,
     staleTime: Infinity,
@@ -249,7 +246,7 @@ export const useProposalsByPolicyAccount = (policyAccount: string) => {
 
   const fetchGroupInfo = async () => {
     if (!lcdQueryClient) {
-      throw new Error("LCD Client not ready");
+      throw new Error('LCD Client not ready');
     }
     return await lcdQueryClient.cosmos.group.v1.proposalsByGroupPolicy({
       address: policyAccount,
@@ -257,7 +254,7 @@ export const useProposalsByPolicyAccount = (policyAccount: string) => {
   };
 
   const proposalQuery = useQuery({
-    queryKey: ["proposalInfo", policyAccount],
+    queryKey: ['proposalInfo', policyAccount],
     queryFn: fetchGroupInfo,
     enabled: !!lcdQueryClient && !!policyAccount,
     staleTime: Infinity,
@@ -276,7 +273,7 @@ export const useProposalsByPolicyAccountAll = (policyAccounts: string[]) => {
 
   const fetchGroupInfo = async (policyAccount: string) => {
     if (!lcdQueryClient) {
-      throw new Error("LCD Client not ready");
+      throw new Error('LCD Client not ready');
     }
     return await lcdQueryClient.cosmos.group.v1.proposalsByGroupPolicy({
       address: policyAccount,
@@ -284,8 +281,8 @@ export const useProposalsByPolicyAccountAll = (policyAccounts: string[]) => {
   };
 
   const proposalQueries = useQueries({
-    queries: policyAccounts.map((policyAccount) => ({
-      queryKey: ["proposalInfo", policyAccount],
+    queries: policyAccounts.map(policyAccount => ({
+      queryKey: ['proposalInfo', policyAccount],
       queryFn: () => fetchGroupInfo(policyAccount),
       enabled: !!lcdQueryClient && !!policyAccount,
       staleTime: Infinity,
@@ -300,9 +297,9 @@ export const useProposalsByPolicyAccountAll = (policyAccounts: string[]) => {
 
   return {
     proposalsByPolicyAccount: result,
-    isProposalsLoading: proposalQueries.some((query) => query.isLoading),
-    isProposalsError: proposalQueries.some((query) => query.isError),
-    refetchProposals: () => proposalQueries.forEach((query) => query.refetch()),
+    isProposalsLoading: proposalQueries.some(query => query.isLoading),
+    isProposalsError: proposalQueries.some(query => query.isError),
+    refetchProposals: () => proposalQueries.forEach(query => query.refetch()),
   };
 };
 
@@ -311,7 +308,7 @@ export const useTallyCount = (proposalId: bigint) => {
 
   const fetchGroupInfo = async () => {
     if (!lcdQueryClient) {
-      throw new Error("LCD Client not ready");
+      throw new Error('LCD Client not ready');
     }
     return await lcdQueryClient.cosmos.group.v1.tallyResult({
       proposalId: proposalId,
@@ -319,7 +316,7 @@ export const useTallyCount = (proposalId: bigint) => {
   };
 
   const tallyQuery = useQuery({
-    queryKey: ["tallyInfo", proposalId],
+    queryKey: ['tallyInfo', proposalId.toString()],
     queryFn: fetchGroupInfo,
     enabled: !!lcdQueryClient && !!proposalId,
     staleTime: Infinity,
@@ -338,7 +335,7 @@ export const useVotesByProposal = (proposalId: bigint) => {
 
   const fetchGroupInfo = async () => {
     if (!lcdQueryClient) {
-      throw new Error("LCD Client not ready");
+      throw new Error('LCD Client not ready');
     }
     return await lcdQueryClient.cosmos.group.v1.votesByProposal({
       proposalId: proposalId,
@@ -346,7 +343,7 @@ export const useVotesByProposal = (proposalId: bigint) => {
   };
 
   const voteQuery = useQuery({
-    queryKey: ["voteInfo", proposalId],
+    queryKey: ['voteInfo', proposalId.toString()],
     queryFn: fetchGroupInfo,
     enabled: !!lcdQueryClient && !!proposalId,
     staleTime: Infinity,
@@ -365,16 +362,16 @@ export const useBalance = (address: string) => {
 
   const fetchBalance = async () => {
     if (!lcdQueryClient) {
-      throw new Error("LCD Client not ready");
+      throw new Error('LCD Client not ready');
     }
     return await lcdQueryClient.cosmos.bank.v1beta1.balance({
-      denom: "umfx",
+      denom: 'umfx',
       address,
     });
   };
 
   const balanceQuery = useQuery({
-    queryKey: ["balanceInfo", address],
+    queryKey: ['balanceInfo', address],
     queryFn: fetchBalance,
     enabled: !!lcdQueryClient && !!address,
     staleTime: Infinity,
@@ -388,18 +385,42 @@ export const useBalance = (address: string) => {
   };
 };
 
+export const useTotalSupply = () => {
+  const { lcdQueryClient } = useLcdQueryClient();
+
+  const fetchBalances = async () => {
+    if (!lcdQueryClient) {
+      throw new Error('LCD Client not ready');
+    }
+    return await lcdQueryClient.cosmos.bank.v1beta1.totalSupply({});
+  };
+
+  const totalSupplyQuery = useQuery({
+    queryKey: ['totalSupply'],
+    queryFn: fetchBalances,
+    enabled: !!lcdQueryClient,
+    staleTime: Infinity,
+  });
+  return {
+    totalSupply: totalSupplyQuery.data?.supply,
+    isTotalSupplyLoading: totalSupplyQuery.isLoading,
+    isTotalSupplyError: totalSupplyQuery.isError,
+    refetchTotalSupply: totalSupplyQuery.refetch,
+  };
+};
+
 export const useTokenFactoryBalance = (address: string, denom: string) => {
   const { lcdQueryClient } = useLcdQueryClient();
 
   const fetchBalance = async () => {
     if (!lcdQueryClient || !address || !denom) {
-      throw new Error("LCD Client not ready");
+      throw new Error('LCD Client not ready');
     }
     return await lcdQueryClient.cosmos.bank.v1beta1.balance({ denom, address });
   };
 
   const balanceQuery = useQuery({
-    queryKey: ["factoryBalance", address],
+    queryKey: ['factoryBalance', address],
     queryFn: fetchBalance,
     enabled: !!lcdQueryClient && !!address && !!denom,
     staleTime: Infinity,
@@ -413,29 +434,29 @@ export const useTokenFactoryBalance = (address: string, denom: string) => {
   };
 };
 
-export const usePoaParams = () => {
+export const usePoaGetAdmin = () => {
   const { lcdQueryClient } = usePoaLcdQueryClient();
 
-  const fetchParams = async () => {
+  const fetchPoaAdmin = async () => {
     if (!lcdQueryClient) {
-      throw new Error("LCD Client not ready");
+      throw new Error('LCD Client not ready');
     }
-    return await lcdQueryClient.strangelove_ventures.poa.v1.params({});
+    return await lcdQueryClient.strangelove_ventures.poa.v1.poaAuthority({});
   };
 
   const paramsQuery = useQuery({
-    queryKey: ["paramsInfo", lcdQueryClient],
-    queryFn: fetchParams,
+    queryKey: ['paramsInfo', lcdQueryClient],
+    queryFn: fetchPoaAdmin,
     enabled: !!lcdQueryClient,
     staleTime: Infinity,
     refetchOnMount: true,
   });
 
   return {
-    poaParams: paramsQuery.data?.params,
-    isPoaParamsLoading: paramsQuery.isLoading,
-    isPoaParamsError: paramsQuery.isError,
-    refetchPoaParams: paramsQuery.refetch,
+    poaAdmin: paramsQuery.data?.authority,
+    isPoaAdminLoading: paramsQuery.isLoading,
+    isPoaAdminError: paramsQuery.isError,
+    refetchPoaAdmin: paramsQuery.refetch,
   };
 };
 
@@ -444,15 +465,13 @@ export const usePendingValidators = () => {
 
   const fetchParams = async () => {
     if (!lcdQueryClient) {
-      throw new Error("LCD Client not ready");
+      throw new Error('LCD Client not ready');
     }
-    return await lcdQueryClient.strangelove_ventures.poa.v1.pendingValidators(
-      {},
-    );
+    return await lcdQueryClient.strangelove_ventures.poa.v1.pendingValidators({});
   };
 
   const paramsQuery = useQuery({
-    queryKey: ["pendingVals"],
+    queryKey: ['pendingVals'],
     queryFn: fetchParams,
     enabled: !!lcdQueryClient,
     staleTime: Infinity,
@@ -471,7 +490,7 @@ export const useConsensusPower = (address: string) => {
 
   const fetchParams = async () => {
     if (!lcdQueryClient) {
-      throw new Error("LCD Client not ready");
+      throw new Error('LCD Client not ready');
     }
     return await lcdQueryClient.strangelove_ventures.poa.v1.consensusPower({
       validatorAddress: address,
@@ -479,7 +498,7 @@ export const useConsensusPower = (address: string) => {
   };
 
   const paramsQuery = useQuery({
-    queryKey: ["consensusPower", address],
+    queryKey: ['consensusPower', address],
     queryFn: fetchParams,
     enabled: !!lcdQueryClient && !!address,
     staleTime: Infinity,
@@ -498,13 +517,13 @@ export const useStakingParams = () => {
 
   const fetchParams = async () => {
     if (!lcdQueryClient) {
-      throw new Error("LCD Client not ready");
+      throw new Error('LCD Client not ready');
     }
     return await lcdQueryClient.cosmos.staking.v1beta1.params({});
   };
 
   const paramsQuery = useQuery({
-    queryKey: ["stakingParams"],
+    queryKey: ['stakingParams'],
     queryFn: fetchParams,
     enabled: !!lcdQueryClient,
     staleTime: Infinity,
@@ -523,10 +542,10 @@ export const useValidators = () => {
   const { lcdQueryClient: poaLcdQueryCLient } = usePoaLcdQueryClient();
   const fetchConsensusPower = async (validators: any[]) => {
     if (!lcdQueryClient || !poaLcdQueryCLient) {
-      throw new Error("LCD Client not ready");
+      throw new Error('LCD Client not ready');
     }
 
-    const promises = validators.map(async (validator) => {
+    const promises = validators.map(async validator => {
       const consensusPowerResponse =
         await poaLcdQueryCLient.strangelove_ventures.poa.v1.consensusPower({
           validatorAddress: validator.operator_address,
@@ -544,20 +563,17 @@ export const useValidators = () => {
 
   const fetchParams = async () => {
     if (!lcdQueryClient) {
-      throw new Error("LCD Client not ready");
+      throw new Error('LCD Client not ready');
     }
-    const validatorsResponse =
-      await lcdQueryClient.cosmos.staking.v1beta1.validators({
-        status: "BOND_STATUS_BONDED",
-      });
-    const validatorsWithConsensusPower = await fetchConsensusPower(
-      validatorsResponse.validators,
-    );
+    const validatorsResponse = await lcdQueryClient.cosmos.staking.v1beta1.validators({
+      status: 'BOND_STATUS_BONDED',
+    });
+    const validatorsWithConsensusPower = await fetchConsensusPower(validatorsResponse.validators);
     return validatorsWithConsensusPower;
   };
 
   const paramsQuery = useQuery({
-    queryKey: ["validators"],
+    queryKey: ['validators'],
     queryFn: fetchParams,
     enabled: !!lcdQueryClient,
     staleTime: Infinity,
@@ -576,7 +592,7 @@ export const useTokenFactoryDenoms = (address: string) => {
 
   const fetchDenoms = async () => {
     if (!lcdQueryClient) {
-      throw new Error("LCD Client not ready");
+      throw new Error('LCD Client not ready');
     }
     if (!address) {
       return { denoms: [] };
@@ -587,7 +603,7 @@ export const useTokenFactoryDenoms = (address: string) => {
   };
 
   const denomsQuery = useQuery({
-    queryKey: ["denoms"],
+    queryKey: [address + 'denoms'],
     queryFn: fetchDenoms,
     enabled: !!lcdQueryClient && !!address,
     staleTime: 0,
@@ -608,10 +624,10 @@ export const useTokenFactoryDenomMetadata = (denom: string) => {
 
   const fetchDenoms = async () => {
     if (!lcdQueryClient) {
-      throw new Error("LCD Client not ready");
+      throw new Error('LCD Client not ready');
     }
     if (!denom) {
-      throw new Error("Creator address not provided");
+      throw new Error('Creator address not provided');
     }
     return await lcdQueryClient.cosmos.bank.v1beta1.denomMetadataByQueryString({
       denom: denom,
@@ -619,7 +635,7 @@ export const useTokenFactoryDenomMetadata = (denom: string) => {
   };
 
   const denomsQuery = useQuery({
-    queryKey: ["metadata", denom],
+    queryKey: ['metadata', denom],
     queryFn: fetchDenoms,
     enabled: !!lcdQueryClient && !!denom,
     staleTime: 0,
@@ -639,14 +655,14 @@ export const useTokenFactoryDenomsMetadata = () => {
 
   const fetchDenoms = async () => {
     if (!lcdQueryClient) {
-      throw new Error("LCD Client not ready");
+      throw new Error('LCD Client not ready');
     }
 
     return await lcdQueryClient.cosmos.bank.v1beta1.denomsMetadata({});
   };
 
   const denomsQuery = useQuery({
-    queryKey: ["allMetadatas"],
+    queryKey: ['allMetadatas'],
     queryFn: fetchDenoms,
     enabled: !!lcdQueryClient,
     staleTime: Infinity,
@@ -665,7 +681,7 @@ export const useTokenBalances = (address: string) => {
 
   const fetchBalances = async () => {
     if (!lcdQueryClient) {
-      throw new Error("LCD Client not ready");
+      throw new Error('LCD Client not ready');
     }
     return await lcdQueryClient.cosmos.bank.v1beta1.allBalances({
       address,
@@ -674,7 +690,7 @@ export const useTokenBalances = (address: string) => {
   };
 
   const balancesQuery = useQuery({
-    queryKey: ["balances", address],
+    queryKey: ['balances', address],
     queryFn: fetchBalances,
     enabled: !!lcdQueryClient && !!address,
     staleTime: Infinity,
@@ -693,7 +709,7 @@ export const useTokenBalancesResolved = (address: string) => {
 
   const fetchBalances = async () => {
     if (!lcdQueryClient) {
-      throw new Error("LCD Client not ready");
+      throw new Error('LCD Client not ready');
     }
     return await lcdQueryClient.cosmos.bank.v1beta1.allBalances({
       address,
@@ -702,7 +718,7 @@ export const useTokenBalancesResolved = (address: string) => {
   };
 
   const balancesQuery = useQuery({
-    queryKey: ["balances-resolved", address],
+    queryKey: ['balances-resolved', address],
     queryFn: fetchBalances,
     enabled: !!lcdQueryClient && !!address,
     staleTime: Infinity,
@@ -716,62 +732,97 @@ export const useTokenBalancesResolved = (address: string) => {
   };
 };
 
-export const useSendTxQuery = () => {
-  const fetchTransactions = async () => {
-    const url = "http://localhost:9000/transactions/send";
-    const response = await axios.get(url);
-    return response.data;
-  };
-  const sendQuery = useQuery({
-    queryKey: ["sendTx"],
-    queryFn: fetchTransactions,
-    enabled: true,
-  });
+interface TransactionAmount {
+  amount: string;
+  denom: string;
+}
+
+interface TransactionMessage {
+  '@type': string;
+  amount: TransactionAmount[];
+  toAddress: string;
+  fromAddress: string;
+}
+
+interface TransactionResponse {
+  height: string;
+  txhash: string;
+  timestamp: string;
+}
+
+// Helper function to transform API response to match the component's expected format
+const transformTransaction = (tx: any) => {
+  // Handle both direct MsgSend and nested group proposal MsgSend
+  let message: TransactionMessage;
+  if (tx.data.tx.body.messages[0]['@type'] === '/cosmos.bank.v1beta1.MsgSend') {
+    message = tx.data.tx.body.messages[0];
+  } else if (
+    tx.data.tx.body.messages[0]['@type'] === '/cosmos.group.v1.MsgSubmitProposal' &&
+    tx.data.tx.body.messages[0].messages?.[0]?.['@type'] === '/cosmos.bank.v1beta1.MsgSend'
+  ) {
+    message = tx.data.tx.body.messages[0].messages[0];
+  } else {
+    return null;
+  }
 
   return {
-    sendTxs: sendQuery.data,
-    isLoading: sendQuery.isLoading,
-    isError: sendQuery.isError,
-    error: sendQuery.error,
+    tx_hash: tx.id,
+    block_number: parseInt(tx.data.txResponse.height),
+    formatted_date: tx.data.txResponse.timestamp,
+    data: {
+      from_address: message.fromAddress,
+      to_address: message.toAddress,
+      amount: message.amount.map((amt: TransactionAmount) => ({
+        amount: amt.amount,
+        denom: amt.denom,
+      })),
+    },
   };
 };
 
-export const useIbcTransferTxQuery = () => {
+export const useSendTxIncludingAddressQuery = (address: string, direction?: 'send' | 'receive') => {
   const fetchTransactions = async () => {
-    const url = "http://localhost:9000/transactions/ibc_transfer";
-    const response = await axios.get(url);
-    return response.data;
+    const baseUrl = 'https://testnet-indexer.liftedinit.tech/transactions';
+
+    // Build query for both direct MsgSend and nested group proposal MsgSend
+    const query = `
+      or=(
+        and(
+          data->tx->body->messages->0->>@type.eq./cosmos.bank.v1beta1.MsgSend,
+          or(
+            data->tx->body->messages->0->>fromAddress.eq.${address},
+            data->tx->body->messages->0->>toAddress.eq.${address}
+          )
+        ),
+        and(
+          data->tx->body->messages->0->>@type.eq./cosmos.group.v1.MsgSubmitProposal,
+          data->tx->body->messages->0->messages->0->>@type.eq./cosmos.bank.v1beta1.MsgSend,
+          or(
+            data->tx->body->messages->0->messages->0->>fromAddress.eq.${address},
+            data->tx->body->messages->0->messages->0->>toAddress.eq.${address}
+          )
+        )
+      )`;
+
+    const response = await axios.get(
+      `${baseUrl}?${query.replace(/\s+/g, '')}&order=data->txResponse->height.desc`
+    );
+
+    // Transform the data to match the component's expected format
+    const transactions = response.data
+      .map(transformTransaction)
+      .filter((tx: any) => tx !== null)
+      .filter((tx: any) => {
+        if (!direction) return true;
+        if (direction === 'send') return tx.data.from_address === address;
+        if (direction === 'receive') return tx.data.to_address === address;
+        return true;
+      });
+
+    return transactions;
   };
-  const sendQuery = useQuery({
-    queryKey: ["transferTx"],
-    queryFn: fetchTransactions,
-    enabled: true,
-  });
 
-  return {
-    sendTxs: sendQuery.data,
-    isLoading: sendQuery.isLoading,
-    isError: sendQuery.isError,
-    error: sendQuery.error,
-  };
-};
-
-export const useSendTxIncludingAddressQuery = (
-  address: string,
-  direction?: "send" | "receive",
-) => {
-  const fetchTransactions = async () => {
-    let url = `http://localhost:9000/transactions/send/${address}`;
-
-    if (direction) {
-      url += `/${direction}`;
-    }
-
-    const response = await axios.get(url);
-    return response.data;
-  };
-
-  const queryKey = ["sendTx", address, direction];
+  const queryKey = ['sendTx', address, direction];
 
   const sendQuery = useQuery({
     queryKey,
@@ -785,5 +836,58 @@ export const useSendTxIncludingAddressQuery = (
     isError: sendQuery.isError,
     error: sendQuery.error,
     refetch: sendQuery.refetch,
+  };
+};
+
+export const useSendTxQuery = () => {
+  const fetchTransactions = async () => {
+    const baseUrl = 'https://testnet-indexer.liftedinit.tech/transactions';
+    const query = `data->tx->body->messages->0->>@type=eq./cosmos.bank.v1beta1.MsgSend`;
+
+    const response = await axios.get(`${baseUrl}?${query}`);
+    return response.data.map(transformTransaction).filter((tx: any) => tx !== null);
+  };
+
+  const sendQuery = useQuery({
+    queryKey: ['sendTx'],
+    queryFn: fetchTransactions,
+    enabled: true,
+  });
+
+  return {
+    sendTxs: sendQuery.data,
+    isLoading: sendQuery.isLoading,
+    isError: sendQuery.isError,
+    error: sendQuery.error,
+  };
+};
+
+export const useMultipleTallyCounts = (proposalIds: bigint[]) => {
+  const { lcdQueryClient } = useLcdQueryClient();
+
+  const tallyQueries = useQueries({
+    queries: proposalIds.map(proposalId => ({
+      queryKey: ['tallyInfo', proposalId.toString()],
+      queryFn: async () => {
+        if (!lcdQueryClient) {
+          throw new Error('LCD Client not ready');
+        }
+        return await lcdQueryClient.cosmos.group.v1.tallyResult({
+          proposalId: proposalId,
+        });
+      },
+      enabled: !!lcdQueryClient && !!proposalId,
+      staleTime: Infinity,
+    })),
+  });
+
+  return {
+    tallies: tallyQueries.map((query, index) => ({
+      proposalId: proposalIds[index],
+      tally: query.data,
+    })),
+    isLoading: tallyQueries.some(query => query.isLoading),
+    isError: tallyQueries.some(query => query.isError),
+    refetchTallies: () => tallyQueries.forEach(query => query.refetch()),
   };
 };

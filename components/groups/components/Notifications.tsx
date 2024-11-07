@@ -1,14 +1,12 @@
-import React, { useState } from "react";
-import { ChannelProvider } from "ably/react";
-import useAbly from "@/hooks/useAbly";
+import React, { useState } from 'react';
+import { ChannelProvider } from 'ably/react';
+import useAbly from '@/hooks/useAbly';
 
 interface NotificationsProps {
   groupPolicyAddress: string;
 }
 
-const NotificationsComponent: React.FC<NotificationsProps> = ({
-  groupPolicyAddress,
-}) => {
+const NotificationsComponent: React.FC<NotificationsProps> = ({ groupPolicyAddress }) => {
   const { messages } = useAbly(`group-${groupPolicyAddress}`);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -44,9 +42,7 @@ const NotificationsComponent: React.FC<NotificationsProps> = ({
   );
 };
 
-const Notifications: React.FC<NotificationsProps> = ({
-  groupPolicyAddress,
-}) => {
+const Notifications: React.FC<NotificationsProps> = ({ groupPolicyAddress }) => {
   return (
     <ChannelProvider channelName={`group-${groupPolicyAddress}`}>
       <NotificationsComponent groupPolicyAddress={groupPolicyAddress} />

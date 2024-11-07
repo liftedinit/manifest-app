@@ -1,113 +1,116 @@
-import React, { useState } from "react";
-import { DenomImage } from "@/components/factory";
-import { shiftDigits } from "@/utils";
-import { CombinedBalanceInfo } from "@/pages/bank";
-import { DenomInfoModal } from "@/components/factory"; // Make sure to import this
-
+import React, { useState, useMemo } from 'react';
+import { DenomImage } from '@/components/factory';
+import { shiftDigits } from '@/utils';
+import { CombinedBalanceInfo } from '@/utils/types';
+import { DenomInfoModal } from '@/components/factory';
+import { PiMagnifyingGlass } from 'react-icons/pi';
+import { ArrowUpIcon } from '@/components/icons';
+import { truncateString } from '@/utils';
 interface TokenListProps {
   balances: CombinedBalanceInfo[] | undefined;
   isLoading: boolean;
 }
 
 export default function TokenList({ balances, isLoading }: TokenListProps) {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedDenom, setSelectedDenom] = useState<any>(null);
 
-  const filteredBalances = React.useMemo(() => {
+  const filteredBalances = useMemo(() => {
     if (!Array.isArray(balances)) return [];
-    return balances.filter((balance) =>
-      balance.denom.toLowerCase().includes(searchTerm.toLowerCase()),
+    return balances.filter(balance =>
+      balance.metadata?.display.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [balances, searchTerm]);
 
   const openModal = (denom: any) => {
     setSelectedDenom(denom);
-
-    const modal = document.getElementById(
-      "denom-info-modal",
-    ) as HTMLDialogElement;
+    const modal = document.getElementById('denom-info-modal') as HTMLDialogElement;
     if (modal) {
       modal.showModal();
     }
   };
 
   return (
-    <div className="w-full mx-auto p-4 bg-base-100 rounded-md max-h-[28rem] min-h-[28rem]">
-      <div className="px-4 py-2 border-base-content flex items-center justify-between">
-        <div className="relative">
-          <h3 className="text-lg font-bold leading-6 ">Your Balances</h3>
-        </div>
-        <div className="flex flex-row items-center justify-between gap-2">
+    <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-0 mb-4">
+        <h3 className="text-lg md:text-xl font-semibold text-[#161616] dark:text-white">
+          Your Assets
+        </h3>
+        <div className="w-full md:w-auto">
           <input
             type="text"
             placeholder="Search for a token..."
-            className="input input-bordered input-xs ml-4"
+            className="input input-md w-full md:w-64 pr-8 bg-[#0000000A] dark:bg-[#FFFFFF0F]"
+            style={{ borderRadius: '12px' }}
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={e => setSearchTerm(e.target.value)}
           />
         </div>
       </div>
-      <div className="divider divider-horizon -mt-2 mb-1"></div>
-      {isLoading && <div className="skeleton h-[18.9rem] w-full"></div>}
-      {filteredBalances.length > 0 && !isLoading && (
-        <div className="overflow-x-auto shadow-md rounded-lg bg-base-300 max-h-[22.2rem] min-h-[22.2rem] relative transition-opacity duration-300 ease-in-out animate-fadeIn">
-          <table className="table w-full table-fixed  rounded-md">
-            <thead className="sticky top-0 z-1 bg-base-300">
-              <tr>
-                <th className="px-6 py-3 w-1/4">Icon</th>
-                <th className="px-6 py-3 w-1/4">Name</th>
-                <th className="px-6 py-3 w-1/4">Base</th>
-                <th className="px-6 py-3 w-1/4">Balance</th>
-              </tr>
-            </thead>
-            <tbody className="overflow-y-auto">
-              {filteredBalances.map((balance) => (
-                <tr
+
+      <div className="flex-1 overflow-hidden">
+        <div className="h-full overflow-y-auto pb-6">
+          {isLoading ? (
+            <div aria-label="skeleton-loader" className="skeleton h-[400px] w-full"></div>
+          ) : filteredBalances.length === 0 ? (
+            <div className="flex items-center justify-center h-[200px] w-full bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px]">
+              <p className="text-center text-[#00000099] dark:text-[#FFFFFF99]">No tokens found!</p>
+            </div>
+          ) : (
+            <div className="space-y-2  overflow-y-auto">
+              {filteredBalances.map(balance => (
+                <div
                   key={balance.denom}
-                  className="hover:bg-base-200/10 cursor-pointer"
+                  aria-label={balance.denom}
+                  className="flex flex-row justify-between gap-4 items-center p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px] cursor-pointer hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] transition-colors"
                   onClick={() => openModal(balance.metadata)}
                 >
-                  <td className="px-6 py-3">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10">
-                        <DenomImage denom={balance.metadata} />
-                      </div>
+                  <div className="flex flex-row gap-4 items-center justify-start">
+                    <div className="w-10 h-10 rounded-full overflow-hidden bg-[#0000000A] dark:bg-[#FFFFFF0F] flex items-center justify-center">
+                      <DenomImage denom={balance.metadata} />
                     </div>
-                  </td>
-                  <td className="px-6 py-3 text-sm font-medium">
-                    <span className="block truncate max-w-[20ch]">
-                      {balance.metadata?.display.toUpperCase()}
-                    </span>
-                  </td>
-                  <td className="px-6 py-3 text-sm font-medium">
-                    <span className="block truncate max-w-[20ch]">
-                      {Number(balance.metadata?.base.length) < 10
-                        ? balance.metadata?.base
-                        : (balance.metadata?.base.split("/").pop() ?? "")}
-                    </span>
-                  </td>
-                  <td className="px-6 py-3 text-sm">
-                    {shiftDigits(
-                      balance.amount,
-                      -Number(balance.metadata?.denom_units[1]?.exponent) ?? 6,
-                    )}
-                  </td>
-                </tr>
+                    <div>
+                      <p className="font-semibold text-[#161616] dark:text-white">
+                        {truncateString(balance.metadata?.display ?? '', 12)}
+                      </p>
+                      <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99]">
+                        {balance.metadata?.denom_units[0]?.denom.split('/').pop()}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <p className="font-semibold text-[#161616] dark:text-white">
+                      {Number(
+                        shiftDigits(
+                          balance.amount,
+                          -(balance.metadata?.denom_units[1]?.exponent ?? 6)
+                        )
+                      ).toLocaleString(undefined, {
+                        maximumFractionDigits: balance.metadata?.denom_units[1]?.exponent ?? 6,
+                      })}{' '}
+                      {truncateString(balance.metadata?.display ?? '', 12).toUpperCase()}
+                    </p>
+                  </div>
+                  <div>
+                    <button
+                      onClick={e => {
+                        e.stopPropagation();
+                        openModal(balance.metadata);
+                      }}
+                      className="p-2 rounded-md bg-[#0000000A] dark:bg-[#FFFFFF0F] hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF33] transition-colors"
+                    >
+                      <ArrowUpIcon className="w-4 h-4 text-primary" />
+                    </button>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-      {filteredBalances.length === 0 && !isLoading && (
-        <div className="mx-auto items-center justify-center h-full underline text-center transition-opacity duration-300 ease-in-out animate-fadeIn">
-          <p className="my-32">Your wallet is empty!</p>
-        </div>
-      )}
+            </div>
+          )}
 
-      {/* DenomInfoModal */}
-      {selectedDenom && (
-        <DenomInfoModal denom={selectedDenom} modalId="denom-info-modal" />
-      )}
+          {/* DenomInfoModal */}
+          {selectedDenom && <DenomInfoModal denom={selectedDenom} modalId="denom-info-modal" />}
+        </div>
+      </div>
     </div>
   );
 }

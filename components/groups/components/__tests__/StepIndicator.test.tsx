@@ -1,42 +1,49 @@
-import { describe, test, expect, afterEach } from "bun:test";
-import React from "react";
-import { render, screen, cleanup } from "@testing-library/react";
-import StepIndicator from "@/components/groups/components/StepIndicator";
-import matchers from "@testing-library/jest-dom/matchers";
+import { describe, test, expect, afterEach } from 'bun:test';
+import React from 'react';
+import { render, screen, cleanup, getDefaultNormalizer } from '@testing-library/react';
+import StepIndicator from '@/components/groups/components/StepIndicator';
+import matchers from '@testing-library/jest-dom/matchers';
 
 expect.extend(matchers);
 
-describe("StepIndicator Component", () => {
+describe('StepIndicator Component', () => {
   afterEach(cleanup);
 
   const steps = [
-    { label: "Step 1", step: 1 },
-    { label: "Step 2", step: 2 },
-    { label: "Step 3", step: 3 },
+    { label: 'Step 1', step: 1 },
+    { label: 'Step 2', step: 2 },
+    { label: 'Step 3', step: 3 },
   ];
 
-  test("renders steps correctly", () => {
+  test('renders steps correctly', () => {
     render(<StepIndicator currentStep={1} steps={steps} />);
-    expect(screen.getByText("Step 1")).toBeInTheDocument();
-    expect(screen.getByText("Step 2")).toBeInTheDocument();
-    expect(screen.getByText("Step 3")).toBeInTheDocument();
+    const normalizer = getDefaultNormalizer({ collapseWhitespace: true, trim: true });
+    expect(screen.getByText('1. Step 1', { normalizer })).toBeInTheDocument();
+    expect(screen.getByText('2. Step 2', { normalizer })).toBeInTheDocument();
+    expect(screen.getByText('3. Step 3', { normalizer })).toBeInTheDocument();
   });
 
-  test("highlights the current step correctly", () => {
+  test('highlights the current step correctly', () => {
     render(<StepIndicator currentStep={2} steps={steps} />);
-    const currentStep = screen.getByText("Step 2");
-    expect(currentStep).toHaveClass("step-primary");
+    const normalizer = getDefaultNormalizer({ collapseWhitespace: true, trim: true });
+    const spanElement = screen.getByText('2. Step 2', { normalizer });
+    const divParent = spanElement.closest('div');
+    expect(divParent).toHaveClass('text-black');
   });
 
-  test("highlights the steps before the current step correctly", () => {
+  test('display the step before the current step correctly', () => {
     render(<StepIndicator currentStep={2} steps={steps} />);
-    const previousStep = screen.getByText("Step 1");
-    expect(previousStep).toHaveClass("step-primary");
+    const normalizer = getDefaultNormalizer({ collapseWhitespace: true, trim: true });
+    const spanElement = screen.getByText('1. Step 1', { normalizer });
+    const divParent = spanElement.closest('div');
+    expect(divParent).toHaveClass('text-gray-400');
   });
 
-  test("does not highlight the steps after the current step", () => {
+  test('display the step after the current step correctly', () => {
     render(<StepIndicator currentStep={2} steps={steps} />);
-    const nextStep = screen.getByText("Step 3");
-    expect(nextStep).not.toHaveClass("step-primary");
+    const normalizer = getDefaultNormalizer({ collapseWhitespace: true, trim: true });
+    const spanElement = screen.getByText('3. Step 3', { normalizer });
+    const divParent = spanElement.closest('div');
+    expect(divParent).toHaveClass('text-gray-400');
   });
 });

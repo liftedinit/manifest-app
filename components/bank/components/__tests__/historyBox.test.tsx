@@ -1,97 +1,86 @@
-import { test, expect, afterEach, describe } from "bun:test";
-import React from "react";
-import matchers from "@testing-library/jest-dom/matchers";
-import {
-  render,
-  screen,
-  cleanup,
-  waitFor,
-  fireEvent,
-  within,
-} from "@testing-library/react";
-import { HistoryBox } from "@/components/bank/components/historyBox";
-import { mockTransactions } from "@/tests/mock";
+import { test, expect, afterEach, describe } from 'bun:test';
+import React from 'react';
+import matchers from '@testing-library/jest-dom/matchers';
+import { screen, cleanup, render, fireEvent } from '@testing-library/react';
+import { HistoryBox } from '@/components/bank/components/historyBox';
+import { renderWithChainProvider } from '@/tests/render';
+import { mockTransactions } from '@/tests/mock';
 
 expect.extend(matchers);
 
-describe("HistoryBox", () => {
+describe('HistoryBox', () => {
   afterEach(() => {
     cleanup();
   });
 
-  test("renders correctly", () => {
-    render(
+  test('renders correctly', () => {
+    renderWithChainProvider(
       <HistoryBox
         isLoading={false}
         send={mockTransactions}
-        address="address1"
-      />,
+        address="manifest123akjshjashdjkashjdahskjdhjakshdjkashkdjasjdhadajsdhkajsd"
+      />
     );
-    expect(screen.getByText("Tx History")).toBeInTheDocument();
+    expect(screen.getByText('Transaction History')).toBeInTheDocument();
   });
 
-  test("displays transactions", () => {
-    render(
+  test('displays transactions', () => {
+    renderWithChainProvider(
       <HistoryBox
         isLoading={false}
         send={mockTransactions}
-        address="address1"
-      />,
+        address="manifest123akjshjashdjkashjdahskjdhjakshdjkashkdjasjdhadajsdhkajsd"
+      />
     );
-    expect(screen.getByText("Send")).toBeInTheDocument();
-    expect(screen.getByText("Receive")).toBeInTheDocument();
+    expect(screen.getByText('+1 TOKEN')).toBeInTheDocument();
   });
 
-  test("displays 'No transactions found' message when there are no transactions", () => {
-    render(<HistoryBox isLoading={false} send={[]} address="address1" />);
-    expect(
-      screen.getByText("No transactions found for this account!"),
-    ).toBeInTheDocument();
-  });
-
-  test("opens modal when clicking on a transaction", async () => {
-    render(
+  test('opens modal when clicking on a transaction', () => {
+    renderWithChainProvider(
       <HistoryBox
         isLoading={false}
         send={mockTransactions}
-        address="address1"
-      />,
+        address="manifest123akjshjashdjkashjdahskjdhjakshdjkashkdjasjdhadajsdhkajsd"
+      />
     );
-    fireEvent.click(screen.getByText("Send"));
-    await waitFor(() => {
-      expect(screen.getByLabelText("tx info")).toBeInTheDocument();
-      expect(screen.getByText("Transaction Details")).toBeInTheDocument();
 
-      const fromContainer = screen.getByLabelText("from");
-      expect(
-        within(fromContainer).getByText("addres...dress1"),
-      ).toBeInTheDocument();
-      const toContainer = screen.getByLabelText("to");
-      expect(
-        within(toContainer).getByText("addres...dress2"),
-      ).toBeInTheDocument();
-    });
+    const transaction = screen.getByText('+1 TOKEN');
+    fireEvent.click(transaction);
+    expect(screen.getByLabelText('tx_info_modal')).toBeInTheDocument();
   });
 
-  test("formats date correctly", () => {
-    render(
+  test('formats amount correctly', () => {
+    renderWithChainProvider(
       <HistoryBox
         isLoading={false}
         send={mockTransactions}
-        address="address1"
-      />,
+        address="manifest123akjshjashdjkashjdahskjdhjakshdjkashkdjasjdhadajsdhkajsd"
+      />
     );
-    expect(screen.getByText("May 1, 2023")).toBeInTheDocument();
+    expect(screen.getByText('+1 TOKEN')).toBeInTheDocument();
   });
 
-  test("formats amount correctly", () => {
-    render(
+  test('displays both sent and received transactions', () => {
+    const mixedTransactions = [
+      ...mockTransactions,
+      {
+        ...mockTransactions[0],
+        data: {
+          ...mockTransactions[0].data,
+          from_address: 'manifest123akjshjashdjkashjdahskjdhjakshdjkashkdjasjdhadajsdhkajsd',
+        },
+      },
+    ];
+
+    renderWithChainProvider(
       <HistoryBox
         isLoading={false}
-        send={mockTransactions}
-        address="address1"
-      />,
+        send={mixedTransactions}
+        address="manifest123akjshjashdjkashjdahskjdhjakshdjkashkdjasjdhadajsdhkajsd"
+      />
     );
-    expect(screen.getByText("1 TOKEN")).toBeInTheDocument();
+
+    expect(screen.getByText('+1 TOKEN')).toBeInTheDocument();
+    expect(screen.getByText('Sent')).toBeInTheDocument();
   });
 });

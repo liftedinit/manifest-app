@@ -1,14 +1,12 @@
-import { DenomUnit } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
-import { Duration } from "@chalabi/manifestjs/dist/codegen/google/protobuf/duration";
-import { Coin } from "@cosmjs/stargate";
+import { DenomUnit } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { Duration } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/duration';
+import { Coin } from '@cosmjs/stargate';
 
 // Schemas for form data
 export type FormData = {
   title: string;
-  authors: string;
-  summary: string;
+  authors: string | string[];
   description: string;
-  forumLink: string;
   votingPeriod: Duration;
   votingThreshold: string;
   members: { address: string; name: string; weight: string }[];
@@ -29,74 +27,103 @@ export type TokenFormData = {
 };
 
 export type TokenAction = {
-  type: "UPDATE_FIELD";
+  type: 'UPDATE_FIELD';
   field: keyof TokenFormData;
   value: any;
 };
 
-export const tokenFormDataReducer = (
-  state: TokenFormData,
-  action: TokenAction,
-): TokenFormData => {
+export const tokenFormDataReducer = (state: TokenFormData, action: TokenAction): TokenFormData => {
   switch (action.type) {
-    case "UPDATE_FIELD":
+    case 'UPDATE_FIELD':
       return { ...state, [action.field]: action.value };
 
     default:
-      throw new Error("Unknown action type");
+      throw new Error('Unknown action type');
   }
 };
 
 // Actions for form data
 export type Action =
-  | { type: "UPDATE_FIELD"; field: keyof FormData; value: any }
+  | { type: 'UPDATE_FIELD'; field: keyof FormData; value: any }
+  | { type: 'ADD_AUTHOR' }
+  | { type: 'REMOVE_AUTHOR'; index: number }
+  | { type: 'UPDATE_AUTHOR'; index: number; value: string }
   | {
-      type: "UPDATE_MEMBER";
+      type: 'UPDATE_MEMBER';
       index: number;
-      field: keyof FormData["members"][0];
+      field: keyof FormData['members'][0];
       value: any;
     }
-  | { type: "ADD_MEMBER"; member: FormData["members"][0] };
+  | { type: 'ADD_MEMBER'; member: FormData['members'][0] }
+  | { type: 'REMOVE_MEMBER'; index: number };
 
 // Reducers
 export const formDataReducer = (state: FormData, action: Action): FormData => {
   switch (action.type) {
-    case "UPDATE_FIELD":
+    case 'UPDATE_FIELD':
       return { ...state, [action.field]: action.value };
 
-    case "UPDATE_MEMBER":
+    case 'ADD_AUTHOR':
       return {
         ...state,
-        members: state.members.map((m, i) =>
-          i === action.index ? { ...m, [action.field]: action.value } : m,
+        authors: Array.isArray(state.authors) ? [...state.authors, ''] : [state.authors, ''],
+      };
+
+    case 'REMOVE_AUTHOR':
+      if (!Array.isArray(state.authors)) return state;
+      return {
+        ...state,
+        authors: state.authors.filter((_, index) => index !== action.index),
+      };
+
+    case 'UPDATE_AUTHOR':
+      if (!Array.isArray(state.authors)) return state;
+      return {
+        ...state,
+        authors: state.authors.map((author, index) =>
+          index === action.index ? action.value : author
         ),
       };
 
-    case "ADD_MEMBER":
+    case 'UPDATE_MEMBER':
+      return {
+        ...state,
+        members: state.members.map((m, i) =>
+          i === action.index ? { ...m, [action.field]: action.value } : m
+        ),
+      };
+
+    case 'ADD_MEMBER':
       return {
         ...state,
         members: [...state.members, action.member],
       };
 
+    case 'REMOVE_MEMBER':
+      return {
+        ...state,
+        members: state.members.filter((_, index) => index !== action.index),
+      };
+
     default:
-      throw new Error("Unknown action type");
+      throw new Error('Unknown action type');
   }
 };
 
 export type SendMessage = {
-  type: "send";
+  type: 'send';
   from_address: string;
   to_address: string;
   amount: Coin;
 };
 
 export type CustomMessage = {
-  type: "customMessage";
+  type: 'customMessage';
   custom_field: string;
 };
 
 export type UpdatePoaParamsMessage = {
-  type: "updatePoaParams";
+  type: 'updatePoaParams';
   sender: string;
   params: {
     admins: string[];
@@ -105,13 +132,13 @@ export type UpdatePoaParamsMessage = {
 };
 
 export type RemoveValidatorMessage = {
-  type: "removeValidator";
+  type: 'removeValidator';
   sender: string;
   validator_address: string;
 };
 
 export type UpdateStakingParamsMessage = {
-  type: "updateStakingParams";
+  type: 'updateStakingParams';
   sender: string;
   params: {
     unbonding_time: { seconds: bigint; nanos: number };
@@ -124,13 +151,13 @@ export type UpdateStakingParamsMessage = {
 };
 
 export type RemovePendingMessage = {
-  type: "removePending";
+  type: 'removePending';
   sender: string;
   validator_address: string;
 };
 
 export type SetPowerMessage = {
-  type: "setPower";
+  type: 'setPower';
   sender: string;
   validator_address: string;
   power: bigint;
@@ -138,7 +165,7 @@ export type SetPowerMessage = {
 };
 
 export type UpdateManifestParamsMessage = {
-  type: "updateManifestParams";
+  type: 'updateManifestParams';
   authority: string;
   params: {
     stake_holders: { address: string; percentage: number }[];
@@ -151,20 +178,20 @@ export type UpdateManifestParamsMessage = {
 };
 
 export type PayoutStakeholdersMessage = {
-  type: "payoutStakeholders";
+  type: 'payoutStakeholders';
   authority: string;
   payout: { denom: string; amount: string };
 };
 
 export type UpdateGroupAdminMessage = {
-  type: "updateGroupAdmin";
+  type: 'updateGroupAdmin';
   new_admin: string;
   group_id: bigint;
   admin: string;
 };
 
 export type UpdateGroupMembersMessage = {
-  type: "updateGroupMembers";
+  type: 'updateGroupMembers';
   group_id: bigint;
   admin: string;
   member_updates: {
@@ -176,21 +203,21 @@ export type UpdateGroupMembersMessage = {
 };
 
 export type UpdateGroupMetadataMessage = {
-  type: "updateGroupMetadata";
+  type: 'updateGroupMetadata';
   group_id: bigint;
   admin: string;
   metadata: string;
 };
 
 export type UpdateGroupPolicyAdminMessage = {
-  type: "updateGroupPolicyAdmin";
+  type: 'updateGroupPolicyAdmin';
   new_admin: string;
   admin: string;
   address: string;
 };
 
 export type CreateGroupWithPolicyMessage = {
-  type: "createGroupWithPolicy";
+  type: 'createGroupWithPolicy';
   admin: string;
   group_metadata: string;
   group_policy_as_admin: boolean;
@@ -204,7 +231,7 @@ export type CreateGroupWithPolicyMessage = {
 };
 
 export type SubmitProposalMessage = {
-  type: "submitProposal";
+  type: 'submitProposal';
   proposers: string[];
   messages: any[];
   metadata: string;
@@ -213,7 +240,7 @@ export type SubmitProposalMessage = {
 };
 
 export type VoteMessage = {
-  type: "vote";
+  type: 'vote';
   voter: string;
   proposal_id: bigint;
   option: number;
@@ -222,37 +249,37 @@ export type VoteMessage = {
 };
 
 export type WithdrawProposalMessage = {
-  type: "withdrawProposal";
+  type: 'withdrawProposal';
   proposal_id: bigint;
   address: string;
 };
 
 export type ExecMessage = {
-  type: "exec";
+  type: 'exec';
   proposal_id: bigint;
   signer: string;
 };
 
 export type LeaveGroupMessage = {
-  type: "leaveGroup";
+  type: 'leaveGroup';
   group_id: bigint;
   address: string;
 };
 
 export type MultiSendMessage = {
-  type: "multiSend";
+  type: 'multiSend';
   inputs: { address: string; coins: { denom: string; amount: string }[] }[];
   outputs: { address: string; coins: { denom: string; amount: string }[] }[];
 };
 
 export type SoftwareUpgradeMessage = {
-  type: "softwareUpgrade";
+  type: 'softwareUpgrade';
   authority: string;
   plan: { name: string; time: Date; height: bigint; info: string };
 };
 
 export type CancelUpgradeMessage = {
-  type: "cancelUpgrade";
+  type: 'cancelUpgrade';
   authority: string;
 };
 
@@ -262,11 +289,9 @@ export type CancelUpgradeMessage = {
 export type Message =
   | SendMessage
   | CustomMessage
-  | UpdatePoaParamsMessage
   | RemovePendingMessage
   | SetPowerMessage
   | UpdateStakingParamsMessage
-  | UpdateManifestParamsMessage
   | PayoutStakeholdersMessage
   | UpdateGroupAdminMessage
   | UpdateGroupMembersMessage
@@ -286,12 +311,10 @@ export type Message =
 export type MessageFields =
   | keyof SendMessage
   | keyof CustomMessage
-  | keyof UpdatePoaParamsMessage
   | keyof RemoveValidatorMessage
   | keyof RemovePendingMessage
   | keyof SetPowerMessage
   | keyof UpdateStakingParamsMessage
-  | keyof UpdateManifestParamsMessage
   | keyof PayoutStakeholdersMessage
   | keyof UpdateGroupAdminMessage
   | keyof UpdateGroupMembersMessage
@@ -303,7 +326,7 @@ export type MessageFields =
   | keyof WithdrawProposalMessage
   | keyof ExecMessage
   | keyof LeaveGroupMessage
-  | "type";
+  | 'type';
 
 export type ProposalFormData = {
   title: string;
@@ -319,40 +342,38 @@ export type ProposalFormData = {
 };
 
 export type ProposalAction =
-  | { type: "UPDATE_FIELD"; field: keyof ProposalFormData; value: any }
-  | { type: "UPDATE_MESSAGE"; index: number; message: Message }
-  | { type: "ADD_MESSAGE"; message: Message }
-  | { type: "REMOVE_MESSAGE"; index: number };
+  | { type: 'UPDATE_FIELD'; field: keyof ProposalFormData; value: any }
+  | { type: 'UPDATE_MESSAGE'; index: number; message: Message }
+  | { type: 'ADD_MESSAGE'; message: Message }
+  | { type: 'REMOVE_MESSAGE'; index: number };
 
 export const proposalFormDataReducer = (
   state: ProposalFormData,
-  action: ProposalAction,
+  action: ProposalAction
 ): ProposalFormData => {
   switch (action.type) {
-    case "UPDATE_FIELD":
+    case 'UPDATE_FIELD':
       return { ...state, [action.field]: action.value };
 
-    case "UPDATE_MESSAGE":
+    case 'UPDATE_MESSAGE':
       return {
         ...state,
-        messages: state.messages.map((m, i) =>
-          i === action.index ? action.message : m,
-        ),
+        messages: state.messages.map((m, i) => (i === action.index ? action.message : m)),
       };
 
-    case "ADD_MESSAGE":
+    case 'ADD_MESSAGE':
       return {
         ...state,
         messages: [...state.messages, action.message],
       };
 
-    case "REMOVE_MESSAGE":
+    case 'REMOVE_MESSAGE':
       return {
         ...state,
         messages: state.messages.filter((_, i) => i !== action.index),
       };
 
     default:
-      throw new Error("Unknown action type");
+      throw new Error('Unknown action type');
   }
 };

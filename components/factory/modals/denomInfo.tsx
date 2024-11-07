@@ -1,110 +1,119 @@
-import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
+import React from 'react';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import { FaExternalLinkAlt } from 'react-icons/fa';
+import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { useRouter } from 'next/router';
 
-type MessageType = "payout" | "burn";
-
-export function DenomInfoModal({
-  denom,
-  modalId,
-}: {
-  denom: any;
+export const DenomInfoModal: React.FC<{
+  denom: MetadataSDKType | null;
   modalId: string;
-}) {
+  isOpen?: boolean;
+  onClose?: () => void;
+}> = ({ denom, modalId, isOpen, onClose }) => {
   return (
-    <>
-      <dialog id={modalId} className="modal">
-        <div className="modal-box absolute max-w-4xl mx-auto rounded-lg md:ml-20 shadow-lg">
-          <form method="dialog">
-            <button className="btn btn-sm btn-circle btn-ghost absolute right-1 top-1">
-              ✕
-            </button>
-          </form>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-            <div>
-              <h3 className="text-lg font-semibold">Denom Details</h3>
-              <div className="divider divider-horizon -mt-0"></div>
-              <div>
-                <p className="text-sm font-light mt-4">NAME</p>
-                <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
-                  <p className="text-md">{denom.name ?? "No name available"}</p>
-                </div>
-              </div>
-              <div>
-                <p className="text-sm font-light mt-4">SYMBOL</p>
-                <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
-                  <p className="text-md">
-                    {denom.symbol ?? "No symbol available"}
-                  </p>
-                </div>
-              </div>
-              <div>
-                <p className="text-sm font-light mt-4">DESCRIPTION</p>
-                <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2 max-h-[9.53rem] overflow-y-auto">
-                  <p className="text-md text-wrap">
-                    {denom.description ?? "No description available"}
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <p className="text-sm font-light mt-4">EXPONENT</p>
-                <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
-                  <p className="text-md">
-                    {denom?.denom_units[1]?.exponent ?? "0"}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-semibold">Denom Units</h3>
-              <div className="divider divider-horizon -mt-0"></div>
-              {denom.denom_units.map((unit: any, index: number) => (
-                <div key={index} className="mb-2">
-                  <div>
-                    <p className="text-sm font-light mt-4">DENOM</p>
-                    <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
-                      <p className="text-md truncate">{unit.denom}</p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <p className="text-sm font-light mt-4">ALIASES</p>
-                    <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
-                      <p className="text-md">
-                        {unit.aliases.join(", ") || "No aliases"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+    <dialog
+      id={modalId}
+      className={`modal ${isOpen ? 'modal-open' : ''}`}
+      aria-labelledby="denom-info-title"
+      aria-modal="true"
+    >
+      <div className="modal-box max-w-4xl mx-auto rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg">
+        <form method="dialog" onSubmit={onClose}>
+          <button
+            aria-label="Close modal"
+            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+          >
+            ✕
+          </button>
+        </form>
+        <h3 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">Denom Details</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <InfoItem label="NAME" value={denom?.name ?? 'No name available'} />
+            <InfoItem label="SYMBOL" value={denom?.symbol ?? 'No symbol available'} />
+            {denom?.description && (
+              <InfoItem
+                label="DESCRIPTION"
+                value={denom?.description ?? 'No description available'}
+              />
+            )}
+            {denom?.denom_units[1]?.exponent && (
+              <InfoItem
+                label="EXPONENT"
+                value={denom?.denom_units[1]?.exponent?.toString() ?? '0'}
+              />
+            )}
           </div>
-
-          <div className="px-4">
-            <h3 className="text-lg font-semibold">Additional Information</h3>
-            <div className="divider divider-horizon -mt-0"></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm font-light mt-4">BASE</p>
-                <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
-                  <TruncatedAddressWithCopy address={denom.base} slice={28} />
+          <div>
+            {denom?.denom_units?.map(
+              (
+                unit: {
+                  denom: string;
+                  aliases?: string[];
+                  exponent?: number;
+                },
+                index: number
+              ) => (
+                <div key={index} className="mb-4">
+                  <InfoItem label="DENOM" value={unit?.denom} />
+                  <InfoItem label="ALIASES" value={unit?.aliases?.join(', ') || 'No aliases'} />
                 </div>
-              </div>
-              <div>
-                <p className="text-sm font-light mt-4">DISPLAY</p>
-                <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
-                  <p className="text-md">
-                    {denom.display ?? "No display available"}
-                  </p>
-                </div>
-              </div>
-            </div>
+              )
+            )}
           </div>
         </div>
-        <form method="dialog" className="modal-backdrop">
-          <button>close</button>
-        </form>
-      </dialog>
-    </>
+        <h4 className="text-lg font-semibold text-[#161616] dark:text-white mt-6  mb-4">
+          Additional Information
+        </h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <InfoItem
+            label="BASE"
+            value={denom?.base ? decodeURIComponent(denom.base) : ''}
+            isAddress={true}
+          />
+          <InfoItem label="DISPLAY" value={denom?.display ?? 'No display available'} />
+        </div>
+      </div>
+      <form method="dialog" className="modal-backdrop" onSubmit={onClose}>
+        <button>close</button>
+      </form>
+    </dialog>
+  );
+};
+
+function InfoItem({
+  label,
+  value,
+  isAddress = false,
+}: {
+  label: string;
+  value: string;
+  isAddress?: boolean;
+}) {
+  return (
+    <div className="mb-4 flex flex-col">
+      <p className="text-sm font-semibold text-[#00000099] dark:text-[#FFFFFF99] mb-2">{label}</p>
+      <div className="bg-base-300 rounded-[16px] p-4 flex-grow">
+        {isAddress ? (
+          <div className="flex items-center">
+            <TruncatedAddressWithCopy address={value} slice={8} />
+            <a
+              href={`${process.env.NEXT_PUBLIC_TESTNET_EXPLORER_URL}/account/${value}`}
+              target="_blank"
+              aria-label={`View ${value} on block explorer (opens in new tab)`}
+              rel="noopener noreferrer"
+              className="ml-2 text-primary hover:text-primary/50"
+            >
+              <FaExternalLinkAlt aria-hidden="true" />{' '}
+              <span className="sr-only">External link</span>
+            </a>
+          </div>
+        ) : (
+          <p className="text-[#161616] dark:text-white truncate" title={value}>
+            {value}
+          </p>
+        )}
+      </div>
+    </div>
   );
 }

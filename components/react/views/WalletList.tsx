@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
-import { Dialog } from "@headlessui/react";
-import { XMarkIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
-import { ChainWalletBase } from "cosmos-kit";
+import { Dialog } from '@headlessui/react';
+import { XMarkIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { ChainWalletBase } from 'cosmos-kit';
 
 export const WalletList = ({
   onClose,
@@ -12,108 +12,79 @@ export const WalletList = ({
   onWalletClicked: (name: string) => void;
   wallets: ChainWalletBase[];
 }) => {
-  const social = wallets.filter((wallet) =>
-    ["Google", "Twitter", "Apple", "Discord"].includes(
-      wallet.walletInfo.prettyName,
-    ),
+  const social = wallets.filter(wallet =>
+    ['Google', 'Twitter', 'Apple', 'Discord'].includes(wallet.walletInfo.prettyName)
   );
 
-  const browser = wallets.filter((wallet) =>
-    ["Keplr", "Cosmostation", "Leap", "Station"].includes(
-      wallet.walletInfo.prettyName,
-    ),
+  const browser = wallets.filter(wallet =>
+    ['Keplr', 'Cosmostation', 'Leap', 'Station'].includes(wallet.walletInfo.prettyName)
   );
 
-  const mobile = wallets.filter((wallet) =>
-    [
-      "Wallet Connect",
-      "Keplr Mobile",
-      "Cosmostation Mobile",
-      "Leap Mobile",
-    ].includes(wallet.walletInfo.prettyName),
+  const mobile = wallets.filter(wallet =>
+    ['Wallet Connect', 'Keplr Mobile', 'Cosmostation Mobile', 'Leap Mobile'].includes(
+      wallet.walletInfo.prettyName
+    )
   );
-
   return (
-    <div className="mt-2 text-center sm:mt-0.5 sm:text-left">
-      <div className="flex flex-row items-center mb-6 justify-between border-b-2 border-b-base-100 pl-3 pr-3">
-        <Dialog.Title as="h1" className="text-2xl leading-6">
-          Connect with...
-        </Dialog.Title>
-        <button type="button" className="p-2 rounded-full" onClick={onClose}>
-          <span className="sr-only">Close</span>
-          <XMarkIcon className="w-5 h-5" aria-hidden="true" />
-        </button>
+    <div className="p-1 relative max-w-sm mx-auto">
+      <h1 className="text-sm font-semibold text-center mb-6">Connect Wallet</h1>
+      <button
+        type="button"
+        className="p-2 text-primary absolute -top-1 right-0 bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+        onClick={onClose}
+      >
+        <XMarkIcon className="w-5 h-5" aria-hidden="true" />
+      </button>
+
+      {/* Browser and Social sections - hidden on mobile/tablet */}
+      <div className="hidden md:block">
+        <div className="space-y-2 mb-4">
+          {browser.map(({ walletInfo: { name, prettyName, logo } }) => (
+            <button
+              key={name}
+              onClick={() => onWalletClicked(name)}
+              className="flex items-center w-full p-3 rounded-lg dark:bg-[#ffffff0c] bg-[#f0f0ff5c] dark:hover:bg-[#0000004c] hover:bg-[#a8a8a84c] transition"
+            >
+              <img src={logo?.toString()} alt={prettyName} className="w-10 h-10 rounded-xl mr-3" />
+              <span className="text-md">{prettyName}</span>
+            </button>
+          ))}
+        </div>
+
+        <div className="text-center mb-4 mt-3">
+          <span className="">or connect with</span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          {social.map(({ walletInfo: { name, prettyName, logo } }) => (
+            <button
+              key={name}
+              onClick={() => onWalletClicked(name)}
+              className="flex items-center justify-center p-4 dark:bg-[#ffffff0c] bg-[#f0f0ff5c] dark:hover:bg-[#0000004c] hover:bg-[#a8a8a84c] rounded-lg transition"
+            >
+              <img
+                src={logo?.toString()}
+                alt={prettyName}
+                className={`${prettyName === 'Twitter' || prettyName === 'Apple' ? 'w-7 h-7' : 'w-6 h-6'} rounded-md`}
+              />
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="flex flex-col w-full mt-4 space-y-6 mb-2 px-3 overflow-y-auto md:h-[475px] sm:h-[275px]">
-        {/* Browser Wallets Section */}
-        <div className="md:block hidden">
-          <h4 className="font-medium text-left">Browser Wallets</h4>
-          <div className="grid grid-cols-2 justify-center items-center mx-auto  rounded-xl mt-2 w-64 gap-4">
-            {browser.map(({ walletInfo: { name, prettyName, logo } }) => (
-              <button
-                key={name}
-                onClick={() => onWalletClicked(name)}
-                className="inline-flex flex-col items-center active:shadow-clicked  justify-center w-full p-3 transition duration-150 ease-in-out rounded-lg hover:bg-base-100 shadow-inner"
-              >
-                <div className="transition w-full h-full transform items-center justify-center space-y-2  active:scale-90">
-                  <img
-                    src={logo?.toString()}
-                    alt={prettyName}
-                    className="w-8 h-8 mb-2 rounded-md mx-auto"
-                  />
-                  <p className="text-sm font-medium text-center mx-auto">
-                    {prettyName}
-                  </p>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Mobile Wallets Section */}
-        <div className="md:hidden block">
-          <div className="grid grid-cols-2 justify-center items-center mx-auto  rounded-xl -mt-6 w-64 gap-4">
-            {mobile.map(({ walletInfo: { name, prettyName, logo } }) => (
-              <button
-                key={name}
-                onClick={() => onWalletClicked(name)}
-                className="inline-flex flex-col active:scale-95 items-center bg-base-200 justify-center w-full p-3 transition duration-150 ease-in-out  rounded-lg hover:bg-base-100"
-              >
-                <img
-                  src={logo?.toString()}
-                  alt={prettyName}
-                  className="w-8 h-8 mb-2 rounded-md"
-                />
-                <p className="text-sm font-medium text-center">
-                  {prettyName === "Twitter" ? "X" : prettyName}
-                </p>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Social Wallets Section */}
-        <div className="md:block hidden">
-          <h4 className="font-medium text-left">Web 3 Auth</h4>
-          <div className="grid grid-cols-2 justify-center items-center mx-auto  rounded-xl mt-2 w-64 gap-4">
-            {social.map(({ walletInfo: { name, prettyName, logo } }) => (
-              <button
-                key={name}
-                onClick={() => onWalletClicked(name)}
-                className="inline-flex flex-col active:scale-95 items-center bg-base-200 justify-center w-full p-3 transition duration-150 ease-in-out  rounded-lg hover:bg-base-100"
-              >
-                <img
-                  src={logo?.toString()}
-                  alt={prettyName}
-                  className="w-8 h-8 mb-2 rounded-md"
-                />
-                <p className="text-sm font-medium text-center">
-                  {prettyName === "Twitter" ? "X" : prettyName}
-                </p>
-              </button>
-            ))}
-          </div>
+      {/* Mobile Wallets Section - shown on mobile/tablet, hidden on desktop */}
+      <div className="md:hidden">
+        <div className="space-y-2">
+          {mobile.map(({ walletInfo: { name, prettyName, logo } }) => (
+            <button
+              key={name}
+              onClick={() => onWalletClicked(name)}
+              className="flex items-center w-full p-3 rounded-lg dark:bg-[#ffffff0c] bg-[#f0f0ff5c] dark:hover:bg-[#0000004c] hover:bg-[#a8a8a84c] transition"
+            >
+              <img src={logo?.toString()} alt={prettyName} className="w-10 h-10 rounded-xl mr-3" />
+              <span className="text-md">{prettyName === 'Twitter' ? 'X' : prettyName}</span>
+            </button>
+          ))}
         </div>
       </div>
     </div>

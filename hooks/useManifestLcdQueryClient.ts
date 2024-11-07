@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
-import { osmosis } from "@chalabi/manifestjs";
+import { useState, useEffect } from 'react';
+import { osmosis } from '@liftedinit/manifestjs';
 
-import { useQuery } from "@tanstack/react-query";
-import { useChain } from "@cosmos-kit/react";
-import { chainName } from "../config";
-import { useEndpointStore } from "@/store/endpointStore";
+import { useQuery } from '@tanstack/react-query';
+import { useChain } from '@cosmos-kit/react';
+import { chainName } from '../config';
+import { useEndpointStore } from '@/store/endpointStore';
 
 const createLcdQueryClient = osmosis.ClientFactory.createLCDClient;
 
@@ -12,10 +12,10 @@ export const useManifestLcdQueryClient = () => {
   const { selectedEndpoint } = useEndpointStore();
 
   const lcdQueryClient = useQuery({
-    queryKey: ["lcdQueryClient", selectedEndpoint?.api],
+    queryKey: ['lcdQueryClient', selectedEndpoint?.api],
     queryFn: () =>
       createLcdQueryClient({
-        restEndpoint: selectedEndpoint?.api || "",
+        restEndpoint: selectedEndpoint?.api || '',
       }),
     enabled: !!selectedEndpoint?.api,
     staleTime: Infinity,

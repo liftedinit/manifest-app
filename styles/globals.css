@@ -1,4 +1,34 @@
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
-@import "tailwindcss/variants";
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+@import 'tailwindcss/variants';
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #e0e0ff0a inset !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #e0e0ff0a inset !important;
+  }
+}
+
+::selection {
+  background-color: #a187ff75;
+  color: #ffffff;
+}
+
+::-moz-selection {
+  background-color: #a187ff75;
+  color: #ffffff;
+}
+
+[data-toast-container='true'] {
+  z-index: 100000;
+}

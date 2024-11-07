@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { TokenFormData } from "@/helpers/formReducer";
-import { useFeeEstimation } from "@/hooks/useFeeEstimation";
-import { useTx } from "@/hooks/useTx";
-import { osmosis } from "@chalabi/manifestjs";
-import { chainName } from "@/config";
+import { useState } from 'react';
+import { TokenFormData } from '@/helpers/formReducer';
+import { useFeeEstimation } from '@/hooks/useFeeEstimation';
+import { useTx } from '@/hooks/useTx';
+import { osmosis } from '@liftedinit/manifestjs';
+import { chainName } from '@/config';
 
 export default function ConfirmationForm({
   nextStep,
@@ -16,22 +16,36 @@ export default function ConfirmationForm({
   formData: TokenFormData;
   address: string;
 }>) {
-  const [isSigning, setIsSigning] = useState(false);
-  const { tx } = useTx(chainName);
+  const { tx, isSigning, setIsSigning } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
-  const { setDenomMetadata } =
+  const { setDenomMetadata, createDenom } =
     osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
-
-  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const fullDenom = `factory/${address}/${formData.subdenom}`;
 
-  // TODO: Verify `formData.denomUnits` is an array with at least 2 elements
-
   const handleConfirm = async () => {
     setIsSigning(true);
+
     try {
-      const msg = setDenomMetadata({
+      // First, create the denom
+      const createDenomMsg = createDenom({
+        sender: address,
+        subdenom: formData.subdenom,
+      });
+
+      const createDenomFee = await estimateFee(address, [createDenomMsg]);
+      const createDenomResult = await tx([createDenomMsg], {
+        fee: createDenomFee,
+        returnError: true,
+      });
+
+      if (createDenomResult && createDenomResult.error) {
+        console.error('Error creating denom:', createDenomResult.error);
+        return;
+      }
+
+      // If createDenom is successful, proceed with setDenomMetadata
+      const setMetadataMsg = setDenomMetadata({
         sender: address,
         metadata: {
           description: formData.description,
@@ -39,100 +53,118 @@ export default function ConfirmationForm({
             {
               denom: fullDenom,
               exponent: 0,
-              aliases: formData.denomUnits[0].aliases,
+              aliases: [],
             },
             {
-              denom: formData.denomUnits[1].denom,
-              exponent: formData.denomUnits[1].exponent,
-              aliases: formData.denomUnits[1].aliases,
+              denom: formData.subdenom.slice(1).toUpperCase(),
+              exponent: 6,
+              aliases: [],
             },
           ],
           base: fullDenom,
           display: formData.display,
           name: formData.name,
-          symbol: formData.symbol,
+          symbol: formData.symbol || formData.display,
           uri: formData.uri,
           uriHash: formData.uriHash,
         },
       });
 
-      const fee = await estimateFee(address ?? "", [msg]);
-      await tx([msg], {
-        fee,
+      const setMetadataFee = await estimateFee(address, [setMetadataMsg]);
+      await tx([setMetadataMsg], {
+        fee: setMetadataFee,
         onSuccess: () => {
           nextStep();
         },
+        returnError: true,
       });
     } catch (error) {
-      setIsSigning(false);
-      console.error("Error during transaction setup:", error);
+      console.error('Error during transaction setup:', error);
     } finally {
       setIsSigning(false);
     }
   };
 
-  const renderField = (label: string, value: string) => (
-    <div className="flex flex-col gap-1">
-      <span className="text-sm font-medium text-gray-500">{label}</span>
-      <div className="rounded-md bg-base-100 p-2">
-        <span className="text-sm break-all">{value}</span>
-      </div>
-    </div>
-  );
-
   return (
-    <section className="mx-auto w-full max-w-2xl px-4 py-6 min-h-screen flex flex-col">
-      <h2 className="text-2xl font-bold mb-4">Token Information</h2>
-      <div className="bg-base-300 rounded-lg p-4 mb-6 flex-grow overflow-auto max-h-[34rem]">
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
-          {renderField("Token Name", formData.name)}
-          {renderField("Symbol", formData.symbol)}
-          {renderField("Display", formData.display)}
-          {renderField("Subdenom", formData.subdenom)}
+    <section>
+      <div className="w-full dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-[24px] rounded-[24px]">
+        <div className="flex justify-center p-4 rounded-[8px] mb-6 w-full dark:bg-[#FAFAFA1F] bg-[#A087FF1F] items-center">
+          <h1 className="text-xl text-primary font-bold">{formData.name}</h1>
         </div>
-        <div className="mt-4">
-          {renderField("Description", formData.description)}
-        </div>
-        <div className="mt-4">
-          <h3 className="font-semibold mb-2">Denom Units</h3>
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
-            {renderField("Base Denom", "turd")}
-            {renderField("Base Exponent", "0")}
-            {renderField("Full Denom", fullDenom)}
-            {renderField(
-              "Full Denom Exponent",
-              formData.denomUnits[1].exponent.toString(),
-            )}
+
+        <div className="space-y-6">
+          {/* Token Information */}
+          <div>
+            <h2 className="text-xl font-semibold mb-4 dark:text-[#FFFFFF99]">Token Information</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-[12px]">
+                <label className="text-sm dark:text-[#FFFFFF66]">Symbol</label>
+                <div className="dark:text-[#FFFFFF99]">{formData.symbol || formData.display}</div>
+              </div>
+              <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-[12px]">
+                <label className="text-sm dark:text-[#FFFFFF66]">Subdenom</label>
+                <div className="dark:text-[#FFFFFF99]">{formData.subdenom}</div>
+              </div>
+            </div>
+            <div className="mt-4 dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-[12px]">
+              <label className="text-sm dark:text-[#FFFFFF66]">Description</label>
+              <div
+                className="overflow-hidden text-ellipsis whitespace-nowrap dark:text-[#FFFFFF99]"
+                title={formData.description}
+              >
+                {formData.description.length > 200
+                  ? `${formData.description.slice(0, 200)}...`
+                  : formData.description}
+              </div>
+            </div>
+          </div>
+
+          {/* Denom Units */}
+          <div>
+            <h2 className="text-xl font-semibold mb-4 dark:text-[#FFFFFF99]">Denom Units</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-[12px]">
+                <label className="text-sm dark:text-[#FFFFFF66]">Base Denom</label>
+                <div className="dark:text-[#FFFFFF99]">{fullDenom}</div>
+              </div>
+              <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-[12px]">
+                <label className="text-sm dark:text-[#FFFFFF66]">Display Denom</label>
+                <div className="dark:text-[#FFFFFF99]">{formData.subdenom.slice(1)}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Advanced Details */}
+          <div>
+            <h2 className="text-xl font-semibold mb-4 dark:text-[#FFFFFF99]">Advanced Details</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-[12px]">
+                <label className="text-sm dark:text-[#FFFFFF66]">URI</label>
+                <div className="dark:text-[#FFFFFF99]">{formData.uri || 'N/A'}</div>
+              </div>
+              <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-[12px]">
+                <label className="text-sm dark:text-[#FFFFFF66]">URI Hash</label>
+                <div className="dark:text-[#FFFFFF99]">{formData.uriHash || 'N/A'}</div>
+              </div>
+            </div>
           </div>
         </div>
-        <button
-          className="btn btn-link mt-4 p-0"
-          onClick={() => setShowAdvanced(!showAdvanced)}
-        >
-          {showAdvanced ? "Hide" : "Show"} Advanced Details
-        </button>
-        {showAdvanced && (
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 mt-4">
-            {renderField("URI", formData.uri || "N/A")}
-            {renderField("URI Hash", formData.uriHash || "N/A")}
-            {renderField("Base Denom Alias", formData.subdenom)}
-            {renderField("Full Denom Alias", formData.display)}
-          </div>
-        )}
       </div>
-      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
-        <button onClick={prevStep} className="btn btn-neutral flex-1">
+
+      {/* Buttons */}
+      <div className="flex space-x-3 mt-6 mx-auto w-full">
+        <button onClick={prevStep} className="btn btn-neutral w-1/2">
           Edit Token Metadata
         </button>
         <button
           onClick={handleConfirm}
-          className="btn btn-primary flex-1"
           disabled={isSigning}
+          className="w-1/2 btn btn-gradient text-white"
         >
           {isSigning ? (
             <span className="loading loading-dots loading-sm"></span>
           ) : (
-            "Confirm & Sign"
+            'Sign Transaction'
           )}
         </button>
       </div>
