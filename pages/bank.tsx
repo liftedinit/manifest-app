@@ -73,7 +73,7 @@ export default function Bank() {
 
   return (
     <>
-      <div className="min-h-screen relative py-4 px-2 mx-auto text-white mt-12 md:mt-0">
+      <div className="min-h-screen relative px-2 mx-auto text-white mt-12 md:mt-0">
         <Head>
           <title>Bank - Alberto</title>
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -124,7 +124,7 @@ export default function Bank() {
           </script>
         </Head>
 
-        <div className=" gap-6 flex flex-col w-full lg:flex-row transition-opacity duration-300 ease-in-out animate-fadeIn">
+        <div className="h-[calc(100vh-1.5rem)] py-1 gap-6 flex flex-col w-full lg:flex-row">
           {!isWalletConnected ? (
             <section className="transition-opacity duration-300 h-[80vh] ease-in-out animate-fadeIn w-full flex items-center justify-center">
               <div className="grid max-w-4xl bg-base-300 p-12 rounded-md w-full mx-auto gap-8 lg:grid-cols-12">
@@ -136,7 +136,7 @@ export default function Bank() {
                     Use the button below to connect your wallet and start interacting with your
                     tokens.
                   </p>
-                  <div className="w-[50%]">
+                  <div className="w-full lg:w-[50%]">
                     <WalletSection chainName="manifest" />
                   </div>
                 </div>
@@ -148,18 +148,26 @@ export default function Bank() {
           ) : (
             isWalletConnected &&
             combinedBalances && (
-              <div className="flex flex-col lg:flex-row w-full gap-6 justify-start items-start">
-                <div className="xl:w-1/3 lg:w-1/2 w-full flex flex-col gap-6 max-h-screen min-h-screen">
-                  <SendBox
-                    balances={combinedBalances}
-                    isBalancesLoading={isLoading}
-                    refetchBalances={refetchBalances || resolveRefetch}
-                    refetchHistory={refetch}
-                    address={address ?? ''}
-                  />
-                  <HistoryBox address={address ?? ''} send={sendTxs ?? []} isLoading={isLoading} />
+              <div className="flex flex-col lg:flex-row w-full gap-6 h-full">
+                <div className="w-full lg:w-1/2 xl:w-1/3 flex flex-col gap-6 mb-6 lg:mb-0">
+                  <div className="flex-shrink-0 mb-6 lg:mb-0">
+                    <SendBox
+                      balances={combinedBalances}
+                      isBalancesLoading={isLoading}
+                      refetchBalances={refetchBalances || resolveRefetch}
+                      refetchHistory={refetch}
+                      address={address ?? ''}
+                    />
+                  </div>
+                  <div className="h-[800px] lg:flex-grow lg:min-h-0 lg:h-auto">
+                    <HistoryBox
+                      address={address ?? ''}
+                      send={sendTxs ?? []}
+                      isLoading={isLoading}
+                    />
+                  </div>
                 </div>
-                <div className="xl:w-2/3 lg:w-1/2 w-full lg:flex-1 -mt-6">
+                <div className="w-full lg:w-1/2 xl:w-2/3 h-full">
                   <TokenList balances={combinedBalances} isLoading={isLoading} />
                 </div>
               </div>

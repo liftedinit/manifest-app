@@ -64,22 +64,15 @@ export function HistoryBox({
   }, [send]);
 
   return (
-    <div className="w-full mx-auto rounded-[24px] mt-4  h-full md:h-1/3">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-semibold text-[#161616] dark:text-white">
+    <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg md:text-xl font-semibold text-[#161616] dark:text-white">
           Transaction History
         </h3>
       </div>
-      {isLoading ? (
-        <div aria-label="skeleton-loader" className="skeleton h-[400px] w-full"></div>
-      ) : send.length === 0 ? (
-        <div className="flex items-center justify-center h-[200px] w-full bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px]">
-          <p className="text-center text-[#00000099] dark:text-[#FFFFFF99]">
-            No transactions found for this account!
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-4 max-h-[280px] overflow-y-auto">
+
+      <div className="flex-1 overflow-hidden h-full">
+        <div className="h-full overflow-y-auto">
           {Object.entries(groupedTransactions).map(([date, transactions]) => (
             <div key={date}>
               <h4 className="text-sm font-medium text-[#00000099] dark:text-[#FFFFFF99] mb-2">
@@ -152,7 +145,7 @@ export function HistoryBox({
             </div>
           ))}
         </div>
-      )}
+      </div>
 
       {selectedTx && <TxInfoModal tx={selectedTx} isOpen={!!selectedTx} onClose={closeModal} />}
     </div>

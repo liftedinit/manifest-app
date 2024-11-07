@@ -294,6 +294,7 @@ function VoteDetailsModal({
     }, 1000);
 
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [proposal?.voting_period_end]);
 
   const proposalClosed =
@@ -450,7 +451,7 @@ function VoteDetailsModal({
           </div>
           <div className="flex flex-col justify-start items-start">
             <p className="text-sm font-light text-gray-500 dark:text-gray-400">TITLE</p>
-            <h1 className="text-2xl font-bold">{proposal?.title}</h1>
+            <h1 className="text-2xl font-bold max-w-[20ch] truncate">{proposal?.title}</h1>
             <span className="text-sm font-light text-gray-500 dark:text-gray-400 mt-2">
               SUBMITTED
             </span>

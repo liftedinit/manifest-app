@@ -302,11 +302,11 @@ export default function GroupProposals({
           <table className="table w-full border-separate border-spacing-y-3">
             <thead>
               <tr className="text-sm font-medium">
-                <th className="bg-transparent">#</th>
-                <th className="bg-transparent">Title</th>
-                <th className="bg-transparent">Time Left</th>
-                <th className="bg-transparent">Type</th>
-                <th className="bg-transparent">Status</th>
+                <th className="bg-transparent px-4 py-2 w-[25%]">#</th>
+                <th className="bg-transparent px-4 py-2 w-[25%]">Title</th>
+                <th className="bg-transparent px-4 py-2 w-[25%]">Time Left</th>
+                <th className="bg-transparent px-4 py-2 w-[25%]">Type</th>
+                <th className="bg-transparent px-4 py-2 w-[25%]">Status</th>
               </tr>
             </thead>
             <tbody className="space-y-4">
@@ -340,7 +340,7 @@ export default function GroupProposals({
 
                 let status = 'Pending';
                 if (proposal.status.toString() === 'PROPOSAL_STATUS_ACCEPTED') {
-                  status = 'Awaiting Execution';
+                  status = 'Execute';
                 } else if (proposal.status.toString() === 'PROPOSAL_STATUS_CLOSED') {
                   status = 'Executed';
                 } else if (proposalTally) {
@@ -359,17 +359,19 @@ export default function GroupProposals({
                     onClick={() => handleRowClick(proposal)}
                     className="hover:bg-base-200 text-black dark:text-white rounded-lg cursor-pointer"
                   >
-                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] py-[1.15rem]">
+                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] px-4 py-4 w-[25%]">
                       {proposal.id.toString()}
                     </td>
-                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] truncate max-w-xs">
+                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] truncate max-w-xs px-4 py-4 w-[25%]">
                       {proposal.title}
                     </td>
-                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF]">{timeLeft}</td>
-                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF]">
+                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] px-4 py-4 w-[25%]">
+                      {timeLeft}
+                    </td>
+                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] px-4 py-4 w-[25%]">
                       {getHumanReadableType((proposal.messages[0] as any)['@type'])}
                     </td>
-                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px]">
+                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px] px-4 py-4 w-[25%]">
                       {isTalliesLoading ? (
                         <span className="loading loading-spinner loading-xs"></span>
                       ) : (
