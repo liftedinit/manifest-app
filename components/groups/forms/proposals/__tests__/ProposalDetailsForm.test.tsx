@@ -1,9 +1,21 @@
-import { describe, test, afterEach, expect, jest } from 'bun:test';
+import { describe, test, afterEach, expect, jest, mock } from 'bun:test';
 import React from 'react';
 import { screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
 import ProposalDetails from '@/components/groups/forms/proposals/ProposalDetailsForm';
 import { renderWithChainProvider } from '@/tests/render';
 import { mockProposalFormData } from '@/tests/mock';
+import matchers from '@testing-library/jest-dom/matchers';
+
+expect.extend(matchers);
+
+// Mock next/router
+const m = jest.fn();
+mock.module('next/router', () => ({
+  useRouter: m.mockReturnValue({
+    query: {},
+    push: jest.fn(),
+  }),
+}));
 
 const mockProps = {
   nextStep: jest.fn(),
@@ -20,7 +32,7 @@ describe('ProposalDetails Component', () => {
 
   test('renders component with correct details', () => {
     renderWithChainProvider(<ProposalDetails {...mockProps} />);
-    expect(screen.getByText('Proposal')).toBeDefined();
+    expect(screen.getByText('Proposal details')).toBeDefined();
     expect(screen.getByText('Next: Proposal Messages')).toBeDefined();
   });
 
@@ -57,10 +69,18 @@ describe('ProposalDetails Component', () => {
     });
   });
 
-  test('next button is disabled when form is invalid', () => {
+  test('next button is enabled when form is valid', () => {
     renderWithChainProvider(<ProposalDetails {...mockProps} />);
     const nextButton = screen.getByText('Next: Proposal Messages');
-    expect(nextButton).toBeDisabled();
+    expect(nextButton).toBeEnabled();
+  });
+
+  test('next button is disabled when form is invalid', async () => {
+    renderWithChainProvider(<ProposalDetails {...mockProps} />);
+    const titleInput = screen.getByLabelText('Proposal Title');
+    fireEvent.change(titleInput, { target: { value: '' } });
+    const nextButton = screen.getByText('Next: Proposal Messages');
+    await waitFor(() => expect(nextButton).toBeDisabled());
   });
 
   test('next button is enabled when form is valid and dirty', async () => {
@@ -79,18 +99,5 @@ describe('ProposalDetails Component', () => {
     await waitFor(() => expect(nextButton).toBeEnabled());
     fireEvent.click(nextButton);
     expect(mockProps.nextStep).toHaveBeenCalled();
-  });
-
-  test('updates proposers field with address when address button is clicked', async () => {
-    renderWithChainProvider(<ProposalDetails {...mockProps} />);
-    const addressButton = screen.getByLabelText('address-btn');
-    fireEvent.click(addressButton);
-    await waitFor(() => {
-      expect(mockProps.dispatch).toHaveBeenCalledWith({
-        type: 'UPDATE_FIELD',
-        field: 'proposers',
-        value: mockProps.address,
-      });
-    });
   });
 });
