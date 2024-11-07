@@ -36,20 +36,18 @@ describe('ConfirmationModal Component', () => {
 
   test('renders component with correct details', () => {
     renderWithChainProvider(<ConfirmationModal {...mockProps} />);
-    expect(screen.getByText('Confirmation')).toBeInTheDocument();
-    expect(screen.getByText('GROUP DETAILS')).toBeInTheDocument();
-    expect(screen.getByText('GROUP TITLE')).toBeInTheDocument();
-    expect(screen.getByText('AUTHORS')).toBeInTheDocument();
-    expect(screen.getByText('SUMMARY')).toBeInTheDocument();
-    expect(screen.getByText('DESCRIPTION')).toBeInTheDocument();
-    expect(screen.getByText('THRESHOLD')).toBeInTheDocument();
-    expect(screen.getByText('VOTING PERIOD')).toBeInTheDocument();
-    expect(screen.getByText('MEMBERS')).toBeInTheDocument();
+    expect(screen.getByText('Test Group')).toBeInTheDocument();
+    expect(screen.getByText('Group Information')).toBeInTheDocument();
+    expect(screen.getByText('Voting period')).toBeInTheDocument();
+    expect(screen.getByText('Qualified Majority')).toBeInTheDocument();
+    expect(screen.getByText('Description')).toBeInTheDocument();
+    expect(screen.getByText('Authors')).toBeInTheDocument();
+    expect(screen.getByText('Members')).toBeInTheDocument();
   });
 
   test('calls prevStep when "Prev: Member Info" button is clicked', () => {
     renderWithChainProvider(<ConfirmationModal {...mockProps} />);
-    const prevButton = screen.getByText('Prev: Member Info');
+    const prevButton = screen.getByText('Back: Member Info');
     fireEvent.click(prevButton);
     expect(mockProps.prevStep).toHaveBeenCalled();
   });
