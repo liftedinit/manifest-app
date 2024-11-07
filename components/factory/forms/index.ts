@@ -4,4 +4,3 @@ export * from './Success';
 export * from './TokenDetailsForm';
 export * from './MintForm';
 export * from './BurnForm';
-export * from './TransferForm';
