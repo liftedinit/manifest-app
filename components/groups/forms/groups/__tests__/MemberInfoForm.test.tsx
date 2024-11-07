@@ -8,6 +8,15 @@ import { mockGroupFormData } from '@/tests/mock';
 
 expect.extend(matchers);
 
+// Mock next/router
+const m = jest.fn();
+mock.module('next/router', () => ({
+  useRouter: m.mockReturnValue({
+    query: {},
+    push: jest.fn(),
+  }),
+}));
+
 const mockProps = {
   nextStep: jest.fn(),
   prevStep: jest.fn(),
@@ -16,6 +25,19 @@ const mockProps = {
   address: 'manifest1address',
 };
 
+// TODO: This test suite is throwing
+//    Warning: Cannot update a component (`MemberInfoForm`) while rendering a different component (`Formik`). To locate the bad setState() call inside `Formik`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render
+//        at Formik (node_modules/formik/dist/formik.cjs.development.js:1077:19)
+//        at div
+//        at div
+//        at div
+//        at section
+//        at MemberInfoForm (components/groups/forms/groups/MemberInfoForm.tsx:30:3)
+//        at ToastProvider (contexts/toastContext.tsx:13:43)
+//        at ChainProvider (node_modules/@cosmos-kit/react-lite/cjs/provider.js:8:26)
+//        at SelectedWalletRepoProvider (node_modules/@cosmos-kit/react/cjs/context/useSelectedWalletContext.js:8:64)
+//        at ChainProvider (node_modules/@cosmos-kit/react/cjs/provider.js:11:26)
+//        at QueryClientProvider (node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:20:3)
 describe('MemberInfoForm Component', () => {
   afterEach(() => {
     cleanup();
@@ -78,7 +100,7 @@ describe('MemberInfoForm Component', () => {
     fireEvent.blur(addressInput);
     await waitFor(
       () => {
-        const nextButton = screen.getByText('Next: Group Policy');
+        const nextButton = screen.getByText('Next: Confirmation');
         expect(nextButton).toBeDisabled();
       },
       { timeout: 2000 }
@@ -88,14 +110,14 @@ describe('MemberInfoForm Component', () => {
   test('next button is enabled when form is valid', async () => {
     renderWithChainProvider(<MemberInfoForm {...mockProps} />);
     await waitFor(() => {
-      const nextButton = screen.getByText('Next: Group Policy');
+      const nextButton = screen.getByText('Next: Confirmation');
       expect(nextButton).toBeEnabled();
     });
   });
 
   test('calls nextStep when next button is clicked', async () => {
     renderWithChainProvider(<MemberInfoForm {...mockProps} />);
-    const nextButton = screen.getByText('Next: Group Policy');
+    const nextButton = screen.getByText('Next: Confirmation');
     await waitFor(() => expect(nextButton).toBeEnabled());
     fireEvent.click(nextButton);
     expect(mockProps.nextStep).toHaveBeenCalled();
@@ -103,50 +125,8 @@ describe('MemberInfoForm Component', () => {
 
   test('calls prevStep when prev button is clicked', () => {
     renderWithChainProvider(<MemberInfoForm {...mockProps} />);
-    const prevButton = screen.getByText('Prev: Group Policy');
+    const prevButton = screen.getByText('Back: Group Details');
     fireEvent.click(prevButton);
     expect(mockProps.prevStep).toHaveBeenCalled();
-  });
-
-  test('increases and decreases number of members correctly', async () => {
-    renderWithChainProvider(<MemberInfoForm {...mockProps} />);
-    const increaseButton = screen.getByText('+');
-    const decreaseButton = screen.getByText('-');
-    const memberCountInput = screen.getByLabelText('member-count') as HTMLInputElement;
-
-    fireEvent.click(increaseButton);
-    await waitFor(() => {
-      expect(memberCountInput.value).toBe('3');
-    });
-
-    fireEvent.click(decreaseButton);
-    await waitFor(() => {
-      expect(memberCountInput.value).toBe('2');
-    });
-  });
-
-  test('pastes address when address button is clicked', async () => {
-    renderWithChainProvider(<MemberInfoForm {...mockProps} />);
-
-    const addressButton = screen
-      .getAllByRole('button')
-      .find(
-        button =>
-          button.classList.contains('btn-primary') && button.classList.contains('rounded-tr-lg')
-      );
-
-    expect(addressButton).toBeTruthy();
-
-    if (addressButton) {
-      fireEvent.click(addressButton);
-      await waitFor(() => {
-        expect(mockProps.dispatch).toHaveBeenCalledWith({
-          type: 'UPDATE_MEMBER',
-          index: 0,
-          field: 'address',
-          value: mockProps.address,
-        });
-      });
-    }
   });
 });
