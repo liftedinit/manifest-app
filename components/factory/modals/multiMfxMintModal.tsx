@@ -1,7 +1,18 @@
-// MultiMintModal.tsx
-import React from "react";
-import { PiPlusCircle, PiMinusCircle } from "react-icons/pi";
+import React, { useState } from 'react';
+import { Formik, Form, FieldArray, Field, FieldProps } from 'formik';
+import Yup from '@/utils/yupExtensions';
+import { NumberInput, TextInput } from '@/components/react/inputs';
+import { TailwindModal } from '@/components/react';
 
+import { MdContacts } from 'react-icons/md';
+import { PlusIcon, MinusIcon } from '@/components/icons';
+import { useTx, useFeeEstimation } from '@/hooks';
+import { chainName } from '@/config';
+import { cosmos, liftedinit } from '@liftedinit/manifestjs';
+import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
+import { MsgPayout } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
+import { ExtendedMetadataSDKType } from '@/utils';
+//TODO: find max mint amount from team for mfx. Find tx size limit for max payout pairs
 interface PayoutPair {
   address: string;
   amount: string;
@@ -10,106 +21,277 @@ interface PayoutPair {
 interface MultiMintModalProps {
   isOpen: boolean;
   onClose: () => void;
-  payoutPairs: PayoutPair[];
-  updatePayoutPair: (
-    index: number,
-    field: "address" | "amount",
-    value: string,
-  ) => void;
-  addPayoutPair: () => void;
-  removePayoutPair: (index: number) => void;
-  handleMultiMint: () => void;
-  isSigning: boolean;
+  admin: string;
+  address: string;
+  denom: ExtendedMetadataSDKType | null;
+  exponent: number;
+  refetch: () => void;
 }
+
+const PayoutPairSchema = Yup.object().shape({
+  address: Yup.string().manifestAddress().required('Required'),
+  amount: Yup.number()
+    .positive('Amount must be positive')
+    .required('Required')
+    .max(100000, 'Amount too large'),
+});
+
+const MultiMintSchema = Yup.object().shape({
+  payoutPairs: Yup.array()
+    .of(PayoutPairSchema)
+    .max(100, 'Maximum 100 payout pairs allowed')
+    .min(1, 'At least one payout pair is required')
+    .test('unique-address', 'Addresses must be unique', function (pairs) {
+      if (!pairs) return true;
+      const addresses = pairs.map(pair => pair.address);
+      const uniqueAddresses = new Set(addresses);
+      return uniqueAddresses.size === addresses.length;
+    }),
+});
 
 export function MultiMintModal({
   isOpen,
   onClose,
-  payoutPairs,
-  updatePayoutPair,
-  addPayoutPair,
-  removePayoutPair,
-  handleMultiMint,
-  isSigning,
+  admin,
+  address,
+  denom,
+  exponent,
+  refetch,
 }: MultiMintModalProps) {
+  const [payoutPairs, setPayoutPairs] = useState([{ address: '', amount: '' }]);
+  const { tx, isSigning, setIsSigning } = useTx(chainName);
+  const { estimateFee } = useFeeEstimation(chainName);
+  const { payout } = liftedinit.manifest.v1.MessageComposer.withTypeUrl;
+  const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
+  const [isContactsOpen, setIsContactsOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
+  const updatePayoutPair = (index: number, field: 'address' | 'amount', value: string) => {
+    const newPairs = [...payoutPairs];
+    newPairs[index] = { ...newPairs[index], [field]: value };
+    setPayoutPairs(newPairs);
+  };
+
+  const addPayoutPair = () => {
+    setPayoutPairs([...payoutPairs, { address: '', amount: '' }]);
+  };
+
+  const removePayoutPair = (index: number) => {
+    setPayoutPairs(payoutPairs.filter((_, i) => i !== index));
+  };
+
+  const handleMultiMint = async (values: { payoutPairs: PayoutPair[] }) => {
+    setIsSigning(true);
+    try {
+      const payoutMsg = payout({
+        authority: admin,
+        payoutPairs: values.payoutPairs.map(pair => ({
+          address: pair.address,
+          coin: {
+            denom: denom?.base ?? '',
+            amount: BigInt(parseFloat(pair.amount) * Math.pow(10, exponent)).toString(),
+          },
+        })),
+      });
+
+      const encodedMessage = Any.fromPartial({
+        typeUrl: payoutMsg.typeUrl,
+        value: MsgPayout.encode(payoutMsg.value).finish(),
+      });
+
+      const msg = submitProposal({
+        groupPolicyAddress: admin,
+        messages: [encodedMessage],
+        metadata: '',
+        proposers: [address],
+        title: `Manifest Module Control: Multi Mint MFX`,
+        summary: `This proposal includes a multi-mint action for MFX.`,
+        exec: 0,
+      });
+
+      const fee = await estimateFee(address, [msg]);
+      await tx([msg], {
+        fee,
+        onSuccess: () => {
+          refetch();
+          onClose();
+        },
+      });
+    } catch (error) {
+      console.error('Error during multi-mint:', error);
+    } finally {
+      setIsSigning(false);
+    }
+  };
+
   return (
     <dialog
       id="multi_mint_modal"
-      className={`modal ${isOpen ? "modal-open" : ""}`}
+      className={`modal ${isOpen ? 'modal-open' : ''}`}
+      aria-labelledby="modal-title"
+      aria-modal="true"
     >
-      <div className="modal-box max-w-3xl">
-        <h3 className="font-bold text-2xl mb-4">Multi Mint MFX</h3>
-        <div className="divider -mt-4"></div>
-        <div className="max-h-96 overflow-y-auto bg-base-200 p-6 rounded-lg">
-          {payoutPairs.map((pair, index) => (
-            <div
-              key={index}
-              className="flex h-[5rem] flex-col md:flex-row justify-between items-center gap-2 mb-6 bg-base-100 p-4 rounded-lg shadow"
-            >
-              <div className="w-full md:w-1/2">
-                <label className="label -mb-2">
-                  <span className="label-text font-medium">
-                    Recipient Address
-                  </span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter address"
-                  className="input input-bordered input-sm w-full mb-4"
-                  value={pair.address}
-                  onChange={(e) =>
-                    updatePayoutPair(index, "address", e.target.value)
-                  }
-                />
-              </div>
-              <div className="w-full md:w-1/3">
-                <label className="label -mb-2">
-                  <span className="label-text font-medium">Amount</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter amount"
-                  className="input input-bordered input-sm w-full mb-4"
-                  value={pair.amount}
-                  onChange={(e) =>
-                    updatePayoutPair(index, "amount", e.target.value)
-                  }
-                />
-              </div>
-              <button
-                onClick={() =>
-                  index === payoutPairs.length - 1
-                    ? addPayoutPair()
-                    : removePayoutPair(index)
-                }
-                className={`btn btn-circle btn-sm ${
-                  index === payoutPairs.length - 1 ? "btn-primary" : "btn-error"
-                } mt-4 md:mt-0`}
-              >
-                {index === payoutPairs.length - 1 ? (
-                  <PiPlusCircle className="w-6 h-6" />
-                ) : (
-                  <PiMinusCircle className="w-6 h-6" />
-                )}
-              </button>
-            </div>
-          ))}
-        </div>
-        <div className="modal-action mt-6">
-          <button className="btn btn-ghost" onClick={onClose}>
-            Cancel
+      <div className="modal-box max-w-4xl mx-auto min-h-[30vh] max-h-[70vh] rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg overflow-y-auto">
+        <form method="dialog" onSubmit={onClose}>
+          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]">
+            ✕
           </button>
-          <button
-            className="btn btn-primary"
-            onClick={handleMultiMint}
-            disabled={isSigning}
+        </form>
+        <h3 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">
+          Multi Mint <span className="font-light text-primary">MFX</span>
+        </h3>
+        <div className="py-4 flex flex-col h-[calc(100%-4rem)]">
+          <Formik
+            initialValues={{ payoutPairs }}
+            validationSchema={MultiMintSchema}
+            onSubmit={handleMultiMint}
+            validateOnMount={true}
           >
-            {isSigning ? (
-              <span className="loading loading-dots loading-md"></span>
-            ) : (
-              "Multi Mint"
+            {({ values, isValid, setFieldValue }) => (
+              <Form className="flex flex-col h-full">
+                <div className="flex justify-between items-center mb-4">
+                  <div className="text-lg font-semibold">Payout Pairs</div>
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-primary text-white"
+                    onClick={() => {
+                      // Update both Formik state and parent component state
+                      setFieldValue('payoutPairs', [
+                        ...values.payoutPairs,
+                        { address: '', amount: '' },
+                      ]);
+                      addPayoutPair();
+                    }}
+                  >
+                    <PlusIcon className="text-lg" />
+                    <span className="ml-1">Add Payout</span>
+                  </button>
+                </div>
+
+                <div className="overflow-y-auto flex-grow px-1 max-h-[40vh]">
+                  <FieldArray name="payoutPairs">
+                    {({ remove }) => (
+                      <div className="flex flex-col gap-4 overflow-y-auto">
+                        {values.payoutPairs.map((pair, index) => (
+                          <div
+                            key={index}
+                            className="flex relative flex-row dark:bg-[#FFFFFF0A] bg-[#FFFFFF] p-4 gap-2 rounded-lg items-end"
+                          >
+                            {index > 0 && (
+                              <div className="absolute -top-2 left-2 text-xs">#{index + 1}</div>
+                            )}
+                            <div className="flex-grow relative">
+                              <Field name={`payoutPairs.${index}.address`}>
+                                {({ field, meta }: FieldProps) => (
+                                  <div className="relative">
+                                    <TextInput
+                                      showError={false}
+                                      label="Address"
+                                      {...field}
+                                      placeholder="manifest1..."
+                                      className={`input input-bordered w-full ${
+                                        meta.touched && meta.error ? 'input-error' : ''
+                                      }`}
+                                      rightElement={
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setSelectedIndex(index);
+                                            setIsContactsOpen(true);
+                                          }}
+                                          className="btn btn-primary btn-sm text-white absolute right-2 top-1/2 transform -translate-y-1/2"
+                                        >
+                                          <MdContacts className="w-5 h-5" />
+                                        </button>
+                                      }
+                                    />
+                                    {meta.touched && meta.error && (
+                                      <div
+                                        className="tooltip tooltip-bottom tooltip-open tooltip-error bottom-0 absolute left-1/2 transform -translate-x-1/2 translate-y-full mt-1 z-50 text-white text-xs"
+                                        data-tip={meta.error}
+                                      ></div>
+                                    )}
+                                  </div>
+                                )}
+                              </Field>
+                            </div>
+                            <div className="flex-grow relative">
+                              <Field name={`payoutPairs.${index}.amount`}>
+                                {({ field, meta }: FieldProps) => (
+                                  <div className="relative">
+                                    <NumberInput
+                                      showError={false}
+                                      label="Amount"
+                                      {...field}
+                                      placeholder="Enter amount"
+                                      className={`input input-bordered w-full ${
+                                        meta.touched && meta.error ? 'input-error' : ''
+                                      }`}
+                                    />
+                                    {meta.touched && meta.error && (
+                                      <div
+                                        className="tooltip tooltip-bottom tooltip-open tooltip-error bottom-0 absolute left-1/2 transform -translate-x-1/2 translate-y-full mt-1 z-50 text-white text-xs"
+                                        data-tip={meta.error}
+                                      ></div>
+                                    )}
+                                  </div>
+                                )}
+                              </Field>
+                            </div>
+                            {index > 0 && (
+                              <button
+                                type="button"
+                                className="btn btn-error btn-sm text-white absolute top-3 right-5"
+                                onClick={() => {
+                                  remove(index);
+                                  removePayoutPair(index);
+                                }}
+                                aria-label="Remove payout pair"
+                              >
+                                <MinusIcon className="w-5 h-5" />
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </FieldArray>
+                </div>
+
+                <div className="modal-action mt-6">
+                  <button className="btn btn-ghost" onClick={onClose}>
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn btn-gradient text-white"
+                    disabled={isSigning || !isValid}
+                  >
+                    {isSigning ? (
+                      <span className="loading loading-dots loading-md"></span>
+                    ) : (
+                      'Multi Mint'
+                    )}
+                  </button>
+                </div>
+                <TailwindModal
+                  isOpen={isContactsOpen}
+                  setOpen={setIsContactsOpen}
+                  showContacts={true}
+                  currentAddress={address}
+                  onSelect={(selectedAddress: string) => {
+                    if (selectedIndex !== null) {
+                      // Update both the local state and Formik state
+                      updatePayoutPair(selectedIndex, 'address', selectedAddress);
+                      setFieldValue(`payoutPairs.${selectedIndex}.address`, selectedAddress);
+                    }
+                    setIsContactsOpen(false);
+                    setSelectedIndex(null);
+                  }}
+                />
+              </Form>
             )}
-          </button>
+          </Formik>
         </div>
       </div>
       <form method="dialog" className="modal-backdrop">

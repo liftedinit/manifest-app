@@ -1,270 +1,92 @@
-import React, { useEffect, useState } from "react";
-import { IPFSMetadata } from "@/hooks/useQueries";
-import { cosmos } from "@chalabi/manifestjs";
-import { PiTrashLight, PiPlusCircleThin, PiInfoLight } from "react-icons/pi";
-import { useTx, useFeeEstimation } from "@/hooks";
-import { chainName } from "@/config";
-import { ThresholdDecisionPolicy } from "@chalabi/manifestjs/dist/codegen/cosmos/group/v1/types";
-import { Any } from "@chalabi/manifestjs/dist/codegen/google/protobuf/any";
+import React, { useState, useEffect } from 'react';
+import { Formik, Form } from 'formik';
+import Yup from '@/utils/yupExtensions';
+import { TextInput, TextArea, NumberInput } from '@/components/react/inputs';
 
-interface Member {
-  address: string;
-  metadata: string;
-  weight: string;
-  added_at: Date;
-  isCoreMember: boolean;
-  isActive: boolean;
-}
-
-interface Group {
-  group: {
-    id: string;
-    admin: string;
-    metadata: string;
-    ipfsMetadata: IPFSMetadata | null;
-    members: { group_id: string; member: Member }[];
-    policies: any[]; // TODO: Define type
-  };
-  address: string;
-}
+import { useTx, useFeeEstimation } from '@/hooks';
+import { chainName } from '@/config';
+import {
+  ThresholdDecisionPolicy,
+  ThresholdDecisionPolicySDKType,
+} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { cosmos } from '@liftedinit/manifestjs';
+import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
+import { ExtendedGroupType } from '@/hooks';
 
 export function UpdateGroupModal({
   group,
-  modalId,
-  address,
   policyAddress,
-}: Group & { modalId: string; policyAddress: string }) {
-  const { tx } = useTx(chainName);
+  address,
+  onUpdate,
+}: {
+  group: ExtendedGroupType;
+  policyAddress: string;
+  address: string;
+  onUpdate: () => void;
+}) {
+  const { tx, isSigning, setIsSigning } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
 
   const maybeIpfsMetadata = group?.ipfsMetadata;
-  const maybeTitle = maybeIpfsMetadata?.title;
-  const maybeAuthors = maybeIpfsMetadata?.authors;
-  const maybeSummary = maybeIpfsMetadata?.summary;
-  const maybeProposalForumURL = maybeIpfsMetadata?.proposalForumURL;
-  const maybeDetails = maybeIpfsMetadata?.details;
+  const maybeTitle = maybeIpfsMetadata?.title ?? '';
+  const maybeAuthors = maybeIpfsMetadata?.authors ?? '';
+  const maybeSummary = maybeIpfsMetadata?.summary ?? '';
+  const maybeProposalForumURL = maybeIpfsMetadata?.proposalForumURL ?? '';
+  const maybeDetails = maybeIpfsMetadata?.details ?? '';
   const maybePolicies = group?.policies?.[0];
   const maybeDecisionPolicy = maybePolicies?.decision_policy;
-  const maybeThreshold = maybeDecisionPolicy?.threshold;
-  const maybeVotingPeriod = maybeDecisionPolicy?.windows?.voting_period;
+  const maybeThreshold = (maybeDecisionPolicy as ThresholdDecisionPolicySDKType)?.threshold ?? '';
+  const maybeVotingPeriod = (maybeDecisionPolicy as ThresholdDecisionPolicySDKType)?.windows
+    ?.voting_period;
   const maybeMembers = group?.members;
 
-  const {
-    updateGroupAdmin,
-    updateGroupMembers,
-    updateGroupMetadata,
-    updateGroupPolicyAdmin,
-    updateGroupPolicyDecisionPolicy,
-    updateGroupPolicyMetadata,
-  } = cosmos.group.v1.MessageComposer.withTypeUrl;
+  const { updateGroupMetadata, updateGroupPolicyDecisionPolicy, updateGroupPolicyMetadata } =
+    cosmos.group.v1.MessageComposer.withTypeUrl;
 
-  const [name, setName] = useState(maybeTitle ?? "");
-  const [authors, setAuthors] = useState(maybeAuthors ?? "");
-  const [summary, setSummary] = useState(maybeSummary ?? "");
-  const [forum, setForum] = useState(maybeProposalForumURL ?? "");
-  const [description, setDescription] = useState(maybeDetails ?? "");
-  const [threshold, setThreshold] = useState(maybeThreshold ?? "");
-  const [windowInput, setWindowInput] = useState("");
-  const [votingUnit, setVotingUnit] = useState("days");
-  const [isSigning, setIsSigning] = useState(false);
+  const [name, setName] = useState(maybeTitle);
+  const [authors, setAuthors] = useState(maybeAuthors);
+  const [summary, setSummary] = useState(maybeSummary);
+  const [forum, setForum] = useState(maybeProposalForumURL);
+  const [description, setDescription] = useState(maybeDetails);
+  const [threshold, setThreshold] = useState(maybeThreshold);
+  const [votingPeriod, setVotingPeriod] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  });
 
+  // Initialize voting period state from existing data if available
   useEffect(() => {
-    setAuthors(maybeAuthors ?? "");
-    setSummary(maybeSummary ?? "");
-    setForum(maybeProposalForumURL ?? "");
-    setDescription(maybeDetails ?? "");
-    setThreshold(maybeThreshold ?? "");
-  }, [group]);
-
-  const convertToSeconds = (input: string, unit: string) => {
-    const value = parseFloat(input);
-    let seconds;
-    switch (unit) {
-      case "hours":
-        seconds = value * 3600;
-        break;
-      case "days":
-        seconds = value * 86400;
-        break;
-      case "weeks":
-        seconds = value * 604800;
-        break;
-      case "months":
-        seconds = value * 2592000;
-        break;
-      default:
-        seconds = value;
-    }
-    return seconds;
-  };
-
-  const [windowSeconds, setWindowSeconds] = useState(() =>
-    convertToSeconds(windowInput, votingUnit),
-  );
-
-  const handleUnitChange = (e: { target: { value: any } }) => {
-    const newUnit = e.target.value;
-    setVotingUnit(newUnit);
-    setWindowSeconds(convertToSeconds(windowInput, newUnit));
-  };
-
-  const handleWindowInputChange = (e: { target: { value: any } }) => {
-    const newValue = e.target.value;
-    setWindowInput(newValue);
-    setWindowSeconds(convertToSeconds(newValue, votingUnit));
-  };
-
-  const votingWindow = parseFloat(maybeVotingPeriod?.slice(0, -1));
-
-  let formattedVotingWindow;
-  switch (votingUnit) {
-    case "hours":
-      formattedVotingWindow = votingWindow / 60 / 60;
-      break;
-    case "days":
-      formattedVotingWindow = votingWindow / 24 / 60 / 60;
-      break;
-    case "weeks":
-      formattedVotingWindow = votingWindow / 7 / 24 / 60 / 60;
-      break;
-    case "months":
-      formattedVotingWindow = votingWindow / 30 / 24 / 60 / 60;
-      break;
-    default:
-      formattedVotingWindow = votingWindow;
-  }
-
-  const isAdmin = (address: string) => {
-    const adminAddresses = [group.admin].filter(Boolean);
-    return adminAddresses.includes(address);
-  };
-
-  const isPolicyAdmin = (address: string) => {
-    const adminAddresses = [maybePolicies?.admin].filter(Boolean);
-    return adminAddresses.includes(address);
-  };
-
-  const initializeMembers = () => {
-    return maybeMembers?.map((member) => ({
-      group_id: member.group_id,
-      member: member.member,
-      isCoreMember: true,
-      isActive: true,
-      isAdmin: isAdmin(member.member.address),
-      isPolicyAdmin: isPolicyAdmin(member.member.address),
-    }));
-  };
-
-  const [members, setMembers] = useState(initializeMembers());
-
-  useEffect(() => {
-    setMembers(initializeMembers());
-  }, [group]);
-
-  const addMember = () => {
-    const newMember = {
-      group_id: members[0].group_id,
-      member: {
-        address: "",
-        metadata: "",
-        weight: "",
-        added_at: new Date(),
-      } as Member,
-      isCoreMember: false,
-      isActive: true,
-      isAdmin: false,
-      isPolicyAdmin: false,
+    const initialVotingPeriodSeconds = maybeVotingPeriod ? Number(maybeVotingPeriod.seconds) : 0;
+    const secondsToDHMS = (totalSeconds: number) => {
+      const days = Math.floor(totalSeconds / (3600 * 24)) || 0;
+      const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600) || 0;
+      const minutes = Math.floor((totalSeconds % 3600) / 60) || 0;
+      const seconds = totalSeconds % 60 || 0;
+      return { days, hours, minutes, seconds };
     };
-    setMembers([...members, newMember]);
-  };
+    const initialVotingPeriod = secondsToDHMS(initialVotingPeriodSeconds);
+    setVotingPeriod(initialVotingPeriod);
+  }, [maybeVotingPeriod]);
 
-  const handleChange = (index: number, field: string, value: string) => {
-    setMembers(
-      members.map((member, idx) =>
-        idx === index
-          ? { ...member, member: { ...member.member, [field]: value } }
-          : member,
-      ),
-    );
-  };
-
-  const handleMemberRemoval = (index: number) => {
-    const member = members[index];
-    if (member.isCoreMember) {
-      const updatedMember = {
-        ...member,
-        isActive: !member.isActive,
-        member: { ...member.member, weight: member.isActive ? "0" : "1" },
-      };
-      setMembers(
-        members.map((mem, idx) => (idx === index ? updatedMember : mem)),
-      );
-    } else {
-      setMembers(members.filter((_, idx) => idx !== index));
-    }
-  };
+  // Update windowSeconds whenever votingPeriod changes
+  const [windowSeconds, setWindowSeconds] = useState(0);
+  useEffect(() => {
+    const totalSeconds =
+      (Number(votingPeriod.days) || 0) * 86400 +
+      (Number(votingPeriod.hours) || 0) * 3600 +
+      (Number(votingPeriod.minutes) || 0) * 60 +
+      (Number(votingPeriod.seconds) || 0);
+    setWindowSeconds(totalSeconds);
+  }, [votingPeriod]);
 
   const hasStateChanged = (newValue: any, originalValue: any) => {
-    return (
-      newValue !== null && newValue !== undefined && newValue !== originalValue
-    );
+    return newValue !== null && newValue !== undefined && newValue !== originalValue;
   };
 
   const buildMessages = () => {
     const messages: Any[] = [];
-
-    // Update Group Admin
-    const newAdmin = members?.find((member) => member?.isAdmin)?.member
-      ?.address;
-    if (hasStateChanged(newAdmin, group.admin)) {
-      const msg = updateGroupAdmin({
-        admin: group.admin,
-        groupId: BigInt(maybeMembers?.[0]?.group_id),
-        newAdmin: newAdmin ?? "",
-      });
-      messages.push(
-        Any.fromPartial({
-          typeUrl: cosmos.group.v1.MsgUpdateGroupAdmin.typeUrl,
-          value: cosmos.group.v1.MsgUpdateGroupAdmin.encode(msg.value).finish(),
-        }),
-      );
-    }
-
-    // Update Group Members
-    const membersChanged = members.some(
-      (member, index) =>
-        hasStateChanged(
-          member.member.address,
-          group.members[index]?.member.address,
-        ) ||
-        hasStateChanged(
-          member.member.metadata,
-          group.members[index]?.member.metadata,
-        ) ||
-        hasStateChanged(
-          member.member.weight,
-          group.members[index]?.member.weight,
-        ),
-    );
-    if (membersChanged) {
-      const msg = updateGroupMembers({
-        admin: group.admin,
-        groupId: BigInt(maybeMembers?.[0]?.group_id),
-        memberUpdates: members.map((member) => ({
-          address: member.member.address,
-          metadata: member.member.metadata,
-          weight: member.member.weight,
-        })),
-      });
-      messages.push(
-        Any.fromPartial({
-          typeUrl: cosmos.group.v1.MsgUpdateGroupMembers.typeUrl,
-          value: cosmos.group.v1.MsgUpdateGroupMembers.encode(
-            msg.value,
-          ).finish(),
-        }),
-      );
-    }
 
     // Update Group Metadata
     if (
@@ -289,10 +111,8 @@ export function UpdateGroupModal({
       messages.push(
         Any.fromPartial({
           typeUrl: cosmos.group.v1.MsgUpdateGroupMetadata.typeUrl,
-          value: cosmos.group.v1.MsgUpdateGroupMetadata.encode(
-            msgGroupMetadata.value,
-          ).finish(),
-        }),
+          value: cosmos.group.v1.MsgUpdateGroupMetadata.encode(msgGroupMetadata.value).finish(),
+        })
       );
 
       const msgPolicyMetadata = updateGroupPolicyMetadata({
@@ -304,380 +124,361 @@ export function UpdateGroupModal({
         Any.fromPartial({
           typeUrl: cosmos.group.v1.MsgUpdateGroupPolicyMetadata.typeUrl,
           value: cosmos.group.v1.MsgUpdateGroupPolicyMetadata.encode(
-            msgPolicyMetadata.value,
+            msgPolicyMetadata.value
           ).finish(),
-        }),
-      );
-    }
-
-    // Update Group Policy Admin
-    const newPolicyAdmin = members?.find((member) => member?.isPolicyAdmin)
-      ?.member?.address;
-    if (hasStateChanged(newPolicyAdmin, maybePolicies?.admin)) {
-      const msg = updateGroupPolicyAdmin({
-        groupPolicyAddress: maybePolicies?.address,
-        admin: group.admin,
-        newAdmin: newPolicyAdmin ?? "",
-      });
-      messages.push(
-        Any.fromPartial({
-          typeUrl: cosmos.group.v1.MsgUpdateGroupPolicyAdmin.typeUrl,
-          value: cosmos.group.v1.MsgUpdateGroupPolicyAdmin.encode(
-            msg.value,
-          ).finish(),
-        }),
+        })
       );
     }
 
     // Update Group Policy Decision Policy
+    const numericThreshold = Number(threshold) || 0;
+    const originalThreshold = Number(maybeThreshold) || 0;
+    const originalVotingPeriodSeconds = Number(maybeVotingPeriod?.seconds) || 0;
+
     if (
-      hasStateChanged(threshold, maybeThreshold) ||
-      hasStateChanged(windowSeconds, maybeVotingPeriod?.seconds)
+      hasStateChanged(numericThreshold, originalThreshold) ||
+      hasStateChanged(windowSeconds, originalVotingPeriodSeconds)
     ) {
       const thresholdMsg = {
-        threshold: threshold,
+        threshold: numericThreshold.toString(),
         windows: {
-          votingPeriod: { seconds: BigInt(0), nanos: 0 },
+          votingPeriod: { seconds: BigInt(windowSeconds || 0), nanos: 0 },
           minExecutionPeriod: { seconds: BigInt(0), nanos: 0 },
         },
       };
 
-      const threshholdPolicyFromPartial =
-        ThresholdDecisionPolicy.fromPartial(thresholdMsg);
-      const threshholdPolicy = ThresholdDecisionPolicy.encode(
-        threshholdPolicyFromPartial,
-      ).finish();
+      const thresholdPolicyFromPartial = ThresholdDecisionPolicy.fromPartial(thresholdMsg);
+      const thresholdPolicy = ThresholdDecisionPolicy.encode(thresholdPolicyFromPartial).finish();
 
       const msg = updateGroupPolicyDecisionPolicy({
         groupPolicyAddress: maybePolicies?.address,
         admin: group.admin,
         decisionPolicy: {
-          threshold: threshold,
-          percentage: threshold,
-          value: threshholdPolicy,
+          value: thresholdPolicy,
           typeUrl: cosmos.group.v1.ThresholdDecisionPolicy.typeUrl,
         },
       });
       messages.push(
         Any.fromPartial({
           typeUrl: cosmos.group.v1.MsgUpdateGroupPolicyDecisionPolicy.typeUrl,
-          value: cosmos.group.v1.MsgUpdateGroupPolicyDecisionPolicy.encode(
-            msg.value,
-          ).finish(),
-        }),
+          value: cosmos.group.v1.MsgUpdateGroupPolicyDecisionPolicy.encode(msg.value).finish(),
+        })
       );
     }
 
     return messages;
   };
 
-  const handleConfirm = async () => {
+  const handleConfirm = async (values: any) => {
     setIsSigning(true);
-
-    const encodedMessages = buildMessages();
-    const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
-    const msg = submitProposal({
-      groupPolicyAddress: policyAddress,
-      proposers: [address],
-      metadata: "",
-      messages: encodedMessages,
-      exec: 0,
-      title: "Update Group",
-      summary: "Update Group",
-    });
-
-    const fee = await estimateFee(address, [msg]);
-    await tx([msg], {
-      fee,
-      onSuccess: () => {
+    try {
+      const encodedMessages = buildMessages();
+      if (encodedMessages.length === 0) {
         setIsSigning(false);
-      },
-    });
+        alert('No changes detected.');
+        return;
+      }
+      const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
+      const msg = submitProposal({
+        groupPolicyAddress: policyAddress,
+        proposers: [address],
+        metadata: '',
+        messages: encodedMessages,
+        exec: 0,
+        title: 'Update Group',
+        summary: 'Update Group',
+      });
+
+      let fee;
+      try {
+        fee = await estimateFee(address, [msg]);
+      } catch (feeError) {
+        setIsSigning(false);
+        console.error('Error estimating fee:', feeError);
+        throw new Error('Failed to estimate transaction fee. Please try again.');
+      }
+      await tx([msg], {
+        fee,
+        onSuccess: () => {
+          setIsSigning(false);
+          onUpdate();
+        },
+      });
+      setIsSigning(false);
+    } catch (error) {
+      console.error('Error in handleConfirm:', error);
+      setIsSigning(false);
+    }
   };
+
+  const validationSchema = Yup.object().shape({
+    name: Yup.string()
+      .max(24, 'Name must be at most 24 characters')
+      .noProfanity('Profanity is not allowed')
+      .when(['threshold', 'votingPeriod'], {
+        is: (threshold: number, votingPeriod: any) => {
+          // Convert both values to numbers for comparison
+          const hasThresholdChange = Number(threshold) !== Number(maybeThreshold);
+          const totalSeconds =
+            (Number(votingPeriod?.days) || 0) * 86400 +
+            (Number(votingPeriod?.hours) || 0) * 3600 +
+            (Number(votingPeriod?.minutes) || 0) * 60 +
+            (Number(votingPeriod?.seconds) || 0);
+          const originalSeconds = Number(maybeVotingPeriod?.seconds) || 0;
+          const hasVotingPeriodChange = totalSeconds !== originalSeconds;
+
+          return hasThresholdChange || hasVotingPeriodChange;
+        },
+        then: schema => schema.optional(),
+        otherwise: schema =>
+          schema.when(['authors', 'summary', 'forum', 'description'], {
+            is: (authors: string, summary: string, forum: string, description: string) =>
+              !authors && !summary && !forum && !description,
+            then: schema => schema.required('At least one metadata field is required'),
+            otherwise: schema => schema.optional(),
+          }),
+      }),
+    authors: Yup.string().noProfanity('Profanity is not allowed').optional(),
+    summary: Yup.string()
+      .noProfanity('Profanity is not allowed')
+      .min(10, 'Summary must be at least 10 characters')
+      .max(500, 'Summary must not exceed 500 characters')
+      .optional(),
+    threshold: Yup.number().min(1, 'Threshold must be at least 1').optional(),
+    votingPeriod: Yup.object()
+      .shape({
+        days: Yup.number().min(0, 'Must be 0 or greater').required('Required'),
+        hours: Yup.number().min(0, 'Must be 0 or greater').required('Required'),
+        minutes: Yup.number().min(0, 'Must be 0 or greater').required('Required'),
+        seconds: Yup.number().min(0, 'Must be 0 or greater').required('Required'),
+      })
+      .test('min-total-time', 'Voting period must be at least 30 minutes', function (value) {
+        // Only validate if voting period is being updated
+        if (!value || Object.values(value).every(v => v === 0)) return true;
+
+        const { days, hours, minutes, seconds } = value;
+        const totalSeconds =
+          (Number(days) || 0) * 86400 +
+          (Number(hours) || 0) * 3600 +
+          (Number(minutes) || 0) * 60 +
+          (Number(seconds) || 0);
+        return totalSeconds >= 1800;
+      }),
+    forum: Yup.string().url('Invalid URL').noProfanity('Profanity is not allowed').optional(),
+    description: Yup.string()
+      .noProfanity('Profanity is not allowed')
+      .min(10, 'Description must be at least 10 characters')
+      .max(500, 'Description must not exceed 500 characters')
+      .optional(),
+  });
+
+  const hasAnyChanges = (values: any) => {
+    // Check metadata changes
+    const hasMetadataChanges =
+      values.name !== maybeTitle ||
+      values.authors !== maybeAuthors ||
+      values.summary !== maybeSummary ||
+      values.forum !== maybeProposalForumURL ||
+      values.description !== maybeDetails;
+
+    // Check policy changes
+    const hasThresholdChange = values.threshold !== maybeThreshold;
+
+    // Check voting period changes
+    const totalSeconds =
+      (Number(values.votingPeriod.days) || 0) * 86400 +
+      (Number(values.votingPeriod.hours) || 0) * 3600 +
+      (Number(values.votingPeriod.minutes) || 0) * 60 +
+      (Number(values.votingPeriod.seconds) || 0);
+    const originalSeconds = Number(maybeVotingPeriod?.seconds) || 0;
+    const hasVotingPeriodChange = totalSeconds !== originalSeconds;
+
+    return hasMetadataChanges || hasThresholdChange || hasVotingPeriodChange;
+  };
+
   return (
-    <dialog id={modalId} className="modal">
-      <div className="modal-box absolute max-w-6xl mx-auto rounded-lg md:ml-20 shadow-lg min-h-96">
-        <form method="dialog">
-          <button className="btn btn-sm btn-circle btn-ghost absolute right-1 top-1">
-            ✕
-          </button>
-        </form>
-        <h3 className="text-lg font-semibold ">Update Group</h3>
-        <div className="divider divider-horizon -mt-0 "></div>
-        <div className="md:flex sm:grid sm:grid-cols-1 md:flex-row gap-4  justify-between items-center ">
-          <div className="relative bg-base-300 rounded-md p-4 sm:w-full md:w-1/2 max-w-6xl h-[480px] ">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <div className="flex flex-row mb-2 gap-2 items-center">
-                  <label htmlFor="name" className="block  text-sm font-medium">
-                    Group Name
-                  </label>
-                  <div
-                    className=""
-                    data-tip="Group Name (can not exceed 24 characters)"
-                  >
-                    <PiInfoLight className="hover:group-[]" />
-                  </div>
-                </div>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="input input-bordered w-full"
-                  placeholder={
-                    group?.ipfsMetadata?.title ?? "No title available"
-                  }
-                  maxLength={24}
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="authors"
-                  className="block mb-2 text-sm font-medium"
-                >
-                  Authors
-                </label>
-                <input
-                  type="text"
-                  id="authors"
-                  name="authors"
-                  value={authors}
-                  onChange={(e) => setAuthors(e.target.value)}
-                  className="input input-bordered w-full"
-                  placeholder={
-                    group?.ipfsMetadata?.authors ?? "No authors available"
-                  }
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="summary"
-                  className="block mb-2 text-sm font-medium"
-                >
-                  Summary
-                </label>
-                <input
-                  type="text"
-                  id="summary"
-                  name="summary"
-                  value={summary}
-                  onChange={(e) => setSummary(e.target.value)}
-                  className="input input-bordered w-full"
-                  placeholder={
-                    group?.ipfsMetadata?.summary ?? "No summary available"
-                  }
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="threshold"
-                  className="block mb-2 text-sm font-medium"
-                >
-                  Threshold
-                </label>
-                <input
-                  type="number"
-                  id="threshold"
-                  name="threshold"
-                  value={threshold}
-                  onChange={(e) => setThreshold(e.target.value)}
-                  className="input input-bordered w-full"
-                  placeholder={maybeThreshold ?? "No threshold available"}
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="forum"
-                  className="block mb-2 text-sm font-medium"
-                >
-                  Forum
-                </label>
-                <input
-                  type="text"
-                  id="forum"
-                  name="forum"
-                  value={forum}
-                  onChange={(e) => setForum(e.target.value)}
-                  className="input input-bordered w-full"
-                  placeholder={
-                    maybeProposalForumURL ?? "No forum URL available"
-                  }
-                />
-              </div>
-              <div className="flex flex-col">
-                <label
-                  htmlFor="window"
-                  className="text-sm font-medium mb-2 block"
-                >
-                  Voting Window
-                </label>
-                <div className="flex flex-row gap-3">
-                  <input
-                    type="number"
-                    id="window"
-                    name="window"
-                    value={windowInput}
-                    onChange={handleWindowInputChange}
-                    className="input input-bordered w-6/12"
-                    placeholder={formattedVotingWindow.toString()}
-                  />
-                  <select
-                    onChange={handleUnitChange}
-                    value={votingUnit}
-                    className="select select-bordered w-6/12 p-2"
-                  >
-                    <option value="hours">Hours</option>
-                    <option value="days">Days</option>
-                    <option value="weeks">Weeks</option>
-                    <option value="months">Months</option>
-                  </select>
-                </div>
-              </div>
-              <div className="sm:col-span-2">
-                <label
-                  htmlFor="description"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Description
-                </label>
-                <textarea
-                  id="description"
-                  rows={4}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="textarea w-full textarea-bordered"
-                  placeholder={
-                    group?.ipfsMetadata?.details ?? "No description available"
-                  }
-                ></textarea>
-              </div>
-            </div>
-          </div>
-          <div className="relative p-4 bg-base-300 rounded-md sm:w-full md:w-1/2 max-w-6xl h-[480px]   ">
-            <div className="flex flex-row justify-between items-center mb-2 -mt-1">
-              <label className="text-sm font-medium ">Members</label>
-              <button
-                className="btn btn-xs btn-primary justify-center items-center"
-                onClick={addMember}
-              >
-                +
-              </button>
-            </div>
+    <dialog id="update-group-modal" className="modal">
+      <Formik
+        initialValues={{
+          name: name,
+          authors: authors,
+          summary: summary,
+          forum: forum,
+          description: description,
+          threshold: threshold,
+          votingPeriod: votingPeriod,
+        }}
+        validationSchema={validationSchema}
+        onSubmit={handleConfirm}
+        enableReinitialize
+      >
+        {({ setFieldValue, values, isValid, dirty, errors, touched }) => (
+          <>
+            <div className="flex flex-col items-center w-full h-full">
+              <div className="modal-box dark:bg-[#1D192D] bg-[#FFFFFF] rounded-[24px] max-w-4xl  p-6 dark:text-white text-black">
+                <form method="dialog">
+                  <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+                    ✕
+                  </button>
+                </form>
+                <h3 className="text-2xl font-semibold mb-4">Update Group</h3>
 
-            <div className="grid gap-4 sm:grid-cols-2  max-h-[26rem] overflow-y-auto">
-              {members.map((member, index) => (
-                <div
-                  key={index}
-                  className={`flex relative flex-col gap-2 px-4 py-2 rounded-md border-4 ${
-                    member.isAdmin && member.isPolicyAdmin
-                      ? "border-r-primary border-b-primary border-l-secondary border-t-secondary"
-                      : member.isAdmin
-                        ? "border-r-primary border-b-primary border-t-transparent border-l-transparent"
-                        : member.isPolicyAdmin
-                          ? "border-l-secondary border-t-secondary border-r-base-100 border-b-base-100 "
-                          : "border-r-transparent border-b-transparent border-t-transparent border-l-transparent"
-                  } transition-all duration-200 max-h-[12.4rem] ${
-                    !member.isActive ? "bg-base-100" : "bg-base-200"
-                  }  `}
-                >
-                  <div className="flex flex-row justify-between items-center">
-                    <span className="text-light text-md"># {index + 1}</span>
-
-                    <button
-                      onClick={() => handleMemberRemoval(index)}
-                      className={`btn btn-sm ${
-                        member.isActive
-                          ? "text-red-500 hover:bg-red-500"
-                          : "text-primary hover:bg-primary "
-                      }  hover:text-white bg-base-300`}
-                    >
-                      {member.isActive ? (
-                        <PiTrashLight />
-                      ) : (
-                        <PiPlusCircleThin />
+                <Form className="flex flex-col gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <TextInput
+                      label="Group Name"
+                      name="name"
+                      placeholder="Group Name"
+                      value={values.name}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        setName(e.target.value);
+                        setFieldValue('name', e.target.value);
+                      }}
+                      maxLength={24}
+                    />
+                    <TextInput
+                      label="Authors"
+                      name="authors"
+                      placeholder="Authors"
+                      value={values.authors}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        setAuthors(e.target.value);
+                        setFieldValue('authors', e.target.value);
+                      }}
+                    />
+                    <TextInput
+                      label="Summary"
+                      name="summary"
+                      placeholder="Summary"
+                      value={values.summary}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        setSummary(e.target.value);
+                        setFieldValue('summary', e.target.value);
+                      }}
+                    />
+                    <TextInput
+                      label="Forum URL"
+                      name="forum"
+                      placeholder="Forum URL"
+                      value={values.forum}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        setForum(e.target.value);
+                        setFieldValue('forum', e.target.value);
+                      }}
+                    />
+                    <TextArea
+                      label="Description"
+                      name="description"
+                      placeholder="Description"
+                      value={values.description}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                        setDescription(e.target.value);
+                        setFieldValue('description', e.target.value);
+                      }}
+                      className="w-full md:col-span-2"
+                    />
+                    <NumberInput
+                      label="Threshold"
+                      name="threshold"
+                      placeholder="Threshold"
+                      value={values.threshold}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        const value = Math.max(1, parseInt(e.target.value) || 1);
+                        setThreshold(value.toString());
+                        setFieldValue('threshold', value);
+                      }}
+                      min={1}
+                    />
+                    <div className="md:col-span-2">
+                      <label className="block text-sm mb-1 font-medium text-[#00000099] dark:text-[#FFFFFF99]">
+                        Voting Period
+                      </label>
+                      <div className="grid grid-cols-4 gap-2">
+                        <NumberInput
+                          name="votingPeriod.days"
+                          placeholder="Days"
+                          label="Days"
+                          value={values.votingPeriod.days}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            const value = Math.max(0, parseInt(e.target.value) || 0);
+                            setVotingPeriod(prev => ({ ...prev, days: value }));
+                            setFieldValue('votingPeriod.days', value);
+                          }}
+                          min={0}
+                        />
+                        <NumberInput
+                          name="votingPeriod.hours"
+                          placeholder="Hours"
+                          label="Hours"
+                          value={values.votingPeriod.hours}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            const value = Math.max(0, parseInt(e.target.value) || 0);
+                            setVotingPeriod(prev => ({ ...prev, hours: value }));
+                            setFieldValue('votingPeriod.hours', value);
+                          }}
+                          min={0}
+                        />
+                        <NumberInput
+                          name="votingPeriod.minutes"
+                          placeholder="Minutes"
+                          label="Minutes"
+                          value={values.votingPeriod.minutes}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            const value = Math.max(0, parseInt(e.target.value) || 0);
+                            setVotingPeriod(prev => ({ ...prev, minutes: value }));
+                            setFieldValue('votingPeriod.minutes', value);
+                          }}
+                          min={0}
+                        />
+                        <NumberInput
+                          name="votingPeriod.seconds"
+                          placeholder="Seconds"
+                          label="Seconds"
+                          value={values.votingPeriod.seconds}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            const value = Math.max(0, parseInt(e.target.value) || 0);
+                            setVotingPeriod(prev => ({ ...prev, seconds: value }));
+                            setFieldValue('votingPeriod.seconds', value);
+                          }}
+                          min={0}
+                        />
+                      </div>
+                      {/* Display validation error below the voting period inputs */}
+                      {errors.votingPeriod && typeof errors.votingPeriod === 'string' && (
+                        <div className="text-red-500 text-sm mt-1">{errors.votingPeriod}</div>
                       )}
-                    </button>
+                    </div>
                   </div>
-                  <div className="flex flex-col gap-4 mb-2">
-                    <input
-                      type="text"
-                      disabled={member.isCoreMember && !member.isActive}
-                      value={member.member.metadata}
-                      onChange={(e) =>
-                        handleChange(index, "metadata", e.target.value)
-                      }
-                      className="input input-sm input-bordered w-full disabled:border-base-100"
-                      placeholder={
-                        member.isCoreMember ? member.member.metadata : "Name"
-                      }
-                    />
-
-                    <input
-                      type="text"
-                      disabled={member.isCoreMember}
-                      value={member.member.address}
-                      onChange={(e) =>
-                        handleChange(index, "address", e.target.value)
-                      }
-                      className="input input-sm input-bordered w-full disabled:border-base-100"
-                      placeholder={
-                        member.isCoreMember ? member.member.address : "Address"
-                      }
-                    />
-                    <input
-                      type="number"
-                      disabled={member.isCoreMember && !member.isActive}
-                      value={
-                        member.isCoreMember && !member.isActive
-                          ? "0"
-                          : member.member.weight
-                      }
-                      onChange={(e) =>
-                        handleChange(index, "weight", e.target.value)
-                      }
-                      className="input input-sm input-bordered w-full disabled:border-base-100"
-                      placeholder={
-                        member.isCoreMember ? member.member.weight : "Weight"
-                      }
-                    />
-                  </div>
-                </div>
-              ))}
+                  {/* Action buttons moved outside of the modal, as per your requirement */}
+                </Form>
+              </div>
+              {/* Action buttons */}
+              <div className="mt-4 flex justify-center w-full">
+                <button
+                  type="button"
+                  className="btn btn-ghost dark:text-white text-black"
+                  onClick={() =>
+                    (document.getElementById('update-group-modal') as HTMLDialogElement).close()
+                  }
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-gradient ml-4 text-white"
+                  onClick={() => handleConfirm(values)}
+                  disabled={isSigning || !isValid || !hasAnyChanges(values)}
+                >
+                  {isSigning ? 'Signing...' : 'Update'}
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
-        <div className="modal-action w-full flex flex-row  items-center justify-between">
-          <button
-            onClick={() => {
-              const modal = document.getElementById(
-                `update_group_${group?.id}`,
-              ) as HTMLDialogElement;
-              modal?.close();
-            }}
-            className="btn btn-neutral w-[49.5%]"
-          >
-            Cancel
-          </button>
-
-          <button
-            className="btn btn-primary w-[49%] "
-            onClick={handleConfirm}
-            disabled={isSigning || buildMessages().length === 0}
-          >
-            {isSigning ? (
-              <span className="loading loading-spinner"></span>
-            ) : (
-              "Update"
-            )}
-          </button>
-        </div>
-      </div>
-
-      <form method="dialog" className="modal-backdrop">
-        <button>close</button>
-      </form>
+            <form method="dialog" className="modal-backdrop">
+              <button>close</button>
+            </form>
+          </>
+        )}
+      </Formik>
     </dialog>
   );
 }

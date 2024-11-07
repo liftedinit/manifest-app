@@ -1,12 +1,9 @@
-import {
-  DeliverTxResponse,
-  isDeliverTxSuccess,
-  StdFee,
-} from "@cosmjs/stargate";
-import { useChain } from "@cosmos-kit/react";
-import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
-import { useToast } from "@/contexts/toastContext";
-import { useState } from "react";
+import { DeliverTxResponse, isDeliverTxSuccess, StdFee } from '@cosmjs/stargate';
+import { useChain } from '@cosmos-kit/react';
+import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
+import { useToast } from '@/contexts/toastContext';
+import { useState } from 'react';
+import { SigningStargateClient } from '@cosmjs/stargate';
 
 interface Msg {
   typeUrl: string;
@@ -17,83 +14,112 @@ export interface TxOptions {
   fee?: StdFee | null;
   memo?: string;
   onSuccess?: () => void;
+  returnError?: boolean;
+  simulate?: boolean;
 }
 
+const extractSimulationErrorMessage = (errorMessage: string): string => {
+  // This regex looks for the specific error message
+  const match = errorMessage.match(/message index: \d+: (.+?)(?=\s*\[|$)/);
+  if (match && match[1]) {
+    return match[1].trim();
+  }
+  // If no match is found, return a generic error message
+  return 'An error occurred during simulation';
+};
+
 export const useTx = (chainName: string) => {
-  const { address, getSigningStargateClient, estimateFee } =
-    useChain(chainName);
+  const { address, getSigningStargateClient, estimateFee } = useChain(chainName);
   const { setToastMessage } = useToast();
   const [isSigning, setIsSigning] = useState(false);
 
   const tx = async (msgs: Msg[], options: TxOptions) => {
     if (!address) {
       setToastMessage({
-        type: "alert-error",
-        title: "Wallet not connected",
-        description: "Please connect your wallet.",
-        bgColor: "#e74c3c",
+        type: 'alert-error',
+        title: 'Wallet not connected',
+        description: 'Please connect your wallet.',
+        bgColor: '#e74c3c',
       });
-      return;
+      return options.returnError ? { error: 'Wallet not connected' } : undefined;
     }
     setIsSigning(true);
-    let client;
+    let client: SigningStargateClient;
     try {
       client = await getSigningStargateClient();
+
+      if (options.simulate) {
+        try {
+          const simulateResult = await client.simulate(address, msgs, options.memo || '');
+          return {
+            success: true,
+            result: simulateResult,
+          };
+        } catch (simError: any) {
+          const cleanErrorMessage = extractSimulationErrorMessage(simError.message);
+          console.error('Simulation error:', simError.message); // Log full error
+          setToastMessage({
+            type: 'alert-error',
+            title: 'Simulation Failed',
+            description: cleanErrorMessage,
+            bgColor: '#e74c3c',
+          });
+          return {
+            success: false,
+            error: cleanErrorMessage, // Return clean error for UI
+          };
+        }
+      }
+
       const signed = await client.sign(
         address,
         msgs,
         options.fee || (await estimateFee(msgs)),
-        options.memo || "",
+        options.memo || ''
       );
+
       setToastMessage({
-        type: "alert-info",
-        title: "Broadcasting",
-        description: "Transaction is signed and is being broadcasted...",
-        bgColor: "#3498db",
+        type: 'alert-info',
+        title: 'Broadcasting',
+        description: 'Transaction is signed and is being broadcasted...',
+        bgColor: '#3498db',
       });
       setIsSigning(true);
-      await client
-        .broadcastTx(Uint8Array.from(TxRaw.encode(signed).finish()))
-        .then((res: DeliverTxResponse) => {
-          if (isDeliverTxSuccess(res)) {
-            if (options.onSuccess) options.onSuccess();
-            setIsSigning(false);
-            setToastMessage({
-              type: "alert-success",
-              title: "Transaction Successful",
-              description: `Transaction completed successfully`,
-              link: `https://manifest-explorer.vercel.app/manifest/tx/${res?.transactionHash}`,
-              bgColor: "#2ecc71",
-            });
-          } else {
-            setIsSigning(false);
-            setToastMessage({
-              type: "alert-error",
-              title: "Transaction Failed",
-              description: res?.rawLog || "Unknown error",
-              bgColor: "#e74c3c",
-            });
-          }
-        })
-        .catch((err: Error) => {
-          console.error("Failed to broadcast: ", err);
-          setIsSigning(false);
-          setToastMessage({
-            type: "alert-error",
-            title: "Transaction Failed",
-            description: err.message,
-            bgColor: "#e74c3c",
-          });
+      const res: DeliverTxResponse = await client.broadcastTx(
+        Uint8Array.from(TxRaw.encode(signed).finish())
+      );
+      if (isDeliverTxSuccess(res)) {
+        if (options.onSuccess) options.onSuccess();
+        setIsSigning(false);
+        setToastMessage({
+          type: 'alert-success',
+          title: 'Transaction Successful',
+          description: `Transaction completed successfully`,
+          link: `https://testnet.manifest.explorers.guru/transaction/${res?.transactionHash}`,
+          bgColor: '#2ecc71',
         });
+        return options.returnError ? { error: null } : undefined;
+      } else {
+        setIsSigning(false);
+        setToastMessage({
+          type: 'alert-error',
+          title: 'Transaction Failed',
+          description: res?.rawLog || 'Unknown error',
+          bgColor: '#e74c3c',
+        });
+        return options.returnError ? { error: res?.rawLog || 'Unknown error' } : undefined;
+      }
     } catch (e: any) {
-      console.error("Failed to broadcast: ", e);
+      console.error('Failed to broadcast or simulate: ', e);
       setIsSigning(false);
+      const errorMessage = options.simulate ? extractSimulationErrorMessage(e.message) : e.message;
       setToastMessage({
-        type: "alert-error",
-        title: "Transaction Failed",
-        description: e.message,
-        bgColor: "#e74c3c",
+        type: 'alert-error',
+        title: options.simulate ? 'Simulation Failed' : 'Transaction Failed',
+        description: errorMessage,
+        bgColor: '#e74c3c',
       });
+      return options.returnError ? { error: errorMessage } : undefined;
     } finally {
       setIsSigning(false);
     }

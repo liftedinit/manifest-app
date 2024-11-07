@@ -1,28 +1,28 @@
-import ProfileAvatar from "@/utils/identicon";
-import Image from "next/image";
-import { useState, useEffect } from "react";
+import ProfileAvatar from '@/utils/identicon';
+import Image from 'next/image';
+import { useState, useEffect } from 'react';
 
 const supportedDomains = [
-  "imgur.com",
-  "i.imgur.com",
-  "cloudfront.net",
-  "cdn.jsdelivr.net",
-  "raw.githubusercontent.com",
-  "s3.amazonaws.com",
-  "storage.googleapis.com",
-  "res.cloudinary.com",
-  "images.unsplash.com",
-  "media.giphy.com",
-  "media.istockphoto.com",
-  "imgix.net",
-  "staticflickr.com",
-  "twimg.com",
-  "pinimg.com",
-  "giphy.com",
-  "dropboxusercontent.com",
-  "googleusercontent.com",
-  "unsplash.com",
-  "istockphoto.com",
+  'imgur.com',
+  'i.imgur.com',
+  'cloudfront.net',
+  'cdn.jsdelivr.net',
+  'raw.githubusercontent.com',
+  's3.amazonaws.com',
+  'storage.googleapis.com',
+  'res.cloudinary.com',
+  'images.unsplash.com',
+  'media.giphy.com',
+  'media.istockphoto.com',
+  'imgix.net',
+  'staticflickr.com',
+  'twimg.com',
+  'pinimg.com',
+  'giphy.com',
+  'dropboxusercontent.com',
+  'googleusercontent.com',
+  'unsplash.com',
+  'istockphoto.com',
 ];
 
 const supportedPatterns = [
@@ -53,8 +53,7 @@ const isUrlSupported = (url: string) => {
   try {
     const { hostname } = new URL(url);
     return (
-      supportedDomains.includes(hostname) ||
-      supportedPatterns.some((pattern) => pattern.test(url))
+      supportedDomains.includes(hostname) || supportedPatterns.some(pattern => pattern.test(url))
     );
   } catch {
     return false;
@@ -69,9 +68,9 @@ export const DenomImage = ({ denom }: { denom: any }) => {
   useEffect(() => {
     const checkUri = async () => {
       if (denom?.uri) {
-        setIsSupported(isUrlSupported(denom.uri));
+        setIsSupported(isUrlSupported(denom?.uri));
         // Simulate a delay to show the loading state
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
       setIsLoading(false);
     };
@@ -89,7 +88,7 @@ export const DenomImage = ({ denom }: { denom: any }) => {
   }
 
   // Check for MFX token first
-  if (denom.base.includes("umfx")) {
+  if (denom?.base?.includes('umfx')) {
     return (
       <Image
         width={0}
@@ -102,8 +101,8 @@ export const DenomImage = ({ denom }: { denom: any }) => {
   }
 
   // Then check for other conditions
-  if (!denom.uri || !isSupported || imageError) {
-    return <ProfileAvatar walletAddress={denom.base} />;
+  if (!denom?.uri || !isSupported || imageError) {
+    return <ProfileAvatar walletAddress={denom?.base} />;
   }
 
   // For all other cases, use the denom.uri
@@ -111,7 +110,7 @@ export const DenomImage = ({ denom }: { denom: any }) => {
     <Image
       width={32}
       height={32}
-      src={denom.uri}
+      src={denom?.uri}
       alt="Token Icon"
       onError={() => setImageError(true)}
       className="rounded-full w-[32px] h-[32px]"

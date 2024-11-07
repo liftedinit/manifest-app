@@ -1,123 +1,129 @@
-/* eslint-disable @next/next/no-img-element */
-import { Dialog } from "@headlessui/react";
-import {
-  XMarkIcon,
-  ArrowRightOnRectangleIcon,
-  ClipboardDocumentIcon,
-} from "@heroicons/react/24/outline";
-import { ChevronLeftIcon, CheckIcon } from "@heroicons/react/20/solid";
-import copyToClipboard from "copy-to-clipboard";
-import { useState } from "react";
-import ProfileAvatar from "@/utils/identicon";
-import { useBalance } from "@/hooks/useQueries";
-import { shiftDigits } from "@/utils";
-
-export function truncate(address: string) {
-  return `${address.substring(0, 12)}...${address.substring(
-    address.length - 8,
-    address.length,
-  )}`;
-}
-
-export const Address = ({ children: address }: { children: string }) => {
-  const [copied, setCopied] = useState<boolean>(false);
-  return (
-    <button
-      className="inline-flex items-center justify-center px-6 py-1 mx-4 mb-4 space-x-2 text-sm  shadow-inner active:shadow-clicked border rounded-full border-black/10 dark:border-white/10 hover:bg-zinc-200 dark:hover:bg-white/10 hover:border-zinc-200 dark:hover:border-white/10"
-      onClick={() => {
-        copyToClipboard(address);
-        setCopied(true);
-        setTimeout(() => {
-          setCopied(false);
-        }, 1500);
-      }}
-    >
-      <div className="flex flex-row w-full justify-between items-center active:scale-95">
-        <p>{truncate(address || "")}</p>
-        {copied ? (
-          <CheckIcon className="w-3 h-3  " />
-        ) : (
-          <ClipboardDocumentIcon className="w-3 h-3  " />
-        )}
-      </div>
-    </button>
-  );
-};
+import { Dialog } from '@headlessui/react';
+import { XMarkIcon, ArrowRightOnRectangleIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { ChevronLeftIcon } from '@heroicons/react/20/solid';
+import { useState } from 'react';
+import ProfileAvatar from '@/utils/identicon';
+import { useBalance } from '@/hooks/useQueries';
+import { CopyIcon } from '@/components/icons';
+import { shiftDigits, truncateString } from '@/utils';
+import Image from 'next/image';
+import { MdContacts } from 'react-icons/md';
+import { Contacts } from './Contacts';
 
 export const Connected = ({
   onClose,
+  logo,
   onReturn,
   disconnect,
   name,
-  logo,
   username,
   address,
 }: {
   onClose: () => void;
+  logo: string;
   onReturn: () => void;
   disconnect: () => void;
   name: string;
-  logo: string;
   username?: string;
   address?: string;
 }) => {
-  const { balance } = useBalance(address ?? "");
+  const { balance } = useBalance(address ?? '');
+  const [copied, setCopied] = useState(false);
+  const [showContacts, setShowContacts] = useState(false);
+
+  const copyAddress = () => {
+    if (address) {
+      navigator.clipboard.writeText(address);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  if (showContacts) {
+    return <Contacts onClose={onClose} onReturn={() => setShowContacts(false)} />;
+  }
 
   return (
-    <div className="mt-3 text-center sm:mt-1.5 sm:text-left  ">
-      <div className="flex flex-row items-center justify-between pl-3">
+    <div className="p-2 w-full mx-auto pt-4">
+      <div className="flex justify-between items-center -mt-4 mb-6">
         <button
           type="button"
-          className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 "
+          className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
           onClick={onReturn}
         >
-          <span className="sr-only">Return</span>
           <ChevronLeftIcon className="w-5 h-5" aria-hidden="true" />
         </button>
-        <Dialog.Title as="h3" className="font-medium leading-6 text-center  ">
-          {name}
-        </Dialog.Title>
+        <div className="flex flex-row gap-2 items-center">
+          <Image height={0} width={0} src={logo} alt={name} className="w-8 h-8 rounded-full mr-2" />
+          <Dialog.Title as="h3" className="text-md font-semibold">
+            {name}
+          </Dialog.Title>
+        </div>
         <button
           type="button"
-          className="p-2 text-primary  bg-neutral rounded-full hover:bg-gray-200 "
+          className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
           onClick={onClose}
         >
-          <span className="sr-only">Close</span>
           <XMarkIcon className="w-5 h-5" aria-hidden="true" />
         </button>
       </div>
-      <div className="flex flex-col justify-center w-full h-full px-2 pt-4 pb-8 mt-4">
-        <div className=" mx-auto">
-          <ProfileAvatar walletAddress={address ?? ""} size={48} />
-        </div>
-        <div className="flex flex-row items-center mx-auto space-x-2">
-          <p className="mt-3 text-2xl mb-2 ">{username || ""}</p>
-        </div>
-        <div className="-mb-2 mx-auto justify-center items-center">
-          <Address>{address || ""}</Address>
-        </div>
-        <div className="flex flex-col items-center">
-          <div className="flex flex-row items-center space-x-2">
-            {balance?.amount && (
-              <p className="text-lg font-medium text-gray-400">
-                {shiftDigits(balance?.amount ?? "", -6)}
+      <div className="flex items-center flex-row justify-between mb-6">
+        <div className="flex items-center ">
+          <ProfileAvatar walletAddress={address ?? ''} size={60} />
+          <div className="ml-4">
+            <p className="text-lg font-semibold">{username || 'Anonymous'}</p>
+            <div className="flex items-center">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {truncateString(address || '', 12)}
               </p>
-            )}
-            {!balance?.amount && <div className="loading"></div>}
-            <p className="text-sm font-medium text-gray-400">MFX</p>
+              <button
+                onClick={copyAddress}
+                className="ml-2 p-1 rounded-full hover:bg-[#FFFFFFCC] dark:hover:bg-[#FFFFFF0F]  transition-colors duration-200"
+              >
+                {copied ? (
+                  <CheckIcon className="w-4 h-4 text-green-500" />
+                ) : (
+                  <CopyIcon className="w-4 h-4 text-gray-500" />
+                )}
+              </button>
+            </div>
           </div>
         </div>
         <button
-          className="rounded-lg w-[180px] mx-auto inline-flex mt-4 justify-center items-center py-2.5 font-medium text-black bg-primary "
-          onClick={() => {
-            disconnect();
-            onClose();
-          }}
+          onClick={() => setShowContacts(true)}
+          className="ml-2 p-1 rounded-full hover:bg-[#FFFFFFCC] dark:hover:bg-[#FFFFFF0F] btn btn-ghost btn-md transition-colors duration-200"
         >
-          <ArrowRightOnRectangleIcon className="flex-shrink-0 w-5 h-5 mr-2  " />
-          Disconnect
+          <MdContacts className="w-8 h-8 text-primary" />
         </button>
       </div>
+      <div className="bg-base-300 dark:bg-base-300 rounded-lg py-3 px-2 mb-4">
+        <p className="text-sm leading-4 tracking-wider text-gray-500 dark:text-gray-400 mb-1 ml-2">
+          Balance
+        </p>
+        <div className="flex items-center">
+          {balance?.amount ? (
+            <p className="text-md dark:text-[#FFFFFF99] text-black font-bold ml-2">
+              {Number(shiftDigits(balance?.amount ?? '', -6)).toLocaleString(undefined, {
+                maximumFractionDigits: 6,
+              })}
+            </p>
+          ) : (
+            <div className="skeleton w-32 h-4"></div>
+          )}
+          <p className="text-md ml-2 dark:text-[#FFFFFF99] text-black">MFX</p>
+        </div>
+      </div>
+
+      <button
+        className="w-full btn btn-disconnect-gradient rounded-lg transition duration-200 flex items-center text-white justify-center"
+        onClick={() => {
+          disconnect();
+          onClose();
+        }}
+      >
+        <ArrowRightOnRectangleIcon className="w-5 h-5 mr-2" />
+        Disconnect
+      </button>
     </div>
   );
 };

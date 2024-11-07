@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from "react";
-import { ValidatorDetailsModal } from "../modals/validatorModal";
-import { WarningModal } from "../modals/warningModal";
-import { ValidatorSDKType } from "@chalabi/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking";
-
-import ProfileAvatar from "@/utils/identicon";
+import React, { useState, useEffect, useMemo } from 'react';
+import { ValidatorDetailsModal } from '../modals/validatorModal';
+import { WarningModal } from '../modals/warningModal';
+import { ValidatorSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
+import ProfileAvatar from '@/utils/identicon';
+import Image from 'next/image';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import { SearchIcon, TrashIcon } from '@/components/icons';
 export interface ExtendedValidatorSDKType extends ValidatorSDKType {
   consensus_power?: bigint;
   logo_url?: string;
 }
+
 interface ValidatorListProps {
   admin: string;
   activeValidators: ExtendedValidatorSDKType[];
@@ -19,16 +22,26 @@ export default function ValidatorList({
   admin,
   activeValidators,
   pendingValidators,
-  isLoading,
 }: ValidatorListProps) {
   const [active, setActive] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedValidator, setSelectedValidator] =
-    useState<ExtendedValidatorSDKType | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedValidator, setSelectedValidator] = useState<ExtendedValidatorSDKType | null>(null);
   const [modalId, setModalId] = useState<string | null>(null);
-  const [warningVisible, setWarningVisible] = useState(false);
-  const [validatorToRemove, setValidatorToRemove] =
-    useState<ExtendedValidatorSDKType | null>(null);
+
+  const [validatorToRemove, setValidatorToRemove] = useState<ExtendedValidatorSDKType | null>(null);
+  const totalvp = Array.isArray(activeValidators)
+    ? activeValidators.reduce(
+        (acc, validator) => acc + BigInt(validator?.consensus_power ?? 0),
+        BigInt(0)
+      )
+    : BigInt(0);
+
+  const validatorVPArray = Array.isArray(activeValidators)
+    ? activeValidators.map(validator => ({
+        moniker: validator.description.moniker,
+        vp: BigInt(validator?.consensus_power ?? 0),
+      }))
+    : [];
 
   useEffect(() => {
     if (modalId) {
@@ -37,164 +50,160 @@ export default function ValidatorList({
     }
   }, [modalId]);
 
+  const filteredValidators = useMemo(() => {
+    const validators = active ? activeValidators : pendingValidators;
+    return validators.filter(validator =>
+      validator.description.moniker.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [active, activeValidators, pendingValidators, searchTerm]);
+
   const handleRemove = (validator: ExtendedValidatorSDKType) => {
     setValidatorToRemove(validator);
-    setWarningVisible(true);
+
     const modal = document.getElementById(`warning-modal`) as HTMLDialogElement;
     modal?.showModal();
   };
 
-  const filteredValidators = active
-    ? (Array.isArray(activeValidators) ? activeValidators : []).filter(
-        (validator) =>
-          validator.description.moniker
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()),
-      )
-    : (Array.isArray(pendingValidators) ? pendingValidators : []).filter(
-        (validator) =>
-          validator.description.moniker
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()),
-      );
-
   const [modalKey, setModalKey] = useState(0);
-
-  useEffect(() => {
-    if (modalId) {
-      const modal = document.getElementById(modalId) as HTMLDialogElement;
-      modal?.showModal();
-    }
-  }, [modalId, modalKey]);
 
   const handleRowClick = (validator: ExtendedValidatorSDKType) => {
     setSelectedValidator(validator);
-    setModalKey((prevKey) => prevKey + 1);
+    setModalKey(prevKey => prevKey + 1);
     setModalId(`validator-modal-${validator.operator_address}-${Date.now()}`);
   };
 
   return (
-    <div className="w-full mx-auto p-4 bg-base-100 rounded-md h-96">
-      <div className="px-4 py-2 border-base-content flex items-center justify-between">
-        <div className="relative">
-          <h3
-            className={`text-lg font-bold leading-6 hidden lg:block transition-all ${
-              active ? "animate-fadeOut" : "animate-fadeIn"
-            }`}
+    <div className="w-full max-w-screen mx-auto">
+      <div className="">
+        <div className="flex justify-between items-center mb-6">
+          <h2
+            className="text-black dark:text-white"
+            style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
           >
-            {active ? "Active Validators" : "Pending Validators"}
-          </h3>
-          <h3
-            className={`text-lg font-bold leading-6 block lg:hidden transition-all ${
-              active ? "animate-fadeOut" : "animate-fadeIn"
-            }`}
-          >
-            {active ? "Active" : "Pending"}
-          </h3>
+            Validators
+          </h2>
+          <div className="relative w-[224px]">
+            <input
+              type="text"
+              placeholder="Search for a validator..."
+              className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-[#0000000A] dark:bg-[#FFFFFF1F] pl-10 text-[#161616] dark:text-white placeholder-[#00000099] dark:placeholder-[#FFFFFF99]"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+            />
+            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00000099] dark:text-[#FFFFFF99]" />
+          </div>
         </div>
-        <div className="flex flex-row items-center justify-between gap-2">
-          <input
-            type="text"
-            placeholder="Search for a validator..."
-            className="input input-bordered input-xs ml-4"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+        <div className="flex mb-6 w-full h-[3.5rem] rounded-xl p-1 bg-[#0000000A] dark:bg-[#FFFFFF0F]">
           <button
-            onClick={() => setActive(!active)}
-            className={`btn ${
-              active ? "btn-secondary" : "btn-primary"
-            } btn-xs min-w-[4rem]`}
+            onClick={() => setActive(true)}
+            className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl  ${
+              active
+                ? 'dark:bg-[#FFFFFF1F] bg-[#FFFFFF] text-[#161616] dark:text-white'
+                : 'text-[#808080]'
+            }`}
           >
-            {active ? "Pending" : "Active"}
+            Active
+          </button>
+          <button
+            onClick={() => setActive(false)}
+            className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl  ${
+              !active
+                ? 'dark:bg-[#FFFFFF1F] bg-[#FFFFFF] text-[#161616] dark:text-white'
+                : 'text-[#808080]'
+            }`}
+          >
+            Pending
           </button>
         </div>
-      </div>
-      <div className="divider divider-horizon -mt-2 mb-1"></div>
-      {isLoading && <div className="skeleton h-[18.9rem] w-full"></div>}
-
-      {filteredValidators.length > 0 && !isLoading && (
-        <div className="overflow-x-auto shadow-md rounded-lg bg-base-300 max-h-[18.9rem] min-h-[18.9rem] relative transition-opacity duration-300 ease-in-out animate-fadeIn">
-          <table className="table w-full table-fixed rounded-md">
-            <thead className="sticky top-0 z-1 bg-base-300">
-              <tr>
-                <th className="px-6 py-3 w-1/4">Logo</th>
-                <th className="px-6 py-3 w-1/4">Moniker</th>
-                <th className="px-6 py-3 w-1/4">Power</th>
-                <th className="px-4 lg:px-6 py-3 w-1/4">Action</th>
-              </tr>
-            </thead>
-            <tbody className="overflow-y-auto">
-              {filteredValidators.map((validator) => (
-                <React.Fragment key={validator.operator_address}>
+        <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-300px)]">
+          {filteredValidators.length === 0 ? (
+            <div className="text-center py-8 text-[#808080]">
+              {active ? 'No active validators found' : 'No pending validators'}
+            </div>
+          ) : (
+            <table
+              className="table w-full border-separate border-spacing-y-3"
+              role="grid"
+              aria-label="Validators list"
+            >
+              <thead>
+                <tr className="text-sm font-medium text-[#808080]" role="row">
+                  <th className="bg-transparent text-left sticky top-0 bg-base-100 z-10">
+                    Moniker
+                  </th>
+                  <th className="bg-transparent text-left sticky top-0 bg-base-100 z-10">
+                    Address
+                  </th>
+                  <th className="bg-transparent text-left sticky top-0 bg-base-100 z-10">
+                    Consensus Power
+                  </th>
+                  <th className="bg-transparent text-right sticky top-0 bg-base-100 z-10">
+                    Remove
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredValidators.map(validator => (
                   <tr
-                    className="hover:bg-base-200/10 cursor-pointer"
+                    key={validator.operator_address}
+                    className="bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg cursor-pointer"
                     onClick={() => handleRowClick(validator)}
+                    role="row"
+                    aria-label={`Validator ${validator.description.moniker}`}
                   >
-                    <td className="px-6 py-3">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10">
-                          {validator.logo_url ? (
-                            <img
-                              className="h-10 w-10 rounded-full"
-                              src={validator.logo_url}
-                              alt=""
-                            />
-                          ) : (
-                            <ProfileAvatar
-                              walletAddress={validator.operator_address}
-                              size={38}
-                            />
-                          )}
-                        </div>
+                    <td className="rounded-l-[12px] py-4">
+                      <div className="flex items-center space-x-3">
+                        {validator.logo_url ? (
+                          <Image
+                            height={32}
+                            width={32}
+                            src={validator.logo_url}
+                            alt=""
+                            className="w-8 h-8 rounded-full"
+                          />
+                        ) : (
+                          <ProfileAvatar walletAddress={validator.operator_address} size={32} />
+                        )}
+                        <span className="font-medium">{validator.description.moniker}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-3 text-sm font-medium">
-                      <span className="block truncate max-w-[20ch]">
-                        {validator.description.moniker}
-                      </span>
+
+                    <td className="py-4">
+                      <TruncatedAddressWithCopy slice={10} address={validator.operator_address} />
                     </td>
-                    <td className="px-6 py-3 text-sm">
-                      {validator.consensus_power?.toString() ?? "Inactive"}
-                    </td>
-                    <td className="px-4 lg:px-6 py-4 flex flex-row gap-4 lg:justify-start justify-start items-center">
+                    <td className="py-4">{validator.consensus_power?.toString() ?? 'N/A'}</td>
+                    <td className="rounded-r-[12px] py-4 text-right">
                       <button
-                        onClick={(e) => {
+                        onClick={e => {
                           e.stopPropagation();
                           handleRemove(validator);
                         }}
-                        className="btn btn-xs btn-secondary"
+                        className="btn btn-error btn-sm text-white "
                       >
-                        Remove
+                        <TrashIcon className="w-5 h-5" />
                       </button>
-                      {!active && (
-                        <button className="btn btn-xs btn-primary">Add</button>
-                      )}
                     </td>
                   </tr>
-                </React.Fragment>
-              ))}
-            </tbody>
-          </table>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
-      )}
-      {filteredValidators.length === 0 && !isLoading && (
-        <div className="mx-auto items-center justify-center h-full underline text-center transition-opacity duration-300 ease-in-out animate-fadeIn">
-          <p className="my-32">No validators found</p>
-        </div>
-      )}
+      </div>
 
       <ValidatorDetailsModal
         key={modalKey}
         validator={selectedValidator}
-        modalId={modalId || ""}
+        modalId={modalId || ''}
         admin={admin}
+        totalvp={totalvp.toString()}
+        validatorVPArray={validatorVPArray}
       />
       <WarningModal
         admin={admin}
         isActive={active}
-        address={validatorToRemove?.operator_address || ""}
-        moniker={validatorToRemove?.description.moniker || ""}
+        address={validatorToRemove?.operator_address || ''}
+        moniker={validatorToRemove?.description.moniker || ''}
         modalId="warning-modal"
       />
     </div>

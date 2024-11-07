@@ -1,7 +1,9 @@
-import { chainName } from "@/config";
-import { TokenAction, TokenFormData } from "@/helpers/formReducer";
-import { DenomUnit } from "@chalabi/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank";
-import { useState } from "react";
+import React from 'react';
+import { Formik, Form } from 'formik';
+import Yup from '@/utils/yupExtensions';
+import { TokenAction, TokenFormData } from '@/helpers/formReducer';
+import { DenomUnit } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { TextInput, TextArea } from '@/components/react/inputs';
 
 export default function TokenDetails({
   nextStep,
@@ -16,253 +18,130 @@ export default function TokenDetails({
   dispatch: React.Dispatch<TokenAction>;
   address: string;
 }>) {
-  const updateField = (field: keyof TokenFormData, value: any) => {
-    dispatch({ type: "UPDATE_FIELD", field, value });
-  };
+  const TokenDetailsSchema = Yup.object().shape({
+    display: Yup.string()
+      .required('Display is required')
+      .noProfanity()
+      .test('display-contains-subdenom', 'Display must contain subdenom', function (value) {
+        const subdenom = this.parent.subdenom;
+        return !subdenom || value.toLowerCase().includes(subdenom.slice(1).toLowerCase());
+      }),
+    description: Yup.string()
+      .required('Description is required')
+      .min(10, 'Description must be at least 10 characters long')
+      .noProfanity(),
+    name: Yup.string().required('Name is required').noProfanity(),
+    uri: Yup.string()
+      .url('Must be a valid URL')
+      .matches(/^https:\/\//i, 'URL must use HTTPS protocol')
+      .matches(/\.(jpg|jpeg|png|gif)$/i, 'URL must point to an image file'),
+  });
 
-  const updateDenomUnit = (
-    index: number,
-    field: keyof DenomUnit,
-    value: any,
-  ) => {
-    const updatedDenomUnits = [...formData.denomUnits];
-    updatedDenomUnits[index] = { ...updatedDenomUnits[index], [field]: value };
-    updateField("denomUnits", updatedDenomUnits);
-  };
-
-  const isFormValid = () => {
-    return (
-      formData.subdenom &&
-      formData.display &&
-      formData.name &&
-      formData.description &&
-      formData.symbol &&
-      formData.denomUnits.length === 2 &&
-      formData.denomUnits[1].denom &&
-      [6, 9, 12, 18].includes(formData.denomUnits[1].exponent)
-    );
+  const updateField = (field: keyof TokenFormData, value: TokenFormData[keyof TokenFormData]) => {
+    dispatch({ type: 'UPDATE_FIELD', field, value });
   };
 
   const fullDenom = `factory/${address}/${formData.subdenom}`;
 
-  // Ensure there are always two denom units
-  if (formData.denomUnits.length === 0) {
-    updateField("denomUnits", [
+  // Automatically set denom units
+  React.useEffect(() => {
+    const denomUnits = [
       { denom: fullDenom, exponent: 0, aliases: [] },
-      { denom: "", exponent: 6, aliases: [] },
-    ]);
-  } else if (formData.denomUnits.length === 1) {
-    updateField("denomUnits", [
-      ...formData.denomUnits,
-      { denom: "", exponent: 6, aliases: [] },
-    ]);
-  }
+      { denom: formData.subdenom.slice(1), exponent: 6, aliases: [] },
+    ];
+    updateField('denomUnits', denomUnits);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.subdenom, address]);
 
   return (
-    <section className="max-w-4xl mx-auto px-4 py-4">
-      <h1 className="text-2xl font-bold mb-4">Token Metadata</h1>
-      <form className="space-y-4">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label htmlFor="subdenom" className="block text-sm font-medium">
-              Subdenom{" "}
-              <span className="text-xs text-gray-500">(Unique identifier)</span>
-            </label>
-            <input
-              aria-label={"subdenom-input"}
-              type="text"
-              id="subdenom"
-              className="input input-bordered w-full mt-1"
-              value={formData.subdenom}
-              onChange={(e) => updateField("subdenom", e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="display" className="block text-sm font-medium">
-              Display{" "}
-              <span className="text-xs text-gray-500">
-                (How it&apos;s shown)
-              </span>
-            </label>
-            <input
-              aria-label={"display-input"}
-              type="text"
-              id="display"
-              className="input input-bordered w-full mt-1"
-              value={formData.display}
-              onChange={(e) => updateField("display", e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium">
-              Name <span className="text-xs text-gray-500">(Full name)</span>
-            </label>
-            <input
-              aria-label={"name-input"}
-              type="text"
-              id="name"
-              className="input input-bordered w-full mt-1"
-              value={formData.name}
-              onChange={(e) => updateField("name", e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="symbol" className="block text-sm font-medium">
-              Symbol{" "}
-              <span className="text-xs text-gray-500">(Short symbol)</span>
-            </label>
-            <input
-              aria-label={"symbol-input"}
-              type="text"
-              id="symbol"
-              className="input input-bordered w-full mt-1"
-              value={formData.symbol}
-              onChange={(e) => updateField("symbol", e.target.value)}
-              required
-            />
-          </div>
-        </div>
-
-        <div>
-          <label htmlFor="description" className="block text-sm font-medium">
-            Description{" "}
-            <span className="text-xs text-gray-500">(Brief description)</span>
-          </label>
-          <textarea
-            aria-label={"description-input"}
-            id="description"
-            className="textarea textarea-bordered w-full mt-1"
-            rows={2}
-            value={formData.description}
-            onChange={(e) => updateField("description", e.target.value)}
-            required
-          ></textarea>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label htmlFor="uri" className="block text-sm font-medium">
-              URI{" "}
-              <span className="text-xs text-gray-500">(Info/image link)</span>
-            </label>
-            <input
-              aria-label={"uri-input"}
-              type="text"
-              id="uri"
-              className="input input-bordered w-full mt-1"
-              value={formData.uri}
-              onChange={(e) => updateField("uri", e.target.value)}
-            />
-          </div>
-          <div>
-            <label htmlFor="uriHash" className="block text-sm font-medium">
-              URI Hash{" "}
-              <span className="text-xs text-gray-500">(If applicable)</span>
-            </label>
-            <input
-              aria-label={"uri-hash-input"}
-              type="text"
-              id="uriHash"
-              className="input input-bordered w-full mt-1"
-              value={formData.uriHash}
-              onChange={(e) => updateField("uriHash", e.target.value)}
-            />
-          </div>
-        </div>
-
-        <div>
-          <h2 className="text-lg font-semibold mb-2">Denom Units</h2>
-          <div className="space-y-2">
-            <div>
-              <label className="block text-sm font-medium">
-                Base Denom{" "}
-                <span className="text-xs text-gray-500">
-                  (Cannot be changed)
-                </span>
-              </label>
-              <input
-                type="text"
-                className="input input-bordered w-full mt-1"
-                value={
-                  fullDenom.slice(0, 20) + "..." + fullDenom.slice(40, 100)
-                }
-                disabled
-              />
-            </div>
-            <div className="flex space-x-2">
-              <div className="flex-grow">
-                <label className="block text-sm font-medium">
-                  Additional Denom{" "}
-                  <span className="text-xs text-gray-500">(Display denom)</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="Denom"
-                  className="input input-bordered w-full mt-1"
-                  value={formData.denomUnits[1]?.denom || ""}
-                  onChange={(e) => updateDenomUnit(1, "denom", e.target.value)}
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Exponent{" "}
-                  <span className="text-xs text-gray-500">(Decimals)</span>
-                </label>
-                <div className="dropdown mt-1 w-full">
-                  <label
-                    tabIndex={0}
-                    className="btn m-0 w-full input input-bordered flex justify-between items-center"
-                  >
-                    {formData.denomUnits[1]?.exponent || 6}
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={1.5}
-                      stroke="currentColor"
-                      className="w-4 h-4"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+    <section>
+      <div className="lg:flex mx-auto w-full flex-col items-center justify-between">
+        <Formik
+          initialValues={formData}
+          validationSchema={TokenDetailsSchema}
+          onSubmit={nextStep}
+          validateOnChange={true}
+          validateOnBlur={true}
+        >
+          {({ isValid, handleChange, handleSubmit }) => (
+            <>
+              <div className="flex items-center mx-auto w-full dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-6 sm:p-8 rounded-2xl shadow-lg">
+                <div className="w-full">
+                  <h1 className="mb-4 text-xl font-extrabold tracking-tight sm:mb-6 leading-tight border-b-[0.5px] dark:text-[#FFFFFF99] dark:border-[#FFFFFF99] border-b-[black] pb-4">
+                    Token Metadata
+                  </h1>
+                  <Form className="min-h-[330px] flex flex-col gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <TextInput
+                        label="Subdenom"
+                        name="subdenom"
+                        disabled={true}
+                        value={formData.subdenom}
+                        aria-label="Token subdenom"
                       />
-                    </svg>
-                  </label>
-                  <ul
-                    tabIndex={0}
-                    className="dropdown-content menu p-2 shadow -mt-12 bg-base-100 rounded-box w-40 -ml-4"
-                  >
-                    {[6, 9, 12, 18].map((exp) => (
-                      <li key={exp}>
-                        <a onClick={() => updateDenomUnit(1, "exponent", exp)}>
-                          {exp}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
+                      <TextInput
+                        label="Name"
+                        name="name"
+                        value={formData.name}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          updateField('name', e.target.value);
+                          handleChange(e);
+                        }}
+                        aria-label="Token name"
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <TextInput
+                        label="Ticker"
+                        name="display"
+                        value={formData.display}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          const value = e.target.value;
+                          updateField('display', value);
+                          updateField('symbol', value.toUpperCase());
+                          handleChange(e);
+                        }}
+                        aria-label="Token ticker"
+                      />
+                      <TextInput
+                        label="Logo URL"
+                        name="uri"
+                        value={formData.uri}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          updateField('uri', e.target.value);
+                          handleChange(e);
+                        }}
+                        aria-label="Token logo URL"
+                      />
+                    </div>
+                    <TextArea
+                      label="Description"
+                      name="description"
+                      value={formData.description}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                        updateField('description', e.target.value);
+                        handleChange(e);
+                      }}
+                      aria-label="Token description"
+                    />
+                  </Form>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </form>
-
-      <div className="mt-6 flex space-x-4">
-        <button onClick={prevStep} className="btn btn-neutral flex-1">
-          Previous
-        </button>
-        <button
-          onClick={nextStep}
-          className="btn btn-primary flex-1"
-          disabled={!isFormValid()}
-        >
-          Next: Confirmation
-        </button>
+              <div className="flex space-x-3 mt-6 mx-auto w-full">
+                <button onClick={prevStep} className="btn btn-neutral py-2.5 sm:py-3.5 w-1/2">
+                  Previous
+                </button>
+                <button
+                  className="w-1/2 btn btn-gradient text-white py-2.5 sm:py-3.5 disabled:opacity-50"
+                  onClick={() => handleSubmit()}
+                  disabled={!isValid}
+                >
+                  Next: Confirmation
+                </button>
+              </div>
+            </>
+          )}
+        </Formik>
       </div>
     </section>
   );

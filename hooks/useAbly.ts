@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { useChannel } from "ably/react";
-import { Message, RealtimeChannel } from "ably";
+import { useState, useEffect } from 'react';
+import { useChannel } from 'ably/react';
+import { Message, RealtimeChannel } from 'ably';
 const useAbly = (channelName: string) => {
   const [messages, setMessages] = useState<Message[]>([]);
 
@@ -11,7 +11,7 @@ const useAbly = (channelName: string) => {
   };
 
   const { channel } = useChannel(channelName, (message: Message) => {
-    setMessages((prev) => [...prev, message]);
+    setMessages(prev => [...prev, message]);
   });
 
   useEffect(() => {

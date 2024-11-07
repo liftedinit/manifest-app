@@ -1,6 +1,6 @@
-import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
-import { TokenFormData } from "@/helpers";
-import Link from "next/link";
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import { TokenFormData } from '@/helpers';
+import Link from 'next/link';
 
 export default function Success({
   formData,
@@ -19,15 +19,11 @@ export default function Success({
           Your token was successfully created and the metadata was set.
         </p>
         <p className="text-md text-gray-300 mb-6 text-pretty">
-          You can now mint, burn, or change the admin of your tokens and send
-          them to other wallets.
+          You can now mint, burn, or change the admin of your tokens and send them to other wallets.
         </p>
-        {/*
-          TODO: Verify the render is correct.
-                I changed the <p> to a <div> here because <div> (in TruncatedAddressWithCopy) cannot be a descendant of <p>
-        */}
+
         <div className="text-md text-gray-300 mb-6 text-pretty">
-          The full denom of your token is:{" "}
+          The full denom of your token is:{' '}
           <span className="font-semibold">
             <TruncatedAddressWithCopy address={fullDenom} slice={24} />
           </span>
@@ -56,18 +52,12 @@ export default function Success({
               <p className="text-lg font-medium">{formData.description}</p>
             </div>
             <div>
-              <h3 className="text-md font-light text-gray-400">
-                BASE EXPONENT
-              </h3>
+              <h3 className="text-md font-light text-gray-400">BASE EXPONENT</h3>
               <p className="text-lg font-medium">0</p>
             </div>
             <div>
-              <h3 className="text-md font-light text-gray-400">
-                DISPLAY EXPONENT
-              </h3>
-              <p className="text-lg font-medium">
-                {formData.denomUnits[1].exponent}
-              </p>
+              <h3 className="text-md font-light text-gray-400">DISPLAY EXPONENT</h3>
+              <p className="text-lg font-medium">{formData.denomUnits[1].exponent}</p>
             </div>
             {formData.uri && (
               <div className="col-span-1 md:col-span-2">
@@ -78,10 +68,8 @@ export default function Success({
           </div>
           <div className="mt-6">
             <div className="w-full justify-between items-center">
-              <Link href={"/factory"} legacyBehavior>
-                <button className="btn btn-md btn-secondary w-full">
-                  Back to Factory
-                </button>
+              <Link href={'/factory'} legacyBehavior>
+                <button className="btn btn-md btn-secondary w-full">Back to Factory</button>
               </Link>
             </div>
           </div>
