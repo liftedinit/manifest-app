@@ -149,11 +149,10 @@ export default function MyDenoms({
             <table className="table w-full border-separate border-spacing-y-3">
               <thead className="sticky top-0 bg-[#F0F0FF] dark:bg-[#0E0A1F]">
                 <tr className="text-sm font-medium">
-                  <th className="bg-transparent w-1/5 lg:table-cell hidden">Token</th>
-                  <th className="bg-transparent w-1/5 sm:table-cell hidden">Symbol</th>
-                  <th className="bg-transparent w-1/5 md:table-cell hidden">Total Supply</th>
-                  <th className="bg-transparent w-2/5">Your Balance</th>
-                  <th className="bg-transparent w-1/5">Actions</th>
+                  <th className="bg-transparent w-1/4 lg:table-cell hidden">Token Symbol</th>
+                  <th className="bg-transparent w-2/5 lg:table-cell hidden">Name</th>
+                  <th className="bg-transparent w-2/5 md:table-cell hidden">Total Supply</th>
+                  <th className="bg-transparent w-1/4">Actions</th>
                 </tr>
               </thead>
               <tbody className="space-y-4">
@@ -162,14 +161,11 @@ export default function MyDenoms({
                       .fill(0)
                       .map((_, index) => (
                         <tr key={index} aria-label={`skeleton-${index}`}>
-                          <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] w-1/5 lg:table-cell hidden">
+                          <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] w-1/4 lg:table-cell hidden">
                             <div className="flex items-center space-x-3">
                               <div className="skeleton w-10 h-8 rounded-full shrink-0"></div>
                               <div className="skeleton h-3 w-24"></div>
                             </div>
-                          </td>
-                          <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/5 sm:table-cell hidden">
-                            <div className="skeleton h-2 w-8"></div>
                           </td>
                           <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-2/5 md:table-cell hidden">
                             <div className="skeleton h-2 w-24"></div>
@@ -177,7 +173,7 @@ export default function MyDenoms({
                           <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-2/5">
                             <div className="skeleton h-2 w-32"></div>
                           </td>
-                          <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px] w-1/5">
+                          <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px] w-1/4">
                             <div className="skeleton h-2 w-32"></div>
                           </td>
                         </tr>
@@ -301,21 +297,13 @@ function TokenRow({
       <td className="rounded-l-[12px] w-1/4 lg:table-cell hidden">
         <div className="flex items-center space-x-3">
           <DenomImage denom={denom} />
-          <span className="font-medium">{truncateString(denom.display, 24)}</span>
+          <span className="font-medium">{truncateString(denom.display, 24).toUpperCase()}</span>
         </div>
       </td>
-      <td className="w-1/4 sm:table-cell hidden">{truncateString(denom.symbol, 20)}</td>
-      <td className="w-2/4 sm:w-1/4">
+      <td className="w-2/5 sm:table-cell hidden">{truncateString(denom.name, 20)}</td>
+      <td className="w-2/5 sm:w-1/4">
         <div className="flex flex-col sm:flex-row sm:items-center">
           <span className="sm:mr-2">{formatAmount(totalSupply)}</span>
-          <span className="font-extralight">
-            {truncateString(denom?.display ?? '', 10).toUpperCase()}
-          </span>
-        </div>
-      </td>
-      <td className="w-2/4 sm:w-1/4">
-        <div className="flex flex-col sm:flex-row sm:items-center">
-          <span className="sm:mr-2">{formatAmount(balance)}</span>
           <span className="font-extralight">
             {truncateString(denom?.display ?? '', 10).toUpperCase()}
           </span>
