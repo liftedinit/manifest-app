@@ -205,7 +205,7 @@ export default function BurnForm({
               </div>
               <div>
                 <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
-                  YOUR BALANCE
+                  TARGET'S BALANCE
                 </p>
                 <div className="bg-base-300 p-4 rounded-md">
                   <p className="font-semibold text-md text-black dark:text-white">
@@ -280,7 +280,7 @@ export default function BurnForm({
                       <div className="flex-grow relative">
                         <TextInput
                           showError={false}
-                          label="RECIPIENT"
+                          label="TARGET"
                           name="recipient"
                           placeholder="Recipient address"
                           value={recipient}
