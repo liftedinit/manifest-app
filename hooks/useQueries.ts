@@ -784,25 +784,21 @@ export const useSendTxIncludingAddressQuery = (address: string, direction?: 'sen
   const fetchTransactions = async () => {
     const baseUrl = 'https://testnet-indexer.liftedinit.tech/transactions';
 
-    // Build query for both direct MsgSend and nested group proposal MsgSend
+    // Build query for both direct MsgSend and nested (1 level) group proposal MsgSend
     const query = `
-      or=(
-        and(
-          data->tx->body->messages->0->>@type.eq./cosmos.bank.v1beta1.MsgSend,
-          or(
-            data->tx->body->messages->0->>fromAddress.eq.${address},
-            data->tx->body->messages->0->>toAddress.eq.${address}
-          )
+      and=(
+        or(
+            data->tx->body->messages.cs.[{"@type": "/cosmos.bank.v1beta1.MsgSend"}],
+            data->tx->body->messages.cs.[{"messages": [{"@type": "/cosmos.bank.v1beta1.MsgSend"}]}]
         ),
-        and(
-          data->tx->body->messages->0->>@type.eq./cosmos.group.v1.MsgSubmitProposal,
-          data->tx->body->messages->0->messages->0->>@type.eq./cosmos.bank.v1beta1.MsgSend,
-          or(
-            data->tx->body->messages->0->messages->0->>fromAddress.eq.${address},
-            data->tx->body->messages->0->messages->0->>toAddress.eq.${address}
-          )
+        or(
+            data->tx->body->messages.cs.[{"fromAddress": "${address}"}],
+            data->tx->body->messages.cs.[{"toAddress": "${address}"}],
+            data->tx->body->messages.cs.[{"messages": [{"fromAddress": "${address}"}]}],
+            data->tx->body->messages.cs.[{"messages": [{"toAddress": "${address}"}]}]
         )
-      )`;
+      )
+    `;
 
     const response = await axios.get(
       `${baseUrl}?${query.replace(/\s+/g, '')}&order=data->txResponse->height.desc`
@@ -842,7 +838,7 @@ export const useSendTxIncludingAddressQuery = (address: string, direction?: 'sen
 export const useSendTxQuery = () => {
   const fetchTransactions = async () => {
     const baseUrl = 'https://testnet-indexer.liftedinit.tech/transactions';
-    const query = `data->tx->body->messages->0->>@type=eq./cosmos.bank.v1beta1.MsgSend`;
+    const query = `data->tx->body->messages.cs.[{"@type": "/cosmos.bank.v1beta1.MsgSend"}]`;
 
     const response = await axios.get(`${baseUrl}?${query}`);
     return response.data.map(transformTransaction).filter((tx: any) => tx !== null);
