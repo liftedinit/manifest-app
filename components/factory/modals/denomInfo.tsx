@@ -28,7 +28,7 @@ export const DenomInfoModal: React.FC<{
         <h3 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">Denom Details</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <InfoItem label="Name" value={denom?.name ?? 'No name available'} />
-          <InfoItem label="Symbol" value={denom?.symbol ?? 'No symbol available'} />
+          <InfoItem label="Ticker" value={denom?.display.toUpperCase() ?? 'No ticker available'} />
           <InfoItem
             label="Description"
             value={denom?.description ?? 'No description available'}
@@ -73,7 +73,7 @@ function InfoItem({
             </a>
           </div>
         ) : (
-          <p className="text-[#161616] dark:text-white truncate" title={value}>
+          <p className="text-[#161616] dark:text-white" title={value}>
             {value}
           </p>
         )}
