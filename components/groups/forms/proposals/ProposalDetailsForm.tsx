@@ -127,7 +127,8 @@ export default function ProposalDetails({
                 onClick={nextStep}
                 disabled={!isValid || !formData.proposers}
               >
-                Next: Proposal Messages
+                <span className="hidden sm:inline">Next: Proposal Messages</span>
+                <span className="sm:hidden">Next: Messages</span>
               </button>
             </div>
           </>

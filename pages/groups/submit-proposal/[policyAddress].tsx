@@ -1,6 +1,6 @@
 import React, { useState, useReducer } from 'react';
 import { useRouter } from 'next/router';
-import StepIndicator from '@/components/groups/components/StepIndicator';
+import StepIndicator from '@/components/react/StepIndicator';
 import ConfirmationForm from '@/components/groups/forms/proposals/ConfirmationForm';
 import ProposalDetails from '@/components/groups/forms/proposals/ProposalDetailsForm';
 import ProposalMetadataForm from '@/components/groups/forms/proposals/ProposalMetadataForm';

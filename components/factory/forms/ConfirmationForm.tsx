@@ -152,14 +152,14 @@ export default function ConfirmationForm({
       </div>
 
       {/* Buttons */}
-      <div className="flex space-x-3 mt-6 mx-auto w-full">
-        <button onClick={prevStep} className="btn btn-neutral w-1/2">
+      <div className="flex gap-6  mt-6 mx-auto w-full">
+        <button onClick={prevStep} className="btn btn-neutral w-[calc(50%-12px)]">
           Edit Token Metadata
         </button>
         <button
           onClick={handleConfirm}
           disabled={isSigning}
-          className="w-1/2 btn btn-gradient text-white"
+          className="w-[calc(50%-12px)] btn px-5 py-2.5 sm:py-3.5 btn-gradient text-white disabled:text-black"
         >
           {isSigning ? (
             <span className="loading loading-dots loading-sm"></span>

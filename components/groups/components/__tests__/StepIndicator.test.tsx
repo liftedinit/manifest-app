@@ -1,7 +1,7 @@
 import { describe, test, expect, afterEach } from 'bun:test';
 import React from 'react';
 import { render, screen, cleanup, getDefaultNormalizer } from '@testing-library/react';
-import StepIndicator from '@/components/groups/components/StepIndicator';
+import StepIndicator from '@/components/react/StepIndicator';
 import matchers from '@testing-library/jest-dom/matchers';
 
 expect.extend(matchers);
