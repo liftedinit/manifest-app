@@ -6,7 +6,7 @@ import { Duration } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/du
 import StepIndicator from '@/components/groups/components/StepIndicator';
 import { useChain } from '@cosmos-kit/react';
 import { chainName } from '@/config';
-import { WalletSection } from '@/components';
+import { WalletNotConnected, WalletSection } from '@/components';
 import Success from '@/components/factory/forms/Success';
 import Head from 'next/head';
 import CreateDenom from '@/components/factory/forms/CreateDenom';
@@ -97,7 +97,10 @@ export default function CreateToken() {
         </script>
       </Head>
       {!isWalletConnected ? (
-        <WalletNotConnected />
+        <WalletNotConnected
+          description={'Use the button below to connect your wallet and start creating new tokens'}
+          icon={<FactoryIcon className="h-60 w-60 text-primary" />}
+        />
       ) : (
         <div className="w-full justify-between space-y-8 min-h-screen items-center animate-fadeIn mt-4 overflow-hidden">
           {currentStep != 4 && <StepIndicator steps={steps} currentStep={currentStep} />}
@@ -136,28 +139,5 @@ export default function CreateToken() {
         </div>
       )}
     </div>
-  );
-}
-
-function WalletNotConnected() {
-  return (
-    <section className="transition-opacity duration-300 h-[80vh] ease-in-out animate-fadeIn w-full flex items-center justify-center">
-      <div className="grid max-w-4xl bg-base-300 p-12 rounded-md w-full mx-auto gap-8 lg:grid-cols-12">
-        <div className="mr-auto place-self-center lg:col-span-7">
-          <h1 className="max-w-2xl mb-4 text-2xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white text-black">
-            Connect your wallet!
-          </h1>
-          <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl">
-            Use the button below to connect your wallet and start creating new tokens.
-          </p>
-          <div className="w-[50%]">
-            <WalletSection chainName="manifest" />
-          </div>
-        </div>
-        <div className="hidden lg:mt-0 lg:ml-24 lg:col-span-5 lg:flex">
-          <FactoryIcon className="h-60 w-60 text-primary" />
-        </div>
-      </div>
-    </section>
   );
 }
