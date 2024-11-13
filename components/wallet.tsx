@@ -112,7 +112,12 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
           }}
         >
           <div className="relative z-10 h-full flex flex-col  justify-between">
-            <p className="font-medium text-xl text-center mb-2">{username || 'Connected User'}</p>
+            <p
+              className="font-medium text-xl text-center mb-2 truncate"
+              title={username || 'Connected user'}
+            >
+              {username || 'Connected User'}
+            </p>
             <div className="bg-base-100 dark:bg-base-200 rounded-full py-2 px-4 text-center mb-4 flex items-center flex-row justify-between w-full ">
               <p className="text-xs  truncate flex-grow">
                 {address
