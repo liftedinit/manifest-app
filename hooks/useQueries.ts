@@ -789,7 +789,6 @@ export const useSendTxIncludingAddressQuery = (
   const fetchTransactions = async () => {
     const baseUrl = 'https://testnet-indexer.liftedinit.tech/transactions';
 
-    // Build query with ->0 notation
     const query = `
       or=(
         and(
@@ -816,10 +815,30 @@ export const useSendTxIncludingAddressQuery = (
     const finalUrl = `${baseUrl}?${query.replace(/\s+/g, '')}&order=data->txResponse->height.desc${paginationParams}`;
 
     try {
-      const response = await axios.get(finalUrl);
-      const totalCount = parseInt(response.headers['content-range']?.split('/')[1] || '0');
+      // First, get the total count
+      const countResponse = await axios.get(`${baseUrl}?${query.replace(/\s+/g, '')}`, {
+        headers: {
+          Prefer: 'count=exact',
+          'Range-Unit': 'items',
+          Range: '0-0', // We only need the count, not the actual data
+        },
+      });
 
-      const transactions = response.data
+      // Get the total count from the content-range header
+      const contentRange = countResponse.headers['content-range'];
+      const totalCount = contentRange ? parseInt(contentRange.split('/')[1]) : 0;
+
+      console.log('Total count:', totalCount); // Debug log
+
+      // Then get the paginated data
+      const dataResponse = await axios.get(finalUrl, {
+        headers: {
+          'Range-Unit': 'items',
+          Range: `${offset}-${offset + pageSize - 1}`,
+        },
+      });
+
+      const transactions = dataResponse.data
         .map(transformTransaction)
         .filter((tx: any) => tx !== null)
         .filter((tx: any) => {
@@ -851,7 +870,7 @@ export const useSendTxIncludingAddressQuery = (
   return {
     sendTxs: sendQuery.data?.transactions,
     totalCount: sendQuery.data?.totalCount,
-    totalPages: sendQuery.data?.totalPages,
+    totalPages: sendQuery.data?.totalPages || 1,
     isLoading: sendQuery.isLoading,
     isError: sendQuery.isError,
     error: sendQuery.error,

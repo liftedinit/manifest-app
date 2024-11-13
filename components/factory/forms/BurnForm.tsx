@@ -7,14 +7,14 @@ import { MdContacts } from 'react-icons/md';
 import { shiftDigits } from '@/utils';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgBurnHeldBalance } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
-import { MultiBurnModal } from '../modals/multiMfxBurnModal';
+
 import { useToast } from '@/contexts';
 import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { NumberInput, TextInput } from '@/components/react/inputs';
 import { ExtendedMetadataSDKType, truncateString } from '@/utils';
 import { TailwindModal } from '@/components/react/modal';
-//TODO: burn target validation
+
 interface BurnPair {
   address: string;
   amount: string;
@@ -67,6 +67,7 @@ export default function BurnForm({
           -exponent
         )
       ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [recipientBalance?.amount, balance, exponent, isMFX, recipient]
   );
 
@@ -226,13 +227,11 @@ export default function BurnForm({
               </div>
               <div>
                 <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
-                  TARGET'S BALANCE
+                  TARGET&apos;S BALANCE
                 </p>
                 <div className="bg-base-300 p-4 rounded-md">
                   <p className="font-semibold text-md text-black truncate dark:text-white">
-                    {Number(shiftDigits(totalSupply, -exponent)).toLocaleString(undefined, {
-                      maximumFractionDigits: exponent,
-                    })}{' '}
+                    {formatAmount(recipientBalance?.amount)}
                   </p>
                 </div>
               </div>
