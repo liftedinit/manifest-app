@@ -66,7 +66,9 @@ export default function MintModal({
           <h3 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">
             Mint{' '}
             <span className="font-light text-primary">
-              {truncateString(denom.display ?? 'Denom', 20).toUpperCase()}
+              {denom.display.startsWith('factory')
+                ? denom.display.split('/').pop()?.toUpperCase()
+                : truncateString(denom.display, 12)}
             </span>
           </h3>
           <div className="py-4">

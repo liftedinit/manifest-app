@@ -249,10 +249,12 @@ export default function GroupProposals({
           >
             <ArrowRightIcon className="text-primary" />
           </button>
-          <h1 className="text-2xl font-bold">{groupName}</h1>
-          <ProfileAvatar walletAddress={policyAddress} size={40} />
+          <h1 className="text-2xl font-bold  truncate">{groupName}</h1>
+          <div className="hidden sm:block">
+            <ProfileAvatar walletAddress={policyAddress} size={40} />
+          </div>
         </div>
-        <div className="flex items-center space-x-4">
+        <div className=" hidden md:flex  items-center space-x-4">
           <button
             className="btn w-[140px] h-[52px] rounded-[12px] focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
             onClick={openInfoModal}
@@ -267,22 +269,41 @@ export default function GroupProposals({
           </button>
         </div>
       </div>
-
+      <div className="flex-col items-center w-full justify-center gap-4 mb-8">
+        <div className=" md:hidden flex items-center space-x-4 w-full">
+          <button
+            className="btn w-[calc(50%-8px)] h-[52px] rounded-[12px] focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
+            onClick={openInfoModal}
+          >
+            Info
+          </button>
+          <button
+            className="btn w-[calc(50%-8px)] h-[52px] rounded-[12px] focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
+            onClick={openMemberModal}
+          >
+            Members
+          </button>
+        </div>
+      </div>
       {/* Search and New Proposal section */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0 mb-6">
         <h2 className="text-xl font-semibold">Proposals</h2>
-        <div className="flex items-center space-x-4">
-          <div className="relative">
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-4 w-full md:w-auto">
+          <div className="relative w-full md:w-[224px]">
             <input
               type="text"
               placeholder="Search for a group..."
-              className="input input-bordered w-[224px] h-[40px] rounded-[12px] border-none bg-[#0000000A] dark:bg-[#FFFFFF1F] pl-10"
+              className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-[#0000000A] dark:bg-[#FFFFFF1F] pl-10"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
             />
             <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           </div>
-          <Link href={`/groups/submit-proposal/${policyAddress}`} passHref>
+          <Link
+            className="hidden md:block"
+            href={`/groups/submit-proposal/${policyAddress}`}
+            passHref
+          >
             <button className="btn btn-gradient rounded-[12px] w-[140px] text-white h-[52px]">
               New proposal
             </button>
@@ -304,9 +325,9 @@ export default function GroupProposals({
               <tr className="text-sm font-medium">
                 <th className="bg-transparent px-4 py-2 w-[25%]">#</th>
                 <th className="bg-transparent px-4 py-2 w-[25%]">Title</th>
-                <th className="bg-transparent px-4 py-2 w-[25%]">Time Left</th>
-                <th className="bg-transparent px-4 py-2 w-[25%]">Type</th>
-                <th className="bg-transparent px-4 py-2 w-[25%]">Status</th>
+                <th className="bg-transparent px-4 py-2 w-[25%] hidden md:table-cell">Time Left</th>
+                <th className="bg-transparent px-4 py-2 w-[25%] hidden md:table-cell">Type</th>
+                <th className="bg-transparent px-4 py-2 w-[25%] hidden md:table-cell">Status</th>
               </tr>
             </thead>
             <tbody className="space-y-4">
@@ -362,20 +383,16 @@ export default function GroupProposals({
                     <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] px-4 py-4 w-[25%]">
                       {proposal.id.toString()}
                     </td>
-                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] truncate max-w-xs px-4 py-4 w-[25%]">
+                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px] md:rounded-r-none truncate max-w-xs px-4 py-4 w-[25%]">
                       {proposal.title}
                     </td>
-                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] px-4 py-4 w-[25%]">
+                    <td className=" hidden md:table-cell dark:bg-[#FFFFFF0F] bg-[#FFFFFF] px-4 py-4 w-[25%]">
                       {timeLeft}
                     </td>
-                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] px-4 py-4 w-[25%]">
-                      {proposal.messages.length > 0
-                        ? proposal.messages.map((message, index) => (
-                            <div key={index}>{getHumanReadableType((message as any)['@type'])}</div>
-                          ))
-                        : 'No messages'}
+                    <td className="hidden md:table-cell dark:bg-[#FFFFFF0F] bg-[#FFFFFF] px-4 py-4 w-[25%]">
+                      {getHumanReadableType((proposal.messages[0] as any)['@type'])}
                     </td>
-                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px] px-4 py-4 w-[25%]">
+                    <td className="hidden md:table-cell dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px] px-4 py-4 w-[25%]">
                       {isTalliesLoading ? (
                         <span className="loading loading-spinner loading-xs"></span>
                       ) : (
@@ -390,6 +407,13 @@ export default function GroupProposals({
         ) : (
           <div className="text-center py-8 text-gray-500">No proposals found</div>
         )}
+        <div className="block md:hidden mt-8">
+          <Link href={`/groups/submit-proposal/${policyAddress}`} passHref>
+            <button className="btn btn-gradient rounded-[12px] w-full text-white h-[52px]">
+              New proposal
+            </button>
+          </Link>
+        </div>
       </div>
 
       {/* Modals */}

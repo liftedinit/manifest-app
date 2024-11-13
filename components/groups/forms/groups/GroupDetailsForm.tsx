@@ -209,16 +209,16 @@ export default function GroupDetails({
         </div>
       </div>
 
-      <div className="flex space-x-3  mt-6 mx-auto w-full">
+      <div className="flex gap-6  mt-6 mx-auto w-full">
         <Link href="/groups" legacyBehavior>
-          <button className="btn btn-neutral py-2.5 sm:py-3.5 w-1/2">
+          <button className="btn btn-neutral py-2.5 sm:py-3.5 w-[calc(50%-12px)]">
             <span className="hidden sm:inline">Back: Groups Page</span>
             <span className="sm:hidden">Back: Groups</span>
           </button>
         </Link>
         <button
           type="submit"
-          className="w-1/2 btn px-5 py-2.5 sm:py-3.5 btn-gradient text-white disabled:text-black"
+          className="w-[calc(50%-12px)] btn px-5 py-2.5 sm:py-3.5 btn-gradient text-white disabled:text-black"
           onClick={nextStep}
           disabled={
             !isValidForm ||

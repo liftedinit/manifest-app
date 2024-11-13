@@ -75,7 +75,7 @@ export default function ValidatorList({
   return (
     <div className="w-full max-w-screen mx-auto">
       <div className="">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0 mb-6">
           <h2
             className="text-black dark:text-white"
             style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
@@ -131,10 +131,10 @@ export default function ValidatorList({
                   <th className="bg-transparent text-left sticky top-0 bg-base-100 z-10">
                     Moniker
                   </th>
-                  <th className="bg-transparent text-left sticky top-0 bg-base-100 z-10">
+                  <th className=" hidden lg:table-cell bg-transparent text-left sticky top-0 bg-base-100 z-10">
                     Address
                   </th>
-                  <th className="bg-transparent text-left sticky top-0 bg-base-100 z-10">
+                  <th className=" hidden md:table-cell bg-transparent text-left sticky top-0 bg-base-100 z-10">
                     Consensus Power
                   </th>
                   <th className="bg-transparent text-right sticky top-0 bg-base-100 z-10">
@@ -168,10 +168,12 @@ export default function ValidatorList({
                       </div>
                     </td>
 
-                    <td className="py-4">
+                    <td className="py-4 hidden lg:table-cell">
                       <TruncatedAddressWithCopy slice={10} address={validator.operator_address} />
                     </td>
-                    <td className="py-4">{validator.consensus_power?.toString() ?? 'N/A'}</td>
+                    <td className="py-4 hidden md:table-cell">
+                      {validator.consensus_power?.toString() ?? 'N/A'}
+                    </td>
                     <td className="rounded-r-[12px] py-4 text-right">
                       <button
                         onClick={e => {

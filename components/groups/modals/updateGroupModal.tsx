@@ -449,29 +449,28 @@ export function UpdateGroupModal({
                       )}
                     </div>
                   </div>
-                  {/* Action buttons moved outside of the modal, as per your requirement */}
+                  <div className="mt-4 gap-6 flex justify-center w-full">
+                    <button
+                      type="button"
+                      className="btn w-[calc(50%-8px)] btn-md focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
+                      onClick={() =>
+                        (document.getElementById('update-group-modal') as HTMLDialogElement).close()
+                      }
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="btn btn-md w-[calc(50%-8px)] btn-gradient  text-white"
+                      onClick={() => handleConfirm(values)}
+                      disabled={isSigning || !isValid || !hasAnyChanges(values)}
+                    >
+                      {isSigning ? 'Signing...' : 'Update'}
+                    </button>
+                  </div>
                 </Form>
               </div>
               {/* Action buttons */}
-              <div className="mt-4 flex justify-center w-full">
-                <button
-                  type="button"
-                  className="btn btn-ghost dark:text-white text-black"
-                  onClick={() =>
-                    (document.getElementById('update-group-modal') as HTMLDialogElement).close()
-                  }
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-gradient ml-4 text-white"
-                  onClick={() => handleConfirm(values)}
-                  disabled={isSigning || !isValid || !hasAnyChanges(values)}
-                >
-                  {isSigning ? 'Signing...' : 'Update'}
-                </button>
-              </div>
             </div>
             <form method="dialog" className="modal-backdrop">
               <button>close</button>

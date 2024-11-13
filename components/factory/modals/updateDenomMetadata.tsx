@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { TokenFormData } from '@/helpers/formReducer';
 import { useFeeEstimation } from '@/hooks/useFeeEstimation';
 import { useTx } from '@/hooks/useTx';
@@ -7,7 +6,7 @@ import { chainName } from '@/config';
 import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { TextInput, TextArea } from '@/components/react/inputs';
-import { truncateString } from '@/utils';
+import { truncateString, ExtendedMetadataSDKType } from '@/utils';
 
 const TokenDetailsSchema = Yup.object().shape({
   display: Yup.string().required('Display is required').noProfanity(),
@@ -25,7 +24,7 @@ export function UpdateDenomMetadataModal({
   modalId,
   onSuccess,
 }: {
-  denom: any;
+  denom: ExtendedMetadataSDKType | null;
   address: string;
   modalId: string;
   onSuccess: () => void;
@@ -115,7 +114,9 @@ export function UpdateDenomMetadataModal({
               <h3 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">
                 Update Metadata for{' '}
                 <span className="font-light text-primary">
-                  {truncateString(denom?.display ?? 'DENOM', 30).toUpperCase()}
+                  {denom?.display?.startsWith('factory')
+                    ? denom?.display?.split('/').pop()?.toUpperCase()
+                    : truncateString(denom?.display ?? 'DENOM', 12)}
                 </span>
               </h3>
               <div className="divider divider-horizontal -mt-4 -mb-0"></div>

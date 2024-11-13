@@ -127,12 +127,13 @@ export function GroupInfo({ group, policyAddress, address, onUpdate }: GroupInfo
           </h4>
           <InfoItem label="Voting period" value={votingPeriodDisplay} />
           <InfoItem label="Qualified Majority" value={threshold} />
+
           <InfoItem
             label="Description"
             value={group.ipfsMetadata?.details ?? 'No description'}
             isProposal={true}
           />
-
+          <InfoItem label="Policy Address" value={policyAddress} isAddress={true} />
           <h4 className="font-semibold mt-6">Authors</h4>
           {renderAuthors()}
         </div>
@@ -163,7 +164,9 @@ function InfoItem({
 }) {
   return (
     <div
-      className={`dark:bg-[#FFFFFF0F] bg-[#0000000A] p-3 rounded-lg ${isProposal ? 'flex flex-col' : 'flex flex-row justify-between items-center'}`}
+      className={`dark:bg-[#FFFFFF0F] bg-[#0000000A] p-3 rounded-lg ${
+        isProposal || isAddress ? 'flex flex-col' : 'flex flex-row justify-between items-center'
+      }`}
     >
       <span className="text-sm dark:text-[#FFFFFF66] text-[#00000066]">
         {isAddress ? '' : label}
@@ -173,10 +176,15 @@ function InfoItem({
           className={`text-sm dark:text-[#FFFFFF99] text-[#00000099] ${isProposal ? 'mt-2' : ''}`}
         >
           {isAddress ? (
-            <>
+            <div>
               <span className="text-sm text-[#FFFFFF66] block mb-1">Address</span>
-              <TruncatedAddressWithCopy address={value} slice={12} />
-            </>
+              <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99] xs:block hidden">
+                <TruncatedAddressWithCopy address={value} slice={24} />
+              </p>
+              <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99] xs:hidden block">
+                <TruncatedAddressWithCopy address={value} slice={14} />
+              </p>
+            </div>
           ) : (
             value
           )}
