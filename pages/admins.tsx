@@ -1,4 +1,4 @@
-import { WalletSection } from '@/components';
+import { WalletNotConnected, WalletSection } from '@/components';
 import { useChain } from '@cosmos-kit/react';
 import ValidatorList from '@/components/admins/components/validatorList';
 import Head from 'next/head';
@@ -70,24 +70,12 @@ export default function Admins() {
       </Head>
       <div className="gap-6 flex flex-col w-full lg:flex-row transition-opacity duration-300 ease-in-out animate-fadeIn">
         {!isWalletConnected ? (
-          <section className="transition-opacity duration-300 h-[80vh] ease-in-out animate-fadeIn w-full flex items-center justify-center">
-            <div className="grid max-w-4xl bg-base-300 p-12 rounded-md w-full mx-auto gap-8 lg:grid-cols-12">
-              <div className="mr-auto place-self-center lg:col-span-7">
-                <h1 className="max-w-2xl mb-4 text-2xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white text-black">
-                  Connect your wallet!
-                </h1>
-                <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl">
-                  Use the button below to connect your wallet and access the admin features.
-                </p>
-                <div className="w-[50%]">
-                  <WalletSection chainName="manifest" />
-                </div>
-              </div>
-              <div className="hidden lg:mt-0 lg:ml-24 lg:col-span-5 lg:flex">
-                <AdminsIcon className="h-60 w-60 text-primary" />
-              </div>
-            </div>
-          </section>
+          <WalletNotConnected
+            description={
+              'Use the button below to connect your wallet and access the admin features.'
+            }
+            icon={<AdminsIcon className="h-60 w-60 text-primary" />}
+          />
         ) : isGroupByAdminLoading || isActiveValidatorsLoading ? (
           <section className="transition-opacity duration-300 min-h-screen ease-in-out animate-fadeIn w-full flex flex-col items-center justify-start">
             <div className="flex flex-col w-full justify-between items-center mb-6">
@@ -98,11 +86,11 @@ export default function Admins() {
                 >
                   Validators
                 </h2>
-                <div className="relative w-[224px]">
+                <div className="relative ml-4">
                   <input
                     type="text"
                     placeholder="Search for a validator..."
-                    className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-[#0000000A] dark:bg-[#FFFFFF1F] pl-10 text-[#161616] dark:text-white placeholder-[#00000099] dark:placeholder-[#FFFFFF99]"
+                    className="input input-bordered w-[224px] h-[40px] rounded-[12px] border-none bg-[#0000000A] dark:bg-[#FFFFFF1F] pl-10 text-[#161616] dark:text-white placeholder-[#00000099] dark:placeholder-[#FFFFFF99]"
                   />
                   <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00000099] dark:text-[#FFFFFF99]" />
                 </div>

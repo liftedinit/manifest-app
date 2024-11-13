@@ -1,4 +1,4 @@
-import { WalletSection } from '@/components';
+import { WalletNotConnected, WalletSection } from '@/components';
 import MyDenoms from '@/components/factory/components/MyDenoms';
 import {
   useTokenBalances,
@@ -88,7 +88,12 @@ export default function Factory() {
       <div className="flex-grow animate-fadeIn transition-all duration-300">
         <div className="w-full mx-auto">
           {!isWalletConnected ? (
-            <WalletNotConnected />
+            <WalletNotConnected
+              description={
+                'Use the button below to connect your wallet and start creating new tokens.'
+              }
+              icon={<FactoryIcon className="h-60 w-60 text-primary" />}
+            />
           ) : isLoading ? (
             <MyDenoms
               denoms={combinedData}
@@ -115,28 +120,5 @@ export default function Factory() {
         </div>
       </div>
     </div>
-  );
-}
-
-function WalletNotConnected() {
-  return (
-    <section className="transition-opacity duration-300 h-[80vh] ease-in-out animate-fadeIn w-full flex items-center justify-center">
-      <div className="grid max-w-4xl bg-base-300 p-12 rounded-md w-full mx-auto gap-8 lg:grid-cols-12">
-        <div className="mr-auto place-self-center lg:col-span-7">
-          <h1 className="max-w-2xl mb-4 text-2xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white text-black">
-            Connect your wallet!
-          </h1>
-          <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl">
-            Use the button below to connect your wallet and start creating new tokens.
-          </p>
-          <div className="w-[50%]">
-            <WalletSection chainName="manifest" />
-          </div>
-        </div>
-        <div className="hidden lg:mt-0 lg:ml-24 lg:col-span-5 lg:flex">
-          <FactoryIcon className="h-60 w-60 text-primary" />
-        </div>
-      </div>
-    </section>
   );
 }
