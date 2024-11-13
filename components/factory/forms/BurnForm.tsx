@@ -224,7 +224,7 @@ export default function BurnForm({
                 </p>
                 <div className="bg-base-300 p-4 rounded-md">
                   <p className="font-semibold text-md text-black dark:text-white">
-                    {shiftDigits(balance, -exponent)}
+                    {formatAmount(recipientBalance?.amount)}
                   </p>
                 </div>
               </div>
