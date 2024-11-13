@@ -297,15 +297,19 @@ function TokenRow({
       <td className="rounded-l-[12px] w-1/4 lg:table-cell hidden">
         <div className="flex items-center space-x-3">
           <DenomImage denom={denom} />
-          <span className="font-medium">{truncateString(denom.display, 24).toUpperCase()}</span>
+          <span className="font-medium">
+            {truncateString(denom?.display ?? 'No ticker provided', 24).toUpperCase()}
+          </span>
         </div>
       </td>
-      <td className="w-2/5 sm:table-cell hidden">{truncateString(denom.name, 20)}</td>
+      <td className="w-2/5 sm:table-cell hidden">
+        {truncateString(denom?.name ?? 'No name provided', 20)}
+      </td>
       <td className="w-2/5 sm:w-1/4">
         <div className="flex flex-col sm:flex-row sm:items-center">
           <span className="sm:mr-2">{formatAmount(totalSupply)}</span>
           <span className="font-extralight">
-            {truncateString(denom?.display ?? '', 10).toUpperCase()}
+            {truncateString(denom?.display ?? 'No ticker provided', 10).toUpperCase()}
           </span>
         </div>
       </td>
