@@ -75,6 +75,21 @@ export default function BurnForm({
     recipient: Yup.string().required('Recipient address is required').manifestAddress(),
   });
 
+  // Format balance safely
+  function formatAmount(amount: string | null | undefined): string {
+    if (amount == null) {
+      return '-';
+    }
+    try {
+      return Number(shiftDigits(amount, -exponent)).toLocaleString(undefined, {
+        maximumFractionDigits: exponent,
+      });
+    } catch (error) {
+      console.warn('Error formatting amount:', error);
+      return 'x';
+    }
+  }
+
   const handleBurn = async () => {
     if (!amount || Number.isNaN(Number(amount))) {
       return;
