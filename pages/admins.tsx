@@ -89,11 +89,11 @@ export default function Admins() {
             </div>
           </section>
         ) : isGroupByAdminLoading || isActiveValidatorsLoading ? (
-          <section className="transition-opacity duration-300 min-h-screen ease-in-out animate-fadeIn w-full flex flex-col items-center justify-start">
-            <div className="flex flex-col w-full justify-between items-center mb-6">
-              <div className="flex flex-row justify-between items-center w-full">
+          <section className="transition-opacity duration-300 min-h-screen ease-in-out animate-fadeIn w-full">
+            <div className="">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0 mb-6">
                 <h2
-                  className="text-black dark:text-white "
+                  className="text-black dark:text-white"
                   style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
                 >
                   Validators
@@ -103,6 +103,7 @@ export default function Admins() {
                     type="text"
                     placeholder="Search for a validator..."
                     className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-[#0000000A] dark:bg-[#FFFFFF1F] pl-10 text-[#161616] dark:text-white placeholder-[#00000099] dark:placeholder-[#FFFFFF99]"
+                    disabled
                   />
                   <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00000099] dark:text-[#FFFFFF99]" />
                 </div>
@@ -130,7 +131,7 @@ export default function Admins() {
                 Pending
               </button>
             </div>
-            <div className="w-full w-full mx-auto mt-6">
+            <div className="w-full mx-auto mt-6">
               <div className="space-y-4">
                 {[...Array(5)].map((_, index) => (
                   <div

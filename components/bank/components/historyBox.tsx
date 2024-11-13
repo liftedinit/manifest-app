@@ -7,6 +7,8 @@ import { useTokenFactoryDenomsMetadata } from '@/hooks';
 import { SendIcon, ReceiveIcon } from '@/components/icons';
 
 import { DenomImage } from '@/components';
+import { useSendTxIncludingAddressQuery } from '@/hooks';
+
 interface Transaction {
   from_address: string;
   to_address: string;
@@ -21,7 +23,7 @@ export interface TransactionGroup {
 }
 
 export function HistoryBox({
-  isLoading,
+  isLoading: initialLoading,
   send,
   address,
 }: {
@@ -30,6 +32,15 @@ export function HistoryBox({
   address: string;
 }) {
   const [selectedTx, setSelectedTx] = useState<TransactionGroup | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+
+  const {
+    sendTxs,
+    totalPages = 0,
+    isLoading: txLoading,
+    isError,
+  } = useSendTxIncludingAddressQuery(address, undefined, currentPage, pageSize);
 
   const [infoExponent, setInfoExponent] = useState(6);
   const { metadatas } = useTokenFactoryDenomsMetadata();
@@ -52,16 +63,25 @@ export function HistoryBox({
   };
 
   const groupedTransactions = useMemo(() => {
+    if (!sendTxs || sendTxs.length === 0) return {};
+
     const groups: { [key: string]: TransactionGroup[] } = {};
-    send.forEach(tx => {
+    sendTxs.forEach(tx => {
+      console.log('Processing tx:', tx);
+
       const date = formatDateShort(tx.formatted_date);
       if (!groups[date]) {
         groups[date] = [];
       }
       groups[date].push(tx);
     });
+
+    console.log('Grouped transactions:', groups);
     return groups;
-  }, [send]);
+  }, [sendTxs]);
+
+  console.log('sendTxs:', sendTxs);
+  console.log('groupedTransactions:', groupedTransactions);
 
   return (
     <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
@@ -69,82 +89,137 @@ export function HistoryBox({
         <h3 className="text-lg md:text-xl font-semibold text-[#161616] dark:text-white">
           Transaction History
         </h3>
+        {totalPages > 0 && (
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className={`p-2 rounded-full ${
+                currentPage === 1
+                  ? 'text-gray-400 cursor-not-allowed'
+                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+              }`}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
+            <span className="text-sm text-gray-600 dark:text-gray-300">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage >= totalPages}
+              className={`p-2 rounded-full ${
+                currentPage >= totalPages
+                  ? 'text-gray-400 cursor-not-allowed'
+                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+              }`}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="flex-1 overflow-hidden h-full">
-        <div className="h-full overflow-y-auto">
-          {Object.entries(groupedTransactions).map(([date, transactions]) => (
-            <div key={date}>
-              <h4 className="text-sm font-medium text-[#00000099] dark:text-[#FFFFFF99] mb-2">
-                {date}
-              </h4>
-              <div className="space-y-2">
-                {transactions.map(tx => (
-                  <div
-                    key={tx.tx_hash}
-                    className="flex items-center justify-between p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px] cursor-pointer hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] transition-colors"
-                    onClick={() => openModal(tx)}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center">
-                        {tx.data.from_address === address ? <SendIcon /> : <ReceiveIcon />}
-                      </div>
-                      <div className="w-10 h-10 rounded-full overflow-hidden bg-[#0000000A] dark:bg-[#FFFFFF0F] flex items-center justify-center">
-                        {tx.data.amount.map((amt, index) => {
-                          const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
-                          return <DenomImage key={index} denom={metadata} />;
-                        })}
-                      </div>
-                      <div className="">
-                        <div className="flex flex-row items-center gap-2">
-                          <p className="font-semibold text-[#161616] dark:text-white">
-                            {tx.data.from_address === address ? 'Sent' : 'Received'}
-                          </p>
-                          <p className="font-semibold text-[#161616] dark:text-white">
-                            {tx.data.amount.map((amt, index) => {
-                              const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
-                              return metadata?.display.startsWith('factory')
-                                ? metadata?.display?.split('/').pop()?.toUpperCase()
-                                : truncateString(
-                                    metadata?.display ?? metadata?.symbol ?? '',
-                                    10
-                                  ).toUpperCase();
-                            })}
-                          </p>
+        {txLoading ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-white"></div>
+          </div>
+        ) : isError ? (
+          <div className="text-center text-red-500">Error loading transactions</div>
+        ) : !sendTxs || sendTxs.length === 0 ? (
+          <div className="text-center text-gray-500">No transactions found</div>
+        ) : (
+          <div className="h-full overflow-y-auto">
+            {Object.entries(groupedTransactions).map(([date, transactions]) => (
+              <div key={date}>
+                <h4 className="text-sm font-medium text-[#00000099] dark:text-[#FFFFFF99] mb-2">
+                  {date}
+                </h4>
+                <div className="space-y-2">
+                  {transactions.map(tx => (
+                    <div
+                      key={tx.tx_hash}
+                      className="flex items-center justify-between p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px] cursor-pointer hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] transition-colors"
+                      onClick={() => openModal(tx)}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center">
+                          {tx.data.from_address === address ? <SendIcon /> : <ReceiveIcon />}
                         </div>
-                        <div className="address-copy" onClick={e => e.stopPropagation()}>
-                          <TruncatedAddressWithCopy
-                            address={
-                              tx.data.from_address === address
-                                ? tx.data.to_address
-                                : tx.data.from_address
-                            }
-                            slice={6}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p
-                        className={`font-semibold ${tx.data.from_address === address ? 'text-red-500' : 'text-green-500'}`}
-                      >
-                        {tx.data.from_address === address ? '-' : '+'}
-                        {tx.data.amount
-                          .map(amt => {
+                        <div className="w-10 h-10 rounded-full overflow-hidden bg-[#0000000A] dark:bg-[#FFFFFF0F] flex items-center justify-center">
+                          {tx.data.amount.map((amt, index) => {
                             const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
-                            const exponent = Number(metadata?.denom_units[1]?.exponent) || 6;
+                            return <DenomImage key={index} denom={metadata} />;
+                          })}
+                        </div>
+                        <div className="">
+                          <div className="flex flex-row items-center gap-2">
+                            <p className="font-semibold text-[#161616] dark:text-white">
+                              {tx.data.from_address === address ? 'Sent' : 'Received'}
+                            </p>
+                            <p className="font-semibold text-[#161616] dark:text-white">
+                              {tx.data.amount.map((amt, index) => {
+                                const metadata = metadatas?.metadatas.find(
+                                  m => m.base === amt.denom
+                                );
+                                return metadata?.display.startsWith('factory')
+                                  ? metadata?.display?.split('/').pop()?.toUpperCase()
+                                  : truncateString(
+                                      metadata?.display ?? metadata?.symbol ?? '',
+                                      10
+                                    ).toUpperCase();
+                              })}
+                            </p>
+                          </div>
+                          <div className="address-copy" onClick={e => e.stopPropagation()}>
+                            <TruncatedAddressWithCopy
+                              address={
+                                tx.data.from_address === address
+                                  ? tx.data.to_address
+                                  : tx.data.from_address
+                              }
+                              slice={6}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p
+                          className={`font-semibold ${tx.data.from_address === address ? 'text-red-500' : 'text-green-500'}`}
+                        >
+                          {tx.data.from_address === address ? '-' : '+'}
+                          {tx.data.amount
+                            .map(amt => {
+                              const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
+                              const exponent = Number(metadata?.denom_units[1]?.exponent) || 6;
 
-                            return `${Number(shiftDigits(amt.amount, -exponent)).toLocaleString(undefined, { maximumFractionDigits: exponent })} ${formatDenom(amt.denom)}`;
-                          })
-                          .join(', ')}
-                      </p>
+                              return `${Number(shiftDigits(amt.amount, -exponent)).toLocaleString(undefined, { maximumFractionDigits: exponent })} ${formatDenom(amt.denom)}`;
+                            })
+                            .join(', ')}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {selectedTx && <TxInfoModal tx={selectedTx} isOpen={!!selectedTx} onClose={closeModal} />}

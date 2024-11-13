@@ -99,7 +99,7 @@ export default function MintForm({
               <div>
                 <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">NAME</p>
                 <div className="bg-base-300 p-4 rounded-md">
-                  <p className="font-semibold text-md max-w-[20ch] truncate text-black dark:text-white">
+                  <p className="font-semibold text-md  truncate text-black dark:text-white">
                     {denom.name}
                   </p>
                 </div>
@@ -109,7 +109,7 @@ export default function MintForm({
                   YOUR BALANCE
                 </p>
                 <div className="bg-base-300 p-4 rounded-md">
-                  <p className="font-semibold text-md text-black dark:text-white">
+                  <p className="font-semibold text-md text-black truncate dark:text-white">
                     {Number(shiftDigits(balance, -exponent)).toLocaleString(undefined, {
                       maximumFractionDigits: exponent,
                     })}
@@ -130,15 +130,14 @@ export default function MintForm({
               )}
               {totalSupply !== '0' && (
                 <div>
-                  <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
+                  <p className="text-sm font-light text-gray-500 truncate dark:text-gray-400 mb-2">
                     CIRCULATING SUPPLY
                   </p>
                   <div className="bg-base-300 p-4 rounded-md">
-                    <p className="font-semibold text-md max-w-[20ch] truncate text-black dark:text-white">
+                    <p className="font-semibold text-md truncate text-black dark:text-white">
                       {Number(shiftDigits(totalSupply, -exponent)).toLocaleString(undefined, {
                         maximumFractionDigits: exponent,
                       })}{' '}
-                      {denom.display.toUpperCase()}
                     </p>
                   </div>
                 </div>
@@ -228,7 +227,11 @@ export default function MintForm({
                           {isSigning ? (
                             <span className="loading loading-dots loading-xs"></span>
                           ) : (
-                            `Mint ${truncateString(denom.display ?? 'Denom', 20).toUpperCase()}`
+                            `Mint ${
+                              denom.display.startsWith('factory')
+                                ? denom.display.split('/').pop()?.toUpperCase()
+                                : truncateString(denom.display, 12)
+                            }`
                           )}
                         </button>
                       )}

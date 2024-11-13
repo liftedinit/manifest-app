@@ -101,13 +101,13 @@ export default function ProposalSuccess({
           </div>
         </div>
       </div>
-      <div className="flex space-x-3 mt-6 mx-auto w-full">
-        <Link href={`/groups?policyAddress=${policyAddress}`} className="w-1/2">
+      <div className="flex gap-6 mt-6 mx-auto w-full">
+        <Link href={`/groups?policyAddress=${policyAddress}`} className="w-[calc(50%-12px)]">
           <button className="btn btn-neutral w-full">Back to Groups Page</button>
         </Link>
         <Link
           href={`/groups?policyAddress=${policyAddress}&proposalId=${mostRecentProposalCount}`}
-          className="w-1/2"
+          className="w-[calc(50%-12px)]"
         >
           <button className="btn btn-gradient w-full text-white">View Proposal</button>
         </Link>

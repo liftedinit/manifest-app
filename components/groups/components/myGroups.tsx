@@ -80,27 +80,26 @@ export function YourGroups({
         }`}
       >
         <div className="h-full flex flex-col p-4">
-          <div className="flex justify-between items-center mb-4">
-            <div className="flex items-center space-x-4">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
               <h1
                 className="text-black dark:text-white"
                 style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
               >
                 My groups
               </h1>
-              <div className="relative">
+              <div className="relative w-full sm:w-[224px]">
                 <input
                   type="text"
                   placeholder="Search for a group..."
-                  className="input input-bordered w-[224px] h-[40px] rounded-[12px] border-none bg:[#0000000A] dark:bg-[#FFFFFF1F] pl-10"
+                  className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-[#0000000A] dark:bg-[#FFFFFF1F] pl-10"
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                 />
-                <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 " />
+                <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               </div>
             </div>
-
-            <div className="flex items-center space-x-4">
+            <div className="hidden md:block">
               <Link href="/groups/create" passHref>
                 <button className="btn btn-gradient w-[224px] h-[52px] text-white rounded-[12px]">
                   Create New Group
@@ -108,51 +107,49 @@ export function YourGroups({
               </Link>
             </div>
           </div>
-          <div className="flex-1 overflow-auto">
+          <div className="overflow-auto">
             <div className="max-w-8xl mx-auto">
               <table className="table w-full border-separate border-spacing-y-3">
                 <thead className="sticky top-0 bg-[#F0F0FF] dark:bg-[#0E0A1F]">
                   <tr className="text-sm font-medium">
-                    <th className="bg-transparent w-1/6">Group Name</th>
-                    <th className="bg-transparent w-1/6">Active proposals</th>
-                    <th className="bg-transparent w-1/6">Authors</th>
-                    <th className="bg-transparent w-1/6">Group Balance</th>
-                    <th className="bg-transparent w-1/6">Qualified Majority</th>
-                    <th className="bg-transparent w-1/6">Group address</th>
+                    <th className="bg-transparent">Group Name</th>
+                    <th className="bg-transparent hidden xl:table-cell">Active proposals</th>
+                    <th className="bg-transparent hidden xl:table-cell">Authors</th>
+                    <th className="bg-transparent hidden sm:table-cell">Group Balance</th>
+                    <th className="bg-transparent hidden xl:table-cell">Qualified Majority</th>
+                    <th className="bg-transparent hidden lg:table-cell">Group address</th>
                   </tr>
                 </thead>
                 <tbody className="space-y-4">
                   {isLoading
-                    ? // Skeleton
-                      Array(12)
+                    ? Array(10)
                         .fill(0)
                         .map((_, index) => (
                           <tr key={index}>
-                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] w-1/6">
+                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] rounded-r-[12px] sm:rounded-r-none">
                               <div className="flex items-center space-x-3">
                                 <div className="skeleton w-10 h-8 rounded-full shrink-0"></div>
                                 <div className="skeleton h-3 w-24"></div>
                               </div>
                             </td>
-                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6">
+                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] hidden xl:table-cell">
                               <div className="skeleton h-2 w-8"></div>
                             </td>
-                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6">
+                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] hidden xl:table-cell">
                               <div className="skeleton h-2 w-24"></div>
                             </td>
-                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6">
+                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] hidden sm:table-cell lg:rounded-r-none md:rounded-r-[12px]">
                               <div className="skeleton h-2 w-16"></div>
                             </td>
-                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6">
+                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] hidden xl:table-cell">
                               <div className="skeleton h-2 w-20"></div>
                             </td>
-                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px] w-1/6">
+                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] hidden lg:table-cell rounded-r-[12px]">
                               <div className="skeleton h-2 w-32"></div>
                             </td>
                           </tr>
                         ))
-                    : // content
-                      filteredGroups.map((group, index) => (
+                    : filteredGroups.map((group, index) => (
                         <GroupRow
                           key={index}
                           group={group}
@@ -174,6 +171,13 @@ export function YourGroups({
                 </tbody>
               </table>
             </div>
+          </div>
+          <div className="mt-6  w-full justify-center md:hidden block">
+            <Link href="/groups/create" passHref>
+              <button className="btn btn-gradient w-full h-[52px] text-white rounded-[12px]">
+                Create New Group
+              </button>
+            </Link>
           </div>
         </div>
       </div>
@@ -238,33 +242,35 @@ function GroupRow({
         );
       }}
     >
-      <td className=" rounded-l-[12px] w-1/6">
+      <td className="rounded-l-[12px] rounded-r-[12px] sm:rounded-r-none w-1/6">
         <div className="flex items-center space-x-3">
           <ProfileAvatar walletAddress={policyAddress} />
           <span className="font-medium">{truncateString(groupName, 24)}</span>
         </div>
       </td>
-      <td className=" w-1/6">
+      <td className="hidden xl:table-cell w-1/6">
         {activeProposals.length > 0 ? (
           <span className="badge badge-primary badge-sm">{activeProposals.length}</span>
         ) : (
           '-'
         )}
       </td>
-      <td className=" w-1/6">
+      <td className="hidden xl:table-cell w-1/6">
         {truncateString(
           getAuthor(group.ipfsMetadata?.authors) || 'Unknown',
           getAuthor(group.ipfsMetadata?.authors || '').startsWith('manifest1') ? 6 : 24
         )}
       </td>
-      <td className=" w-1/6">
+      <td className="hidden sm:table-cell lg:rounded-r-none md:rounded-r-[12px] w-1/6">
         {Number(shiftDigits(balance?.amount ?? '0', -6)).toLocaleString(undefined, {
           maximumFractionDigits: 6,
         })}{' '}
         MFX
       </td>
-      <td className=" w-1/6">{`${(group.policies[0]?.decision_policy as ThresholdDecisionPolicySDKType).threshold ?? '0'} / ${group.total_weight ?? '0'}`}</td>
-      <td className="rounded-r-[12px] w-1/6">
+      <td className="hidden xl:table-cell w-1/6">
+        {`${(group.policies[0]?.decision_policy as ThresholdDecisionPolicySDKType).threshold ?? '0'} / ${group.total_weight ?? '0'}`}
+      </td>
+      <td className="hidden lg:table-cell rounded-r-[12px] w-1/6">
         <TruncatedAddressWithCopy address={policyAddress} slice={12} />
       </td>
     </tr>

@@ -13,7 +13,7 @@ export default function Groups() {
   const { address, isWalletConnected } = useChain(chainName);
   const { groupByMemberData, isGroupByMemberLoading, isGroupByMemberError, refetchGroupByMember } =
     useGroupsByMember(address ?? '');
-  console.log(groupByMemberData);
+
   const [selectedPolicyAddress, _setSelectedPolicyAddress] = useState<string | null>(null);
 
   const groupPolicyAddresses =

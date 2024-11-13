@@ -780,11 +780,16 @@ const transformTransaction = (tx: any) => {
   };
 };
 
-export const useSendTxIncludingAddressQuery = (address: string, direction?: 'send' | 'receive') => {
+export const useSendTxIncludingAddressQuery = (
+  address: string,
+  direction?: 'send' | 'receive',
+  page: number = 1,
+  pageSize: number = 10
+) => {
   const fetchTransactions = async () => {
     const baseUrl = 'https://testnet-indexer.liftedinit.tech/transactions';
 
-    // Build query for both direct MsgSend and nested group proposal MsgSend
+    // Build query with ->0 notation
     const query = `
       or=(
         and(
@@ -804,25 +809,38 @@ export const useSendTxIncludingAddressQuery = (address: string, direction?: 'sen
         )
       )`;
 
-    const response = await axios.get(
-      `${baseUrl}?${query.replace(/\s+/g, '')}&order=data->txResponse->height.desc`
-    );
+    // Add pagination parameters
+    const offset = (page - 1) * pageSize;
+    const paginationParams = `&limit=${pageSize}&offset=${offset}`;
 
-    // Transform the data to match the component's expected format
-    const transactions = response.data
-      .map(transformTransaction)
-      .filter((tx: any) => tx !== null)
-      .filter((tx: any) => {
-        if (!direction) return true;
-        if (direction === 'send') return tx.data.from_address === address;
-        if (direction === 'receive') return tx.data.to_address === address;
-        return true;
-      });
+    const finalUrl = `${baseUrl}?${query.replace(/\s+/g, '')}&order=data->txResponse->height.desc${paginationParams}`;
 
-    return transactions;
+    try {
+      const response = await axios.get(finalUrl);
+      const totalCount = parseInt(response.headers['content-range']?.split('/')[1] || '0');
+
+      const transactions = response.data
+        .map(transformTransaction)
+        .filter((tx: any) => tx !== null)
+        .filter((tx: any) => {
+          if (!direction) return true;
+          if (direction === 'send') return tx.data.from_address === address;
+          if (direction === 'receive') return tx.data.to_address === address;
+          return true;
+        });
+
+      return {
+        transactions,
+        totalCount,
+        totalPages: Math.ceil(totalCount / pageSize),
+      };
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+      throw error;
+    }
   };
 
-  const queryKey = ['sendTx', address, direction];
+  const queryKey = ['sendTx', address, direction, page, pageSize];
 
   const sendQuery = useQuery({
     queryKey,
@@ -831,7 +849,9 @@ export const useSendTxIncludingAddressQuery = (address: string, direction?: 'sen
   });
 
   return {
-    sendTxs: sendQuery.data,
+    sendTxs: sendQuery.data?.transactions,
+    totalCount: sendQuery.data?.totalCount,
+    totalPages: sendQuery.data?.totalPages,
     isLoading: sendQuery.isLoading,
     isError: sendQuery.isError,
     error: sendQuery.error,

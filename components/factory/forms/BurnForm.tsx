@@ -208,8 +208,10 @@ export default function BurnForm({
                   YOUR BALANCE
                 </p>
                 <div className="bg-base-300 p-4 rounded-md">
-                  <p className="font-semibold text-md text-black dark:text-white">
-                    {shiftDigits(balance, -exponent)}
+                  <p className="font-semibold text-md text-black truncate dark:text-white">
+                    {Number(shiftDigits(totalSupply, -exponent)).toLocaleString(undefined, {
+                      maximumFractionDigits: exponent,
+                    })}{' '}
                   </p>
                 </div>
               </div>
@@ -227,12 +229,14 @@ export default function BurnForm({
               )}
               {totalSupply !== '0' && (
                 <div>
-                  <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
+                  <p className="text-sm font-light text-gray-500 dark:text-gray-400 truncate mb-2">
                     CIRCULATING SUPPLY
                   </p>
                   <div className="bg-base-300 p-4 rounded-md">
-                    <p className="font-semibold text-md max-w-[20ch] truncate text-black dark:text-white">
-                      {shiftDigits(totalSupply, -exponent)} {denom.display.toUpperCase()}
+                    <p className="font-semibold text-md  truncate text-black dark:text-white">
+                      {Number(shiftDigits(totalSupply, -exponent)).toLocaleString(undefined, {
+                        maximumFractionDigits: exponent,
+                      })}{' '}
                     </p>
                   </div>
                 </div>
@@ -321,7 +325,11 @@ export default function BurnForm({
                         {isSigning ? (
                           <span className="loading loading-dots loading-xs"></span>
                         ) : (
-                          `Burn ${truncateString(denom.display ?? 'Denom', 20).toUpperCase()}`
+                          `Burn ${
+                            denom.display.startsWith('factory')
+                              ? denom.display.split('/').pop()?.toUpperCase()
+                              : truncateString(denom.display, 12)
+                          }`
                         )}
                       </button>
                     </div>

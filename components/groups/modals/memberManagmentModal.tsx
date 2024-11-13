@@ -180,7 +180,7 @@ export function MemberManagementModal({
             <h3 className="text-2xl font-semibold">Members</h3>
             <button
               type="button"
-              className="btn btn-gradient w-[140px] h-[52px] text-white rounded-[12px] btn-sm"
+              className="btn btn-gradient xs:max-3xl:w-[140px] xxs:w-auto h-[52px] text-white rounded-[12px] btn-sm"
               onClick={handleAddMember}
             >
               New member
@@ -193,7 +193,7 @@ export function MemberManagementModal({
             onSubmit={handleConfirm}
             enableReinitialize
           >
-            {({ values, errors, touched, isValid, setFieldValue, handleSubmit }) => {
+            {({ values, isValid, setFieldValue, handleSubmit, touched }) => {
               submitFormRef.current = handleSubmit;
               return (
                 <>
@@ -320,31 +320,32 @@ export function MemberManagementModal({
                         </div>
                       ))}
                     </div>
+                    <div className="mt-4 gap-6 flex justify-center w-full">
+                      <button
+                        type="button"
+                        className="btn w-[calc(50%-8px)] btn-md focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
+                        onClick={() =>
+                          (
+                            document.getElementById('member-management-modal') as HTMLDialogElement
+                          ).close()
+                        }
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-md w-[calc(50%-8px)] btn-gradient  text-white"
+                        onClick={() => submitFormRef.current?.()}
+                        disabled={isSigning || !isValid || !touched}
+                      >
+                        {isSigning ? 'Signing...' : 'Save'}
+                      </button>
+                    </div>
                   </Form>
                 </>
               );
             }}
           </Formik>
-        </div>
-
-        <div className="mt-4 flex justify-center w-full">
-          <button
-            type="button"
-            className="btn btn-ghost dark:text-white text-white"
-            onClick={() =>
-              (document.getElementById('member-management-modal') as HTMLDialogElement).close()
-            }
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            className="btn btn-gradient ml-4 text-white"
-            onClick={() => submitFormRef.current?.()}
-            disabled={isSigning}
-          >
-            {isSigning ? 'Signing...' : 'Save Changes'}
-          </button>
         </div>
       </div>
       <form method="dialog" className="modal-backdrop">
