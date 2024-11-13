@@ -60,8 +60,8 @@ export default function BurnForm({
 
   const { balance: recipientBalance } = useTokenFactoryBalance(recipient ?? '', denom.base);
   const balanceNumber = useMemo(
-    () => parseFloat(shiftDigits(isMFX ? recipientBalance?.amount || '0' : balance, -exponent)),
-    [recipientBalance?.amount, balance, exponent, isMFX]
+    () => parseFloat(shiftDigits(isMFX ? recipientBalance?.amount || '0' : recipientBalance?.amount || '0', -exponent)),
+    [recipientBalance?.amount, balance, exponent, isMFX, recipient]
   );
 
   const BurnSchema = Yup.object().shape({
