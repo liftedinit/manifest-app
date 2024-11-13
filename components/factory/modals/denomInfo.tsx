@@ -9,6 +9,10 @@ export const DenomInfoModal: React.FC<{
   isOpen?: boolean;
   onClose?: () => void;
 }> = ({ denom, modalId, isOpen, onClose }) => {
+  let nameIsAddress = false;
+  if (denom?.name.startsWith('factory/manifest1')) {
+    nameIsAddress = true;
+  }
   return (
     <dialog
       id={modalId}
@@ -27,7 +31,11 @@ export const DenomInfoModal: React.FC<{
         </form>
         <h3 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">Denom Details</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <InfoItem label="Name" value={denom?.name ?? 'No name available'} />
+          <InfoItem
+            label="Name"
+            value={denom?.name ?? 'No name available'}
+            isAddress={nameIsAddress}
+          />
           <InfoItem label="Ticker" value={denom?.display.toUpperCase() ?? 'No ticker available'} />
           <InfoItem
             label="Description"
@@ -60,7 +68,7 @@ function InfoItem({
       <div className="bg-base-300 rounded-[16px] p-4 flex-grow h-full">
         {isAddress ? (
           <div className="flex items-center">
-            <TruncatedAddressWithCopy address={value} slice={8} />
+            <TruncatedAddressWithCopy address={value} slice={17} />
             <a
               href={`${process.env.NEXT_PUBLIC_TESTNET_EXPLORER_URL}/account/${value}`}
               target="_blank"
