@@ -83,7 +83,7 @@ export function YourGroups({
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center space-x-4">
               <h1
-                className="text-black dark:text-white"
+                className="text-secondary-content"
                 style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
               >
                 My groups
@@ -92,7 +92,7 @@ export function YourGroups({
                 <input
                   type="text"
                   placeholder="Search for a group..."
-                  className="input input-bordered w-[224px] h-[40px] rounded-[12px] border-none bg:[#0000000A] dark:bg-[#FFFFFF1F] pl-10"
+                  className="input input-bordered w-[224px] h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10"
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                 />
@@ -109,71 +109,69 @@ export function YourGroups({
             </div>
           </div>
           <div className="flex-1 overflow-auto">
-            <div className="max-w-8xl mx-auto">
-              <table className="table w-full border-separate border-spacing-y-3">
-                <thead className="sticky top-0 bg-[#F0F0FF] dark:bg-[#0E0A1F]">
-                  <tr className="text-sm font-medium">
-                    <th className="bg-transparent w-1/6">Group Name</th>
-                    <th className="bg-transparent w-1/6">Active proposals</th>
-                    <th className="bg-transparent w-1/6">Authors</th>
-                    <th className="bg-transparent w-1/6">Group Balance</th>
-                    <th className="bg-transparent w-1/6">Qualified Majority</th>
-                    <th className="bg-transparent w-1/6">Group address</th>
-                  </tr>
-                </thead>
-                <tbody className="space-y-4">
-                  {isLoading
-                    ? // Skeleton
-                      Array(12)
-                        .fill(0)
-                        .map((_, index) => (
-                          <tr key={index}>
-                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] w-1/6">
-                              <div className="flex items-center space-x-3">
-                                <div className="skeleton w-10 h-8 rounded-full shrink-0"></div>
-                                <div className="skeleton h-3 w-24"></div>
-                              </div>
-                            </td>
-                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6">
-                              <div className="skeleton h-2 w-8"></div>
-                            </td>
-                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6">
-                              <div className="skeleton h-2 w-24"></div>
-                            </td>
-                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6">
-                              <div className="skeleton h-2 w-16"></div>
-                            </td>
-                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6">
-                              <div className="skeleton h-2 w-20"></div>
-                            </td>
-                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px] w-1/6">
-                              <div className="skeleton h-2 w-32"></div>
-                            </td>
-                          </tr>
-                        ))
-                    : // content
-                      filteredGroups.map((group, index) => (
-                        <GroupRow
-                          key={index}
-                          group={group}
-                          proposals={
-                            group.policies && group.policies.length > 0
-                              ? proposals[group.policies[0].address]
-                              : []
-                          }
-                          onSelectGroup={(policyAddress, groupName) =>
-                            handleSelectGroup(
-                              policyAddress,
-                              groupName,
-                              (group.policies[0]?.decision_policy as ThresholdDecisionPolicySDKType)
-                                ?.threshold ?? '0'
-                            )
-                          }
-                        />
-                      ))}
-                </tbody>
-              </table>
-            </div>
+            <table className="table w-full border-separate border-spacing-y-3">
+              <thead className="sticky top-0 bg-background-color">
+                <tr className="text-sm font-medium">
+                  <th className="bg-transparent w-1/6">Group Name</th>
+                  <th className="bg-transparent w-1/6">Active proposals</th>
+                  <th className="bg-transparent w-1/6">Authors</th>
+                  <th className="bg-transparent w-1/6">Group Balance</th>
+                  <th className="bg-transparent w-1/6">Qualified Majority</th>
+                  <th className="bg-transparent w-1/6">Group address</th>
+                </tr>
+              </thead>
+              <tbody className="space-y-4">
+                {isLoading
+                  ? // Skeleton
+                    Array(12)
+                      .fill(0)
+                      .map((_, index) => (
+                        <tr key={index}>
+                          <td className="bg-secondary rounded-l-[12px] w-1/6">
+                            <div className="flex items-center space-x-3">
+                              <div className="skeleton w-10 h-8 rounded-full shrink-0"></div>
+                              <div className="skeleton h-3 w-24"></div>
+                            </div>
+                          </td>
+                          <td className="bg-secondary w-1/6">
+                            <div className="skeleton h-2 w-8"></div>
+                          </td>
+                          <td className="bg-secondary w-1/6">
+                            <div className="skeleton h-2 w-24"></div>
+                          </td>
+                          <td className="bg-secondary w-1/6">
+                            <div className="skeleton h-2 w-16"></div>
+                          </td>
+                          <td className="bg-secondary w-1/6">
+                            <div className="skeleton h-2 w-20"></div>
+                          </td>
+                          <td className="bg-secondary rounded-r-[12px] w-1/6">
+                            <div className="skeleton h-2 w-32"></div>
+                          </td>
+                        </tr>
+                      ))
+                  : // content
+                    filteredGroups.map((group, index) => (
+                      <GroupRow
+                        key={index}
+                        group={group}
+                        proposals={
+                          group.policies && group.policies.length > 0
+                            ? proposals[group.policies[0].address]
+                            : []
+                        }
+                        onSelectGroup={(policyAddress, groupName) =>
+                          handleSelectGroup(
+                            policyAddress,
+                            groupName,
+                            (group.policies[0]?.decision_policy as ThresholdDecisionPolicySDKType)
+                              ?.threshold ?? '0'
+                          )
+                        }
+                      />
+                    ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -226,7 +224,7 @@ function GroupRow({
 
   return (
     <tr
-      className="hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] dark:bg-[#FFFFFF0F] bg-[#FFFFFF] text-black dark:text-white rounded-lg cursor-pointer"
+      className="group text-black dark:text-white rounded-lg cursor-pointer transition-colors"
       onClick={e => {
         e.stopPropagation();
         onSelectGroup(
@@ -238,33 +236,35 @@ function GroupRow({
         );
       }}
     >
-      <td className=" rounded-l-[12px] w-1/6">
+      <td className="bg-secondary group-hover:bg-base-300 rounded-l-[12px] px-4 py-4 w-[25%]">
         <div className="flex items-center space-x-3">
           <ProfileAvatar walletAddress={policyAddress} />
           <span className="font-medium">{truncateString(groupName, 24)}</span>
         </div>
       </td>
-      <td className=" w-1/6">
+      <td className="bg-secondary group-hover:bg-base-300 px-4 py-4 w-[15%]">
         {activeProposals.length > 0 ? (
-          <span className="badge badge-primary badge-sm">{activeProposals.length}</span>
+          <span className="badge badge-primary badge-sm text-neutral-content">
+            {activeProposals.length}
+          </span>
         ) : (
           '-'
         )}
       </td>
-      <td className=" w-1/6">
+      <td className="bg-secondary group-hover:bg-base-300 px-4 py-4 w-1/6">
         {truncateString(
           getAuthor(group.ipfsMetadata?.authors) || 'Unknown',
           getAuthor(group.ipfsMetadata?.authors || '').startsWith('manifest1') ? 6 : 24
         )}
       </td>
-      <td className=" w-1/6">
+      <td className="bg-secondary group-hover:bg-base-300 px-4 py-4 w-1/6">
         {Number(shiftDigits(balance?.amount ?? '0', -6)).toLocaleString(undefined, {
           maximumFractionDigits: 6,
         })}{' '}
         MFX
       </td>
-      <td className=" w-1/6">{`${(group.policies[0]?.decision_policy as ThresholdDecisionPolicySDKType).threshold ?? '0'} / ${group.total_weight ?? '0'}`}</td>
-      <td className="rounded-r-[12px] w-1/6">
+      <td className="bg-secondary group-hover:bg-base-300 px-4 py-4 w-1/6">{`${(group.policies[0]?.decision_policy as ThresholdDecisionPolicySDKType).threshold ?? '0'} / ${group.total_weight ?? '0'}`}</td>
+      <td className="bg-secondary group-hover:bg-base-300 px-4 py-4 rounded-r-[12px] w-1/6">
         <TruncatedAddressWithCopy address={policyAddress} slice={12} />
       </td>
     </tr>

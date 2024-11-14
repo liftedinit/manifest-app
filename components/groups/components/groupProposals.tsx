@@ -241,15 +241,12 @@ export default function GroupProposals({
   return (
     <div className="h-full flex flex-col p-4">
       {/* Header section */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center space-x-6">
-          <button
-            onClick={onBack}
-            className="btn btn-circle rounded-[16px] dark:bg-[#FFFFFF0F] bg-[#FFFFFF] btn-md"
-          >
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center space-x-4">
+          <button onClick={onBack} className="btn btn-circle rounded-[16px] bg-secondary btn-md">
             <ArrowRightIcon className="text-primary" />
           </button>
-          <h1 className="text-2xl font-bold">{groupName}</h1>
+          <h1 className="text-2xl font-bold text-primary-content">{groupName}</h1>
           <ProfileAvatar walletAddress={policyAddress} size={40} />
         </div>
         <div className="flex items-center space-x-4">
@@ -269,25 +266,25 @@ export default function GroupProposals({
       </div>
 
       {/* Search and New Proposal section */}
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold">Proposals</h2>
+      <div className="flex justify-between items-center mb-4">
         <div className="flex items-center space-x-4">
+          <h2 className="text-xl font-semibold text-primary-content">Proposals</h2>
           <div className="relative">
             <input
               type="text"
-              placeholder="Search for a group..."
-              className="input input-bordered w-[224px] h-[40px] rounded-[12px] border-none bg-[#0000000A] dark:bg-[#FFFFFF1F] pl-10"
+              placeholder="Search for a proposal..."
+              className="input input-bordered w-[224px] h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
             />
-            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 " />
           </div>
-          <Link href={`/groups/submit-proposal/${policyAddress}`} passHref>
-            <button className="btn btn-gradient rounded-[12px] w-[140px] text-white h-[52px]">
-              New proposal
-            </button>
-          </Link>
         </div>
+        <Link href={`/groups/submit-proposal/${policyAddress}`} passHref>
+          <button className="btn btn-gradient rounded-[12px] w-[140px] text-white h-[52px]">
+            New proposal
+          </button>
+        </Link>
       </div>
 
       {/* Table section - will fill remaining space */}
@@ -357,25 +354,25 @@ export default function GroupProposals({
                   <tr
                     key={proposal.id.toString()}
                     onClick={() => handleRowClick(proposal)}
-                    className="hover:bg-base-200 text-black dark:text-white rounded-lg cursor-pointer"
+                    className="group text-black dark:text-white rounded-lg cursor-pointer"
                   >
-                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] px-4 py-4 w-[25%]">
+                    <td className="bg-secondary group-hover:bg-base-300 rounded-l-[12px] px-4 py-4 w-[25%]">
                       {proposal.id.toString()}
                     </td>
-                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] truncate max-w-xs px-4 py-4 w-[25%]">
+                    <td className="bg-secondary group-hover:bg-base-300 truncate max-w-xs px-4 py-4 w-[25%]">
                       {proposal.title}
                     </td>
-                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] px-4 py-4 w-[25%]">
+                    <td className="bg-secondary group-hover:bg-base-300 px-4 py-4 w-[25%]">
                       {timeLeft}
                     </td>
-                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] px-4 py-4 w-[25%]">
+                    <td className="bg-secondary group-hover:bg-base-300 px-4 py-4 w-[25%]">
                       {proposal.messages.length > 0
                         ? proposal.messages.map((message, index) => (
                             <div key={index}>{getHumanReadableType((message as any)['@type'])}</div>
                           ))
                         : 'No messages'}
                     </td>
-                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px] px-4 py-4 w-[25%]">
+                    <td className="bg-secondary group-hover:bg-base-300 rounded-r-[12px] px-4 py-4 w-[25%]">
                       {isTalliesLoading ? (
                         <span className="loading loading-spinner loading-xs"></span>
                       ) : (
@@ -388,7 +385,7 @@ export default function GroupProposals({
             </tbody>
           </table>
         ) : (
-          <div className="text-center py-8 text-gray-500">No proposals found</div>
+          <div className="text-center py-8 text-gray-500">No proposal was found.</div>
         )}
       </div>
 
