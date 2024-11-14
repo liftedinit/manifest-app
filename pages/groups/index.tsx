@@ -122,7 +122,7 @@ function WalletNotConnected() {
           <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl">
             Use the button below to connect your wallet and start interacting with your groups.
           </p>
-          <div className="w-[50%]">
+          <div className="w-full lg:w-[50%]">
             <WalletSection chainName="manifest" />
           </div>
         </div>
