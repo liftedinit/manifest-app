@@ -421,7 +421,7 @@ function VoteDetailsModal({
 
   return (
     <dialog id={modalId} className="modal">
-      <div className="modal-box relative max-w-4xl min-h-96 flex flex-col md:flex-row md:ml-20 -mt-12 rounded-[24px] shadow-lg dark:bg-[#1D192D] bg-[#FFFFFF] transition-all duration-300 z-[1000]">
+      <div className="modal-box relative max-w-4xl min-h-96 max-h-[80vh] overflow-y-hidden flex flex-col md:flex-row md:ml-20 -mt-12 rounded-[24px] shadow-lg bg-secondary transition-all duration-300 z-[1000]">
         <form method="dialog" onSubmit={onClose}>
           <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
         </form>
@@ -476,7 +476,7 @@ function VoteDetailsModal({
             </div>
           </div>
           <div className="w-full">
-            <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2 ">MESSAGES</p>
+            <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">MESSAGES</p>
             <div className="bg-base-300 rounded-[12px] p-4 overflow-y-auto max-h-[20rem]">
               {proposal?.messages?.map((message: any, index: number) => {
                 const messageType = message['@type'];
@@ -513,7 +513,7 @@ function VoteDetailsModal({
           <div className="w-full">
             <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">MEMBERS</p>
             <div className="bg-base-300 rounded-[12px] p-4 w-full">
-              <div className="overflow-x-auto w-full min-h-64 max-h-[22.5rem]  overflow-y-auto">
+              <div className="overflow-x-auto w-full min-h-64 max-h-[22.5rem] overflow-y-auto">
                 <table className="table-auto w-full text-sm">
                   <thead className="text-xs uppercase bg-neutral">
                     <tr>
