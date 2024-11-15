@@ -112,8 +112,8 @@ export function YourGroups({
             <table className="table w-full border-separate border-spacing-y-3">
               <thead className="sticky top-0 bg-background-color">
                 <tr className="text-sm font-medium">
-                  <th className="bg-transparent w-1/6">Group Name</th>
-                  <th className="bg-transparent w-1/6">Active proposals</th>
+                  <th className="bg-transparent w-[25%]">Group Name</th>
+                  <th className="bg-transparent w-[15%]">Active proposals</th>
                   <th className="bg-transparent w-1/6">Authors</th>
                   <th className="bg-transparent w-1/6">Group Balance</th>
                   <th className="bg-transparent w-1/6">Qualified Majority</th>
