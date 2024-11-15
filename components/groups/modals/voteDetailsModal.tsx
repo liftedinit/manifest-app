@@ -423,7 +423,9 @@ function VoteDetailsModal({
     <dialog id={modalId} className="modal">
       <div className="modal-box relative max-w-4xl min-h-96 max-h-[80vh] overflow-y-hidden flex flex-col md:flex-row md:ml-20 -mt-12 rounded-[24px] shadow-lg bg-secondary transition-all duration-300 z-[1000]">
         <form method="dialog" onSubmit={onClose}>
-          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+          <button className="btn btn-sm btn-circle text-black dark:text-white btn-ghost absolute right-2 top-2">
+            ✕
+          </button>
         </form>
         <div className="flex flex-col flex-grow w-full p-2 space-y-6">
           <div className="flex flex-row justify-between items-center">
