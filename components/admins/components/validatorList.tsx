@@ -80,7 +80,7 @@ export default function ValidatorList({
           <div className="flex justify-between items-center mb-4 min-h-[52px]">
             <div className="flex items-center space-x-4">
               <h2
-                className="text-black dark:text-white"
+                className="text-secondary-content"
                 style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
               >
                 Validators
@@ -89,7 +89,7 @@ export default function ValidatorList({
                 <input
                   type="text"
                   placeholder="Search for a validator..."
-                  className="input input-bordered w-[224px] h-[40px] rounded-[12px] border-none bg:[#0000000A] dark:bg-[#FFFFFF1F] pl-10"
+                  className="input input-bordered w-[224px] h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10"
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                 />
@@ -97,13 +97,11 @@ export default function ValidatorList({
               </div>
             </div>
           </div>
-          <div className="flex mb-6 w-full h-[3.5rem] rounded-xl p-1 bg-[#0000000A] dark:bg-[#FFFFFF0F]">
+          <div className="flex mb-6 w-full h-[3.5rem] rounded-xl p-1 bg-secondary">
             <button
               onClick={() => setActive(true)}
               className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl  ${
-                active
-                  ? 'dark:bg-[#FFFFFF1F] bg-[#FFFFFF] text-[#161616] dark:text-white'
-                  : 'text-[#808080]'
+                active ? 'bg-base-300 text-secondary-content' : 'text-gray-500'
               }`}
             >
               Active
@@ -111,9 +109,7 @@ export default function ValidatorList({
             <button
               onClick={() => setActive(false)}
               className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl  ${
-                !active
-                  ? 'dark:bg-[#FFFFFF1F] bg-[#FFFFFF] text-[#161616] dark:text-white'
-                  : 'text-[#808080]'
+                !active ? 'bg-base-300 text-secondary-content' : 'text-gray-500'
               }`}
             >
               Pending
@@ -148,19 +144,19 @@ export default function ValidatorList({
                         .fill(0)
                         .map((_, index) => (
                           <tr key={index}>
-                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] w-1/6">
+                            <td className="bg-secondary rounded-l-[12px] w-1/6">
                               <div className="flex items-center space-x-3">
                                 <div className="skeleton w-10 h-8 rounded-full shrink-0"></div>
                                 <div className="skeleton h-3 w-24"></div>
                               </div>
                             </td>
-                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6">
+                            <td className="bg-secondary w-1/6">
                               <div className="skeleton h-2 w-24"></div>
                             </td>
-                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6">
+                            <td className="bg-secondary w-1/6">
                               <div className="skeleton h-2 w-8"></div>
                             </td>
-                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6 rounded-r-[12px] text-right">
+                            <td className="bg-secondary w-1/6 rounded-r-[12px] text-right">
                               <div className="skeleton h-2 w-8 ml-auto"></div>
                             </td>
                           </tr>
@@ -168,12 +164,12 @@ export default function ValidatorList({
                     : filteredValidators.map(validator => (
                         <tr
                           key={validator.operator_address}
-                          className="bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg cursor-pointer"
+                          className="group text-black dark:text-white rounded-lg cursor-pointer transition-colors"
                           onClick={() => handleRowClick(validator)}
                           role="row"
                           aria-label={`Validator ${validator.description.moniker}`}
                         >
-                          <td className="rounded-l-[12px] py-4">
+                          <td className="bg-secondary group-hover:bg-base-300 rounded-l-[12px] py-4">
                             <div className="flex items-center space-x-3">
                               {validator.logo_url ? (
                                 <Image
@@ -193,14 +189,16 @@ export default function ValidatorList({
                             </div>
                           </td>
 
-                          <td className="py-4">
+                          <td className="bg-secondary group-hover:bg-base-300 py-4">
                             <TruncatedAddressWithCopy
                               slice={10}
                               address={validator.operator_address}
                             />
                           </td>
-                          <td className="py-4">{validator.consensus_power?.toString() ?? 'N/A'}</td>
-                          <td className="rounded-r-[12px] py-4 text-right">
+                          <td className="bg-secondary group-hover:bg-base-300 py-4">
+                            {validator.consensus_power?.toString() ?? 'N/A'}
+                          </td>
+                          <td className="bg-secondary group-hover:bg-base-300 rounded-r-[12px] py-4 text-right">
                             <button
                               onClick={e => {
                                 e.stopPropagation();
