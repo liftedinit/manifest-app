@@ -114,8 +114,8 @@ export default function MyDenoms({
   }, [denoms, searchQuery]);
 
   return (
-    <div className="relative w-full overflow-hidden">
-      <div className="space-y-4 w-full pt-4">
+    <div className="relative w-full h-screen overflow-hidden">
+      <div className="h-full flex flex-col p-4">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center space-x-4">
             <h1
@@ -128,7 +128,7 @@ export default function MyDenoms({
               <input
                 type="text"
                 placeholder="Search for a token..."
-                className="input input-bordered w-[224px] h-[40px] rounded-[12px] border-none bg:[#0000000A] dark:bg-[#FFFFFF1F] pl-10"
+                className="input input-bordered w-[224px] h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
               />
@@ -144,61 +144,59 @@ export default function MyDenoms({
             </Link>
           </div>
         </div>
-        <div className="overflow-x-auto max-h-[87vh] w-full">
-          <div className="max-w-8xl mx-auto">
-            <table className="table w-full border-separate border-spacing-y-3">
-              <thead className="sticky top-0 bg-[#F0F0FF] dark:bg-[#0E0A1F]">
-                <tr className="text-sm font-medium">
-                  <th className="bg-transparent w-1/4 lg:table-cell hidden">Token Symbol</th>
-                  <th className="bg-transparent w-2/5 lg:table-cell hidden">Name</th>
-                  <th className="bg-transparent w-2/5 md:table-cell hidden">Total Supply</th>
-                  <th className="bg-transparent w-1/4">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="space-y-4">
-                {isLoading
-                  ? Array(12)
-                      .fill(0)
-                      .map((_, index) => (
-                        <tr key={index} aria-label={`skeleton-${index}`}>
-                          <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] w-1/4 lg:table-cell hidden">
-                            <div className="flex items-center space-x-3">
-                              <div className="skeleton w-10 h-8 rounded-full shrink-0"></div>
-                              <div className="skeleton h-3 w-24"></div>
-                            </div>
-                          </td>
-                          <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-2/5 md:table-cell hidden">
-                            <div className="skeleton h-2 w-24"></div>
-                          </td>
-                          <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-2/5">
-                            <div className="skeleton h-2 w-32"></div>
-                          </td>
-                          <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px] w-1/4">
-                            <div className="skeleton h-2 w-32"></div>
-                          </td>
-                        </tr>
-                      ))
-                  : filteredDenoms.map(denom => (
-                      <TokenRow
-                        key={denom.base}
-                        denom={denom}
-                        onSelectDenom={() => handleDenomSelect(denom)}
-                        onMint={e => {
-                          e.stopPropagation();
-                          setSelectedDenom(denom);
-                          setModalType('mint');
-                        }}
-                        onBurn={e => {
-                          e.stopPropagation();
-                          setSelectedDenom(denom);
-                          setModalType('burn');
-                        }}
-                        onUpdate={e => handleUpdateModal(denom, e)}
-                      />
-                    ))}
-              </tbody>
-            </table>
-          </div>
+        <div className="flex-1 overflow-auto">
+          <table className="table w-full border-separate border-spacing-y-3">
+            <thead className="sticky top-0 bg-background-color">
+              <tr className="text-sm font-medium">
+                <th className="bg-transparent w-1/4 lg:table-cell hidden">Token Symbol</th>
+                <th className="bg-transparent w-2/5 lg:table-cell hidden">Name</th>
+                <th className="bg-transparent w-2/5 md:table-cell hidden">Total Supply</th>
+                <th className="bg-transparent w-1/4">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="space-y-4">
+              {isLoading
+                ? Array(12)
+                    .fill(0)
+                    .map((_, index) => (
+                      <tr key={index} aria-label={`skeleton-${index}`}>
+                        <td className="bg-secondary rounded-l-[12px] w-1/4 lg:table-cell hidden">
+                          <div className="flex items-center space-x-3">
+                            <div className="skeleton w-10 h-8 rounded-full shrink-0"></div>
+                            <div className="skeleton h-3 w-24"></div>
+                          </div>
+                        </td>
+                        <td className="bg-secondary w-2/5 md:table-cell hidden">
+                          <div className="skeleton h-2 w-24"></div>
+                        </td>
+                        <td className="bg-secondary w-2/5">
+                          <div className="skeleton h-2 w-32"></div>
+                        </td>
+                        <td className="bg-secondary rounded-r-[12px] w-1/4">
+                          <div className="skeleton h-2 w-32"></div>
+                        </td>
+                      </tr>
+                    ))
+                : filteredDenoms.map(denom => (
+                    <TokenRow
+                      key={denom.base}
+                      denom={denom}
+                      onSelectDenom={() => handleDenomSelect(denom)}
+                      onMint={e => {
+                        e.stopPropagation();
+                        setSelectedDenom(denom);
+                        setModalType('mint');
+                      }}
+                      onBurn={e => {
+                        e.stopPropagation();
+                        setSelectedDenom(denom);
+                        setModalType('burn');
+                      }}
+                      onUpdate={e => handleUpdateModal(denom, e)}
+                    />
+                  ))}
+            </tbody>
+          </table>
         </div>
       </div>
       <DenomInfoModal
@@ -291,10 +289,10 @@ function TokenRow({
 
   return (
     <tr
-      className="hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] dark:bg-[#FFFFFF0F] bg-[#FFFFFF] text-black dark:text-white rounded-lg cursor-pointer"
+      className="group text-black dark:text-white rounded-lg cursor-pointer transition-colors"
       onClick={onSelectDenom}
     >
-      <td className="rounded-l-[12px] w-1/4 lg:table-cell hidden">
+      <td className="bg-secondary group-hover:bg-base-300 rounded-l-[12px] w-1/4 lg:table-cell hidden">
         <div className="flex items-center space-x-3">
           <DenomImage denom={denom} />
           <span className="font-medium">
@@ -302,10 +300,10 @@ function TokenRow({
           </span>
         </div>
       </td>
-      <td className="w-2/5 sm:table-cell hidden">
+      <td className="bg-secondary group-hover:bg-base-300 w-2/5 sm:table-cell hidden">
         {truncateString(denom?.name ?? 'No name provided', 20)}
       </td>
-      <td className="w-2/5 sm:w-1/4">
+      <td className="bg-secondary group-hover:bg-base-300 w-2/5 sm:w-1/4">
         <div className="flex flex-col sm:flex-row sm:items-center">
           <span className="sm:mr-2">{formatAmount(totalSupply)}</span>
           <span className="font-extralight">
@@ -313,30 +311,36 @@ function TokenRow({
           </span>
         </div>
       </td>
-      <td className="rounded-r-[12px] w-1/4" onClick={e => e.stopPropagation()}>
+      <td
+        className="bg-secondary group-hover:bg-base-300 rounded-r-[12px] w-1/4"
+        onClick={e => e.stopPropagation()}
+      >
         <div className="flex space-x-2">
-          <button className="btn btn-sm btn-outline btn-square btn-primary group" onClick={onMint}>
-            <MintIcon className="w-5 h-5 text-current group-hover:text-white" />
+          <button
+            className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1"
+            onClick={onMint}
+          >
+            <MintIcon className="w-7 h-7 text-current" />
           </button>
 
           <button
             disabled={denom.base.includes('umfx')}
-            className="btn btn-sm btn-outline btn-square btn-error group"
+            className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1"
             onClick={onBurn}
           >
-            <BurnIcon className="w-5 h-5 text-current group-hover:text-white" />
+            <BurnIcon className="w-7 h-7 text-current" />
           </button>
 
           <button
             disabled={denom.base.includes('umfx')}
-            className="btn btn-sm btn-square btn-outline btn-info group"
+            className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1"
             onClick={e => {
               e.preventDefault();
               e.stopPropagation();
               onUpdate(e);
             }}
           >
-            <PiInfo className="w-5 h-5 text-current group-hover:text-white" />
+            <PiInfo className="w-7 h-7 text-current" />
           </button>
         </div>
       </td>
