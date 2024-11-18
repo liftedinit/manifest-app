@@ -497,7 +497,7 @@ function VoteDetailsModal({
               })}
             </div>
           </div>
-          <div className="hidden md:block w-full">
+          <div aria-label="voting-countdown-1" className="hidden md:block w-full">
             <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
               VOTING COUNTDOWN
             </p>
@@ -508,7 +508,7 @@ function VoteDetailsModal({
         <div className="flex flex-col w-full relative flex-grow items-start justify-start p-6 space-y-6">
           <div className="w-full">
             <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">TALLY</p>
-            <div className="bg-base-300 rounded-[12px] w-full">
+            <div aria-label="chart-tally" className="bg-base-300 rounded-[12px] w-full">
               <Chart options={options} series={[{ data: chartData }]} type="bar" height={200} />
             </div>
           </div>
@@ -556,7 +556,7 @@ function VoteDetailsModal({
               </div>
             </div>
           </div>
-          <div className="md:hidden block w-full">
+          <div aria-label="voting-countdown-2" className="md:hidden block w-full">
             <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
               VOTING COUNTDOWN
             </p>
@@ -565,6 +565,7 @@ function VoteDetailsModal({
           <div className="w-full relative">
             {getButtonState.action && (
               <button
+                aria-label="action-btn"
                 disabled={
                   isSigning ||
                   (getButtonState.action === 'remove' &&
