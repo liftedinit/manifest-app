@@ -138,27 +138,6 @@ export type BurnHeldBalanceMessage = {
   burn_coins: { denom: string; amount: string }[];
 };
 
-// POA
-export type RemoveValidatorMessage = {
-  type: 'removeValidator';
-  sender: string;
-  validator_address: string;
-};
-
-export type RemovePendingMessage = {
-  type: 'removePending';
-  sender: string;
-  validator_address: string;
-};
-
-export type SetPowerMessage = {
-  type: 'setPower';
-  sender: string;
-  validator_address: string;
-  power: bigint;
-  unsafe: boolean;
-};
-
 // Group
 export type UpdateGroupAdminMessage = {
   type: 'updateGroupAdmin';
@@ -272,10 +251,6 @@ export type Message =
   // Manifest
   | PayoutStakeholdersMessage
   | BurnHeldBalanceMessage
-  // POA
-  | RemoveValidatorMessage
-  | RemovePendingMessage
-  | SetPowerMessage
   // Group
   | UpdateGroupAdminMessage
   | UpdateGroupMembersMessage
@@ -300,10 +275,6 @@ export type MessageFields =
   // Manifest
   | keyof PayoutStakeholdersMessage
   | keyof BurnHeldBalanceMessage
-  // POA
-  | keyof RemoveValidatorMessage
-  | keyof RemovePendingMessage
-  | keyof SetPowerMessage
   // Group
   | keyof UpdateGroupAdminMessage
   | keyof UpdateGroupMembersMessage

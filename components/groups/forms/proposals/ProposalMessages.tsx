@@ -60,15 +60,7 @@ export default function ProposalMessages({
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
 
-  const messageCategories = [
-    'All',
-    'Admins',
-    'Group Management',
-    'Proposal Actions',
-    'Financial',
-    'System',
-    'Token Factory',
-  ];
+  const messageCategories = ['All', 'Group Management', 'Financial', 'System', 'Token Factory'];
 
   const messageTypes = [
     // Bank
@@ -77,10 +69,6 @@ export default function ProposalMessages({
     // Manifest
     { name: 'payoutStakeholders', category: 'Financial' },
     { name: 'burnHeldBalance', category: 'Financial' },
-    // POA
-    { name: 'removeValidator', category: 'Admins' },
-    { name: 'removePendingValidator', category: 'Admins' },
-    { name: 'setPower', category: 'Group Management' },
     // Group
     { name: 'updateGroupAdmin', category: 'Group Management' },
     { name: 'updateGroupMembers', category: 'Group Management' },
@@ -199,27 +187,6 @@ export default function ProposalMessages({
           case 'burnHeldBalance':
             updatedMessage = {
               ...initialMessages.initialBurnHeldBalanceMessage,
-              type: value,
-            };
-            break;
-          //  POA
-          case 'removeValidator':
-            updatedMessage = {
-              ...initialMessages.initialRemoveValidatorMessage,
-              type: value,
-              sender: policyAddress,
-              validator_address: '',
-            };
-            break;
-          case 'removePendingValidator':
-            updatedMessage = {
-              ...initialMessages.initialRemovePendingMessage,
-              type: value,
-            };
-            break;
-          case 'setPower':
-            updatedMessage = {
-              ...initialMessages.initialSetPowerMessage,
               type: value,
             };
             break;

@@ -13,27 +13,6 @@ export const initialMultiSendMessage = {
   outputs: [{ address: '', coins: [{ denom: '', amount: '' }] }],
 };
 
-export const initialRemoveValidatorMessage: RemoveValidatorMessage = {
-  type: 'removeValidator',
-  sender: '',
-  validator_address: '',
-};
-
-// Poa Messages
-export const initialRemovePendingMessage = {
-  type: 'removePending',
-  sender: '',
-  validator_address: '',
-};
-
-export const initialSetPowerMessage = {
-  type: 'setPower',
-  sender: '',
-  validator_address: '',
-  power: BigInt(0),
-  unsafe: true,
-};
-
 // Manifest Messages
 export const initialPayoutStakeholdersMessage = {
   type: 'payoutStakeholders',

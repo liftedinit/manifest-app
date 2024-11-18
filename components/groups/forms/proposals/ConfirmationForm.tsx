@@ -59,11 +59,6 @@ export default function ConfirmationForm({
     payoutStakeholders: MsgPayout;
     burnHeldBalance: MsgBurnHeldBalance;
 
-    // POA
-    removeValidator: MsgRemoveValidator;
-    removePending: MsgRemovePending;
-    setPower: MsgSetPower;
-
     // Group
     updateGroupAdmin: MsgUpdateGroupAdmin;
     updateGroupMembers: MsgUpdateGroupMembers;
@@ -95,11 +90,6 @@ export default function ConfirmationForm({
     // Manifest
     payoutStakeholders: liftedinit.manifest.v1.MessageComposer.encoded.payout,
     burnHeldBalance: liftedinit.manifest.v1.MessageComposer.encoded.burnHeldBalance,
-
-    // POA
-    removeValidator: strangelove_ventures.poa.v1.MessageComposer.encoded.removeValidator,
-    removePending: strangelove_ventures.poa.v1.MessageComposer.encoded.removePending,
-    setPower: strangelove_ventures.poa.v1.MessageComposer.encoded.setPower,
 
     // Group
     updateGroupAdmin: cosmos.group.v1.MessageComposer.encoded.updateGroupAdmin,

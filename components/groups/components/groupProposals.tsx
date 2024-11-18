@@ -140,10 +140,6 @@ export default function GroupProposals({
     // Manifest
     | '/manifest.v1.MsgPayout'
     | '/manifest.v1.MsgBurnHeldBalance'
-    // POA
-    | '/strangelove_ventures.poa.v1.MsgSetPower'
-    | '/strangelove_ventures.poa.v1.MsgRemoveValidator'
-    | '/strangelove_ventures.poa.v1.MsgRemovePending'
     // Group
     | '/cosmos.group.v1.MsgUpdateGroupAdmin'
     | '/cosmos.group.v1.MsgUpdateGroupMembers'
@@ -167,10 +163,6 @@ export default function GroupProposals({
     // Manifest
     '/manifest.v1.MsgPayout': 'Payout',
     '/manifest.v1.MsgBurnHeldBalance': 'Burn Held Balance',
-    // POA
-    '/strangelove_ventures.poa.v1.MsgSetPower': 'Set Power',
-    '/strangelove_ventures.poa.v1.MsgRemoveValidator': 'Remove Validator',
-    '/strangelove_ventures.poa.v1.MsgRemovePending': 'Remove Pending',
     // Group
     '/cosmos.group.v1.MsgUpdateGroupAdmin': 'Update Group Admin',
     '/cosmos.group.v1.MsgUpdateGroupMembers': 'Update Group Members',
