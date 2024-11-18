@@ -1,6 +1,7 @@
 import { DenomUnit } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { Duration } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/duration';
 import { Coin } from '@cosmjs/stargate';
+import { Metadata } from 'cosmjs-types/cosmos/bank/v1beta1/bank';
 
 // Schemas for form data
 export type FormData = {
@@ -110,6 +111,7 @@ export const formDataReducer = (state: FormData, action: Action): FormData => {
   }
 };
 
+// Bank
 export type SendMessage = {
   type: 'send';
   from_address: string;
@@ -117,37 +119,30 @@ export type SendMessage = {
   amount: Coin;
 };
 
-export type CustomMessage = {
-  type: 'customMessage';
-  custom_field: string;
+export type MultiSendMessage = {
+  type: 'multiSend';
+  inputs: { address: string; coins: { denom: string; amount: string }[] }[];
+  outputs: { address: string; coins: { denom: string; amount: string }[] }[];
 };
 
-export type UpdatePoaParamsMessage = {
-  type: 'updatePoaParams';
-  sender: string;
-  params: {
-    admins: string[];
-    allow_validator_self_exit: boolean;
-  };
+// Manifest
+export type PayoutStakeholdersMessage = {
+  type: 'payoutStakeholders';
+  authority: string;
+  payout_pairs: { address: string; amount: { denom: string; amount: string } }[];
 };
 
+export type BurnHeldBalanceMessage = {
+  type: 'burnHeldBalance';
+  authority: string;
+  burn_coins: { denom: string; amount: string }[];
+};
+
+// POA
 export type RemoveValidatorMessage = {
   type: 'removeValidator';
   sender: string;
   validator_address: string;
-};
-
-export type UpdateStakingParamsMessage = {
-  type: 'updateStakingParams';
-  sender: string;
-  params: {
-    unbonding_time: { seconds: bigint; nanos: number };
-    max_validators: number;
-    max_entries: number;
-    historical_entries: number;
-    bond_denom: string;
-    min_commission_rate: string;
-  };
 };
 
 export type RemovePendingMessage = {
@@ -164,25 +159,7 @@ export type SetPowerMessage = {
   unsafe: boolean;
 };
 
-export type UpdateManifestParamsMessage = {
-  type: 'updateManifestParams';
-  authority: string;
-  params: {
-    stake_holders: { address: string; percentage: number }[];
-    inflation: {
-      automatic_enabled: boolean;
-      mint_denom: string;
-      yearly_amount: bigint;
-    };
-  };
-};
-
-export type PayoutStakeholdersMessage = {
-  type: 'payoutStakeholders';
-  authority: string;
-  payout: { denom: string; amount: string };
-};
-
+// Group
 export type UpdateGroupAdminMessage = {
   type: 'updateGroupAdmin';
   new_admin: string;
@@ -216,62 +193,59 @@ export type UpdateGroupPolicyAdminMessage = {
   address: string;
 };
 
-export type CreateGroupWithPolicyMessage = {
-  type: 'createGroupWithPolicy';
-  admin: string;
-  group_metadata: string;
-  group_policy_as_admin: boolean;
-  group_policy_metadata: string;
-  members: {
-    address: string;
-    weight: string;
-    metadata: string;
-    added_at: Date;
-  }[];
-};
-
-export type SubmitProposalMessage = {
-  type: 'submitProposal';
-  proposers: string[];
-  messages: any[];
+export type UpdateGroupPolicyMetadataMessage = {
+  type: 'updateGroupPolicyMetadata';
   metadata: string;
   address: string;
-  exec: number;
 };
 
-export type VoteMessage = {
-  type: 'vote';
-  voter: string;
-  proposal_id: bigint;
-  option: number;
-  metadata: string;
-  exec: number;
+// Token Factory
+export type CreateDenomMessage = {
+  type: 'createDenom';
+  sender: string;
+  subdenom: string;
 };
 
-export type WithdrawProposalMessage = {
-  type: 'withdrawProposal';
-  proposal_id: bigint;
-  address: string;
+export type SetDenomMetadataMessage = {
+  type: 'setDenomMetadata';
+  sender: string;
+  metadata: {
+    base: string;
+    display: string;
+    description: string;
+    name: string;
+    symbol: string;
+    uri: string;
+    uri_hash: string;
+    denom_units: {
+      denom: string;
+      exponent: number;
+      aliases: string[];
+    }[];
+  };
 };
 
-export type ExecMessage = {
-  type: 'exec';
-  proposal_id: bigint;
-  signer: string;
+export type MintMessage = {
+  type: 'mint';
+  sender: string;
+  amount: { denom: string; amount: string };
+  mint_to_address: string;
 };
 
-export type LeaveGroupMessage = {
-  type: 'leaveGroup';
-  group_id: bigint;
-  address: string;
+export type BurnMessage = {
+  type: 'burn';
+  sender: string;
+  amount: { denom: string; amount: string };
+  burn_from_address: string;
 };
 
-export type MultiSendMessage = {
-  type: 'multiSend';
-  inputs: { address: string; coins: { denom: string; amount: string }[] }[];
-  outputs: { address: string; coins: { denom: string; amount: string }[] }[];
+export type ChangeAdminMessage = {
+  type: 'changeAdmin';
+  sender: string;
+  new_admin: string;
 };
 
+// Upgrade
 export type SoftwareUpgradeMessage = {
   type: 'softwareUpgrade';
   authority: string;
@@ -283,49 +257,69 @@ export type CancelUpgradeMessage = {
   authority: string;
 };
 
+export type CustomMessage = {
+  type: 'customMessage';
+  custom_field: string;
+};
+
 // Add more message types as needed
 
 // Union of all possible message types
 export type Message =
+  // Bank
   | SendMessage
-  | CustomMessage
+  | MultiSendMessage
+  // Manifest
+  | PayoutStakeholdersMessage
+  | BurnHeldBalanceMessage
+  // POA
+  | RemoveValidatorMessage
   | RemovePendingMessage
   | SetPowerMessage
-  | UpdateStakingParamsMessage
-  | PayoutStakeholdersMessage
+  // Group
   | UpdateGroupAdminMessage
   | UpdateGroupMembersMessage
   | UpdateGroupMetadataMessage
   | UpdateGroupPolicyAdminMessage
-  | CreateGroupWithPolicyMessage
-  | SubmitProposalMessage
-  | VoteMessage
-  | WithdrawProposalMessage
-  | ExecMessage
-  | LeaveGroupMessage
-  | RemoveValidatorMessage
-  | MultiSendMessage
+  | UpdateGroupPolicyMetadataMessage
+  // Token Factory
+  | CreateDenomMessage
+  | SetDenomMetadataMessage
+  | MintMessage
+  | BurnMessage
+  | ChangeAdminMessage
+  // Upgrade
   | SoftwareUpgradeMessage
-  | CancelUpgradeMessage;
+  | CancelUpgradeMessage
+  | CustomMessage;
 
 export type MessageFields =
+  // Bank
   | keyof SendMessage
-  | keyof CustomMessage
+  | keyof MultiSendMessage
+  // Manifest
+  | keyof PayoutStakeholdersMessage
+  | keyof BurnHeldBalanceMessage
+  // POA
   | keyof RemoveValidatorMessage
   | keyof RemovePendingMessage
   | keyof SetPowerMessage
-  | keyof UpdateStakingParamsMessage
-  | keyof PayoutStakeholdersMessage
+  // Group
   | keyof UpdateGroupAdminMessage
   | keyof UpdateGroupMembersMessage
   | keyof UpdateGroupMetadataMessage
   | keyof UpdateGroupPolicyAdminMessage
-  | keyof CreateGroupWithPolicyMessage
-  | keyof SubmitProposalMessage
-  | keyof VoteMessage
-  | keyof WithdrawProposalMessage
-  | keyof ExecMessage
-  | keyof LeaveGroupMessage
+  | keyof UpdateGroupPolicyMetadataMessage
+  // Token Factory
+  | keyof CreateDenomMessage
+  | keyof SetDenomMetadataMessage
+  | keyof MintMessage
+  | keyof BurnMessage
+  | keyof ChangeAdminMessage
+  // Upgrade
+  | keyof SoftwareUpgradeMessage
+  | keyof CancelUpgradeMessage
+  | keyof CustomMessage
   | 'type';
 
 export type ProposalFormData = {

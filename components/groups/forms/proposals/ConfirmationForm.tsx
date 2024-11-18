@@ -2,7 +2,7 @@ import React from 'react';
 import { useFeeEstimation } from '@/hooks/useFeeEstimation';
 import { uploadJsonToIPFS } from '@/hooks/useIpfs';
 import { useTx } from '@/hooks/useTx';
-import { strangelove_ventures, cosmos, liftedinit } from '@liftedinit/manifestjs';
+import { strangelove_ventures, cosmos, liftedinit, osmosis } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
@@ -13,19 +13,13 @@ import {
   MsgRemovePending,
   MsgRemoveValidator,
   MsgSetPower,
-  MsgUpdateStakingParams,
 } from '@liftedinit/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
 import {
-  MsgCreateGroupWithPolicy,
-  MsgExec,
-  MsgLeaveGroup,
-  MsgSubmitProposal,
   MsgUpdateGroupAdmin,
   MsgUpdateGroupMembers,
   MsgUpdateGroupMetadata,
   MsgUpdateGroupPolicyAdmin,
-  MsgVote,
-  MsgWithdrawProposal,
+  MsgUpdateGroupPolicyMetadata,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
 import {
   MsgPayout,
@@ -35,6 +29,13 @@ import {
   MsgSoftwareUpgrade,
   MsgCancelUpgrade,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
+import {
+  MsgBurn,
+  MsgChangeAdmin,
+  MsgCreateDenom,
+  MsgMint,
+  MsgSetDenomMetadata,
+} from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
 
 export default function ConfirmationForm({
   policyAddress,
@@ -50,53 +51,75 @@ export default function ConfirmationForm({
   address: string;
 }>) {
   type MessageTypeMap = {
+    // Bank
     send: MsgSend;
+    multiSend: MsgMultiSend;
+
+    // Manifest
+    payoutStakeholders: MsgPayout;
+    burnHeldBalance: MsgBurnHeldBalance;
+
+    // POA
     removeValidator: MsgRemoveValidator;
     removePending: MsgRemovePending;
-    updateStakingParams: MsgUpdateStakingParams;
     setPower: MsgSetPower;
 
-    payoutStakeholders: MsgPayout;
+    // Group
     updateGroupAdmin: MsgUpdateGroupAdmin;
     updateGroupMembers: MsgUpdateGroupMembers;
     updateGroupMetadata: MsgUpdateGroupMetadata;
     updateGroupPolicyAdmin: MsgUpdateGroupPolicyAdmin;
-    createGroupWithPolicy: MsgCreateGroupWithPolicy;
-    submitProposal: MsgSubmitProposal;
-    vote: MsgVote;
-    withdrawProposal: MsgWithdrawProposal;
-    exec: MsgExec;
-    leaveGroup: MsgLeaveGroup;
-    multiSend: MsgMultiSend;
+    updateGroupPolicyMetadata: MsgUpdateGroupPolicyMetadata;
+
+    // Token Factory
+    createDenom: MsgCreateDenom;
+    mintToken: MsgMint;
+    burnToken: MsgBurn;
+    setDenomMetadata: MsgSetDenomMetadata;
+    changeAdmin: MsgChangeAdmin;
+
+    // Upgrade
     softwareUpgrade: MsgSoftwareUpgrade;
     cancelUpgrade: MsgCancelUpgrade;
+
     customMessage: any;
   };
 
   const messageTypeToComposer: {
     [K in keyof MessageTypeMap]: (value: MessageTypeMap[K]) => any;
   } = {
+    // Bank
     send: cosmos.bank.v1beta1.MessageComposer.encoded.send,
+    multiSend: cosmos.bank.v1beta1.MessageComposer.encoded.multiSend,
+
+    // Manifest
+    payoutStakeholders: liftedinit.manifest.v1.MessageComposer.encoded.payout,
+    burnHeldBalance: liftedinit.manifest.v1.MessageComposer.encoded.burnHeldBalance,
+
+    // POA
     removeValidator: strangelove_ventures.poa.v1.MessageComposer.encoded.removeValidator,
     removePending: strangelove_ventures.poa.v1.MessageComposer.encoded.removePending,
-    updateStakingParams: strangelove_ventures.poa.v1.MessageComposer.encoded.updateStakingParams,
     setPower: strangelove_ventures.poa.v1.MessageComposer.encoded.setPower,
 
-    payoutStakeholders: liftedinit.manifest.v1.MessageComposer.encoded.payout,
+    // Group
     updateGroupAdmin: cosmos.group.v1.MessageComposer.encoded.updateGroupAdmin,
     updateGroupMembers: cosmos.group.v1.MessageComposer.encoded.updateGroupMembers,
     updateGroupMetadata: cosmos.group.v1.MessageComposer.encoded.updateGroupMetadata,
     updateGroupPolicyAdmin: cosmos.group.v1.MessageComposer.encoded.updateGroupPolicyAdmin,
-    createGroupWithPolicy: cosmos.group.v1.MessageComposer.encoded.createGroupWithPolicy,
-    submitProposal: cosmos.group.v1.MessageComposer.encoded.submitProposal,
-    vote: cosmos.group.v1.MessageComposer.encoded.vote,
-    withdrawProposal: cosmos.group.v1.MessageComposer.encoded.withdrawProposal,
-    customMessage: cosmos.bank.v1beta1.MessageComposer.encoded.send,
-    exec: cosmos.group.v1.MessageComposer.encoded.exec,
-    leaveGroup: cosmos.group.v1.MessageComposer.encoded.leaveGroup,
-    multiSend: cosmos.bank.v1beta1.MessageComposer.encoded.multiSend,
+    updateGroupPolicyMetadata: cosmos.group.v1.MessageComposer.encoded.updateGroupPolicyMetadata,
+
+    // Token Factory
+    createDenom: osmosis.tokenfactory.v1beta1.MessageComposer.encoded.createDenom,
+    mintToken: osmosis.tokenfactory.v1beta1.MessageComposer.encoded.mint,
+    burnToken: osmosis.tokenfactory.v1beta1.MessageComposer.encoded.burn,
+    setDenomMetadata: osmosis.tokenfactory.v1beta1.MessageComposer.encoded.setDenomMetadata,
+    changeAdmin: osmosis.tokenfactory.v1beta1.MessageComposer.encoded.changeAdmin,
+
+    // Upgrade
     softwareUpgrade: cosmos.upgrade.v1beta1.MessageComposer.encoded.softwareUpgrade,
     cancelUpgrade: cosmos.upgrade.v1beta1.MessageComposer.encoded.cancelUpgrade,
+
+    customMessage: cosmos.bank.v1beta1.MessageComposer.encoded.send,
   };
   const snakeToCamel = (str: string): string =>
     str.replace(/([-_][a-z])/gi, $1 => $1.toUpperCase().replace('-', '').replace('_', ''));
@@ -123,10 +146,26 @@ export default function ConfirmationForm({
 
       delete messageData.type;
 
+      // We need to handle complex message data structures here
+      if (message.type === 'payoutStakeholders') {
+        messageData.payout_pairs = [
+          {
+            address: messageData.address,
+            coin: messageData.amount,
+          },
+        ];
+        delete messageData.address;
+        delete messageData.amount;
+      } else if (message.type === 'burnHeldBalance') {
+        messageData.burn_coins = [messageData.amount];
+        delete messageData.amount;
+      }
+
       messageData = convertKeysToCamelCase(messageData);
       if (messageData.amount && !Array.isArray(messageData.amount)) {
         messageData.amount = [messageData.amount];
       }
+
       const composedMessage = composer(messageData as MessageTypeMap[typeof message.type]);
       if (!composedMessage || !composedMessage.value) {
         console.error('Composed message or its value is undefined:', composedMessage);
@@ -188,7 +227,7 @@ export default function ConfirmationForm({
       proposers: [formData.proposers],
       title: formData.title,
       summary: formData.metadata.summary,
-      exec: 1,
+      exec: 0, // Setting to 0 for now
     });
     const fee = await estimateFee(address ?? '', [msg]);
     await tx([msg], {

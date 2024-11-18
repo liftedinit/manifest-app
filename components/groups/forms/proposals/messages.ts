@@ -1,29 +1,16 @@
-import {
-  CustomMessage,
-  RemoveValidatorMessage,
-  SendMessage,
-  UpdatePoaParamsMessage,
-} from '@/helpers';
+import { CustomMessage, RemoveValidatorMessage, SendMessage } from '@/helpers';
 
+// Bank
 export const initialSendMessage: SendMessage = {
   type: 'send',
   from_address: '',
   to_address: '',
   amount: { denom: '', amount: '' },
 };
-
-export const initialCustomMessage: CustomMessage = {
-  type: 'customMessage',
-  custom_field: '',
-};
-
-export const initialUpdatePoaParamsMessage: UpdatePoaParamsMessage = {
-  type: 'updatePoaParams',
-  sender: '',
-  params: {
-    admins: [],
-    allow_validator_self_exit: false,
-  },
+export const initialMultiSendMessage = {
+  type: 'multiSend',
+  inputs: [{ address: '', coins: [{ denom: '', amount: '' }] }],
+  outputs: [{ address: '', coins: [{ denom: '', amount: '' }] }],
 };
 
 export const initialRemoveValidatorMessage: RemoveValidatorMessage = {
@@ -33,19 +20,6 @@ export const initialRemoveValidatorMessage: RemoveValidatorMessage = {
 };
 
 // Poa Messages
-export const initialUpdateStakingParamsMessage = {
-  type: 'updateStakingParams',
-  sender: '',
-  params: {
-    unbonding_time: { seconds: BigInt(0), nanos: 0 },
-    max_validators: 0,
-    max_entries: 0,
-    historical_entries: 0,
-    bond_denom: '',
-    min_commission_rate: '',
-  },
-};
-
 export const initialRemovePendingMessage = {
   type: 'removePending',
   sender: '',
@@ -61,23 +35,17 @@ export const initialSetPowerMessage = {
 };
 
 // Manifest Messages
-export const initialUpdateManifestParamsMessage = {
-  type: 'updateManifestParams',
-  authority: '',
-  params: {
-    stake_holders: [{ address: '', percentage: 0 }],
-    inflation: {
-      automatic_enabled: true,
-      mint_denom: 'umfx',
-      yearly_amount: BigInt(1000000000),
-    },
-  },
-};
-
 export const initialPayoutStakeholdersMessage = {
   type: 'payoutStakeholders',
   authority: '',
-  payout: { denom: '', amount: '' },
+  address: '',
+  amount: { denom: '', amount: '' },
+};
+
+export const initialBurnHeldBalanceMessage = {
+  type: 'burnHeldBalance',
+  authority: '',
+  amount: { denom: '', amount: '' },
 };
 
 // Group Messages
@@ -109,58 +77,46 @@ export const initialUpdateGroupPolicyAdminMessage = {
   address: '',
 };
 
-export const initialCreateGroupWithPolicyMessage = {
-  type: 'createGroupWithPolicy',
-  admin: '',
-  group_metadata: '',
-  group_policy_as_admin: true,
-  group_policy_metadata: '',
-  members: [{ address: '', weight: '', metadata: '', added_at: {} as Date }],
+// Token Factory
+export const initialCreateDenomMessage = {
+  type: 'createDenom',
+  sender: '',
+  subdenom: '',
 };
 
-export const initialSubmitProposalMessage = {
-  type: 'submitProposal',
-  proposers: [''],
-  messages: [],
-  metadata: '',
-  address: '',
-  exec: 0,
+export const initialSetDenomMetadataMessage = {
+  type: 'setDenomMetadata',
+  sender: '',
+  metadata: {
+    description: '',
+    base: '',
+    ticker: '',
+    name: '',
+    logo: '',
+  },
 };
 
-export const initialVoteMessage = {
-  type: 'vote',
-  voter: '',
-  proposal_id: BigInt(0),
-  option: 1,
-  metadata: '',
-  exec: 0,
+export const initialMintMessage = {
+  type: 'mint',
+  sender: '',
+  amount: { denom: '', amount: '' },
+  mint_to_address: '',
 };
 
-export const initialWithdrawProposalMessage = {
-  type: 'withdrawProposal',
-  proposal_id: BigInt(0),
-  address: '',
+export const initialBurnMessage = {
+  type: 'burn',
+  sender: '',
+  amount: { denom: '', amount: '' },
+  burn_from_address: '',
 };
 
-export const initialExecMessage = {
-  type: 'exec',
-  proposal_id: BigInt(0),
-  signer: '',
+export const initialChangeAdminMessage = {
+  type: 'changeAdmin',
+  sender: '',
+  new_admin: '',
 };
 
-export const initialLeaveGroupMessage = {
-  type: 'leaveGroup',
-  group_id: BigInt(0),
-  address: '',
-};
-
-// Cosmos Messages
-export const initialMultiSendMessage = {
-  type: 'multiSend',
-  inputs: [{ address: '', coins: [{ denom: '', amount: '' }] }],
-  outputs: [{ address: '', coins: [{ denom: '', amount: '' }] }],
-};
-
+// Upgrade
 export const initialSoftwareUpgradeMessage = {
   type: 'softwareUpgrade',
   authority: '',
@@ -170,4 +126,9 @@ export const initialSoftwareUpgradeMessage = {
 export const initialCancelUpgradeMessage = {
   type: 'cancelUpgrade',
   authority: '',
+};
+
+export const initialCustomMessage: CustomMessage = {
+  type: 'customMessage',
+  custom_field: '',
 };

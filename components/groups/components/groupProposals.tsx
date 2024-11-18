@@ -134,38 +134,56 @@ export default function GroupProposals({
   }
 
   type ChainMessageType =
+    // Bank
     | '/cosmos.bank.v1beta1.MsgSend'
-    | '/strangelove_ventures.poa.v1.MsgSetPower'
-    | '/cosmos.group.v1.MsgCreateGroup'
-    | '/cosmos.group.v1.MsgUpdateGroupMembers'
-    | '/cosmos.group.v1.MsgUpdateGroupAdmin'
-    | '/cosmos.group.v1.MsgUpdateGroupMetadata'
-    | '/cosmos.group.v1.MsgCreateGroupPolicy'
-    | '/cosmos.group.v1.MsgCreateGroupWithPolicy'
-    | '/cosmos.group.v1.MsgSubmitProposal'
-    | '/cosmos.group.v1.MsgVote'
-    | '/cosmos.group.v1.MsgExec'
-    | '/cosmos.group.v1.MsgLeaveGroup'
-    | '/manifest.v1.MsgUpdateParams'
+    | '/cosmos.bank.v1beta1.MsgMultiSend'
+    // Manifest
     | '/manifest.v1.MsgPayout'
+    | '/manifest.v1.MsgBurnHeldBalance'
+    // POA
+    | '/strangelove_ventures.poa.v1.MsgSetPower'
+    | '/strangelove_ventures.poa.v1.MsgRemoveValidator'
+    | '/strangelove_ventures.poa.v1.MsgRemovePending'
+    // Group
+    | '/cosmos.group.v1.MsgUpdateGroupAdmin'
+    | '/cosmos.group.v1.MsgUpdateGroupMembers'
+    | '/cosmos.group.v1.MsgUpdateGroupMetadata'
+    | '/cosmos.group.v1.MsgUpdateGroupPolicyAdmin'
+    | '/cosmos.group.v1.MsgUpdateGroupPolicyMetadata'
+    // Token Factory
+    | '/osmosis.tokenfactory.v1.MsgCreateDenom'
+    | '/osmosis.tokenfactory.v1.MsgSetDenomMetadata'
+    | '/osmosis.tokenfactory.v1.MsgMint'
+    | '/osmosis.tokenfactory.v1.MsgBurn'
+    | '/osmosis.tokenfactory.v1.MsgChangeAdmin'
+    // Upgrade
     | '/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade'
     | '/cosmos.upgrade.v1beta1.MsgCancelUpgrade';
 
   const typeRegistry: Record<ChainMessageType, string> = {
+    // Bank
     '/cosmos.bank.v1beta1.MsgSend': 'Send',
-    '/strangelove_ventures.poa.v1.MsgSetPower': 'Set Power',
-    '/cosmos.group.v1.MsgCreateGroup': 'Create Group',
-    '/cosmos.group.v1.MsgUpdateGroupMembers': 'Update Group Members',
-    '/cosmos.group.v1.MsgUpdateGroupAdmin': 'Update Group Admin',
-    '/cosmos.group.v1.MsgUpdateGroupMetadata': 'Update Group Metadata',
-    '/cosmos.group.v1.MsgCreateGroupPolicy': 'Create Group Policy',
-    '/cosmos.group.v1.MsgCreateGroupWithPolicy': 'Create Group With Policy',
-    '/cosmos.group.v1.MsgSubmitProposal': 'Submit Proposal',
-    '/cosmos.group.v1.MsgVote': 'Vote',
-    '/cosmos.group.v1.MsgExec': 'Execute Proposal',
-    '/cosmos.group.v1.MsgLeaveGroup': 'Leave Group',
-    '/manifest.v1.MsgUpdateParams': 'Update Manifest Params',
+    '/cosmos.bank.v1beta1.MsgMultiSend': 'Multi Send',
+    // Manifest
     '/manifest.v1.MsgPayout': 'Payout',
+    '/manifest.v1.MsgBurnHeldBalance': 'Burn Held Balance',
+    // POA
+    '/strangelove_ventures.poa.v1.MsgSetPower': 'Set Power',
+    '/strangelove_ventures.poa.v1.MsgRemoveValidator': 'Remove Validator',
+    '/strangelove_ventures.poa.v1.MsgRemovePending': 'Remove Pending',
+    // Group
+    '/cosmos.group.v1.MsgUpdateGroupAdmin': 'Update Group Admin',
+    '/cosmos.group.v1.MsgUpdateGroupMembers': 'Update Group Members',
+    '/cosmos.group.v1.MsgUpdateGroupMetadata': 'Update Group Metadata',
+    '/cosmos.group.v1.MsgUpdateGroupPolicyAdmin': 'Update Group Policy Admin',
+    '/cosmos.group.v1.MsgUpdateGroupPolicyMetadata': 'Update Group Policy Metadata',
+    // Token Factory
+    '/osmosis.tokenfactory.v1.MsgCreateDenom': 'Create Denom',
+    '/osmosis.tokenfactory.v1.MsgSetDenomMetadata': 'Set Denom Metadata',
+    '/osmosis.tokenfactory.v1.MsgMint': 'Mint',
+    '/osmosis.tokenfactory.v1.MsgBurn': 'Burn',
+    '/osmosis.tokenfactory.v1.MsgChangeAdmin': 'Change Admin',
+    // Upgrade
     '/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade': 'Software Upgrade',
     '/cosmos.upgrade.v1beta1.MsgCancelUpgrade': 'Cancel Upgrade',
   };

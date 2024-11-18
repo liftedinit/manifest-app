@@ -67,24 +67,33 @@ export default function ProposalMessages({
     'Proposal Actions',
     'Financial',
     'System',
+    'Token Factory',
   ];
 
   const messageTypes = [
+    // Bank
     { name: 'send', category: 'Financial' },
+    { name: 'multiSend', category: 'Financial' },
+    // Manifest
+    { name: 'payoutStakeholders', category: 'Financial' },
+    { name: 'burnHeldBalance', category: 'Financial' },
+    // POA
     { name: 'removeValidator', category: 'Admins' },
     { name: 'removePendingValidator', category: 'Admins' },
-    { name: 'updateStakingParams', category: 'System' },
     { name: 'setPower', category: 'Group Management' },
-    { name: 'updateManifestParams', category: 'System' },
-    { name: 'payoutStakeholders', category: 'Financial' },
+    // Group
     { name: 'updateGroupAdmin', category: 'Group Management' },
+    { name: 'updateGroupMembers', category: 'Group Management' },
     { name: 'updateGroupMetadata', category: 'Group Management' },
     { name: 'updateGroupPolicyAdmin', category: 'Group Management' },
-    { name: 'vote', category: 'Proposal Actions' },
-    { name: 'withdrawProposal', category: 'Proposal Actions' },
-    { name: 'exec', category: 'Proposal Actions' },
-    { name: 'leaveGroup', category: 'Group Management' },
-    { name: 'multiSend', category: 'Financial' },
+    { name: 'updateGroupPolicyMetadata', category: 'Group Management' },
+    // Token Factory
+    { name: 'createDenom', category: 'Token Factory' },
+    { name: 'mint', category: 'Token Factory' },
+    { name: 'burn', category: 'Token Factory' },
+    { name: 'setDenomMetadata', category: 'Token Factory' },
+    { name: 'changeAdmin', category: 'Token Factory' },
+    // Upgrade
     { name: 'softwareUpgrade', category: 'System' },
     { name: 'cancelUpgrade', category: 'System' },
   ];
@@ -160,6 +169,7 @@ export default function ProposalMessages({
 
       if (field === 'type') {
         switch (value) {
+          // Bank
           case 'send':
             updatedMessage = {
               ...initialMessages.initialSendMessage,
@@ -173,12 +183,26 @@ export default function ProposalMessages({
             };
             dispatch({ type: 'UPDATE_MESSAGE', index, message: updatedMessage });
             break;
-          case 'customMessage':
+          case 'multiSend':
             updatedMessage = {
-              ...initialMessages.initialCustomMessage,
+              ...initialMessages.initialMultiSendMessage,
               type: value,
             };
             break;
+          // Manifest
+          case 'payoutStakeholders':
+            updatedMessage = {
+              ...initialMessages.initialPayoutStakeholdersMessage,
+              type: value,
+            };
+            break;
+          case 'burnHeldBalance':
+            updatedMessage = {
+              ...initialMessages.initialBurnHeldBalanceMessage,
+              type: value,
+            };
+            break;
+          //  POA
           case 'removeValidator':
             updatedMessage = {
               ...initialMessages.initialRemoveValidatorMessage,
@@ -193,31 +217,13 @@ export default function ProposalMessages({
               type: value,
             };
             break;
-
-          case 'updateStakingParams':
-            updatedMessage = {
-              ...initialMessages.initialUpdateStakingParamsMessage,
-              type: value,
-            };
-            break;
           case 'setPower':
             updatedMessage = {
               ...initialMessages.initialSetPowerMessage,
               type: value,
             };
             break;
-          case 'updateManifestParams':
-            updatedMessage = {
-              ...initialMessages.initialUpdateManifestParamsMessage,
-              type: value,
-            };
-            break;
-          case 'payoutStakeholders':
-            updatedMessage = {
-              ...initialMessages.initialPayoutStakeholdersMessage,
-              type: value,
-            };
-            break;
+          // Group
           case 'updateGroupAdmin':
             updatedMessage = {
               ...initialMessages.initialUpdateGroupAdminMessage,
@@ -242,48 +248,38 @@ export default function ProposalMessages({
               type: value,
             };
             break;
-          case 'createGroupWithPolicy':
+          // Token Factory
+          case 'createDenom':
             updatedMessage = {
-              ...initialMessages.initialCreateGroupWithPolicyMessage,
+              ...initialMessages.initialCreateDenomMessage,
               type: value,
             };
             break;
-          case 'submitProposal':
+          case 'mint':
             updatedMessage = {
-              ...initialMessages.initialSubmitProposalMessage,
+              ...initialMessages.initialMintMessage,
               type: value,
             };
             break;
-          case 'vote':
+          case 'burn':
             updatedMessage = {
-              ...initialMessages.initialVoteMessage,
+              ...initialMessages.initialBurnMessage,
               type: value,
             };
             break;
-          case 'withdrawProposal':
+          case 'setDenomMetadata':
             updatedMessage = {
-              ...initialMessages.initialWithdrawProposalMessage,
+              ...initialMessages.initialSetDenomMetadataMessage,
               type: value,
             };
             break;
-          case 'exec':
+          case 'changeAdmin':
             updatedMessage = {
-              ...initialMessages.initialExecMessage,
+              ...initialMessages.initialChangeAdminMessage,
               type: value,
             };
             break;
-          case 'leaveGroup':
-            updatedMessage = {
-              ...initialMessages.initialLeaveGroupMessage,
-              type: value,
-            };
-            break;
-          case 'multiSend':
-            updatedMessage = {
-              ...initialMessages.initialMultiSendMessage,
-              type: value,
-            };
-            break;
+          // Upgrade
           case 'softwareUpgrade':
             updatedMessage = {
               ...initialMessages.initialSoftwareUpgradeMessage,
@@ -293,6 +289,13 @@ export default function ProposalMessages({
           case 'cancelUpgrade':
             updatedMessage = {
               ...initialMessages.initialCancelUpgradeMessage,
+              type: value,
+            };
+            break;
+
+          case 'customMessage':
+            updatedMessage = {
+              ...initialMessages.initialCustomMessage,
               type: value,
             };
             break;
