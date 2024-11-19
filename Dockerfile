@@ -21,6 +21,14 @@ ENV NEXT_PUBLIC_TESTNET_RPC_URL=${NEXT_PUBLIC_TESTNET_RPC_URL}
 ENV NEXT_PUBLIC_MAINNET_API_URL=${NEXT_PUBLIC_MAINNET_API_URL}
 ENV NEXT_PUBLIC_TESTNET_API_URL=${NEXT_PUBLIC_TESTNET_API_URL}
 
+RUN echo Base: $NEXT_PUBLIC_CHAIN
+RUN echo Base: $NEXT_PUBLIC_CHAIN_ID
+RUN echo Base: $NEXT_PUBLIC_TESTNET_CHAIN_ID
+RUN echo Base: $NEXT_PUBLIC_MAINNET_RPC_URL
+RUN echo Base: $NEXT_PUBLIC_TESTNET_RPC_URL
+RUN echo Base: $NEXT_PUBLIC_MAINNET_API_URL
+RUN echo Base: $NEXT_PUBLIC_TESTNET_API_URL
+
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -47,6 +55,14 @@ COPY . .
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry during the build.
 ENV NEXT_TELEMETRY_DISABLED=1
+
+RUN echo Builder: $NEXT_PUBLIC_CHAIN
+RUN echo Builder: $NEXT_PUBLIC_CHAIN_ID
+RUN echo Builder: $NEXT_PUBLIC_TESTNET_CHAIN_ID
+RUN echo Builder: $NEXT_PUBLIC_MAINNET_RPC_URL
+RUN echo Builder: $NEXT_PUBLIC_TESTNET_RPC_URL
+RUN echo Builder: $NEXT_PUBLIC_MAINNET_API_URL
+RUN echo Builder: $NEXT_PUBLIC_TESTNET_API_URL
 
 RUN \
   if [ -f yarn.lock ]; then yarn run build; \
