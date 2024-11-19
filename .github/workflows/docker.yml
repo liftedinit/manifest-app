@@ -24,24 +24,32 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: debug vars
-        run: env
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
+        env:
+          NEXT_PUBLIC_CHAIN: ${{ vars.NEXT_PUBLIC_CHAIN }}
+          NEXT_PUBLIC_CHAIN_ID: ${{ vars.NEXT_PUBLIC_CHAIN_ID }}
+          NEXT_PUBLIC_TESTNET_CHAIN_ID: ${{ vars.NEXT_PUBLIC_TESTNET_CHAIN_ID }}
+          NEXT_PUBLIC_MAINNET_RPC_URL: ${{ vars.NEXT_PUBLIC_MAINNET_RPC_URL }}
+          NEXT_PUBLIC_TESTNET_RPC_URL: ${{ vars.NEXT_PUBLIC_TESTNET_RPC_URL }}
+          NEXT_PUBLIC_MAINNET_API_URL: ${{ vars.NEXT_PUBLIC_MAINNET_API_URL }}
+          NEXT_PUBLIC_TESTNET_API_URL: ${{ vars.NEXT_PUBLIC_TESTNET_API_URL }}
+          ABLY_API_KEY: ${{ secrets.NEXT_PUBLIC_ABLY_API_KEY }}
+          WALLETCONNECT_KEY: ${{ secrets.NEXT_PUBLIC_WALLETCONNECT_KEY }}
+          WEB3_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_WEB3_CLIENT_ID }}
         with:
           context: .
           push: true
           tags: lifted/manifest-app:testnet
           build-args: |
-            "NEXT_PUBLIC_CHAIN=${{ vars.NEXT_PUBLIC_CHAIN }}" 
-            "NEXT_PUBLIC_CHAIN_ID=${{ vars.NEXT_PUBLIC_CHAIN_ID }}" 
-            "NEXT_PUBLIC_TESTNET_CHAIN_ID=${{ vars.NEXT_PUBLIC_TESTNET_CHAIN_ID }}" 
-            "NEXT_PUBLIC_MAINNET_RPC_URL=${{ vars.NEXT_PUBLIC_MAINNET_RPC_URL }}" 
-            "NEXT_PUBLIC_TESTNET_RPC_URL=${{ vars.NEXT_PUBLIC_TESTNET_RPC_URL }}" 
-            "NEXT_PUBLIC_MAINNET_API_URL=${{ vars.NEXT_PUBLIC_MAINNET_API_URL }}" 
-            "NEXT_PUBLIC_TESTNET_API_URL=${{ vars.NEXT_PUBLIC_TESTNET_API_URL }}"
+            "NEXT_PUBLIC_CHAIN=$NEXT_PUBLIC_CHAIN" 
+            "NEXT_PUBLIC_CHAIN_ID=$NEXT_PUBLIC_CHAIN_ID" 
+            "NEXT_PUBLIC_TESTNET_CHAIN_ID=$NEXT_PUBLIC_TESTNET_CHAIN_ID" 
+            "NEXT_PUBLIC_MAINNET_RPC_URL=$NEXT_PUBLIC_MAINNET_RPC_URL" 
+            "NEXT_PUBLIC_TESTNET_RPC_URL=$NEXT_PUBLIC_TESTNET_RPC_URL" 
+            "NEXT_PUBLIC_MAINNET_API_URL=$NEXT_PUBLIC_MAINNET_API_URL" 
+            "NEXT_PUBLIC_TESTNET_API_URL=$NEXT_PUBLIC_TESTNET_API_URL"
           secrets: |
-            "ably_api_key=${{ secrets.NEXT_PUBLIC_ABLY_API_KEY }}"
-            "walletconnect_key=${{ secrets.NEXT_PUBLIC_WALLETCONNECT_KEY }}"
-            "web3auth_key=${{ secrets.NEXT_PUBLIC_WEB3_CLIENT_ID }}"
+            "ably_api_key=$ABLY_API_KEY"
+            "walletconnect_key=$WALLETCONNECT_KEY"
+            "web3auth_key=$WEB3_CLIENT_ID"
