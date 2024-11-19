@@ -24,30 +24,6 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Print env
-        env:
-          NEXT_PUBLIC_CHAIN: ${{ vars.NEXT_PUBLIC_CHAIN }}
-          NEXT_PUBLIC_CHAIN_ID: ${{ vars.NEXT_PUBLIC_CHAIN_ID }}
-          NEXT_PUBLIC_TESTNET_CHAIN_ID: ${{ vars.NEXT_PUBLIC_TESTNET_CHAIN_ID }}
-          NEXT_PUBLIC_MAINNET_RPC_URL: ${{ vars.NEXT_PUBLIC_MAINNET_RPC_URL }}
-          NEXT_PUBLIC_TESTNET_RPC_URL: ${{ vars.NEXT_PUBLIC_TESTNET_RPC_URL }}
-          NEXT_PUBLIC_MAINNET_API_URL: ${{ vars.NEXT_PUBLIC_MAINNET_API_URL }}
-          NEXT_PUBLIC_TESTNET_API_URL: ${{ vars.NEXT_PUBLIC_TESTNET_API_URL }}
-          ABLY_API_KEY: ${{ secrets.NEXT_PUBLIC_ABLY_API_KEY }}
-          WALLETCONNECT_KEY: ${{ secrets.NEXT_PUBLIC_WALLETCONNECT_KEY }}
-          WEB3_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_WEB3_CLIENT_ID }}
-        run: |
-            echo $NEXT_PUBLIC_CHAIN
-            echo $NEXT_PUBLIC_CHAIN_ID
-            echo $NEXT_PUBLIC_TESTNET_CHAIN_ID
-            echo $NEXT_PUBLIC_MAINNET_RPC_URL
-            echo $NEXT_PUBLIC_TESTNET_RPC_URL
-            echo $NEXT_PUBLIC_MAINNET_API_URL
-            echo $NEXT_PUBLIC_TESTNET_API_URL
-            echo $ABLY_API_KEY
-            echo $WALLETCONNECT_KEY
-            echo $WEB3_CLIENT_ID
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         env:
@@ -66,7 +42,7 @@ jobs:
           push: true
           tags: lifted/manifest-app:testnet
           build-args: |
-            "NEXT_PUBLIC_CHAIN=$NEXT_PUBLIC_CHAIN" 
+            "NEXT_PUBLIC_CHAIN=${{ vars.NEXT_PUBLIC_CHAIN }}" 
             "NEXT_PUBLIC_CHAIN_ID=$NEXT_PUBLIC_CHAIN_ID" 
             "NEXT_PUBLIC_TESTNET_CHAIN_ID=$NEXT_PUBLIC_TESTNET_CHAIN_ID" 
             "NEXT_PUBLIC_MAINNET_RPC_URL=$NEXT_PUBLIC_MAINNET_RPC_URL" 
