@@ -24,6 +24,9 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: debug vars
+        run: env
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
