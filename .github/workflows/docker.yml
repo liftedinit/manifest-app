@@ -9,7 +9,7 @@ on: [push, pull_request]
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    environment: testnet
+    environment: "Production - Testnet"
 
     steps:
       - name: Checkout repository
