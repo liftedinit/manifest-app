@@ -43,12 +43,12 @@ jobs:
           tags: lifted/manifest-app:testnet
           build-args: |
             "NEXT_PUBLIC_CHAIN=${{ vars.NEXT_PUBLIC_CHAIN }}" 
-            "NEXT_PUBLIC_CHAIN_ID=$NEXT_PUBLIC_CHAIN_ID" 
-            "NEXT_PUBLIC_TESTNET_CHAIN_ID=$NEXT_PUBLIC_TESTNET_CHAIN_ID" 
-            "NEXT_PUBLIC_MAINNET_RPC_URL=$NEXT_PUBLIC_MAINNET_RPC_URL" 
-            "NEXT_PUBLIC_TESTNET_RPC_URL=$NEXT_PUBLIC_TESTNET_RPC_URL" 
-            "NEXT_PUBLIC_MAINNET_API_URL=$NEXT_PUBLIC_MAINNET_API_URL" 
-            "NEXT_PUBLIC_TESTNET_API_URL=$NEXT_PUBLIC_TESTNET_API_URL"
+            "NEXT_PUBLIC_CHAIN_ID=${{ vars.NEXT_PUBLIC_CHAIN_ID }}" 
+            "NEXT_PUBLIC_TESTNET_CHAIN_ID=${{ vars.NEXT_PUBLIC_TESTNET_CHAIN_ID }}" 
+            "NEXT_PUBLIC_MAINNET_RPC_URL=${{ vars.NEXT_PUBLIC_MAINNET_RPC_URL }}" 
+            "NEXT_PUBLIC_TESTNET_RPC_URL=${{ vars.NEXT_PUBLIC_TESTNET_RPC_URL }}" 
+            "NEXT_PUBLIC_MAINNET_API_URL=${{ vars.NEXT_PUBLIC_MAINNET_API_URL }}" 
+            "NEXT_PUBLIC_TESTNET_API_URL=${{ vars.NEXT_PUBLIC_TESTNET_API_URL }}"
           secrets: |
             "ably_api_key=$ABLY_API_KEY"
             "walletconnect_key=$WALLETCONNECT_KEY"
