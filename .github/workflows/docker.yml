@@ -1,9 +1,10 @@
 name: Build and Push Docker Image
 
-on:
-  push
+#on:
+#  push:
 #    branches:
 #      - main
+on: [push, pull_request]
 
 jobs:
   build-and-push:
@@ -28,7 +29,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: liftedinit/manifest-app-testnet:latest
+          tags: lifted/manifest-app:testnet
           build-args: |
             "NEXT_PUBLIC_CHAIN=${{ vars.NEXT_PUBLIC_CHAIN }}" 
             "NEXT_PUBLIC_CHAIN_ID=${{ vars.NEXT_PUBLIC_CHAIN_ID }}" 
