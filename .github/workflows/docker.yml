@@ -1,0 +1,43 @@
+name: Build and Push Docker Image
+
+on:
+  push
+#    branches:
+#      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    environment: testnet
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: liftedinit/manifest-app-testnet:latest
+          build-args: |
+            "NEXT_PUBLIC_CHAIN=${{ vars.NEXT_PUBLIC_CHAIN }}" 
+            "NEXT_PUBLIC_CHAIN_ID=${{ vars.NEXT_PUBLIC_CHAIN_ID }}" 
+            "NEXT_PUBLIC_TESTNET_CHAIN_ID=${{ vars.NEXT_PUBLIC_TESTNET_CHAIN_ID }}" 
+            "NEXT_PUBLIC_MAINNET_RPC_URL=${{ vars.NEXT_PUBLIC_MAINNET_RPC_URL }}" 
+            "NEXT_PUBLIC_TESTNET_RPC_URL=${{ vars.NEXT_PUBLIC_TESTNET_RPC_URL }}" 
+            "NEXT_PUBLIC_MAINNET_API_URL=${{ vars.NEXT_PUBLIC_MAINNET_API_URL }}" 
+            "NEXT_PUBLIC_TESTNET_API_URL=${{ vars.NEXT_PUBLIC_TESTNET_API_URL }}"
+          secrets: |
+            "ably_api_key=${{ secrets.NEXT_PUBLIC_ABLY_API_KEY }}"
+            "walletconnect_key=${{ secrets.NEXT_PUBLIC_WALLETCONNECT_KEY }}"
+            "web3auth_key=${{ secrets.NEXT_PUBLIC_WEB3_CLIENT_ID }}"
