@@ -22,6 +22,7 @@ export default function ValidatorList({
   admin,
   activeValidators,
   pendingValidators,
+  isLoading,
 }: ValidatorListProps) {
   const [active, setActive] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -73,24 +74,26 @@ export default function ValidatorList({
   };
 
   return (
-    <div className="w-full max-w-screen mx-auto">
-      <div className="">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0 mb-6">
-          <h2
-            className="text-black dark:text-white"
-            style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
-          >
-            Validators
-          </h2>
-          <div className="relative w-[224px]">
-            <input
-              type="text"
-              placeholder="Search for a validator..."
-              className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-[#0000000A] dark:bg-[#FFFFFF1F] pl-10 text-[#161616] dark:text-white placeholder-[#00000099] dark:placeholder-[#FFFFFF99]"
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-            />
-            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#00000099] dark:text-[#FFFFFF99]" />
+    <div className="relative w-full max-w-screen mx-auto">
+      <div className="h-full flex flex-col">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
+            <h1
+              className="text-black dark:text-white"
+              style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
+            >
+              Validators
+            </h1>
+            <div className="relative w-full sm:w-[224px]">
+              <input
+                type="text"
+                placeholder="Search for a validator..."
+                className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-[#0000000A] dark:bg-[#FFFFFF1F] pl-10"
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+              />
+              <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            </div>
           </div>
         </div>
         <div className="flex mb-6 w-full h-[3.5rem] rounded-xl p-1 bg-[#0000000A] dark:bg-[#FFFFFF0F]">
@@ -116,7 +119,49 @@ export default function ValidatorList({
           </button>
         </div>
         <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-300px)]">
-          {filteredValidators.length === 0 ? (
+          {isLoading ? (
+            <table className="table w-full border-separate border-spacing-y-3">
+              <thead>
+                <tr className="text-sm font-medium text-[#808080]" role="row">
+                  <th className="bg-transparent text-left sticky top-0 bg-base-100 z-10">
+                    Moniker
+                  </th>
+                  <th className=" hidden lg:table-cell bg-transparent text-left sticky top-0 bg-base-100 z-10">
+                    Address
+                  </th>
+                  <th className=" hidden md:table-cell bg-transparent text-left sticky top-0 bg-base-100 z-10">
+                    Consensus Power
+                  </th>
+                  <th className="bg-transparent text-right sticky top-0 bg-base-100 z-10">
+                    Remove
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {Array(4)
+                  .fill(0)
+                  .map((_, index) => (
+                    <tr key={index}>
+                      <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] w-1/6">
+                        <div className="flex items-center space-x-3">
+                          <div className="skeleton w-10 h-8 rounded-full shrink-0"></div>
+                          <div className="skeleton h-3 w-24"></div>
+                        </div>
+                      </td>
+                      <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6 hidden lg:table-cell">
+                        <div className="skeleton h-2 w-24"></div>
+                      </td>
+                      <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6 hidden md:table-cell">
+                        <div className="skeleton h-2 w-8"></div>
+                      </td>
+                      <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/6 rounded-r-[12px] text-right">
+                        <div className="skeleton h-2 w-8 ml-auto"></div>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          ) : filteredValidators.length === 0 ? (
             <div className="text-center py-8 text-[#808080]">
               {active ? 'No active validators found' : 'No pending validators'}
             </div>

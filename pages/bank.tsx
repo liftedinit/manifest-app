@@ -1,4 +1,4 @@
-import { WalletSection } from '@/components';
+import { WalletNotConnected, WalletSection } from '@/components';
 import SendBox from '@/components/bank/components/sendBox';
 import TokenList from '@/components/bank/components/tokenList';
 import { chainName } from '@/config';
@@ -126,25 +126,11 @@ export default function Bank() {
 
         <div className="h-[calc(100vh-1.5rem)] py-1 gap-6 flex flex-col w-full lg:flex-row">
           {!isWalletConnected ? (
-            <section className="transition-opacity duration-300 h-[80vh] ease-in-out animate-fadeIn w-full flex items-center justify-center">
-              <div className="grid max-w-4xl bg-base-300 p-12 rounded-md w-full mx-auto gap-8 lg:grid-cols-12">
-                <div className="mr-auto place-self-center lg:col-span-7">
-                  <h1 className="max-w-2xl mb-4 text-2xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white text-black">
-                    Connect your wallet!
-                  </h1>
-                  <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl">
-                    Use the button below to connect your wallet and start interacting with your
-                    tokens.
-                  </p>
-                  <div className="w-full lg:w-[50%]">
-                    <WalletSection chainName="manifest" />
-                  </div>
-                </div>
-                <div className="hidden lg:mt-0 lg:ml-24 lg:col-span-5 lg:flex">
-                  <BankIcon className="h-60 w-60 text-primary" />
-                </div>
-              </div>
-            </section>
+            <WalletNotConnected
+              description=" Use the button below to connect your wallet and start interacting with your
+                    tokens."
+              icon={<BankIcon className="h-60 w-60 text-primary" />}
+            />
           ) : (
             isWalletConnected &&
             combinedBalances && (

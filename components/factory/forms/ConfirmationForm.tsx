@@ -44,6 +44,7 @@ export default function ConfirmationForm({
         return;
       }
 
+      const symbol = formData.subdenom.slice(1).toUpperCase();
       // If createDenom is successful, proceed with setDenomMetadata
       const setMetadataMsg = setDenomMetadata({
         sender: address,
@@ -53,18 +54,18 @@ export default function ConfirmationForm({
             {
               denom: fullDenom,
               exponent: 0,
-              aliases: [],
+              aliases: [symbol],
             },
             {
-              denom: formData.subdenom.slice(1).toUpperCase(),
+              denom: symbol,
               exponent: 6,
-              aliases: [],
+              aliases: [fullDenom],
             },
           ],
           base: fullDenom,
           display: formData.display,
           name: formData.name,
-          symbol: formData.symbol || formData.display,
+          symbol: formData.display,
           uri: formData.uri,
           uriHash: formData.uriHash,
         },

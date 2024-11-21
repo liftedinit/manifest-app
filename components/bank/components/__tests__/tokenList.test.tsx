@@ -83,10 +83,9 @@ describe('TokenList', () => {
 
     await waitFor(() => {
       expect(screen.getByLabelText('Close modal')).toBeInTheDocument();
-      expect(screen.getByText('NAME')).toBeInTheDocument();
-      expect(screen.getByText('SYMBOL')).toBeInTheDocument();
-      expect(screen.getByText('DESCRIPTION')).toBeInTheDocument();
-      expect(screen.getByText('EXPONENT')).toBeInTheDocument();
+      expect(screen.getByText('Name')).toBeInTheDocument();
+      expect(screen.getByText('Ticker')).toBeInTheDocument();
+      expect(screen.getByText('Description')).toBeInTheDocument();
     });
   });
 

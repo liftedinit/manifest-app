@@ -1,12 +1,11 @@
-import { MouseEventHandler, useMemo, useState, useEffect } from 'react';
+import React, { MouseEventHandler, useEffect, useMemo, useState } from 'react';
 
-import { ArrowPathIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
-import { ArrowUpIcon } from './icons';
+import { ArrowDownTrayIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { ArrowUpIcon, CopyIcon } from './icons';
 import { useChain } from '@cosmos-kit/react';
 import { WalletStatus } from 'cosmos-kit';
-
-import { CopyIcon } from './icons';
 import { MdWallet } from 'react-icons/md';
+
 const buttons = {
   Disconnected: {
     icon: MdWallet,
@@ -113,7 +112,12 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
           }}
         >
           <div className="relative z-10 h-full flex flex-col  justify-between">
-            <p className="font-medium text-xl text-center mb-2">{username || 'Connected User'}</p>
+            <p
+              className="font-medium text-xl text-center mb-2 truncate"
+              title={username || 'Connected user'}
+            >
+              {username || 'Connected User'}
+            </p>
             <div className="bg-base-100 dark:bg-base-200 rounded-full py-2 px-4 text-center mb-4 flex items-center flex-row justify-between w-full ">
               <p className="text-xs  truncate flex-grow">
                 {address
@@ -249,3 +253,30 @@ export const IconWallet: React.FC<WalletSectionProps> = ({ chainName }) => {
 
   return _renderConnectButton;
 };
+
+export function WalletNotConnected({
+  description,
+  icon,
+}: {
+  description: string;
+  icon: JSX.Element;
+}) {
+  return (
+    <section className="transition-opacity duration-300 h-[80vh] ease-in-out animate-fadeIn w-full flex items-center justify-center">
+      <div className="grid max-w-4xl bg-base-300 p-12 rounded-md w-full mx-auto gap-8 lg:grid-cols-12">
+        <div className="mr-auto place-self-center lg:col-span-7">
+          <h1 className="max-w-2xl mb-4 text-2xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white text-black">
+            Connect your wallet!
+          </h1>
+          <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl">
+            {description}
+          </p>
+          <div className="w-[50%]">
+            <WalletSection chainName="manifest" />
+          </div>
+        </div>
+        <div className="hidden lg:mt-0 lg:ml-24 lg:col-span-5 lg:flex">{icon}</div>
+      </div>
+    </section>
+  );
+}

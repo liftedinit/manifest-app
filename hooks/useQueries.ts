@@ -5,9 +5,9 @@ import { QueryGroupsByMemberResponseSDKType } from '@liftedinit/manifestjs/dist/
 import { useLcdQueryClient } from './useLcdQueryClient';
 import { usePoaLcdQueryClient } from './usePoaLcdQueryClient';
 import { getLogoUrls, isValidIPFSCID } from '@/utils';
-import { ExtendedValidatorSDKType } from '@/components';
+
 import { useManifestLcdQueryClient } from './useManifestLcdQueryClient';
-import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+
 import axios from 'axios';
 import {
   GroupMemberSDKType,
@@ -790,21 +790,16 @@ export const useSendTxIncludingAddressQuery = (
     const baseUrl = 'https://testnet-indexer.liftedinit.tech/transactions';
 
     const query = `
-      or=(
-        and(
-          data->tx->body->messages->0->>@type.eq./cosmos.bank.v1beta1.MsgSend,
-          or(
-            data->tx->body->messages->0->>fromAddress.eq.${address},
-            data->tx->body->messages->0->>toAddress.eq.${address}
-          )
+      and=(
+        or(
+            data->tx->body->messages.cs.[{"@type": "/cosmos.bank.v1beta1.MsgSend"}],
+            data->tx->body->messages.cs.[{"messages": [{"@type": "/cosmos.bank.v1beta1.MsgSend"}]}]
         ),
-        and(
-          data->tx->body->messages->0->>@type.eq./cosmos.group.v1.MsgSubmitProposal,
-          data->tx->body->messages->0->messages->0->>@type.eq./cosmos.bank.v1beta1.MsgSend,
-          or(
-            data->tx->body->messages->0->messages->0->>fromAddress.eq.${address},
-            data->tx->body->messages->0->messages->0->>toAddress.eq.${address}
-          )
+        or(
+            data->tx->body->messages.cs.[{"fromAddress": "${address}"}],
+            data->tx->body->messages.cs.[{"toAddress": "${address}"}],
+            data->tx->body->messages.cs.[{"messages": [{"fromAddress": "${address}"}]}],
+            data->tx->body->messages.cs.[{"messages": [{"toAddress": "${address}"}]}]
         )
       )`;
 
@@ -881,7 +876,7 @@ export const useSendTxIncludingAddressQuery = (
 export const useSendTxQuery = () => {
   const fetchTransactions = async () => {
     const baseUrl = 'https://testnet-indexer.liftedinit.tech/transactions';
-    const query = `data->tx->body->messages->0->>@type=eq./cosmos.bank.v1beta1.MsgSend`;
+    const query = `data->tx->body->messages.cs.[{"@type": "/cosmos.bank.v1beta1.MsgSend"}]`;
 
     const response = await axios.get(`${baseUrl}?${query}`);
     return response.data.map(transformTransaction).filter((tx: any) => tx !== null);

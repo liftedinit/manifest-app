@@ -31,15 +31,16 @@ export function UpdateDenomMetadataModal({
 }) {
   const baseDenom = denom?.base?.split('/').pop() || '';
   const fullDenom = `factory/${address}/${baseDenom}`;
+  const symbol = baseDenom.slice(1).toUpperCase();
   const formData = {
     name: denom?.name || '',
-    symbol: denom?.symbol || denom?.display || '',
+    symbol: denom?.display || '',
     description: denom?.description || '',
     display: denom?.display || '',
-    base: baseDenom || '',
+    base: fullDenom || '',
     denomUnits: denom?.denom_units || [
-      { denom: fullDenom, exponent: 0, aliases: [] },
-      { denom: baseDenom.slice(1), exponent: 6, aliases: [] },
+      { denom: fullDenom, exponent: 0, aliases: [symbol] },
+      { denom: symbol, exponent: 6, aliases: [fullDenom] },
     ],
     uri: denom?.uri || '',
     uriHash: denom?.uri_hash || '',
@@ -53,19 +54,20 @@ export function UpdateDenomMetadataModal({
 
   const handleUpdate = async (values: TokenFormData) => {
     setIsSigning(true);
+    const symbol = values.display.toUpperCase();
     try {
       const msg = setDenomMetadata({
         sender: address,
         metadata: {
           description: values.description,
           denomUnits: [
-            { denom: fullDenom, exponent: 0, aliases: [] },
-            { denom: values.display, exponent: 6, aliases: [] },
+            { denom: fullDenom, exponent: 0, aliases: [symbol] },
+            { denom: values.display, exponent: 6, aliases: [fullDenom] },
           ],
-          base: fullDenom, // Use the full denom as the base
-          display: values.display,
+          base: fullDenom,
+          display: symbol,
           name: values.name,
-          symbol: values.display,
+          symbol: symbol,
           uri: values.uri,
           uriHash: '', // Leave this empty if you don't have a URI hash
         },

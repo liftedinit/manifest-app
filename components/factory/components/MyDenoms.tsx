@@ -309,10 +309,9 @@ function TokenRow({
       className="hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] dark:bg-[#FFFFFF0F] bg-[#FFFFFF] text-black dark:text-white rounded-lg cursor-pointer"
       onClick={onSelectDenom}
     >
-      <td className="rounded-l-[12px] w-1/4 ">
+      <td className="rounded-l-[12px] w-1/4">
         <div className="flex items-center space-x-3">
           <DenomImage denom={denom} />
-
           <span className="font-medium xxs:max-xs:hidden block">
             {denom.display.startsWith('factory')
               ? denom.display.split('/').pop()?.toUpperCase()
@@ -325,7 +324,7 @@ function TokenRow({
         <div className="flex flex-col sm:flex-row sm:items-center">
           <span className="sm:mr-2">{formatAmount(totalSupply)}</span>
           <span className="font-extralight">
-            {truncateString(denom?.display ?? '', 10).toUpperCase()}
+            {truncateString(denom?.display ?? 'No ticker provided', 10).toUpperCase()}
           </span>
         </div>
       </td>
@@ -333,7 +332,7 @@ function TokenRow({
         <div className="flex flex-col sm:flex-row sm:items-center">
           <span className="sm:mr-2">{formatAmount(balance)}</span>
           <span className="font-extralight">
-            {truncateString(denom?.display ?? '', 10).toUpperCase()}
+            {truncateString(denom?.display ?? 'No ticker provided', 10).toUpperCase()}
           </span>
         </div>
       </td>
