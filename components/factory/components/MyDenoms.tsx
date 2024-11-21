@@ -182,7 +182,26 @@ export default function MyDenoms({
                             <div className="skeleton h-2 w-32"></div>
                           </td>
                           <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px] w-1/4">
-                            <div className="skeleton h-2 w-12"></div>
+                            <div className="flex space-x-2">
+                              <button
+                                className="btn btn-sm btn-outline btn-square btn-primary"
+                                disabled
+                              >
+                                <MintIcon className="w-5 h-5 text-current opacity-50" />
+                              </button>
+                              <button
+                                className="btn btn-sm btn-outline btn-square btn-error"
+                                disabled
+                              >
+                                <BurnIcon className="w-5 h-5 text-current opacity-50" />
+                              </button>
+                              <button
+                                className="btn btn-sm btn-outline btn-square btn-info"
+                                disabled
+                              >
+                                <PiInfo className="w-5 h-5 text-current opacity-50" />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))

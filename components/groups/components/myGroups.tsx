@@ -1,7 +1,7 @@
-import { ExtendedQueryGroupsByMemberResponseSDKType } from '@/hooks/useQueries';
+import { ExtendedGroupType, ExtendedQueryGroupsByMemberResponseSDKType } from '@/hooks/useQueries';
 import ProfileAvatar from '@/utils/identicon';
 import { truncateString } from '@/utils';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import {
@@ -13,6 +13,13 @@ import { useBalance } from '@/hooks/useQueries';
 import { shiftDigits } from '@/utils';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { SearchIcon } from '@/components/icons';
+import { MemberIcon } from '@/components/icons';
+import { PiInfo } from 'react-icons/pi';
+import { GroupInfo } from '../modals/groupInfo';
+import { MemberManagementModal } from '../modals/memberManagmentModal';
+import { useChain } from '@cosmos-kit/react';
+import { useGroupsByMember } from '@/hooks/useQueries';
+import { MemberSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 
 export function YourGroups({
   groups,
@@ -29,8 +36,13 @@ export function YourGroups({
     name: string;
     threshold: string;
   } | null>(null);
+  const [members, setMembers] = useState<MemberSDKType[]>([]);
+  const [groupId, setGroupId] = useState<string>('');
+  const [groupAdmin, setGroupAdmin] = useState<string>('');
 
   const router = useRouter();
+  const { address } = useChain('manifest');
+  const { groupByMemberData } = useGroupsByMember(address ?? '');
 
   const filteredGroups = groups.groups.filter(group =>
     (group.ipfsMetadata?.title || 'Untitled Group').toLowerCase().includes(searchTerm.toLowerCase())
@@ -61,6 +73,31 @@ export function YourGroups({
       window.scrollTo(0, 0);
     }
   }, [selectedGroup]);
+
+  useEffect(() => {
+    if (groupByMemberData && selectedGroup?.policyAddress) {
+      const group = groupByMemberData.groups.find(
+        g => g.policies.length > 0 && g.policies[0]?.address === selectedGroup.policyAddress
+      );
+      if (group) {
+        setMembers(
+          group.members.map(member => ({
+            ...member.member,
+            address: member?.member?.address || '',
+            weight: member?.member?.weight || '0',
+            metadata: member?.member?.metadata || '',
+            added_at: member?.member?.added_at || new Date(),
+            isCoreMember: true,
+            isActive: true,
+            isAdmin: member?.member?.address === group.admin,
+            isPolicyAdmin: member?.member?.address === group.policies[0]?.admin,
+          }))
+        );
+        setGroupId(group.id.toString());
+        setGroupAdmin(group.admin);
+      }
+    }
+  }, [groupByMemberData, selectedGroup?.policyAddress]);
 
   const handleSelectGroup = (policyAddress: string, groupName: string, threshold: string) => {
     setSelectedGroup({ policyAddress, name: groupName || 'Untitled Group', threshold });
@@ -114,10 +151,10 @@ export function YourGroups({
                   <tr className="text-sm font-medium">
                     <th className="bg-transparent">Group Name</th>
                     <th className="bg-transparent hidden xl:table-cell">Active proposals</th>
-                    <th className="bg-transparent hidden xl:table-cell">Authors</th>
                     <th className="bg-transparent hidden sm:table-cell">Group Balance</th>
                     <th className="bg-transparent hidden xl:table-cell">Qualified Majority</th>
                     <th className="bg-transparent hidden lg:table-cell">Group address</th>
+                    <th className="bg-transparent text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="space-y-4">
@@ -126,7 +163,7 @@ export function YourGroups({
                         .fill(0)
                         .map((_, index) => (
                           <tr key={index}>
-                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] rounded-r-[12px] sm:rounded-r-none">
+                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] ">
                               <div className="flex items-center space-x-3">
                                 <div className="skeleton w-10 h-8 rounded-full shrink-0"></div>
                                 <div className="skeleton h-3 w-24"></div>
@@ -135,17 +172,30 @@ export function YourGroups({
                             <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] hidden xl:table-cell">
                               <div className="skeleton h-2 w-8"></div>
                             </td>
-                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] hidden xl:table-cell">
-                              <div className="skeleton h-2 w-24"></div>
-                            </td>
-                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] hidden sm:table-cell lg:rounded-r-none md:rounded-r-[12px]">
+                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] hidden sm:table-cell">
                               <div className="skeleton h-2 w-16"></div>
                             </td>
                             <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] hidden xl:table-cell">
                               <div className="skeleton h-2 w-20"></div>
                             </td>
-                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] hidden lg:table-cell rounded-r-[12px]">
+                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] hidden lg:table-cell">
                               <div className="skeleton h-2 w-32"></div>
+                            </td>
+                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px] w-1/6">
+                              <div className="flex space-x-2 justify-end">
+                                <button
+                                  className="btn btn-sm btn-outline btn-square btn-info"
+                                  disabled
+                                >
+                                  <PiInfo className="w-5 h-5 text-current opacity-50" />
+                                </button>
+                                <button
+                                  className="btn btn-sm btn-outline btn-square btn-primary"
+                                  disabled
+                                >
+                                  <MemberIcon className="w-5 h-5 text-current opacity-50" />
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         ))
@@ -158,14 +208,7 @@ export function YourGroups({
                               ? proposals[group.policies[0].address]
                               : []
                           }
-                          onSelectGroup={(policyAddress, groupName) =>
-                            handleSelectGroup(
-                              policyAddress,
-                              groupName,
-                              (group.policies[0]?.decision_policy as ThresholdDecisionPolicySDKType)
-                                ?.threshold ?? '0'
-                            )
-                          }
+                          onSelectGroup={handleSelectGroup}
                         />
                       ))}
                 </tbody>
@@ -181,6 +224,8 @@ export function YourGroups({
           </div>
         </div>
       </div>
+
+      {/* Group Proposals Section */}
       <div
         className={`absolute inset-0 transition-transform duration-300 ${
           selectedGroup ? 'translate-x-0' : 'translate-x-full'
@@ -191,10 +236,42 @@ export function YourGroups({
             policyAddress={selectedGroup.policyAddress}
             groupName={selectedGroup.name}
             onBack={handleBack}
-            policyThreshold={selectedGroup}
+            policyThreshold={selectedGroup.threshold}
           />
         )}
       </div>
+
+      {/* Render modals outside table structure */}
+      {filteredGroups.map((group, index) => (
+        <React.Fragment key={`modals-${index}`}>
+          <GroupInfo
+            modalId={`group-info-modal-${group.id}`}
+            group={group}
+            address={address ?? ''}
+            policyAddress={group.policies[0]?.address ?? ''}
+            onUpdate={() => {}}
+          />
+          <MemberManagementModal
+            modalId={`member-management-modal-${group.id}`}
+            members={group.members.map(member => ({
+              ...member.member,
+              address: member?.member?.address || '',
+              weight: member?.member?.weight || '0',
+              metadata: member?.member?.metadata || '',
+              added_at: member?.member?.added_at || new Date(),
+              isCoreMember: true,
+              isActive: true,
+              isAdmin: member?.member?.address === group.admin,
+              isPolicyAdmin: member?.member?.address === group.policies[0]?.admin,
+            }))}
+            groupId={group.id.toString()}
+            groupAdmin={group.admin}
+            policyAddress={group.policies[0]?.address ?? ''}
+            address={address ?? ''}
+            onUpdate={() => {}}
+          />
+        </React.Fragment>
+      ))}
     </div>
   );
 }
@@ -210,6 +287,7 @@ function GroupRow({
 }) {
   const policyAddress = (group.policies && group.policies[0]?.address) || '';
   const groupName = group.ipfsMetadata?.title || 'Untitled Group';
+
   const filterActiveProposals = (proposals: ProposalSDKType[]) => {
     return proposals?.filter(
       proposal =>
@@ -221,18 +299,30 @@ function GroupRow({
 
   const { balance } = useBalance(policyAddress);
 
-  const getAuthor = (authors: string | string[] | undefined): string => {
-    if (Array.isArray(authors)) {
-      return authors[0] || 'Unknown';
+  const openInfoModal = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const modal = document.getElementById(
+      `group-info-modal-${group.id}`
+    ) as HTMLDialogElement | null;
+    if (modal) {
+      modal.showModal();
     }
-    return authors || 'Unknown';
+  };
+
+  const openMemberModal = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const modal = document.getElementById(
+      `member-management-modal-${group.id}`
+    ) as HTMLDialogElement | null;
+    if (modal) {
+      modal.showModal();
+    }
   };
 
   return (
     <tr
       className="hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] dark:bg-[#FFFFFF0F] bg-[#FFFFFF] text-black dark:text-white rounded-lg cursor-pointer"
-      onClick={e => {
-        e.stopPropagation();
+      onClick={() => {
         onSelectGroup(
           policyAddress,
           groupName,
@@ -242,7 +332,7 @@ function GroupRow({
         );
       }}
     >
-      <td className="rounded-l-[12px] rounded-r-[12px] sm:rounded-r-none w-1/6">
+      <td className="rounded-l-[12px] w-1/6">
         <div className="flex items-center space-x-3">
           <ProfileAvatar walletAddress={policyAddress} />
           <span className="font-medium">{truncateString(groupName, 24)}</span>
@@ -255,13 +345,7 @@ function GroupRow({
           '-'
         )}
       </td>
-      <td className="hidden xl:table-cell w-1/6">
-        {truncateString(
-          getAuthor(group.ipfsMetadata?.authors) || 'Unknown',
-          getAuthor(group.ipfsMetadata?.authors || '').startsWith('manifest1') ? 6 : 24
-        )}
-      </td>
-      <td className="hidden sm:table-cell lg:rounded-r-none md:rounded-r-[12px] w-1/6">
+      <td className="hidden sm:table-cell w-1/6">
         {Number(shiftDigits(balance?.amount ?? '0', -6)).toLocaleString(undefined, {
           maximumFractionDigits: 6,
         })}{' '}
@@ -270,8 +354,26 @@ function GroupRow({
       <td className="hidden xl:table-cell w-1/6">
         {`${(group.policies[0]?.decision_policy as ThresholdDecisionPolicySDKType).threshold ?? '0'} / ${group.total_weight ?? '0'}`}
       </td>
-      <td className="hidden lg:table-cell rounded-r-[12px] w-1/6">
-        <TruncatedAddressWithCopy address={policyAddress} slice={12} />
+      <td className="hidden lg:table-cell w-1/6">
+        <div onClick={e => e.stopPropagation()}>
+          <TruncatedAddressWithCopy address={policyAddress} slice={12} />
+        </div>
+      </td>
+      <td className="rounded-r-[12px] sm:rounded-l-none w-1/6">
+        <div className="flex space-x-2 justify-end">
+          <button
+            className="btn btn-sm btn-outline btn-square btn-info group"
+            onClick={openInfoModal}
+          >
+            <PiInfo className="w-5 h-5 text-current group-hover:text-white" />
+          </button>
+          <button
+            className="btn btn-sm btn-outline btn-square btn-primary group"
+            onClick={openMemberModal}
+          >
+            <MemberIcon className="w-5 h-5 text-current group-hover:text-white" />
+          </button>
+        </div>
       </td>
     </tr>
   );

@@ -7,13 +7,14 @@ import { UpdateGroupModal } from './updateGroupModal';
 import { ThresholdDecisionPolicySDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 
 interface GroupInfoProps {
+  modalId: string;
   group: ExtendedGroupType | null;
   policyAddress: string;
   address: string;
   onUpdate: () => void;
 }
 
-export function GroupInfo({ group, policyAddress, address, onUpdate }: GroupInfoProps) {
+export function GroupInfo({ modalId, group, policyAddress, address, onUpdate }: GroupInfoProps) {
   if (!group || !group.policies || group.policies.length === 0) return null;
 
   const policy = group.policies[0];
@@ -95,7 +96,7 @@ export function GroupInfo({ group, policyAddress, address, onUpdate }: GroupInfo
   }
 
   return (
-    <dialog id="group-info-modal" className="modal">
+    <dialog id={modalId} className="modal">
       <div className="modal-box bg-[#FFFFFF] dark:bg-[#1D192D] rounded-[24px] max-h-['574px'] max-w-[542px] p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">

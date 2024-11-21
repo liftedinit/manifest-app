@@ -17,6 +17,7 @@ interface ExtendedMember extends MemberSDKType {
 }
 
 interface MemberManagementModalProps {
+  modalId: string;
   members: MemberSDKType[];
   groupId: string;
   groupAdmin: string;
@@ -26,6 +27,7 @@ interface MemberManagementModalProps {
 }
 
 export function MemberManagementModal({
+  modalId,
   members: initialMembers,
   groupId,
   groupAdmin,
@@ -170,7 +172,7 @@ export function MemberManagementModal({
   const submitFormRef = useRef<(() => void) | null>(null);
 
   return (
-    <dialog id="member-management-modal" className="modal z-[150]">
+    <dialog id={modalId} className="modal z-[150]">
       <div className="flex flex-col items-center w-full h-full">
         <div className="modal-box dark:bg-[#1D192D] bg-[#FFFFFF] rounded-[24px] max-w-[39rem] p-6 dark:text-white text-black">
           <form method="dialog">
@@ -209,6 +211,7 @@ export function MemberManagementModal({
                           setFieldValue(fieldName, selectedAddress);
                         }
                         setIsContactsOpen(false);
+                        (document.getElementById(modalId) as HTMLDialogElement)?.close();
                       }}
                       currentAddress={address}
                     />
@@ -325,9 +328,7 @@ export function MemberManagementModal({
                         type="button"
                         className="btn w-[calc(50%-8px)] btn-md focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
                         onClick={() =>
-                          (
-                            document.getElementById('member-management-modal') as HTMLDialogElement
-                          ).close()
+                          (document.getElementById(modalId) as HTMLDialogElement)?.close()
                         }
                       >
                         Cancel

@@ -96,6 +96,7 @@ export default function Groups() {
               />
               {selectedPolicyAddress && (
                 <GroupInfo
+                  modalId={selectedPolicyAddress}
                   policyAddress={selectedPolicyAddress}
                   group={
                     groupByMemberData?.groups.find(

@@ -17,16 +17,12 @@ import { useChain } from '@cosmos-kit/react';
 import { MemberSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { ArrowRightIcon } from '@/components/icons';
 import ProfileAvatar from '@/utils/identicon';
-import { GroupInfo } from '../modals/groupInfo';
-import { ExtendedGroupType } from '@/hooks/useQueries';
-import { MemberManagementModal } from '../modals/memberManagmentModal';
-import { ThresholdDecisionPolicy } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 
 type GroupProposalsProps = {
   policyAddress: string;
   groupName: string;
   onBack: () => void;
-  policyThreshold: ThresholdDecisionPolicy;
+  policyThreshold: string;
 };
 
 export default function GroupProposals({
@@ -113,7 +109,7 @@ export default function GroupProposals({
     const totalNoVotes = noCount + noWithVetoCount;
 
     // Check if threshold is reached
-    const threshold = BigInt(policyThreshold.threshold);
+    const threshold = BigInt(policyThreshold);
     const isThresholdReached = totalVotes >= threshold;
 
     // Check for tie
@@ -254,57 +250,26 @@ export default function GroupProposals({
             <ProfileAvatar walletAddress={policyAddress} size={40} />
           </div>
         </div>
-        <div className=" hidden md:flex  items-center space-x-4">
-          <button
-            className="btn w-[140px] h-[52px] rounded-[12px] focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
-            onClick={openInfoModal}
-          >
-            Info
-          </button>
-          <button
-            className="btn w-[140px] h-[52px] rounded-[12px] focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
-            onClick={openMemberModal}
-          >
-            Members
-          </button>
-        </div>
       </div>
-      <div className="flex-col items-center w-full justify-center gap-4 mb-8">
-        <div className=" md:hidden flex items-center space-x-4 w-full">
-          <button
-            className="btn w-[calc(50%-8px)] h-[52px] rounded-[12px] focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
-            onClick={openInfoModal}
-          >
-            Info
-          </button>
-          <button
-            className="btn w-[calc(50%-8px)] h-[52px] rounded-[12px] focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
-            onClick={openMemberModal}
-          >
-            Members
-          </button>
-        </div>
-      </div>
+
       {/* Search and New Proposal section */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0 mb-6">
-        <h2 className="text-xl font-semibold">Proposals</h2>
-        <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-4 w-full md:w-auto">
-          <div className="relative w-full md:w-[224px]">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
+          <h2 className="text-xl font-semibold">Proposals</h2>
+          <div className="relative w-full sm:w-[224px]">
             <input
               type="text"
-              placeholder="Search for a group..."
+              placeholder="Search for a proposal..."
               className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-[#0000000A] dark:bg-[#FFFFFF1F] pl-10"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
             />
             <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           </div>
-          <Link
-            className="hidden md:block"
-            href={`/groups/submit-proposal/${policyAddress}`}
-            passHref
-          >
-            <button className="btn btn-gradient rounded-[12px] w-[140px] text-white h-[52px]">
+        </div>
+        <div className="hidden md:block">
+          <Link href={`/groups/submit-proposal/${policyAddress}`} passHref>
+            <button className="btn btn-gradient rounded-[12px] w-[224px] text-white h-[52px]">
               New proposal
             </button>
           </Link>
@@ -428,25 +393,6 @@ export default function GroupProposals({
         refetchTally={refetchTally}
         refetchProposals={refetchProposals}
         onClose={closeModal}
-      />
-
-      <GroupInfo
-        group={
-          groupByMemberData?.groups.find(g => g.policies[0]?.address === policyAddress) ??
-          ({} as unknown as ExtendedGroupType)
-        }
-        address={address ?? ''}
-        policyAddress={policyAddress}
-        onUpdate={() => {}}
-      />
-
-      <MemberManagementModal
-        members={members}
-        groupId={groupId}
-        groupAdmin={groupAdmin}
-        policyAddress={policyAddress}
-        address={address ?? ''}
-        onUpdate={refetchProposals}
       />
     </div>
   );
