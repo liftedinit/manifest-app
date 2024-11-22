@@ -664,14 +664,14 @@ export default function ProposalMessages({
           </div>
         </div>
       </div>
-      <div className="flex space-x-3 mt-6 mx-auto w-full">
-        <button onClick={prevStep} className="btn btn-neutral py-2.5 sm:py-3.5 w-1/2">
+      <div className="flex gap-6 mt-6 mx-auto w-full">
+        <button onClick={prevStep} className="btn btn-neutral py-2.5 sm:py-3.5 w-[calc(50%-12px)]">
           <span className="hidden sm:inline">Prev: Proposal Details</span>
           <span className="sm:hidden">Prev: Details</span>
         </button>
         <button
           onClick={nextStep}
-          className="w-1/2 btn py-2.5 sm:py-3.5 btn-gradient text-white disabled:text-black"
+          className="w-[calc(50%-12px)] btn py-2.5 sm:py-3.5 btn-gradient text-white disabled:text-black"
           disabled={!isFormValid}
         >
           Next: Proposal Metadata

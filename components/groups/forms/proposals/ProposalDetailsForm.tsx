@@ -116,18 +116,19 @@ export default function ProposalDetails({
             </div>
             <div className="flex flex-row gap-6  mt-6 mx-auto w-full">
               <Link href={`/groups?policyAddress=${policyAddress}`} legacyBehavior>
-                <button className="btn btn-neutral py-2.5 sm:py-3.5 w-1/2">
+                <button className="btn btn-neutral py-2.5 sm:py-3.5 w-[calc(50%-12px)]">
                   <span className="hidden sm:inline">Back: Proposals Page</span>
                   <span className="sm:hidden">Back: Proposals</span>
                 </button>
               </Link>
               <button
                 type="submit"
-                className="w-1/2 btn  py-2.5 sm:py-3.5 btn-gradient text-white disabled:text-black"
+                className="w-[calc(50%-12px)] btn  py-2.5 sm:py-3.5 btn-gradient text-white disabled:text-black"
                 onClick={nextStep}
                 disabled={!isValid || !formData.proposers}
               >
-                Next: Proposal Messages
+                <span className="hidden sm:inline">Next: Proposal Messages</span>
+                <span className="sm:hidden">Next: Messages</span>
               </button>
             </div>
           </>

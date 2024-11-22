@@ -55,7 +55,19 @@ type ManifestAppProps = AppProps & {
 };
 
 function ManifestApp({ Component, pageProps }: ManifestAppProps) {
-  const [isDrawerVisible, setDrawerVisible] = useState(false);
+  const [isDrawerVisible, setDrawerVisible] = useState(() => {
+    // Initialize from localStorage if available, otherwise default to true
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('isDrawerVisible');
+      return saved !== null ? JSON.parse(saved) : true;
+    }
+    return true;
+  });
+
+  // Save to localStorage whenever the state changes
+  useEffect(() => {
+    localStorage.setItem('isDrawerVisible', JSON.stringify(isDrawerVisible));
+  }, [isDrawerVisible]);
 
   // signer options to support amino signing for all the different modules we use
   const signerOptions: SignerOptions = {
@@ -64,6 +76,7 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
         ...cosmosProtoRegistry,
         ...osmosisProtoRegistry,
         ...strangeloveVenturesProtoRegistry,
+        ...liftedinitProtoRegistry,
       ]);
       const mergedAminoTypes = new AminoTypes({
         ...cosmosAminoConverters,
@@ -154,7 +167,7 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
             })
           ),
       }),
-    [theme]
+    []
   );
 
   // combine the web3auth wallets with the other wallets

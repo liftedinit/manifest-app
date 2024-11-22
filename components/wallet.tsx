@@ -1,7 +1,7 @@
 import React, { MouseEventHandler, useEffect, useMemo, useState } from 'react';
 
 import { ArrowDownTrayIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
-import { ArrowUpIcon, CopyIcon, GroupsIcon } from './icons';
+import { ArrowUpIcon, CopyIcon } from './icons';
 import { useChain } from '@cosmos-kit/react';
 import { WalletStatus } from 'cosmos-kit';
 import { MdWallet } from 'react-icons/md';

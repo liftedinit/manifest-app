@@ -9,6 +9,11 @@ module.exports = {
   ],
   theme: {
     extend: {
+      screens: {
+        '3xl': '2560px',
+        xxs: '320px',
+        xs: '375px',
+      },
       boxShadow: {
         inner: 'inset 0 2px 4px 0 rgba(0, 0, 0, 1)',
         clicked: 'inset 0 2px 18px 0 rgba(0, 0, 0, 1)',

@@ -45,7 +45,11 @@ function VotingPopup({ proposalId, refetch }: { proposalId: bigint; refetch: () 
 
   return (
     <>
-      <dialog id="vote_modal" className="modal modal-bottom sm:modal-middle z-[1000]">
+      <dialog
+        aria-label="vote-modal"
+        id="vote_modal"
+        className="modal modal-bottom sm:modal-middle z-[1000]"
+      >
         <form method="dialog" className="modal-box relative dark:bg-[#1D192D] bg-[#FFFFFF]">
           <h3 className="font-bold text-lg mb-4">
             Cast Your Vote for Proposal #{proposalId.toString()}
