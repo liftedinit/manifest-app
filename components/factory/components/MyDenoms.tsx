@@ -168,7 +168,7 @@ export default function MyDenoms({
                                 aria-label={`skeleton-${index}-avatar`}
                               />
                               <div
-                                className="skeleton h-3 w-24"
+                                className="skeleton font-medium xxs:max-xs:hidden block"
                                 aria-label={`skeleton-${index}-name`}
                               />
                             </div>
@@ -179,7 +179,7 @@ export default function MyDenoms({
                               aria-label={`skeleton-${index}-symbol`}
                             />
                           </td>
-                          <td className="bg-secondary w-2/5 sm:w-1/4 lg:table-cell hidden">
+                          <td className="bg-secondary w-2/5 sm:w-1/4">
                             <div
                               className="skeleton h-2 w-24"
                               aria-label={`skeleton-${index}-supply`}
@@ -188,19 +188,19 @@ export default function MyDenoms({
                           <td className="bg-secondary rounded-r-[12px] w-1/4">
                             <div className="flex space-x-2">
                               <button
-                                className="btn btn-sm btn-outline btn-square btn-primary"
+                                className="btn btn-md btn-outline btn-square btn-primary"
                                 disabled
                               >
                                 <MintIcon className="w-7 h-7 text-current opacity-50" />
                               </button>
                               <button
-                                className="btn btn-sm btn-outline btn-square btn-error"
+                                className="btn btn-md btn-outline btn-square btn-error"
                                 disabled
                               >
                                 <BurnIcon className="w-7 h-7 text-current opacity-50" />
                               </button>
                               <button
-                                className="btn btn-sm btn-outline btn-square btn-info"
+                                className="btn btn-md btn-outline btn-square btn-info"
                                 disabled
                               >
                                 <PiInfo className="w-7 h-7 text-current opacity-50" />
