@@ -129,7 +129,7 @@ export function YourGroups({
                 <input
                   type="text"
                   placeholder="Search for a group..."
-                  className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10"
+                  className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                   aria-label="Search groups"

@@ -246,7 +246,7 @@ export default function GroupProposals({
           >
             <ArrowRightIcon className="text-primary" />
           </button>
-          <h1 className="text-2xl font-bold  truncate">{groupName}</h1>
+          <h1 className="text-2xl font-bold text-primary-content truncate">{groupName}</h1>
           <div className="hidden sm:block">
             <ProfileAvatar walletAddress={policyAddress} size={40} />
           </div>
@@ -256,7 +256,7 @@ export default function GroupProposals({
       {/* Search and New Proposal section */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
-          <h2 className="text-xl font-semibold">Proposals</h2>
+          <h2 className="text-xl font-semibold text-primary-content">Proposals</h2>
           <div className="relative w-full sm:w-[224px]">
             <input
               type="text"
@@ -284,11 +284,6 @@ export default function GroupProposals({
             </button>
           </Link>
         </div>
-        <Link href={`/groups/submit-proposal/${policyAddress}`} passHref>
-          <button className="btn btn-gradient rounded-[12px] w-[140px] text-white h-[52px]">
-            New proposal
-          </button>
-        </Link>
       </div>
 
       {/* Table section - will fill remaining space */}
