@@ -364,7 +364,6 @@ const anyMessage = Any.fromPartial({
 });
 
 export const mockProposals: { [key: string]: ProposalSDKType[] } = {
-  // The key should match the policy address from `mockGroup`
   test_policy_address: [
     {
       id: 1n,
@@ -385,7 +384,14 @@ export const mockProposals: { [key: string]: ProposalSDKType[] } = {
       },
       voting_period_end: new Date(),
       executor_result: ProposalExecutorResult.PROPOSAL_EXECUTOR_RESULT_NOT_RUN,
-      messages: [{ ...anyMessage, '@type': '/cosmos.bank.v1beta1.MsgSend' }], // TODO: The FE is using the `@type` field
+      messages: [
+        {
+          ...anyMessage,
+          '@type': '/cosmos.bank.v1beta1.MsgSend',
+          $typeUrl: '/cosmos.bank.v1beta1.MsgSend',
+          type_url: '/cosmos.bank.v1beta1.MsgSend',
+        },
+      ],
     },
     {
       id: 2n,
@@ -406,10 +412,16 @@ export const mockProposals: { [key: string]: ProposalSDKType[] } = {
       },
       voting_period_end: new Date(),
       executor_result: ProposalExecutorResult.PROPOSAL_EXECUTOR_RESULT_SUCCESS,
-      messages: [],
+      messages: [
+        {
+          ...anyMessage,
+          '@type': '/cosmos.bank.v1beta1.MsgSend',
+          $typeUrl: '/cosmos.bank.v1beta1.MsgSend',
+          type_url: '/cosmos.bank.v1beta1.MsgSend',
+        },
+      ],
     },
   ],
-  // The key should match the policy address from `mockGroup2`
   test_policy_address2: [
     {
       id: 3n,

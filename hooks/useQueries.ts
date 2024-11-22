@@ -5,9 +5,9 @@ import { QueryGroupsByMemberResponseSDKType } from '@liftedinit/manifestjs/dist/
 import { useLcdQueryClient } from './useLcdQueryClient';
 import { usePoaLcdQueryClient } from './usePoaLcdQueryClient';
 import { getLogoUrls, isValidIPFSCID } from '@/utils';
-import { ExtendedValidatorSDKType } from '@/components';
+
 import { useManifestLcdQueryClient } from './useManifestLcdQueryClient';
-import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+
 import axios from 'axios';
 import {
   GroupMemberSDKType,
@@ -780,11 +780,15 @@ const transformTransaction = (tx: any) => {
   };
 };
 
-export const useSendTxIncludingAddressQuery = (address: string, direction?: 'send' | 'receive') => {
+export const useSendTxIncludingAddressQuery = (
+  address: string,
+  direction?: 'send' | 'receive',
+  page: number = 1,
+  pageSize: number = 10
+) => {
   const fetchTransactions = async () => {
     const baseUrl = 'https://testnet-indexer.liftedinit.tech/transactions';
 
-    // Build query for both direct MsgSend and nested (1 level) group proposal MsgSend
     const query = `
       and=(
         or(
@@ -797,28 +801,60 @@ export const useSendTxIncludingAddressQuery = (address: string, direction?: 'sen
             data->tx->body->messages.cs.[{"messages": [{"fromAddress": "${address}"}]}],
             data->tx->body->messages.cs.[{"messages": [{"toAddress": "${address}"}]}]
         )
-      )
-    `;
+      )`;
 
-    const response = await axios.get(
-      `${baseUrl}?${query.replace(/\s+/g, '')}&order=data->txResponse->height.desc`
-    );
+    // Add pagination parameters
+    const offset = (page - 1) * pageSize;
+    const paginationParams = `&limit=${pageSize}&offset=${offset}`;
 
-    // Transform the data to match the component's expected format
-    const transactions = response.data
-      .map(transformTransaction)
-      .filter((tx: any) => tx !== null)
-      .filter((tx: any) => {
-        if (!direction) return true;
-        if (direction === 'send') return tx.data.from_address === address;
-        if (direction === 'receive') return tx.data.to_address === address;
-        return true;
+    const finalUrl = `${baseUrl}?${query.replace(/\s+/g, '')}&order=data->txResponse->height.desc${paginationParams}`;
+
+    try {
+      // First, get the total count
+      const countResponse = await axios.get(`${baseUrl}?${query.replace(/\s+/g, '')}`, {
+        headers: {
+          Prefer: 'count=exact',
+          'Range-Unit': 'items',
+          Range: '0-0', // We only need the count, not the actual data
+        },
       });
 
-    return transactions;
+      // Get the total count from the content-range header
+      const contentRange = countResponse.headers['content-range'];
+      const totalCount = contentRange ? parseInt(contentRange.split('/')[1]) : 0;
+
+      console.log('Total count:', totalCount); // Debug log
+
+      // Then get the paginated data
+      const dataResponse = await axios.get(finalUrl, {
+        headers: {
+          'Range-Unit': 'items',
+          Range: `${offset}-${offset + pageSize - 1}`,
+        },
+      });
+
+      const transactions = dataResponse.data
+        .map(transformTransaction)
+        .filter((tx: any) => tx !== null)
+        .filter((tx: any) => {
+          if (!direction) return true;
+          if (direction === 'send') return tx.data.from_address === address;
+          if (direction === 'receive') return tx.data.to_address === address;
+          return true;
+        });
+
+      return {
+        transactions,
+        totalCount,
+        totalPages: Math.ceil(totalCount / pageSize),
+      };
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+      throw error;
+    }
   };
 
-  const queryKey = ['sendTx', address, direction];
+  const queryKey = ['sendTx', address, direction, page, pageSize];
 
   const sendQuery = useQuery({
     queryKey,
@@ -827,7 +863,9 @@ export const useSendTxIncludingAddressQuery = (address: string, direction?: 'sen
   });
 
   return {
-    sendTxs: sendQuery.data,
+    sendTxs: sendQuery.data?.transactions,
+    totalCount: sendQuery.data?.totalCount,
+    totalPages: sendQuery.data?.totalPages || 1,
     isLoading: sendQuery.isLoading,
     isError: sendQuery.isError,
     error: sendQuery.error,

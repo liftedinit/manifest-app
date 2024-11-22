@@ -43,7 +43,7 @@ describe('BurnForm Component', () => {
   test('renders form with correct details', () => {
     renderWithProps();
     expect(screen.getByText('NAME')).toBeInTheDocument();
-    expect(screen.getByText('YOUR BALANCE')).toBeInTheDocument();
+    expect(screen.getByText("TARGET'S BALANCE")).toBeInTheDocument();
     expect(screen.getByText('EXPONENT')).toBeInTheDocument();
     expect(screen.getByText('CIRCULATING SUPPLY')).toBeInTheDocument();
   });

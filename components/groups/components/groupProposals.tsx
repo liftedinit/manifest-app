@@ -17,16 +17,12 @@ import { useChain } from '@cosmos-kit/react';
 import { MemberSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { ArrowRightIcon } from '@/components/icons';
 import ProfileAvatar from '@/utils/identicon';
-import { GroupInfo } from '../modals/groupInfo';
-import { ExtendedGroupType } from '@/hooks/useQueries';
-import { MemberManagementModal } from '../modals/memberManagmentModal';
-import { ThresholdDecisionPolicy } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 
 type GroupProposalsProps = {
   policyAddress: string;
   groupName: string;
   onBack: () => void;
-  policyThreshold: ThresholdDecisionPolicy;
+  policyThreshold: string;
 };
 
 export default function GroupProposals({
@@ -113,7 +109,7 @@ export default function GroupProposals({
     const totalNoVotes = noCount + noWithVetoCount;
 
     // Check if threshold is reached
-    const threshold = BigInt(policyThreshold.threshold);
+    const threshold = BigInt(policyThreshold);
     const isThresholdReached = totalVotes >= threshold;
 
     // Check for tie
@@ -243,42 +239,50 @@ export default function GroupProposals({
       {/* Header section */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-4">
-          <button onClick={onBack} className="btn btn-circle rounded-[16px] bg-secondary btn-md">
+          <button
+            onClick={onBack}
+            className="btn btn-circle rounded-[12px] bg-secondary btn-md focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+            aria-label="Go back to groups list"
+          >
             <ArrowRightIcon className="text-primary" />
           </button>
-          <h1 className="text-2xl font-bold text-primary-content">{groupName}</h1>
-          <ProfileAvatar walletAddress={policyAddress} size={40} />
-        </div>
-        <div className="flex items-center space-x-4">
-          <button
-            className="btn w-[140px] h-[52px] rounded-[12px] focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
-            onClick={openInfoModal}
-          >
-            Info
-          </button>
-          <button
-            className="btn w-[140px] h-[52px] rounded-[12px] focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
-            onClick={openMemberModal}
-          >
-            Members
-          </button>
+          <h1 className="text-2xl font-bold  truncate">{groupName}</h1>
+          <div className="hidden sm:block">
+            <ProfileAvatar walletAddress={policyAddress} size={40} />
+          </div>
         </div>
       </div>
 
       {/* Search and New Proposal section */}
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center space-x-4">
-          <h2 className="text-xl font-semibold text-primary-content">Proposals</h2>
-          <div className="relative">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
+          <h2 className="text-xl font-semibold">Proposals</h2>
+          <div className="relative w-full sm:w-[224px]">
             <input
               type="text"
               placeholder="Search for a proposal..."
-              className="input input-bordered w-[224px] h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10"
+              className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
+              aria-label="Search proposals"
             />
-            <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 " />
+            <SearchIcon
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              aria-hidden="true"
+            />
           </div>
+        </div>
+        <div className="hidden md:block">
+          <Link
+            href={`/groups/submit-proposal/${policyAddress}`}
+            passHref
+            aria-label="Create new proposal"
+            className="focus:outline-none focus-visible:ring-0 "
+          >
+            <button className="btn btn-gradient rounded-[12px] w-[224px] text-white h-[52px] focus:outline-none focus-visible:ring-1 focus-visible:ring-primary">
+              New proposal
+            </button>
+          </Link>
         </div>
         <Link href={`/groups/submit-proposal/${policyAddress}`} passHref>
           <button className="btn btn-gradient rounded-[12px] w-[140px] text-white h-[52px]">
@@ -290,20 +294,39 @@ export default function GroupProposals({
       {/* Table section - will fill remaining space */}
       <div className="flex-1 overflow-auto">
         {isProposalsLoading ? (
-          <div className="flex justify-center items-center h-64">
-            <span role="status" className="loading loading-spinner loading-lg"></span>
+          <div
+            className="flex justify-center items-center h-64"
+            role="status"
+            aria-label="Loading proposals"
+          >
+            <span className="loading loading-spinner loading-lg" aria-hidden="true"></span>
           </div>
         ) : isProposalsError ? (
-          <div className="text-center text-error">Error loading proposals</div>
+          <div className="text-center text-error" role="alert">
+            Error loading proposals
+          </div>
         ) : filteredProposals.length > 0 ? (
-          <table className="table w-full border-separate border-spacing-y-3">
+          <table
+            className="table w-full border-separate border-spacing-y-3"
+            aria-label="Group proposals"
+          >
             <thead>
               <tr className="text-sm font-medium">
-                <th className="bg-transparent px-4 py-2 w-[25%]">#</th>
-                <th className="bg-transparent px-4 py-2 w-[25%]">Title</th>
-                <th className="bg-transparent px-4 py-2 w-[25%]">Time Left</th>
-                <th className="bg-transparent px-4 py-2 w-[25%]">Type</th>
-                <th className="bg-transparent px-4 py-2 w-[25%]">Status</th>
+                <th className="bg-transparent px-4 py-2 w-[25%]" scope="col">
+                  ID
+                </th>
+                <th className="bg-transparent px-4 py-2 w-[25%]" scope="col">
+                  Title
+                </th>
+                <th className="bg-transparent px-4 py-2 w-[25%] hidden md:table-cell" scope="col">
+                  Time Left
+                </th>
+                <th className="bg-transparent px-4 py-2 w-[25%] hidden md:table-cell" scope="col">
+                  Type
+                </th>
+                <th className="bg-transparent px-4 py-2 w-[25%] hidden md:table-cell" scope="col">
+                  Status
+                </th>
               </tr>
             </thead>
             <tbody className="space-y-4">
@@ -374,7 +397,11 @@ export default function GroupProposals({
                     </td>
                     <td className="bg-secondary group-hover:bg-base-300 rounded-r-[12px] px-4 py-4 w-[25%]">
                       {isTalliesLoading ? (
-                        <span className="loading loading-spinner loading-xs"></span>
+                        <span
+                          className="loading loading-spinner loading-xs"
+                          role="status"
+                          aria-label="Loading status"
+                        ></span>
                       ) : (
                         status
                       )}
@@ -385,8 +412,21 @@ export default function GroupProposals({
             </tbody>
           </table>
         ) : (
-          <div className="text-center py-8 text-gray-500">No proposal was found.</div>
+          <div className="text-center py-8 text-gray-500" role="status">
+            No proposal was found
+          </div>
         )}
+        <div className="block md:hidden mt-8">
+          <Link
+            href={`/groups/submit-proposal/${policyAddress}`}
+            passHref
+            aria-label="Create new proposal"
+          >
+            <button className="btn btn-gradient rounded-[12px] w-full text-white h-[52px] focus:outline-none focus-visible:ring-1 focus-visible:ring-primary">
+              New proposal
+            </button>
+          </Link>
+        </div>
       </div>
 
       {/* Modals */}
@@ -401,25 +441,6 @@ export default function GroupProposals({
         refetchTally={refetchTally}
         refetchProposals={refetchProposals}
         onClose={closeModal}
-      />
-
-      <GroupInfo
-        group={
-          groupByMemberData?.groups.find(g => g.policies[0]?.address === policyAddress) ??
-          ({} as unknown as ExtendedGroupType)
-        }
-        address={address ?? ''}
-        policyAddress={policyAddress}
-        onUpdate={() => {}}
-      />
-
-      <MemberManagementModal
-        members={members}
-        groupId={groupId}
-        groupAdmin={groupAdmin}
-        policyAddress={policyAddress}
-        address={address ?? ''}
-        onUpdate={refetchProposals}
       />
     </div>
   );

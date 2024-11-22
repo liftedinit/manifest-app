@@ -116,15 +116,15 @@ export default function CreateDenom({
                   {/* Buttons placed outside the form but inside Formik's render props */}
                 </div>
               </div>
-              <div className="flex space-x-3 mt-6 mx-auto w-full">
+              <div className="flex gap-6  mt-6 mx-auto w-full">
                 <Link href="/factory" legacyBehavior>
-                  <button className="btn btn-neutral py-2.5 sm:py-3.5 w-1/2">
+                  <button className="btn btn-neutral py-2.5 sm:py-3.5 w-[calc(50%-12px)]">
                     <span className="hidden sm:inline">Back: Factory Page</span>
                     <span className="sm:hidden">Back</span>
                   </button>
                 </Link>
                 <button
-                  className="w-1/2 btn btn-gradient text-white py-2.5 sm:py-3.5 disabled:opacity-50"
+                  className="w-[calc(50%-12px)] btn px-5 py-2.5 sm:py-3.5 btn-gradient text-white disabled:text-black"
                   onClick={() => handleSubmit()}
                   disabled={!isValid || isSubmitting || isValidating}
                 >

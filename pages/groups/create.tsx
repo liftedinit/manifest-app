@@ -5,7 +5,7 @@ import GroupDetails from '@/components/groups/forms/groups/GroupDetailsForm';
 import GroupPolicyForm from '@/components/groups/forms/groups/GroupPolicyForm';
 import MemberInfoForm from '@/components/groups/forms/groups/MemberInfoForm';
 import { Duration } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/duration';
-import StepIndicator from '@/components/groups/components/StepIndicator';
+import StepIndicator from '@/components/react/StepIndicator';
 import { useChain } from '@cosmos-kit/react';
 import { chainName } from '@/config';
 import { WalletNotConnected, WalletSection } from '@/components';
@@ -95,7 +95,7 @@ export default function CreateGroup() {
       </Head>
       {!isWalletConnected ? (
         <WalletNotConnected
-          description={'Use the button below to connect your wallet and create a group.'}
+          description="Use the button below to connect your wallet and create a group."
           icon={<GroupsIcon className="h-60 w-60 text-primary" />}
         />
       ) : (
