@@ -94,7 +94,7 @@ module.exports = {
           'neutral-content': '#FFFFFF',
           'base-100': '#FFFFFF',
           'base-200': '#F0F0FF',
-          'base-300': '#F6F6FF',
+          'base-300': '#F5F5F5',
           'base-content': '#161616',
           'tooltip-color': '#ffffff',
           'background-color': '#F0F0FF',

@@ -79,7 +79,7 @@ export default function ValidatorList({
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
             <h1
-              className="text-black dark:text-white"
+              className="text-secondary-content"
               style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
             >
               Validators
@@ -88,7 +88,7 @@ export default function ValidatorList({
               <input
                 type="text"
                 placeholder="Search for a validator..."
-                className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-[#0000000A] dark:bg-[#FFFFFF1F] pl-10"
+                className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10"
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
               />
@@ -99,7 +99,7 @@ export default function ValidatorList({
         <div
           role="tablist"
           aria-label="Validator status filter"
-          className="flex mb-6 w-full h-[3.5rem] rounded-xl p-1 bg-[#0000000A] dark:bg-[#FFFFFF0F]"
+          className="flex mb-6 w-full h-[3.5rem] rounded-xl p-1 bg-secondary"
         >
           <button
             onClick={() => setActive(true)}
@@ -107,9 +107,7 @@ export default function ValidatorList({
             aria-selected={active}
             aria-controls="active-validators"
             className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl focus:outline-none focus:ring-1 focus:ring-primary/50  ${
-              active
-                ? 'dark:bg-[#FFFFFF1F] bg-[#FFFFFF] text-[#161616] dark:text-white'
-                : 'text-[#808080]'
+              active ? 'bg-base-300 text-secondary-content' : 'text-gray-500'
             }`}
           >
             Active
@@ -117,9 +115,7 @@ export default function ValidatorList({
           <button
             onClick={() => setActive(false)}
             className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl focus:outline-none focus:ring-1 focus:ring-primary/50  ${
-              !active
-                ? 'dark:bg-[#FFFFFF1F] bg-[#FFFFFF] text-[#161616] dark:text-white'
-                : 'text-[#808080]'
+              !active ? 'bg-base-300 text-secondary-content' : 'text-gray-500'
             }`}
           >
             Pending
@@ -198,19 +194,13 @@ export default function ValidatorList({
                 {filteredValidators.map(validator => (
                   <tr
                     key={validator.operator_address}
-                    className="bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] focus:bg-[#FFFFFF] dark:focus:bg-[#FFFFFF26] text-black dark:text-white rounded-lg cursor-pointer focus:outline-none transition-colors"
+                    className="group text-black dark:text-white rounded-lg cursor-pointer focus:outline-none transition-colors"
                     onClick={() => handleRowClick(validator)}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        handleRowClick(validator);
-                      }
-                    }}
                     tabIndex={0}
                     role="row"
                     aria-label={`Validator ${validator.description.moniker}`}
                   >
-                    <td className="rounded-l-[12px] py-4">
+                    <td className="bg-secondary group-hover:bg-base-300 rounded-l-[12px] py-4">
                       <div className="flex items-center space-x-3">
                         {validator.logo_url ? (
                           <Image
@@ -227,14 +217,14 @@ export default function ValidatorList({
                       </div>
                     </td>
 
-                    <td className="py-4 hidden lg:table-cell">
+                    <td className="py-4 bg-secondary group-hover:bg-base-300 hidden lg:table-cell">
                       <TruncatedAddressWithCopy slice={10} address={validator.operator_address} />
                     </td>
-                    <td className="py-4 hidden md:table-cell">
+                    <td className="py-4 bg-secondary group-hover:bg-base-300 hidden md:table-cell">
                       {validator.consensus_power?.toString() ?? 'N/A'}
                     </td>
                     <td
-                      className="rounded-r-[12px] py-4 text-right"
+                      className="bg-secondary group-hover:bg-base-300 rounded-r-[12px] py-4 text-right"
                       onClick={e => e.stopPropagation()}
                     >
                       <button
