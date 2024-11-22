@@ -107,9 +107,7 @@ export default function ValidatorList({
             aria-selected={active}
             aria-controls="active-validators"
             className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl focus:outline-none focus:ring-1 focus:ring-primary/50  ${
-              active
-                ? 'bg-base-300 text-secondary-content'
-                : 'text-gray-500'
+              active ? 'bg-base-300 text-secondary-content' : 'text-gray-500'
             }`}
           >
             Active
@@ -117,9 +115,7 @@ export default function ValidatorList({
           <button
             onClick={() => setActive(false)}
             className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl focus:outline-none focus:ring-1 focus:ring-primary/50  ${
-              !active
-                ? 'bg-base-300 text-secondary-content'
-                : 'text-gray-500'
+              !active ? 'bg-base-300 text-secondary-content' : 'text-gray-500'
             }`}
           >
             Pending
