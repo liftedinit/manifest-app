@@ -241,7 +241,8 @@ export default function GroupProposals({
         <div className="flex items-center space-x-6">
           <button
             onClick={onBack}
-            className="btn btn-circle rounded-[16px] dark:bg-[#FFFFFF0F] bg-[#FFFFFF] btn-md"
+            className="btn btn-circle rounded-[16px] dark:bg-[#FFFFFF0F] bg-[#FFFFFF] btn-md focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+            aria-label="Go back to groups list"
           >
             <ArrowRightIcon className="text-primary" />
           </button>
@@ -260,16 +261,25 @@ export default function GroupProposals({
             <input
               type="text"
               placeholder="Search for a proposal..."
-              className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-[#0000000A] dark:bg-[#FFFFFF1F] pl-10"
+              className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-[#0000000A] dark:bg-[#FFFFFF1F] pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
+              aria-label="Search proposals"
             />
-            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <SearchIcon
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              aria-hidden="true"
+            />
           </div>
         </div>
         <div className="hidden md:block">
-          <Link href={`/groups/submit-proposal/${policyAddress}`} passHref>
-            <button className="btn btn-gradient rounded-[12px] w-[224px] text-white h-[52px]">
+          <Link
+            href={`/groups/submit-proposal/${policyAddress}`}
+            passHref
+            aria-label="Create new proposal"
+            className="focus:outline-none focus-visible:ring-0 "
+          >
+            <button className="btn btn-gradient rounded-[12px] w-[224px] text-white h-[52px] focus:outline-none focus-visible:ring-1 focus-visible:ring-primary">
               New proposal
             </button>
           </Link>
@@ -279,20 +289,39 @@ export default function GroupProposals({
       {/* Table section - will fill remaining space */}
       <div className="flex-1 overflow-auto">
         {isProposalsLoading ? (
-          <div className="flex justify-center items-center h-64">
-            <span role="status" className="loading loading-spinner loading-lg"></span>
+          <div
+            className="flex justify-center items-center h-64"
+            role="status"
+            aria-label="Loading proposals"
+          >
+            <span className="loading loading-spinner loading-lg" aria-hidden="true"></span>
           </div>
         ) : isProposalsError ? (
-          <div className="text-center text-error">Error loading proposals</div>
+          <div className="text-center text-error" role="alert">
+            Error loading proposals
+          </div>
         ) : filteredProposals.length > 0 ? (
-          <table className="table w-full border-separate border-spacing-y-3">
+          <table
+            className="table w-full border-separate border-spacing-y-3"
+            aria-label="Group proposals"
+          >
             <thead>
               <tr className="text-sm font-medium">
-                <th className="bg-transparent px-4 py-2 w-[25%]">#</th>
-                <th className="bg-transparent px-4 py-2 w-[25%]">Title</th>
-                <th className="bg-transparent px-4 py-2 w-[25%] hidden md:table-cell">Time Left</th>
-                <th className="bg-transparent px-4 py-2 w-[25%] hidden md:table-cell">Type</th>
-                <th className="bg-transparent px-4 py-2 w-[25%] hidden md:table-cell">Status</th>
+                <th className="bg-transparent px-4 py-2 w-[25%]" scope="col">
+                  ID
+                </th>
+                <th className="bg-transparent px-4 py-2 w-[25%]" scope="col">
+                  Title
+                </th>
+                <th className="bg-transparent px-4 py-2 w-[25%] hidden md:table-cell" scope="col">
+                  Time Left
+                </th>
+                <th className="bg-transparent px-4 py-2 w-[25%] hidden md:table-cell" scope="col">
+                  Type
+                </th>
+                <th className="bg-transparent px-4 py-2 w-[25%] hidden md:table-cell" scope="col">
+                  Status
+                </th>
               </tr>
             </thead>
             <tbody className="space-y-4">
@@ -343,7 +372,16 @@ export default function GroupProposals({
                   <tr
                     key={proposal.id.toString()}
                     onClick={() => handleRowClick(proposal)}
-                    className="hover:bg-base-200 text-black dark:text-white rounded-lg cursor-pointer"
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleRowClick(proposal);
+                      }
+                    }}
+                    className="hover:bg-base-200 text-black dark:text-white rounded-lg cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-inset"
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`View proposal: ${proposal.title}`}
                   >
                     <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] px-4 py-4 w-[25%]">
                       {proposal.id.toString()}
@@ -359,7 +397,11 @@ export default function GroupProposals({
                     </td>
                     <td className="hidden md:table-cell dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px] px-4 py-4 w-[25%]">
                       {isTalliesLoading ? (
-                        <span className="loading loading-spinner loading-xs"></span>
+                        <span
+                          className="loading loading-spinner loading-xs"
+                          role="status"
+                          aria-label="Loading status"
+                        ></span>
                       ) : (
                         status
                       )}
@@ -370,11 +412,17 @@ export default function GroupProposals({
             </tbody>
           </table>
         ) : (
-          <div className="text-center py-8 text-gray-500">No proposals found</div>
+          <div className="text-center py-8 text-gray-500" role="status">
+            No proposals found
+          </div>
         )}
         <div className="block md:hidden mt-8">
-          <Link href={`/groups/submit-proposal/${policyAddress}`} passHref>
-            <button className="btn btn-gradient rounded-[12px] w-full text-white h-[52px]">
+          <Link
+            href={`/groups/submit-proposal/${policyAddress}`}
+            passHref
+            aria-label="Create new proposal"
+          >
+            <button className="btn btn-gradient rounded-[12px] w-full text-white h-[52px] focus:outline-none focus-visible:ring-1 focus-visible:ring-primary">
               New proposal
             </button>
           </Link>

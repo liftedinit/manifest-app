@@ -132,13 +132,14 @@ export function YourGroups({
                   className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-[#0000000A] dark:bg-[#FFFFFF1F] pl-10"
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
+                  aria-label="Search groups"
                 />
                 <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               </div>
             </div>
-            <div className="hidden md:block">
-              <Link href="/groups/create" passHref>
-                <button className="btn btn-gradient w-[224px] h-[52px] text-white rounded-[12px]">
+            <div className="hidden md:block ">
+              <Link href="/groups/create" passHref aria-label="Create new group">
+                <button className="btn btn-gradient w-[224px] h-[52px] text-white rounded-[12px] focus:outline-none focus-visible:ring-1 focus-visible:ring-primary">
                   Create New Group
                 </button>
               </Link>
@@ -146,7 +147,10 @@ export function YourGroups({
           </div>
           <div className="overflow-auto">
             <div className="max-w-8xl mx-auto">
-              <table className="table w-full border-separate border-spacing-y-3">
+              <table
+                className="table w-full border-separate border-spacing-y-3"
+                aria-label="Your groups"
+              >
                 <thead className="sticky top-0 bg-[#F0F0FF] dark:bg-[#0E0A1F]">
                   <tr className="text-sm font-medium">
                     <th className="bg-transparent">Group Name</th>
@@ -157,7 +161,7 @@ export function YourGroups({
                     <th className="bg-transparent text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="space-y-4">
+                <tbody className="space-y-4" role="rowgroup">
                   {isLoading
                     ? Array(10)
                         .fill(0)
@@ -321,7 +325,7 @@ function GroupRow({
 
   return (
     <tr
-      className="hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] dark:bg-[#FFFFFF0F] bg-[#FFFFFF] text-black dark:text-white rounded-lg cursor-pointer"
+      className="hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] dark:bg-[#FFFFFF0F] bg-[#FFFFFF] text-black dark:text-white rounded-lg cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-inset"
       onClick={() => {
         onSelectGroup(
           policyAddress,
@@ -331,6 +335,21 @@ function GroupRow({
             '0'
         );
       }}
+      onKeyDown={e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelectGroup(
+            policyAddress,
+            groupName,
+            (group.policies &&
+              (group.policies[0]?.decision_policy as ThresholdDecisionPolicySDKType)?.threshold) ??
+              '0'
+          );
+        }
+      }}
+      tabIndex={0}
+      role="button"
+      aria-label={`Select ${groupName} group`}
     >
       <td className="rounded-l-[12px] w-1/6">
         <div className="flex items-center space-x-3">
@@ -364,12 +383,14 @@ function GroupRow({
           <button
             className="btn btn-sm btn-outline btn-square btn-info group"
             onClick={openInfoModal}
+            aria-label={`View info for ${groupName}`}
           >
             <PiInfo className="w-5 h-5 text-current group-hover:text-white" />
           </button>
           <button
             className="btn btn-sm btn-outline btn-square btn-primary group"
             onClick={openMemberModal}
+            aria-label={`Manage members for ${groupName}`}
           >
             <MemberIcon className="w-5 h-5 text-current group-hover:text-white" />
           </button>
