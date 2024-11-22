@@ -1,4 +1,4 @@
-import { WalletNotConnected, WalletSection } from '@/components';
+import { WalletNotConnected } from '@/components';
 import { YourGroups } from '@/components/groups/components/myGroups';
 import { GroupInfo } from '@/components/groups/modals/groupInfo';
 import { useChain } from '@cosmos-kit/react';
@@ -70,7 +70,7 @@ export default function Groups() {
           })}
         </script>
       </Head>
-      <div className="flex-grow h-full animate-fadeIn h-screen transition-all duration-300">
+      <div className="flex-grow h-full animate-fadeIn transition-all duration-300">
         <div className="w-full mx-auto">
           {!isWalletConnected ? (
             <WalletNotConnected

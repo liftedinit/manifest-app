@@ -50,9 +50,12 @@ export default function BurnModal({
           <h3 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">
             Burn{' '}
             <span className="font-light text-primary">
-              {denom.display.startsWith('factory')
-                ? denom.display.split('/').pop()?.toUpperCase()
-                : truncateString(denom.display, 12)}
+              {denom.display
+                ? denom.display.startsWith('factory')
+                  ? (denom.display.split('/').pop()?.toUpperCase() ??
+                    truncateString(denom.display, 12).toUpperCase())
+                  : truncateString(denom.display, 12).toUpperCase()
+                : 'UNKNOWN'}
             </span>
           </h3>
           <div className="py-4">

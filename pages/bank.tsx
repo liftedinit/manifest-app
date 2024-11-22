@@ -145,7 +145,7 @@ export default function Bank() {
                       address={address ?? ''}
                     />
                   </div>
-                  <div className="h-[800px] lg:flex-grow lg:min-h-0 lg:h-auto">
+                  <div className="h-[calc(100vh-30rem)] sm:h-[calc(100vh-25rem)] lg:flex-grow lg:min-h-0 lg:h-auto">
                     <HistoryBox
                       address={address ?? ''}
                       send={sendTxs ?? []}

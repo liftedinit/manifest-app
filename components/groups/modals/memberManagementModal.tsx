@@ -280,9 +280,7 @@ export function MemberManagementModal({
                                       onClick={() => {
                                         handleContactButtonClick(index);
                                         (
-                                          document.getElementById(
-                                            'member-management-modal'
-                                          ) as HTMLDialogElement
+                                          document.getElementById(modalId) as HTMLDialogElement
                                         ).close();
                                       }}
                                       className="btn btn-primary btn-xs text-white absolute right-2 top-1"

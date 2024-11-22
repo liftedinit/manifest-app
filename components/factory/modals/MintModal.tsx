@@ -67,7 +67,7 @@ export default function MintModal({
             Mint{' '}
             <span className="font-light text-primary">
               {denom.display.startsWith('factory')
-                ? denom.display.split('/').pop()?.toUpperCase()
+                ? (denom.display.split('/').pop() || denom.display).toUpperCase()
                 : truncateString(denom.display, 12)}
             </span>
           </h3>

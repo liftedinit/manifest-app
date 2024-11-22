@@ -45,7 +45,7 @@ export function HistoryBox({
   const isLoading = initialLoading || txLoading;
 
   const { metadatas } = useTokenFactoryDenomsMetadata();
-  console.log(metadatas);
+
   function formatDateShort(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleString('en-US', {
@@ -68,8 +68,6 @@ export function HistoryBox({
 
     const groups: { [key: string]: TransactionGroup[] } = {};
     sendTxs.forEach((tx: TransactionGroup) => {
-      console.log('Processing tx:', tx);
-
       const date = formatDateShort(tx.formatted_date);
       if (!groups[date]) {
         groups[date] = [];
@@ -77,12 +75,8 @@ export function HistoryBox({
       groups[date].push(tx);
     });
 
-    console.log('Grouped transactions:', groups);
     return groups;
   }, [sendTxs]);
-
-  console.log('sendTxs:', sendTxs);
-  console.log('groupedTransactions:', groupedTransactions);
 
   return (
     <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
@@ -180,8 +174,8 @@ export function HistoryBox({
             <div className="text-center text-gray-500">No transactions found</div>
           ) : (
             <div className="h-full overflow-y-auto">
-              {Object.entries(groupedTransactions).map(([date, transactions]) => (
-                <div key={date}>
+              {Object.entries(groupedTransactions).map(([date, transactions], index) => (
+                <div key={index}>
                   <h4 className="text-sm font-medium text-[#00000099] dark:text-[#FFFFFF99] mb-2">
                     {date}
                   </h4>

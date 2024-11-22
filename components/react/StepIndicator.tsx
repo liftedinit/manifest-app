@@ -33,7 +33,7 @@ export default function StepIndicator({
     <div className="flex items-stretch h-[52px] dark:bg-[#FFFFFF0F] bg-[#0000000A] w-full rounded-[10000px] p-1">
       {/* Desktop view - show all steps */}
       <div className="hidden sm:flex w-full">
-        {steps.map(({ label, mobileLabel, step }) => (
+        {steps.map(({ label, step }) => (
           <div
             key={step}
             className={`flex items-center justify-center flex-1 text-center transition-all ${

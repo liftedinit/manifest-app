@@ -16,7 +16,7 @@ import { SearchIcon } from '@/components/icons';
 import { MemberIcon } from '@/components/icons';
 import { PiInfo } from 'react-icons/pi';
 import { GroupInfo } from '../modals/groupInfo';
-import { MemberManagementModal } from '../modals/memberManagmentModal';
+import { MemberManagementModal } from '../modals/memberManagementModal';
 import { useChain } from '@cosmos-kit/react';
 import { useGroupsByMember } from '@/hooks/useQueries';
 import { MemberSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
@@ -76,8 +76,8 @@ export function YourGroups({
 
   useEffect(() => {
     if (groupByMemberData && selectedGroup?.policyAddress) {
-      const group = groupByMemberData.groups.find(
-        g => g.policies.length > 0 && g.policies[0]?.address === selectedGroup.policyAddress
+      const group = groupByMemberData?.groups?.find(
+        g => g?.policies?.length > 0 && g.policies[0]?.address === selectedGroup.policyAddress
       );
       if (group) {
         setMembers(
@@ -352,7 +352,7 @@ function GroupRow({
         MFX
       </td>
       <td className="hidden xl:table-cell w-1/6">
-        {`${(group.policies[0]?.decision_policy as ThresholdDecisionPolicySDKType).threshold ?? '0'} / ${group.total_weight ?? '0'}`}
+        {`${(group.policies?.[0]?.decision_policy as ThresholdDecisionPolicySDKType)?.threshold ?? '0'} / ${group.total_weight ?? '0'}`}
       </td>
       <td className="hidden lg:table-cell w-1/6">
         <div onClick={e => e.stopPropagation()}>

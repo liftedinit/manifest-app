@@ -96,10 +96,17 @@ export default function ValidatorList({
             </div>
           </div>
         </div>
-        <div className="flex mb-6 w-full h-[3.5rem] rounded-xl p-1 bg-[#0000000A] dark:bg-[#FFFFFF0F]">
+        <div
+          role="tablist"
+          aria-label="Validator status filter"
+          className="flex mb-6 w-full h-[3.5rem] rounded-xl p-1 bg-[#0000000A] dark:bg-[#FFFFFF0F]"
+        >
           <button
             onClick={() => setActive(true)}
-            className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl  ${
+            role="tab"
+            aria-selected={active}
+            aria-controls="active-validators"
+            className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl focus:outline-none focus:ring-1 focus:ring-primary/50  ${
               active
                 ? 'dark:bg-[#FFFFFF1F] bg-[#FFFFFF] text-[#161616] dark:text-white'
                 : 'text-[#808080]'
@@ -109,7 +116,7 @@ export default function ValidatorList({
           </button>
           <button
             onClick={() => setActive(false)}
-            className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl  ${
+            className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl focus:outline-none focus:ring-1 focus:ring-primary/50  ${
               !active
                 ? 'dark:bg-[#FFFFFF1F] bg-[#FFFFFF] text-[#161616] dark:text-white'
                 : 'text-[#808080]'
@@ -191,8 +198,15 @@ export default function ValidatorList({
                 {filteredValidators.map(validator => (
                   <tr
                     key={validator.operator_address}
-                    className="bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg cursor-pointer"
+                    className="bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] focus:bg-[#FFFFFF] dark:focus:bg-[#FFFFFF26] text-black dark:text-white rounded-lg cursor-pointer focus:outline-none transition-colors"
                     onClick={() => handleRowClick(validator)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleRowClick(validator);
+                      }
+                    }}
+                    tabIndex={0}
                     role="row"
                     aria-label={`Validator ${validator.description.moniker}`}
                   >
@@ -219,13 +233,16 @@ export default function ValidatorList({
                     <td className="py-4 hidden md:table-cell">
                       {validator.consensus_power?.toString() ?? 'N/A'}
                     </td>
-                    <td className="rounded-r-[12px] py-4 text-right">
+                    <td
+                      className="rounded-r-[12px] py-4 text-right"
+                      onClick={e => e.stopPropagation()}
+                    >
                       <button
                         onClick={e => {
-                          e.stopPropagation();
                           handleRemove(validator);
                         }}
                         className="btn btn-error btn-sm text-white "
+                        aria-label={`Remove validator ${validator.description.moniker}`}
                       >
                         <TrashIcon className="w-5 h-5" />
                       </button>

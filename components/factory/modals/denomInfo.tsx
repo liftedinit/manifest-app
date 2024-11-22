@@ -50,7 +50,18 @@ export const DenomInfoModal: React.FC<{
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <InfoItem
             label="BASE"
-            value={denom?.base ? decodeURIComponent(denom.base) : ''}
+            value={
+              denom?.base
+                ? (() => {
+                    try {
+                      return decodeURIComponent(denom.base);
+                    } catch (e) {
+                      console.error('Failed to decode BASE value:', e);
+                      return denom.base;
+                    }
+                  })()
+                : ''
+            }
             isAddress={true}
           />
           <InfoItem label="DISPLAY" value={denom?.display ?? 'No display available'} />
