@@ -127,12 +127,15 @@ export default function TokenDetails({
                   </Form>
                 </div>
               </div>
-              <div className="flex space-x-3 mt-6 mx-auto w-full">
-                <button onClick={prevStep} className="btn btn-neutral py-2.5 sm:py-3.5 w-1/2">
+              <div className="flex gap-6  mt-6 mx-auto w-full">
+                <button
+                  onClick={prevStep}
+                  className="btn btn-neutral py-2.5 sm:py-3.5 w-[calc(50%-12px)]"
+                >
                   Previous
                 </button>
                 <button
-                  className="w-1/2 btn btn-gradient text-white py-2.5 sm:py-3.5 disabled:opacity-50"
+                  className="w-[calc(50%-12px)] btn px-5 py-2.5 sm:py-3.5 btn-gradient text-white disabled:text-black"
                   onClick={() => handleSubmit()}
                   disabled={!isValid}
                 >

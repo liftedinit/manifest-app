@@ -4,4 +4,4 @@ export * from './updateGroupModal';
 export * from './voteDetailsModal';
 export * from './voteModal';
 export * from './groupInfo';
-export * from './memberManagmentModal';
+export * from './memberManagementModal';

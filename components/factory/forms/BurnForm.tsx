@@ -7,14 +7,14 @@ import { MdContacts } from 'react-icons/md';
 import { shiftDigits } from '@/utils';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgBurnHeldBalance } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
-import { MultiBurnModal } from '../modals/multiMfxBurnModal';
+
 import { useToast } from '@/contexts';
 import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { NumberInput, TextInput } from '@/components/react/inputs';
 import { ExtendedMetadataSDKType, truncateString } from '@/utils';
 import { TailwindModal } from '@/components/react/modal';
-//TODO: burn target validation
+
 interface BurnPair {
   address: string;
   amount: string;
@@ -60,8 +60,15 @@ export default function BurnForm({
 
   const { balance: recipientBalance } = useTokenFactoryBalance(recipient ?? '', denom.base);
   const balanceNumber = useMemo(
-    () => parseFloat(shiftDigits(isMFX ? recipientBalance?.amount || '0' : balance, -exponent)),
-    [recipientBalance?.amount, balance, exponent, isMFX]
+    () =>
+      parseFloat(
+        shiftDigits(
+          isMFX ? recipientBalance?.amount || '0' : recipientBalance?.amount || '0',
+          -exponent
+        )
+      ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [recipientBalance?.amount, balance, exponent, isMFX, recipient]
   );
 
   const BurnSchema = Yup.object().shape({
@@ -74,6 +81,21 @@ export default function BurnForm({
       }),
     recipient: Yup.string().required('Recipient address is required').manifestAddress(),
   });
+
+  // Format balance safely
+  function formatAmount(amount: string | null | undefined): string {
+    if (amount == null) {
+      return '-';
+    }
+    try {
+      return Number(shiftDigits(amount, -exponent)).toLocaleString(undefined, {
+        maximumFractionDigits: exponent,
+      });
+    } catch (error) {
+      console.warn('Error formatting amount:', error);
+      return 'x';
+    }
+  }
 
   const handleBurn = async () => {
     if (!amount || Number.isNaN(Number(amount))) {
@@ -205,11 +227,11 @@ export default function BurnForm({
               </div>
               <div>
                 <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
-                  YOUR BALANCE
+                  TARGET&apos;S BALANCE
                 </p>
                 <div className="bg-base-300 p-4 rounded-md">
-                  <p className="font-semibold text-md text-black dark:text-white">
-                    {shiftDigits(balance, -exponent)}
+                  <p className="font-semibold text-md text-black truncate dark:text-white">
+                    {formatAmount(recipientBalance?.amount)}
                   </p>
                 </div>
               </div>
@@ -227,12 +249,14 @@ export default function BurnForm({
               )}
               {totalSupply !== '0' && (
                 <div>
-                  <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
+                  <p className="text-sm font-light text-gray-500 dark:text-gray-400 truncate mb-2">
                     CIRCULATING SUPPLY
                   </p>
                   <div className="bg-base-300 p-4 rounded-md">
-                    <p className="font-semibold text-md max-w-[20ch] truncate text-black dark:text-white">
-                      {shiftDigits(totalSupply, -exponent)} {denom.display.toUpperCase()}
+                    <p className="font-semibold text-md  truncate text-black dark:text-white">
+                      {Number(shiftDigits(totalSupply, -exponent)).toLocaleString(undefined, {
+                        maximumFractionDigits: exponent,
+                      })}{' '}
                     </p>
                   </div>
                 </div>
@@ -280,7 +304,7 @@ export default function BurnForm({
                       <div className="flex-grow relative">
                         <TextInput
                           showError={false}
-                          label="RECIPIENT"
+                          label="TARGET"
                           name="recipient"
                           placeholder="Recipient address"
                           value={recipient}
@@ -322,7 +346,11 @@ export default function BurnForm({
                         {isSigning ? (
                           <span className="loading loading-dots loading-xs"></span>
                         ) : (
-                          `Burn ${truncateString(denom.display ?? 'Denom', 20).toUpperCase()}`
+                          `Burn ${
+                            denom.display.startsWith('factory')
+                              ? denom.display.split('/').pop()?.toUpperCase()
+                              : truncateString(denom.display, 12)
+                          }`
                         )}
                       </button>
                     </div>

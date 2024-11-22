@@ -1,6 +1,6 @@
 import React, { useState, useReducer } from 'react';
 import { useRouter } from 'next/router';
-import StepIndicator from '@/components/groups/components/StepIndicator';
+import StepIndicator from '@/components/react/StepIndicator';
 import ConfirmationForm from '@/components/groups/forms/proposals/ConfirmationForm';
 import ProposalDetails from '@/components/groups/forms/proposals/ProposalDetailsForm';
 import ProposalMetadataForm from '@/components/groups/forms/proposals/ProposalMetadataForm';
@@ -107,7 +107,7 @@ export default function SubmitProposal() {
       </Head>
       {!isWalletConnected ? (
         <WalletNotConnected
-          description={'Use the button below to connect your wallet and submit a proposal.'}
+          description="Use the button below to connect your wallet and submit a proposal."
           icon={<FaVoteYea className="h-60 w-60 text-primary" />}
         />
       ) : (

@@ -1,4 +1,4 @@
-import { GroupsIcon, WalletNotConnected } from '@/components';
+import { WalletNotConnected } from '@/components';
 import { YourGroups } from '@/components/groups/components/myGroups';
 import { GroupInfo } from '@/components/groups/modals/groupInfo';
 import { useChain } from '@cosmos-kit/react';
@@ -7,12 +7,13 @@ import Link from 'next/link';
 import React, { useState } from 'react';
 import { chainName } from '../../config';
 import { useGroupsByMember, useProposalsByPolicyAccountAll } from '../../hooks/useQueries';
+import { GroupsIcon } from '@/components';
 
 export default function Groups() {
   const { address, isWalletConnected } = useChain(chainName);
   const { groupByMemberData, isGroupByMemberLoading, isGroupByMemberError, refetchGroupByMember } =
     useGroupsByMember(address ?? '');
-  console.log(groupByMemberData);
+
   const [selectedPolicyAddress, _setSelectedPolicyAddress] = useState<string | null>(null);
 
   const groupPolicyAddresses =
@@ -69,13 +70,11 @@ export default function Groups() {
           })}
         </script>
       </Head>
-      <div className="flex-grow h-full animate-fadeIn h-screen transition-all duration-300">
+      <div className="flex-grow h-full animate-fadeIn transition-all duration-300">
         <div className="w-full mx-auto">
           {!isWalletConnected ? (
             <WalletNotConnected
-              description={
-                'Use the button below to connect your wallet and start interacting with your groups.'
-              }
+              description="Use the button below to connect your wallet and start interacting with your groups."
               icon={<GroupsIcon className="h-60 w-60 text-primary" />}
             />
           ) : isLoading ? (
@@ -97,6 +96,7 @@ export default function Groups() {
               />
               {selectedPolicyAddress && (
                 <GroupInfo
+                  modalId={selectedPolicyAddress}
                   policyAddress={selectedPolicyAddress}
                   group={
                     groupByMemberData?.groups.find(

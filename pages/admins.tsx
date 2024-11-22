@@ -22,6 +22,7 @@ export default function Admins() {
   const group = groupByAdmin?.groups?.[0];
 
   const isMember = group?.members?.some(member => member?.member?.address === address);
+  console.log(group, groupByAdmin, isMember);
   return (
     <div className="min-h-screen relative py-4 px-2 mx-auto text-white mt-12 md:mt-0">
       <Head>

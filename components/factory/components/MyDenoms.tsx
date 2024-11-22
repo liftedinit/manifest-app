@@ -83,10 +83,10 @@ export default function MyDenoms({
 
   const handleUpdateModal = (denom: ExtendedMetadataSDKType, e: React.MouseEvent) => {
     e.preventDefault();
-    e.stopPropagation(); // Stop event from bubbling up to the row
+    e.stopPropagation();
     setSelectedDenom(denom);
     // Important: Don't show the denom info modal
-    setModalType('update'); // Add this new modal type
+    setModalType('update');
     const modal = document.getElementById('update-denom-metadata-modal') as HTMLDialogElement;
     if (modal) {
       modal.showModal();
@@ -95,7 +95,7 @@ export default function MyDenoms({
 
   const handleSwitchToMultiMint = () => {
     setModalType('multimint');
-    // Update URL if needed
+    // Update URL
     router.push(`/factory?denom=${selectedDenom?.base}&action=multimint`, undefined, {
       shallow: true,
     });
@@ -103,7 +103,7 @@ export default function MyDenoms({
 
   const handleSwitchToMultiBurn = () => {
     setModalType('multiburn'); // Set the modal type to multiburn
-    // Update URL if needed
+    // Update URL
     router.push(`/factory?denom=${selectedDenom?.base}&action=multiburn`, undefined, {
       shallow: true,
     });
@@ -116,87 +116,129 @@ export default function MyDenoms({
   return (
     <div className="relative w-full h-screen overflow-hidden">
       <div className="h-full flex flex-col p-4">
-        <div className="flex justify-between items-center mb-4">
-          <div className="flex items-center space-x-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
             <h1
               className="text-black dark:text-white"
               style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
             >
               My Factory
             </h1>
-            <div className="relative">
+            <div className="relative w-full sm:w-[224px]">
               <input
                 type="text"
                 placeholder="Search for a token..."
-                className="input input-bordered w-[224px] h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10"
+                className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
               />
-              <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 " />
+              <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             </div>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="hidden md:block">
             <Link href="/factory/create" passHref>
-              <button className="btn btn-gradient w-[224px] h-[52px] text-white rounded-[12px]">
+              <button className="btn btn-gradient w-[224px] h-[52px] text-white rounded-[12px] focus:outline-none focus-visible:ring-1 focus-visible:ring-primary">
                 Create New Token
               </button>
             </Link>
           </div>
         </div>
-        <div className="flex-1 overflow-auto">
-          <table className="table w-full border-separate border-spacing-y-3">
-            <thead className="sticky top-0 bg-background-color">
-              <tr className="text-sm font-medium">
-                <th className="bg-transparent w-1/4 lg:table-cell hidden">Token Symbol</th>
-                <th className="bg-transparent w-2/5 lg:table-cell hidden">Name</th>
-                <th className="bg-transparent w-2/5 md:table-cell hidden">Total Supply</th>
-                <th className="bg-transparent w-1/4">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="space-y-4">
-              {isLoading
-                ? Array(12)
-                    .fill(0)
-                    .map((_, index) => (
-                      <tr key={index} aria-label={`skeleton-${index}`}>
-                        <td className="bg-secondary rounded-l-[12px] w-1/4 lg:table-cell hidden">
-                          <div className="flex items-center space-x-3">
-                            <div className="skeleton w-10 h-8 rounded-full shrink-0"></div>
-                            <div className="skeleton h-3 w-24"></div>
-                          </div>
-                        </td>
-                        <td className="bg-secondary w-2/5 md:table-cell hidden">
-                          <div className="skeleton h-2 w-24"></div>
-                        </td>
-                        <td className="bg-secondary w-2/5">
-                          <div className="skeleton h-2 w-32"></div>
-                        </td>
-                        <td className="bg-secondary rounded-r-[12px] w-1/4">
-                          <div className="skeleton h-2 w-32"></div>
-                        </td>
-                      </tr>
-                    ))
-                : filteredDenoms.map(denom => (
-                    <TokenRow
-                      key={denom.base}
-                      denom={denom}
-                      onSelectDenom={() => handleDenomSelect(denom)}
-                      onMint={e => {
-                        e.stopPropagation();
-                        setSelectedDenom(denom);
-                        setModalType('mint');
-                      }}
-                      onBurn={e => {
-                        e.stopPropagation();
-                        setSelectedDenom(denom);
-                        setModalType('burn');
-                      }}
-                      onUpdate={e => handleUpdateModal(denom, e)}
-                    />
-                  ))}
-            </tbody>
-          </table>
+        <div className="overflow-auto">
+          <div className="max-w-8xl mx-auto">
+            <table className="table w-full border-separate border-spacing-y-3">
+              <thead className="sticky top-0 bg-[#F0F0FF] dark:bg-[#0E0A1F]">
+                <tr className="text-sm font-medium">
+                  <th className="bg-transparent w-1/4">Token</th>
+                  <th className="bg-transparent w-2/5 xl:table-cell hidden">Name</th>
+                  <th className="bg-transparent w-2/5 sm:w-1/4 lg:table-cell hidden">
+                    Total Supply
+                  </th>
+                  <th className="bg-transparent w-1/4">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="space-y-4">
+                {isLoading
+                  ? Array(10)
+                      .fill(0)
+                      .map((_, index) => (
+                        <tr key={index}>
+                          <td className="bg-secondary rounded-l-[12px] w-1/4">
+                            <div className="flex items-center space-x-3">
+                              <div
+                                className="skeleton w-10 h-8 rounded-full shrink-0"
+                                aria-label={`skeleton-${index}-avatar`}
+                              />
+                              <div
+                                className="skeleton h-3 w-24"
+                                aria-label={`skeleton-${index}-name`}
+                              />
+                            </div>
+                          </td>
+                          <td className="bg-secondary w-2/5 xl:table-cell hidden">
+                            <div
+                              className="skeleton h-2 w-8"
+                              aria-label={`skeleton-${index}-symbol`}
+                            />
+                          </td>
+                          <td className="bg-secondary w-2/5 sm:w-1/4 lg:table-cell hidden">
+                            <div
+                              className="skeleton h-2 w-24"
+                              aria-label={`skeleton-${index}-supply`}
+                            />
+                          </td>
+                          <td className="bg-secondary rounded-r-[12px] w-1/4">
+                            <div className="flex space-x-2">
+                              <button
+                                className="btn btn-sm btn-outline btn-square btn-primary"
+                                disabled
+                              >
+                                <MintIcon className="w-7 h-7 text-current opacity-50" />
+                              </button>
+                              <button
+                                className="btn btn-sm btn-outline btn-square btn-error"
+                                disabled
+                              >
+                                <BurnIcon className="w-7 h-7 text-current opacity-50" />
+                              </button>
+                              <button
+                                className="btn btn-sm btn-outline btn-square btn-info"
+                                disabled
+                              >
+                                <PiInfo className="w-7 h-7 text-current opacity-50" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                  : filteredDenoms.map(denom => (
+                      <TokenRow
+                        key={denom.base}
+                        denom={denom}
+                        onSelectDenom={() => handleDenomSelect(denom)}
+                        onMint={e => {
+                          e.stopPropagation();
+                          setSelectedDenom(denom);
+                          setModalType('mint');
+                        }}
+                        onBurn={e => {
+                          e.stopPropagation();
+                          setSelectedDenom(denom);
+                          setModalType('burn');
+                        }}
+                        onUpdate={e => handleUpdateModal(denom, e)}
+                      />
+                    ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="block md:hidden mt-8">
+            <Link href="/factory/create" passHref>
+              <button className="btn btn-gradient w-full h-[52px] text-white rounded-[12px]">
+                Create New Token
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
       <DenomInfoModal
@@ -292,15 +334,17 @@ function TokenRow({
       className="group text-black dark:text-white rounded-lg cursor-pointer transition-colors"
       onClick={onSelectDenom}
     >
-      <td className="bg-secondary group-hover:bg-base-300 rounded-l-[12px] w-1/4 lg:table-cell hidden">
+      <td className="bg-secondary group-hover:bg-base-300 rounded-l-[12px] w-1/4">
         <div className="flex items-center space-x-3">
           <DenomImage denom={denom} />
-          <span className="font-medium">
-            {truncateString(denom?.display ?? 'No ticker provided', 24).toUpperCase()}
+          <span className="font-medium xxs:max-xs:hidden block">
+            {denom.display.startsWith('factory')
+              ? denom.display.split('/').pop()?.toUpperCase()
+              : truncateString(denom.display, 12)}
           </span>
         </div>
       </td>
-      <td className="bg-secondary group-hover:bg-base-300 w-2/5 sm:table-cell hidden">
+      <td className="bg-secondary group-hover:bg-base-300 w-2/5 xl:table-cell hidden">
         {truncateString(denom?.name ?? 'No name provided', 20)}
       </td>
       <td className="bg-secondary group-hover:bg-base-300 w-2/5 sm:w-1/4">
@@ -317,7 +361,7 @@ function TokenRow({
       >
         <div className="flex space-x-2">
           <button
-            className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1"
+            className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
             onClick={onMint}
           >
             <MintIcon className="w-7 h-7 text-current" />
@@ -325,7 +369,7 @@ function TokenRow({
 
           <button
             disabled={denom.base.includes('umfx')}
-            className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1"
+            className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
             onClick={onBurn}
           >
             <BurnIcon className="w-7 h-7 text-current" />
@@ -333,7 +377,7 @@ function TokenRow({
 
           <button
             disabled={denom.base.includes('umfx')}
-            className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1"
+            className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
             onClick={e => {
               e.preventDefault();
               e.stopPropagation();
