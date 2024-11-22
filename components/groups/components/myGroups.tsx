@@ -166,7 +166,7 @@ export function YourGroups({
                     ? Array(10)
                         .fill(0)
                         .map((_, index) => (
-                          <tr key={index}>
+                          <tr key={index} data-testid="skeleton-row">
                             <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] ">
                               <div className="flex items-center space-x-3">
                                 <div className="skeleton w-10 h-8 rounded-full shrink-0"></div>

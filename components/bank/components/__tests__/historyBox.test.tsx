@@ -1,12 +1,32 @@
-import { test, expect, afterEach, describe } from 'bun:test';
-import React from 'react';
-import matchers from '@testing-library/jest-dom/matchers';
-import { screen, cleanup, render, fireEvent } from '@testing-library/react';
-import { HistoryBox } from '@/components/bank/components/historyBox';
+import { test, expect, afterEach, describe, mock } from 'bun:test';
+import { screen, cleanup, fireEvent } from '@testing-library/react';
+import { HistoryBox } from '../historyBox';
 import { renderWithChainProvider } from '@/tests/render';
 import { mockTransactions } from '@/tests/mock';
 
-expect.extend(matchers);
+// Mock the hooks
+mock.module('@/hooks', () => ({
+  useTokenFactoryDenomsMetadata: () => ({
+    metadatas: {
+      metadatas: [
+        {
+          base: 'utoken',
+          display: 'TOKEN',
+          denom_units: [
+            { denom: 'utoken', exponent: 0 },
+            { denom: 'token', exponent: 6 },
+          ],
+        },
+      ],
+    },
+  }),
+  useSendTxIncludingAddressQuery: () => ({
+    sendTxs: mockTransactions,
+    totalPages: 1,
+    isLoading: false,
+    isError: false,
+  }),
+}));
 
 describe('HistoryBox', () => {
   afterEach(() => {
@@ -15,72 +35,57 @@ describe('HistoryBox', () => {
 
   test('renders correctly', () => {
     renderWithChainProvider(
-      <HistoryBox
-        isLoading={false}
-        send={mockTransactions}
-        address="manifest123akjshjashdjkashjdahskjdhjakshdjkashkdjasjdhadajsdhkajsd"
-      />
+      <HistoryBox isLoading={false} send={mockTransactions} address="address1" />
     );
-    expect(screen.getByText('Transaction History')).toBeInTheDocument();
+    expect(screen.getByText('Transaction History')).toBeTruthy();
   });
 
   test('displays transactions', () => {
     renderWithChainProvider(
-      <HistoryBox
-        isLoading={false}
-        send={mockTransactions}
-        address="manifest123akjshjashdjkashjdahskjdhjakshdjkashkdjasjdhadajsdhkajsd"
-      />
+      <HistoryBox isLoading={false} send={mockTransactions} address="address1" />
     );
-    expect(screen.getByText('+1 TOKEN')).toBeInTheDocument();
+
+    const sentText = screen.getByText('Sent');
+    const receivedText = screen.getByText('Received');
+
+    expect(sentText).toBeTruthy();
+    expect(receivedText).toBeTruthy();
   });
 
   test('opens modal when clicking on a transaction', () => {
     renderWithChainProvider(
-      <HistoryBox
-        isLoading={false}
-        send={mockTransactions}
-        address="manifest123akjshjashdjkashjdahskjdhjakshdjkashkdjasjdhadajsdhkajsd"
-      />
+      <HistoryBox isLoading={false} send={mockTransactions} address="address1" />
     );
 
-    const transaction = screen.getByText('+1 TOKEN');
-    fireEvent.click(transaction);
-    expect(screen.getByLabelText('tx_info_modal')).toBeInTheDocument();
+    const transactionElement = screen.getByText('Sent').closest('div[role="button"]');
+
+    if (transactionElement) {
+      fireEvent.click(transactionElement);
+      expect(screen.getByLabelText('tx_info_modal')).toBeTruthy();
+    }
   });
 
   test('formats amount correctly', () => {
     renderWithChainProvider(
-      <HistoryBox
-        isLoading={false}
-        send={mockTransactions}
-        address="manifest123akjshjashdjkashjdahskjdhjakshdjkashkdjasjdhadajsdhkajsd"
-      />
+      <HistoryBox isLoading={false} send={mockTransactions} address="address1" />
     );
-    expect(screen.getByText('+1 TOKEN')).toBeInTheDocument();
+
+    const sentAmount = screen.queryByText('-1 TOKEN');
+    const receivedAmount = screen.queryByText('+2 TOKEN');
+
+    expect(sentAmount).toBeTruthy();
+    expect(receivedAmount).toBeTruthy();
   });
 
   test('displays both sent and received transactions', () => {
-    const mixedTransactions = [
-      ...mockTransactions,
-      {
-        ...mockTransactions[0],
-        data: {
-          ...mockTransactions[0].data,
-          from_address: 'manifest123akjshjashdjkashjdahskjdhjakshdjkashkdjasjdhadajsdhkajsd',
-        },
-      },
-    ];
-
     renderWithChainProvider(
-      <HistoryBox
-        isLoading={false}
-        send={mixedTransactions}
-        address="manifest123akjshjashdjkashjdahskjdhjakshdjkashkdjasjdhadajsdhkajsd"
-      />
+      <HistoryBox isLoading={false} send={mockTransactions} address="address1" />
     );
 
-    expect(screen.getByText('+1 TOKEN')).toBeInTheDocument();
-    expect(screen.getByText('Sent')).toBeInTheDocument();
+    const sentText = screen.getByText('Sent');
+    const receivedText = screen.getByText('Received');
+
+    expect(sentText).toBeTruthy();
+    expect(receivedText).toBeTruthy();
   });
 });

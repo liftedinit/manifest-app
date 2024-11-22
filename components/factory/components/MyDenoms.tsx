@@ -168,15 +168,27 @@ export default function MyDenoms({
                         <tr key={index}>
                           <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] w-1/4">
                             <div className="flex items-center space-x-3">
-                              <div className="skeleton w-10 h-8 rounded-full shrink-0"></div>
-                              <div className="skeleton h-3 w-24"></div>
+                              <div
+                                className="skeleton w-10 h-8 rounded-full shrink-0"
+                                aria-label={`skeleton-${index}-avatar`}
+                              />
+                              <div
+                                className="skeleton h-3 w-24"
+                                aria-label={`skeleton-${index}-name`}
+                              />
                             </div>
                           </td>
                           <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/4 xl:table-cell hidden">
-                            <div className="skeleton h-2 w-8"></div>
+                            <div
+                              className="skeleton h-2 w-8"
+                              aria-label={`skeleton-${index}-symbol`}
+                            />
                           </td>
                           <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-2/4 sm:w-1/4 lg:table-cell hidden">
-                            <div className="skeleton h-2 w-24"></div>
+                            <div
+                              className="skeleton h-2 w-24"
+                              aria-label={`skeleton-${index}-supply`}
+                            />
                           </td>
                           <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-2/4 sm:w-1/4 md:table-cell hidden">
                             <div className="skeleton h-2 w-32"></div>
