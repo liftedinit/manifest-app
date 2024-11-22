@@ -151,7 +151,7 @@ export function YourGroups({
                 className="table w-full border-separate border-spacing-y-3"
                 aria-label="Your groups"
               >
-                <thead className="sticky top-0 bg-[#F0F0FF] dark:bg-[#0E0A1F]">
+                <thead className="sticky top-0 bg-background-color">
                   <tr className="text-sm font-medium">
                     <th className="bg-transparent">Group Name</th>
                     <th className="bg-transparent hidden xl:table-cell">Active proposals</th>

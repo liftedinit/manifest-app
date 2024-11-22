@@ -114,12 +114,12 @@ export default function MyDenoms({
   }, [denoms, searchQuery]);
 
   return (
-    <div className="relative w-full overflow-hidden">
-      <div className="space-y-4 w-full pt-4">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center -mb-4 gap-4">
+    <div className="relative w-full h-screen overflow-hidden">
+      <div className="h-full flex flex-col p-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
             <h1
-              className="text-black dark:text-white"
+              className="text-secondary-content"
               style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
             >
               My Factory
@@ -128,7 +128,7 @@ export default function MyDenoms({
               <input
                 type="text"
                 placeholder="Search for a token..."
-                className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-[#0000000A] dark:bg-[#FFFFFF1F] pl-10"
+                className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
               />
@@ -136,27 +136,22 @@ export default function MyDenoms({
             </div>
           </div>
 
-          <div className="flex items-center space-x-4">
-            <Link href="/factory/create" passHref className="hidden md:block">
-              <button className="btn btn-gradient w-[224px] h-[52px] text-white rounded-[12px]">
+          <div className="hidden md:block">
+            <Link href="/factory/create" passHref>
+              <button className="btn btn-gradient w-[224px] h-[52px] text-white rounded-[12px] focus:outline-none focus-visible:ring-1 focus-visible:ring-primary">
                 Create New Token
               </button>
             </Link>
           </div>
         </div>
-        <div className="overflow-x-auto max-h-[87vh] w-full">
+        <div className="overflow-auto">
           <div className="max-w-8xl mx-auto">
             <table className="table w-full border-separate border-spacing-y-3">
               <thead className="sticky top-0 bg-[#F0F0FF] dark:bg-[#0E0A1F]">
                 <tr className="text-sm font-medium">
                   <th className="bg-transparent w-1/4">Token</th>
-                  <th className="bg-transparent w-1/4 xl:table-cell hidden">Symbol</th>
-                  <th className="bg-transparent w-2/4 sm:w-1/4 lg:table-cell hidden">
-                    Total Supply
-                  </th>
-                  <th className="bg-transparent w-2/4 sm:w-1/4 md:table-cell hidden">
-                    Your Balance
-                  </th>
+                  <th className="bg-transparent w-2/5 xl:table-cell hidden">Name</th>
+                  <th className="bg-transparent w-2/5">Total Supply</th>
                   <th className="bg-transparent w-1/4">Actions</th>
                 </tr>
               </thead>
@@ -166,52 +161,49 @@ export default function MyDenoms({
                       .fill(0)
                       .map((_, index) => (
                         <tr key={index}>
-                          <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] w-1/4">
+                          <td className="bg-secondary rounded-l-[12px] w-1/4">
                             <div className="flex items-center space-x-3">
                               <div
                                 className="skeleton w-10 h-8 rounded-full shrink-0"
                                 aria-label={`skeleton-${index}-avatar`}
                               />
                               <div
-                                className="skeleton h-3 w-24"
+                                className="skeleton font-medium xxs:max-xs:hidden block"
                                 aria-label={`skeleton-${index}-name`}
                               />
                             </div>
                           </td>
-                          <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-1/4 xl:table-cell hidden">
+                          <td className="bg-secondary w-2/5 xl:table-cell hidden">
                             <div
                               className="skeleton h-2 w-8"
                               aria-label={`skeleton-${index}-symbol`}
                             />
                           </td>
-                          <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-2/4 sm:w-1/4 lg:table-cell hidden">
+                          <td className="bg-secondary w-2/5 sm:w-1/4">
                             <div
                               className="skeleton h-2 w-24"
                               aria-label={`skeleton-${index}-supply`}
                             />
                           </td>
-                          <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] w-2/4 sm:w-1/4 md:table-cell hidden">
-                            <div className="skeleton h-2 w-32"></div>
-                          </td>
-                          <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px] w-1/4">
+                          <td className="bg-secondary rounded-r-[12px] w-1/4">
                             <div className="flex space-x-2">
                               <button
-                                className="btn btn-sm btn-outline btn-square btn-primary"
+                                className="btn btn-md btn-outline btn-square btn-primary"
                                 disabled
                               >
-                                <MintIcon className="w-5 h-5 text-current opacity-50" />
+                                <MintIcon className="w-7 h-7 text-current opacity-50" />
                               </button>
                               <button
-                                className="btn btn-sm btn-outline btn-square btn-error"
+                                className="btn btn-md btn-outline btn-square btn-error"
                                 disabled
                               >
-                                <BurnIcon className="w-5 h-5 text-current opacity-50" />
+                                <BurnIcon className="w-7 h-7 text-current opacity-50" />
                               </button>
                               <button
-                                className="btn btn-sm btn-outline btn-square btn-info"
+                                className="btn btn-md btn-outline btn-square btn-info"
                                 disabled
                               >
-                                <PiInfo className="w-5 h-5 text-current opacity-50" />
+                                <PiInfo className="w-7 h-7 text-current opacity-50" />
                               </button>
                             </div>
                           </td>
@@ -337,10 +329,10 @@ function TokenRow({
 
   return (
     <tr
-      className="hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] dark:bg-[#FFFFFF0F] bg-[#FFFFFF] text-black dark:text-white rounded-lg cursor-pointer"
+      className="group text-black dark:text-white rounded-lg cursor-pointer transition-colors"
       onClick={onSelectDenom}
     >
-      <td className="rounded-l-[12px] w-1/4">
+      <td className="bg-secondary group-hover:bg-base-300 rounded-l-[12px] w-1/4">
         <div className="flex items-center space-x-3">
           <DenomImage denom={denom} />
           <span className="font-medium xxs:max-xs:hidden block">
@@ -350,8 +342,10 @@ function TokenRow({
           </span>
         </div>
       </td>
-      <td className="w-1/4 xl:table-cell hidden">{truncateString(denom.symbol, 20)}</td>
-      <td className="w-2/4 sm:w-1/4 lg:table-cell hidden">
+      <td className="bg-secondary group-hover:bg-base-300 w-2/5 xl:table-cell hidden">
+        {truncateString(denom?.name ?? 'No name provided', 20)}
+      </td>
+      <td className="bg-secondary group-hover:bg-base-300 w-2/5 sm:w-1/4">
         <div className="flex flex-col sm:flex-row sm:items-center">
           <span className="sm:mr-2">{formatAmount(totalSupply)}</span>
           <span className="font-extralight">
@@ -359,38 +353,36 @@ function TokenRow({
           </span>
         </div>
       </td>
-      <td className="w-2/4 sm:w-1/4 md:table-cell hidden">
-        <div className="flex flex-col sm:flex-row sm:items-center">
-          <span className="sm:mr-2">{formatAmount(balance)}</span>
-          <span className="font-extralight">
-            {truncateString(denom?.display ?? 'No ticker provided', 10).toUpperCase()}
-          </span>
-        </div>
-      </td>
-      <td className="rounded-r-[12px] w-1/4" onClick={e => e.stopPropagation()}>
+      <td
+        className="bg-secondary group-hover:bg-base-300 rounded-r-[12px] w-1/4"
+        onClick={e => e.stopPropagation()}
+      >
         <div className="flex space-x-2">
-          <button className="btn btn-sm btn-outline btn-square btn-primary group" onClick={onMint}>
-            <MintIcon className="w-5 h-5 text-current group-hover:text-white" />
+          <button
+            className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+            onClick={onMint}
+          >
+            <MintIcon className="w-7 h-7 text-current" />
           </button>
 
           <button
             disabled={denom.base.includes('umfx')}
-            className="btn btn-sm btn-outline btn-square btn-error group"
+            className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
             onClick={onBurn}
           >
-            <BurnIcon className="w-5 h-5 text-current group-hover:text-white" />
+            <BurnIcon className="w-7 h-7 text-current" />
           </button>
 
           <button
             disabled={denom.base.includes('umfx')}
-            className="btn btn-sm btn-square btn-outline btn-info group"
+            className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
             onClick={e => {
               e.preventDefault();
               e.stopPropagation();
               onUpdate(e);
             }}
           >
-            <PiInfo className="w-5 h-5 text-current group-hover:text-white" />
+            <PiInfo className="w-7 h-7 text-current" />
           </button>
         </div>
       </td>

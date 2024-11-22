@@ -17,6 +17,10 @@ module.exports = {
       boxShadow: {
         inner: 'inset 0 2px 4px 0 rgba(0, 0, 0, 1)',
         clicked: 'inset 0 2px 18px 0 rgba(0, 0, 0, 1)',
+        'custom-light':
+          '0 4px 6px -1px var(--shadow-color-light), 0 2px 4px -1px var(--shadow-color-light)',
+        'custom-dark':
+          '0 4px 6px -1px var(--shadow-color-dark), 0 2px 4px -1px var(--shadow-color-dark)',
       },
       animation: {
         fadeIn: 'fadeIn 400ms ease-in',
@@ -102,6 +106,7 @@ module.exports = {
           success: '#4CAF50',
           warning: '#FFB300',
           error: '#E53935',
+          '--shadow-color-light': 'rgba(0, 0, 0, 0.1)',
         },
       },
       {
@@ -125,6 +130,7 @@ module.exports = {
           success: '#4CAF50',
           warning: '#FFB300',
           error: '#E53935',
+          '--shadow-color-dark': 'rgba(255, 255, 255, 0.1)',
         },
       },
     ],
