@@ -119,7 +119,7 @@ export default function MyDenoms({
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
             <h1
-              className="text-black dark:text-white"
+              className="text-secondary-content"
               style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
             >
               My Factory
@@ -151,9 +151,7 @@ export default function MyDenoms({
                 <tr className="text-sm font-medium">
                   <th className="bg-transparent w-1/4">Token</th>
                   <th className="bg-transparent w-2/5 xl:table-cell hidden">Name</th>
-                  <th className="bg-transparent w-2/5 sm:w-1/4 lg:table-cell hidden">
-                    Total Supply
-                  </th>
+                  <th className="bg-transparent w-2/5">Total Supply</th>
                   <th className="bg-transparent w-1/4">Actions</th>
                 </tr>
               </thead>

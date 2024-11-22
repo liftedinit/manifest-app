@@ -74,8 +74,8 @@ export default function ValidatorList({
   };
 
   return (
-    <div className="relative w-full max-w-screen mx-auto">
-      <div className="h-full flex flex-col">
+    <div className="relative w-full h-screen overflow-hidden">
+      <div className="h-full flex flex-col p-4">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
             <h1
@@ -121,127 +121,129 @@ export default function ValidatorList({
             Pending
           </button>
         </div>
-        <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-300px)]">
-          {isLoading ? (
-            <table className="table w-full border-separate border-spacing-y-3">
-              <thead>
-                <tr className="text-sm font-medium text-[#808080]" role="row">
-                  <th className="bg-transparent text-left sticky top-0 bg-base-100 z-10">
-                    Moniker
-                  </th>
-                  <th className=" hidden lg:table-cell bg-transparent text-left sticky top-0 bg-base-100 z-10">
-                    Address
-                  </th>
-                  <th className=" hidden md:table-cell bg-transparent text-left sticky top-0 bg-base-100 z-10">
-                    Consensus Power
-                  </th>
-                  <th className="bg-transparent text-right sticky top-0 bg-base-100 z-10">
-                    Remove
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {Array(4)
-                  .fill(0)
-                  .map((_, index) => (
-                    <tr key={index}>
-                      <td className="bg-secondary rounded-l-[12px] w-1/6">
+        <div className="overflow-auto">
+          <div className="max-w-8xl mx-auto">
+            {isLoading ? (
+              <table className="table w-full border-separate border-spacing-y-3">
+                <thead>
+                  <tr className="text-sm font-medium text-[#808080]" role="row">
+                    <th className="bg-transparent text-left sticky top-0 bg-base-100 z-10">
+                      Moniker
+                    </th>
+                    <th className=" hidden lg:table-cell bg-transparent text-left sticky top-0 bg-base-100 z-10">
+                      Address
+                    </th>
+                    <th className=" hidden md:table-cell bg-transparent text-left sticky top-0 bg-base-100 z-10">
+                      Consensus Power
+                    </th>
+                    <th className="bg-transparent text-right sticky top-0 bg-base-100 z-10">
+                      Remove
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Array(4)
+                    .fill(0)
+                    .map((_, index) => (
+                      <tr key={index}>
+                        <td className="bg-secondary rounded-l-[12px] w-1/6">
+                          <div className="flex items-center space-x-3">
+                            <div className="skeleton w-10 h-8 rounded-full shrink-0"></div>
+                            <div className="skeleton h-3 w-24"></div>
+                          </div>
+                        </td>
+                        <td className="bg-secondary w-1/6 hidden lg:table-cell">
+                          <div className="skeleton h-2 w-24"></div>
+                        </td>
+                        <td className="bg-secondary w-1/6 hidden md:table-cell">
+                          <div className="skeleton h-2 w-8"></div>
+                        </td>
+                        <td className="bg-secondary w-1/6 rounded-r-[12px] text-right">
+                          <div className="skeleton h-2 w-8 ml-auto"></div>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            ) : filteredValidators.length === 0 ? (
+              <div className="text-center py-8 text-[#808080]">
+                {active ? 'No active validators found' : 'No pending validators'}
+              </div>
+            ) : (
+              <table
+                className="table w-full border-separate border-spacing-y-3"
+                role="grid"
+                aria-label="Validators list"
+              >
+                <thead>
+                  <tr className="text-sm font-medium text-[#808080]" role="row">
+                    <th className="bg-transparent text-left sticky top-0 bg-base-100 z-10">
+                      Moniker
+                    </th>
+                    <th className=" hidden lg:table-cell bg-transparent text-left sticky top-0 bg-base-100 z-10">
+                      Address
+                    </th>
+                    <th className=" hidden md:table-cell bg-transparent text-left sticky top-0 bg-base-100 z-10">
+                      Consensus Power
+                    </th>
+                    <th className="bg-transparent text-right sticky top-0 bg-base-100 z-10">
+                      Remove
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredValidators.map(validator => (
+                    <tr
+                      key={validator.operator_address}
+                      className="group text-black dark:text-white rounded-lg cursor-pointer focus:outline-none transition-colors"
+                      onClick={() => handleRowClick(validator)}
+                      tabIndex={0}
+                      role="row"
+                      aria-label={`Validator ${validator.description.moniker}`}
+                    >
+                      <td className="bg-secondary group-hover:bg-base-300 rounded-l-[12px] py-4">
                         <div className="flex items-center space-x-3">
-                          <div className="skeleton w-10 h-8 rounded-full shrink-0"></div>
-                          <div className="skeleton h-3 w-24"></div>
+                          {validator.logo_url ? (
+                            <Image
+                              height={32}
+                              width={32}
+                              src={validator.logo_url}
+                              alt=""
+                              className="w-8 h-8 rounded-full"
+                            />
+                          ) : (
+                            <ProfileAvatar walletAddress={validator.operator_address} size={32} />
+                          )}
+                          <span className="font-medium">{validator.description.moniker}</span>
                         </div>
                       </td>
-                      <td className="bg-secondary w-1/6 hidden lg:table-cell">
-                        <div className="skeleton h-2 w-24"></div>
+
+                      <td className="py-4 bg-secondary group-hover:bg-base-300 hidden lg:table-cell">
+                        <TruncatedAddressWithCopy slice={10} address={validator.operator_address} />
                       </td>
-                      <td className="bg-secondary w-1/6 hidden md:table-cell">
-                        <div className="skeleton h-2 w-8"></div>
+                      <td className="py-4 bg-secondary group-hover:bg-base-300 hidden md:table-cell">
+                        {validator.consensus_power?.toString() ?? 'N/A'}
                       </td>
-                      <td className="bg-secondary w-1/6 rounded-r-[12px] text-right">
-                        <div className="skeleton h-2 w-8 ml-auto"></div>
+                      <td
+                        className="bg-secondary group-hover:bg-base-300 rounded-r-[12px] py-4 text-right"
+                        onClick={e => e.stopPropagation()}
+                      >
+                        <button
+                          onClick={e => {
+                            handleRemove(validator);
+                          }}
+                          className="btn btn-error btn-sm text-white "
+                          aria-label={`Remove validator ${validator.description.moniker}`}
+                        >
+                          <TrashIcon className="w-5 h-5" />
+                        </button>
                       </td>
                     </tr>
                   ))}
-              </tbody>
-            </table>
-          ) : filteredValidators.length === 0 ? (
-            <div className="text-center py-8 text-[#808080]">
-              {active ? 'No active validators found' : 'No pending validators'}
-            </div>
-          ) : (
-            <table
-              className="table w-full border-separate border-spacing-y-3"
-              role="grid"
-              aria-label="Validators list"
-            >
-              <thead>
-                <tr className="text-sm font-medium text-[#808080]" role="row">
-                  <th className="bg-transparent text-left sticky top-0 bg-base-100 z-10">
-                    Moniker
-                  </th>
-                  <th className=" hidden lg:table-cell bg-transparent text-left sticky top-0 bg-base-100 z-10">
-                    Address
-                  </th>
-                  <th className=" hidden md:table-cell bg-transparent text-left sticky top-0 bg-base-100 z-10">
-                    Consensus Power
-                  </th>
-                  <th className="bg-transparent text-right sticky top-0 bg-base-100 z-10">
-                    Remove
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredValidators.map(validator => (
-                  <tr
-                    key={validator.operator_address}
-                    className="group text-black dark:text-white rounded-lg cursor-pointer focus:outline-none transition-colors"
-                    onClick={() => handleRowClick(validator)}
-                    tabIndex={0}
-                    role="row"
-                    aria-label={`Validator ${validator.description.moniker}`}
-                  >
-                    <td className="bg-secondary group-hover:bg-base-300 rounded-l-[12px] py-4">
-                      <div className="flex items-center space-x-3">
-                        {validator.logo_url ? (
-                          <Image
-                            height={32}
-                            width={32}
-                            src={validator.logo_url}
-                            alt=""
-                            className="w-8 h-8 rounded-full"
-                          />
-                        ) : (
-                          <ProfileAvatar walletAddress={validator.operator_address} size={32} />
-                        )}
-                        <span className="font-medium">{validator.description.moniker}</span>
-                      </div>
-                    </td>
-
-                    <td className="py-4 bg-secondary group-hover:bg-base-300 hidden lg:table-cell">
-                      <TruncatedAddressWithCopy slice={10} address={validator.operator_address} />
-                    </td>
-                    <td className="py-4 bg-secondary group-hover:bg-base-300 hidden md:table-cell">
-                      {validator.consensus_power?.toString() ?? 'N/A'}
-                    </td>
-                    <td
-                      className="bg-secondary group-hover:bg-base-300 rounded-r-[12px] py-4 text-right"
-                      onClick={e => e.stopPropagation()}
-                    >
-                      <button
-                        onClick={e => {
-                          handleRemove(validator);
-                        }}
-                        className="btn btn-error btn-sm text-white "
-                        aria-label={`Remove validator ${validator.description.moniker}`}
-                      >
-                        <TrashIcon className="w-5 h-5" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+                </tbody>
+              </table>
+            )}
+          </div>
         </div>
       </div>
 
