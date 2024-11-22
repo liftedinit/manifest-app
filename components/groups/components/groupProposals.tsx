@@ -408,7 +408,7 @@ export default function GroupProposals({
           </table>
         ) : (
           <div className="text-center py-8 text-gray-500" role="status">
-            No proposal was found
+            No proposal was found.
           </div>
         )}
         <div className="block md:hidden mt-8">
