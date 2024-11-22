@@ -97,19 +97,21 @@ export function GroupInfo({ modalId, group, policyAddress, address, onUpdate }: 
 
   return (
     <dialog id={modalId} className="modal">
-      <div className="modal-box bg-[#FFFFFF] dark:bg-[#1D192D] rounded-[24px] max-h-['574px'] max-w-[542px] p-6">
+      <div className="modal-box bg-secondary rounded-[24px] max-h-['574px'] max-w-[542px] p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
             <ProfileAvatar walletAddress={policyAddress} size={40} />
             <h3 className="font-bold text-lg">{group.ipfsMetadata?.title}</h3>
           </div>
           <form method="dialog">
-            <button className=" absolute top-3 right-3 btn btn-sm btn-circle btn-ghost">✕</button>
+            <button className=" absolute top-3 right-3 btn btn-sm btn-circle btn-ghost text-black dark:text-white outline-none">
+              ✕
+            </button>
           </form>
         </div>
 
         <div className="flex justify-between items-center mb-6">
-          <span className="text-xl font-semibold">Info</span>
+          <span className="text-xl font-semibold text-secondary-content">Info</span>
           <button
             aria-label={'update-btn'}
             className="btn btn-gradient text-white rounded-[12px] h-[52px] w-[140px]"
@@ -135,7 +137,7 @@ export function GroupInfo({ modalId, group, policyAddress, address, onUpdate }: 
             isProposal={true}
           />
           <InfoItem label="Policy Address" value={policyAddress} isAddress={true} />
-          <h4 className="font-semibold mt-6">Authors</h4>
+          <h4 className="font-semibold mt-6 text-secondary-content">Authors</h4>
           {renderAuthors()}
         </div>
       </div>
@@ -178,7 +180,9 @@ function InfoItem({
         >
           {isAddress ? (
             <div>
-              <span className="text-sm text-[#FFFFFF66] block mb-1">Address</span>
+              <span className="text-sm dark:text-[#FFFFFF66] text-[#00000066] block mb-1">
+                Address
+              </span>
               <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99] xs:block hidden">
                 <TruncatedAddressWithCopy address={value} slice={24} />
               </p>

@@ -7,9 +7,11 @@ import { ExtendedValidatorSDKType, TransactionGroup } from '@/components';
 import { CombinedBalanceInfo } from '@/utils/types';
 import { ExtendedGroupType } from '@/hooks';
 import {
+  MemberSDKType,
   ProposalExecutorResult,
   ProposalSDKType,
   ProposalStatus,
+  VoteOption,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { FormData, ProposalFormData } from '@/helpers';
@@ -466,6 +468,45 @@ export const mockProposals: { [key: string]: ProposalSDKType[] } = {
   ],
 };
 
+export const mockVotes = [
+  {
+    proposal_id: 1n,
+    voter: manifestAddr1,
+    option: VoteOption.VOTE_OPTION_YES,
+    metadata: 'metadata1',
+    submit_time: new Date(),
+  },
+  {
+    proposal_id: 1n,
+    voter: manifestAddr2,
+    option: VoteOption.VOTE_OPTION_YES,
+    metadata: 'metadata2',
+    submit_time: new Date(),
+  },
+];
+
+export const mockTally = {
+  tally: {
+    yes_count: '10',
+    no_count: '5',
+    abstain_count: '2',
+    no_with_veto_count: '1',
+  },
+};
+
+export const mockMembers: MemberSDKType[] = [
+  {
+    address: manifestAddr1,
+    name: 'Member 1',
+    weight: '1',
+  },
+  {
+    address: manifestAddr2,
+    name: 'Member 2',
+    weight: '2',
+  },
+];
+
 // TODO: Re-use mockDenomMeta1 here
 export const mockTokenFormData = {
   name: 'Name Test Token',
@@ -492,10 +533,7 @@ export const mockGroupFormData: FormData = {
 
   votingPeriod: { seconds: BigInt(3600), nanos: 0 },
   votingThreshold: '2',
-  members: [
-    { address: manifestAddr1, name: 'Member 1', weight: '1' },
-    { address: manifestAddr2, name: 'Member 2', weight: '2' },
-  ],
+  members: mockMembers,
 };
 export const mockProposalFormData: ProposalFormData = {
   title: 'Test Proposal',

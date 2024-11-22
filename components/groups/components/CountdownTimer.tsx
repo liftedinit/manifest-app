@@ -26,9 +26,9 @@ export default function CountdownTimer({ endTime }: { endTime: Date }) {
 
   return (
     <div className="grid grid-flow-col gap-5 mt-2 text-center auto-cols-max">
-      <div className="grid grid-flow-col gap-5 mt-2 text-center auto-cols-max">
+      <div className="grid grid-flow-col gap-5 mt-2 text-center auto-cols-max text-primary-content">
         <div className="flex flex-col">
-          <span className="countdown  text-xl">
+          <span className="countdown text-xl">
             <span
               style={{ '--value': timeLeft.days } as React.CSSProperties}
               aria-label="days"

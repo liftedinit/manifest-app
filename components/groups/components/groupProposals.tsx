@@ -237,16 +237,16 @@ export default function GroupProposals({
   return (
     <div className="h-full flex flex-col p-4">
       {/* Header section */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center space-x-6">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center space-x-4">
           <button
             onClick={onBack}
-            className="btn btn-circle rounded-[16px] dark:bg-[#FFFFFF0F] bg-[#FFFFFF] btn-md focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+            className="btn btn-circle rounded-[12px] bg-secondary btn-md focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
             aria-label="Go back to groups list"
           >
             <ArrowRightIcon className="text-primary" />
           </button>
-          <h1 className="text-2xl font-bold  truncate">{groupName}</h1>
+          <h1 className="text-2xl font-bold text-primary-content truncate">{groupName}</h1>
           <div className="hidden sm:block">
             <ProfileAvatar walletAddress={policyAddress} size={40} />
           </div>
@@ -256,12 +256,12 @@ export default function GroupProposals({
       {/* Search and New Proposal section */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
-          <h2 className="text-xl font-semibold">Proposals</h2>
+          <h2 className="text-xl font-semibold text-primary-content">Proposals</h2>
           <div className="relative w-full sm:w-[224px]">
             <input
               type="text"
               placeholder="Search for a proposal..."
-              className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-[#0000000A] dark:bg-[#FFFFFF1F] pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+              className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               aria-label="Search proposals"
@@ -372,30 +372,25 @@ export default function GroupProposals({
                   <tr
                     key={proposal.id.toString()}
                     onClick={() => handleRowClick(proposal)}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        handleRowClick(proposal);
-                      }
-                    }}
-                    className="hover:bg-base-200 text-black dark:text-white rounded-lg cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-inset"
-                    tabIndex={0}
-                    role="button"
-                    aria-label={`View proposal: ${proposal.title}`}
+                    className="group text-black dark:text-white rounded-lg cursor-pointer"
                   >
-                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] px-4 py-4 w-[25%]">
+                    <td className="bg-secondary group-hover:bg-base-300 rounded-l-[12px] px-4 py-4 w-[25%]">
                       {proposal.id.toString()}
                     </td>
-                    <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px] md:rounded-r-none truncate max-w-xs px-4 py-4 w-[25%]">
+                    <td className="bg-secondary group-hover:bg-base-300 truncate max-w-xs px-4 py-4 w-[25%]">
                       {proposal.title}
                     </td>
-                    <td className=" hidden md:table-cell dark:bg-[#FFFFFF0F] bg-[#FFFFFF] px-4 py-4 w-[25%]">
+                    <td className="bg-secondary group-hover:bg-base-300 px-4 py-4 w-[25%]">
                       {timeLeft}
                     </td>
-                    <td className="hidden md:table-cell dark:bg-[#FFFFFF0F] bg-[#FFFFFF] px-4 py-4 w-[25%]">
-                      {getHumanReadableType((proposal.messages[0] as any)['@type'])}
+                    <td className="bg-secondary group-hover:bg-base-300 px-4 py-4 w-[25%]">
+                      {proposal.messages.length > 0
+                        ? proposal.messages.map((message, index) => (
+                            <div key={index}>{getHumanReadableType((message as any)['@type'])}</div>
+                          ))
+                        : 'No messages'}
                     </td>
-                    <td className="hidden md:table-cell dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px] px-4 py-4 w-[25%]">
+                    <td className="bg-secondary group-hover:bg-base-300 rounded-r-[12px] px-4 py-4 w-[25%]">
                       {isTalliesLoading ? (
                         <span
                           className="loading loading-spinner loading-xs"
@@ -413,7 +408,7 @@ export default function GroupProposals({
           </table>
         ) : (
           <div className="text-center py-8 text-gray-500" role="status">
-            No proposals found
+            No proposal was found.
           </div>
         )}
         <div className="block md:hidden mt-8">

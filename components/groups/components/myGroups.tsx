@@ -120,7 +120,7 @@ export function YourGroups({
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
               <h1
-                className="text-black dark:text-white"
+                className="text-secondary-content"
                 style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
               >
                 My groups
@@ -129,7 +129,7 @@ export function YourGroups({
                 <input
                   type="text"
                   placeholder="Search for a group..."
-                  className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-[#0000000A] dark:bg-[#FFFFFF1F] pl-10"
+                  className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                   aria-label="Search groups"
@@ -167,37 +167,37 @@ export function YourGroups({
                         .fill(0)
                         .map((_, index) => (
                           <tr key={index} data-testid="skeleton-row">
-                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-l-[12px] ">
+                            <td className="bg-secondary rounded-l-[12px] ">
                               <div className="flex items-center space-x-3">
                                 <div className="skeleton w-10 h-8 rounded-full shrink-0"></div>
                                 <div className="skeleton h-3 w-24"></div>
                               </div>
                             </td>
-                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] hidden xl:table-cell">
+                            <td className="bg-secondary hidden xl:table-cell">
                               <div className="skeleton h-2 w-8"></div>
                             </td>
-                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] hidden sm:table-cell">
+                            <td className="bg-secondary hidden sm:table-cell">
                               <div className="skeleton h-2 w-16"></div>
                             </td>
-                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] hidden xl:table-cell">
+                            <td className="bg-secondary hidden xl:table-cell">
                               <div className="skeleton h-2 w-20"></div>
                             </td>
-                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] hidden lg:table-cell">
+                            <td className="bg-secondary hidden lg:table-cell">
                               <div className="skeleton h-2 w-32"></div>
                             </td>
-                            <td className="dark:bg-[#FFFFFF0F] bg-[#FFFFFF] rounded-r-[12px] w-1/6">
+                            <td className="bg-secondary rounded-r-[12px] w-1/6">
                               <div className="flex space-x-2 justify-end">
                                 <button
-                                  className="btn btn-sm btn-outline btn-square btn-info"
+                                  className="btn btn-md btn-outline btn-square btn-info"
                                   disabled
                                 >
-                                  <PiInfo className="w-5 h-5 text-current opacity-50" />
+                                  <PiInfo className="w-7 h-7 text-current opacity-50" />
                                 </button>
                                 <button
-                                  className="btn btn-sm btn-outline btn-square btn-primary"
+                                  className="btn btn-md btn-outline btn-square btn-primary"
                                   disabled
                                 >
-                                  <MemberIcon className="w-5 h-5 text-current opacity-50" />
+                                  <MemberIcon className="w-7 h-7 text-current opacity-50" />
                                 </button>
                               </div>
                             </td>
@@ -325,8 +325,9 @@ function GroupRow({
 
   return (
     <tr
-      className="hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] dark:bg-[#FFFFFF0F] bg-[#FFFFFF] text-black dark:text-white rounded-lg cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-inset"
-      onClick={() => {
+      className="group text-black dark:text-white rounded-lg cursor-pointer"
+      onClick={e => {
+        e.stopPropagation();
         onSelectGroup(
           policyAddress,
           groupName,
@@ -335,64 +336,54 @@ function GroupRow({
             '0'
         );
       }}
-      onKeyDown={e => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onSelectGroup(
-            policyAddress,
-            groupName,
-            (group.policies &&
-              (group.policies[0]?.decision_policy as ThresholdDecisionPolicySDKType)?.threshold) ??
-              '0'
-          );
-        }
-      }}
       tabIndex={0}
       role="button"
       aria-label={`Select ${groupName} group`}
     >
-      <td className="rounded-l-[12px] w-1/6">
+      <td className="bg-secondary group-hover:bg-base-300 rounded-l-[12px] w-1/6">
         <div className="flex items-center space-x-3">
           <ProfileAvatar walletAddress={policyAddress} />
           <span className="font-medium">{truncateString(groupName, 24)}</span>
         </div>
       </td>
-      <td className="hidden xl:table-cell w-1/6">
+      <td className="bg-secondary group-hover:bg-base-300 hidden xl:table-cell w-1/6">
         {activeProposals.length > 0 ? (
-          <span className="badge badge-primary badge-sm">{activeProposals.length}</span>
+          <span className="badge badge-primary badge-sm text-neutral-content">
+            {activeProposals.length}
+          </span>
         ) : (
           '-'
         )}
       </td>
-      <td className="hidden sm:table-cell w-1/6">
+      <td className="bg-secondary group-hover:bg-base-300 hidden sm:table-cell w-1/6">
         {Number(shiftDigits(balance?.amount ?? '0', -6)).toLocaleString(undefined, {
           maximumFractionDigits: 6,
         })}{' '}
         MFX
       </td>
-      <td className="hidden xl:table-cell w-1/6">
+      <td className="bg-secondary group-hover:bg-base-300 hidden xl:table-cell w-1/6">
         {`${(group.policies?.[0]?.decision_policy as ThresholdDecisionPolicySDKType)?.threshold ?? '0'} / ${group.total_weight ?? '0'}`}
       </td>
-      <td className="hidden lg:table-cell w-1/6">
+      <td className="bg-secondary group-hover:bg-base-300 hidden lg:table-cell w-1/6">
         <div onClick={e => e.stopPropagation()}>
           <TruncatedAddressWithCopy address={policyAddress} slice={12} />
         </div>
       </td>
-      <td className="rounded-r-[12px] sm:rounded-l-none w-1/6">
+      <td className="bg-secondary group-hover:bg-base-300 rounded-r-[12px] sm:rounded-l-none w-1/6">
         <div className="flex space-x-2 justify-end">
           <button
-            className="btn btn-sm btn-outline btn-square btn-info group"
+            className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
             onClick={openInfoModal}
             aria-label={`View info for ${groupName}`}
           >
-            <PiInfo className="w-5 h-5 text-current group-hover:text-white" />
+            <PiInfo className="w-7 h-7 text-current" />
           </button>
           <button
-            className="btn btn-sm btn-outline btn-square btn-primary group"
+            className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
             onClick={openMemberModal}
             aria-label={`Manage members for ${groupName}`}
           >
-            <MemberIcon className="w-5 h-5 text-current group-hover:text-white" />
+            <MemberIcon className="w-7 h-7 text-current" />
           </button>
         </div>
       </td>
