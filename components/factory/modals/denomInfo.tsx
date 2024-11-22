@@ -13,6 +13,7 @@ export const DenomInfoModal: React.FC<{
   if (denom?.name.startsWith('factory/manifest1')) {
     nameIsAddress = true;
   }
+
   return (
     <dialog
       id={modalId}
@@ -42,6 +43,28 @@ export const DenomInfoModal: React.FC<{
             value={denom?.description ?? 'No description available'}
             className="col-span-2 row-span-2"
           />
+        </div>
+        <h4 className="text-lg font-semibold text-[#161616] dark:text-white mt-6  mb-4">
+          Additional Information
+        </h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <InfoItem
+            label="BASE"
+            value={
+              denom?.base
+                ? (() => {
+                    try {
+                      return decodeURIComponent(denom.base);
+                    } catch (e) {
+                      console.error('Failed to decode BASE value:', e);
+                      return denom.base;
+                    }
+                  })()
+                : ''
+            }
+            isAddress={true}
+          />
+          <InfoItem label="DISPLAY" value={denom?.display ?? 'No display available'} />
         </div>
       </div>
       <form method="dialog" className="modal-backdrop" onSubmit={onClose}>

@@ -3,7 +3,7 @@ import { tokenFormDataReducer, TokenFormData } from '@/helpers/formReducer';
 import ConfirmationForm from '@/components/factory/forms/ConfirmationForm';
 import TokenDetails from '@/components/factory/forms/TokenDetailsForm';
 import { Duration } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/duration';
-import StepIndicator from '@/components/groups/components/StepIndicator';
+import StepIndicator from '@/components/react/StepIndicator';
 import { useChain } from '@cosmos-kit/react';
 import { chainName } from '@/config';
 import { WalletNotConnected, WalletSection } from '@/components';
@@ -46,9 +46,9 @@ export default function CreateToken() {
   const { isWalletConnected } = useChain(chainName);
 
   const steps = [
-    { label: 'Create Denom', step: 1 },
-    { label: 'Token Metadata', step: 2 },
-    { label: 'Confirmation', step: 3 },
+    { label: 'Create Denom', mobileLabel: 'Denom', step: 1 },
+    { label: 'Token Metadata', mobileLabel: 'Metadata', step: 2 },
+    { label: 'Confirmation', mobileLabel: 'Confirm', step: 3 },
   ];
 
   return (
@@ -98,7 +98,7 @@ export default function CreateToken() {
       </Head>
       {!isWalletConnected ? (
         <WalletNotConnected
-          description={'Use the button below to connect your wallet and start creating new tokens'}
+          description="Use the button below to connect your wallet and start creating new tokens."
           icon={<FactoryIcon className="h-60 w-60 text-primary" />}
         />
       ) : (

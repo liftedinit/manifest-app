@@ -346,8 +346,11 @@ export const Contacts = ({
                     >
                       {contact.name}
                     </p>
-                    <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99]">
+                    <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99] xs:block hidden">
                       <TruncatedAddressWithCopy address={contact.address} slice={24} />
+                    </p>
+                    <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99] xs:hidden block">
+                      <TruncatedAddressWithCopy address={contact.address} slice={14} />
                     </p>
                   </div>
                   {!selectionMode && (
@@ -372,7 +375,9 @@ export const Contacts = ({
           })}
         </div>
       ) : (
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">No contacts found.</p>
+        <p className="text-sm text-center text-gray-500 dark:text-gray-400 mb-4">
+          No contacts found.
+        </p>
       )}
 
       {!selectionMode && (

@@ -271,14 +271,14 @@ export default function ConfirmationForm({
       </div>
 
       {/* Buttons */}
-      <div className="flex space-x-3 mt-6 mx-auto w-full">
-        <button onClick={prevStep} className="btn btn-neutral w-1/2">
+      <div className="flex gap-6 mt-6 mx-auto w-full">
+        <button onClick={prevStep} className="btn btn-neutral w-[calc(50%-12px)]">
           Back: Metadata
         </button>
         <button
           onClick={handleConfirm}
           disabled={isSigning || !address}
-          className="w-1/2 btn btn-gradient text-white"
+          className="w-[calc(50%-12px)] btn btn-gradient text-white"
         >
           {isSigning ? (
             <span className="loading loading-dots loading-sm"></span>

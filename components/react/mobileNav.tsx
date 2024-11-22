@@ -10,6 +10,7 @@ import {
   AdminsIcon,
   LightIcon,
   DarkIcon,
+  ArrowRightIcon,
 } from '@/components/icons';
 import { WalletSection } from '../wallet';
 import { RiMenuUnfoldFill } from 'react-icons/ri';
@@ -17,11 +18,19 @@ import { useState } from 'react';
 import { MdOutlineNetworkPing, MdContacts } from 'react-icons/md';
 
 export default function MobileNav() {
+  const closeDrawer = () => {
+    const drawer = document.getElementById('my-drawer') as HTMLInputElement;
+    if (drawer) drawer.checked = false;
+  };
+
   const NavItem: React.FC<{ Icon: React.ElementType; href: string }> = ({ Icon, href }) => {
     return (
       <li>
         <Link href={href} legacyBehavior>
-          <div className="flex flex-row justify-start items-center transition-all duration-300 ease-in-out text-primary">
+          <div
+            onClick={closeDrawer}
+            className="flex flex-row justify-start items-center transition-all duration-300 ease-in-out text-primary"
+          >
             <Icon className="w-8 h-8" />
             <span className="text-2xl">{href.slice(1, 12)}</span>
           </div>
@@ -95,7 +104,9 @@ export default function MobileNav() {
             </li>
             <li className="mb-4">
               <button
-                onClick={() => setContactsOpen(true)}
+                onClick={() => {
+                  setContactsOpen(true);
+                }}
                 className="flex flex-row justify-start items-center transition-all duration-300 ease-in-out text-primary"
               >
                 <MdContacts className="w-8 h-8" />
@@ -105,6 +116,13 @@ export default function MobileNav() {
 
             <div className="justify-between items-center">
               <WalletSection chainName="manifest" />
+            </div>
+
+            {/* Add close button */}
+            <div className="absolute bottom-4 left-4">
+              <button onClick={closeDrawer} className="btn btn-sm btn-outline btn-primary">
+                <ArrowRightIcon fontSize={'24px'} />
+              </button>
             </div>
           </ul>
         </div>

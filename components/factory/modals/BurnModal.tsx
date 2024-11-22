@@ -23,7 +23,6 @@ export default function BurnModal({
   onClose: () => void;
   onSwitchToMultiBurn: () => void;
 }) {
-  const [isMultiBurnOpen, setIsMultiBurnOpen] = useState(false);
   const { poaAdmin, isPoaAdminLoading } = usePoaGetAdmin();
   const { groupByAdmin, isGroupByAdminLoading } = useGroupsByAdmin(
     poaAdmin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'
@@ -39,10 +38,6 @@ export default function BurnModal({
     onSwitchToMultiBurn();
   };
 
-  const handleMultiBurnClose = () => {
-    setIsMultiBurnOpen(false);
-  };
-
   return (
     <>
       <dialog id={`burn-modal-${denom?.base}`} className={`modal ${isOpen ? 'modal-open' : ''}`}>
@@ -55,7 +50,12 @@ export default function BurnModal({
           <h3 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">
             Burn{' '}
             <span className="font-light text-primary">
-              {truncateString(denom.display ?? 'Denom', 20).toUpperCase()}
+              {denom.display
+                ? denom.display.startsWith('factory')
+                  ? (denom.display.split('/').pop()?.toUpperCase() ??
+                    truncateString(denom.display, 12).toUpperCase())
+                  : truncateString(denom.display, 12).toUpperCase()
+                : 'UNKNOWN'}
             </span>
           </h3>
           <div className="py-4">
