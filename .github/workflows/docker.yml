@@ -4,12 +4,16 @@ on:
   push:
     branches:
       - main
+    tags:
+      - '*'
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    environment: 'Production - Testnet'
-
+    strategy:
+      matrix:
+        environment: [qa, testnet, mainnet]
+    environment: ${{ matrix.environment }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -38,9 +42,22 @@ jobs:
           echo "NEXT_PUBLIC_WEB3_CLIENT_ID=${{ secrets.NEXT_PUBLIC_WEB3_CLIENT_ID }}" >> .env
           cat .env
 
-      - name: Build and push Docker image
+      - name: Get the Git tag
+        id: get_tag
+        run: echo "GIT_TAG=$(echo ${GITHUB_REF#refs/tags/})" >> $GITHUB_ENV
+
+      - name: Build and push with github release tag
+        if: matrix.environment == 'mainnet' && startsWith(github.ref, 'refs/tags/')
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: lifted/manifest-app:testnet
+          tags: lifted/manifest-app:${{ env.GIT_TAG }}
+
+      - name: Build and push Docker image
+        if: github.ref == 'refs/heads/main'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: lifted/manifest-app:${{ matrix.environment }}
