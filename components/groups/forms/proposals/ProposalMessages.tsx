@@ -483,9 +483,12 @@ export default function ProposalMessages({
 
       let current = updatedMessage;
       for (let i = 0; i < fieldPath.length - 1; i++) {
+        if (fieldPath[i] === '__proto__' || fieldPath[i] === 'constructor') return;
         current = current[fieldPath[i]];
       }
-      current[fieldPath[fieldPath.length - 1]] = value;
+      if (fieldPath[fieldPath.length - 1] !== '__proto__' && fieldPath[fieldPath.length - 1] !== 'constructor') {
+        current[fieldPath[fieldPath.length - 1]] = value;
+      }
 
       dispatch({ type: 'UPDATE_MESSAGE', index, message: updatedMessage });
     };
