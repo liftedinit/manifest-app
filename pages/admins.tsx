@@ -22,6 +22,7 @@ export default function Admins() {
   const group = groupByAdmin?.groups?.[0];
 
   const isMember = group?.members?.some(member => member?.member?.address === address);
+  console.log(group, groupByAdmin, isMember);
   return (
     <div className="min-h-screen relative py-4 px-2 mx-auto text-white mt-12 md:mt-0">
       <Head>
@@ -77,7 +78,7 @@ export default function Admins() {
               icon={<AdminsIcon className="h-60 w-60 text-primary" />}
             />
           ) : isGroupByAdminLoading || isPendingValidatorsLoading ? (
-            <div className="fixed inset-0 flex flex-col items-center justify-center z-50">
+            <div className="flex flex-col items-center justify-center h-screen">
               <div className="mb-4 text-xl font-semibold text-primary">Checking permission...</div>
               <div className="loading w-[8rem] loading-ring text-primary"></div>
             </div>

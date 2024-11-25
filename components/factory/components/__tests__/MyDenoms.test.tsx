@@ -50,9 +50,12 @@ describe('MyDenoms', () => {
 
   test('renders loading skeleton when isLoading is true', () => {
     renderWithProps({ isLoading: true });
-    for (let i = 0; i < 12; i++) {
-      expect(screen.getByLabelText(`skeleton-${i}`)).toBeInTheDocument();
-    }
+
+    // Check for presence of skeleton elements for first row
+    expect(screen.getByLabelText('skeleton-0-avatar')).toBeInTheDocument();
+    expect(screen.getByLabelText('skeleton-0-name')).toBeInTheDocument();
+    expect(screen.getByLabelText('skeleton-0-symbol')).toBeInTheDocument();
+    expect(screen.getByLabelText('skeleton-0-supply')).toBeInTheDocument();
   });
 
   test('renders denoms correctly', () => {

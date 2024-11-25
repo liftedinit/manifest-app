@@ -1,5 +1,5 @@
 {
-  "name": "@chalabi/manifest-app",
+  "name": "@liftedinit/manifest-app",
   "version": "0.0.1",
   "private": false,
   "description": "An application to interact with the Manifest Chain",
@@ -15,11 +15,11 @@
     "test:coverage:lcov": "bun run test:coverage --coverage-reporter=lcov --coverage-dir ./coverage",
     "coverage:upload": "codecov"
   },
-  "author": "Joseph Chalabi",
+  "author": "The Lifted Initiative",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/chalabi2/manifest-app"
+    "url": "https://github.com/liftedinit/manifest-app"
   },
   "resolutions": {
     "react": "18.2.0",

@@ -66,7 +66,7 @@ function VoteDetailsModal({
 
   const { theme } = useTheme();
 
-  const textColor = theme === 'dark' ? '#E0D1D4' : '#2e2e2e';
+  const textColor = theme === 'dark' ? '#FFFFFF' : '#161616';
 
   const normalizedMembers = useMemo(
     () =>
@@ -130,6 +130,9 @@ function VoteDetailsModal({
       labels: {
         useSeriesColors: true,
       },
+      markers: {
+        strokeWidth: 0,
+      },
     },
     states: {
       normal: {
@@ -182,7 +185,7 @@ function VoteDetailsModal({
         data: chartData,
       },
     ],
-    colors: ['#00D515', '#F54562', '#FBBD23', '#3B82F6'],
+    colors: ['#4CAF50', '#E53935', '#FFB300', '#3F51B5'],
     tooltip: {
       enabled: false,
     },
@@ -349,9 +352,9 @@ function VoteDetailsModal({
       if (Array.isArray(value)) {
         return (
           <div key={key} style={{ marginLeft: `${depth * 20}px` }}>
-            <h4 className="font-medium">{key}:</h4>
+            <h4 className="font-medium text-primary-content">{key}:</h4>
             {value.map((item, index) => (
-              <div key={index} className="ml-4">
+              <div key={index} className="ml-4 text-primary-content">
                 {renderMessageField(`Item ${index + 1}`, item, depth + 1)}
               </div>
             ))}
@@ -360,7 +363,7 @@ function VoteDetailsModal({
       } else {
         return (
           <div key={key} style={{ marginLeft: `${depth * 20}px` }}>
-            <h4 className="font-medium">{key}:</h4>
+            <h4 className="font-medium text-primary-content">{key}:</h4>
             {Object.entries(value).map(([subKey, subValue]) =>
               renderMessageField(subKey, subValue, depth + 1)
             )}
@@ -370,11 +373,13 @@ function VoteDetailsModal({
     } else {
       return (
         <div key={key} style={{ marginLeft: `${depth * 20}px` }}>
-          <h4 className="font-large text-md">{key}:</h4>
+          <h4 className="font-large text-md text-primary-content">{key}:</h4>
           {typeof value === 'string' && value.match(/^[a-zA-Z0-9]{40,}$/) ? (
             <TruncatedAddressWithCopy slice={14} address={value} />
           ) : (
-            <p title={String(value)}>{truncateText(String(value))}</p>
+            <p className="text-primary-content" title={String(value)}>
+              {truncateText(String(value))}
+            </p>
           )}
         </div>
       );
@@ -416,21 +421,25 @@ function VoteDetailsModal({
 
   return (
     <dialog id={modalId} className="modal">
-      <div className="modal-box relative max-w-4xl min-h-96 flex flex-col md:flex-row md:ml-20 -mt-12 rounded-[24px] shadow-lg dark:bg-[#1D192D] bg-[#FFFFFF] transition-all duration-300 z-[1000]">
+      <div className="modal-box relative max-w-4xl min-h-96 max-h-[80vh] overflow-y-hidden flex flex-col md:flex-row md:ml-20 -mt-12 rounded-[24px] shadow-lg bg-secondary transition-all duration-300 z-[1000]">
         <form method="dialog" onSubmit={onClose}>
-          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+          <button className="btn btn-sm btn-circle text-black dark:text-white btn-ghost absolute right-2 top-2">
+            ✕
+          </button>
         </form>
         <div className="flex flex-col flex-grow w-full p-2 space-y-6">
           <div className="flex flex-row justify-between items-center">
             <div className="flex flex-row gap-2 items-center">
-              <p className="text-xl font-bold">#{proposal?.id?.toString() ?? '0'}</p>
-              <span className="badge badge-lg shadow-lg justify-center badge-primary rounded-full">
+              <p className="text-xl font-bold text-primary-content">
+                #{proposal?.id?.toString() ?? '0'}
+              </p>
+              <span className="badge badge-lg shadow-lg justify-center badge-primary text-neutral-content rounded-full">
                 {getStatusLabel(proposal)}
               </span>
             </div>
             {userHasVoted && (
               <div className="flex flex-row gap-2 justify-center items-center">
-                <span className="text-sm">Your vote:</span>
+                <span className="text-sm text-primary-content">Your vote:</span>
                 <span
                   className={`badge badge-lg rounded-full ${
                     userVoteOption?.toString() === 'VOTE_OPTION_YES'
@@ -451,31 +460,33 @@ function VoteDetailsModal({
           </div>
           <div className="flex flex-col justify-start items-start">
             <p className="text-sm font-light text-gray-500 dark:text-gray-400">TITLE</p>
-            <h1 className="text-2xl font-bold max-w-[20ch] truncate">{proposal?.title}</h1>
+            <h1 className="text-2xl font-bold max-w-[20ch] truncate text-primary-content">
+              {proposal?.title}
+            </h1>
             <span className="text-sm font-light text-gray-500 dark:text-gray-400 mt-2">
               SUBMITTED
             </span>
-            <span className="text-sm">
+            <span className="text-sm text-primary-content">
               {new Date(proposal?.submit_time).toDateString().toLocaleString()}
             </span>
           </div>
           <div className="divider my-"></div>
           <div className="w-full">
             <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2 ">SUMMARY</p>
-            <div className="dark:bg-[#FFFFFF0F] bg-[#0000000A] rounded-[12px] p-4">
-              <p className="text-sm">{proposal?.summary}</p>
+            <div className="bg-base-300 rounded-[12px] p-4">
+              <p className="text-sm text-primary-content">{proposal?.summary}</p>
             </div>
           </div>
           <div className="w-full">
-            <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2 ">MESSAGES</p>
-            <div className="dark:bg-[#FFFFFF0F] bg-[#0000000A]  rounded-[12px] p-4 overflow-y-auto max-h-[20rem]">
+            <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">MESSAGES</p>
+            <div className="bg-base-300 rounded-[12px] p-4 overflow-y-auto max-h-[20rem]">
               {proposal?.messages?.map((message: any, index: number) => {
                 const messageType = message['@type'];
                 const fieldsToShow = importantFields[messageType] || defaultFields;
 
                 return (
                   <div key={index} className="mb-4">
-                    <h3 className="text-lg font-semibold mb-2">
+                    <h3 className="text-lg font-semibold mb-2 text-primary-content">
                       {messageType.split('.').pop().replace('Msg', '')}
                     </h3>
                     <div>
@@ -486,7 +497,7 @@ function VoteDetailsModal({
               })}
             </div>
           </div>
-          <div className="hidden md:block w-full">
+          <div aria-label="voting-countdown-1" className="hidden md:block w-full">
             <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
               VOTING COUNTDOWN
             </p>
@@ -497,24 +508,30 @@ function VoteDetailsModal({
         <div className="flex flex-col w-full relative flex-grow items-start justify-start p-6 space-y-6">
           <div className="w-full">
             <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">TALLY</p>
-            <div className="dark:bg-[#FFFFFF0F] bg-[#0000000A] rounded-[12px] w-full">
+            <div aria-label="chart-tally" className="bg-base-300 rounded-[12px] w-full">
               <Chart options={options} series={[{ data: chartData }]} type="bar" height={200} />
             </div>
           </div>
           <div className="w-full">
             <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">MEMBERS</p>
-            <div className="dark:bg-[#FFFFFF0F] bg-[#0000000A] rounded-[12px] p-4 w-full">
-              <div className="overflow-x-auto w-full min-h-64 max-h-[22.5rem]  overflow-y-auto">
+            <div className="bg-base-300 rounded-[12px] p-4 w-full">
+              <div className="overflow-x-auto w-full min-h-64 max-h-[22.5rem] overflow-y-auto">
                 <table className="table-auto w-full text-sm">
-                  <thead className="text-xs uppercase bg-base-200">
+                  <thead className="text-xs uppercase bg-neutral">
                     <tr>
-                      <th scope="col" className="px-6 py-3 first:rounded-tl-[12px]">
+                      <th
+                        scope="col"
+                        className="px-6 py-3 first:rounded-tl-[12px] text-primary-content"
+                      >
                         Address
                       </th>
-                      <th scope="col" className="px-6 py-3">
+                      <th scope="col" className="px-6 py-3 text-primary-content">
                         Weight
                       </th>
-                      <th scope="col" className="px-6 py-3 last:rounded-tr-[12px]">
+                      <th
+                        scope="col"
+                        className="px-6 py-3 last:rounded-tr-[12px] text-primary-content"
+                      >
                         Vote
                       </th>
                     </tr>
@@ -523,12 +540,12 @@ function VoteDetailsModal({
                     {normalizedMembers?.map((member, index) => {
                       const memberVote = voteMap[member?.address];
                       return (
-                        <tr key={index} className="border-b dark:border-gray-700">
+                        <tr key={index} className="border-b border-gray-500">
                           <td className="px-6 py-4">
                             <TruncatedAddressWithCopy slice={8} address={member?.address} />
                           </td>
-                          <td className="px-6 py-4">{member?.weight}</td>
-                          <td className="px-6 py-4">
+                          <td className="px-6 py-4 text-primary-content">{member?.weight}</td>
+                          <td className="px-6 py-4 text-primary-content">
                             {optionToVote(memberVote?.toString()) || 'N/A'}
                           </td>
                         </tr>
@@ -539,7 +556,7 @@ function VoteDetailsModal({
               </div>
             </div>
           </div>
-          <div className="md:hidden block w-full">
+          <div aria-label="voting-countdown-2" className="md:hidden block w-full">
             <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
               VOTING COUNTDOWN
             </p>
@@ -548,6 +565,7 @@ function VoteDetailsModal({
           <div className="w-full relative">
             {getButtonState.action && (
               <button
+                aria-label="action-btn"
                 disabled={
                   isSigning ||
                   (getButtonState.action === 'remove' &&

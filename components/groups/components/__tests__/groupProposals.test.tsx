@@ -108,7 +108,7 @@ describe('ProposalsForPolicy Component', () => {
       }),
     }));
     renderWithChainProvider(<ProposalsForPolicy {...mockProps} />);
-    expect(screen.getByText('No proposals found')).toBeInTheDocument();
+    expect(screen.getByText('No proposal was found.')).toBeInTheDocument();
   });
 
   test('renders proposals list correctly', () => {
