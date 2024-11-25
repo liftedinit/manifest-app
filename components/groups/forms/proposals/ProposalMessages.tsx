@@ -486,7 +486,10 @@ export default function ProposalMessages({
         if (fieldPath[i] === '__proto__' || fieldPath[i] === 'constructor') return;
         current = current[fieldPath[i]];
       }
-      if (fieldPath[fieldPath.length - 1] !== '__proto__' && fieldPath[fieldPath.length - 1] !== 'constructor') {
+      if (
+        fieldPath[fieldPath.length - 1] !== '__proto__' &&
+        fieldPath[fieldPath.length - 1] !== 'constructor'
+      ) {
         current[fieldPath[fieldPath.length - 1]] = value;
       }
 
