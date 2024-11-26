@@ -31,6 +31,8 @@ export function YourGroups({
   isLoading: boolean;
 }) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 8;
   const [selectedGroup, setSelectedGroup] = useState<{
     policyAddress: string;
     name: string;
@@ -46,6 +48,12 @@ export function YourGroups({
 
   const filteredGroups = groups.groups.filter(group =>
     (group.ipfsMetadata?.title || 'Untitled Group').toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(filteredGroups.length / pageSize);
+  const paginatedGroups = filteredGroups.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
   );
 
   useEffect(() => {
@@ -163,7 +171,7 @@ export function YourGroups({
                 </thead>
                 <tbody className="space-y-4" role="rowgroup">
                   {isLoading
-                    ? Array(10)
+                    ? Array(8)
                         .fill(0)
                         .map((_, index) => (
                           <tr key={index} data-testid="skeleton-row">
@@ -203,7 +211,7 @@ export function YourGroups({
                             </td>
                           </tr>
                         ))
-                    : filteredGroups.map((group, index) => (
+                    : paginatedGroups.map((group, index) => (
                         <GroupRow
                           key={index}
                           group={group}
@@ -217,6 +225,60 @@ export function YourGroups({
                       ))}
                 </tbody>
               </table>
+              {totalPages > 1 && (
+                <div
+                  className="flex items-center justify-center gap-2"
+                  onClick={e => e.stopPropagation()}
+                >
+                  <button
+                    onClick={e => {
+                      e.stopPropagation();
+                      setCurrentPage(prev => Math.max(1, prev - 1));
+                    }}
+                    disabled={currentPage === 1 || isLoading}
+                    className="p-2 hover:bg-[#FFFFFF1A] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    ‹
+                  </button>
+
+                  {[...Array(totalPages)].map((_, index) => {
+                    const pageNum = index + 1;
+                    if (
+                      pageNum === 1 ||
+                      pageNum === totalPages ||
+                      (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                    ) {
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={e => {
+                            e.stopPropagation();
+                            setCurrentPage(pageNum);
+                          }}
+                          className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors
+                    ${currentPage === pageNum ? 'bg-[#FFFFFF1A] text-white' : 'hover:bg-[#FFFFFF1A]'}`}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
+                      return <span key={pageNum}>...</span>;
+                    }
+                    return null;
+                  })}
+
+                  <button
+                    onClick={e => {
+                      e.stopPropagation();
+                      setCurrentPage(prev => Math.min(totalPages, prev + 1));
+                    }}
+                    disabled={currentPage === totalPages || isLoading}
+                    className="p-2 hover:bg-[#FFFFFF1A] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    ›
+                  </button>
+                </div>
+              )}
             </div>
           </div>
           <div className="mt-6  w-full justify-center md:hidden block">
@@ -276,6 +338,8 @@ export function YourGroups({
           />
         </React.Fragment>
       ))}
+
+      {/* Add pagination controls */}
     </div>
   );
 }
