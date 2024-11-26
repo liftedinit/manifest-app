@@ -227,40 +227,16 @@ export default function BurnForm({
               </div>
               <div>
                 <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
-                  TARGET&apos;S BALANCE
+                  CIRCULATING SUPPLY
                 </p>
                 <div className="bg-base-300 p-4 rounded-md">
                   <p className="font-semibold text-md text-black truncate dark:text-white">
-                    {formatAmount(recipientBalance?.amount)}
+                    {Number(shiftDigits(totalSupply, -exponent)).toLocaleString(undefined, {
+                      maximumFractionDigits: exponent,
+                    })}{' '}
                   </p>
                 </div>
               </div>
-              {denom?.denom_units[1]?.exponent && (
-                <div>
-                  <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
-                    EXPONENT
-                  </p>
-                  <div className="bg-base-300 p-4 rounded-md">
-                    <p className="font-semibold text-md text-black dark:text-white">
-                      {denom?.denom_units[1]?.exponent}
-                    </p>
-                  </div>
-                </div>
-              )}
-              {totalSupply !== '0' && (
-                <div>
-                  <p className="text-sm font-light text-gray-500 dark:text-gray-400 truncate mb-2">
-                    CIRCULATING SUPPLY
-                  </p>
-                  <div className="bg-base-300 p-4 rounded-md">
-                    <p className="font-semibold text-md  truncate text-black dark:text-white">
-                      {Number(shiftDigits(totalSupply, -exponent)).toLocaleString(undefined, {
-                        maximumFractionDigits: exponent,
-                      })}{' '}
-                    </p>
-                  </div>
-                </div>
-              )}
             </div>
             {!denom.base.includes('umfx') && (
               <Formik
