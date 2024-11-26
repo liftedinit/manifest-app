@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { chainName } from '@/config';
 import { useFeeEstimation, useTx } from '@/hooks';
 import { ibc } from '@liftedinit/manifestjs';
@@ -14,7 +14,7 @@ import { IbcChain } from '../components/sendBox';
 import Image from 'next/image';
 import { shiftDigits, truncateString } from '@/utils';
 import { SearchIcon } from '@/components/icons';
-import { MFX_TOKEN_DATA } from '@/utils/constants'; // Import MFX_TOKEN_DATA
+
 import { TailwindModal } from '@/components/react/modal';
 import { formatTokenDisplayName } from '@/utils';
 
@@ -27,7 +27,6 @@ export default function IbcSendForm({
   refetchBalances,
   refetchHistory,
   isIbcTransfer,
-  setIsIbcTransfer,
   ibcChains,
   selectedChain,
   setSelectedChain,
@@ -39,7 +38,6 @@ export default function IbcSendForm({
   refetchBalances: () => void;
   refetchHistory: () => void;
   isIbcTransfer: boolean;
-  setIsIbcTransfer: (isIbcTransfer: boolean) => void;
   ibcChains: IbcChain[];
   selectedChain: string;
   setSelectedChain: (selectedChain: string) => void;
@@ -170,7 +168,7 @@ export default function IbcSendForm({
         validateOnChange={true}
         validateOnBlur={true}
       >
-        {({ isValid, dirty, setFieldValue, values, errors, touched }) => (
+        {({ isValid, dirty, setFieldValue, values, errors }) => (
           <Form className="space-y-6 flex flex-col items-center max-w-md mx-auto">
             <div className="w-full space-y-4">
               <div className={`dropdown dropdown-end w-full ${isIbcTransfer ? 'block' : 'hidden'}`}>
@@ -215,11 +213,27 @@ export default function IbcSendForm({
                   {ibcChains.map(chain => (
                     <li key={chain.id} role="option" aria-selected={selectedChain === chain.id}>
                       <a
-                        onClick={() => setSelectedChain(chain.id)}
+                        onClick={e => {
+                          setSelectedChain(chain.id);
+                          // Get the dropdown element and remove focus
+                          const dropdown = (e.target as HTMLElement).closest('.dropdown');
+                          if (dropdown) {
+                            (dropdown as HTMLElement).removeAttribute('open');
+                            (dropdown.querySelector('label') as HTMLElement)?.focus();
+                            (dropdown.querySelector('label') as HTMLElement)?.blur();
+                          }
+                        }}
                         onKeyDown={e => {
                           if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
                             setSelectedChain(chain.id);
+                            // Get the dropdown element and remove focus
+                            const dropdown = (e.target as HTMLElement).closest('.dropdown');
+                            if (dropdown) {
+                              (dropdown as HTMLElement).removeAttribute('open');
+                              (dropdown.querySelector('label') as HTMLElement)?.focus();
+                              (dropdown.querySelector('label') as HTMLElement)?.blur();
+                            }
                           }
                         }}
                         tabIndex={0}
