@@ -19,14 +19,27 @@ import { MFX_TOKEN_DATA } from '@/utils/constants';
 
 export default function Factory() {
   const { address, isWalletConnected } = useChain(chainName);
-  const { denoms, isDenomsLoading, isDenomsError } = useTokenFactoryDenoms(address ?? '');
-  const { metadatas, isMetadatasLoading, isMetadatasError } = useTokenFactoryDenomsMetadata();
-  const { balances, isBalancesLoading, isBalancesError } = useTokenBalances(address ?? '');
-  const { totalSupply, isTotalSupplyLoading, isTotalSupplyError } = useTotalSupply();
+  const { denoms, isDenomsLoading, isDenomsError, refetchDenoms } = useTokenFactoryDenoms(
+    address ?? ''
+  );
+  const { metadatas, isMetadatasLoading, isMetadatasError, refetchMetadatas } =
+    useTokenFactoryDenomsMetadata();
+  const { balances, isBalancesLoading, isBalancesError, refetchBalances } = useTokenBalances(
+    address ?? ''
+  );
+  const { totalSupply, isTotalSupplyLoading, isTotalSupplyError, refetchTotalSupply } =
+    useTotalSupply();
 
   const isLoading =
     isDenomsLoading || isMetadatasLoading || isBalancesLoading || isTotalSupplyLoading;
   const isError = isDenomsError || isMetadatasError || isBalancesError || isTotalSupplyError;
+
+  const refetchData = () => {
+    refetchDenoms();
+    refetchMetadatas();
+    refetchBalances();
+    refetchTotalSupply();
+  };
 
   const combinedData = useMemo(() => {
     if (denoms?.denoms && metadatas?.metadatas && balances && totalSupply) {
@@ -117,8 +130,7 @@ export default function Factory() {
             <MyDenoms
               denoms={combinedData}
               isLoading={isLoading}
-              isError={isError}
-              refetchDenoms={() => {}}
+              refetchDenoms={refetchData}
               address={address ?? ''}
             />
           ) : isError ? (
@@ -131,8 +143,7 @@ export default function Factory() {
             <MyDenoms
               denoms={combinedData}
               isLoading={isLoading}
-              isError={isError}
-              refetchDenoms={() => {}}
+              refetchDenoms={refetchData}
               address={address ?? ''}
             />
           )}
