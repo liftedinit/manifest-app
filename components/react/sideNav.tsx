@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Contacts } from './views/Contacts';
 import { useRouter } from 'next/router';
 import { IconWallet, WalletSection } from '../wallet';
 import { useTheme } from '@/contexts/theme';
 import { useCallback } from 'react';
 import { TailwindModal } from './modal';
+import packageInfo from '../../package.json';
 
-import SettingsModal from './settingsModal';
 import {
   AdminsIcon,
   BankIcon,
@@ -17,7 +16,7 @@ import {
   DarkIcon,
   LightIcon,
 } from '@/components/icons';
-import EndpointSelector from './endpointSelector';
+
 import { MdContacts, MdOutlineNetworkPing } from 'react-icons/md';
 
 interface SideNavProps {
@@ -26,20 +25,13 @@ interface SideNavProps {
 }
 
 export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavProps) {
-  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isdark, setIsdark] = useState(false);
   const [isContactsOpen, setContactsOpen] = useState(false);
 
   const { toggleTheme, theme } = useTheme();
 
   const toggleDrawer = () => setDrawerVisible(!isDrawerVisible);
-
-  const [isOpen, setOpen] = useState(false);
-
-  const onCloseModal = useCallback(() => {
-    setOpen(false);
-  }, [setOpen]);
-
+  const version = packageInfo.version;
   const NavItem: React.FC<{
     Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
     href: string;
@@ -217,6 +209,9 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
             <WalletSection chainName="manifest" />
           </div>
         </ul>
+        <div className="flex flex-row justify-center items-center">
+          <p className="text-sm text-gray-500">v{version}</p>
+        </div>
       </div>
     </div>
   );
