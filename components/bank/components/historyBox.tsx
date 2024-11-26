@@ -22,6 +22,27 @@ export interface TransactionGroup {
   data: Transaction;
 }
 
+function formatLargeNumber(num: number): string {
+  const quintillion = 1e18;
+  const quadrillion = 1e15;
+  const trillion = 1e12;
+  const billion = 1e9;
+  const million = 1e6;
+
+  if (num >= quintillion) {
+    return `${(num / quintillion).toFixed(2)}QT`;
+  } else if (num >= quadrillion) {
+    return `${(num / quadrillion).toFixed(2)}Q`;
+  } else if (num >= trillion) {
+    return `${(num / trillion).toFixed(2)}T`;
+  } else if (num >= billion) {
+    return `${(num / billion).toFixed(2)}B`;
+  } else if (num >= million) {
+    return `${(num / million).toFixed(2)}M`;
+  }
+  return num.toLocaleString();
+}
+
 export function HistoryBox({
   isLoading: initialLoading,
   send,
@@ -54,14 +75,6 @@ export function HistoryBox({
       day: 'numeric',
     });
   }
-
-  const openModal = (tx: TransactionGroup) => {
-    setSelectedTx(tx);
-  };
-
-  const closeModal = () => {
-    setSelectedTx(null);
-  };
 
   const groupedTransactions = useMemo(() => {
     if (!sendTxs || sendTxs.length === 0) return {};
@@ -184,7 +197,12 @@ export function HistoryBox({
                       <div
                         key={tx.tx_hash}
                         className="flex items-center justify-between p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px] cursor-pointer hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] transition-colors"
-                        onClick={() => openModal(tx)}
+                        onClick={() => {
+                          setSelectedTx(tx);
+                          (
+                            document?.getElementById(`tx_modal_info`) as HTMLDialogElement
+                          )?.showModal();
+                        }}
                       >
                         <div className="flex items-center space-x-3">
                           <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center">
@@ -238,8 +256,9 @@ export function HistoryBox({
                                   m => m.base === amt.denom
                                 );
                                 const exponent = Number(metadata?.denom_units[1]?.exponent) || 6;
+                                const amount = Number(shiftDigits(amt.amount, -exponent));
 
-                                return `${Number(shiftDigits(amt.amount, -exponent)).toLocaleString(undefined, { maximumFractionDigits: exponent })} ${formatDenom(amt.denom)}`;
+                                return `${formatLargeNumber(amount)} ${formatDenom(amt.denom)}`;
                               })
                               .join(', ')}
                           </p>
@@ -254,7 +273,7 @@ export function HistoryBox({
         </div>
       )}
 
-      {selectedTx && <TxInfoModal tx={selectedTx} isOpen={!!selectedTx} onClose={closeModal} />}
+      <TxInfoModal modalId={`tx_modal_info`} tx={selectedTx ?? ({} as TransactionGroup)} />
     </div>
   );
 }
