@@ -32,8 +32,12 @@ export const shiftDigits = (
 };
 
 export const parseNumberToBigInt = (v: string, maxDigits: number = 6) => {
-  const amount = BigNumber(v);
-  const precision = BigNumber(`1e${maxDigits}`);
+  const amount = new BigNumber(v);
+  if (!amount.isFinite()) {
+    console.error(`Invalid input passed to parseNumberToBigInt: ${v}`);
+    return BigInt(0);
+  }
+  const precision = new BigNumber(10).pow(maxDigits);
   const b = amount.times(precision).toFixed();
   return BigInt(b);
 };
