@@ -571,7 +571,7 @@ function VoteDetailsModal({
                   (getButtonState.action === 'remove' &&
                     !proposal?.proposers?.includes(address ?? ''))
                 }
-                className="btn w-full btn-primary text-white rounded-[12px]"
+                className="btn w-full btn-gradient text-white rounded-[12px]"
                 onClick={() => {
                   switch (getButtonState.action) {
                     case 'execute':
