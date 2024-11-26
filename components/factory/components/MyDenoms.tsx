@@ -16,13 +16,11 @@ import { usePoaGetAdmin } from '@/hooks';
 export default function MyDenoms({
   denoms,
   isLoading,
-  isError,
   refetchDenoms,
   address,
 }: {
   denoms: ExtendedMetadataSDKType[];
   isLoading: boolean;
-  isError: Error | null | boolean;
   refetchDenoms: () => void;
   address: string;
 }) {
