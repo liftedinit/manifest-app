@@ -77,7 +77,6 @@ export default function MintModal({
             ) : (
               <MintForm
                 isAdmin={isAdmin ?? false}
-                admin={admin}
                 balance={safeBalance}
                 totalSupply={safeTotalSupply}
                 refetch={refetch}
