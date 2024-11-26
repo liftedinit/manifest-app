@@ -1,6 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import { Dialog } from '@headlessui/react';
-import { XMarkIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 import { ChainWalletBase } from 'cosmos-kit';
 
 export const WalletList = ({
@@ -12,8 +11,12 @@ export const WalletList = ({
   onWalletClicked: (name: string) => void;
   wallets: ChainWalletBase[];
 }) => {
+  const isDarkMode = document.documentElement.classList.contains('dark');
+
   const social = wallets.filter(wallet =>
-    ['Google', 'Twitter', 'Apple', 'Discord'].includes(wallet.walletInfo.prettyName)
+    ['Google', 'Twitter', 'Apple', 'Discord', 'GitHub', 'Reddit'].includes(
+      wallet.walletInfo.prettyName
+    )
   );
 
   const browser = wallets.filter(wallet =>
@@ -63,9 +66,9 @@ export const WalletList = ({
               className="flex items-center justify-center p-4 dark:bg-[#ffffff0c] bg-[#f0f0ff5c] dark:hover:bg-[#0000004c] hover:bg-[#a8a8a84c] rounded-lg transition"
             >
               <img
-                src={logo?.toString()}
+                src={isDarkMode ? logo?.toString() + '_light.svg' : logo?.toString() + '_dark.svg'}
                 alt={prettyName}
-                className={`${prettyName === 'Twitter' || prettyName === 'Apple' ? 'w-7 h-7' : 'w-6 h-6'} rounded-md`}
+                className={`${prettyName === 'Reddit' || prettyName === 'Google' ? 'w-8 h-8' : 'w-7 h-7'} rounded-md`}
               />
             </button>
           ))}
