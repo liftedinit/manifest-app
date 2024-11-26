@@ -164,7 +164,7 @@ export default function BurnForm({
         authority: admin ?? '',
         burnCoins: burnPairs.map(pair => ({
           denom: denom.base,
-          amount: BigInt(parseFloat(pair.amount) * Math.pow(10, exponent)).toString(),
+          amount: parseNumberToBigInt(pair.amount, exponent).toString(),
         })),
       });
       const encodedMessage = Any.fromPartial({
