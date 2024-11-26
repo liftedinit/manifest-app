@@ -3,7 +3,7 @@ import { chainName } from '@/config';
 import { useFeeEstimation, useTx } from '@/hooks';
 import { osmosis } from '@liftedinit/manifestjs';
 
-import { shiftDigits } from '@/utils';
+import { parseNumberToBigInt, shiftDigits } from '@/utils';
 import { MdContacts } from 'react-icons/md';
 
 import { Formik, Form } from 'formik';
@@ -43,10 +43,7 @@ export default function MintForm({
   const isMFX = denom.base.includes('mfx');
 
   const MintSchema = Yup.object().shape({
-    amount: Yup.number()
-      .positive('Amount must be positive')
-      .required('Amount is required')
-      .max(1e12, 'Amount is too large'),
+    amount: Yup.number().positive('Amount must be positive').required('Amount is required'),
     recipient: Yup.string().required('Recipient address is required').manifestAddress(),
   });
 
@@ -56,8 +53,7 @@ export default function MintForm({
     }
     setIsSigning(true);
     try {
-      const amountInBaseUnits = BigInt(parseFloat(amount) * Math.pow(10, exponent)).toString();
-
+      const amountInBaseUnits = parseNumberToBigInt(amount, exponent).toString();
       let msg;
 
       msg = mint({

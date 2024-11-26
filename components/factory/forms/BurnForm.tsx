@@ -4,7 +4,7 @@ import { useTokenFactoryBalance, useFeeEstimation, useTx } from '@/hooks';
 import { cosmos, osmosis, liftedinit } from '@liftedinit/manifestjs';
 
 import { MdContacts } from 'react-icons/md';
-import { shiftDigits } from '@/utils';
+import { parseNumberToBigInt, shiftDigits } from '@/utils';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgBurnHeldBalance } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
 
@@ -75,7 +75,6 @@ export default function BurnForm({
     amount: Yup.number()
       .positive('Amount must be positive')
       .required('Amount is required')
-      .max(1e12, 'Amount is too large')
       .test('max-balance', 'Amount exceeds balance', function (value) {
         return value <= balanceNumber;
       }),
@@ -103,8 +102,7 @@ export default function BurnForm({
     }
     setIsSigning(true);
     try {
-      const amountInBaseUnits = BigInt(parseFloat(amount) * Math.pow(10, exponent)).toString();
-
+      const amountInBaseUnits = parseNumberToBigInt(amount, exponent).toString();
       let msg;
       if (isMFX) {
         const burnMsg = burnHeldBalance({
