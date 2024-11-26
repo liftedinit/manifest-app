@@ -1,11 +1,11 @@
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
-import { useBalance } from '@/hooks/useQueries';
-import { shiftDigits } from '@/utils';
 import ProfileAvatar from '@/utils/identicon';
 import { ExtendedGroupType } from '@/hooks/useQueries';
 import { UpdateGroupModal } from './updateGroupModal';
 import { ThresholdDecisionPolicySDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
-
+import { useFeeEstimation, useTx } from '@/hooks';
+import { chainName } from '@/config';
+import { cosmos } from '@liftedinit/manifestjs';
 interface GroupInfoProps {
   modalId: string;
   group: ExtendedGroupType | null;
@@ -15,6 +15,9 @@ interface GroupInfoProps {
 }
 
 export function GroupInfo({ modalId, group, policyAddress, address, onUpdate }: GroupInfoProps) {
+  const { tx, isSigning, setIsSigning } = useTx(chainName);
+  const { leaveGroup } = cosmos.group.v1.MessageComposer.withTypeUrl;
+  const { estimateFee } = useFeeEstimation(chainName);
   if (!group || !group.policies || group.policies.length === 0) return null;
 
   const policy = group.policies[0];
@@ -95,6 +98,30 @@ export function GroupInfo({ modalId, group, policyAddress, address, onUpdate }: 
     return <InfoItem label="Author" value="Invalid author information" />;
   }
 
+  const handleLeave = async () => {
+    setIsSigning(true);
+
+    try {
+      const msg = leaveGroup({
+        address: address,
+        groupId: group?.id,
+      });
+
+      const fee = await estimateFee(address, [msg]);
+      await tx([msg], {
+        fee,
+        onSuccess: () => {
+          setIsSigning(false);
+          onUpdate();
+        },
+      });
+    } catch (error) {
+      console.error('Error submitting proposal:', error);
+    } finally {
+      setIsSigning(false);
+    }
+  };
+
   return (
     <dialog id={modalId} className="modal">
       <div className="modal-box bg-secondary rounded-[24px] max-h-['574px'] max-w-[542px] p-6">
@@ -112,16 +139,27 @@ export function GroupInfo({ modalId, group, policyAddress, address, onUpdate }: 
 
         <div className="flex justify-between items-center mb-6">
           <span className="text-xl font-semibold text-secondary-content">Info</span>
-          <button
-            aria-label={'update-btn'}
-            className="btn btn-gradient text-white rounded-[12px] h-[52px] w-[140px]"
-            onClick={() => {
-              const modal = document.getElementById('update-group-modal') as HTMLDialogElement;
-              if (modal) modal.showModal();
-            }}
-          >
-            Update
-          </button>
+          <div className="flex items-center space-x-4">
+            <button
+              aria-label={'update-btn'}
+              className="btn btn-dropdown text-white rounded-[12px] h-[52px] w-[140px]"
+              onClick={handleLeave}
+              disabled={isSigning}
+            >
+              {isSigning ? <span className="animate-pulse">Leaving</span> : 'Leave'}
+            </button>
+
+            <button
+              aria-label={'update-btn'}
+              className="btn btn-gradient text-white rounded-[12px] h-[52px] w-[140px]"
+              onClick={() => {
+                const modal = document.getElementById('update-group-modal') as HTMLDialogElement;
+                if (modal) modal.showModal();
+              }}
+            >
+              Update
+            </button>
+          </div>
         </div>
 
         <div className="space-y-4">
