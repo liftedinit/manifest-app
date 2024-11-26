@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { chainName } from '@/config';
 import { useFeeEstimation, useTx } from '@/hooks';
 import { ibc } from '@liftedinit/manifestjs';
-import { getIbcInfo } from '@/utils';
+import { getIbcInfo, parseNumberToBigInt } from '@/utils';
 import { PiCaretDownBold } from 'react-icons/pi';
 import { MdContacts } from 'react-icons/md';
 import { CombinedBalanceInfo } from '@/utils/types';
@@ -108,9 +108,7 @@ export default function IbcSendForm({
     setIsSending(true);
     try {
       const exponent = values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-      const amountInBaseUnits = Math.floor(
-        parseFloat(values.amount) * Math.pow(10, exponent)
-      ).toString();
+      const amountInBaseUnits = parseNumberToBigInt(values.amount, exponent).toString();
 
       const { source_port, source_channel } = getIbcInfo(chainName ?? '', destinationChain ?? '');
 
