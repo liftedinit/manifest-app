@@ -14,7 +14,6 @@ import { TailwindModal } from '@/components/react/modal';
 
 export default function MintForm({
   isAdmin,
-  admin,
   denom,
   address,
   refetch,
@@ -23,7 +22,6 @@ export default function MintForm({
   onMultiMintClick,
 }: Readonly<{
   isAdmin: boolean;
-  admin: string;
   denom: ExtendedMetadataSDKType;
   address: string;
   refetch: () => void;
@@ -104,44 +102,19 @@ export default function MintForm({
                   </p>
                 </div>
               </div>
+
               <div>
-                <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
-                  YOUR BALANCE
+                <p className="text-sm font-light text-gray-500 truncate dark:text-gray-400 mb-2">
+                  CIRCULATING SUPPLY
                 </p>
                 <div className="bg-base-300 p-4 rounded-md">
-                  <p className="font-semibold text-md text-black truncate dark:text-white">
-                    {Number(shiftDigits(balance, -exponent)).toLocaleString(undefined, {
+                  <p className="font-semibold text-md truncate text-black dark:text-white">
+                    {Number(shiftDigits(totalSupply, -exponent)).toLocaleString(undefined, {
                       maximumFractionDigits: exponent,
-                    })}
+                    })}{' '}
                   </p>
                 </div>
               </div>
-              {denom?.denom_units[1]?.exponent && (
-                <div>
-                  <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
-                    EXPONENT
-                  </p>
-                  <div className="bg-base-300 p-4 rounded-md">
-                    <p className="font-semibold text-md text-black dark:text-white">
-                      {denom?.denom_units[1]?.exponent}
-                    </p>
-                  </div>
-                </div>
-              )}
-              {totalSupply !== '0' && (
-                <div>
-                  <p className="text-sm font-light text-gray-500 truncate dark:text-gray-400 mb-2">
-                    CIRCULATING SUPPLY
-                  </p>
-                  <div className="bg-base-300 p-4 rounded-md">
-                    <p className="font-semibold text-md truncate text-black dark:text-white">
-                      {Number(shiftDigits(totalSupply, -exponent)).toLocaleString(undefined, {
-                        maximumFractionDigits: exponent,
-                      })}{' '}
-                    </p>
-                  </div>
-                </div>
-              )}
             </div>
             {!denom.base.includes('umfx') && (
               <Formik
