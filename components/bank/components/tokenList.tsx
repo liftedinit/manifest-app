@@ -22,14 +22,6 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
     );
   }, [balances, searchTerm]);
 
-  const openModal = (denom: any) => {
-    setSelectedDenom(denom);
-    const modal = document.getElementById('denom-info-modal') as HTMLDialogElement;
-    if (modal) {
-      modal.showModal();
-    }
-  };
-
   return (
     <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-0 mb-4">
@@ -63,7 +55,12 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
                   key={balance.denom}
                   aria-label={balance.denom}
                   className="flex flex-row justify-between gap-4 items-center p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px] cursor-pointer hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] transition-colors"
-                  onClick={() => openModal(balance.metadata)}
+                  onClick={() => {
+                    setSelectedDenom(balance?.denom);
+                    (
+                      document?.getElementById(`denom-info-modal`) as HTMLDialogElement
+                    )?.showModal();
+                  }}
                 >
                   <div className="flex flex-row gap-4 items-center justify-start">
                     <div className="w-10 h-10 rounded-full overflow-hidden bg-[#0000000A] dark:bg-[#FFFFFF0F] flex items-center justify-center">
@@ -95,7 +92,10 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
                     <button
                       onClick={e => {
                         e.stopPropagation();
-                        openModal(balance.metadata);
+                        setSelectedDenom(balance?.denom);
+                        (
+                          document?.getElementById(`denom-info-modal`) as HTMLDialogElement
+                        )?.showModal();
                       }}
                       className="p-2 rounded-md bg-[#0000000A] dark:bg-[#FFFFFF0F] hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF33] transition-colors"
                     >
@@ -108,7 +108,12 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
           )}
 
           {/* DenomInfoModal */}
-          {selectedDenom && <DenomInfoModal denom={selectedDenom} modalId="denom-info-modal" />}
+          {selectedDenom && (
+            <DenomInfoModal
+              denom={filteredBalances.find(b => b.denom === selectedDenom)?.metadata ?? null}
+              modalId="denom-info-modal"
+            />
+          )}
         </div>
       </div>
     </div>

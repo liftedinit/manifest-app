@@ -31,6 +31,11 @@ mock.module('@/hooks/useQueries', () => ({
   }),
 }));
 
+mock.module('@/hooks/useIsMobile', () => ({
+  __esModule: true,
+  default: jest.fn().mockReturnValue(false),
+}));
+
 const mockProps = {
   groups: {
     groups: [
@@ -45,6 +50,23 @@ const mockProps = {
     ],
   },
   proposals: { policy1: [] },
+  isLoading: false,
+};
+
+const mockPropsWithManyGroups = {
+  groups: {
+    groups: Array(12)
+      .fill(null)
+      .map((_, index) => ({
+        id: `${index + 1}`,
+        ipfsMetadata: { title: `Group ${index + 1}` },
+        policies: [{ address: `policy${index + 1}`, decision_policy: { threshold: '1' } }],
+        admin: `admin${index + 1}`,
+        members: [{ member: { address: `member${index + 1}` } }],
+        total_weight: '1',
+      })),
+  },
+  proposals: {},
   isLoading: false,
 };
 
@@ -85,5 +107,66 @@ describe('YourGroups Component', () => {
       undefined,
       { shallow: true }
     );
+  });
+
+  describe('Pagination', () => {
+    test('renders pagination controls when there are more items than page size', () => {
+      renderWithChainProvider(<YourGroups {...mockPropsWithManyGroups} />);
+
+      expect(screen.getByRole('navigation', { name: /pagination/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /next page/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /previous page/i })).toBeInTheDocument();
+    });
+
+    test('pagination controls navigate between pages correctly', () => {
+      renderWithChainProvider(<YourGroups {...mockPropsWithManyGroups} />);
+
+      // Should start with page 1
+      expect(screen.getByRole('button', { name: 'Page 1', current: 'page' })).toBeInTheDocument();
+
+      // Click next page
+      fireEvent.click(screen.getByRole('button', { name: /next page/i }));
+      expect(screen.getByRole('button', { name: 'Page 2', current: 'page' })).toBeInTheDocument();
+
+      // Click previous page
+      fireEvent.click(screen.getByRole('button', { name: /previous page/i }));
+      expect(screen.getByRole('button', { name: 'Page 1', current: 'page' })).toBeInTheDocument();
+    });
+
+    test('previous button is disabled on first page', () => {
+      renderWithChainProvider(<YourGroups {...mockPropsWithManyGroups} />);
+
+      const prevButton = screen.getByRole('button', { name: /previous page/i });
+      expect(prevButton).toBeDisabled();
+    });
+
+    test('next button is disabled on last page', () => {
+      renderWithChainProvider(<YourGroups {...mockPropsWithManyGroups} />);
+
+      // Navigate to last page
+      const totalPages = Math.ceil(mockPropsWithManyGroups.groups.groups.length / 8);
+      for (let i = 1; i < totalPages; i++) {
+        fireEvent.click(screen.getByRole('button', { name: /next page/i }));
+      }
+
+      const nextButton = screen.getByRole('button', { name: /next page/i });
+      expect(nextButton).toBeDisabled();
+    });
+
+    test('direct page selection works correctly', () => {
+      renderWithChainProvider(<YourGroups {...mockPropsWithManyGroups} />);
+
+      // Click page 2 button
+      fireEvent.click(screen.getByRole('button', { name: 'Page 2' }));
+      expect(screen.getByRole('button', { name: 'Page 2', current: 'page' })).toBeInTheDocument();
+    });
+
+    test('shows correct number of items per page', () => {
+      renderWithChainProvider(<YourGroups {...mockPropsWithManyGroups} />);
+
+      // On desktop (non-mobile), should show 8 items per page
+      const groupRows = screen.getAllByRole('button', { name: /Select Group \d+ group/i });
+      expect(groupRows).toHaveLength(8);
+    });
   });
 });
