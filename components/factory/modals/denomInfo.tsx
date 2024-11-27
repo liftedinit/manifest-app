@@ -6,23 +6,16 @@ import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank
 export const DenomInfoModal: React.FC<{
   denom: MetadataSDKType | null;
   modalId: string;
-  isOpen?: boolean;
-  onClose?: () => void;
-}> = ({ denom, modalId, isOpen, onClose }) => {
+}> = ({ denom, modalId }) => {
   let nameIsAddress = false;
-  if (denom?.name.startsWith('factory/manifest1')) {
+  if (denom?.name?.startsWith('factory/manifest1')) {
     nameIsAddress = true;
   }
 
   return (
-    <dialog
-      id={modalId}
-      className={`modal ${isOpen ? 'modal-open' : ''}`}
-      aria-labelledby="denom-info-title"
-      aria-modal="true"
-    >
+    <dialog id={modalId} className="modal" aria-labelledby="denom-info-title" aria-modal="true">
       <div className="modal-box max-w-4xl mx-auto rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg">
-        <form method="dialog" onSubmit={onClose}>
+        <form method="dialog">
           <button
             aria-label="Close modal"
             className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
@@ -37,7 +30,7 @@ export const DenomInfoModal: React.FC<{
             value={denom?.name ?? 'No name available'}
             isAddress={nameIsAddress}
           />
-          <InfoItem label="Ticker" value={denom?.display.toUpperCase() ?? 'No ticker available'} />
+          <InfoItem label="Ticker" value={denom?.display?.toUpperCase() ?? 'No ticker available'} />
           <InfoItem
             label="Description"
             value={denom?.description ?? 'No description available'}
@@ -54,7 +47,7 @@ export const DenomInfoModal: React.FC<{
               denom?.base
                 ? (() => {
                     try {
-                      return decodeURIComponent(denom.base);
+                      return decodeURIComponent(denom?.base);
                     } catch (e) {
                       console.error('Failed to decode BASE value:', e);
                       return denom.base;
@@ -67,7 +60,7 @@ export const DenomInfoModal: React.FC<{
           <InfoItem label="DISPLAY" value={denom?.display ?? 'No display available'} />
         </div>
       </div>
-      <form method="dialog" className="modal-backdrop" onSubmit={onClose}>
+      <form method="dialog" className="modal-backdrop">
         <button>close</button>
       </form>
     </dialog>

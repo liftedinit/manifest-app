@@ -22,7 +22,7 @@ import { useTheme } from '@/contexts/theme';
 import CountdownTimer from '../components/CountdownTimer';
 import { useFeeEstimation } from '@/hooks';
 
-import { TrashIcon } from '@heroicons/react/24/outline';
+import { ShareIcon, TrashIcon, CheckIcon } from '@heroicons/react/24/outline';
 const Chart = dynamic(() => import('react-apexcharts'), {
   ssr: false,
 }) as any;
@@ -419,9 +419,18 @@ function VoteDetailsModal({
     return { action: null, label: null };
   }, [proposal, proposalClosed, userHasVoted, address]);
 
+  const [copied, setCopied] = useState(false);
+
+  const copyProposalLink = () => {
+    const url = `${window.location.origin}/groups?policyAddress=${proposal?.group_policy_address}&proposalId=${proposal?.id}`;
+    navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <dialog id={modalId} className="modal">
-      <div className="modal-box relative max-w-4xl min-h-96 max-h-[80vh] overflow-y-hidden flex flex-col md:flex-row md:ml-20 -mt-12 rounded-[24px] shadow-lg bg-secondary transition-all duration-300 z-[1000]">
+      <div className="modal-box relative max-w-4xl min-h-96 max-h-[80vh] overflow-y-auto flex flex-col md:flex-row md:ml-20 -mt-12 rounded-[24px] shadow-lg bg-secondary transition-all duration-300 z-[1000]">
         <form method="dialog" onSubmit={onClose}>
           <button className="btn btn-sm btn-circle text-black dark:text-white btn-ghost absolute right-2 top-2">
             ✕
@@ -471,15 +480,17 @@ function VoteDetailsModal({
             </span>
           </div>
           <div className="divider my-"></div>
-          <div className="w-full">
-            <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2 ">SUMMARY</p>
-            <div className="bg-base-300 rounded-[12px] p-4">
-              <p className="text-sm text-primary-content">{proposal?.summary}</p>
+          {proposal?.summary && (
+            <div className="w-full">
+              <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2 ">SUMMARY</p>
+              <div className="bg-base-300 rounded-[12px] p-4">
+                <p className="text-sm text-primary-content">{proposal?.summary}</p>
+              </div>
             </div>
-          </div>
+          )}
           <div className="w-full">
             <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">MESSAGES</p>
-            <div className="bg-base-300 rounded-[12px] p-4 overflow-y-auto max-h-[20rem]">
+            <div className="bg-base-300 rounded-[12px] p-4 overflow-y-auto max-h-[17rem]">
               {proposal?.messages?.map((message: any, index: number) => {
                 const messageType = message['@type'];
                 const fieldsToShow = importantFields[messageType] || defaultFields;
@@ -502,6 +513,21 @@ function VoteDetailsModal({
               VOTING COUNTDOWN
             </p>
             <CountdownTimer endTime={new Date(proposal?.voting_period_end)} />
+          </div>
+          <div className="flex-row gap-2 items-center hidden md:flex mb-2">
+            <button
+              onClick={copyProposalLink}
+              className="flex flex-row items-center gap-2 hover:bg-[#FFFFFFCC] dark:hover:bg-[#FFFFFF0F] p-2 rounded-full transition-colors duration-200"
+            >
+              {copied ? (
+                <CheckIcon className="w-4 h-4 text-green-500" />
+              ) : (
+                <ShareIcon className="w-4 h-4" />
+              )}
+              <p className="text-sm font-light text-gray-500 dark:text-gray-400">
+                {copied ? 'Copied!' : 'Share this proposal'}
+              </p>
+            </button>
           </div>
         </div>
         <div className="divider divider-horizontal"></div>
@@ -561,6 +587,21 @@ function VoteDetailsModal({
               VOTING COUNTDOWN
             </p>
             <CountdownTimer endTime={new Date(proposal.voting_period_end)} />
+          </div>
+          <div className="flex-row gap-2 items-center flex md:hidden mb-2">
+            <button
+              onClick={copyProposalLink}
+              className="flex flex-row items-center gap-2 hover:bg-[#FFFFFFCC] dark:hover:bg-[#FFFFFF0F] p-2 rounded-full transition-colors duration-200"
+            >
+              {copied ? (
+                <CheckIcon className="w-4 h-4 text-green-500" />
+              ) : (
+                <ShareIcon className="w-4 h-4" />
+              )}
+              <p className="text-sm font-light text-gray-500 dark:text-gray-400">
+                {copied ? 'Copied!' : 'Share this proposal'}
+              </p>
+            </button>
           </div>
           <div className="w-full relative">
             {getButtonState.action && (
