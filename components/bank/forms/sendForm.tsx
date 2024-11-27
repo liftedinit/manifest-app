@@ -3,7 +3,7 @@ import { chainName } from '@/config';
 import { useFeeEstimation, useTx } from '@/hooks';
 import { cosmos } from '@liftedinit/manifestjs';
 import { PiCaretDownBold } from 'react-icons/pi';
-import { shiftDigits, truncateString } from '@/utils';
+import { parseNumberToBigInt, shiftDigits, truncateString } from '@/utils';
 import { CombinedBalanceInfo } from '@/utils/types';
 import { DenomImage } from '@/components/factory';
 import { Formik, Form } from 'formik';
@@ -96,10 +96,7 @@ export default function SendForm({
     setIsSending(true);
     try {
       const exponent = values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-      const amountInBaseUnits = Math.floor(
-        parseFloat(values.amount) * Math.pow(10, exponent)
-      ).toString();
-
+      const amountInBaseUnits = parseNumberToBigInt(values.amount, exponent).toString();
       const msg = send({
         fromAddress: address,
         toAddress: values.recipient,
