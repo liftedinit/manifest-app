@@ -113,10 +113,12 @@ export function GroupInfo({ modalId, group, policyAddress, address, onUpdate }: 
         onSuccess: () => {
           setIsSigning(false);
           onUpdate();
+          const modal = document.getElementById(modalId) as HTMLDialogElement;
+          if (modal) modal.close();
         },
       });
     } catch (error) {
-      console.error('Error submitting proposal:', error);
+      console.error('Error leaving group:', error);
     } finally {
       setIsSigning(false);
     }
@@ -142,7 +144,7 @@ export function GroupInfo({ modalId, group, policyAddress, address, onUpdate }: 
           <div className="flex items-center space-x-4">
             <button
               aria-label={'leave-btn'}
-              className="btn btn-dropdown text-white rounded-[12px] h-[52px] w-[140px]"
+              className="btn btn-error text-white disabled:bg-red-900 rounded-[12px] h-[52px] w-[140px]"
               onClick={handleLeave}
               disabled={isSigning}
             >
