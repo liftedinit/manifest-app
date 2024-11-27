@@ -41,14 +41,6 @@ import MobileNav from '@/components/react/mobileNav';
 import { useEndpointStore } from '@/store/endpointStore';
 import EndpointSelector from '@/components/react/endpointSelector';
 
-// websocket stuff might delete
-// import * as Ably from "ably";
-// import { AblyProvider, useChannel, usePresence } from "ably/react";
-
-// const ablyClient = new Ably.Realtime({
-//   key: process.env.NEXT_PUBLIC_ABLY_API_KEY,
-// });
-
 type ManifestAppProps = AppProps & {
   Component: AppProps['Component'];
   pageProps: AppProps['pageProps'];
