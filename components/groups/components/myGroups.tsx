@@ -233,6 +233,8 @@ export function YourGroups({
                 <div
                   className="flex items-center justify-center gap-2"
                   onClick={e => e.stopPropagation()}
+                  role="navigation"
+                  aria-label="Pagination"
                 >
                   <button
                     onClick={e => {
@@ -241,6 +243,7 @@ export function YourGroups({
                     }}
                     disabled={currentPage === 1 || isLoading}
                     className="p-2 hover:bg-[#FFFFFF1A] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Previous page"
                   >
                     ‹
                   </button>
@@ -261,12 +264,18 @@ export function YourGroups({
                           }}
                           className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors
                     ${currentPage === pageNum ? 'bg-[#FFFFFF1A] text-white' : 'hover:bg-[#FFFFFF1A]'}`}
+                          aria-label={`Page ${pageNum}`}
+                          aria-current={currentPage === pageNum ? 'page' : undefined}
                         >
                           {pageNum}
                         </button>
                       );
                     } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
-                      return <span key={pageNum}>...</span>;
+                      return (
+                        <span key={pageNum} aria-hidden="true">
+                          ...
+                        </span>
+                      );
                     }
                     return null;
                   })}
@@ -278,6 +287,7 @@ export function YourGroups({
                     }}
                     disabled={currentPage === totalPages || isLoading}
                     className="p-2 hover:bg-[#FFFFFF1A] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Next page"
                   >
                     ›
                   </button>
