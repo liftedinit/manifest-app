@@ -3,7 +3,7 @@ import SendBox from '@/components/bank/components/sendBox';
 import TokenList from '@/components/bank/components/tokenList';
 import { chainName } from '@/config';
 import {
-  useSendTxIncludingAddressQuery,
+  useGetTxIncludingAddressQuery,
   useTokenBalances,
   useTokenBalancesResolved,
   useTokenFactoryDenoms,
@@ -69,7 +69,7 @@ export default function Bank() {
 
   const isLoading = isBalancesLoading || resolvedLoading || isMetadatasLoading;
 
-  const { sendTxs, refetch } = useSendTxIncludingAddressQuery(address ?? '');
+  const { sendTxs, refetch } = useGetTxIncludingAddressQuery(address ?? '');
 
   return (
     <>

@@ -13,6 +13,8 @@ import {
   GroupMemberSDKType,
   GroupPolicyInfoSDKType,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { TransactionGroup } from '@/components';
+import { MAX_INTEGER } from '@ethereumjs/util';
 export interface IPFSMetadata {
   title: string;
   authors: string | string[];
@@ -750,115 +752,190 @@ interface TransactionResponse {
   timestamp: string;
 }
 
-// Helper function to transform API response to match the component's expected format
-const transformTransaction = (tx: any) => {
-  // Handle both direct MsgSend and nested group proposal MsgSend
-  let message: TransactionMessage;
-  if (tx.data.tx.body.messages[0]['@type'] === '/cosmos.bank.v1beta1.MsgSend') {
-    message = tx.data.tx.body.messages[0];
-  } else if (
-    tx.data.tx.body.messages[0]['@type'] === '/cosmos.group.v1.MsgSubmitProposal' &&
-    tx.data.tx.body.messages[0].messages?.[0]?.['@type'] === '/cosmos.bank.v1beta1.MsgSend'
-  ) {
-    message = tx.data.tx.body.messages[0].messages[0];
-  } else {
-    return null;
-  }
+export enum HistoryTxType {
+  SEND,
+  MINT,
+  BURN,
+  PAYOUT,
+  BURN_HELD_BALANCE,
+}
 
-  return {
-    tx_hash: tx.id,
-    block_number: parseInt(tx.data.txResponse.height),
-    formatted_date: tx.data.txResponse.timestamp,
-    data: {
-      from_address: message.fromAddress,
-      to_address: message.toAddress,
-      amount: message.amount.map((amt: TransactionAmount) => ({
-        amount: amt.amount,
-        denom: amt.denom,
-      })),
-    },
-  };
+const _formatMessage = (
+  message: any
+):
+  | {
+      data: {
+        tx_type: HistoryTxType;
+        from_address: string;
+        to_address: string;
+        amount: [{ amount: string; denom: string }];
+      };
+    }
+  | undefined => {
+  switch (message['@type']) {
+    case `/cosmos.bank.v1beta1.MsgSend`:
+      return {
+        data: {
+          tx_type: HistoryTxType.SEND,
+          from_address: message.fromAddress,
+          to_address: message.toAddress,
+          amount: message.amount.map((amt: TransactionAmount) => ({
+            amount: amt.amount,
+            denom: amt.denom,
+          })),
+        },
+      };
+    case `/osmosis.tokenfactory.v1beta1.MsgMint`:
+      return {
+        data: {
+          tx_type: HistoryTxType.MINT,
+          from_address: message.sender,
+          to_address: message.mintToAddress,
+          amount: [message.amount],
+        },
+      };
+    case `/osmosis.tokenfactory.v1beta1.MsgBurn`:
+      return {
+        data: {
+          tx_type: HistoryTxType.BURN,
+          from_address: message.sender,
+          to_address: message.burnFromAddress,
+          amount: [message.amount],
+        },
+      };
+    // TODO: Add Payout and BurnHeldBalance
+    default:
+      break;
+  }
 };
 
-export const useSendTxIncludingAddressQuery = (
+const transformTransactions = (tx: any) => {
+  let messages: TransactionGroup[] = [];
+  for (const message of tx.data.tx.body.messages) {
+    // Parse nested messages from group proposal
+    // TODO: Refactor
+    if (message['@type'] === '/cosmos.group.v1.MsgSubmitProposal') {
+      for (const nestedMessage of message.messages) {
+        const formattedMessage = _formatMessage(nestedMessage);
+        if (formattedMessage) {
+          messages.push({
+            tx_hash: tx.id,
+            block_number: parseInt(tx.data.txResponse.height),
+            formatted_date: tx.data.txResponse.timestamp,
+            ...formattedMessage,
+          });
+        }
+      }
+    }
+
+    const formattedMessage = _formatMessage(message);
+    if (formattedMessage) {
+      messages.push({
+        tx_hash: tx.id,
+        block_number: parseInt(tx.data.txResponse.height),
+        formatted_date: tx.data.txResponse.timestamp,
+        ...formattedMessage,
+      });
+    }
+  }
+  return messages;
+};
+
+async function _fetchTransactions(query: string, page: number, pageSize: number) {
+  const baseUrl = 'https://testnet-indexer.liftedinit.tech/transactions';
+
+  // Add pagination parameters
+  const offset = (page - 1) * pageSize;
+  const paginationParams = `&limit=${pageSize}&offset=${offset}`;
+
+  const finalUrl = `${baseUrl}?${query.replace(/\s+/g, '')}&order=data->txResponse->height.desc${paginationParams}`;
+
+  try {
+    // First, get the total count
+    const countResponse = await axios.get(`${baseUrl}?${query.replace(/\s+/g, '')}`, {
+      headers: {
+        Prefer: 'count=exact',
+        'Range-Unit': 'items',
+        Range: '0-0', // We only need the count, not the actual data
+      },
+    });
+
+    // Get the total count from the content-range header
+    const contentRange = countResponse.headers['content-range'];
+    const totalCount = contentRange ? parseInt(contentRange.split('/')[1]) : 0;
+
+    // Then get the paginated data
+    const dataResponse = await axios.get(finalUrl, {
+      headers: {
+        'Range-Unit': 'items',
+        Range: `${offset}-${offset + pageSize - 1}`,
+      },
+    });
+
+    const transactions = dataResponse.data
+      .flatMap(transformTransactions)
+      .filter((tx: any) => tx !== null);
+
+    return {
+      transactions,
+      totalCount,
+      totalPages: Math.ceil(totalCount / pageSize),
+    };
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    throw error;
+  }
+}
+
+const fetchNonProposalTransactions = async (address: string, page: number, pageSize: number) => {
+  const query = `
+    and=(
+      data->tx->body->>messages.match(any).{
+        "/osmosis.tokenfactory.v1beta1.MsgMint",
+        "/osmosis.tokenfactory.v1beta1.MsgBurn",
+        "/cosmos.bank.v1beta1.MsgSend"
+      },
+      data->tx->body->>messages.match."${address}",
+      data->tx->body->>messages.not.match."@type": "/cosmos.group.v1.MsgSubmitProposal"
+    )`;
+
+  return _fetchTransactions(query, page, pageSize);
+};
+
+const fetchExecutedProposalTransactions = async (
   address: string,
-  direction?: 'send' | 'receive',
+  page: number,
+  pageSize: number
+) => {
+  const query = `
+    and=(
+      data->tx->body->>messages.match./cosmos.group.v1.MsgSubmitProposal,
+      data->tx->body->>messages.match(any).{
+        "/osmosis.tokenfactory.v1beta1.MsgMint",
+        "/osmosis.tokenfactory.v1beta1.MsgBurn",
+        "/liftedinit.manifest.v1.MsgPayout",
+        "/liftedinit.manifest.v1.MsgBurnHeldBalance",
+        "/cosmos.bank.v1beta1.MsgSend"
+      },
+      data->tx->body->>messages.match."${address}"
+    )`;
+
+  // TODO: Filter out proposals that are not executed
+  return _fetchTransactions(query, page, pageSize);
+};
+
+// Helper function to transform API response to match the component's expected format
+export const useGetTxIncludingAddressQuery = (
+  address: string,
   page: number = 1,
   pageSize: number = 10
 ) => {
-  const fetchTransactions = async () => {
-    const baseUrl = 'https://testnet-indexer.liftedinit.tech/transactions';
-
-    const query = `
-      and=(
-        or(
-            data->tx->body->messages.cs.[{"@type": "/cosmos.bank.v1beta1.MsgSend"}],
-            data->tx->body->messages.cs.[{"messages": [{"@type": "/cosmos.bank.v1beta1.MsgSend"}]}]
-        ),
-        or(
-            data->tx->body->messages.cs.[{"fromAddress": "${address}"}],
-            data->tx->body->messages.cs.[{"toAddress": "${address}"}],
-            data->tx->body->messages.cs.[{"messages": [{"fromAddress": "${address}"}]}],
-            data->tx->body->messages.cs.[{"messages": [{"toAddress": "${address}"}]}]
-        )
-      )`;
-
-    // Add pagination parameters
-    const offset = (page - 1) * pageSize;
-    const paginationParams = `&limit=${pageSize}&offset=${offset}`;
-
-    const finalUrl = `${baseUrl}?${query.replace(/\s+/g, '')}&order=data->txResponse->height.desc${paginationParams}`;
-
-    try {
-      // First, get the total count
-      const countResponse = await axios.get(`${baseUrl}?${query.replace(/\s+/g, '')}`, {
-        headers: {
-          Prefer: 'count=exact',
-          'Range-Unit': 'items',
-          Range: '0-0', // We only need the count, not the actual data
-        },
-      });
-
-      // Get the total count from the content-range header
-      const contentRange = countResponse.headers['content-range'];
-      const totalCount = contentRange ? parseInt(contentRange.split('/')[1]) : 0;
-
-      console.log('Total count:', totalCount); // Debug log
-
-      // Then get the paginated data
-      const dataResponse = await axios.get(finalUrl, {
-        headers: {
-          'Range-Unit': 'items',
-          Range: `${offset}-${offset + pageSize - 1}`,
-        },
-      });
-
-      const transactions = dataResponse.data
-        .map(transformTransaction)
-        .filter((tx: any) => tx !== null)
-        .filter((tx: any) => {
-          if (!direction) return true;
-          if (direction === 'send') return tx.data.from_address === address;
-          if (direction === 'receive') return tx.data.to_address === address;
-          return true;
-        });
-
-      return {
-        transactions,
-        totalCount,
-        totalPages: Math.ceil(totalCount / pageSize),
-      };
-    } catch (error) {
-      console.error('Error fetching transactions:', error);
-      throw error;
-    }
-  };
-
-  const queryKey = ['sendTx', address, direction, page, pageSize];
-
+  // TODO: Refactor to use useQueries
   const sendQuery = useQuery({
-    queryKey,
-    queryFn: fetchTransactions,
+    queryKey: ['nonProposalTx', address, page, pageSize],
+    queryFn: () => fetchNonProposalTransactions(address, page, pageSize),
+    // queryKey: ['proposalTx', address, page, pageSize],
+    // queryFn: () => fetchExecutedProposalTransactions(address, page, pageSize),
     enabled: !!address,
   });
 
@@ -872,30 +949,6 @@ export const useSendTxIncludingAddressQuery = (
     refetch: sendQuery.refetch,
   };
 };
-
-export const useSendTxQuery = () => {
-  const fetchTransactions = async () => {
-    const baseUrl = 'https://testnet-indexer.liftedinit.tech/transactions';
-    const query = `data->tx->body->messages.cs.[{"@type": "/cosmos.bank.v1beta1.MsgSend"}]`;
-
-    const response = await axios.get(`${baseUrl}?${query}`);
-    return response.data.map(transformTransaction).filter((tx: any) => tx !== null);
-  };
-
-  const sendQuery = useQuery({
-    queryKey: ['sendTx'],
-    queryFn: fetchTransactions,
-    enabled: true,
-  });
-
-  return {
-    sendTxs: sendQuery.data,
-    isLoading: sendQuery.isLoading,
-    isError: sendQuery.isError,
-    error: sendQuery.error,
-  };
-};
-
 export const useMultipleTallyCounts = (proposalIds: bigint[]) => {
   const { lcdQueryClient } = useLcdQueryClient();
 

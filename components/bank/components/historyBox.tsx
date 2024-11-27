@@ -1,15 +1,17 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import TxInfoModal from '../modals/txInfo';
 import { shiftDigits, truncateString } from '@/utils';
-import { formatDenom } from '@/components';
-import { useTokenFactoryDenomsMetadata } from '@/hooks';
-import { SendIcon, ReceiveIcon } from '@/components/icons';
-
-import { DenomImage } from '@/components';
-import { useSendTxIncludingAddressQuery } from '@/hooks';
+import { BurnIcon, DenomImage, formatDenom, MintIcon } from '@/components';
+import {
+  HistoryTxType,
+  useGetTxIncludingAddressQuery,
+  useTokenFactoryDenomsMetadata,
+} from '@/hooks';
+import { ReceiveIcon, SendIcon } from '@/components/icons';
 
 interface Transaction {
+  tx_type: HistoryTxType;
   from_address: string;
   to_address: string;
   amount: Array<{ amount: string; denom: string }>;
@@ -61,7 +63,7 @@ export function HistoryBox({
     totalPages,
     isLoading: txLoading,
     isError,
-  } = useSendTxIncludingAddressQuery(address, undefined, currentPage, pageSize);
+  } = useGetTxIncludingAddressQuery(address, currentPage, pageSize);
 
   const isLoading = initialLoading || txLoading;
 
@@ -90,6 +92,52 @@ export function HistoryBox({
 
     return groups;
   }, [sendTxs]);
+
+  // TODO: Make Mint and Burn icons pretty
+  function getTransactionIcon(tx: TransactionGroup, address: string) {
+    if (tx.data.tx_type === HistoryTxType.SEND) {
+      return tx.data.from_address === address ? <SendIcon /> : <ReceiveIcon />;
+    } else if (tx.data.tx_type === HistoryTxType.MINT) {
+      return <MintIcon className="w-7 h-7 text-current" />;
+    } else if (tx.data.tx_type === HistoryTxType.BURN) {
+      return <BurnIcon className="w-7 h-7 text-current" />;
+    }
+    return null;
+  }
+
+  function getTransactionMessage(tx: TransactionGroup, address: string) {
+    if (tx.data.tx_type === HistoryTxType.SEND) {
+      return tx.data.from_address === address ? 'Sent' : 'Received';
+    } else if (tx.data.tx_type === HistoryTxType.MINT) {
+      return 'Minted';
+    } else if (tx.data.tx_type === HistoryTxType.BURN) {
+      return 'Burned';
+    }
+
+    return null;
+  }
+
+  function getTransactionPlusMinus(tx: TransactionGroup, address: string) {
+    if (tx.data.tx_type === HistoryTxType.SEND) {
+      return tx.data.from_address === address ? '-' : '+';
+    } else if (tx.data.tx_type === HistoryTxType.MINT) {
+      return '+';
+    } else if (tx.data.tx_type === HistoryTxType.BURN) {
+      return '-';
+    }
+    return null;
+  }
+
+  function getTransactionColor(tx: TransactionGroup, address: string) {
+    if (tx.data.tx_type === HistoryTxType.SEND) {
+      return tx.data.from_address === address ? 'text-red-500' : 'text-green-500';
+    } else if (tx.data.tx_type === HistoryTxType.MINT) {
+      return 'text-green-500';
+    } else if (tx.data.tx_type === HistoryTxType.BURN) {
+      return 'text-red-500';
+    }
+    return null;
+  }
 
   return (
     <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
@@ -206,7 +254,7 @@ export function HistoryBox({
                       >
                         <div className="flex items-center space-x-3">
                           <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center">
-                            {tx.data.from_address === address ? <SendIcon /> : <ReceiveIcon />}
+                            {getTransactionIcon(tx, address)}
                           </div>
                           <div className="w-10 h-10 rounded-full overflow-hidden bg-[#0000000A] dark:bg-[#FFFFFF0F] flex items-center justify-center">
                             {tx.data.amount.map((amt, index) => {
@@ -217,7 +265,7 @@ export function HistoryBox({
                           <div className="">
                             <div className="flex flex-row items-center gap-2">
                               <p className="font-semibold text-[#161616] dark:text-white">
-                                {tx.data.from_address === address ? 'Sent' : 'Received'}
+                                {getTransactionMessage(tx, address)}
                               </p>
                               <p className="font-semibold text-[#161616] dark:text-white">
                                 {tx.data.amount.map((amt, index) => {
@@ -234,22 +282,26 @@ export function HistoryBox({
                               </p>
                             </div>
                             <div className="address-copy" onClick={e => e.stopPropagation()}>
-                              <TruncatedAddressWithCopy
-                                address={
-                                  tx.data.from_address === address
-                                    ? tx.data.to_address
-                                    : tx.data.from_address
-                                }
-                                slice={6}
-                              />
+                              {tx.data.from_address.startsWith('manifest1') ? (
+                                <TruncatedAddressWithCopy
+                                  address={
+                                    tx.data.from_address === address
+                                      ? tx.data.to_address
+                                      : tx.data.from_address
+                                  }
+                                  slice={6}
+                                />
+                              ) : (
+                                <div className="text-[#00000099]  dark:text-[#FFFFFF99]">
+                                  {tx.data.from_address}
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p
-                            className={`font-semibold ${tx.data.from_address === address ? 'text-red-500' : 'text-green-500'}`}
-                          >
-                            {tx.data.from_address === address ? '-' : '+'}
+                          <p className={`font-semibold ${getTransactionColor(tx, address)}`}>
+                            {getTransactionPlusMinus(tx, address)}
                             {tx.data.amount
                               .map(amt => {
                                 const metadata = metadatas?.metadatas.find(
