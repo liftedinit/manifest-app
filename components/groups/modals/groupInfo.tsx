@@ -141,7 +141,7 @@ export function GroupInfo({ modalId, group, policyAddress, address, onUpdate }: 
           <span className="text-xl font-semibold text-secondary-content">Info</span>
           <div className="flex items-center space-x-4">
             <button
-              aria-label={'update-btn'}
+              aria-label={'leave-btn'}
               className="btn btn-dropdown text-white rounded-[12px] h-[52px] w-[140px]"
               onClick={handleLeave}
               disabled={isSigning}
