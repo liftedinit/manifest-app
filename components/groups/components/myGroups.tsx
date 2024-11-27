@@ -20,6 +20,7 @@ import { MemberManagementModal } from '../modals/memberManagementModal';
 import { useChain } from '@cosmos-kit/react';
 import { useGroupsByMember } from '@/hooks/useQueries';
 import { MemberSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import useIsMobile from '@/hooks/useIsMobile';
 
 export function YourGroups({
   groups,
@@ -32,7 +33,10 @@ export function YourGroups({
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 8;
+  const isMobile = useIsMobile();
+
+  const pageSize = isMobile ? 6 : 8;
+
   const [selectedGroup, setSelectedGroup] = useState<{
     policyAddress: string;
     name: string;
