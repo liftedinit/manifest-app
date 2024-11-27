@@ -18,18 +18,18 @@ import { PiInfo } from 'react-icons/pi';
 import { GroupInfo } from '../modals/groupInfo';
 import { MemberManagementModal } from '../modals/memberManagementModal';
 import { useChain } from '@cosmos-kit/react';
-import { useGroupsByMember } from '@/hooks/useQueries';
-import { MemberSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import useIsMobile from '@/hooks/useIsMobile';
 
 export function YourGroups({
   groups,
   proposals,
   isLoading,
+  refetch,
 }: {
   groups: ExtendedQueryGroupsByMemberResponseSDKType;
   proposals: { [policyAddress: string]: ProposalSDKType[] };
   isLoading: boolean;
+  refetch: () => void;
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -42,13 +42,9 @@ export function YourGroups({
     name: string;
     threshold: string;
   } | null>(null);
-  const [members, setMembers] = useState<MemberSDKType[]>([]);
-  const [groupId, setGroupId] = useState<string>('');
-  const [groupAdmin, setGroupAdmin] = useState<string>('');
 
   const router = useRouter();
   const { address } = useChain('manifest');
-  const { groupByMemberData } = useGroupsByMember(address ?? '');
 
   const filteredGroups = groups.groups.filter(group =>
     (group.ipfsMetadata?.title || 'Untitled Group').toLowerCase().includes(searchTerm.toLowerCase())
@@ -85,31 +81,6 @@ export function YourGroups({
       window.scrollTo(0, 0);
     }
   }, [selectedGroup]);
-
-  useEffect(() => {
-    if (groupByMemberData && selectedGroup?.policyAddress) {
-      const group = groupByMemberData?.groups?.find(
-        g => g?.policies?.length > 0 && g.policies[0]?.address === selectedGroup.policyAddress
-      );
-      if (group) {
-        setMembers(
-          group.members.map(member => ({
-            ...member.member,
-            address: member?.member?.address || '',
-            weight: member?.member?.weight || '0',
-            metadata: member?.member?.metadata || '',
-            added_at: member?.member?.added_at || new Date(),
-            isCoreMember: true,
-            isActive: true,
-            isAdmin: member?.member?.address === group.admin,
-            isPolicyAdmin: member?.member?.address === group.policies[0]?.admin,
-          }))
-        );
-        setGroupId(group.id.toString());
-        setGroupAdmin(group.admin);
-      }
-    }
-  }, [groupByMemberData, selectedGroup?.policyAddress]);
 
   const handleSelectGroup = (policyAddress: string, groupName: string, threshold: string) => {
     setSelectedGroup({ policyAddress, name: groupName || 'Untitled Group', threshold });
@@ -329,7 +300,7 @@ export function YourGroups({
             group={group}
             address={address ?? ''}
             policyAddress={group.policies[0]?.address ?? ''}
-            onUpdate={() => {}}
+            onUpdate={refetch}
           />
           <MemberManagementModal
             modalId={`member-management-modal-${group.id}`}

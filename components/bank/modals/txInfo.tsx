@@ -6,11 +6,11 @@ import { shiftDigits } from '@/utils';
 
 interface TxInfoModalProps {
   tx: TransactionGroup;
-  isOpen: boolean;
-  onClose: () => void;
+
+  modalId: string;
 }
 
-export default function TxInfoModal({ tx, isOpen, onClose }: TxInfoModalProps) {
+export default function TxInfoModal({ tx, modalId }: TxInfoModalProps) {
   function formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleString('en-US', {
@@ -24,20 +24,13 @@ export default function TxInfoModal({ tx, isOpen, onClose }: TxInfoModalProps) {
   }
 
   return (
-    <dialog
-      aria-label="tx_info_modal"
-      id={`tx_modal_${tx.tx_hash}`}
-      className={`modal ${isOpen ? 'modal-open' : ''} `}
-    >
+    <dialog aria-label="tx_info_modal" id={modalId} className={`modal z-[999]`}>
       <div
-        className="modal-box max-w-4xl mx-auto rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D]  shadow-lg"
+        className="modal-box max-w-4xl mx-auto rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg relative z-[1000]"
         aria-label="tx info"
       >
         <form method="dialog">
-          <button
-            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]"
-            onClick={onClose}
-          >
+          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]">
             ✕
           </button>
         </form>
@@ -46,19 +39,19 @@ export default function TxInfoModal({ tx, isOpen, onClose }: TxInfoModalProps) {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <InfoItem label="TRANSACTION HASH" value={tx.tx_hash} isAddress={true} />
-            <InfoItem label="BLOCK" value={tx.block_number.toString()} />
-            <InfoItem label="TIMESTAMP" value={formatDate(tx.formatted_date)} />
+            <InfoItem label="TRANSACTION HASH" value={tx?.tx_hash} isAddress={true} />
+            <InfoItem label="BLOCK" value={tx?.block_number?.toString()} />
+            <InfoItem label="TIMESTAMP" value={formatDate(tx?.formatted_date)} />
           </div>
           <div>
-            <InfoItem label="FROM" value={tx.data.from_address} isAddress={true} />
-            <InfoItem label="TO" value={tx.data.to_address} isAddress={true} />
+            <InfoItem label="FROM" value={tx?.data?.from_address} isAddress={true} />
+            <InfoItem label="TO" value={tx?.data?.to_address} isAddress={true} />
             <div>
               <p className="text-sm font-semibold text-[#00000099] dark:text-[#FFFFFF99] mb-2">
                 VALUE
               </p>
               <div className="bg-[#FFFFFF66] dark:bg-[#FFFFFF1A] rounded-[16px] p-4">
-                {tx.data.amount.map((amt, index) => (
+                {tx?.data?.amount.map((amt, index) => (
                   <p key={index} className="text-[#161616] dark:text-white">
                     {Number(shiftDigits(amt.amount, -6)).toLocaleString(undefined, {
                       maximumFractionDigits: 6,
@@ -72,7 +65,7 @@ export default function TxInfoModal({ tx, isOpen, onClose }: TxInfoModalProps) {
         </div>
       </div>
       <form method="dialog" className="modal-backdrop">
-        <button onClick={onClose}>close</button>
+        <button>close</button>
       </form>
     </dialog>
   );
@@ -95,7 +88,7 @@ function InfoItem({
           <div className="flex items-center">
             <TruncatedAddressWithCopy address={value} slice={8} />
             <a
-              href={`${process.env.NEXT_PUBLIC_TESTNET_EXPLORER_URL}/${label === 'TRANSACTION HASH' ? 'transaction' : 'account'}/${label.includes('TRANSACTION') ? value.toUpperCase() : value}`}
+              href={`${process.env.NEXT_PUBLIC_TESTNET_EXPLORER_URL}/${label === 'TRANSACTION HASH' ? 'transaction' : 'account'}/${label?.includes('TRANSACTION') ? value?.toUpperCase() : value}`}
               target="_blank"
               rel="noopener noreferrer"
               className="ml-2 text-primary hover:text-primary/50"
