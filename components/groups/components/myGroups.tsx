@@ -191,7 +191,9 @@ export function YourGroups({
                           key={index}
                           group={group}
                           proposals={
-                            group.policies && group.policies.length > 0
+                            group.policies &&
+                            group.policies.length > 0 &&
+                            proposals[group.policies[0].address]
                               ? proposals[group.policies[0].address]
                               : []
                           }

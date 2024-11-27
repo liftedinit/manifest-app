@@ -31,6 +31,11 @@ mock.module('@/hooks/useQueries', () => ({
   }),
 }));
 
+mock.module('@/hooks/useIsMobile', () => ({
+  __esModule: true,
+  default: jest.fn().mockReturnValue(false),
+}));
+
 const mockProps = {
   groups: {
     groups: [
