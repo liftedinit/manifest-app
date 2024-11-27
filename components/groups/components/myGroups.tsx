@@ -18,34 +18,42 @@ import { PiInfo } from 'react-icons/pi';
 import { GroupInfo } from '../modals/groupInfo';
 import { MemberManagementModal } from '../modals/memberManagementModal';
 import { useChain } from '@cosmos-kit/react';
-import { useGroupsByMember } from '@/hooks/useQueries';
-import { MemberSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import useIsMobile from '@/hooks/useIsMobile';
 
 export function YourGroups({
   groups,
   proposals,
   isLoading,
+  refetch,
 }: {
   groups: ExtendedQueryGroupsByMemberResponseSDKType;
   proposals: { [policyAddress: string]: ProposalSDKType[] };
   isLoading: boolean;
+  refetch: () => void;
 }) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const isMobile = useIsMobile();
+
+  const pageSize = isMobile ? 6 : 8;
+
   const [selectedGroup, setSelectedGroup] = useState<{
     policyAddress: string;
     name: string;
     threshold: string;
   } | null>(null);
-  const [members, setMembers] = useState<MemberSDKType[]>([]);
-  const [groupId, setGroupId] = useState<string>('');
-  const [groupAdmin, setGroupAdmin] = useState<string>('');
 
   const router = useRouter();
   const { address } = useChain('manifest');
-  const { groupByMemberData } = useGroupsByMember(address ?? '');
 
   const filteredGroups = groups.groups.filter(group =>
     (group.ipfsMetadata?.title || 'Untitled Group').toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(filteredGroups.length / pageSize);
+  const paginatedGroups = filteredGroups.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
   );
 
   useEffect(() => {
@@ -73,31 +81,6 @@ export function YourGroups({
       window.scrollTo(0, 0);
     }
   }, [selectedGroup]);
-
-  useEffect(() => {
-    if (groupByMemberData && selectedGroup?.policyAddress) {
-      const group = groupByMemberData?.groups?.find(
-        g => g?.policies?.length > 0 && g.policies[0]?.address === selectedGroup.policyAddress
-      );
-      if (group) {
-        setMembers(
-          group.members.map(member => ({
-            ...member.member,
-            address: member?.member?.address || '',
-            weight: member?.member?.weight || '0',
-            metadata: member?.member?.metadata || '',
-            added_at: member?.member?.added_at || new Date(),
-            isCoreMember: true,
-            isActive: true,
-            isAdmin: member?.member?.address === group.admin,
-            isPolicyAdmin: member?.member?.address === group.policies[0]?.admin,
-          }))
-        );
-        setGroupId(group.id.toString());
-        setGroupAdmin(group.admin);
-      }
-    }
-  }, [groupByMemberData, selectedGroup?.policyAddress]);
 
   const handleSelectGroup = (policyAddress: string, groupName: string, threshold: string) => {
     setSelectedGroup({ policyAddress, name: groupName || 'Untitled Group', threshold });
@@ -163,7 +146,7 @@ export function YourGroups({
                 </thead>
                 <tbody className="space-y-4" role="rowgroup">
                   {isLoading
-                    ? Array(10)
+                    ? Array(8)
                         .fill(0)
                         .map((_, index) => (
                           <tr key={index} data-testid="skeleton-row">
@@ -203,12 +186,14 @@ export function YourGroups({
                             </td>
                           </tr>
                         ))
-                    : filteredGroups.map((group, index) => (
+                    : paginatedGroups.map((group, index) => (
                         <GroupRow
                           key={index}
                           group={group}
                           proposals={
-                            group.policies && group.policies.length > 0
+                            group.policies &&
+                            group.policies.length > 0 &&
+                            proposals[group.policies[0].address]
                               ? proposals[group.policies[0].address]
                               : []
                           }
@@ -217,6 +202,70 @@ export function YourGroups({
                       ))}
                 </tbody>
               </table>
+              {totalPages > 1 && (
+                <div
+                  className="flex items-center justify-center gap-2"
+                  onClick={e => e.stopPropagation()}
+                  role="navigation"
+                  aria-label="Pagination"
+                >
+                  <button
+                    onClick={e => {
+                      e.stopPropagation();
+                      setCurrentPage(prev => Math.max(1, prev - 1));
+                    }}
+                    disabled={currentPage === 1 || isLoading}
+                    className="p-2 hover:bg-[#FFFFFF1A] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Previous page"
+                  >
+                    ‹
+                  </button>
+
+                  {[...Array(totalPages)].map((_, index) => {
+                    const pageNum = index + 1;
+                    if (
+                      pageNum === 1 ||
+                      pageNum === totalPages ||
+                      (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                    ) {
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={e => {
+                            e.stopPropagation();
+                            setCurrentPage(pageNum);
+                          }}
+                          className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors
+                    ${currentPage === pageNum ? 'bg-[#FFFFFF1A] text-white' : 'hover:bg-[#FFFFFF1A]'}`}
+                          aria-label={`Page ${pageNum}`}
+                          aria-current={currentPage === pageNum ? 'page' : undefined}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
+                      return (
+                        <span key={pageNum} aria-hidden="true">
+                          ...
+                        </span>
+                      );
+                    }
+                    return null;
+                  })}
+
+                  <button
+                    onClick={e => {
+                      e.stopPropagation();
+                      setCurrentPage(prev => Math.min(totalPages, prev + 1));
+                    }}
+                    disabled={currentPage === totalPages || isLoading}
+                    className="p-2 hover:bg-[#FFFFFF1A] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Next page"
+                  >
+                    ›
+                  </button>
+                </div>
+              )}
             </div>
           </div>
           <div className="mt-6  w-full justify-center md:hidden block">
@@ -253,7 +302,7 @@ export function YourGroups({
             group={group}
             address={address ?? ''}
             policyAddress={group.policies[0]?.address ?? ''}
-            onUpdate={() => {}}
+            onUpdate={refetch}
           />
           <MemberManagementModal
             modalId={`member-management-modal-${group.id}`}
@@ -276,6 +325,8 @@ export function YourGroups({
           />
         </React.Fragment>
       ))}
+
+      {/* Add pagination controls */}
     </div>
   );
 }

@@ -21,7 +21,6 @@ For more information on the Manifest Network and its modules, please visit the [
 ### .env
 
 ```
-NEXT_PUBLIC_ABLY_API_KEY=
 NEXT_PUBLIC_WALLETCONNECT_KEY=
 NEXT_PUBLIC_WEB3_CLIENT_ID=
 NEXT_PUBLIC_CHAIN=manifest

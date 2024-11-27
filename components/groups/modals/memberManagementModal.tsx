@@ -223,7 +223,7 @@ export function MemberManagementModal({
                       <div className="w-[45%]">Address</div>
                       <div className="w-[10%]"></div>
                     </div>
-                    <div className="space-y-4 max-h-[420px] overflow-y-auto">
+                    <div className="space-y-4 max-h-[22rem] overflow-y-auto">
                       {values.members.map((member, index) => (
                         <div
                           key={index}
