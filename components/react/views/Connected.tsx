@@ -91,7 +91,7 @@ export const Connected = ({
         </div>
         <button
           onClick={() => setShowContacts(true)}
-          className="ml-2 p-1 rounded-full hover:bg-[#FFFFFFCC] dark:hover:bg-[#FFFFFF0F] btn btn-ghost btn-md transition-colors duration-200"
+          className="ml-2 p-1 rounded-full hover:bg-[#FFFFFFCC] dark:hover:bg-[#FFFFFF0F] btn btn-ghost btn-md transition-colors md:block hidden duration-200"
         >
           <MdContacts className="w-8 h-8 text-primary" />
         </button>
