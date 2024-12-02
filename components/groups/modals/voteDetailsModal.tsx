@@ -710,7 +710,7 @@ function VoteDetailsModal({
 
               return (
                 <div key={index} className="mb-6 bg-base-300 p-4 rounded-[12px]">
-                  <h3 className="text-lg font-semibold mb-2 text-primary-content">
+                  <h3 aria-label="msg" className="text-lg font-semibold mb-2 text-primary-content">
                     {messageType.split('.').pop().replace('Msg', '')}
                   </h3>
                   <div>{fieldsToShow.map(field => renderMessageField(field, message[field]))}</div>
