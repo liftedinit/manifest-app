@@ -146,7 +146,7 @@ export function YourGroups({
                 </thead>
                 <tbody className="space-y-4" role="rowgroup">
                   {isLoading
-                    ? Array(8)
+                    ? Array(isMobile ? 6 : 8)
                         .fill(0)
                         .map((_, index) => (
                           <tr key={index} data-testid="skeleton-row">
@@ -325,8 +325,6 @@ export function YourGroups({
           />
         </React.Fragment>
       ))}
-
-      {/* Add pagination controls */}
     </div>
   );
 }

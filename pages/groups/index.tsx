@@ -26,7 +26,7 @@ export default function Groups() {
   const isError = isGroupByMemberError || isProposalsError;
 
   return (
-    <div className="min-h-screen relative py-4 px-2 mx-auto text-white mt-12 md:mt-0">
+    <div className="min-h-screen relative py-4 px-2 mx-auto text-white ">
       <Head>
         <title>Groups - Alberto</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />

@@ -124,7 +124,7 @@ export default function Bank() {
           </script>
         </Head>
 
-        <div className="h-[calc(100vh-1.5rem)] py-1 gap-6 flex flex-col w-full lg:flex-row">
+        <div className="h-[calc(100vh-1.5rem)] py-1 gap-6 flex flex-col w-full lg:flex-row animate-fadeIn">
           {!isWalletConnected ? (
             <WalletNotConnected
               description=" Use the button below to connect your wallet and start interacting with your

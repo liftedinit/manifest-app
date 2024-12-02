@@ -75,7 +75,7 @@ export default function Factory() {
   const isDataReady = combinedData.length > 0;
 
   return (
-    <div className="min-h-screen relative py-4 px-2 mx-auto text-white mt-12 md:mt-0">
+    <div className="min-h-screen relative py-4 px-2 mx-auto text-white ">
       <Head>
         <title>Factory - Alberto</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
