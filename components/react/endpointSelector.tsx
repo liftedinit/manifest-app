@@ -78,6 +78,57 @@ const validateAPIEndpoint = async (url: string) => {
   }
 };
 
+const validateIndexerEndpoint = async (url: string) => {
+  console.log('Validating Indexer endpoint:', url);
+  if (!url) return false;
+  try {
+    const endpoint = url.startsWith('http') ? url : `https://${url}`;
+    const baseUrl = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint;
+    const indexerUrl = `${baseUrl}`;
+
+    console.log('Making Indexer request to:', indexerUrl);
+
+    const response = await fetch(indexerUrl);
+    console.log('Indexer Response status:', response.status);
+
+    if (!response.ok) {
+      console.log('Indexer Response not ok');
+      return false;
+    }
+
+    return response.ok;
+  } catch (error) {
+    console.error('Indexer Validation error:', error);
+    return false;
+  }
+};
+
+const validateExplorerEndpoint = async (url: string) => {
+  console.log('Validating Explorer endpoint:', url);
+  if (!url) return false;
+  try {
+    // const endpoint = url.startsWith('http') ? url : `https://${url}`;
+    // const baseUrl = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint;
+    // const explorerUrl = `${baseUrl}`;
+
+    // console.log('Making Explorer request to:', explorerUrl);
+    //
+    // const response = await fetch(explorerUrl);
+    // console.log('Explorer Response status:', response.status);
+    //
+    // if (!response.ok) {
+    //   console.log('Explorer Response not ok');
+    //   return false;
+    // }
+    //
+    // return response.ok;
+    return true;
+  } catch (error) {
+    console.error('Explorer Validation error:', error);
+    return false;
+  }
+};
+
 const EndpointSchema = Yup.object().shape({
   rpc: Yup.string().required('RPC endpoint is required').test({
     name: 'rpc-validation',
@@ -88,6 +139,16 @@ const EndpointSchema = Yup.object().shape({
     name: 'api-validation',
     message: 'API endpoint is not responding',
     test: validateAPIEndpoint,
+  }),
+  indexer: Yup.string().required('Indexer endpoint is required').test({
+    name: 'indexer-validation',
+    message: 'Indexer endpoint is not responding',
+    test: validateIndexerEndpoint,
+  }),
+  explorer: Yup.string().required('Explorer endpoint is required').test({
+    name: 'explorer-validation',
+    message: 'Explorer endpoint is not responding',
+    test: validateExplorerEndpoint,
   }),
 });
 
@@ -119,9 +180,20 @@ function SSREndpointSelector() {
     enabled: true,
   });
 
-  const handleCustomEndpointSubmit = async (values: { rpc: string; api: string }) => {
+  const handleCustomEndpointSubmit = async (values: {
+    rpc: string;
+    api: string;
+    indexer: string;
+    explorer: string;
+  }) => {
     const rpcUrl = values.rpc.startsWith('http') ? values.rpc : `https://${values.rpc}`;
     const apiUrl = values.api.startsWith('http') ? values.api : `https://${values.api}`;
+    const indexerUrl = values.indexer.startsWith('http')
+      ? values.indexer
+      : `https://${values.indexer}`;
+    const explorerUrl = values.explorer.startsWith('http')
+      ? values.explorer
+      : `https://${values.explorer}`;
 
     try {
       const [isRPCValid, isAPIValid] = await Promise.all([
@@ -133,7 +205,7 @@ function SSREndpointSelector() {
         throw new Error('Endpoint validation failed');
       }
 
-      await addEndpoint(rpcUrl, apiUrl);
+      await addEndpoint(rpcUrl, apiUrl, indexerUrl, explorerUrl);
       setToastMessage({
         type: 'alert-success',
         title: 'Custom endpoint added',
@@ -146,7 +218,7 @@ function SSREndpointSelector() {
 
       if (error instanceof Error) {
         if (error.message.includes('Invalid URL')) {
-          errorMessage = 'Invalid URL format. Please check both RPC and API URLs.';
+          errorMessage = 'Invalid URL format. Please check all URLs.';
         } else if (error.message.includes('Network error')) {
           errorMessage = 'Network error. Please check your internet connection and try again.';
         } else if (error.message.includes('Timeout')) {
@@ -305,7 +377,7 @@ function SSREndpointSelector() {
 
             <div className="dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-6 rounded-2xl">
               <Formik
-                initialValues={{ rpc: '', api: '' }}
+                initialValues={{ rpc: '', api: '', indexer: '', explorer: '' }}
                 validationSchema={EndpointSchema}
                 onSubmit={async (values, { setSubmitting, resetForm }) => {
                   try {
@@ -349,6 +421,44 @@ function SSREndpointSelector() {
                           name="api"
                           placeholder="Enter API URL"
                           className="w-full px-4 py-3 bg-transparent 
+                            dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC]
+                            border dark:border-[#FFFFFF20] border-[#00000020]
+                            dark:focus:border-[#FFFFFF40] focus:border-[#00000040]
+                            rounded-xl transition-all duration-200
+                            dark:text-[#FFFFFF99] text-[#000000CC]
+                            placeholder:dark:text-[#FFFFFF60] placeholder:text-[#00000060]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="form-control">
+                      <label className="text-sm font-medium mb-2 dark:text-[#FFFFFF99] text-[#000000CC]">
+                        Indexer Endpoint
+                      </label>
+                      <div className="relative">
+                        <TextInput
+                          name="indexer"
+                          placeholder="Enter indexer URL"
+                          className="w-full px-4 py-3 bg-transparent
+                            dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC]
+                            border dark:border-[#FFFFFF20] border-[#00000020]
+                            dark:focus:border-[#FFFFFF40] focus:border-[#00000040]
+                            rounded-xl transition-all duration-200
+                            dark:text-[#FFFFFF99] text-[#000000CC]
+                            placeholder:dark:text-[#FFFFFF60] placeholder:text-[#00000060]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="form-control">
+                      <label className="text-sm font-medium mb-2 dark:text-[#FFFFFF99] text-[#000000CC]">
+                        Explorer Endpoint
+                      </label>
+                      <div className="relative">
+                        <TextInput
+                          name="explorer"
+                          placeholder="Enter explorer URL"
+                          className="w-full px-4 py-3 bg-transparent
                             dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC]
                             border dark:border-[#FFFFFF20] border-[#00000020]
                             dark:focus:border-[#FFFFFF40] focus:border-[#00000040]

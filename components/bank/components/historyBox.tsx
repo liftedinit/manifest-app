@@ -9,6 +9,7 @@ import {
   useTokenFactoryDenomsMetadata,
 } from '@/hooks';
 import { ReceiveIcon, SendIcon } from '@/components/icons';
+import { useEndpointStore } from '@/store/endpointStore';
 
 interface Transaction {
   tx_type: HistoryTxType;
@@ -58,12 +59,15 @@ export function HistoryBox({
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
+  const { selectedEndpoint } = useEndpointStore();
+  const indexerUrl = selectedEndpoint?.indexer || '';
+
   const {
     sendTxs,
     totalPages,
     isLoading: txLoading,
     isError,
-  } = useGetFilteredTxAndSuccessfulProposals(address, currentPage, pageSize);
+  } = useGetFilteredTxAndSuccessfulProposals(indexerUrl, address, currentPage, pageSize);
 
   const isLoading = initialLoading || txLoading;
 

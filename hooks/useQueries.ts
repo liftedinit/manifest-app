@@ -876,12 +876,13 @@ const transformTransactions = (tx: any, address: string) => {
 
 // Helper function to transform API response to match the component's expected format
 export const useGetFilteredTxAndSuccessfulProposals = (
+  indexerUrl: string,
   address: string,
   page: number = 1,
   pageSize: number = 10
 ) => {
   const fetchTransactions = async () => {
-    const baseUrl = `https://testnet-indexer.liftedinit.tech/rpc/get_address_filtered_transactions_and_successful_proposals?address=${address}`;
+    const baseUrl = `${indexerUrl}/rpc/get_address_filtered_transactions_and_successful_proposals?address=${address}`;
 
     // Add pagination parameters
     const offset = (page - 1) * pageSize;

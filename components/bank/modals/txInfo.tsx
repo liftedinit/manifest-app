@@ -3,6 +3,7 @@ import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { formatDenom, TransactionGroup } from '@/components';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { shiftDigits } from '@/utils';
+import { useEndpointStore } from '@/store/endpointStore';
 
 interface TxInfoModalProps {
   tx: TransactionGroup;
@@ -11,6 +12,9 @@ interface TxInfoModalProps {
 }
 
 export default function TxInfoModal({ tx, modalId }: TxInfoModalProps) {
+  const { selectedEndpoint } = useEndpointStore();
+  const explorerUrl = selectedEndpoint?.explorer || '';
+
   function formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleString('en-US', {
@@ -39,13 +43,36 @@ export default function TxInfoModal({ tx, modalId }: TxInfoModalProps) {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <InfoItem label="TRANSACTION HASH" value={tx?.tx_hash} isAddress={true} />
-            <InfoItem label="BLOCK" value={tx?.block_number?.toString()} />
-            <InfoItem label="TIMESTAMP" value={formatDate(tx?.formatted_date)} />
+            <InfoItem
+              label="TRANSACTION HASH"
+              explorerUrl={explorerUrl}
+              value={tx?.tx_hash}
+              isAddress={true}
+            />
+            <InfoItem
+              label="BLOCK"
+              explorerUrl={explorerUrl}
+              value={tx?.block_number?.toString()}
+            />
+            <InfoItem
+              label="TIMESTAMP"
+              explorerUrl={explorerUrl}
+              value={formatDate(tx?.formatted_date)}
+            />
           </div>
           <div>
-            <InfoItem label="FROM" value={tx?.data?.from_address} isAddress={true} />
-            <InfoItem label="TO" value={tx?.data?.to_address} isAddress={true} />
+            <InfoItem
+              label="FROM"
+              explorerUrl={explorerUrl}
+              value={tx?.data?.from_address}
+              isAddress={true}
+            />
+            <InfoItem
+              label="TO"
+              explorerUrl={explorerUrl}
+              value={tx?.data?.to_address}
+              isAddress={true}
+            />
             <div>
               <p className="text-sm font-semibold text-[#00000099] dark:text-[#FFFFFF99] mb-2">
                 VALUE
@@ -74,10 +101,12 @@ export default function TxInfoModal({ tx, modalId }: TxInfoModalProps) {
 function InfoItem({
   label,
   value,
+  explorerUrl,
   isAddress = false,
 }: {
   label: string;
   value: string;
+  explorerUrl: string;
   isAddress?: boolean;
 }) {
   return (
@@ -88,7 +117,7 @@ function InfoItem({
           <div className="flex items-center">
             <TruncatedAddressWithCopy address={value} slice={8} />
             <a
-              href={`${process.env.NEXT_PUBLIC_TESTNET_EXPLORER_URL}/${label === 'TRANSACTION HASH' ? 'transaction' : 'account'}/${label?.includes('TRANSACTION') ? value?.toUpperCase() : value}`}
+              href={`${explorerUrl}/${label === 'TRANSACTION HASH' ? 'transaction' : 'account'}/${label?.includes('TRANSACTION') ? value?.toUpperCase() : value}`}
               target="_blank"
               rel="noopener noreferrer"
               className="ml-2 text-primary hover:text-primary/50"
