@@ -5,7 +5,7 @@ import { shiftDigits, truncateString } from '@/utils';
 import { BurnIcon, DenomImage, formatDenom, MintIcon } from '@/components';
 import {
   HistoryTxType,
-  useGetTxIncludingAddressQuery,
+  useGetFilteredTxAndSuccessfulProposals,
   useTokenFactoryDenomsMetadata,
 } from '@/hooks';
 import { ReceiveIcon, SendIcon } from '@/components/icons';
@@ -63,7 +63,7 @@ export function HistoryBox({
     totalPages,
     isLoading: txLoading,
     isError,
-  } = useGetTxIncludingAddressQuery(address, currentPage, pageSize);
+  } = useGetFilteredTxAndSuccessfulProposals(address, currentPage, pageSize);
 
   const isLoading = initialLoading || txLoading;
 
@@ -93,47 +93,66 @@ export function HistoryBox({
     return groups;
   }, [sendTxs]);
 
-  // TODO: Make Mint and Burn icons pretty
   function getTransactionIcon(tx: TransactionGroup, address: string) {
     if (tx.data.tx_type === HistoryTxType.SEND) {
       return tx.data.from_address === address ? <SendIcon /> : <ReceiveIcon />;
-    } else if (tx.data.tx_type === HistoryTxType.MINT) {
-      return <MintIcon className="w-7 h-7 text-current" />;
-    } else if (tx.data.tx_type === HistoryTxType.BURN) {
-      return <BurnIcon className="w-7 h-7 text-current" />;
+    } else if (tx.data.tx_type === HistoryTxType.MINT || tx.data.tx_type === HistoryTxType.PAYOUT) {
+      return (
+        <MintIcon
+          className={`w-6 h-6 p-1 border-[#00FFAA] border-opacity-[0.12] border-[1.5px] bg-[#00FFAA] bg-opacity-[0.06] rounded-sm text-green-500`}
+        />
+      );
+    } else if (
+      tx.data.tx_type === HistoryTxType.BURN ||
+      tx.data.tx_type === HistoryTxType.BURN_HELD_BALANCE
+    ) {
+      return (
+        <BurnIcon className="w-6 h-6 p-1 border-[#F54562] border-[1.5px] border-opacity-[0.12] bg-[#f54562] bg-opacity-[0.06] rounded-sm text-red-500" />
+      );
     }
     return null;
   }
 
+  // Get the history message based on the transaction type
   function getTransactionMessage(tx: TransactionGroup, address: string) {
     if (tx.data.tx_type === HistoryTxType.SEND) {
       return tx.data.from_address === address ? 'Sent' : 'Received';
-    } else if (tx.data.tx_type === HistoryTxType.MINT) {
+    } else if (tx.data.tx_type === HistoryTxType.MINT || tx.data.tx_type === HistoryTxType.PAYOUT) {
       return 'Minted';
-    } else if (tx.data.tx_type === HistoryTxType.BURN) {
+    } else if (
+      tx.data.tx_type === HistoryTxType.BURN ||
+      tx.data.tx_type === HistoryTxType.BURN_HELD_BALANCE
+    ) {
       return 'Burned';
     }
-
-    return null;
+    return 'Unsupported';
   }
 
+  // Get the transaction direction based on the transaction type
   function getTransactionPlusMinus(tx: TransactionGroup, address: string) {
     if (tx.data.tx_type === HistoryTxType.SEND) {
       return tx.data.from_address === address ? '-' : '+';
-    } else if (tx.data.tx_type === HistoryTxType.MINT) {
+    } else if (tx.data.tx_type === HistoryTxType.MINT || tx.data.tx_type === HistoryTxType.PAYOUT) {
       return '+';
-    } else if (tx.data.tx_type === HistoryTxType.BURN) {
+    } else if (
+      tx.data.tx_type === HistoryTxType.BURN ||
+      tx.data.tx_type === HistoryTxType.BURN_HELD_BALANCE
+    ) {
       return '-';
     }
-    return null;
+    return '!!';
   }
 
+  // Get the transaction color based on the transaction type and direction
   function getTransactionColor(tx: TransactionGroup, address: string) {
     if (tx.data.tx_type === HistoryTxType.SEND) {
       return tx.data.from_address === address ? 'text-red-500' : 'text-green-500';
-    } else if (tx.data.tx_type === HistoryTxType.MINT) {
+    } else if (tx.data.tx_type === HistoryTxType.MINT || tx.data.tx_type === HistoryTxType.PAYOUT) {
       return 'text-green-500';
-    } else if (tx.data.tx_type === HistoryTxType.BURN) {
+    } else if (
+      tx.data.tx_type === HistoryTxType.BURN ||
+      tx.data.tx_type === HistoryTxType.BURN_HELD_BALANCE
+    ) {
       return 'text-red-500';
     }
     return null;

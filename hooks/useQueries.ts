@@ -761,14 +761,15 @@ export enum HistoryTxType {
 }
 
 const _formatMessage = (
-  message: any
+  message: any,
+  address: string
 ):
   | {
       data: {
         tx_type: HistoryTxType;
         from_address: string;
         to_address: string;
-        amount: [{ amount: string; denom: string }];
+        amount: { amount: string; denom: string }[];
       };
     }
   | undefined => {
@@ -803,20 +804,52 @@ const _formatMessage = (
           amount: [message.amount],
         },
       };
-    // TODO: Add Payout and BurnHeldBalance
+    case `/liftedinit.manifest.v1.MsgPayout`:
+      const totalAmountMap = new Map<string, bigint>();
+      message.payoutPairs.forEach((pair: { coin: TransactionAmount; address: string }) => {
+        if (pair.address === address) {
+          const currentAmount = totalAmountMap.get(pair.coin.denom) || BigInt(0);
+          totalAmountMap.set(pair.coin.denom, currentAmount + BigInt(pair.coin.amount));
+        }
+      });
+      const totalAmount = Array.from(totalAmountMap.entries()).map(([denom, amount]) => ({
+        amount: amount.toString(),
+        denom,
+      }));
+      return {
+        data: {
+          tx_type: HistoryTxType.PAYOUT,
+          from_address: message.authority,
+          to_address: address,
+          amount: totalAmount,
+        },
+      };
+    case `/lifted.init.manifest.v1.MsgBurnHeldBalance`:
+      return {
+        data: {
+          tx_type: HistoryTxType.BURN_HELD_BALANCE,
+          from_address: message.authority,
+          to_address: message.authority,
+          amount: message.burnCoins,
+        },
+      };
     default:
       break;
   }
 };
 
-const transformTransactions = (tx: any) => {
+const transformTransactions = (tx: any, address: string) => {
   let messages: TransactionGroup[] = [];
   for (const message of tx.data.tx.body.messages) {
-    // Parse nested messages from group proposal
-    // TODO: Refactor
     if (message['@type'] === '/cosmos.group.v1.MsgSubmitProposal') {
       for (const nestedMessage of message.messages) {
-        const formattedMessage = _formatMessage(nestedMessage);
+        // Skip the message if it doesn't contain the address
+        // At least one of the nested messages should contain the address
+        if (!JSON.stringify(nestedMessage).includes(address)) {
+          continue;
+        }
+
+        const formattedMessage = _formatMessage(nestedMessage, address);
         if (formattedMessage) {
           messages.push({
             tx_hash: tx.id,
@@ -828,7 +861,7 @@ const transformTransactions = (tx: any) => {
       }
     }
 
-    const formattedMessage = _formatMessage(message);
+    const formattedMessage = _formatMessage(message, address);
     if (formattedMessage) {
       messages.push({
         tx_hash: tx.id,
@@ -841,101 +874,61 @@ const transformTransactions = (tx: any) => {
   return messages;
 };
 
-async function _fetchTransactions(query: string, page: number, pageSize: number) {
-  const baseUrl = 'https://testnet-indexer.liftedinit.tech/transactions';
-
-  // Add pagination parameters
-  const offset = (page - 1) * pageSize;
-  const paginationParams = `&limit=${pageSize}&offset=${offset}`;
-
-  const finalUrl = `${baseUrl}?${query.replace(/\s+/g, '')}&order=data->txResponse->height.desc${paginationParams}`;
-
-  try {
-    // First, get the total count
-    const countResponse = await axios.get(`${baseUrl}?${query.replace(/\s+/g, '')}`, {
-      headers: {
-        Prefer: 'count=exact',
-        'Range-Unit': 'items',
-        Range: '0-0', // We only need the count, not the actual data
-      },
-    });
-
-    // Get the total count from the content-range header
-    const contentRange = countResponse.headers['content-range'];
-    const totalCount = contentRange ? parseInt(contentRange.split('/')[1]) : 0;
-
-    // Then get the paginated data
-    const dataResponse = await axios.get(finalUrl, {
-      headers: {
-        'Range-Unit': 'items',
-        Range: `${offset}-${offset + pageSize - 1}`,
-      },
-    });
-
-    const transactions = dataResponse.data
-      .flatMap(transformTransactions)
-      .filter((tx: any) => tx !== null);
-
-    return {
-      transactions,
-      totalCount,
-      totalPages: Math.ceil(totalCount / pageSize),
-    };
-  } catch (error) {
-    console.error('Error fetching transactions:', error);
-    throw error;
-  }
-}
-
-const fetchNonProposalTransactions = async (address: string, page: number, pageSize: number) => {
-  const query = `
-    and=(
-      data->tx->body->>messages.match(any).{
-        "/osmosis.tokenfactory.v1beta1.MsgMint",
-        "/osmosis.tokenfactory.v1beta1.MsgBurn",
-        "/cosmos.bank.v1beta1.MsgSend"
-      },
-      data->tx->body->>messages.match."${address}",
-      data->tx->body->>messages.not.match."@type": "/cosmos.group.v1.MsgSubmitProposal"
-    )`;
-
-  return _fetchTransactions(query, page, pageSize);
-};
-
-const fetchExecutedProposalTransactions = async (
-  address: string,
-  page: number,
-  pageSize: number
-) => {
-  const query = `
-    and=(
-      data->tx->body->>messages.match./cosmos.group.v1.MsgSubmitProposal,
-      data->tx->body->>messages.match(any).{
-        "/osmosis.tokenfactory.v1beta1.MsgMint",
-        "/osmosis.tokenfactory.v1beta1.MsgBurn",
-        "/liftedinit.manifest.v1.MsgPayout",
-        "/liftedinit.manifest.v1.MsgBurnHeldBalance",
-        "/cosmos.bank.v1beta1.MsgSend"
-      },
-      data->tx->body->>messages.match."${address}"
-    )`;
-
-  // TODO: Filter out proposals that are not executed
-  return _fetchTransactions(query, page, pageSize);
-};
-
 // Helper function to transform API response to match the component's expected format
-export const useGetTxIncludingAddressQuery = (
+export const useGetFilteredTxAndSuccessfulProposals = (
   address: string,
   page: number = 1,
   pageSize: number = 10
 ) => {
-  // TODO: Refactor to use useQueries
+  const fetchTransactions = async () => {
+    const baseUrl = `https://testnet-indexer.liftedinit.tech/rpc/get_address_filtered_transactions_and_successful_proposals?address=${address}`;
+
+    // Add pagination parameters
+    const offset = (page - 1) * pageSize;
+    const paginationParams = `&limit=${pageSize}&offset=${offset}`;
+
+    const finalUrl = `${baseUrl}&order=data->txResponse->height.desc${paginationParams}`;
+
+    try {
+      // First, get the total count
+      const countResponse = await axios.get(baseUrl, {
+        headers: {
+          Prefer: 'count=exact',
+          'Range-Unit': 'items',
+          Range: '0-0', // We only need the count, not the actual data
+        },
+      });
+
+      // Get the total count from the content-range header
+      const contentRange = countResponse.headers['content-range'];
+      const totalCount = contentRange ? parseInt(contentRange.split('/')[1]) : 0;
+
+      // Then get the paginated data
+      const dataResponse = await axios.get(finalUrl, {
+        headers: {
+          'Range-Unit': 'items',
+          Range: `${offset}-${offset + pageSize - 1}`,
+        },
+      });
+
+      const transactions = dataResponse.data
+        .flatMap((tx: any) => transformTransactions(tx, address))
+        .filter((tx: any) => tx !== null);
+
+      return {
+        transactions,
+        totalCount,
+        totalPages: Math.ceil(totalCount / pageSize),
+      };
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+      throw error;
+    }
+  };
+
   const sendQuery = useQuery({
-    queryKey: ['nonProposalTx', address, page, pageSize],
-    queryFn: () => fetchNonProposalTransactions(address, page, pageSize),
-    // queryKey: ['proposalTx', address, page, pageSize],
-    // queryFn: () => fetchExecutedProposalTransactions(address, page, pageSize),
+    queryKey: ['getFilteredTxsAndSuccessfulProposals', address, page, pageSize],
+    queryFn: fetchTransactions,
     enabled: !!address,
   });
 
