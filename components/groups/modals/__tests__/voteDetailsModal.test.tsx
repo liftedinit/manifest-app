@@ -76,9 +76,15 @@ describe('VoteDetailsModal', () => {
   test('renders messages section with correct data', () => {
     renderWithChainProvider(<VoteDetailsModal {...defaultProps} />);
     expect(screen.getByText('MESSAGES')).toBeInTheDocument();
-    expect(screen.getByText('Send')).toBeInTheDocument();
-    expect(screen.getByText('from_address:')).toBeInTheDocument();
-    expect(screen.getByText('to_address:')).toBeInTheDocument();
+    expect(screen.getByLabelText('msg')).toBeInTheDocument();
+
+    for (const m of ['Send', 'from_address:', 'to_address:']) {
+      const field = screen.getAllByText(m);
+
+      for (const f of field) {
+        expect(f).toBeInTheDocument();
+      }
+    }
   });
 
   test('conditionally renders execute button when proposal is accepted', () => {
