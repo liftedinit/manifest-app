@@ -20,7 +20,7 @@ mock.module('@/hooks', () => ({
       ],
     },
   }),
-  useSendTxIncludingAddressQuery: () => ({
+  useGetFilteredTxAndSuccessfulProposals: () => ({
     sendTxs: mockTransactions,
     totalPages: 1,
     isLoading: false,
@@ -31,19 +31,16 @@ mock.module('@/hooks', () => ({
 describe('HistoryBox', () => {
   afterEach(() => {
     cleanup();
+    mock.restore();
   });
 
   test('renders correctly', () => {
-    renderWithChainProvider(
-      <HistoryBox isLoading={false} send={mockTransactions} address="address1" />
-    );
+    renderWithChainProvider(<HistoryBox isLoading={false} address="address1" />);
     expect(screen.getByText('Transaction History')).toBeTruthy();
   });
 
   test('displays transactions', () => {
-    renderWithChainProvider(
-      <HistoryBox isLoading={false} send={mockTransactions} address="address1" />
-    );
+    renderWithChainProvider(<HistoryBox isLoading={false} address="address1" />);
 
     const sentText = screen.getByText('Sent');
     const receivedText = screen.getByText('Received');
@@ -53,9 +50,7 @@ describe('HistoryBox', () => {
   });
 
   test('opens modal when clicking on a transaction', () => {
-    renderWithChainProvider(
-      <HistoryBox isLoading={false} send={mockTransactions} address="address1" />
-    );
+    renderWithChainProvider(<HistoryBox isLoading={false} address="address1" />);
 
     const transactionElement = screen.getByText('Sent').closest('div[role="button"]');
 
@@ -66,9 +61,7 @@ describe('HistoryBox', () => {
   });
 
   test('formats amount correctly', () => {
-    renderWithChainProvider(
-      <HistoryBox isLoading={false} send={mockTransactions} address="address1" />
-    );
+    renderWithChainProvider(<HistoryBox isLoading={false} address="address1" />);
 
     const sentAmount = screen.queryByText('-1 TOKEN');
     const receivedAmount = screen.queryByText('+2 TOKEN');
@@ -78,9 +71,7 @@ describe('HistoryBox', () => {
   });
 
   test('displays both sent and received transactions', () => {
-    renderWithChainProvider(
-      <HistoryBox isLoading={false} send={mockTransactions} address="address1" />
-    );
+    renderWithChainProvider(<HistoryBox isLoading={false} address="address1" />);
 
     const sentText = screen.getByText('Sent');
     const receivedText = screen.getByText('Received');

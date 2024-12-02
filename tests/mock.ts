@@ -5,7 +5,7 @@ import {
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
 import { ExtendedValidatorSDKType, TransactionGroup } from '@/components';
 import { CombinedBalanceInfo } from '@/utils/types';
-import { ExtendedGroupType } from '@/hooks';
+import { ExtendedGroupType, HistoryTxType } from '@/hooks';
 import {
   MemberSDKType,
   ProposalExecutorResult,
@@ -200,6 +200,7 @@ export const mockTransactions: TransactionGroup[] = [
     block_number: 1,
     formatted_date: '2023-05-01T12:00:00Z',
     data: {
+      tx_type: HistoryTxType.SEND,
       from_address: 'address1',
       to_address: 'address2',
       amount: [{ amount: '1000000', denom: 'utoken' }],
@@ -210,6 +211,7 @@ export const mockTransactions: TransactionGroup[] = [
     block_number: 2,
     formatted_date: '2023-05-02T12:00:00Z',
     data: {
+      tx_type: HistoryTxType.SEND,
       from_address: 'address2',
       to_address: 'address1',
       amount: [{ amount: '2000000', denom: 'utoken' }],

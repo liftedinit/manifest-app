@@ -48,11 +48,9 @@ function formatLargeNumber(num: number): string {
 
 export function HistoryBox({
   isLoading: initialLoading,
-  send,
   address,
 }: {
   isLoading: boolean;
-  send: TransactionGroup[];
   address: string;
 }) {
   const [selectedTx, setSelectedTx] = useState<TransactionGroup | null>(null);
