@@ -338,8 +338,13 @@ function VoteDetailsModal({
     '/cosmos.group.v1.MsgExec': ['proposal_id', 'executor'],
     '/cosmos.group.v1.MsgLeaveGroup': ['address', 'group_id'],
     '/liftedinit.manifest.v1.MsgPayout': ['authority', 'payout_pairs'],
+    '/liftedinit.manifest.v1.MsgBurnHeldBalance': ['authority', 'burn_coins'],
     '/cosmos.group.v1.MsgUpdateGroupPolicyDecisionPolicy': ['group_id', 'decision_policy'],
     '/cosmos.group.v1.MsgUpdateGroupPolicyMetadata': ['group_id', 'metadata'],
+    '/osmosis.tokenfactory.v1beta1.MsgCreateDenom': ['subdenom'],
+    '/osmosis.tokenfactory.v1beta1.MsgSetDenomMetadata': ['metadata'],
+    '/osmosis.tokenfactory.v1beta1.MsgMint': ['mint_to_address', 'amount'],
+    '/osmosis.tokenfactory.v1beta1.MsgBurn': ['burn_from_address', 'amount'],
     // Add more message types and their important fields here
   };
 
