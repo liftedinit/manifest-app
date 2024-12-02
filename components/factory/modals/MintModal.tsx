@@ -57,7 +57,7 @@ export default function MintModal({
   return (
     <>
       <dialog id={`mint-modal-${denom?.base}`} className={`modal ${isOpen ? 'modal-open' : ''}`}>
-        <div className="modal-box max-w-4xl mx-auto rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg">
+        <div className="modal-box max-w-6xl mx-auto rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg">
           <form method="dialog" onSubmit={onClose}>
             <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]">
               ✕
