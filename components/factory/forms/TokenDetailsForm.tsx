@@ -130,7 +130,7 @@ export default function TokenDetails({
               <div className="flex gap-6  mt-6 mx-auto w-full">
                 <button
                   onClick={prevStep}
-                  className="btn btn-neutral py-2.5 sm:py-3.5 w-[calc(50%-12px)]"
+                  className="btn btn-neutral dark:text-white text-black py-2.5 sm:py-3.5 w-[calc(50%-12px)]"
                 >
                   Previous
                 </button>

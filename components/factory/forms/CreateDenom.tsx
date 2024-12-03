@@ -118,7 +118,7 @@ export default function CreateDenom({
               </div>
               <div className="flex gap-6  mt-6 mx-auto w-full">
                 <Link href="/factory" legacyBehavior>
-                  <button className="btn btn-neutral py-2.5 sm:py-3.5 w-[calc(50%-12px)]">
+                  <button className="btn btn-neutral dark:text-white text-black py-2.5 sm:py-3.5 w-[calc(50%-12px)]">
                     <span className="hidden sm:inline">Back: Factory Page</span>
                     <span className="sm:hidden">Back</span>
                   </button>
