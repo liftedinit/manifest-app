@@ -3,6 +3,9 @@ import { screen, cleanup, fireEvent } from '@testing-library/react';
 import { HistoryBox } from '../historyBox';
 import { renderWithChainProvider } from '@/tests/render';
 import { mockTransactions } from '@/tests/mock';
+import matchers from '@testing-library/jest-dom/matchers';
+
+expect.extend(matchers);
 
 // Mock the hooks
 mock.module('@/hooks', () => ({
@@ -22,7 +25,7 @@ mock.module('@/hooks', () => ({
   }),
   useGetFilteredTxAndSuccessfulProposals: () => ({
     sendTxs: mockTransactions,
-    totalPages: 1,
+    totalPages: 2,
     isLoading: false,
     isError: false,
   }),
@@ -36,17 +39,19 @@ describe('HistoryBox', () => {
 
   test('renders correctly', () => {
     renderWithChainProvider(<HistoryBox isLoading={false} address="address1" />);
-    expect(screen.getByText('Transaction History')).toBeTruthy();
+    expect(screen.getByText('Transaction History')).toBeInTheDocument();
   });
 
   test('displays transactions', () => {
     renderWithChainProvider(<HistoryBox isLoading={false} address="address1" />);
+    expect(screen.getByText('Sent')).toBeInTheDocument();
+    expect(screen.getByText('Received')).toBeInTheDocument();
 
-    const sentText = screen.getByText('Sent');
-    const receivedText = screen.getByText('Received');
+    const minted = screen.getAllByText('Minted');
+    const burned = screen.getAllByText('Burned');
 
-    expect(sentText).toBeTruthy();
-    expect(receivedText).toBeTruthy();
+    expect(minted.length).toBe(6);
+    expect(burned.length).toBe(2);
   });
 
   test('opens modal when clicking on a transaction', () => {
@@ -56,27 +61,26 @@ describe('HistoryBox', () => {
 
     if (transactionElement) {
       fireEvent.click(transactionElement);
-      expect(screen.getByLabelText('tx_info_modal')).toBeTruthy();
+      expect(screen.getByLabelText('tx_info_modal')).toBeInTheDocument();
     }
   });
 
   test('formats amount correctly', () => {
     renderWithChainProvider(<HistoryBox isLoading={false} address="address1" />);
-
-    const sentAmount = screen.queryByText('-1 TOKEN');
-    const receivedAmount = screen.queryByText('+2 TOKEN');
-
-    expect(sentAmount).toBeTruthy();
-    expect(receivedAmount).toBeTruthy();
+    expect(screen.queryByText('-1.00QT TOKEN')).toBeInTheDocument(); // Send
+    expect(screen.queryByText('+2.00Q TOKEN')).toBeInTheDocument(); // Receive
+    expect(screen.queryByText('+3.00T TOKEN')).toBeInTheDocument(); // Mint
+    expect(screen.queryByText('-1.20B TOKEN')).toBeInTheDocument(); // Burn
+    expect(screen.queryByText('+5.00M TOKEN')).toBeInTheDocument(); // Payout
+    expect(screen.queryByText('-2.1 TOKEN')).toBeInTheDocument(); // Burn held balance
+    expect(screen.queryByText('+2.3 TOKEN')).toBeInTheDocument(); // Payout
+    expect(screen.queryByText('+2.4 TOKEN')).toBeInTheDocument(); // Payout
+    expect(screen.queryByText('+2.5 TOKEN')).toBeInTheDocument(); // Payout
+    expect(screen.queryByText('+2.6 TOKEN')).toBeInTheDocument(); // Payout
   });
 
-  test('displays both sent and received transactions', () => {
-    renderWithChainProvider(<HistoryBox isLoading={false} address="address1" />);
-
-    const sentText = screen.getByText('Sent');
-    const receivedText = screen.getByText('Received');
-
-    expect(sentText).toBeTruthy();
-    expect(receivedText).toBeTruthy();
+  test('displays loading state', () => {
+    renderWithChainProvider(<HistoryBox isLoading={true} address="address1" />);
+    expect(screen.getByLabelText('skeleton')).toBeInTheDocument();
   });
 });

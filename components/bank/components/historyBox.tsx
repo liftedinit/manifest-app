@@ -218,7 +218,7 @@ export function HistoryBox({
 
       {isLoading ? (
         <div className="flex-1 overflow-hidden h-full">
-          <div className="space-y-4">
+          <div aria-label="skeleton" className="space-y-4">
             {[...Array(3)].map((_, groupIndex) => (
               <div key={groupIndex}>
                 <div className="skeleton h-4 w-24 mb-2"></div>
