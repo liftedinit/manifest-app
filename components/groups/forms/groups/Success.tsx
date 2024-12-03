@@ -99,7 +99,7 @@ export default function Success({
       </div>
       <div className="flex gap-6 mt-6 mx-auto w-full">
         <Link href="/groups" className="w-[calc(50%-12px)]">
-          <button className="btn btn-neutral text-black dark:text-white w-full text-white">
+          <button className="btn btn-neutral text-black dark:text-white w-full">
             Back to Groups Page
           </button>
         </Link>
