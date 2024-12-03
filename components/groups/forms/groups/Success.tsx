@@ -14,10 +14,7 @@ export default function Success({
   const renderAuthors = () => {
     if (Array.isArray(formData.authors)) {
       return formData.authors.map((author, index) => (
-        <div
-          key={index}
-          className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg flex items-center"
-        >
+        <div key={index} className="bg-base-300 p-4 rounded-lg flex items-center">
           {author.trim().startsWith('manifest') ? (
             <TruncatedAddressWithCopy address={author.trim()} slice={14} />
           ) : (
@@ -27,7 +24,7 @@ export default function Success({
       ));
     } else {
       return (
-        <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg flex items-center">
+        <div className="bg-base-300 p-4 rounded-lg flex items-center">
           {formData.authors.trim().startsWith('manifest') ? (
             <TruncatedAddressWithCopy address={formData.authors.trim()} slice={14} />
           ) : (
@@ -50,11 +47,11 @@ export default function Success({
 
         <div className="space-y-6">
           <p className="text-lg mb-2">Your transaction was successfully signed and broadcasted.</p>
-          <p className="text-md text-gray-400 mb-6">
+          <p className="text-md text-gray-500 dark:text-gray-400 mb-6">
             You may now interact with your group by adding members, submitting or voting on
             proposals, and changing group parameters.
           </p>
-          <div className="text-md text-gray-400 mb-6 flex-col flex gap-2 ">
+          <div className="text-md text-gray-500 dark:text-gray-400 mb-6 flex-col flex gap-2 ">
             <span>Remember to fund your group by sending tokens to the policy address </span>
             <TruncatedAddressWithCopy address={recentGroup?.policies[0].address} slice={24} />
           </div>
@@ -63,12 +60,14 @@ export default function Success({
           <div>
             <h2 className="text-xl font-semibold mb-4">Group Information</h2>
             <div className="grid grid-cols-2 gap-4">
-              <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg">
-                <label className="text-sm text-gray-400">Voting period</label>
+              <div className="bg-base-300 p-4 rounded-lg">
+                <label className="text-sm text-gray-500 dark:text-gray-400">Voting period</label>
                 <div>{secondsToHumanReadable(Number(formData.votingPeriod.seconds))}</div>
               </div>
-              <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg">
-                <label className="text-sm text-gray-400">Qualified Majority</label>
+              <div className="bg-base-300 p-4 rounded-lg">
+                <label className="text-sm text-gray-500 dark:text-gray-400">
+                  Qualified Majority
+                </label>
                 <div>
                   {formData.votingThreshold} / {formData.members.length}
                 </div>
@@ -87,10 +86,10 @@ export default function Success({
             <h2 className="text-xl font-semibold mb-4">Members</h2>
             <div className="grid grid-cols-3 gap-4">
               {formData.members.map((member, index) => (
-                <div key={index} className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-lg">
-                  <div className="text-sm text-gray-400">Address</div>
+                <div key={index} className="bg-base-300 p-4 rounded-lg">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Address</div>
                   <TruncatedAddressWithCopy address={member.address} slice={14} />
-                  <div className="text-sm text-gray-400 mt-2">Name</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400 mt-2">Name</div>
                   <div>{member.name}</div>
                 </div>
               ))}
@@ -100,7 +99,9 @@ export default function Success({
       </div>
       <div className="flex gap-6 mt-6 mx-auto w-full">
         <Link href="/groups" className="w-[calc(50%-12px)]">
-          <button className="btn btn-neutral w-full text-white">Back to Groups Page</button>
+          <button className="btn btn-neutral text-black dark:text-white w-full text-white">
+            Back to Groups Page
+          </button>
         </Link>
         <Link
           href={`/groups${recentGroup?.policies[0]?.address ? `?policyAddress=${recentGroup.policies[0].address}` : ''}`}
