@@ -72,7 +72,6 @@ export default function SendBox({
             {activeTab === 'cross-chain' ? (
               <IbcSendForm
                 isIbcTransfer={true}
-                setIsIbcTransfer={() => {}}
                 ibcChains={ibcChains}
                 selectedChain={selectedChain}
                 setSelectedChain={setSelectedChain}

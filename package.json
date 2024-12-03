@@ -45,7 +45,6 @@
     "@tanstack/react-query": "^5.55.0",
     "@tanstack/react-query-devtools": "^5.55.0",
     "@types/file-saver": "^2.0.7",
-    "ably": "^2.3.2",
     "apexcharts": "^3.53.0",
     "autoprefixer": "^10.4.20",
     "babel-plugin-glsl": "^1.0.0",

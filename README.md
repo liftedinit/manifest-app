@@ -21,7 +21,6 @@ For more information on the Manifest Network and its modules, please visit the [
 ### .env
 
 ```
-NEXT_PUBLIC_ABLY_API_KEY=
 NEXT_PUBLIC_WALLETCONNECT_KEY=
 NEXT_PUBLIC_WEB3_CLIENT_ID=
 NEXT_PUBLIC_CHAIN=manifest
@@ -31,6 +30,10 @@ NEXT_PUBLIC_MAINNET_RPC_URL=https://nodes.chandrastation.com/rpc/manifest/
 NEXT_PUBLIC_TESTNET_RPC_URL=https://manifest-beta-rpc.liftedinit.tech/
 NEXT_PUBLIC_MAINNET_API_URL=https://nodes.chandrastation.com/api/manifest/
 NEXT_PUBLIC_TESTNET_API_URL=https://manifest-beta-rest.liftedinit.tech/
+NEXT_PUBLIC_TESTNET_EXPLORER_URL=https://testnet.manifest.explorers.guru
+NEXT_PUBLIC_MAINNET_EXPLORER_URL=https://manifest.explorers.guru
+NEXT_PUBLIC_TESTNET_INDEXER_URL=https://testnet-indexer.liftedinit.tech
+NEXT_PUBLIC_MAINNET_INDEXER_URL=https://indexer.liftedinit.app
 ```
 
 ### Development

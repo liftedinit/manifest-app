@@ -11,7 +11,7 @@ import { chainName } from '@/config';
 import { cosmos, liftedinit } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgPayout } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
-import { ExtendedMetadataSDKType } from '@/utils';
+import { ExtendedMetadataSDKType, parseNumberToBigInt } from '@/utils';
 //TODO: find max mint amount from team for mfx. Find tx size limit for max payout pairs
 interface PayoutPair {
   address: string;
@@ -30,10 +30,7 @@ interface MultiMintModalProps {
 
 const PayoutPairSchema = Yup.object().shape({
   address: Yup.string().manifestAddress().required('Required'),
-  amount: Yup.number()
-    .positive('Amount must be positive')
-    .required('Required')
-    .max(100000, 'Amount too large'),
+  amount: Yup.number().positive('Amount must be positive').required('Required'),
 });
 
 const MultiMintSchema = Yup.object().shape({
@@ -89,7 +86,7 @@ export function MultiMintModal({
           address: pair.address,
           coin: {
             denom: denom?.base ?? '',
-            amount: BigInt(parseFloat(pair.amount) * Math.pow(10, exponent)).toString(),
+            amount: parseNumberToBigInt(pair.amount, exponent).toString(),
           },
         })),
       });

@@ -4,7 +4,7 @@ import { useTokenFactoryBalance, useFeeEstimation, useTx } from '@/hooks';
 import { cosmos, osmosis, liftedinit } from '@liftedinit/manifestjs';
 
 import { MdContacts } from 'react-icons/md';
-import { shiftDigits } from '@/utils';
+import { parseNumberToBigInt, shiftDigits } from '@/utils';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgBurnHeldBalance } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
 
@@ -75,7 +75,6 @@ export default function BurnForm({
     amount: Yup.number()
       .positive('Amount must be positive')
       .required('Amount is required')
-      .max(1e12, 'Amount is too large')
       .test('max-balance', 'Amount exceeds balance', function (value) {
         return value <= balanceNumber;
       }),
@@ -103,8 +102,7 @@ export default function BurnForm({
     }
     setIsSigning(true);
     try {
-      const amountInBaseUnits = BigInt(parseFloat(amount) * Math.pow(10, exponent)).toString();
-
+      const amountInBaseUnits = parseNumberToBigInt(amount, exponent).toString();
       let msg;
       if (isMFX) {
         const burnMsg = burnHeldBalance({
@@ -166,7 +164,7 @@ export default function BurnForm({
         authority: admin ?? '',
         burnCoins: burnPairs.map(pair => ({
           denom: denom.base,
-          amount: BigInt(parseFloat(pair.amount) * Math.pow(10, exponent)).toString(),
+          amount: parseNumberToBigInt(pair.amount, exponent).toString(),
         })),
       });
       const encodedMessage = Any.fromPartial({
@@ -227,40 +225,16 @@ export default function BurnForm({
               </div>
               <div>
                 <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
-                  TARGET&apos;S BALANCE
+                  CIRCULATING SUPPLY
                 </p>
                 <div className="bg-base-300 p-4 rounded-md">
                   <p className="font-semibold text-md text-black truncate dark:text-white">
-                    {formatAmount(recipientBalance?.amount)}
+                    {Number(shiftDigits(totalSupply, -exponent)).toLocaleString(undefined, {
+                      maximumFractionDigits: exponent,
+                    })}{' '}
                   </p>
                 </div>
               </div>
-              {denom?.denom_units[1]?.exponent && (
-                <div>
-                  <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
-                    EXPONENT
-                  </p>
-                  <div className="bg-base-300 p-4 rounded-md">
-                    <p className="font-semibold text-md text-black dark:text-white">
-                      {denom?.denom_units[1]?.exponent}
-                    </p>
-                  </div>
-                </div>
-              )}
-              {totalSupply !== '0' && (
-                <div>
-                  <p className="text-sm font-light text-gray-500 dark:text-gray-400 truncate mb-2">
-                    CIRCULATING SUPPLY
-                  </p>
-                  <div className="bg-base-300 p-4 rounded-md">
-                    <p className="font-semibold text-md  truncate text-black dark:text-white">
-                      {Number(shiftDigits(totalSupply, -exponent)).toLocaleString(undefined, {
-                        maximumFractionDigits: exponent,
-                      })}{' '}
-                    </p>
-                  </div>
-                </div>
-              )}
             </div>
             {!denom.base.includes('umfx') && (
               <Formik

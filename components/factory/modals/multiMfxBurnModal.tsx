@@ -11,7 +11,7 @@ import { chainName } from '@/config';
 import { cosmos, osmosis, liftedinit } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 
-import { ExtendedMetadataSDKType } from '@/utils';
+import { ExtendedMetadataSDKType, parseNumberToBigInt } from '@/utils';
 
 interface BurnPair {
   address: string;
@@ -83,7 +83,7 @@ export function MultiBurnModal({
           burnCoins: [
             {
               denom: denom?.base ?? '',
-              amount: BigInt(parseFloat(pair.amount) * Math.pow(10, exponent)).toString(),
+              amount: parseNumberToBigInt(pair.amount, exponent).toString(),
             },
           ],
         })

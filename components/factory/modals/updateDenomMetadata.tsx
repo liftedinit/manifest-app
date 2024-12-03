@@ -126,17 +126,25 @@ export function UpdateDenomMetadataModal({
               <Form className="py-4 space-y-6">
                 <div className="grid gap-6 sm:grid-cols-2">
                   <TextInput label="SUBDENOM" name="subdemom" value={fullDenom} disabled={true} />
-                  <TextInput label="NAME" name="name" value={values.name} onChange={handleChange} />
+                  <TextInput
+                    label="NAME"
+                    name="name"
+                    value={values.name}
+                    placeholder={denom?.name}
+                    onChange={handleChange}
+                  />
                   <TextInput
                     label="LOGO URL"
                     name="uri"
                     value={values.uri}
+                    placeholder={denom?.uri}
                     onChange={handleChange}
                   />
                   <TextInput
                     label="TICKER"
                     name="display"
                     value={values.display}
+                    placeholder={denom?.display}
                     onChange={handleChange}
                   />
                 </div>
@@ -145,30 +153,30 @@ export function UpdateDenomMetadataModal({
                   label="DESCRIPTION"
                   name="description"
                   value={values.description}
+                  placeholder={denom?.description}
                   onChange={handleChange}
                 />
               </Form>
-            </div>
-            {/* Action buttons */}
-            <div className="mt-4 flex justify-center w-full">
-              <button
-                type="button"
-                className="btn btn-secondary dark:text-white text-black"
-                onClick={() => {
-                  const modal = document.getElementById(modalId) as HTMLDialogElement;
-                  modal?.close();
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="btn btn-gradient ml-4 text-white"
-                onClick={() => handleSubmit()}
-                disabled={isSigning || !isValid || !dirty}
-              >
-                {isSigning ? <span className="loading loading-dots"></span> : 'Update'}
-              </button>
+              <div className="mt-4 flex flex-row justify-center gap-2 w-full">
+                <button
+                  type="button"
+                  className="btn w-1/2  btn-neutral  dark:text-white text-black"
+                  onClick={() => {
+                    const modal = document.getElementById(modalId) as HTMLDialogElement;
+                    modal?.close();
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn w-1/2 btn-gradient text-white"
+                  onClick={() => handleSubmit()}
+                  disabled={isSigning || !isValid || !dirty}
+                >
+                  {isSigning ? <span className="loading loading-dots"></span> : 'Update'}
+                </button>
+              </div>
             </div>
           </div>
         )}

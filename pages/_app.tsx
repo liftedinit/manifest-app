@@ -41,14 +41,6 @@ import MobileNav from '@/components/react/mobileNav';
 import { useEndpointStore } from '@/store/endpointStore';
 import EndpointSelector from '@/components/react/endpointSelector';
 
-// websocket stuff might delete
-// import * as Ably from "ably";
-// import { AblyProvider, useChannel, usePresence } from "ably/react";
-
-// const ablyClient = new Ably.Realtime({
-//   key: process.env.NEXT_PUBLIC_ABLY_API_KEY,
-// });
-
 type ManifestAppProps = AppProps & {
   Component: AppProps['Component'];
   pageProps: AppProps['pageProps'];
@@ -111,7 +103,6 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
 
   // tanstack query client
   const client = new QueryClient();
-  const { theme } = useTheme();
   // web3auth helpers for cosmoskit
   const [web3AuthPrompt, setWeb3AuthPrompt] = useState<
     | {
@@ -127,27 +118,32 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
           {
             provider: 'google',
             name: 'Google',
-            logo: 'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg',
+            logo: '/google',
           },
           {
             provider: 'twitter',
             name: 'Twitter',
-            logo: '/x.svg',
+            logo: '/x',
           },
           {
             provider: 'github',
             name: 'GitHub',
-            logo: 'https://upload.wikimedia.org/wikipedia/commons/2/24/Github_logo_svg.svg',
+            logo: '/github',
           },
           {
             provider: 'apple',
             name: 'Apple',
-            logo: '/apple.svg',
+            logo: '/apple',
           },
           {
             provider: 'discord',
             name: 'Discord',
-            logo: 'https://assets-global.website-files.com/6257adef93867e50d84d30e2/653714c174fc6c8bbea73caf_636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg',
+            logo: '/discord',
+          },
+          {
+            provider: 'reddit',
+            name: 'Reddit',
+            logo: '/reddit',
           },
         ],
 

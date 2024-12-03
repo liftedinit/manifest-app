@@ -56,7 +56,7 @@ export default function MobileNav() {
 
         <div className="drawer-side min-h-screen h-full ">
           <label htmlFor="my-drawer" aria-label="close sidebar" className="drawer-overlay"></label>
-          <ul className="menu p-4 w-80 min-h-full bg-[#F4F4FF] dark:bg-[#1D192D] space-y-3 text-base-content">
+          <ul className="menu p-4 w-80 min-h-full bg-[#F4F4FF] dark:bg-[#1D192D] space-y-3 text-base-content flex flex-col">
             <div className="flex flex-row justify-between items-center">
               <div className="flex flex-row gap-4 justify-between items-center">
                 <Image src={'/logo.svg'} alt="logo" width={42} height={42} />
@@ -118,8 +118,8 @@ export default function MobileNav() {
               <WalletSection chainName="manifest" />
             </div>
 
-            {/* Add close button */}
-            <div className="absolute bottom-4 left-4">
+            {/* Updated close button - now uses flex-1 and mt-auto to push to bottom */}
+            <div className="flex justify-start mt-auto">
               <button onClick={closeDrawer} className="btn btn-sm btn-outline btn-primary">
                 <ArrowRightIcon fontSize={'24px'} />
               </button>

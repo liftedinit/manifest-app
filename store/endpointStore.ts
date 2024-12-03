@@ -8,6 +8,8 @@ interface Endpoint {
   isHealthy: boolean;
   network: 'mainnet' | 'testnet';
   custom: boolean;
+  indexer: string;
+  explorer: string;
 }
 
 interface EndpointState {
@@ -16,7 +18,7 @@ interface EndpointState {
   selectedEndpoint: Endpoint | null;
   setEndpoints: (endpoints: Endpoint[]) => void;
   setSelectedEndpointKey: (key: string) => void;
-  addEndpoint: (rpc: string, api: string) => Promise<void>;
+  addEndpoint: (rpc: string, api: string, indexer: string, explorer: string) => Promise<void>;
   removeEndpoint: (provider: string) => void;
   updateEndpointHealth: () => Promise<Endpoint[]>;
 }
@@ -29,6 +31,8 @@ const defaultEndpoints: Endpoint[] = [
     isHealthy: true,
     network: 'mainnet',
     custom: false,
+    indexer: process.env.NEXT_PUBLIC_MAINNET_INDEXER_URL || '',
+    explorer: process.env.NEXT_PUBLIC_MAINNET_EXPLORER_URL || '',
   },
   {
     rpc: process.env.NEXT_PUBLIC_TESTNET_RPC_URL || '',
@@ -37,6 +41,8 @@ const defaultEndpoints: Endpoint[] = [
     isHealthy: true,
     network: 'testnet',
     custom: false,
+    indexer: process.env.NEXT_PUBLIC_TESTNET_INDEXER_URL || '',
+    explorer: process.env.NEXT_PUBLIC_TESTNET_EXPLORER_URL || '',
   },
 ];
 
@@ -51,7 +57,7 @@ export const useEndpointStore = create(
         const endpoint = get().endpoints.find(e => e.provider === key);
         set({ selectedEndpointKey: key, selectedEndpoint: endpoint || null });
       },
-      addEndpoint: async (rpc: string, api: string) => {
+      addEndpoint: async (rpc: string, api: string, indexer: string, explorer: string) => {
         try {
           const rpcResponse = await fetch(`${rpc.trim()}/status`);
           const rpcData = await rpcResponse.json();
@@ -69,6 +75,8 @@ export const useEndpointStore = create(
             isHealthy: true,
             network,
             custom: true,
+            indexer: indexer.trim(),
+            explorer: explorer.trim(),
           };
 
           const { endpoints } = get();

@@ -24,7 +24,7 @@ export default function Admins() {
   const isMember = group?.members?.some(member => member?.member?.address === address);
   console.log(group, groupByAdmin, isMember);
   return (
-    <div className="min-h-screen relative py-4 px-2 mx-auto text-white mt-12 md:mt-0">
+    <div className="min-h-screen relative py-4 px-2 mx-auto text-white ">
       <Head>
         <title>Admins - Alberto</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />

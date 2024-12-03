@@ -3,7 +3,7 @@ import SendBox from '@/components/bank/components/sendBox';
 import TokenList from '@/components/bank/components/tokenList';
 import { chainName } from '@/config';
 import {
-  useSendTxIncludingAddressQuery,
+  useGetFilteredTxAndSuccessfulProposals,
   useTokenBalances,
   useTokenBalancesResolved,
   useTokenFactoryDenoms,
@@ -16,7 +16,8 @@ import React, { useMemo } from 'react';
 import { HistoryBox } from '@/components';
 import { BankIcon } from '@/components/icons';
 import { CombinedBalanceInfo } from '@/utils/types';
-import { MFX_TOKEN_DATA } from '@/utils/constants'; // Import MFX_TOKEN_DATA
+import { MFX_TOKEN_DATA } from '@/utils/constants';
+import { useEndpointStore } from '@/store/endpointStore'; // Import MFX_TOKEN_DATA
 
 export default function Bank() {
   const { address, isWalletConnected } = useChain(chainName);
@@ -26,6 +27,9 @@ export default function Bank() {
     isBalancesLoading: resolvedLoading,
     refetchBalances: resolveRefetch,
   } = useTokenBalancesResolved(address ?? '');
+
+  const { selectedEndpoint } = useEndpointStore();
+  const indexerUrl = selectedEndpoint?.indexer || '';
 
   const { metadatas, isMetadatasLoading } = useTokenFactoryDenomsMetadata();
 
@@ -69,7 +73,7 @@ export default function Bank() {
 
   const isLoading = isBalancesLoading || resolvedLoading || isMetadatasLoading;
 
-  const { sendTxs, refetch } = useSendTxIncludingAddressQuery(address ?? '');
+  const { sendTxs, refetch } = useGetFilteredTxAndSuccessfulProposals(indexerUrl, address ?? '');
 
   return (
     <>
@@ -124,7 +128,7 @@ export default function Bank() {
           </script>
         </Head>
 
-        <div className="h-[calc(100vh-1.5rem)] py-1 gap-6 flex flex-col w-full lg:flex-row">
+        <div className="h-[calc(100vh-1.5rem)] py-1 gap-6 flex flex-col w-full lg:flex-row animate-fadeIn">
           {!isWalletConnected ? (
             <WalletNotConnected
               description=" Use the button below to connect your wallet and start interacting with your

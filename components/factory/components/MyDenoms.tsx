@@ -13,25 +13,40 @@ import { ExtendedMetadataSDKType, shiftDigits } from '@/utils';
 import { MultiMintModal } from '@/components/factory/modals';
 import { MultiBurnModal } from '../modals/multiMfxBurnModal';
 import { usePoaGetAdmin } from '@/hooks';
+import useIsMobile from '@/hooks/useIsMobile';
+
 export default function MyDenoms({
   denoms,
   isLoading,
-  isError,
   refetchDenoms,
   address,
 }: {
   denoms: ExtendedMetadataSDKType[];
   isLoading: boolean;
-  isError: Error | null | boolean;
   refetchDenoms: () => void;
   address: string;
 }) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const isMobile = useIsMobile();
+
+  const pageSize = isMobile ? 6 : 8;
+
   const router = useRouter();
   const [selectedDenom, setSelectedDenom] = useState<ExtendedMetadataSDKType | null>(null);
   const [modalType, setModalType] = useState<
     'mint' | 'burn' | 'multimint' | 'multiburn' | 'update' | null
   >(null);
+
+  const filteredDenoms = useMemo(() => {
+    return denoms.filter(denom => denom?.display.toLowerCase().includes(searchQuery.toLowerCase()));
+  }, [denoms, searchQuery]);
+
+  const totalPages = Math.ceil(filteredDenoms.length / pageSize);
+  const paginatedDenoms = filteredDenoms.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
   const handleDenomSelect = (denom: ExtendedMetadataSDKType) => {
     if (!modalType) {
@@ -109,10 +124,6 @@ export default function MyDenoms({
     });
   };
 
-  const filteredDenoms = useMemo(() => {
-    return denoms.filter(denom => denom?.display.toLowerCase().includes(searchQuery.toLowerCase()));
-  }, [denoms, searchQuery]);
-
   return (
     <div className="relative w-full h-screen overflow-hidden">
       <div className="h-full flex flex-col p-4">
@@ -151,13 +162,13 @@ export default function MyDenoms({
                 <tr className="text-sm font-medium">
                   <th className="bg-transparent w-1/4">Token</th>
                   <th className="bg-transparent w-2/5 xl:table-cell hidden">Name</th>
-                  <th className="bg-transparent w-2/5">Total Supply</th>
+                  <th className="bg-transparent w-2/5  md:table-cell hidden">Total Supply</th>
                   <th className="bg-transparent w-1/4">Actions</th>
                 </tr>
               </thead>
               <tbody className="space-y-4">
                 {isLoading
-                  ? Array(10)
+                  ? Array(isMobile ? 6 : 8)
                       .fill(0)
                       .map((_, index) => (
                         <tr key={index}>
@@ -209,7 +220,7 @@ export default function MyDenoms({
                           </td>
                         </tr>
                       ))
-                  : filteredDenoms.map(denom => (
+                  : paginatedDenoms.map(denom => (
                       <TokenRow
                         key={denom.base}
                         denom={denom}
@@ -229,6 +240,70 @@ export default function MyDenoms({
                     ))}
               </tbody>
             </table>
+            {totalPages > 1 && (
+              <div
+                className="flex items-center justify-center gap-2 "
+                onClick={e => e.stopPropagation()}
+                role="navigation"
+                aria-label="Pagination"
+              >
+                <button
+                  onClick={e => {
+                    e.stopPropagation();
+                    setCurrentPage(prev => Math.max(1, prev - 1));
+                  }}
+                  disabled={currentPage === 1 || isLoading}
+                  className="p-2 hover:bg-[#FFFFFF1A] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  aria-label="Previous page"
+                >
+                  ‹
+                </button>
+
+                {[...Array(totalPages)].map((_, index) => {
+                  const pageNum = index + 1;
+                  if (
+                    pageNum === 1 ||
+                    pageNum === totalPages ||
+                    (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                  ) {
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={e => {
+                          e.stopPropagation();
+                          setCurrentPage(pageNum);
+                        }}
+                        className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors
+                          ${currentPage === pageNum ? 'bg-[#FFFFFF1A] text-white' : 'hover:bg-[#FFFFFF1A]'}`}
+                        aria-label={`Page ${pageNum}`}
+                        aria-current={currentPage === pageNum ? 'page' : undefined}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
+                    return (
+                      <span key={pageNum} aria-hidden="true">
+                        ...
+                      </span>
+                    );
+                  }
+                  return null;
+                })}
+
+                <button
+                  onClick={e => {
+                    e.stopPropagation();
+                    setCurrentPage(prev => Math.min(totalPages, prev + 1));
+                  }}
+                  disabled={currentPage === totalPages || isLoading}
+                  className="p-2 hover:bg-[#FFFFFF1A] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  aria-label="Next page"
+                >
+                  ›
+                </button>
+              </div>
+            )}
           </div>
           <div className="block md:hidden mt-8">
             <Link href="/factory/create" passHref>
@@ -239,12 +314,7 @@ export default function MyDenoms({
           </div>
         </div>
       </div>
-      <DenomInfoModal
-        denom={selectedDenom}
-        modalId="denom-info-modal"
-        isOpen={!!selectedDenom && !modalType}
-        onClose={handleCloseModal}
-      />
+      <DenomInfoModal denom={selectedDenom} modalId="denom-info-modal" />
       <MintModal
         admin={poaAdmin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'}
         isPoaAdminLoading={isPoaAdminLoading}
@@ -345,8 +415,8 @@ function TokenRow({
       <td className="bg-secondary group-hover:bg-base-300 w-2/5 xl:table-cell hidden">
         {truncateString(denom?.name ?? 'No name provided', 20)}
       </td>
-      <td className="bg-secondary group-hover:bg-base-300 w-2/5 sm:w-1/4">
-        <div className="flex flex-col sm:flex-row sm:items-center">
+      <td className="bg-secondary group-hover:bg-base-300 w-2/5 md:table-cell hidden sm:w-1/4">
+        <div className="flex flex-col sm:flex-row sm:items-center ">
           <span className="sm:mr-2">{formatAmount(totalSupply)}</span>
           <span className="font-extralight">
             {truncateString(denom?.display ?? 'No ticker provided', 10).toUpperCase()}

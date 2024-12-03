@@ -1,6 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import { Dialog } from '@headlessui/react';
-import { XMarkIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 import { ChainWalletBase } from 'cosmos-kit';
 
 export const WalletList = ({
@@ -12,8 +11,12 @@ export const WalletList = ({
   onWalletClicked: (name: string) => void;
   wallets: ChainWalletBase[];
 }) => {
+  const isDarkMode = document.documentElement.classList.contains('dark');
+
   const social = wallets.filter(wallet =>
-    ['Google', 'Twitter', 'Apple', 'Discord'].includes(wallet.walletInfo.prettyName)
+    ['Google', 'Twitter', 'Apple', 'Discord', 'GitHub', 'Reddit'].includes(
+      wallet.walletInfo.prettyName
+    )
   );
 
   const browser = wallets.filter(wallet =>
@@ -36,7 +39,7 @@ export const WalletList = ({
         <XMarkIcon className="w-5 h-5" aria-hidden="true" />
       </button>
 
-      {/* Browser and Social sections - hidden on mobile/tablet */}
+      {/* Browser and Social sections - browaer hidden on mobile/tablet */}
       <div className="hidden md:block">
         <div className="space-y-2 mb-4">
           {browser.map(({ walletInfo: { name, prettyName, logo } }) => (
@@ -63,9 +66,9 @@ export const WalletList = ({
               className="flex items-center justify-center p-4 dark:bg-[#ffffff0c] bg-[#f0f0ff5c] dark:hover:bg-[#0000004c] hover:bg-[#a8a8a84c] rounded-lg transition"
             >
               <img
-                src={logo?.toString()}
+                src={isDarkMode ? logo?.toString() + '_light.svg' : logo?.toString() + '_dark.svg'}
                 alt={prettyName}
-                className={`${prettyName === 'Twitter' || prettyName === 'Apple' ? 'w-7 h-7' : 'w-6 h-6'} rounded-md`}
+                className={`${prettyName === 'Reddit' || prettyName === 'Google' ? 'w-8 h-8' : 'w-7 h-7'} rounded-md`}
               />
             </button>
           ))}
@@ -83,6 +86,25 @@ export const WalletList = ({
             >
               <img src={logo?.toString()} alt={prettyName} className="w-10 h-10 rounded-xl mr-3" />
               <span className="text-md">{prettyName === 'Twitter' ? 'X' : prettyName}</span>
+            </button>
+          ))}
+        </div>
+        <div className="text-center mb-4 mt-3">
+          <span className="">or connect with</span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          {social.map(({ walletInfo: { name, prettyName, logo } }) => (
+            <button
+              key={name}
+              onClick={() => onWalletClicked(name)}
+              className="flex items-center justify-center p-4 dark:bg-[#ffffff0c] bg-[#f0f0ff5c] dark:hover:bg-[#0000004c] hover:bg-[#a8a8a84c] rounded-lg transition"
+            >
+              <img
+                src={isDarkMode ? logo?.toString() + '_light.svg' : logo?.toString() + '_dark.svg'}
+                alt={prettyName}
+                className={`${prettyName === 'Reddit' || prettyName === 'Google' ? 'w-8 h-8' : 'w-7 h-7'} rounded-md`}
+              />
             </button>
           ))}
         </div>

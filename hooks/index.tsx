@@ -5,3 +5,4 @@ export * from './usePoaLcdQueryClient';
 export * from './useQueries';
 export * from './useTx';
 export * from './useContacts';
+export { default as useIsMobile } from './useIsMobile';

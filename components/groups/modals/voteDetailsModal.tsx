@@ -22,7 +22,8 @@ import { useTheme } from '@/contexts/theme';
 import CountdownTimer from '../components/CountdownTimer';
 import { useFeeEstimation } from '@/hooks';
 
-import { TrashIcon } from '@heroicons/react/24/outline';
+import { TrashIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { ArrowUpIcon, CopyIcon } from '@/components/icons';
 const Chart = dynamic(() => import('react-apexcharts'), {
   ssr: false,
 }) as any;
@@ -336,6 +337,14 @@ function VoteDetailsModal({
     '/cosmos.group.v1.MsgVote': ['proposal_id', 'voter', 'option', 'metadata'],
     '/cosmos.group.v1.MsgExec': ['proposal_id', 'executor'],
     '/cosmos.group.v1.MsgLeaveGroup': ['address', 'group_id'],
+    '/liftedinit.manifest.v1.MsgPayout': ['authority', 'payout_pairs'],
+    '/liftedinit.manifest.v1.MsgBurnHeldBalance': ['authority', 'burn_coins'],
+    '/cosmos.group.v1.MsgUpdateGroupPolicyDecisionPolicy': ['group_id', 'decision_policy'],
+    '/cosmos.group.v1.MsgUpdateGroupPolicyMetadata': ['group_id', 'metadata'],
+    '/osmosis.tokenfactory.v1beta1.MsgCreateDenom': ['subdenom'],
+    '/osmosis.tokenfactory.v1beta1.MsgSetDenomMetadata': ['metadata'],
+    '/osmosis.tokenfactory.v1beta1.MsgMint': ['mint_to_address', 'amount'],
+    '/osmosis.tokenfactory.v1beta1.MsgBurn': ['burn_from_address', 'amount'],
     // Add more message types and their important fields here
   };
 
@@ -419,212 +428,302 @@ function VoteDetailsModal({
     return { action: null, label: null };
   }, [proposal, proposalClosed, userHasVoted, address]);
 
+  const [copied, setCopied] = useState(false);
+
+  const copyProposalLink = () => {
+    const url = `${window.location.origin}/groups?policyAddress=${proposal?.group_policy_address}&proposalId=${proposal?.id}`;
+    navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleExpandMessages = () => {
+    const messagesModal = document.getElementById('messages_modal') as HTMLDialogElement;
+    if (messagesModal) {
+      messagesModal.showModal();
+    }
+  };
+
   return (
-    <dialog id={modalId} className="modal">
-      <div className="modal-box relative max-w-4xl min-h-96 max-h-[80vh] overflow-y-hidden flex flex-col md:flex-row md:ml-20 -mt-12 rounded-[24px] shadow-lg bg-secondary transition-all duration-300 z-[1000]">
-        <form method="dialog" onSubmit={onClose}>
-          <button className="btn btn-sm btn-circle text-black dark:text-white btn-ghost absolute right-2 top-2">
-            ✕
-          </button>
-        </form>
-        <div className="flex flex-col flex-grow w-full p-2 space-y-6">
-          <div className="flex flex-row justify-between items-center">
-            <div className="flex flex-row gap-2 items-center">
-              <p className="text-xl font-bold text-primary-content">
-                #{proposal?.id?.toString() ?? '0'}
-              </p>
-              <span className="badge badge-lg shadow-lg justify-center badge-primary text-neutral-content rounded-full">
-                {getStatusLabel(proposal)}
-              </span>
-            </div>
-            {userHasVoted && (
-              <div className="flex flex-row gap-2 justify-center items-center">
-                <span className="text-sm text-primary-content">Your vote:</span>
-                <span
-                  className={`badge badge-lg rounded-full ${
-                    userVoteOption?.toString() === 'VOTE_OPTION_YES'
-                      ? 'bg-success'
-                      : userVoteOption?.toString() === 'VOTE_OPTION_NO'
-                        ? 'bg-error'
-                        : userVoteOption?.toString() === 'VOTE_OPTION_NO_WITH_VETO'
-                          ? 'bg-warning'
-                          : userVoteOption?.toString() === 'VOTE_OPTION_ABSTAIN'
-                            ? 'bg-info'
-                            : ''
-                  }`}
-                >
-                  {userVoteOption !== null ? voteMapping[userVoteOption ?? ''] : null}
+    <>
+      <dialog id={modalId} className="modal">
+        <div className="modal-box relative max-w-4xl min-h-96 max-h-[80vh] overflow-y-hidden flex flex-col md:flex-row md:ml-20 -mt-12 rounded-[24px] shadow-lg bg-secondary transition-all duration-300 z-[1000]">
+          <form method="dialog" onSubmit={onClose}>
+            <button className="btn btn-sm btn-circle text-black dark:text-white btn-ghost absolute right-2 top-2">
+              ✕
+            </button>
+          </form>
+          <div className="flex flex-col flex-grow w-full p-2 space-y-6">
+            <div className="flex flex-row justify-between items-center">
+              <div className="flex flex-row gap-2 items-center">
+                <p className="text-xl font-bold text-primary-content">
+                  #{proposal?.id?.toString() ?? '0'}
+                </p>
+                <span className="badge badge-lg shadow-lg justify-center badge-primary text-neutral-content rounded-full">
+                  {getStatusLabel(proposal)}
                 </span>
               </div>
+              {userHasVoted && (
+                <div className="flex flex-row gap-2 justify-center items-center">
+                  <span className="text-sm text-primary-content">Your vote:</span>
+                  <span
+                    className={`badge badge-lg rounded-full ${
+                      userVoteOption?.toString() === 'VOTE_OPTION_YES'
+                        ? 'bg-success'
+                        : userVoteOption?.toString() === 'VOTE_OPTION_NO'
+                          ? 'bg-error'
+                          : userVoteOption?.toString() === 'VOTE_OPTION_NO_WITH_VETO'
+                            ? 'bg-warning'
+                            : userVoteOption?.toString() === 'VOTE_OPTION_ABSTAIN'
+                              ? 'bg-info'
+                              : ''
+                    }`}
+                  >
+                    {userVoteOption !== null ? voteMapping[userVoteOption ?? ''] : null}
+                  </span>
+                </div>
+              )}
+            </div>
+            <div className="flex flex-col justify-start items-start">
+              <p className="text-sm font-light text-gray-500 dark:text-gray-400">TITLE</p>
+              <h1 className="text-2xl font-bold max-w-[20ch] truncate text-primary-content">
+                {proposal?.title}
+              </h1>
+              <span className="text-sm font-light text-gray-500 dark:text-gray-400 mt-2">
+                SUBMITTED
+              </span>
+              <span className="text-sm text-primary-content">
+                {new Date(proposal?.submit_time).toDateString().toLocaleString()}
+              </span>
+            </div>
+            <div className="divider my-"></div>
+            {proposal?.summary && (
+              <div className="w-full">
+                <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2 ">SUMMARY</p>
+                <div className="bg-base-300 rounded-[12px] p-4">
+                  <p className="text-sm text-primary-content">{proposal?.summary}</p>
+                </div>
+              </div>
             )}
-          </div>
-          <div className="flex flex-col justify-start items-start">
-            <p className="text-sm font-light text-gray-500 dark:text-gray-400">TITLE</p>
-            <h1 className="text-2xl font-bold max-w-[20ch] truncate text-primary-content">
-              {proposal?.title}
-            </h1>
-            <span className="text-sm font-light text-gray-500 dark:text-gray-400 mt-2">
-              SUBMITTED
-            </span>
-            <span className="text-sm text-primary-content">
-              {new Date(proposal?.submit_time).toDateString().toLocaleString()}
-            </span>
-          </div>
-          <div className="divider my-"></div>
-          <div className="w-full">
-            <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2 ">SUMMARY</p>
-            <div className="bg-base-300 rounded-[12px] p-4">
-              <p className="text-sm text-primary-content">{proposal?.summary}</p>
-            </div>
-          </div>
-          <div className="w-full">
-            <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">MESSAGES</p>
-            <div className="bg-base-300 rounded-[12px] p-4 overflow-y-auto max-h-[20rem]">
-              {proposal?.messages?.map((message: any, index: number) => {
-                const messageType = message['@type'];
-                const fieldsToShow = importantFields[messageType] || defaultFields;
+            <div className="w-full">
+              <div className="flex items-center gap-2 mb-2">
+                <p className="text-sm font-light text-gray-500 dark:text-gray-400">MESSAGES</p>
+                <button
+                  onClick={handleExpandMessages}
+                  className="btn btn-xs btn-ghost btn-circle"
+                  title="Expand messages"
+                >
+                  <ArrowUpIcon className="w-4 h-4" />
+                </button>
+              </div>
+              <div
+                className={`bg-base-300 rounded-[12px] p-4 overflow-y-auto ${
+                  proposal.summary ? 'max-h-[10rem]' : 'max-h-[17rem]'
+                }`}
+              >
+                {proposal?.messages?.map((message: any, index: number) => {
+                  const messageType = message['@type'];
+                  const fieldsToShow = importantFields[messageType] || defaultFields;
 
-                return (
-                  <div key={index} className="mb-4">
-                    <h3 className="text-lg font-semibold mb-2 text-primary-content">
-                      {messageType.split('.').pop().replace('Msg', '')}
-                    </h3>
-                    <div>
-                      {fieldsToShow.map(field => renderMessageField(field, message[field]))}
+                  return (
+                    <div key={index} className="mb-4">
+                      <h3 className="text-lg font-semibold mb-2 text-primary-content">
+                        {messageType.split('.').pop().replace('Msg', '')}
+                      </h3>
+                      <div>
+                        {fieldsToShow.map(field => renderMessageField(field, message[field]))}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-          <div aria-label="voting-countdown-1" className="hidden md:block w-full">
-            <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
-              VOTING COUNTDOWN
-            </p>
-            <CountdownTimer endTime={new Date(proposal?.voting_period_end)} />
-          </div>
-        </div>
-        <div className="divider divider-horizontal"></div>
-        <div className="flex flex-col w-full relative flex-grow items-start justify-start p-6 space-y-6">
-          <div className="w-full">
-            <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">TALLY</p>
-            <div aria-label="chart-tally" className="bg-base-300 rounded-[12px] w-full">
-              <Chart options={options} series={[{ data: chartData }]} type="bar" height={200} />
-            </div>
-          </div>
-          <div className="w-full">
-            <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">MEMBERS</p>
-            <div className="bg-base-300 rounded-[12px] p-4 w-full">
-              <div className="overflow-x-auto w-full min-h-64 max-h-[22.5rem] overflow-y-auto">
-                <table className="table-auto w-full text-sm">
-                  <thead className="text-xs uppercase bg-neutral">
-                    <tr>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 first:rounded-tl-[12px] text-primary-content"
-                      >
-                        Address
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-primary-content">
-                        Weight
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 last:rounded-tr-[12px] text-primary-content"
-                      >
-                        Vote
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {normalizedMembers?.map((member, index) => {
-                      const memberVote = voteMap[member?.address];
-                      return (
-                        <tr key={index} className="border-b border-gray-500">
-                          <td className="px-6 py-4">
-                            <TruncatedAddressWithCopy slice={8} address={member?.address} />
-                          </td>
-                          <td className="px-6 py-4 text-primary-content">{member?.weight}</td>
-                          <td className="px-6 py-4 text-primary-content">
-                            {optionToVote(memberVote?.toString()) || 'N/A'}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                  );
+                })}
               </div>
             </div>
-          </div>
-          <div aria-label="voting-countdown-2" className="md:hidden block w-full">
-            <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
-              VOTING COUNTDOWN
-            </p>
-            <CountdownTimer endTime={new Date(proposal.voting_period_end)} />
-          </div>
-          <div className="w-full relative">
-            {getButtonState.action && (
+            <div aria-label="voting-countdown-1" className="hidden md:block w-full">
+              <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
+                VOTING COUNTDOWN
+              </p>
+              <CountdownTimer endTime={new Date(proposal?.voting_period_end)} />
+            </div>
+            <div className="flex-row gap-2 items-center hidden md:flex mb-2">
               <button
-                aria-label="action-btn"
-                disabled={
-                  isSigning ||
-                  (getButtonState.action === 'remove' &&
-                    !proposal?.proposers?.includes(address ?? ''))
-                }
-                className="btn w-full btn-primary text-white rounded-[12px]"
-                onClick={() => {
-                  switch (getButtonState.action) {
-                    case 'execute':
-                      executeProposal();
-                      break;
-                    case 'vote':
-                      handleVoteButtonClick();
-                      break;
-                    case 'remove':
-                      executeWithdrawl();
-                      break;
-                  }
-                }}
+                onClick={copyProposalLink}
+                className="flex flex-row items-center gap-2 hover:bg-[#FFFFFFCC] dark:hover:bg-[#FFFFFF0F] p-2 rounded-full transition-colors duration-200"
               >
-                {isSigning ? (
-                  <div className="loading loading-dots loading-sm" />
+                {copied ? (
+                  <CheckIcon className="w-4 h-4 text-green-500" />
                 ) : (
-                  getButtonState.label
+                  <CopyIcon className="w-4 h-4" />
                 )}
+                <p className="text-sm font-light text-gray-500 dark:text-gray-400">
+                  {copied ? 'Copied!' : 'Share this proposal'}
+                </p>
               </button>
-            )}
-            {proposal?.proposers?.includes(address ?? '') &&
-              proposal?.status !== ('PROPOSAL_STATUS_CLOSED' as unknown as ProposalStatus) &&
-              !proposalClosed &&
-              userHasVoted === false && (
+            </div>
+          </div>
+          <div className="divider divider-horizontal"></div>
+          <div className="flex flex-col w-full relative flex-grow items-start justify-start p-6 space-y-6">
+            <div className="w-full">
+              <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">TALLY</p>
+              <div aria-label="chart-tally" className="bg-base-300 rounded-[12px] w-full">
+                <Chart options={options} series={[{ data: chartData }]} type="bar" height={200} />
+              </div>
+            </div>
+            <div className="w-full">
+              <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">MEMBERS</p>
+              <div className="bg-base-300 rounded-[12px] p-4 w-full">
+                <div className="overflow-x-auto w-full min-h-64 max-h-[22.5rem] overflow-y-auto">
+                  <table className="table-auto w-full text-sm">
+                    <thead className="text-xs uppercase bg-neutral">
+                      <tr>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 first:rounded-tl-[12px] text-primary-content"
+                        >
+                          Address
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-primary-content">
+                          Weight
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 last:rounded-tr-[12px] text-primary-content"
+                        >
+                          Vote
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {normalizedMembers?.map((member, index) => {
+                        const memberVote = voteMap[member?.address];
+                        return (
+                          <tr key={index} className="border-b border-gray-500">
+                            <td className="px-6 py-4">
+                              <TruncatedAddressWithCopy slice={8} address={member?.address} />
+                            </td>
+                            <td className="px-6 py-4 text-primary-content">{member?.weight}</td>
+                            <td className="px-6 py-4 text-primary-content">
+                              {optionToVote(memberVote?.toString()) || 'N/A'}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div aria-label="voting-countdown-2" className="md:hidden block w-full">
+              <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
+                VOTING COUNTDOWN
+              </p>
+              <CountdownTimer endTime={new Date(proposal.voting_period_end)} />
+            </div>
+            <div className="flex-row gap-2 items-center flex md:hidden mb-2">
+              <button
+                onClick={copyProposalLink}
+                className="flex flex-row items-center gap-2 hover:bg-[#FFFFFFCC] dark:hover:bg-[#FFFFFF0F] p-2 rounded-full transition-colors duration-200"
+              >
+                {copied ? (
+                  <CheckIcon className="w-4 h-4 text-green-500" />
+                ) : (
+                  <CopyIcon className="w-4 h-4" />
+                )}
+                <p className="text-sm font-light text-gray-500 dark:text-gray-400">
+                  {copied ? 'Copied!' : 'Share this proposal'}
+                </p>
+              </button>
+            </div>
+            <div className="w-full relative">
+              {getButtonState.action && (
                 <button
-                  disabled={isSigning || !proposal?.proposers?.includes(address ?? '')}
-                  className="btn btn-xs text-white btn-error absolute top-3 right-3 rounded-lg"
-                  onClick={executeWithdrawl}
+                  aria-label="action-btn"
+                  disabled={
+                    isSigning ||
+                    (getButtonState.action === 'remove' &&
+                      !proposal?.proposers?.includes(address ?? ''))
+                  }
+                  className="btn w-full btn-gradient text-white rounded-[12px]"
+                  onClick={() => {
+                    switch (getButtonState.action) {
+                      case 'execute':
+                        executeProposal();
+                        break;
+                      case 'vote':
+                        handleVoteButtonClick();
+                        break;
+                      case 'remove':
+                        executeWithdrawl();
+                        break;
+                    }
+                  }}
                 >
                   {isSigning ? (
                     <div className="loading loading-dots loading-sm" />
                   ) : (
-                    <TrashIcon className="w-4 h-4" />
+                    getButtonState.label
                   )}
                 </button>
               )}
-          </div>
+              {proposal?.proposers?.includes(address ?? '') &&
+                proposal?.status !== ('PROPOSAL_STATUS_CLOSED' as unknown as ProposalStatus) &&
+                !proposalClosed &&
+                userHasVoted === false && (
+                  <button
+                    disabled={isSigning || !proposal?.proposers?.includes(address ?? '')}
+                    className="btn btn-xs text-white btn-error absolute top-3 right-3 rounded-lg"
+                    onClick={executeWithdrawl}
+                  >
+                    {isSigning ? (
+                      <div className="loading loading-dots loading-sm" />
+                    ) : (
+                      <TrashIcon className="w-4 h-4" />
+                    )}
+                  </button>
+                )}
+            </div>
 
-          <VotingPopup
-            proposalId={proposal?.id ?? 0n}
-            refetch={() => {
-              refetchVotes();
-              refetchTally();
-              refetchProposals();
-            }}
-          />
+            <VotingPopup
+              proposalId={proposal?.id ?? 0n}
+              refetch={() => {
+                refetchVotes();
+                refetchTally();
+                refetchProposals();
+              }}
+            />
+          </div>
         </div>
-      </div>
-      <form method="dialog" className="modal-backdrop" onSubmit={onClose}>
-        <button>close</button>
-      </form>
-    </dialog>
+        <form method="dialog" className="modal-backdrop" onSubmit={onClose}>
+          <button>close</button>
+        </form>
+      </dialog>
+
+      <dialog id="messages_modal" className="modal">
+        <div className="modal-box max-w-4xl bg-secondary">
+          <form method="dialog">
+            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+          </form>
+          <h3 className="font-bold text-lg mb-4">Proposal Messages</h3>
+          <div className="overflow-y-auto max-h-[60vh]">
+            {proposal?.messages?.map((message: any, index: number) => {
+              const messageType = message['@type'];
+              const fieldsToShow = importantFields[messageType] || defaultFields;
+
+              return (
+                <div key={index} className="mb-6 bg-base-300 p-4 rounded-[12px]">
+                  <h3 aria-label="msg" className="text-lg font-semibold mb-2 text-primary-content">
+                    {messageType.split('.').pop().replace('Msg', '')}
+                  </h3>
+                  <div>{fieldsToShow.map(field => renderMessageField(field, message[field]))}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
+    </>
   );
 }
 

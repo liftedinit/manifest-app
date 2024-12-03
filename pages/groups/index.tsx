@@ -19,14 +19,14 @@ export default function Groups() {
   const groupPolicyAddresses =
     groupByMemberData?.groups?.map(group => group.policies[0].address) ?? [];
 
-  const { proposalsByPolicyAccount, isProposalsError, isProposalsLoading } =
+  const { proposalsByPolicyAccount, isProposalsError, isProposalsLoading, refetchProposals } =
     useProposalsByPolicyAccountAll(groupPolicyAddresses ?? []);
 
   const isLoading = isGroupByMemberLoading || isProposalsLoading;
   const isError = isGroupByMemberError || isProposalsError;
 
   return (
-    <div className="min-h-screen relative py-4 px-2 mx-auto text-white mt-12 md:mt-0">
+    <div className="min-h-screen relative py-4 px-2 mx-auto text-white ">
       <Head>
         <title>Groups - Alberto</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -82,6 +82,7 @@ export default function Groups() {
               groups={groupByMemberData ?? { groups: [] }}
               proposals={proposalsByPolicyAccount}
               isLoading={isLoading}
+              refetch={refetchGroupByMember}
             />
           ) : isError ? (
             <div className="text-center text-error">Error loading groups or proposals</div>
@@ -93,6 +94,7 @@ export default function Groups() {
                 groups={groupByMemberData ?? { groups: [] }}
                 proposals={proposalsByPolicyAccount}
                 isLoading={isLoading}
+                refetch={refetchGroupByMember}
               />
               {selectedPolicyAddress && (
                 <GroupInfo
@@ -104,7 +106,7 @@ export default function Groups() {
                     ) ?? null
                   }
                   address={address ?? ''}
-                  onUpdate={() => {}}
+                  onUpdate={refetchGroupByMember}
                 />
               )}
             </>
