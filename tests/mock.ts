@@ -195,6 +195,7 @@ export const defaultChain: Chain = {
 };
 
 export const mockTransactions: TransactionGroup[] = [
+  // Send
   {
     tx_hash: 'hash1',
     block_number: 1,
@@ -203,9 +204,10 @@ export const mockTransactions: TransactionGroup[] = [
       tx_type: HistoryTxType.SEND,
       from_address: 'address1',
       to_address: 'address2',
-      amount: [{ amount: '1000000', denom: 'utoken' }],
+      amount: [{ amount: '1000000000000000000000000', denom: 'utoken' }],
     },
   },
+  // Receive
   {
     tx_hash: 'hash2',
     block_number: 2,
@@ -214,7 +216,103 @@ export const mockTransactions: TransactionGroup[] = [
       tx_type: HistoryTxType.SEND,
       from_address: 'address2',
       to_address: 'address1',
-      amount: [{ amount: '2000000', denom: 'utoken' }],
+      amount: [{ amount: '2000000000000000000000', denom: 'utoken' }],
+    },
+  },
+  // Minted
+  {
+    tx_hash: 'hash3',
+    block_number: 3,
+    formatted_date: '2023-05-03T12:00:00Z',
+    data: {
+      tx_type: HistoryTxType.MINT,
+      from_address: 'address1',
+      to_address: 'address2',
+      amount: [{ amount: '3000000000000000000', denom: 'utoken' }],
+    },
+  },
+  // Burned
+  {
+    tx_hash: 'hash4',
+    block_number: 4,
+    formatted_date: '2023-05-04T12:00:00Z',
+    data: {
+      tx_type: HistoryTxType.BURN,
+      from_address: 'address2',
+      to_address: 'address1',
+      amount: [{ amount: '1200000000000000', denom: 'utoken' }],
+    },
+  },
+  // Minted
+  {
+    tx_hash: 'hash5',
+    block_number: 5,
+    formatted_date: '2023-05-05T12:00:00Z',
+    data: {
+      tx_type: HistoryTxType.PAYOUT,
+      from_address: 'address1',
+      to_address: 'address2',
+      amount: [{ amount: '5000000000000', denom: 'utoken' }],
+    },
+  },
+  // Burned
+  {
+    tx_hash: 'hash6',
+    block_number: 6,
+    formatted_date: '2023-05-06T12:00:00Z',
+    data: {
+      tx_type: HistoryTxType.BURN_HELD_BALANCE,
+      from_address: 'address2',
+      to_address: 'address1',
+      amount: [{ amount: '2100000', denom: 'utoken' }],
+    },
+  },
+  // Minted
+  {
+    tx_hash: 'hash7',
+    block_number: 7,
+    formatted_date: '2023-05-07T12:00:00Z',
+    data: {
+      tx_type: HistoryTxType.PAYOUT,
+      from_address: 'address2',
+      to_address: 'address1',
+      amount: [{ amount: '2300000', denom: 'utoken' }],
+    },
+  },
+  // Minted
+  {
+    tx_hash: 'hash8',
+    block_number: 8,
+    formatted_date: '2023-05-08T12:00:00Z',
+    data: {
+      tx_type: HistoryTxType.PAYOUT,
+      from_address: 'address2',
+      to_address: 'address1',
+      amount: [{ amount: '2400000', denom: 'utoken' }],
+    },
+  },
+  // Minted
+  {
+    tx_hash: 'hash9',
+    block_number: 9,
+    formatted_date: '2023-05-09T12:00:00Z',
+    data: {
+      tx_type: HistoryTxType.PAYOUT,
+      from_address: 'address2',
+      to_address: 'address1',
+      amount: [{ amount: '2500000', denom: 'utoken' }],
+    },
+  },
+  // Minted
+  {
+    tx_hash: 'hash10',
+    block_number: 10,
+    formatted_date: '2023-05-10T12:00:00Z',
+    data: {
+      tx_type: HistoryTxType.PAYOUT,
+      from_address: 'address2',
+      to_address: 'address1',
+      amount: [{ amount: '2600000', denom: 'utoken' }],
     },
   },
 ];
