@@ -48,7 +48,7 @@ export default function MemberInfoForm({
       <div className="lg:flex mx-auto">
         <div className="flex items-center mx-auto w-full dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-[24px] rounded-[24px]">
           <div className="w-full">
-            <h1 className="mb-4 text-xl font-extrabold tracking-tight sm:mb-6 leading-tight border-b-[0.5px] dark:text-[#FFFFFF99] dark:border-[#FFFFFF99] border-b-[black] pb-4">
+            <h1 className="mb-4 text-xl font-extrabold tracking-tight sm:mb-6 leading-tight border-b-[0.5px] text-gray-500 dark:text-gray-400 dark:border-gray-400 border-gray-500 border-b-[black] pb-4">
               Member Info
             </h1>
             <Formik
@@ -78,7 +78,7 @@ export default function MemberInfoForm({
                               {values.members.map((member, index) => (
                                 <div
                                   key={index}
-                                  className="flex relative flex-row dark:bg-[#FFFFFF0A] bg-[#FFFFFF] p-4 gap-2 mb-4 rounded-lg items-end"
+                                  className="flex relative flex-row bg-base-300 p-4 gap-2 mb-4 rounded-lg items-end"
                                 >
                                   {index > 0 && (
                                     <div className=" absolute -top-2 left-2  text-xs">
@@ -269,7 +269,10 @@ export default function MemberInfoForm({
       </div>
 
       <div className="flex gap-6 mt-6 mx-auto w-full">
-        <button onClick={prevStep} className="btn btn-neutral py-2.5 sm:py-3.5 w-[calc(50%-12px)]">
+        <button
+          onClick={prevStep}
+          className="btn btn-neutral text-black dark:text-white py-2.5 sm:py-3.5 w-[calc(50%-12px)]"
+        >
           Back: Group Details
         </button>
         <button
