@@ -1,6 +1,7 @@
 import React from 'react';
 import SendBox from '../components/sendBox';
 import { CombinedBalanceInfo } from '@/utils/types';
+import { useEffect } from 'react';
 
 interface SendModalProps {
   modalId: string;
@@ -8,8 +9,10 @@ interface SendModalProps {
   balances: CombinedBalanceInfo[];
   isBalancesLoading: boolean;
   refetchBalances: () => void;
+  isOpen: boolean;
   refetchHistory: () => void;
   selectedDenom?: string;
+  setOpen?: (isOpen: boolean) => void;
 }
 
 export default function SendModal({
@@ -20,15 +23,42 @@ export default function SendModal({
   refetchBalances,
   refetchHistory,
   selectedDenom,
+  isOpen,
+  setOpen,
 }: SendModalProps) {
+  const handleClose = () => {
+    if (setOpen) {
+      setOpen(false);
+    }
+    (document.getElementById(modalId) as HTMLDialogElement)?.close();
+  };
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        handleClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen]);
+
   return (
-    <dialog id={modalId} className="modal z-[999]">
+    <dialog
+      id={modalId}
+      className={`modal ${isOpen ? 'modal-open' : ''} z-[999]`}
+      onClose={handleClose}
+    >
       <div
         className="modal-box max-w-xl mx-auto rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg relative z-[1000]"
         aria-label="send modal"
       >
         <form method="dialog">
-          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]">
+          <button
+            onClick={handleClose}
+            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]"
+          >
             ✕
           </button>
         </form>
@@ -45,7 +75,7 @@ export default function SendModal({
         />
       </div>
       <form method="dialog" className="modal-backdrop">
-        <button>close</button>
+        <button onClick={handleClose}>close</button>
       </form>
     </dialog>
   );

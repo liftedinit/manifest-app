@@ -5,7 +5,7 @@ export const SendTxIcon: React.FC<SVGProps<SVGSVGElement>> = props => (
   <svg
     stroke="currentColor"
     fill="currentColor"
-    stroke-width="0"
+    strokeWidth="0"
     viewBox="0 0 512 512"
     focusable="false"
     aria-hidden="true"

@@ -26,7 +26,7 @@ export default function TokenList({
 }: TokenListProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDenom, setSelectedDenom] = useState<any>(null);
-
+  const [isSendModalOpen, setIsSendModalOpen] = useState(false);
   const filteredBalances = useMemo(() => {
     if (!Array.isArray(balances)) return [];
     return balances.filter(balance =>
@@ -117,7 +117,7 @@ export default function TokenList({
                       onClick={e => {
                         e.stopPropagation();
                         setSelectedDenom(balance?.denom);
-                        (document?.getElementById(`send-modal`) as HTMLDialogElement)?.showModal();
+                        setIsSendModalOpen(true);
                       }}
                       className="p-2 rounded-md bg-[#0000000A] dark:bg-[#FFFFFF0F] hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF33] transition-colors"
                     >
@@ -139,12 +139,14 @@ export default function TokenList({
 
           <SendModal
             modalId="send-modal"
+            isOpen={isSendModalOpen}
             address={address}
             balances={balances ?? []}
             isBalancesLoading={isLoading}
             refetchBalances={refetchBalances}
             refetchHistory={refetchHistory}
             selectedDenom={selectedDenom}
+            setOpen={setIsSendModalOpen}
           />
         </div>
       </div>
