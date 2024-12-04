@@ -32,17 +32,7 @@ describe('Success Component', () => {
     expect(screen.getByText(mockTokenFormData.name)).toBeInTheDocument();
     expect(screen.getByText('SYMBOL')).toBeInTheDocument();
     expect(screen.getByText(mockTokenFormData.symbol)).toBeInTheDocument();
-    expect(screen.getByText('DISPLAY')).toBeInTheDocument();
-    expect(screen.getByText(mockTokenFormData.display)).toBeInTheDocument();
-    expect(screen.getByText('SUBDENOM')).toBeInTheDocument();
-    expect(screen.getByText(mockTokenFormData.subdenom)).toBeInTheDocument();
     expect(screen.getByText('DESCRIPTION')).toBeInTheDocument();
     expect(screen.getByText(mockTokenFormData.description)).toBeInTheDocument();
-    expect(screen.getByText('BASE EXPONENT')).toBeInTheDocument();
-    expect(screen.getByText('0')).toBeInTheDocument();
-    expect(screen.getByText('DISPLAY EXPONENT')).toBeInTheDocument();
-    expect(
-      screen.getByText(mockTokenFormData.denomUnits[1].exponent.toString())
-    ).toBeInTheDocument();
   });
 });

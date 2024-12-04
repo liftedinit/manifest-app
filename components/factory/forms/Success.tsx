@@ -13,16 +13,16 @@ export default function Success({
 
   return (
     <section className="lg:max-h-[90vh] max-h-screen lg:mt-1 mt-12 flex items-center justify-center">
-      <div className="max-w-2xl mx-auto bg-base-300 shadow-lg rounded-lg p-8 text-white">
+      <div className="max-w-2xl mx-auto bg-base-300 shadow-lg rounded-lg p-8">
         <h1 className="text-3xl font-bold mb-4">Success!</h1>
         <p className="text-lg mb-2 text-pretty">
           Your token was successfully created and the metadata was set.
         </p>
-        <p className="text-md text-gray-300 mb-6 text-pretty">
+        <p className="text-md text-[#808080] mb-6 text-pretty">
           You can now mint, burn, or change the admin of your tokens and send them to other wallets.
         </p>
 
-        <div className="text-md text-gray-300 mb-6 text-pretty">
+        <div className="text-md text-[#808080] mb-6 text-pretty">
           The full denom of your token is:{' '}
           <span className="font-semibold">
             <TruncatedAddressWithCopy address={fullDenom} slice={24} />
@@ -39,29 +39,13 @@ export default function Success({
               <h3 className="text-md font-light text-gray-400">SYMBOL</h3>
               <p className="text-lg font-medium">{formData.symbol}</p>
             </div>
-            <div>
-              <h3 className="text-md font-light text-gray-400">DISPLAY</h3>
-              <p className="text-lg font-medium">{formData.display}</p>
-            </div>
-            <div>
-              <h3 className="text-md font-light text-gray-400">SUBDENOM</h3>
-              <p className="text-lg font-medium">{formData.subdenom}</p>
-            </div>
             <div className="col-span-1 md:col-span-2 max-h-28 overflow-y-auto">
               <h3 className="text-md font-light text-gray-400">DESCRIPTION</h3>
               <p className="text-lg font-medium">{formData.description}</p>
             </div>
-            <div>
-              <h3 className="text-md font-light text-gray-400">BASE EXPONENT</h3>
-              <p className="text-lg font-medium">0</p>
-            </div>
-            <div>
-              <h3 className="text-md font-light text-gray-400">DISPLAY EXPONENT</h3>
-              <p className="text-lg font-medium">{formData.denomUnits[1].exponent}</p>
-            </div>
             {formData.uri && (
               <div className="col-span-1 md:col-span-2">
-                <h3 className="text-md font-light text-gray-400">URI</h3>
+                <h3 className="text-md font-light text-gray-400">Logo URL</h3>
                 <p className="text-lg font-medium">{formData.uri}</p>
               </div>
             )}

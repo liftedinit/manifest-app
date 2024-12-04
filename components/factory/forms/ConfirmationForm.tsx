@@ -94,23 +94,28 @@ export default function ConfirmationForm({
         </div>
 
         <div className="space-y-6">
+          <div className="text-md">
+            You will be required to sign two messages: the first to create the token on the
+            blockchain, and the second to configure the token&#39;s metadata, including its name,
+            symbol, description, and other details.
+          </div>
           {/* Token Information */}
           <div>
-            <h2 className="text-xl font-semibold mb-4 dark:text-[#FFFFFF99]">Token Information</h2>
+            <h2 className="text-xl font-semibold mb-4 ">Token Information</h2>
             <div className="grid grid-cols-2 gap-4">
-              <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-[12px]">
-                <label className="text-sm dark:text-[#FFFFFF66]">Symbol</label>
-                <div className="dark:text-[#FFFFFF99]">{formData.symbol || formData.display}</div>
+              <div className="bg-base-300 p-4 rounded-[12px]">
+                <label className="text-sm text-gray-500 dark:text-gray-400">Symbol</label>
+                <div className="">{formData.symbol || formData.display}</div>
               </div>
-              <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-[12px]">
-                <label className="text-sm dark:text-[#FFFFFF66]">Subdenom</label>
-                <div className="dark:text-[#FFFFFF99]">{formData.subdenom}</div>
+              <div className="bg-base-300 p-4 rounded-[12px]">
+                <label className="text-sm text-gray-500 dark:text-gray-400">Logo URL</label>
+                <div className="">{formData.uri || 'N/A'}</div>
               </div>
             </div>
-            <div className="mt-4 dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-[12px]">
-              <label className="text-sm dark:text-[#FFFFFF66]">Description</label>
+            <div className="mt-4 bg-base-300 p-4 rounded-[12px]">
+              <label className="text-sm text-gray-500 dark:text-gray-400">Description</label>
               <div
-                className="overflow-hidden text-ellipsis whitespace-nowrap dark:text-[#FFFFFF99]"
+                className="overflow-hidden text-ellipsis whitespace-nowrap "
                 title={formData.description}
               >
                 {formData.description.length > 200
@@ -119,42 +124,15 @@ export default function ConfirmationForm({
               </div>
             </div>
           </div>
-
-          {/* Denom Units */}
-          <div>
-            <h2 className="text-xl font-semibold mb-4 dark:text-[#FFFFFF99]">Denom Units</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-[12px]">
-                <label className="text-sm dark:text-[#FFFFFF66]">Base Denom</label>
-                <div className="dark:text-[#FFFFFF99]">{fullDenom}</div>
-              </div>
-              <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-[12px]">
-                <label className="text-sm dark:text-[#FFFFFF66]">Display Denom</label>
-                <div className="dark:text-[#FFFFFF99]">{formData.subdenom.slice(1)}</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Advanced Details */}
-          <div>
-            <h2 className="text-xl font-semibold mb-4 dark:text-[#FFFFFF99]">Advanced Details</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-[12px]">
-                <label className="text-sm dark:text-[#FFFFFF66]">URI</label>
-                <div className="dark:text-[#FFFFFF99]">{formData.uri || 'N/A'}</div>
-              </div>
-              <div className="dark:bg-[#2A2A38] bg-[#FFFFFF] p-4 rounded-[12px]">
-                <label className="text-sm dark:text-[#FFFFFF66]">URI Hash</label>
-                <div className="dark:text-[#FFFFFF99]">{formData.uriHash || 'N/A'}</div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
       {/* Buttons */}
       <div className="flex gap-6  mt-6 mx-auto w-full">
-        <button onClick={prevStep} className="btn btn-neutral w-[calc(50%-12px)]">
+        <button
+          onClick={prevStep}
+          className="btn btn-neutral dark:text-white text-black w-[calc(50%-12px)]"
+        >
           Edit Token Metadata
         </button>
         <button
