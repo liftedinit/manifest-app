@@ -172,7 +172,7 @@ export function HistoryBox({
             <button
               onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
               disabled={currentPage === 1 || isLoading}
-              className="p-2 hover:bg-[#FFFFFF1A] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               ‹
             </button>
@@ -192,15 +192,19 @@ export function HistoryBox({
                     className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors
                       ${
                         currentPage === pageNum
-                          ? 'bg-[#FFFFFF1A] text-white'
-                          : 'hover:bg-[#FFFFFF1A]'
+                          ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A] text-black dark:text-white'
+                          : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white'
                       }`}
                   >
                     {pageNum}
                   </button>
                 );
               } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
-                return <span key={pageNum}>...</span>;
+                return (
+                  <span className="text-black dark:text-white" key={pageNum}>
+                    ...
+                  </span>
+                );
               }
               return null;
             })}
@@ -208,7 +212,7 @@ export function HistoryBox({
             <button
               onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
               disabled={currentPage === totalPages || isLoading}
-              className="p-2 hover:bg-[#FFFFFF1A] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               ›
             </button>
