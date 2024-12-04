@@ -253,7 +253,7 @@ export default function MyDenoms({
                     setCurrentPage(prev => Math.max(1, prev - 1));
                   }}
                   disabled={currentPage === 1 || isLoading}
-                  className="p-2 hover:bg-[#FFFFFF1A] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   aria-label="Previous page"
                 >
                   ‹
@@ -273,8 +273,8 @@ export default function MyDenoms({
                           e.stopPropagation();
                           setCurrentPage(pageNum);
                         }}
-                        className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors
-                          ${currentPage === pageNum ? 'bg-[#FFFFFF1A] text-white' : 'hover:bg-[#FFFFFF1A]'}`}
+                        className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors text-black dark:text-white 
+                          ${currentPage === pageNum ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A]' : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A]'}`}
                         aria-label={`Page ${pageNum}`}
                         aria-current={currentPage === pageNum ? 'page' : undefined}
                       >
@@ -297,7 +297,7 @@ export default function MyDenoms({
                     setCurrentPage(prev => Math.min(totalPages, prev + 1));
                   }}
                   disabled={currentPage === totalPages || isLoading}
-                  className="p-2 hover:bg-[#FFFFFF1A] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   aria-label="Next page"
                 >
                   ›
