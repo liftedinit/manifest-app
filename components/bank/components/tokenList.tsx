@@ -107,13 +107,10 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
             </div>
           )}
 
-          {/* DenomInfoModal */}
-          {selectedDenom && (
-            <DenomInfoModal
-              denom={filteredBalances.find(b => b.denom === selectedDenom)?.metadata ?? null}
-              modalId="denom-info-modal"
-            />
-          )}
+          <DenomInfoModal
+            denom={filteredBalances.find(b => b.denom === selectedDenom)?.metadata ?? null}
+            modalId="denom-info-modal"
+          />
         </div>
       </div>
     </div>
