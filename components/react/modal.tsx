@@ -39,6 +39,7 @@ export const TailwindModal: React.FC<
 
   const [currentView, setCurrentView] = useState<ModalView>(ModalView.WalletList);
   const [qrWallet, setQRWallet] = useState<ChainWalletBase | undefined>();
+  const [selectedWallet, setSelectedWallet] = useState<ChainWalletBase | undefined>();
 
   const current = walletRepo?.current;
   const currentWalletData = current?.walletInfo;
@@ -82,6 +83,11 @@ export const TailwindModal: React.FC<
       // 1ms timeout prevents _render from determining the view to show first
       setTimeout(() => {
         const wallet = walletRepo?.getWallet(name);
+
+        if (wallet?.isWalletNotExist) {
+          setCurrentView(ModalView.NotExist);
+          setSelectedWallet(wallet);
+        }
         if (wallet?.walletInfo.mode === 'wallet-connect') {
           setCurrentView(ModalView.QRCode);
           setQRWallet(wallet);
@@ -162,11 +168,11 @@ export const TailwindModal: React.FC<
             onClose={onCloseModal}
             onReturn={() => setCurrentView(ModalView.WalletList)}
             onInstall={() => {
-              const link = current?.downloadInfo?.link;
-              if (link) router.push(current?.downloadInfo?.link);
+              const link = selectedWallet?.downloadInfo?.link;
+              if (link) window.open(link, '_blank', 'noopener,noreferrer');
             }}
-            logo={currentWalletData?.logo!.toString() ?? ''}
-            name={currentWalletData?.prettyName!}
+            logo={selectedWallet?.walletInfo.logo?.toString() ?? ''}
+            name={selectedWallet?.walletInfo.prettyName ?? ''}
           />
         );
       case ModalView.Contacts:
@@ -197,6 +203,7 @@ export const TailwindModal: React.FC<
     currentAddress,
     showMemberManagementModal,
     showMessageEditModal,
+    selectedWallet,
   ]);
 
   return (
