@@ -12,7 +12,6 @@ import useIsMobile from '@/hooks/useIsMobile';
 interface TokenListProps {
   balances: CombinedBalanceInfo[] | undefined;
   isLoading: boolean;
-
   refetchBalances: () => void;
   refetchHistory: () => void;
   address: string;
@@ -21,7 +20,6 @@ interface TokenListProps {
 export default function TokenList({
   balances,
   isLoading,
-
   refetchBalances,
   refetchHistory,
   address,
@@ -111,7 +109,7 @@ export default function TokenList({
                       </p>
                     </div>
                   </div>
-                  <div className="text-center">
+                  <div className="text-center hidden sm:block">
                     <p className="font-semibold text-[#161616] dark:text-white">
                       {Number(
                         shiftDigits(
@@ -121,7 +119,9 @@ export default function TokenList({
                       ).toLocaleString(undefined, {
                         maximumFractionDigits: balance.metadata?.denom_units[1]?.exponent ?? 6,
                       })}{' '}
-                      {truncateString(balance.metadata?.display ?? '', 12).toUpperCase()}
+                      <span>
+                        {truncateString(balance.metadata?.display ?? '', 12).toUpperCase()}
+                      </span>
                     </p>
                   </div>
                   <div className="flex flex-row gap-2">

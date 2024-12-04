@@ -11,7 +11,7 @@ import {
 
 import { useChain } from '@cosmos-kit/react';
 import Head from 'next/head';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { HistoryBox } from '@/components';
 import { BankIcon } from '@/components/icons';
 import { CombinedBalanceInfo } from '@/utils/types';
@@ -31,6 +31,17 @@ export default function Bank() {
   const indexerUrl = selectedEndpoint?.indexer || '';
 
   const { metadatas, isMetadatasLoading } = useTokenFactoryDenomsMetadata();
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const pageSize = 10;
+
+  const {
+    sendTxs,
+    totalPages,
+    isLoading: txLoading,
+    isError,
+    refetch: refetchHistory,
+  } = useGetFilteredTxAndSuccessfulProposals(indexerUrl, address ?? '', currentPage, pageSize);
 
   const combinedBalances = useMemo(() => {
     if (!balances || !resolvedBalances || !metadatas) return [];
@@ -71,8 +82,6 @@ export default function Bank() {
   }, [balances, resolvedBalances, metadatas]);
 
   const isLoading = isBalancesLoading || resolvedLoading || isMetadatasLoading;
-
-  const { refetch } = useGetFilteredTxAndSuccessfulProposals(indexerUrl, address ?? '');
 
   return (
     <>
@@ -143,12 +152,22 @@ export default function Bank() {
                     refetchBalances={refetchBalances || resolveRefetch}
                     isLoading={isLoading}
                     balances={combinedBalances}
-                    refetchHistory={refetch}
+                    refetchHistory={refetchHistory}
                     address={address ?? ''}
                   />
                 </div>
                 <div className="w-full lg:w-1/2 h-[calc(50vh-2rem)] lg:h-full">
-                  <HistoryBox address={address ?? ''} isLoading={isLoading} />
+                  <HistoryBox
+                    currentPage={currentPage}
+                    setCurrentPage={setCurrentPage}
+                    address={address ?? ''}
+                    isLoading={isLoading}
+                    sendTxs={sendTxs}
+                    totalPages={totalPages}
+                    txLoading={txLoading}
+                    isError={isError}
+                    refetch={refetchHistory}
+                  />
                 </div>
               </div>
             )

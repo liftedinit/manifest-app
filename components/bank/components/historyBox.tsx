@@ -50,23 +50,25 @@ function formatLargeNumber(num: number): string {
 export function HistoryBox({
   isLoading: initialLoading,
   address,
+  currentPage,
+  setCurrentPage,
+  sendTxs,
+  totalPages,
+  txLoading,
+  isError,
+  refetch,
 }: {
   isLoading: boolean;
   address: string;
+  currentPage: number;
+  setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
+  sendTxs: TransactionGroup[];
+  totalPages: number;
+  txLoading: boolean;
+  isError: boolean;
+  refetch: () => void;
 }) {
   const [selectedTx, setSelectedTx] = useState<TransactionGroup | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
-
-  const { selectedEndpoint } = useEndpointStore();
-  const indexerUrl = selectedEndpoint?.indexer || '';
-
-  const {
-    sendTxs,
-    totalPages,
-    isLoading: txLoading,
-    isError,
-  } = useGetFilteredTxAndSuccessfulProposals(indexerUrl, address, currentPage, pageSize);
 
   const isLoading = initialLoading || txLoading;
 
@@ -260,9 +262,15 @@ export function HistoryBox({
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-white"></div>
             </div>
           ) : isError ? (
-            <div className="text-center text-red-500">Error loading transactions</div>
+            <div className="flex items-center justify-center h-[200px] w-full bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px]">
+              <p className="text-center text-red-500">Error loading transactions</p>
+            </div>
           ) : !sendTxs || sendTxs.length === 0 ? (
-            <div className="text-center text-gray-500">No transactions found</div>
+            <div className="flex items-center justify-center h-[200px] w-full bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] mt-5 rounded-[16px]">
+              <p className="text-center text-[#00000099] dark:text-[#FFFFFF99]">
+                No transactions found!
+              </p>
+            </div>
           ) : (
             <div className="h-full overflow-y-auto">
               {Object.entries(groupedTransactions).map(([date, transactions], index) => (
