@@ -40,6 +40,16 @@ export const convertChainName = (chainName: string) => {
   }
 };
 
+export const getRealLogo = (logo: string) => {
+  const isDarkMode = document.documentElement.classList.contains('dark');
+  const localAndHasExtension = /^\/(?!.*\.[0-9a-z]+$)/i.test(logo);
+  return localAndHasExtension
+    ? isDarkMode
+      ? logo?.toString() + '_light.svg'
+      : logo?.toString() + '_dark.svg'
+    : logo;
+};
+
 export const isUrlValid = async (url: string) => {
   const res = await fetch(url, {
     method: 'HEAD',
