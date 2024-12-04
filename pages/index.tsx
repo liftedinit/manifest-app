@@ -8,30 +8,20 @@ import { useInView } from 'react-intersection-observer';
 import Link from 'next/link';
 import { useIsMobile } from '@/hooks';
 
-const PenroseTriangleScene = dynamic(
-  () =>
-    useIsMobile() ? Promise.resolve(() => null) : import('@/components/3js/pennRoseTriangleScene'),
-  {
-    ssr: false,
-    loading: () => null,
-  }
-);
+const PenroseTriangleScene = dynamic(() => import('@/components/3js/pennRoseTriangleScene'), {
+  ssr: false,
+  loading: () => null,
+});
 
-const AnimatedAsterisk = dynamic(
-  () => (useIsMobile() ? Promise.resolve(() => null) : import('@/components/3js/animatedAsterisk')),
-  {
-    ssr: false,
-    loading: () => null,
-  }
-);
+const AnimatedAsterisk = dynamic(() => import('@/components/3js/animatedAsterisk'), {
+  ssr: false,
+  loading: () => null,
+});
 
-const AnimatedShape = dynamic(
-  () => (useIsMobile() ? Promise.resolve(() => null) : import('@/components/3js/animatedMesh')),
-  {
-    ssr: false,
-    loading: () => null,
-  }
-);
+const AnimatedShape = dynamic(() => import('@/components/3js/animatedMesh'), {
+  ssr: false,
+  loading: () => null,
+});
 
 const FadeInSection = ({
   children,
@@ -135,11 +125,7 @@ export default function Home() {
             </div> */}
             <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
               <div className="h-56 w-full sm:h-72 md:h-80 lg:h-full lg:w-full ">
-                {isMobile ? (
-                  <div></div>
-                ) : (
-                  <AnimatedShape shape="icosahedron" onLoad={handle3DLoad} />
-                )}
+                {!isMobile && <AnimatedShape shape="icosahedron" onLoad={handle3DLoad} />}
               </div>
             </div>
           </section>
@@ -162,7 +148,7 @@ export default function Home() {
                     {/* First Box */}
                     <div className="group relative text-center p-4 rounded-2xl shadow-lg overflow-hidden transition-all duration-300 ease-in-out hover:bg-gradient-to-br hover:from-white/80 hover:to-transparent dark:hover:from-base-300/80 dark:hover:to-transparent backdrop-blur-sm bg-white/60 dark:bg-base-300/60 hover:scale-105">
                       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0">
-                        {isMobile ? <div></div> : <AnimatedAsterisk onLoad={handle3DLoad} />}
+                        {!isMobile && <AnimatedAsterisk onLoad={handle3DLoad} />}
                       </div>
                       <div className="w-full h-full p-4 rounded-2xl backdrop-blur-sm pointer-events-none ">
                         <div className="relative z-10 pointer-events-none">
@@ -186,7 +172,7 @@ export default function Home() {
                     {/* Second Box */}
                     <div className="group relative text-center p-4 rounded-2xl shadow-lg overflow-hidden transition-all duration-300 ease-in-out hover:bg-gradient-to-br hover:from-white/80 hover:to-transparent dark:hover:from-base-300/80 dark:hover:to-transparent backdrop-blur-sm bg-white/60 dark:bg-base-300/60 hover:scale-105">
                       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0">
-                        {isMobile ? <div></div> : <AnimatedAsterisk onLoad={handle3DLoad} />}
+                        {!isMobile && <AnimatedAsterisk onLoad={handle3DLoad} />}
                       </div>
                       <div className="w-full h-full p-4 rounded-2xl backdrop-blur-sm pointer-events-none ">
                         <div className="relative z-10 pointer-events-none">
@@ -210,7 +196,7 @@ export default function Home() {
                     {/* Third Box */}
                     <div className="group relative text-center p-4 rounded-2xl shadow-lg overflow-hidden transition-all duration-300 ease-in-out hover:bg-gradient-to-br hover:from-white/80 hover:to-transparent dark:hover:from-base-300/80 dark:hover:to-transparent backdrop-blur-sm bg-white/60 dark:bg-base-300/60 hover:scale-105">
                       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0">
-                        {isMobile ? <div></div> : <AnimatedAsterisk onLoad={handle3DLoad} />}
+                        {!isMobile && <AnimatedAsterisk onLoad={handle3DLoad} />}
                       </div>
                       <div className="w-full h-full p-4 rounded-2xl backdrop-blur-sm pointer-events-none ">
                         <div className="relative z-10 pointer-events-none">
