@@ -1,5 +1,6 @@
 import { expect, Page } from '@playwright/test';
 
+// Taken from https://github.com/Web3Auth/web3auth-e2e-tests/
 export async function signInWithGitHub({
   page,
   github,
