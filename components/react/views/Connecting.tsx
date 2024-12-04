@@ -3,6 +3,7 @@
 import { Dialog } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { ChevronLeftIcon } from '@heroicons/react/20/solid';
+import { getRealLogo } from '@/utils';
 
 export const Connecting = ({
   onClose,
@@ -41,7 +42,11 @@ export const Connecting = ({
         </button>
       </div>
       <div className="flex flex-col w-full h-full mt-4 sm:px-8 sm:py-6">
-        <img src={logo} alt={name} className="flex-shrink-0 w-20 h-20 mx-auto aspect-1" />
+        <img
+          src={getRealLogo(logo)}
+          alt={name}
+          className="flex-shrink-0 w-20 h-20 mx-auto aspect-1"
+        />
         <p className="mt-3 font-medium ">{title}</p>
         <p className="mt-1 text-sm text-gray-500 dark:text-white/75">{subtitle}</p>
       </div>

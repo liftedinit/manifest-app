@@ -6,6 +6,7 @@ import { TxBody, AuthInfo } from '@liftedinit/manifestjs/dist/codegen/cosmos/tx/
 import { decodePubkey } from '@cosmjs/proto-signing';
 import { useWallet, useChain } from '@cosmos-kit/react';
 import Image from 'next/image';
+import { getRealLogo } from '@/utils';
 
 type DisplayDataToSignProps = {
   data: SignData;
@@ -137,7 +138,7 @@ const SignModal = ({
       <div className="modal-box max-w-lg w-full dark:bg-[#1D192D] bg-[#FFFFFF] rounded-lg shadow-xl">
         <div className="flex justify-between items-center pb-4">
           <div className="flex items-center gap-3">
-            <img src={walletIconString} alt="Wallet type logo" className="w-8 h-8" />
+            <img src={getRealLogo(walletIconString)} alt="Wallet type logo" className="w-8 h-8" />
             <h3 className="text-xl font-semibold">{walletName?.toString()} Direct Signer</h3>
           </div>
           <button className="btn btn-sm btn-circle btn-ghost" onClick={onClose}>

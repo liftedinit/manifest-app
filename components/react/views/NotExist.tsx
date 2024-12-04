@@ -2,6 +2,7 @@
 import { Dialog } from '@headlessui/react';
 import { XMarkIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 import { ChevronLeftIcon } from '@heroicons/react/20/solid';
+import { getRealLogo } from '@/utils';
 
 export const NotExist = ({
   onClose,
@@ -38,7 +39,11 @@ export const NotExist = ({
         </button>
       </div>
       <div className="flex flex-col w-full h-full py-6 mt-4 sm:px-8">
-        <img src={logo} alt={name} className="flex-shrink-0 w-16 h-16 mx-auto aspect-1" />
+        <img
+          src={getRealLogo(logo)}
+          alt={name}
+          className="flex-shrink-0 w-16 h-16 mx-auto aspect-1"
+        />
         <p className="mt-3 font-medium text-black dark:text-white">Install {name}</p>
         <p className="mt-1 text-sm text-gray-500 dark:text-white/75">
           To connect your {name} wallet, install the browser extension.
