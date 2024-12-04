@@ -143,8 +143,7 @@ export default function TokenList({
             refetchHistory={refetchHistory}
             selectedDenom={selectedDenom}
             setOpen={setIsSendModalOpen}
-
-
+          />
         </div>
       </div>
     </div>
