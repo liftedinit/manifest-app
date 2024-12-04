@@ -10,6 +10,7 @@ import {
 } from '@/hooks';
 import { ReceiveIcon, SendIcon } from '@/components/icons';
 import { useEndpointStore } from '@/store/endpointStore';
+import useIsMobile from '@/hooks/useIsMobile';
 
 interface Transaction {
   tx_type: HistoryTxType;
@@ -70,6 +71,10 @@ export function HistoryBox({
   const isLoading = initialLoading || txLoading;
 
   const { metadatas } = useTokenFactoryDenomsMetadata();
+
+  const isMobile = useIsMobile();
+  const skeletonGroupCount = isMobile ? 1 : 2;
+  const skeletonTxCount = isMobile ? 5 : 7;
 
   function formatDateShort(dateString: string): string {
     const date = new Date(dateString);
@@ -223,14 +228,14 @@ export function HistoryBox({
       {isLoading ? (
         <div className="flex-1 overflow-hidden h-full">
           <div aria-label="skeleton" className="space-y-4">
-            {[...Array(3)].map((_, groupIndex) => (
+            {[...Array(skeletonGroupCount)].map((_, groupIndex) => (
               <div key={groupIndex}>
                 <div className="skeleton h-4 w-24 mb-2"></div>
                 <div className="space-y-2">
-                  {[...Array(3)].map((_, txIndex) => (
+                  {[...Array(skeletonTxCount)].map((_, txIndex) => (
                     <div
                       key={txIndex}
-                      className="flex items-center justify-between p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px]"
+                      className="flex items-center justify-between p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px] min-h-[80px]"
                     >
                       <div className="flex items-center space-x-3">
                         <div className="skeleton w-8 h-8 rounded-full"></div>
@@ -262,7 +267,7 @@ export function HistoryBox({
             <div className="h-full overflow-y-auto">
               {Object.entries(groupedTransactions).map(([date, transactions], index) => (
                 <div key={index}>
-                  <h4 className="text-sm font-medium text-[#00000099] dark:text-[#FFFFFF99] mb-2">
+                  <h4 className="text-sm font-medium text-[#00000099] dark:text-[#FFFFFF99] mb-1 ml-1 mt-2">
                     {date}
                   </h4>
                   <div className="space-y-2">

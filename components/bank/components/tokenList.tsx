@@ -7,6 +7,8 @@ import { PiMagnifyingGlass } from 'react-icons/pi';
 import { SendTxIcon, QuestionIcon } from '@/components/icons';
 import { truncateString } from '@/utils';
 import SendModal from '@/components/bank/modals/sendModal';
+import useIsMobile from '@/hooks/useIsMobile';
+
 interface TokenListProps {
   balances: CombinedBalanceInfo[] | undefined;
   isLoading: boolean;
@@ -33,6 +35,8 @@ export default function TokenList({
       balance.metadata?.display.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [balances, searchTerm]);
+  const isMobile = useIsMobile();
+  const skeletonCount = isMobile ? 5 : 9;
 
   return (
     <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
@@ -55,7 +59,27 @@ export default function TokenList({
       <div className="flex-1 overflow-hidden">
         <div className="h-full overflow-y-auto pb-6">
           {isLoading ? (
-            <div aria-label="skeleton-loader" className="skeleton h-[400px] w-full"></div>
+            <div className="space-y-2">
+              {[...Array(skeletonCount)].map(i => (
+                <div
+                  key={i}
+                  className="flex flex-row justify-between gap-4 items-center p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px] min-h-[80px]"
+                >
+                  <div className="flex flex-row gap-4 items-center justify-start">
+                    <div className="skeleton w-10 h-10 rounded-full" />
+                    <div className="space-y-2">
+                      <div className="skeleton h-4 w-24" />
+                      <div className="skeleton h-3 w-16" />
+                    </div>
+                  </div>
+                  <div className="skeleton h-4 w-32" />
+                  <div className="flex flex-row gap-2">
+                    <div className="skeleton w-8 h-8 rounded-md" />
+                    <div className="skeleton w-8 h-8 rounded-md" />
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : filteredBalances.length === 0 ? (
             <div className="flex items-center justify-center h-[200px] w-full bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px]">
               <p className="text-center text-[#00000099] dark:text-[#FFFFFF99]">No tokens found!</p>

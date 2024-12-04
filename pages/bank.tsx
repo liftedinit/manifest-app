@@ -1,5 +1,5 @@
 import { WalletNotConnected } from '@/components';
-import SendBox from '@/components/bank/components/sendBox';
+
 import TokenList from '@/components/bank/components/tokenList';
 import { chainName } from '@/config';
 import {
@@ -72,7 +72,7 @@ export default function Bank() {
 
   const isLoading = isBalancesLoading || resolvedLoading || isMetadatasLoading;
 
-  const { sendTxs, refetch } = useGetFilteredTxAndSuccessfulProposals(indexerUrl, address ?? '');
+  const { refetch } = useGetFilteredTxAndSuccessfulProposals(indexerUrl, address ?? '');
 
   return (
     <>
@@ -127,7 +127,7 @@ export default function Bank() {
           </script>
         </Head>
 
-        <div className="h-[calc(100vh-1.5rem)] py-1 gap-6 flex flex-col w-full lg:flex-row animate-fadeIn">
+        <div className="h-[calc(100vh-1.5rem)] py-1 gap-4 flex flex-col w-full lg:flex-row animate-fadeIn">
           {!isWalletConnected ? (
             <WalletNotConnected
               description=" Use the button below to connect your wallet and start interacting with your
@@ -137,8 +137,8 @@ export default function Bank() {
           ) : (
             isWalletConnected &&
             combinedBalances && (
-              <div className="flex flex-row w-full gap-6 h-full">
-                <div className="w-1/2 h-full">
+              <div className="flex flex-col lg:flex-row w-full gap-4 h-full">
+                <div className="w-full lg:w-1/2 h-[calc(50vh-2rem)] lg:h-full">
                   <TokenList
                     refetchBalances={refetchBalances || resolveRefetch}
                     isLoading={isLoading}
@@ -147,8 +147,8 @@ export default function Bank() {
                     address={address ?? ''}
                   />
                 </div>
-                <div className="w-1/2 h-full">
-                  <HistoryBox address={address ?? ''} send={sendTxs ?? []} isLoading={isLoading} />
+                <div className="w-full lg:w-1/2 h-[calc(50vh-2rem)] lg:h-full">
+                  <HistoryBox address={address ?? ''} isLoading={isLoading} />
                 </div>
               </div>
             )
