@@ -123,7 +123,7 @@ export default function TokenList({
         </div>
       </div>
 
-      <div className="flex-1">
+      <div className="flex-1 overflow-y-auto">
         {isLoading ? (
           <div className="space-y-2">
             {[...Array(pageSize)].map((_, i) => (
@@ -163,7 +163,7 @@ export default function TokenList({
                 }}
               >
                 <div className="flex flex-row gap-4 items-center justify-start">
-                  <div className="w-10 h-10 rounded-full overflow-hidden bg-[#0000000A] dark:bg-[#FFFFFF0F] flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full  bg-[#0000000A] dark:bg-[#FFFFFF0F] flex items-center justify-center">
                     <DenomImage denom={balance.metadata} />
                   </div>
                   <div>
