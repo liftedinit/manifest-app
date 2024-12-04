@@ -128,15 +128,11 @@ export default function TokenList({
               ))}
             </div>
           )}
-
           {/* DenomInfoModal */}
-          {selectedDenom && (
-            <DenomInfoModal
-              denom={filteredBalances.find(b => b.denom === selectedDenom)?.metadata ?? null}
-              modalId="denom-info-modal"
-            />
-          )}
-
+          <DenomInfoModal
+            denom={filteredBalances.find(b => b.denom === selectedDenom)?.metadata ?? null}
+            modalId="denom-info-modal"
+          />
           <SendModal
             modalId="send-modal"
             isOpen={isSendModalOpen}
@@ -147,7 +143,8 @@ export default function TokenList({
             refetchHistory={refetchHistory}
             selectedDenom={selectedDenom}
             setOpen={setIsSendModalOpen}
-          />
+
+
         </div>
       </div>
     </div>
