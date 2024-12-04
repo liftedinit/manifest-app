@@ -4,6 +4,7 @@ import TokenList from '@/components/bank/components/tokenList';
 import { chainName } from '@/config';
 import {
   useGetFilteredTxAndSuccessfulProposals,
+  useIsMobile,
   useTokenBalances,
   useTokenBalancesResolved,
   useTokenFactoryDenomsMetadata,
@@ -33,7 +34,9 @@ export default function Bank() {
   const { metadatas, isMetadatasLoading } = useTokenFactoryDenomsMetadata();
   const [currentPage, setCurrentPage] = useState(1);
 
-  const pageSize = 10;
+  const isMobile = useIsMobile();
+
+  const pageSize = isMobile ? 4 : 9;
 
   const {
     sendTxs,
@@ -139,15 +142,14 @@ export default function Bank() {
         <div className="h-[calc(100vh-1.5rem)] py-1 gap-4 flex flex-col w-full lg:flex-row animate-fadeIn">
           {!isWalletConnected ? (
             <WalletNotConnected
-              description=" Use the button below to connect your wallet and start interacting with your
-                    tokens."
+              description="Use the button below to connect your wallet and start interacting with your tokens."
               icon={<BankIcon className="h-60 w-60 text-primary" />}
             />
           ) : (
             isWalletConnected &&
             combinedBalances && (
-              <div className="flex flex-col lg:flex-row w-full gap-4 h-full">
-                <div className="w-full lg:w-1/2 h-[calc(50vh-2rem)] lg:h-full">
+              <div className="flex flex-col lg:flex-row w-full gap-4 max-h-full">
+                <div className="w-full lg:w-1/2 h-[calc(50vh)] lg:h-full overflow-hidden">
                   <TokenList
                     refetchBalances={refetchBalances || resolveRefetch}
                     isLoading={isLoading}
@@ -156,7 +158,7 @@ export default function Bank() {
                     address={address ?? ''}
                   />
                 </div>
-                <div className="w-full lg:w-1/2 h-[calc(50vh-2rem)] lg:h-full">
+                <div className="w-full lg:w-1/2 h-1/2 lg:h-full overflow-hidden">
                   <HistoryBox
                     currentPage={currentPage}
                     setCurrentPage={setCurrentPage}

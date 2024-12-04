@@ -3,13 +3,9 @@ import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import TxInfoModal from '../modals/txInfo';
 import { shiftDigits, truncateString } from '@/utils';
 import { BurnIcon, DenomImage, formatDenom, MintIcon } from '@/components';
-import {
-  HistoryTxType,
-  useGetFilteredTxAndSuccessfulProposals,
-  useTokenFactoryDenomsMetadata,
-} from '@/hooks';
+import { HistoryTxType, useTokenFactoryDenomsMetadata } from '@/hooks';
 import { ReceiveIcon, SendIcon } from '@/components/icons';
-import { useEndpointStore } from '@/store/endpointStore';
+
 import useIsMobile from '@/hooks/useIsMobile';
 
 interface Transaction {
@@ -75,8 +71,8 @@ export function HistoryBox({
   const { metadatas } = useTokenFactoryDenomsMetadata();
 
   const isMobile = useIsMobile();
-  const skeletonGroupCount = isMobile ? 1 : 2;
-  const skeletonTxCount = isMobile ? 5 : 7;
+  const skeletonGroupCount = 1;
+  const skeletonTxCount = isMobile ? 5 : 9;
 
   function formatDateShort(dateString: string): string {
     const date = new Date(dateString);
@@ -169,7 +165,7 @@ export function HistoryBox({
 
   return (
     <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between ">
         <h3 className="text-lg md:text-xl font-semibold text-[#161616] dark:text-white">
           Transaction History
         </h3>
