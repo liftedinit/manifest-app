@@ -4,14 +4,26 @@ import { shiftDigits } from '@/utils';
 import { CombinedBalanceInfo } from '@/utils/types';
 import { DenomInfoModal } from '@/components/factory';
 import { PiMagnifyingGlass } from 'react-icons/pi';
-import { ArrowUpIcon } from '@/components/icons';
+import { SendTxIcon, QuestionIcon } from '@/components/icons';
 import { truncateString } from '@/utils';
+import SendModal from '@/components/bank/modals/sendModal';
 interface TokenListProps {
   balances: CombinedBalanceInfo[] | undefined;
   isLoading: boolean;
+
+  refetchBalances: () => void;
+  refetchHistory: () => void;
+  address: string;
 }
 
-export default function TokenList({ balances, isLoading }: TokenListProps) {
+export default function TokenList({
+  balances,
+  isLoading,
+
+  refetchBalances,
+  refetchHistory,
+  address,
+}: TokenListProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDenom, setSelectedDenom] = useState<any>(null);
 
@@ -88,7 +100,7 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
                       {truncateString(balance.metadata?.display ?? '', 12).toUpperCase()}
                     </p>
                   </div>
-                  <div>
+                  <div className="flex flex-row gap-2">
                     <button
                       onClick={e => {
                         e.stopPropagation();
@@ -99,7 +111,17 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
                       }}
                       className="p-2 rounded-md bg-[#0000000A] dark:bg-[#FFFFFF0F] hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF33] transition-colors"
                     >
-                      <ArrowUpIcon className="w-4 h-4 text-primary" />
+                      <QuestionIcon className="w-4 h-4 text-primary" />
+                    </button>
+                    <button
+                      onClick={e => {
+                        e.stopPropagation();
+                        setSelectedDenom(balance?.denom);
+                        (document?.getElementById(`send-modal`) as HTMLDialogElement)?.showModal();
+                      }}
+                      className="p-2 rounded-md bg-[#0000000A] dark:bg-[#FFFFFF0F] hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF33] transition-colors"
+                    >
+                      <SendTxIcon className="w-4 h-4 text-primary" />
                     </button>
                   </div>
                 </div>
@@ -114,6 +136,16 @@ export default function TokenList({ balances, isLoading }: TokenListProps) {
               modalId="denom-info-modal"
             />
           )}
+
+          <SendModal
+            modalId="send-modal"
+            address={address}
+            balances={balances ?? []}
+            isBalancesLoading={isLoading}
+            refetchBalances={refetchBalances}
+            refetchHistory={refetchHistory}
+            selectedDenom={selectedDenom}
+          />
         </div>
       </div>
     </div>
