@@ -96,6 +96,7 @@ export default function MyDenoms({
   };
 
   const handleUpdateModalClose = () => {
+    setSelectedDenom(null);
     setOpenUpdateDenomMetadataModal(false);
     setModalType(null);
     router.push('/factory', undefined, { shallow: true });
@@ -333,7 +334,7 @@ export default function MyDenoms({
       <MintModal
         admin={poaAdmin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'}
         isPoaAdminLoading={isPoaAdminLoading}
-        denom={selectedDenom}
+        denom={modalType === 'mint' ? selectedDenom : null}
         address={address}
         refetch={refetchDenoms}
         balance={selectedDenom?.balance ?? '0'}

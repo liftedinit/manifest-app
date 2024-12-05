@@ -3,6 +3,7 @@ const nextConfig = {
   output: 'standalone',
   reactStrictMode: true,
   swcMinify: true,
+  // TODO: Remove this when we are ready for prod
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -19,6 +20,9 @@ const nextConfig = {
       'images.unsplash.com',
       'media.giphy.com',
       'media.istockphoto.com',
+      'upload.wikimedia.org',
+      'istockphoto.com',
+      't4.ftcdn.net',
     ],
     remotePatterns: [
       {
@@ -68,6 +72,14 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: '*.istockphoto.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.upload.wikimedia.org',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.t4.ftcdn.net',
       },
     ],
   },
