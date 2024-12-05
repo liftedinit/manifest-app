@@ -23,12 +23,6 @@ mock.module('@/hooks', () => ({
       ],
     },
   }),
-  useGetFilteredTxAndSuccessfulProposals: () => ({
-    sendTxs: mockTransactions,
-    totalPages: 2,
-    isLoading: false,
-    isError: false,
-  }),
 }));
 
 describe('HistoryBox', () => {
@@ -38,12 +32,28 @@ describe('HistoryBox', () => {
   });
 
   test('renders correctly', () => {
-    renderWithChainProvider(<HistoryBox isLoading={false} address="address1" />);
+    renderWithChainProvider(
+      <HistoryBox
+        isLoading={false}
+        address="address1"
+        currentPage={1}
+        sendTxs={mockTransactions}
+        totalPages={2}
+      />
+    );
     expect(screen.getByText('Transaction History')).toBeInTheDocument();
   });
 
   test('displays transactions', () => {
-    renderWithChainProvider(<HistoryBox isLoading={false} address="address1" />);
+    renderWithChainProvider(
+      <HistoryBox
+        isLoading={false}
+        address="address1"
+        currentPage={1}
+        sendTxs={mockTransactions}
+        totalPages={2}
+      />
+    );
     expect(screen.getByText('Sent')).toBeInTheDocument();
     expect(screen.getByText('Received')).toBeInTheDocument();
 
@@ -55,7 +65,15 @@ describe('HistoryBox', () => {
   });
 
   test('opens modal when clicking on a transaction', () => {
-    renderWithChainProvider(<HistoryBox isLoading={false} address="address1" />);
+    renderWithChainProvider(
+      <HistoryBox
+        isLoading={false}
+        address="address1"
+        currentPage={1}
+        sendTxs={mockTransactions}
+        totalPages={2}
+      />
+    );
 
     const transactionElement = screen.getByText('Sent').closest('div[role="button"]');
 
@@ -66,7 +84,15 @@ describe('HistoryBox', () => {
   });
 
   test('formats amount correctly', () => {
-    renderWithChainProvider(<HistoryBox isLoading={false} address="address1" />);
+    renderWithChainProvider(
+      <HistoryBox
+        isLoading={false}
+        address="address1"
+        currentPage={1}
+        sendTxs={mockTransactions}
+        totalPages={2}
+      />
+    );
     expect(screen.queryByText('-1.00QT TOKEN')).toBeInTheDocument(); // Send
     expect(screen.queryByText('+2.00Q TOKEN')).toBeInTheDocument(); // Receive
     expect(screen.queryByText('+3.00T TOKEN')).toBeInTheDocument(); // Mint
@@ -80,7 +106,15 @@ describe('HistoryBox', () => {
   });
 
   test('displays loading state', () => {
-    renderWithChainProvider(<HistoryBox isLoading={true} address="address1" />);
+    renderWithChainProvider(
+      <HistoryBox
+        isLoading={true}
+        address="address1"
+        currentPage={1}
+        sendTxs={mockTransactions}
+        totalPages={2}
+      />
+    );
     expect(screen.getByLabelText('skeleton')).toBeInTheDocument();
   });
 });

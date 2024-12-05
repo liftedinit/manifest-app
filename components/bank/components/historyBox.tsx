@@ -3,13 +3,10 @@ import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import TxInfoModal from '../modals/txInfo';
 import { shiftDigits, truncateString } from '@/utils';
 import { BurnIcon, DenomImage, formatDenom, MintIcon } from '@/components';
-import {
-  HistoryTxType,
-  useGetFilteredTxAndSuccessfulProposals,
-  useTokenFactoryDenomsMetadata,
-} from '@/hooks';
+import { HistoryTxType, useTokenFactoryDenomsMetadata } from '@/hooks';
 import { ReceiveIcon, SendIcon } from '@/components/icons';
-import { useEndpointStore } from '@/store/endpointStore';
+
+import useIsMobile from '@/hooks/useIsMobile';
 
 interface Transaction {
   tx_type: HistoryTxType;
@@ -49,27 +46,33 @@ function formatLargeNumber(num: number): string {
 export function HistoryBox({
   isLoading: initialLoading,
   address,
+  currentPage,
+  setCurrentPage,
+  sendTxs,
+  totalPages,
+  txLoading,
+  isError,
+  refetch,
 }: {
   isLoading: boolean;
   address: string;
+  currentPage: number;
+  setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
+  sendTxs: TransactionGroup[];
+  totalPages: number;
+  txLoading: boolean;
+  isError: boolean;
+  refetch: () => void;
 }) {
   const [selectedTx, setSelectedTx] = useState<TransactionGroup | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
-
-  const { selectedEndpoint } = useEndpointStore();
-  const indexerUrl = selectedEndpoint?.indexer || '';
-
-  const {
-    sendTxs,
-    totalPages,
-    isLoading: txLoading,
-    isError,
-  } = useGetFilteredTxAndSuccessfulProposals(indexerUrl, address, currentPage, pageSize);
 
   const isLoading = initialLoading || txLoading;
 
   const { metadatas } = useTokenFactoryDenomsMetadata();
+
+  const isMobile = useIsMobile();
+  const skeletonGroupCount = 1;
+  const skeletonTxCount = isMobile ? 5 : 9;
 
   function formatDateShort(dateString: string): string {
     const date = new Date(dateString);
@@ -162,7 +165,7 @@ export function HistoryBox({
 
   return (
     <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between ">
         <h3 className="text-lg md:text-xl font-semibold text-[#161616] dark:text-white">
           Transaction History
         </h3>
@@ -223,14 +226,14 @@ export function HistoryBox({
       {isLoading ? (
         <div className="flex-1 overflow-hidden h-full">
           <div aria-label="skeleton" className="space-y-4">
-            {[...Array(3)].map((_, groupIndex) => (
+            {[...Array(skeletonGroupCount)].map((_, groupIndex) => (
               <div key={groupIndex}>
                 <div className="skeleton h-4 w-24 mb-2"></div>
                 <div className="space-y-2">
-                  {[...Array(3)].map((_, txIndex) => (
+                  {[...Array(skeletonTxCount)].map((_, txIndex) => (
                     <div
                       key={txIndex}
-                      className="flex items-center justify-between p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px]"
+                      className="flex items-center justify-between p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px] min-h-[80px]"
                     >
                       <div className="flex items-center space-x-3">
                         <div className="skeleton w-8 h-8 rounded-full"></div>
@@ -255,14 +258,20 @@ export function HistoryBox({
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-white"></div>
             </div>
           ) : isError ? (
-            <div className="text-center text-red-500">Error loading transactions</div>
+            <div className="flex items-center justify-center h-[200px] w-full bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px]">
+              <p className="text-center text-red-500">Error loading transactions</p>
+            </div>
           ) : !sendTxs || sendTxs.length === 0 ? (
-            <div className="text-center text-gray-500">No transactions found</div>
+            <div className="flex items-center justify-center h-[200px] w-full bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] mt-5 rounded-[16px]">
+              <p className="text-center text-[#00000099] dark:text-[#FFFFFF99]">
+                No transactions found!
+              </p>
+            </div>
           ) : (
             <div className="h-full overflow-y-auto">
               {Object.entries(groupedTransactions).map(([date, transactions], index) => (
                 <div key={index}>
-                  <h4 className="text-sm font-medium text-[#00000099] dark:text-[#FFFFFF99] mb-2">
+                  <h4 className="text-sm font-medium text-[#00000099] dark:text-[#FFFFFF99] mb-1 ml-1 mt-2">
                     {date}
                   </h4>
                   <div className="space-y-2">

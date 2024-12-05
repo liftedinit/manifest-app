@@ -25,3 +25,4 @@ export * from './ArrowRightIcon';
 export * from './BurnIcon';
 export * from './MintIcon';
 export * from './QuestionIcon';
+export * from './SendTxIcon';
