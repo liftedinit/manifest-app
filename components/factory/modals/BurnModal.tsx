@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 
 import BurnForm from '@/components/factory/forms/BurnForm';
 import { useGroupsByAdmin, usePoaGetAdmin } from '@/hooks';
@@ -23,6 +23,16 @@ export default function BurnModal({
   onClose: () => void;
   onSwitchToMultiBurn: () => void;
 }) {
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen]);
   const { poaAdmin, isPoaAdminLoading } = usePoaGetAdmin();
   const { groupByAdmin, isGroupByAdminLoading } = useGroupsByAdmin(
     poaAdmin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'

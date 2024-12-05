@@ -43,14 +43,6 @@ export default function Factory() {
 
   const combinedData = useMemo(() => {
     if (denoms?.denoms && metadatas?.metadatas && balances && totalSupply) {
-      const mfxBalance = balances.find(bal => bal.denom === 'umfx')?.amount || '0';
-      const mfxSupply = totalSupply.find(supply => supply.denom === 'umfx')?.amount || '0';
-      const mfxToken: ExtendedMetadataSDKType = {
-        ...MFX_TOKEN_DATA,
-        balance: mfxBalance,
-        totalSupply: mfxSupply,
-      };
-
       const otherTokens = denoms.denoms
         .filter(denom => denom !== 'umfx')
         .map((denom: string) => {
@@ -67,7 +59,7 @@ export default function Factory() {
         })
         .filter((meta): meta is ExtendedMetadataSDKType => meta !== null);
 
-      return [mfxToken, ...otherTokens];
+      return [...otherTokens];
     }
     return [];
   }, [denoms, metadatas, balances, totalSupply]);

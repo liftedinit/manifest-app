@@ -4,7 +4,7 @@ import { cosmos, strangelove_ventures } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgRemoveValidator } from '@liftedinit/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
 import { useChain } from '@cosmos-kit/react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PiWarning } from 'react-icons/pi';
 
 interface WarningModalProps {
@@ -13,6 +13,8 @@ interface WarningModalProps {
   address: string;
   moniker: string;
   modalId: string;
+  openWarningModal: boolean;
+  setOpenWarningModal: (open: boolean) => void;
 }
 
 export function WarningModal({
@@ -21,7 +23,20 @@ export function WarningModal({
   modalId,
   address,
   isActive,
+  openWarningModal,
+  setOpenWarningModal,
 }: Readonly<WarningModalProps>) {
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && openWarningModal) {
+        handleClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [openWarningModal]);
+
   const { tx, isSigning, setIsSigning } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
   const { address: userAddress } = useChain(chainName);
@@ -68,13 +83,29 @@ export function WarningModal({
     setIsSigning(false);
   };
 
+  const handleClose = () => {
+    if (setOpenWarningModal) {
+      setOpenWarningModal(false);
+    }
+    (document.getElementById(modalId) as HTMLDialogElement)?.close();
+  };
+
   return (
-    <dialog id={modalId} className="modal">
+    <dialog
+      id={modalId}
+      className={`modal ${openWarningModal ? 'modal-open' : ''}`}
+      onClose={handleClose}
+    >
       <form
         method="dialog"
         className="modal-box text-black dark:text-white dark:bg-[#1D192D] bg-[#FFFFFF]"
       >
-        <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+        <button
+          className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+          onClick={handleClose}
+        >
+          ✕
+        </button>
         <div className="p-4 ">
           <div className="flex flex-col gap-2 items-center mb-6">
             <PiWarning className="text-yellow-200 text-6xl" />
@@ -106,7 +137,7 @@ export function WarningModal({
         </div>
       </form>
       <form method="dialog" className="modal-backdrop">
-        <button>close</button>
+        <button onClick={handleClose}>close</button>
       </form>
     </dialog>
   );

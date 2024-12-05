@@ -130,7 +130,7 @@ export function GroupInfo({ modalId, group, policyAddress, address, onUpdate }: 
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
             <ProfileAvatar walletAddress={policyAddress} size={40} />
-            <h3 className="font-bold text-lg">{group.ipfsMetadata?.title}</h3>
+            <h3 className="font-bold text-lg">{group.ipfsMetadata?.title ?? 'No title'}</h3>
           </div>
           <form method="dialog">
             <button className=" absolute top-3 right-3 btn btn-sm btn-circle btn-ghost text-black dark:text-white outline-none">
