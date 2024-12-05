@@ -172,7 +172,7 @@ export function MemberManagementModal({
   const submitFormRef = useRef<(() => void) | null>(null);
 
   return (
-    <dialog id={modalId} className="modal z-[150]">
+    <dialog id={modalId} className="modal ">
       <div className="flex flex-col items-center w-full h-full">
         <div className="modal-box dark:bg-[#1D192D] bg-[#FFFFFF] rounded-[24px] max-w-[39rem] p-6 dark:text-white text-black">
           <form method="dialog">

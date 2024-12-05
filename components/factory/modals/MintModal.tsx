@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import MintForm from '@/components/factory/forms/MintForm';
 import { useGroupsByAdmin, usePoaGetAdmin } from '@/hooks';
@@ -28,6 +28,17 @@ export default function MintModal({
   admin: string;
   isPoaAdminLoading: boolean;
 }) {
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen]);
+
   const [isMultiMintOpen, setIsMultiMintOpen] = useState(false);
 
   const { groupByAdmin, isGroupByAdminLoading } = useGroupsByAdmin(
@@ -56,8 +67,11 @@ export default function MintModal({
 
   return (
     <>
-      <dialog id={`mint-modal-${denom?.base}`} className={`modal ${isOpen ? 'modal-open' : ''}`}>
-        <div className="modal-box max-w-6xl mx-auto rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg">
+      <dialog
+        id={`mint-modal-${denom?.base}`}
+        className={`modal ${isOpen ? 'modal-open' : ''} z-[10000]`}
+      >
+        <div className="modal-box max-w-6xl mx-auto rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] z-[10000] shadow-lg">
           <form method="dialog" onSubmit={onClose}>
             <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]">
               ✕

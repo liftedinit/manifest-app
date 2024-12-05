@@ -28,6 +28,7 @@ export default function MyDenoms({
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [openUpdateDenomMetadataModal, setOpenUpdateDenomMetadataModal] = useState(false);
   const isMobile = useIsMobile();
 
   const pageSize = isMobile ? 6 : 8;
@@ -35,7 +36,7 @@ export default function MyDenoms({
   const router = useRouter();
   const [selectedDenom, setSelectedDenom] = useState<ExtendedMetadataSDKType | null>(null);
   const [modalType, setModalType] = useState<
-    'mint' | 'burn' | 'multimint' | 'multiburn' | 'update' | null
+    'mint' | 'burn' | 'multimint' | 'multiburn' | 'update' | 'info' | null
   >(null);
 
   const filteredDenoms = useMemo(() => {
@@ -50,13 +51,9 @@ export default function MyDenoms({
 
   const handleDenomSelect = (denom: ExtendedMetadataSDKType) => {
     if (!modalType) {
-      // Only show denom info if no other modal is active
       setSelectedDenom(denom);
-      setModalType(null); // Ensure no other modal type is set
-      const modal = document.getElementById('denom-info-modal') as HTMLDialogElement;
-      if (modal) {
-        modal.showModal();
-      }
+      setModalType('info');
+      router.push(`/factory?denom=${denom.base}&action=info`, undefined, { shallow: true });
     }
   };
 
@@ -73,15 +70,16 @@ export default function MyDenoms({
           action === 'mint' ||
           action === 'burn' ||
           action === 'multimint' ||
-          action === 'multiburn'
+          action === 'multiburn' ||
+          action === 'update' ||
+          action === 'info'
         ) {
-          setModalType(action as 'mint' | 'burn' | 'multimint' | 'multiburn');
-        } else {
-          // Only show denom info if no other action is specified
-          const modal = document.getElementById('denom-info-modal') as HTMLDialogElement;
-          if (modal) {
-            modal.showModal();
+          setModalType(action as 'mint' | 'burn' | 'multimint' | 'multiburn' | 'update' | 'info');
+          if (action === 'update') {
+            setOpenUpdateDenomMetadataModal(true);
           }
+        } else {
+          setModalType('info');
         }
       }
     } else {
@@ -93,6 +91,13 @@ export default function MyDenoms({
   const handleCloseModal = () => {
     setSelectedDenom(null);
     setModalType(null);
+    setOpenUpdateDenomMetadataModal(false);
+    router.push('/factory', undefined, { shallow: true });
+  };
+
+  const handleUpdateModalClose = () => {
+    setOpenUpdateDenomMetadataModal(false);
+    setModalType(null);
     router.push('/factory', undefined, { shallow: true });
   };
 
@@ -100,25 +105,20 @@ export default function MyDenoms({
     e.preventDefault();
     e.stopPropagation();
     setSelectedDenom(denom);
-    // Important: Don't show the denom info modal
     setModalType('update');
-    const modal = document.getElementById('update-denom-metadata-modal') as HTMLDialogElement;
-    if (modal) {
-      modal.showModal();
-    }
+    setOpenUpdateDenomMetadataModal(true);
+    router.push(`/factory?denom=${denom.base}&action=update`, undefined, { shallow: true });
   };
 
   const handleSwitchToMultiMint = () => {
     setModalType('multimint');
-    // Update URL
     router.push(`/factory?denom=${selectedDenom?.base}&action=multimint`, undefined, {
       shallow: true,
     });
   };
 
   const handleSwitchToMultiBurn = () => {
-    setModalType('multiburn'); // Set the modal type to multiburn
-    // Update URL
+    setModalType('multiburn');
     router.push(`/factory?denom=${selectedDenom?.base}&action=multiburn`, undefined, {
       shallow: true,
     });
@@ -229,11 +229,17 @@ export default function MyDenoms({
                           e.stopPropagation();
                           setSelectedDenom(denom);
                           setModalType('mint');
+                          router.push(`/factory?denom=${denom.base}&action=mint`, undefined, {
+                            shallow: true,
+                          });
                         }}
                         onBurn={e => {
                           e.stopPropagation();
                           setSelectedDenom(denom);
                           setModalType('burn');
+                          router.push(`/factory?denom=${denom.base}&action=burn`, undefined, {
+                            shallow: true,
+                          });
                         }}
                         onUpdate={e => handleUpdateModal(denom, e)}
                       />
@@ -314,7 +320,16 @@ export default function MyDenoms({
           </div>
         </div>
       </div>
-      <DenomInfoModal denom={selectedDenom} modalId="denom-info-modal" />
+      <DenomInfoModal
+        openDenomInfoModal={modalType === 'info'}
+        setOpenDenomInfoModal={open => {
+          if (!open) {
+            handleCloseModal();
+          }
+        }}
+        denom={selectedDenom}
+        modalId="denom-info-modal"
+      />
       <MintModal
         admin={poaAdmin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'}
         isPoaAdminLoading={isPoaAdminLoading}
@@ -343,6 +358,15 @@ export default function MyDenoms({
         address={address}
         onSuccess={() => {
           refetchDenoms();
+          handleUpdateModalClose();
+        }}
+        openUpdateDenomMetadataModal={openUpdateDenomMetadataModal}
+        setOpenUpdateDenomMetadataModal={open => {
+          if (!open) {
+            handleUpdateModalClose();
+          } else {
+            setOpenUpdateDenomMetadataModal(true);
+          }
         }}
       />
       <MultiMintModal

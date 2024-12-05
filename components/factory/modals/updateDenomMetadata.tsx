@@ -7,6 +7,7 @@ import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { TextInput, TextArea } from '@/components/react/inputs';
 import { truncateString, ExtendedMetadataSDKType } from '@/utils';
+import { useEffect } from 'react';
 
 const TokenDetailsSchema = Yup.object().shape({
   display: Yup.string().required('Display is required').noProfanity(),
@@ -19,16 +20,30 @@ const TokenDetailsSchema = Yup.object().shape({
 });
 
 export function UpdateDenomMetadataModal({
+  openUpdateDenomMetadataModal,
+  setOpenUpdateDenomMetadataModal,
   denom,
   address,
   modalId,
   onSuccess,
 }: {
+  openUpdateDenomMetadataModal: boolean;
+  setOpenUpdateDenomMetadataModal: (open: boolean) => void;
   denom: ExtendedMetadataSDKType | null;
   address: string;
   modalId: string;
   onSuccess: () => void;
 }) {
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && openUpdateDenomMetadataModal) {
+        setOpenUpdateDenomMetadataModal(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [openUpdateDenomMetadataModal]);
   const baseDenom = denom?.base?.split('/').pop() || '';
   const fullDenom = `factory/${address}/${baseDenom}`;
   const symbol = baseDenom.slice(1).toUpperCase();
@@ -90,7 +105,11 @@ export function UpdateDenomMetadataModal({
   };
 
   return (
-    <dialog id={modalId} className="modal">
+    <dialog
+      id={modalId}
+      className={`modal ${openUpdateDenomMetadataModal ? 'modal-open' : ''}`}
+      onClose={() => setOpenUpdateDenomMetadataModal(false)}
+    >
       <Formik
         initialValues={formData}
         validationSchema={TokenDetailsSchema}
@@ -99,90 +118,82 @@ export function UpdateDenomMetadataModal({
         validateOnBlur={true}
       >
         {({ isValid, dirty, values, handleChange, handleSubmit }) => (
-          <div className="flex flex-col items-center w-full h-full">
-            <div className="modal-box max-w-4xl mx-auto p-6 bg-[#F4F4FF] dark:bg-[#1D192D] rounded-[24px] shadow-lg">
-              <form method="dialog">
-                <button
-                  type="button"
-                  className="btn btn-sm btn-circle btn-ghost absolute right-4 top-4 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]"
-                  onClick={() => {
-                    const modal = document.getElementById(modalId) as HTMLDialogElement;
-                    modal?.close();
-                  }}
-                >
-                  ✕
-                </button>
-              </form>
-              <h3 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">
-                Update Metadata for{' '}
-                <span className="font-light text-primary">
-                  {denom?.display?.startsWith('factory')
-                    ? denom?.display?.split('/').pop()?.toUpperCase()
-                    : truncateString(denom?.display ?? 'DENOM', 12)}
-                </span>
-              </h3>
-              <div className="divider divider-horizontal -mt-4 -mb-0"></div>
+          <div className="modal-box max-w-4xl mx-auto p-6 bg-[#F4F4FF] dark:bg-[#1D192D] rounded-[24px] shadow-lg">
+            <form method="dialog">
+              <button
+                type="button"
+                className="btn btn-sm btn-circle btn-ghost absolute right-4 top-4 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]"
+                onClick={() => setOpenUpdateDenomMetadataModal(false)}
+              >
+                ✕
+              </button>
+            </form>
+            <h3 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">
+              Update Metadata for{' '}
+              <span className="font-light text-primary">
+                {denom?.display?.startsWith('factory')
+                  ? denom?.display?.split('/').pop()?.toUpperCase()
+                  : truncateString(denom?.display ?? 'DENOM', 12)}
+              </span>
+            </h3>
+            <div className="divider divider-horizontal -mt-4 -mb-0"></div>
 
-              <Form className="py-4 space-y-6">
-                <div className="grid gap-6 sm:grid-cols-2">
-                  <TextInput label="SUBDENOM" name="subdemom" value={fullDenom} disabled={true} />
-                  <TextInput
-                    label="NAME"
-                    name="name"
-                    value={values.name}
-                    placeholder={denom?.name}
-                    onChange={handleChange}
-                  />
-                  <TextInput
-                    label="LOGO URL"
-                    name="uri"
-                    value={values.uri}
-                    placeholder={denom?.uri}
-                    onChange={handleChange}
-                  />
-                  <TextInput
-                    label="TICKER"
-                    name="display"
-                    value={values.display}
-                    placeholder={denom?.display}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <TextArea
-                  label="DESCRIPTION"
-                  name="description"
-                  value={values.description}
-                  placeholder={denom?.description}
+            <Form className="py-4 space-y-6">
+              <div className="grid gap-6 sm:grid-cols-2">
+                <TextInput label="SUBDENOM" name="subdemom" value={fullDenom} disabled={true} />
+                <TextInput
+                  label="NAME"
+                  name="name"
+                  value={values.name}
+                  placeholder={denom?.name}
                   onChange={handleChange}
                 />
-              </Form>
-              <div className="mt-4 flex flex-row justify-center gap-2 w-full">
-                <button
-                  type="button"
-                  className="btn w-1/2  btn-neutral  dark:text-white text-black"
-                  onClick={() => {
-                    const modal = document.getElementById(modalId) as HTMLDialogElement;
-                    modal?.close();
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn w-1/2 btn-gradient text-white"
-                  onClick={() => handleSubmit()}
-                  disabled={isSigning || !isValid || !dirty}
-                >
-                  {isSigning ? <span className="loading loading-dots"></span> : 'Update'}
-                </button>
+                <TextInput
+                  label="LOGO URL"
+                  name="uri"
+                  value={values.uri}
+                  placeholder={denom?.uri}
+                  onChange={handleChange}
+                />
+                <TextInput
+                  label="TICKER"
+                  name="display"
+                  value={values.display}
+                  placeholder={denom?.display}
+                  onChange={handleChange}
+                />
               </div>
+
+              <TextArea
+                label="DESCRIPTION"
+                name="description"
+                value={values.description}
+                placeholder={denom?.description}
+                onChange={handleChange}
+              />
+            </Form>
+            <div className="mt-4 flex flex-row justify-center gap-2 w-full">
+              <button
+                type="button"
+                className="btn w-1/2  focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A] dark:text-white text-black"
+                onClick={() => setOpenUpdateDenomMetadataModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="btn w-1/2 btn-gradient text-white"
+                onClick={() => handleSubmit()}
+                disabled={isSigning || !isValid || !dirty}
+              >
+                {isSigning ? <span className="loading loading-dots"></span> : 'Update'}
+              </button>
             </div>
           </div>
         )}
       </Formik>
       <form method="dialog" className="modal-backdrop">
-        <button>close</button>
+        <button onClick={() => setOpenUpdateDenomMetadataModal(false)}>close</button>
       </form>
     </dialog>
   );
