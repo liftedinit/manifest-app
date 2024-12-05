@@ -47,7 +47,11 @@ describe('ValidatorList', () => {
   test('clicking on a validator row opens the modal', async () => {
     renderWithProps();
     fireEvent.click(screen.getByText('Validator One'));
-    await waitFor(() => expect(screen.getByRole('dialog')).toBeInTheDocument());
+    await waitFor(() => {
+      expect(screen.getByText('Validator Details')).toBeInTheDocument();
+      expect(screen.getByText('SECURITY CONTACT')).toBeInTheDocument();
+      expect(screen.getByText('OPERATOR ADDRESS')).toBeInTheDocument();
+    });
   });
 
   test('remove button works and shows the warning modal', async () => {
