@@ -2,7 +2,7 @@ import ProfileAvatar from '@/utils/identicon';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 
-const supportedDomains = [
+export const supportedDomains = [
   'imgur.com',
   'i.imgur.com',
   'cloudfront.net',
@@ -24,9 +24,10 @@ const supportedDomains = [
   'upload.wikimedia.org',
   'unsplash.com',
   'istockphoto.com',
+  't4.ftcdn.net',
 ];
 
-const supportedPatterns = [
+export const supportedPatterns = [
   /^https:\/\/.*\.s3\.amazonaws\.com/,
   /^https:\/\/.*\.storage\.googleapis\.com/,
   /^https:\/\/.*\.cloudinary\.com/,
@@ -49,9 +50,10 @@ const supportedPatterns = [
   /^https:\/\/.*\.twimg\.com/,
   /^https:\/\/.*\.pinimg\.com/,
   /^https:\/\/.*\.giphy\.com/,
+  /^https:\/\/.*\.t4\.ftcdn\.net/,
 ];
 
-const isUrlSupported = (url: string) => {
+export const isUrlSupported = (url: string) => {
   try {
     const { hostname } = new URL(url);
     return (

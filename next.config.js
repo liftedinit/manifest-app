@@ -22,6 +22,7 @@ const nextConfig = {
       'media.istockphoto.com',
       'upload.wikimedia.org',
       'istockphoto.com',
+      't4.ftcdn.net',
     ],
     remotePatterns: [
       {
@@ -75,6 +76,10 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: '*.upload.wikimedia.org',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.t4.ftcdn.net',
       },
     ],
   },

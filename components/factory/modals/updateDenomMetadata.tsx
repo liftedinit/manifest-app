@@ -15,7 +15,11 @@ const TokenDetailsSchema = Yup.object().shape({
   description: Yup.string()
     .min(10, 'Description must be at least 10 characters long')
     .noProfanity(),
-  uri: Yup.string().url('Must be a valid URL'),
+  uri: Yup.string()
+    .url('Must be a valid URL')
+    .matches(/^https:\/\//i, 'URL must use HTTPS protocol')
+    .matches(/\.(jpg|jpeg|png|gif)$/i, 'URL must point to an image file')
+    .supportedImageUrl(),
 });
 
 export function UpdateDenomMetadataModal({
