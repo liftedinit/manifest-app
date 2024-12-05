@@ -1,13 +1,25 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { useEndpointStore } from '@/store/endpointStore';
 
 export const DenomInfoModal: React.FC<{
+  openDenomInfoModal: boolean;
+  setOpenDenomInfoModal: (open: boolean) => void;
   denom: MetadataSDKType | null;
   modalId: string;
-}> = ({ denom, modalId }) => {
+}> = ({ openDenomInfoModal, setOpenDenomInfoModal, denom, modalId }) => {
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && openDenomInfoModal) {
+        setOpenDenomInfoModal(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [openDenomInfoModal]);
   let nameIsAddress = false;
   if (denom?.name?.startsWith('factory/manifest1')) {
     nameIsAddress = true;
@@ -16,13 +28,24 @@ export const DenomInfoModal: React.FC<{
   const { selectedEndpoint } = useEndpointStore();
   const explorerUrl = selectedEndpoint?.explorer || '';
 
+  const handleClose = () => {
+    setOpenDenomInfoModal(false);
+  };
+
   return (
-    <dialog id={modalId} className="modal" aria-labelledby="denom-info-title" aria-modal="true">
+    <dialog
+      id={modalId}
+      className={`modal ${openDenomInfoModal ? 'modal-open' : ''}`}
+      aria-labelledby="denom-info-title"
+      aria-modal="true"
+      onClose={handleClose}
+    >
       <div className="modal-box max-w-4xl mx-auto rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg">
         <form method="dialog">
           <button
             aria-label="Close modal"
             className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+            onClick={handleClose}
           >
             ✕
           </button>
@@ -76,7 +99,7 @@ export const DenomInfoModal: React.FC<{
         </div>
       </div>
       <form method="dialog" className="modal-backdrop">
-        <button>close</button>
+        <button onClick={handleClose}>close</button>
       </form>
     </dialog>
   );

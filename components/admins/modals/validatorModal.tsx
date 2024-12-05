@@ -30,13 +30,28 @@ export function ValidatorDetailsModal({
   admin,
   totalvp,
   validatorVPArray,
+  openValidatorModal,
+  setOpenValidatorModal,
 }: Readonly<{
   validator: ExtendedValidatorSDKType | null;
   modalId: string;
   admin: string;
   totalvp: string;
   validatorVPArray: { vp: bigint; moniker: string }[];
+  openValidatorModal: boolean;
+  setOpenValidatorModal: (open: boolean) => void;
 }>) {
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && openValidatorModal) {
+        handleClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [openValidatorModal]);
+
   const [power, setPowerInput] = useState(validator?.consensus_power?.toString() || '');
 
   const { tx, isSigning, setIsSigning } = useTx(chainName);
@@ -100,12 +115,18 @@ export function ValidatorDetailsModal({
   };
 
   const handleClose = () => {
-    const modal = document.getElementById(modalId) as HTMLDialogElement;
-    modal?.close();
+    if (setOpenValidatorModal) {
+      setOpenValidatorModal(false);
+    }
+    (document.getElementById(modalId) as HTMLDialogElement)?.close();
   };
 
   return (
-    <dialog id={modalId} className="modal">
+    <dialog
+      id={modalId}
+      className={`modal ${openValidatorModal ? 'modal-open' : ''}`}
+      onClose={handleClose}
+    >
       <Formik
         initialValues={{ power: power, totalvp, validatorVPArray }}
         validationSchema={PowerUpdateSchema}
@@ -243,7 +264,7 @@ export function ValidatorDetailsModal({
         details={validator?.description.details ?? 'No Details'}
       />
       <form method="dialog" className="modal-backdrop">
-        <button>close</button>
+        <button onClick={handleClose}>close</button>
       </form>
     </dialog>
   );

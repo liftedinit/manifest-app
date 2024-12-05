@@ -116,7 +116,11 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
               className="font-medium text-xl text-center mb-2 truncate"
               title={username || 'Connected user'}
             >
-              {username || 'Connected User'}
+              {username
+                ? username.length > 20
+                  ? `${username.slice(0, 20)}...`
+                  : username
+                : 'Connected User'}
             </p>
             <div className="bg-base-100 dark:bg-base-200 rounded-full py-2 px-4 text-center mb-4 flex items-center flex-row justify-between w-full ">
               <p className="text-xs  truncate flex-grow">

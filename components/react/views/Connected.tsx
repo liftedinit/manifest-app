@@ -5,7 +5,7 @@ import { useState } from 'react';
 import ProfileAvatar from '@/utils/identicon';
 import { useBalance } from '@/hooks/useQueries';
 import { CopyIcon } from '@/components/icons';
-import { shiftDigits, truncateString } from '@/utils';
+import { getRealLogo, shiftDigits, truncateString } from '@/utils';
 import Image from 'next/image';
 import { MdContacts } from 'react-icons/md';
 import { Contacts } from './Contacts';
@@ -54,7 +54,13 @@ export const Connected = ({
           <ChevronLeftIcon className="w-5 h-5" aria-hidden="true" />
         </button>
         <div className="flex flex-row gap-2 items-center">
-          <Image height={0} width={0} src={logo} alt={name} className="w-8 h-8 rounded-full mr-2" />
+          <Image
+            height={0}
+            width={0}
+            src={getRealLogo(logo)}
+            alt={name}
+            className="w-8 h-8 rounded-full mr-2"
+          />
           <Dialog.Title as="h3" className="text-md font-semibold">
             {name}
           </Dialog.Title>

@@ -67,7 +67,7 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
     <div
       className="fixed inset-0 pointer-events-none flex items-end justify-end p-4"
       style={{
-        zIndex: 100000,
+        zIndex: 2147483647,
         position: 'fixed',
       }}
     >

@@ -28,6 +28,8 @@ export default function ValidatorList({
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedValidator, setSelectedValidator] = useState<ExtendedValidatorSDKType | null>(null);
   const [modalId, setModalId] = useState<string | null>(null);
+  const [openWarningModal, setOpenWarningModal] = useState(false);
+  const [openValidatorModal, setOpenValidatorModal] = useState(false);
 
   const [validatorToRemove, setValidatorToRemove] = useState<ExtendedValidatorSDKType | null>(null);
   const totalvp = Array.isArray(activeValidators)
@@ -44,13 +46,6 @@ export default function ValidatorList({
       }))
     : [];
 
-  useEffect(() => {
-    if (modalId) {
-      const modal = document.getElementById(modalId) as HTMLDialogElement;
-      modal?.showModal();
-    }
-  }, [modalId]);
-
   const filteredValidators = useMemo(() => {
     const validators = active ? activeValidators : pendingValidators;
     return validators.filter(validator =>
@@ -60,9 +55,7 @@ export default function ValidatorList({
 
   const handleRemove = (validator: ExtendedValidatorSDKType) => {
     setValidatorToRemove(validator);
-
-    const modal = document.getElementById(`warning-modal`) as HTMLDialogElement;
-    modal?.showModal();
+    setOpenWarningModal(true);
   };
 
   const [modalKey, setModalKey] = useState(0);
@@ -71,6 +64,7 @@ export default function ValidatorList({
     setSelectedValidator(validator);
     setModalKey(prevKey => prevKey + 1);
     setModalId(`validator-modal-${validator.operator_address}-${Date.now()}`);
+    setOpenValidatorModal(true);
   };
 
   return (
@@ -254,6 +248,8 @@ export default function ValidatorList({
         admin={admin}
         totalvp={totalvp.toString()}
         validatorVPArray={validatorVPArray}
+        openValidatorModal={openValidatorModal}
+        setOpenValidatorModal={setOpenValidatorModal}
       />
       <WarningModal
         admin={admin}
@@ -261,6 +257,8 @@ export default function ValidatorList({
         address={validatorToRemove?.operator_address || ''}
         moniker={validatorToRemove?.description.moniker || ''}
         modalId="warning-modal"
+        openWarningModal={openWarningModal}
+        setOpenWarningModal={setOpenWarningModal}
       />
     </div>
   );

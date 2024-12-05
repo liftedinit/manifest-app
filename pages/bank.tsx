@@ -1,18 +1,18 @@
-import { WalletNotConnected, WalletSection } from '@/components';
-import SendBox from '@/components/bank/components/sendBox';
+import { WalletNotConnected } from '@/components';
+
 import TokenList from '@/components/bank/components/tokenList';
 import { chainName } from '@/config';
 import {
   useGetFilteredTxAndSuccessfulProposals,
+  useIsMobile,
   useTokenBalances,
   useTokenBalancesResolved,
-  useTokenFactoryDenoms,
   useTokenFactoryDenomsMetadata,
 } from '@/hooks';
 
 import { useChain } from '@cosmos-kit/react';
 import Head from 'next/head';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { HistoryBox } from '@/components';
 import { BankIcon } from '@/components/icons';
 import { CombinedBalanceInfo } from '@/utils/types';
@@ -32,6 +32,19 @@ export default function Bank() {
   const indexerUrl = selectedEndpoint?.indexer || '';
 
   const { metadatas, isMetadatasLoading } = useTokenFactoryDenomsMetadata();
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const isMobile = useIsMobile();
+
+  const pageSize = isMobile ? 4 : 9;
+
+  const {
+    sendTxs,
+    totalPages,
+    isLoading: txLoading,
+    isError,
+    refetch: refetchHistory,
+  } = useGetFilteredTxAndSuccessfulProposals(indexerUrl, address ?? '', currentPage, pageSize);
 
   const combinedBalances = useMemo(() => {
     if (!balances || !resolvedBalances || !metadatas) return [];
@@ -72,8 +85,6 @@ export default function Bank() {
   }, [balances, resolvedBalances, metadatas]);
 
   const isLoading = isBalancesLoading || resolvedLoading || isMetadatasLoading;
-
-  const { sendTxs, refetch } = useGetFilteredTxAndSuccessfulProposals(indexerUrl, address ?? '');
 
   return (
     <>
@@ -128,37 +139,37 @@ export default function Bank() {
           </script>
         </Head>
 
-        <div className="h-[calc(100vh-1.5rem)] py-1 gap-6 flex flex-col w-full lg:flex-row animate-fadeIn">
+        <div className="h-[calc(100vh-1.5rem)] py-1 gap-4 flex flex-col w-full lg:flex-row animate-fadeIn">
           {!isWalletConnected ? (
             <WalletNotConnected
-              description=" Use the button below to connect your wallet and start interacting with your
-                    tokens."
+              description="Use the button below to connect your wallet and start interacting with your tokens."
               icon={<BankIcon className="h-60 w-60 text-primary" />}
             />
           ) : (
             isWalletConnected &&
             combinedBalances && (
-              <div className="flex flex-col lg:flex-row w-full gap-6 h-full">
-                <div className="w-full lg:w-1/2 xl:w-1/3 flex flex-col gap-6 mb-6 lg:mb-0">
-                  <div className="flex-shrink-0 mb-6 lg:mb-0">
-                    <SendBox
-                      balances={combinedBalances}
-                      isBalancesLoading={isLoading}
-                      refetchBalances={refetchBalances || resolveRefetch}
-                      refetchHistory={refetch}
-                      address={address ?? ''}
-                    />
-                  </div>
-                  <div className="h-[calc(100vh-30rem)] sm:h-[calc(100vh-25rem)] lg:flex-grow lg:min-h-0 lg:h-auto">
-                    <HistoryBox
-                      address={address ?? ''}
-                      send={sendTxs ?? []}
-                      isLoading={isLoading}
-                    />
-                  </div>
+              <div className="flex flex-col lg:flex-row w-full gap-4 max-h-full">
+                <div className="w-full lg:w-1/2 h-[calc(50vh)] lg:h-full overflow-hidden">
+                  <TokenList
+                    refetchBalances={refetchBalances || resolveRefetch}
+                    isLoading={isLoading}
+                    balances={combinedBalances}
+                    refetchHistory={refetchHistory}
+                    address={address ?? ''}
+                  />
                 </div>
-                <div className="w-full lg:w-1/2 xl:w-2/3 h-full">
-                  <TokenList balances={combinedBalances} isLoading={isLoading} />
+                <div className="w-full lg:w-1/2 h-1/2 lg:h-full overflow-hidden">
+                  <HistoryBox
+                    currentPage={currentPage}
+                    setCurrentPage={setCurrentPage}
+                    address={address ?? ''}
+                    isLoading={isLoading}
+                    sendTxs={sendTxs}
+                    totalPages={totalPages}
+                    txLoading={txLoading}
+                    isError={isError}
+                    refetch={refetchHistory}
+                  />
                 </div>
               </div>
             )

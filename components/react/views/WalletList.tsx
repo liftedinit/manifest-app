@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { ChainWalletBase } from 'cosmos-kit';
+import { getRealLogo } from '@/utils';
 
 export const WalletList = ({
   onClose,
@@ -48,7 +49,11 @@ export const WalletList = ({
               onClick={() => onWalletClicked(name)}
               className="flex items-center w-full p-3 rounded-lg dark:bg-[#ffffff0c] bg-[#f0f0ff5c] dark:hover:bg-[#0000004c] hover:bg-[#a8a8a84c] transition"
             >
-              <img src={logo?.toString()} alt={prettyName} className="w-10 h-10 rounded-xl mr-3" />
+              <img
+                src={getRealLogo(logo?.toString() ?? '')}
+                alt={prettyName}
+                className="w-10 h-10 rounded-xl mr-3"
+              />
               <span className="text-md">{prettyName}</span>
             </button>
           ))}
@@ -66,7 +71,7 @@ export const WalletList = ({
               className="flex items-center justify-center p-4 dark:bg-[#ffffff0c] bg-[#f0f0ff5c] dark:hover:bg-[#0000004c] hover:bg-[#a8a8a84c] rounded-lg transition"
             >
               <img
-                src={isDarkMode ? logo?.toString() + '_light.svg' : logo?.toString() + '_dark.svg'}
+                src={getRealLogo(logo?.toString() ?? '')}
                 alt={prettyName}
                 className={`${prettyName === 'Reddit' || prettyName === 'Google' ? 'w-8 h-8' : 'w-7 h-7'} rounded-md`}
               />
@@ -84,7 +89,11 @@ export const WalletList = ({
               onClick={() => onWalletClicked(name)}
               className="flex items-center w-full p-3 rounded-lg dark:bg-[#ffffff0c] bg-[#f0f0ff5c] dark:hover:bg-[#0000004c] hover:bg-[#a8a8a84c] transition"
             >
-              <img src={logo?.toString()} alt={prettyName} className="w-10 h-10 rounded-xl mr-3" />
+              <img
+                src={getRealLogo(logo?.toString() ?? '')}
+                alt={prettyName}
+                className="w-10 h-10 rounded-xl mr-3"
+              />
               <span className="text-md">{prettyName === 'Twitter' ? 'X' : prettyName}</span>
             </button>
           ))}
