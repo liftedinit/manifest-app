@@ -32,24 +32,3 @@ input:-webkit-autofill:active {
 [data-toast-container='true'] {
   z-index: 100000;
 }
-
-.tooltip {
-  position: relative;
-  cursor: help;
-}
-
-.tooltip[data-tooltip]:hover::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: 100%;
-  left: 0;
-  background: #333;
-  color: white;
-  padding: 8px;
-  border-radius: 4px;
-  font-size: 14px;
-  white-space: pre-wrap;
-  width: max-content;
-  max-width: 300px;
-  z-index: 1000;
-}
