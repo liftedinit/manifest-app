@@ -21,6 +21,7 @@ const supportedDomains = [
   'giphy.com',
   'dropboxusercontent.com',
   'googleusercontent.com',
+  'upload.wikimedia.org',
   'unsplash.com',
   'istockphoto.com',
 ];
@@ -37,6 +38,7 @@ const supportedPatterns = [
   /^https:\/\/.*\.dropboxusercontent\.com/,
   /^https:\/\/.*\.googleusercontent\.com/,
   /^https:\/\/.*\.unsplash\.com/,
+  /^https:\/\/.*\.upload\.wikimedia\.org/,
   /^https:\/\/.*\.istockphoto\.com/,
   /^https:\/\/.*\.media\.giphy\.com/,
   /^https:\/\/.*\.media\.istockphoto\.com/,

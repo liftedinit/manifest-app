@@ -45,14 +45,26 @@ export default function MintModal({
     admin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'
   );
 
+  if (!isOpen) {
+    return null;
+  }
+
+  if (!denom || !address) {
+    return (
+      <dialog className={`modal ${isOpen ? 'modal-open' : ''} z-[10000]`}>
+        <div className="modal-box max-w-6xl mx-auto rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] z-[10000] shadow-lg">
+          <div className="skeleton h-[17rem] max-h-72 w-full"></div>
+        </div>
+        <form method="dialog" className="modal-backdrop" onSubmit={onClose}>
+          <button>close</button>
+        </form>
+      </dialog>
+    );
+  }
+
   const members = groupByAdmin?.groups?.[0]?.members;
   const isAdmin = members?.some(member => member?.member?.address === address);
   const isLoading = isPoaAdminLoading || isGroupByAdminLoading;
-
-  if (!denom || !address) {
-    console.warn('MintModal: Missing required props', { denom, address });
-    return null;
-  }
 
   const safeBalance = balance || '0';
   const safeTotalSupply = totalSupply || '0';

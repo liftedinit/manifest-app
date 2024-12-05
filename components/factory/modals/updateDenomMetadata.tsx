@@ -10,10 +10,9 @@ import { truncateString, ExtendedMetadataSDKType } from '@/utils';
 import { useEffect } from 'react';
 
 const TokenDetailsSchema = Yup.object().shape({
-  display: Yup.string().required('Display is required').noProfanity(),
-  name: Yup.string().required('Name is required').noProfanity(),
+  display: Yup.string().noProfanity(),
+  name: Yup.string().noProfanity(),
   description: Yup.string()
-    .required('Description is required')
     .min(10, 'Description must be at least 10 characters long')
     .noProfanity(),
   uri: Yup.string().url('Must be a valid URL'),
@@ -34,10 +33,15 @@ export function UpdateDenomMetadataModal({
   modalId: string;
   onSuccess: () => void;
 }) {
+  const handleCloseModal = (formikReset?: () => void) => {
+    setOpenUpdateDenomMetadataModal(false);
+    formikReset?.();
+  };
+
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && openUpdateDenomMetadataModal) {
-        setOpenUpdateDenomMetadataModal(false);
+        handleCloseModal();
       }
     };
 
@@ -67,24 +71,25 @@ export function UpdateDenomMetadataModal({
   const { estimateFee } = useFeeEstimation(chainName);
   const { setDenomMetadata } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
 
-  const handleUpdate = async (values: TokenFormData) => {
+  const handleUpdate = async (values: TokenFormData, resetForm: () => void) => {
     setIsSigning(true);
     const symbol = values.display.toUpperCase();
     try {
       const msg = setDenomMetadata({
         sender: address,
         metadata: {
-          description: values.description,
-          denomUnits: [
-            { denom: fullDenom, exponent: 0, aliases: [symbol] },
-            { denom: values.display, exponent: 6, aliases: [fullDenom] },
-          ],
+          description: values.description || formData.description,
+          denomUnits:
+            [
+              { denom: fullDenom, exponent: 0, aliases: [symbol] },
+              { denom: symbol, exponent: 6, aliases: [fullDenom] },
+            ] || formData.denomUnits,
           base: fullDenom,
           display: symbol,
-          name: values.name,
+          name: values.name || formData.name,
           symbol: symbol,
-          uri: values.uri,
-          uriHash: '', // Leave this empty if you don't have a URI hash
+          uri: values.uri || formData.uri,
+          uriHash: '',
         },
       });
 
@@ -93,8 +98,7 @@ export function UpdateDenomMetadataModal({
         fee,
         onSuccess: () => {
           onSuccess();
-          const modal = document.getElementById(modalId) as HTMLDialogElement;
-          modal?.close();
+          handleCloseModal(resetForm);
         },
       });
     } catch (error) {
@@ -105,25 +109,21 @@ export function UpdateDenomMetadataModal({
   };
 
   return (
-    <dialog
-      id={modalId}
-      className={`modal ${openUpdateDenomMetadataModal ? 'modal-open' : ''}`}
-      onClose={() => setOpenUpdateDenomMetadataModal(false)}
-    >
+    <dialog id={modalId} className={`modal ${openUpdateDenomMetadataModal ? 'modal-open' : ''}`}>
       <Formik
         initialValues={formData}
         validationSchema={TokenDetailsSchema}
-        onSubmit={handleUpdate}
+        onSubmit={(values, { resetForm }) => handleUpdate(values, resetForm)}
         validateOnChange={true}
         validateOnBlur={true}
       >
-        {({ isValid, dirty, values, handleChange, handleSubmit }) => (
+        {({ isValid, dirty, values, handleChange, handleSubmit, resetForm }) => (
           <div className="modal-box max-w-4xl mx-auto p-6 bg-[#F4F4FF] dark:bg-[#1D192D] rounded-[24px] shadow-lg">
             <form method="dialog">
               <button
                 type="button"
                 className="btn btn-sm btn-circle btn-ghost absolute right-4 top-4 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]"
-                onClick={() => setOpenUpdateDenomMetadataModal(false)}
+                onClick={() => handleCloseModal(() => resetForm())}
               >
                 ✕
               </button>
@@ -176,7 +176,7 @@ export function UpdateDenomMetadataModal({
               <button
                 type="button"
                 className="btn w-1/2  focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A] dark:text-white text-black"
-                onClick={() => setOpenUpdateDenomMetadataModal(false)}
+                onClick={() => handleCloseModal(() => resetForm())}
               >
                 Cancel
               </button>
@@ -193,7 +193,7 @@ export function UpdateDenomMetadataModal({
         )}
       </Formik>
       <form method="dialog" className="modal-backdrop">
-        <button onClick={() => setOpenUpdateDenomMetadataModal(false)}>close</button>
+        <button onClick={() => handleCloseModal()}>close</button>
       </form>
     </dialog>
   );

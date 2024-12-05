@@ -168,9 +168,9 @@ export default function MintForm({
                           rightElement={
                             <button
                               type="button"
-                              style={{ transition: 'none' }}
+                              aria-label="contacts-btn"
                               onClick={() => setIsContactsOpen(true)}
-                              className="btn btn-primary transition-none btn-sm text-white absolute right-2 top-1/2 -translate-y-1/2"
+                              className="btn btn-primary btn-sm text-white"
                             >
                               <MdContacts className="w-5 h-5" />
                             </button>
@@ -210,6 +210,7 @@ export default function MintForm({
                       isOpen={isContactsOpen}
                       setOpen={setIsContactsOpen}
                       showContacts={true}
+                      currentAddress={address}
                       onSelect={(selectedAddress: string) => {
                         setRecipient(selectedAddress);
                         setFieldValue('recipient', selectedAddress);

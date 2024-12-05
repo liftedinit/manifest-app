@@ -28,6 +28,7 @@ export default function TokenList({
   const [selectedDenom, setSelectedDenom] = useState<any>(null);
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [openDenomInfoModal, setOpenDenomInfoModal] = useState(false);
 
   const isMobile = useIsMobile();
 
@@ -223,6 +224,8 @@ export default function TokenList({
       <DenomInfoModal
         denom={filteredBalances.find(b => b.denom === selectedDenom)?.metadata ?? null}
         modalId="denom-info-modal"
+        openDenomInfoModal={openDenomInfoModal}
+        setOpenDenomInfoModal={setOpenDenomInfoModal}
       />
       <SendModal
         modalId="send-modal"

@@ -332,6 +332,7 @@ export default function BurnForm({
                       isOpen={isContactsOpen}
                       setOpen={setIsContactsOpen}
                       showContacts={true}
+                      currentAddress={address}
                       onSelect={(selectedAddress: string) => {
                         setRecipient(selectedAddress);
                         setFieldValue('recipient', selectedAddress);
