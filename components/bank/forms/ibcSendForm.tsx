@@ -30,6 +30,7 @@ export default function IbcSendForm({
   ibcChains,
   selectedChain,
   setSelectedChain,
+  selectedDenom,
 }: Readonly<{
   address: string;
   destinationChain: string;
@@ -41,6 +42,7 @@ export default function IbcSendForm({
   ibcChains: IbcChain[];
   selectedChain: string;
   setSelectedChain: (selectedChain: string) => void;
+  selectedDenom?: string;
 }>) {
   const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -62,7 +64,7 @@ export default function IbcSendForm({
 
   // Set initialSelectedToken to 'mfx' if available
   const initialSelectedToken =
-    balances?.find(token => token.coreDenom === 'umfx') || balances?.[0] || null;
+    balances?.find(token => token.coreDenom === selectedDenom) || balances?.[0] || null;
 
   // Return null or a loading component if balances are not loaded
   if (isBalancesLoading || !initialSelectedToken) {

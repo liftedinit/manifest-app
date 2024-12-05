@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import SendForm from '../forms/sendForm';
 import IbcSendForm from '../forms/ibcSendForm';
-import { PiCaretDownBold } from 'react-icons/pi';
-import Image from 'next/image';
-import { CoinSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/base/v1beta1/coin';
+
 import { CombinedBalanceInfo } from '@/utils/types';
 
 export interface IbcChain {
@@ -19,12 +17,14 @@ export default function SendBox({
   isBalancesLoading,
   refetchBalances,
   refetchHistory,
+  selectedDenom,
 }: {
   address: string;
   balances: CombinedBalanceInfo[];
   isBalancesLoading: boolean;
   refetchBalances: () => void;
   refetchHistory: () => void;
+  selectedDenom?: string;
 }) {
   const [activeTab, setActiveTab] = useState<'send' | 'cross-chain'>('send');
   const [selectedChain, setSelectedChain] = useState('');
@@ -81,6 +81,7 @@ export default function SendBox({
                 isBalancesLoading={isBalancesLoading}
                 refetchBalances={refetchBalances}
                 refetchHistory={refetchHistory}
+                selectedDenom={selectedDenom}
               />
             ) : (
               <SendForm
@@ -89,6 +90,7 @@ export default function SendBox({
                 isBalancesLoading={isBalancesLoading}
                 refetchBalances={refetchBalances}
                 refetchHistory={refetchHistory}
+                selectedDenom={selectedDenom}
               />
             )}
           </>

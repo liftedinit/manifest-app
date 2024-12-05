@@ -19,12 +19,14 @@ export default function SendForm({
   isBalancesLoading,
   refetchBalances,
   refetchHistory,
+  selectedDenom,
 }: Readonly<{
   address: string;
   balances: CombinedBalanceInfo[];
   isBalancesLoading: boolean;
   refetchBalances: () => void;
   refetchHistory: () => void;
+  selectedDenom?: string;
 }>) {
   const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -40,7 +42,7 @@ export default function SendForm({
   });
 
   const initialSelectedToken =
-    balances?.find(token => token.coreDenom === 'umfx') || balances?.[0] || null;
+    balances?.find(token => token.coreDenom === selectedDenom) || balances?.[0] || null;
 
   // Return null or loading indicator if balances are not loaded
   if (isBalancesLoading || !initialSelectedToken) {
