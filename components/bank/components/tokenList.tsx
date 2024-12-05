@@ -125,7 +125,7 @@ export default function TokenList({
 
       <div className="flex-1 overflow-y-auto">
         {isLoading ? (
-          <div className="space-y-2">
+          <div className="space-y-2" aria-label="skeleton-loader">
             {[...Array(pageSize)].map((_, i) => (
               <div
                 key={i}
@@ -190,6 +190,7 @@ export default function TokenList({
                 </div>
                 <div className="flex flex-row gap-2">
                   <button
+                    aria-label={`info-${balance?.denom}`}
                     onClick={e => {
                       e.stopPropagation();
                       setSelectedDenom(balance?.denom);
@@ -202,6 +203,7 @@ export default function TokenList({
                     <QuestionIcon className="w-4 h-4 text-primary" />
                   </button>
                   <button
+                    aria-label={`send-${balance?.denom}`}
                     onClick={e => {
                       e.stopPropagation();
                       setSelectedDenom(balance?.denom);

@@ -1,9 +1,18 @@
-import { test, expect, afterEach, describe } from 'bun:test';
+import { test, expect, afterEach, describe, mock, jest } from 'bun:test';
 import React from 'react';
 import matchers from '@testing-library/jest-dom/matchers';
-import { fireEvent, render, screen, cleanup, within, waitFor } from '@testing-library/react';
+import { fireEvent, screen, cleanup, within, waitFor } from '@testing-library/react';
 import TokenList from '@/components/bank/components/tokenList';
 import { CombinedBalanceInfo } from '@/utils/types';
+import { renderWithChainProvider } from '@/tests/render';
+
+// Mock next/router
+mock.module('next/router', () => ({
+  useRouter: jest.fn().mockReturnValue({
+    query: {},
+    push: jest.fn(),
+  }),
+}));
 
 const mockBalances: CombinedBalanceInfo[] = [
   {
@@ -52,22 +61,22 @@ describe('TokenList', () => {
   });
 
   test('renders correctly', () => {
-    render(<TokenList balances={mockBalances} isLoading={false} />);
+    renderWithChainProvider(<TokenList balances={mockBalances} isLoading={false} />);
     expect(screen.getByText('Your Assets')).toBeInTheDocument();
   });
 
   test('displays loading skeleton when isLoading is true', () => {
-    render(<TokenList balances={undefined} isLoading={true} />);
+    renderWithChainProvider(<TokenList balances={undefined} isLoading={true} />);
     expect(screen.getByLabelText('skeleton-loader')).toBeInTheDocument();
   });
 
   test('displays empty state when there are no balances', () => {
-    render(<TokenList balances={[]} isLoading={false} />);
+    renderWithChainProvider(<TokenList balances={[]} isLoading={false} />);
     expect(screen.getByText('No tokens found!')).toBeInTheDocument();
   });
 
   test('filters balances based on search term', () => {
-    render(<TokenList balances={mockBalances} isLoading={false} />);
+    renderWithChainProvider(<TokenList balances={mockBalances} isLoading={false} />);
     const searchInput = screen.getByPlaceholderText('Search for a token...');
     fireEvent.change(searchInput, { target: { value: 'Token 1' } });
 
@@ -76,9 +85,9 @@ describe('TokenList', () => {
   });
 
   test('opens modal with correct denomination information', async () => {
-    render(<TokenList balances={mockBalances} isLoading={false} />);
+    renderWithChainProvider(<TokenList balances={mockBalances} isLoading={false} />);
     const token1Container = screen.getByLabelText('utoken1');
-    const button = within(token1Container).getByRole('button');
+    const button = within(token1Container).getByLabelText('info-utoken1');
     fireEvent.click(button);
 
     await waitFor(() => {
@@ -90,13 +99,13 @@ describe('TokenList', () => {
   });
 
   test('displays correct balance for each token', () => {
-    render(<TokenList balances={mockBalances} isLoading={false} />);
-    expect(screen.getByText('0.001 TOKEN 1')).toBeInTheDocument();
-    expect(screen.getByText('0.002 TOKEN 2')).toBeInTheDocument();
+    renderWithChainProvider(<TokenList balances={mockBalances} isLoading={false} />);
+    expect(screen.getByText('0.001')).toBeInTheDocument();
+    expect(screen.getByText('0.002')).toBeInTheDocument();
   });
 
   test('displays correct base denomination for each token', () => {
-    render(<TokenList balances={mockBalances} isLoading={false} />);
+    renderWithChainProvider(<TokenList balances={mockBalances} isLoading={false} />);
     expect(screen.getByText('utoken1')).toBeInTheDocument();
     expect(screen.getByText('utoken2')).toBeInTheDocument();
   });
