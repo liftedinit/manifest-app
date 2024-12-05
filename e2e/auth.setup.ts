@@ -43,7 +43,7 @@ setup('authenticate', async ({ page }) => {
     console.log('2FA setup screen not detected. Continuing...');
   }
 
-  await page1.waitForEvent('close', { timeout: 45000 });
+  await page1.waitForEvent('close', { timeout: 60000 });
   await page.waitForSelector('button:has-text("Disconnect")', {
     state: 'visible',
     timeout: 20000,

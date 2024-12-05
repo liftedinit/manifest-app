@@ -11,7 +11,8 @@
     "format": "prettier --write .",
     "remove": "rm -rf node_modules/ bun.lockb $HOME/.bun/install/cache/",
     "update-deps": "bunx npm-check-updates --root --format group -i",
-    "test:coverage": "bun test --coverage",
+    "test:playwright": "bunx playwright test",
+    "test:coverage": "bun test components --coverage",
     "test:coverage:lcov": "bun run test:coverage --coverage-reporter=lcov --coverage-dir ./coverage",
     "coverage:upload": "codecov"
   },
