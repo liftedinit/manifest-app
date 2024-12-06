@@ -7,35 +7,39 @@ import {
 } from '@heroicons/react/24/solid';
 import Head from 'next/head';
 import Link from 'next/link';
-
-const links = [
-  {
-    name: 'Docs',
-    href: 'https://github.com/liftedinit/manifest-ledger',
-    description: 'Learn how to sync nodes, query data, and use the Manifest Network.',
-    icon: BookOpenIcon,
-  },
-  {
-    name: 'Explorer',
-    href: 'https://testnet.manifest.explorers.guru/',
-    description: 'Search for transactions, wallets, and other chain data.',
-    icon: MagnifyingGlassCircleIcon,
-  },
-  {
-    name: 'FAQ',
-    href: '#',
-    description: 'The most common questions and answers about the Manifest Network.',
-    icon: BookmarkSquareIcon,
-  },
-  {
-    name: 'Blog',
-    href: '#',
-    description: 'Read our latest news and articles.',
-    icon: RssIcon,
-  },
-];
+import { useEndpointStore } from '@/store/endpointStore';
 
 export default function FourOhFour() {
+  const { selectedEndpoint } = useEndpointStore();
+  const explorerUrl = selectedEndpoint?.explorer || '';
+
+  const links = [
+    {
+      name: 'Chain Docs',
+      href: 'https://github.com/liftedinit/manifest-ledger',
+      description: 'Learn how to sync nodes, query data, and use the Manifest Network.',
+      icon: BookOpenIcon,
+    },
+    {
+      name: 'Block Explorer',
+      href: explorerUrl,
+      description: 'Search for transactions, wallets, and other chain data.',
+      icon: MagnifyingGlassCircleIcon,
+    },
+    {
+      name: 'FAQ',
+      href: '#',
+      description: 'The most common questions and answers about the Manifest Network.',
+      icon: BookmarkSquareIcon,
+    },
+    {
+      name: 'Blog',
+      href: '#',
+      description: 'Read our latest news and articles.',
+      icon: RssIcon,
+    },
+  ];
+
   return (
     <div className="">
       <Head>
@@ -72,7 +76,7 @@ export default function FourOhFour() {
             image: 'https://',
             publisher: {
               '@type': 'Organization',
-              name: 'Chandra Station',
+              name: 'The Lifted Initiative',
               logo: {
                 '@type': 'ImageObject',
                 url: 'https:///img/logo.png',
