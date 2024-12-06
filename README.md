@@ -22,7 +22,8 @@ For more information on the Manifest Network and its modules, please visit the [
 
 ```
 NEXT_PUBLIC_WALLETCONNECT_KEY=
-NEXT_PUBLIC_WEB3_CLIENT_ID=
+NEXT_PUBLIC_WEB3AUTH_NETWORK=mainnet
+NEXT_PUBLIC_WEB3AUTH_CLIENT_ID=
 NEXT_PUBLIC_CHAIN=manifest
 NEXT_PUBLIC_CHAIN_ID=manifest-1
 NEXT_PUBLIC_TESTNET_CHAIN_ID=manifest-ledger-beta

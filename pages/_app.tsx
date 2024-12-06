@@ -40,6 +40,7 @@ import MobileNav from '@/components/react/mobileNav';
 
 import { useEndpointStore } from '@/store/endpointStore';
 import EndpointSelector from '@/components/react/endpointSelector';
+import { OPENLOGIN_NETWORK_TYPE } from '@toruslabs/openlogin-utils';
 
 type ManifestAppProps = AppProps & {
   Component: AppProps['Component'];
@@ -148,8 +149,9 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
         ],
 
         client: {
-          clientId: process.env.NEXT_PUBLIC_WEB3_CLIENT_ID ?? '',
-          web3AuthNetwork: 'testnet',
+          clientId: process.env.NEXT_PUBLIC_WEB3AUTH_CLIENT_ID ?? '',
+          web3AuthNetwork:
+            (process.env.NEXT_PUBLIC_WEB3AUTH_NETWORK as OPENLOGIN_NETWORK_TYPE) ?? '',
         },
 
         promptSign: async (_, signData) =>
