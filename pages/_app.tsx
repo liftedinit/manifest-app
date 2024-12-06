@@ -40,7 +40,7 @@ import MobileNav from '@/components/react/mobileNav';
 
 import { useEndpointStore } from '@/store/endpointStore';
 import EndpointSelector from '@/components/react/endpointSelector';
-import { OPENLOGIN_NETWORK_TYPE } from '@toruslabs/openlogin-utils';
+import { OPENLOGIN_NETWORK, OPENLOGIN_NETWORK_TYPE } from '@toruslabs/openlogin-utils';
 
 type ManifestAppProps = AppProps & {
   Component: AppProps['Component'];
@@ -112,6 +112,16 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
       }
     | undefined
   >();
+
+  const isValidNetwork = (network: string | undefined): network is OPENLOGIN_NETWORK_TYPE => {
+    return Object.values(OPENLOGIN_NETWORK).includes(network as OPENLOGIN_NETWORK_TYPE);
+  };
+
+  const network = process.env.NEXT_PUBLIC_WEB3AUTH_NETWORK;
+  if (!isValidNetwork(network)) {
+    console.error(`Invalid WEB3AUTH_NETWORK: ${network}. Using default: testnet`);
+  }
+
   const web3AuthWallets = useMemo(
     () =>
       makeWeb3AuthWallets({
@@ -150,8 +160,7 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
 
         client: {
           clientId: process.env.NEXT_PUBLIC_WEB3AUTH_CLIENT_ID ?? '',
-          web3AuthNetwork:
-            (process.env.NEXT_PUBLIC_WEB3AUTH_NETWORK as OPENLOGIN_NETWORK_TYPE) ?? '',
+          web3AuthNetwork: isValidNetwork(network) ? network : 'testnet',
         },
 
         promptSign: async (_, signData) =>
