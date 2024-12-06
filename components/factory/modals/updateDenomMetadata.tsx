@@ -154,10 +154,11 @@ export function UpdateDenomMetadataModal({
               <div className="grid gap-6 sm:grid-cols-2">
                 <TextInput
                   label="SUBDENOM"
-                  name="subdemom"
+                  name="subdenom"
                   value={fullDenom}
                   title={fullDenom}
                   disabled={true}
+                  helperText="This field cannot be modified"
                 />
                 <TextInput
                   label="NAME"
