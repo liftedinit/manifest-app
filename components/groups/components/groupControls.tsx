@@ -65,6 +65,7 @@ export default function GroupProposals({
 
   const [selectedProposal, setSelectedProposal] = useState<ProposalSDKType | null>(null);
   const [members, setMembers] = useState<MemberSDKType[]>([]);
+  const [showVoteModal, setShowVoteModal] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -91,12 +92,7 @@ export default function GroupProposals({
       const proposalToOpen = proposals.find(p => p.id.toString() === proposalId);
       if (proposalToOpen) {
         setSelectedProposal(proposalToOpen);
-        setTimeout(() => {
-          const modal = document.getElementById(`vote_modal_${proposalId}`) as HTMLDialogElement;
-          if (modal) {
-            modal.showModal();
-          }
-        }, 0);
+        setShowVoteModal(true);
       } else {
         console.warn(`Proposal with ID ${proposalId} not found`);
         // remove the invalid proposalId from the URL
@@ -108,22 +104,16 @@ export default function GroupProposals({
 
   const handleRowClick = (proposal: ProposalSDKType) => {
     setSelectedProposal(proposal);
+    setShowVoteModal(true);
     // Update URL without navigating
     router.push(`/groups?policyAddress=${policyAddress}&proposalId=${proposal.id}`, undefined, {
       shallow: true,
     });
-    setTimeout(() => {
-      const modal = document.getElementById(`vote_modal_${proposal.id}`) as HTMLDialogElement;
-      if (modal) {
-        modal.showModal();
-      } else {
-        console.error(`Modal not found for proposal ${proposal.id}`);
-      }
-    }, 0);
   };
 
-  const closeModal = () => {
+  const handleCloseVoteModal = () => {
     setSelectedProposal(null);
+    setShowVoteModal(false);
     // Remove proposalId from URL when closing the modal
     router.push(`/groups?policyAddress=${policyAddress}`, undefined, { shallow: true });
   };
@@ -241,7 +231,7 @@ export default function GroupProposals({
   const { tallies, isLoading: isTalliesLoading } = useMultipleTallyCounts(proposals.map(p => p.id));
 
   return (
-    <div className="h-full flex flex-col p-4">
+    <div className="h-full min-h-screen flex flex-col p-4">
       <div className="flex w-full h-full md:flex-row flex-col md:gap-8">
         <div className="flex flex-col w-full md:w-[48%] h-full">
           {/* Header section */}
@@ -310,19 +300,19 @@ export default function GroupProposals({
                       Title
                     </th>
                     <th
-                      className="bg-transparent px-4 py-2 w-[25%] hidden lg:table-cell"
+                      className="bg-transparent px-4 py-2 w-[25%] hidden xl:table-cell"
                       scope="col"
                     >
                       Time Left
                     </th>
                     <th
-                      className="bg-transparent px-4 py-2 w-[25%] hidden xl:table-cell"
+                      className="bg-transparent px-4 py-2 w-[25%] sm:table-cell md:hidden hidden xl:table-cell"
                       scope="col"
                     >
                       Type
                     </th>
                     <th
-                      className="bg-transparent px-4 py-2 w-[25%] hidden 2xl:table-cell"
+                      className="bg-transparent px-4 py-2 w-[25%] sm:table-cell xxs:hidden hidden 2xl:table-cell"
                       scope="col"
                     >
                       Status
@@ -383,13 +373,15 @@ export default function GroupProposals({
                         <td className="bg-secondary group-hover:bg-base-300 rounded-l-[12px] px-4 py-4 w-[25%]">
                           {proposal.id.toString()}
                         </td>
-                        <td className="bg-secondary group-hover:bg-base-300 truncate max-w-xs px-4 py-4 w-[25%]">
+                        <td
+                          className={`bg-secondary group-hover:bg-base-300 px-4 py-4 w-[25%] sm:rounded-none xxs:rounded-r-[12px] xs:rounded-r-[12px] xl:rounded-r-none`}
+                        >
                           {proposal.title}
                         </td>
-                        <td className="bg-secondary group-hover:bg-base-300 px-4 py-4 w-[25%] hidden lg:table-cell">
+                        <td className="bg-secondary group-hover:bg-base-300 px-4 py-4 w-[25%] hidden xl:table-cell">
                           {timeLeft}
                         </td>
-                        <td className="bg-secondary group-hover:bg-base-300 px-4 py-4 w-[25%] hidden xl:table-cell">
+                        <td className="bg-secondary group-hover:bg-base-300 px-4 py-4 w-[25%] sm:table-cell md:hidden hidden xl:table-cell ">
                           {proposal.messages.length > 0
                             ? proposal.messages.map((message, index) => (
                                 <div key={index}>
@@ -398,7 +390,7 @@ export default function GroupProposals({
                               ))
                             : 'No messages'}
                         </td>
-                        <td className="bg-secondary group-hover:bg-base-300 rounded-r-[12px] px-4 py-4 w-[25%] hidden 2xl:table-cell">
+                        <td className="bg-secondary group-hover:bg-base-300 rounded-r-[12px] sm:table-cell xxs:hidden hidden 2xl:table-cell">
                           {isTalliesLoading ? (
                             <span className="loading loading-spinner loading-xs"></span>
                           ) : (
@@ -418,8 +410,8 @@ export default function GroupProposals({
           </div>
         </div>
 
-        <div className="flex w-full md:w-[50%] h-full flex-col gap-8 mt-4 md:mt-0">
-          <div className="md:h-[calc(40vh-1rem)] h-full">
+        <div className="flex w-full md:w-[50%] h-full flex-col gap-4 mt-4 md:mt-0">
+          <div className="md:h-[calc(40vh)] h-full">
             <HistoryBox
               isLoading={isLoading}
               address={policyAddress}
@@ -452,18 +444,20 @@ export default function GroupProposals({
       </div>
 
       {/* Modals */}
-      <VoteDetailsModal
-        key={selectedProposal?.id.toString() ?? ''}
-        tallies={tally ?? ({} as QueryTallyResultResponseSDKType)}
-        votes={votes ?? []}
-        members={members}
-        proposal={selectedProposal ?? ({} as ProposalSDKType)}
-        modalId={`vote_modal_${selectedProposal?.id}`}
-        refetchVotes={refetchVotes}
-        refetchTally={refetchTally}
-        refetchProposals={refetchProposals}
-        onClose={closeModal}
-      />
+      {selectedProposal && (
+        <VoteDetailsModal
+          tallies={tally ?? ({} as QueryTallyResultResponseSDKType)}
+          votes={votes}
+          members={members}
+          proposal={selectedProposal}
+          onClose={handleCloseVoteModal}
+          showVoteModal={showVoteModal}
+          setShowVoteModal={setShowVoteModal}
+          refetchVotes={refetchVotes}
+          refetchTally={refetchTally}
+          refetchProposals={refetchProposals}
+        />
+      )}
     </div>
   );
 }

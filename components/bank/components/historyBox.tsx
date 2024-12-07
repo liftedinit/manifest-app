@@ -168,8 +168,11 @@ export function HistoryBox({
   return (
     <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
       <div className="flex items-center justify-between ">
-        <h3 className="text-lg md:text-xl font-semibold text-[#161616] dark:text-white">
+        <h3 className="text-lg md:text-xl font-semibold text-[#161616] dark:text-white hidden xl:block">
           {isGroup ? 'Group Transactions' : 'Transaction History'}
+        </h3>
+        <h3 className="text-lg md:text-xl font-semibold text-[#161616] dark:text-white block xl:hidden">
+          {isGroup ? 'Transactions' : 'History'}
         </h3>
 
         {totalPages > 1 && (

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Formik, Form, Field, FieldProps } from 'formik';
+import { createPortal } from 'react-dom';
 
 import * as Yup from 'yup';
 import { cosmos } from '@liftedinit/manifestjs';
@@ -24,6 +25,8 @@ interface MemberManagementModalProps {
   policyAddress: string;
   address: string;
   onUpdate: () => void;
+  setShowMemberManagementModal: (show: boolean) => void;
+  showMemberManagementModal: boolean;
 }
 
 export function MemberManagementModal({
@@ -34,7 +37,19 @@ export function MemberManagementModal({
   policyAddress,
   address,
   onUpdate,
+  setShowMemberManagementModal,
+  showMemberManagementModal,
 }: MemberManagementModalProps) {
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && showMemberManagementModal) {
+        setShowMemberManagementModal(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [showMemberManagementModal]);
   const { tx, isSigning, setIsSigning } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
 
@@ -171,185 +186,224 @@ export function MemberManagementModal({
 
   const submitFormRef = useRef<(() => void) | null>(null);
 
-  return (
-    <dialog id={modalId} className="modal ">
-      <div className="flex flex-col items-center w-full h-full">
-        <div className="modal-box dark:bg-[#1D192D] bg-[#FFFFFF] rounded-[24px] max-w-[39rem] p-6 dark:text-white text-black">
-          <form method="dialog">
-            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-          </form>
-          <div className="flex justify-between items-center my-8">
-            <h3 className="text-2xl font-semibold">Members</h3>
-            <button
-              type="button"
-              className="btn btn-gradient xs:max-3xl:w-[140px] xxs:w-auto h-[52px] text-white rounded-[12px] btn-sm"
-              onClick={handleAddMember}
-            >
-              New member
-            </button>
-          </div>
+  const modalContent = (
+    <dialog
+      id={modalId}
+      className={`modal ${showMemberManagementModal ? 'modal-open' : ''}`}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 9999,
+        backgroundColor: 'transparent',
+        padding: 0,
+        margin: 0,
+        height: '100vh',
+        width: '100vw',
+        display: showMemberManagementModal ? 'flex' : 'none',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <div className="modal-box relative max-w-3xl flex flex-col rounded-[24px] shadow-lg dark:bg-[#1D192D] bg-[#FFFFFF] transition-all duration-300 p-6">
+        <button
+          onClick={() => setShowMemberManagementModal(false)}
+          className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+        >
+          ✕
+        </button>
 
-          <Formik
-            initialValues={{ members }}
-            validationSchema={validationSchema}
-            onSubmit={handleConfirm}
-            enableReinitialize
+        <div className="flex justify-between items-center my-8">
+          <h3 className="text-2xl font-semibold">Members</h3>
+          <button
+            type="button"
+            className="btn btn-gradient xs:max-3xl:w-[140px] xxs:w-auto h-[52px] text-white rounded-[12px] btn-sm"
+            onClick={handleAddMember}
           >
-            {({ values, isValid, setFieldValue, handleSubmit, touched }) => {
-              submitFormRef.current = handleSubmit;
-              return (
-                <>
-                  <div className="z-[9999]">
-                    <TailwindModal
-                      isOpen={isContactsOpen}
-                      setOpen={setIsContactsOpen}
-                      showContacts={true}
-                      showMemberManagementModal={true}
-                      onSelect={(selectedAddress: string) => {
-                        if (activeIndex !== null) {
-                          const fieldName = `members.${activeIndex}.address`;
-                          setFieldValue(fieldName, selectedAddress);
-                        }
-                        setIsContactsOpen(false);
-                        (document.getElementById(modalId) as HTMLDialogElement)?.close();
-                      }}
-                      currentAddress={address}
-                    />
-                  </div>
-                  <Form>
-                    <div className="flex items-center mb-4 px-4 text-sm text-gray-400">
-                      <div className="w-[10%] ml-3">#</div>
-                      <div className="w-[35%] ml-11">Name</div>
-                      <div className="w-[45%]">Address</div>
-                      <div className="w-[10%]"></div>
-                    </div>
-                    <div className="space-y-4 max-h-[22rem] overflow-y-auto">
-                      {values.members.map((member, index) => (
-                        <div
-                          key={index}
-                          className={`flex items-center dark:bg-[#2D2A3E] bg-[#0000000A] rounded-[12px] p-3 ${
-                            member.markedForDeletion ? 'opacity-50' : ''
-                          }`}
-                        >
-                          <div className="w-[10%] text-center">{index + 1}</div>
-                          {/* Name Field with Daisy UI Tooltip */}
-                          <div className="w-[35%] ml-12 pr-6 relative">
-                            <Field name={`members.${index}.metadata`}>
-                              {({ field, meta }: FieldProps) => (
-                                <div>
-                                  <input
-                                    {...field}
-                                    type="text"
-                                    className={`input input-sm focus:outline-none input-ghost  bg-transparent w-full max-w-xs  ${
-                                      meta.touched && meta.error ? 'input-error' : ''
-                                    }`}
-                                    placeholder="member name"
-                                    disabled={member.markedForDeletion}
-                                  />
-                                  {meta.touched && meta.error && (
-                                    <div
-                                      className="tooltip tooltip-bottom tooltip-open tooltip-primary dark:text-white text-white text-xs mt-1 absolute left-1/2 transform translate-y-7 -translate-x-4 z-50"
-                                      data-tip={meta.error}
-                                    >
-                                      {/* Invisible element to anchor the tooltip */}
-                                      <div className="w-0 h-0"></div>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                            </Field>
-                          </div>
-                          {/* Address Field with Daisy UI Tooltip */}
-                          <div className="w-[45%] flex items-center relative">
-                            <Field name={`members.${index}.address`}>
-                              {({ field, meta }: FieldProps) => (
-                                <div className="flex-grow relative">
-                                  <input
-                                    {...field}
-                                    type="text"
-                                    className={`input input-sm focus:outline-none disabled:bg-transparent disabled:border-none bg-transparent input-ghost w-full ${
-                                      meta.touched && meta.error ? 'input-error' : ''
-                                    }`}
-                                    placeholder="manifest1..."
-                                    disabled={!member.isNew || member.markedForDeletion}
-                                  />
-                                  {member.isNew && !member.markedForDeletion && (
-                                    <button
-                                      type="button"
-                                      aria-label="contacts-btn"
-                                      onClick={() => {
-                                        handleContactButtonClick(index);
-                                        (
-                                          document.getElementById(modalId) as HTMLDialogElement
-                                        ).close();
-                                      }}
-                                      className="btn btn-primary btn-xs text-white absolute right-2 top-1"
-                                    >
-                                      <MdContacts className="w-4 h-4" />
-                                    </button>
-                                  )}
-                                  {meta.touched && meta.error && (
-                                    <div
-                                      className="tooltip tooltip-bottom tooltip-open tooltip-primary dark:text-white text-white text-xs mt-1 absolute left-1/2 transform translate-y-7 -translate-x-4 z-50"
-                                      data-tip={meta.error}
-                                    >
-                                      <div className="w-0 h-0"></div>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                            </Field>
-                            <button
-                              onClick={e => {
-                                e.preventDefault();
-                                navigator.clipboard.writeText(member.address);
-                              }}
-                              className="btn btn-ghost hover:bg-transparent btn-sm ml-2"
-                            >
-                              <CopyIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-                          <div className="w-[10%] flex justify-end">
-                            <button
-                              type="button"
-                              onClick={() => handleMemberToggleDeletion(index)}
-                              className={`btn btn-primary btn-square rounded-[12px] btn-sm `}
-                            >
-                              <TrashIcon className="text-white w-5 h-5" />
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="mt-4 gap-6 flex justify-center w-full">
-                      <button
-                        type="button"
-                        className="btn w-[calc(50%-8px)] btn-md focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
-                        onClick={() =>
-                          (document.getElementById(modalId) as HTMLDialogElement)?.close()
-                        }
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-md w-[calc(50%-8px)] btn-gradient  text-white"
-                        onClick={() => submitFormRef.current?.()}
-                        disabled={isSigning || !isValid || !touched}
-                      >
-                        {isSigning ? 'Signing...' : 'Save'}
-                      </button>
-                    </div>
-                  </Form>
-                </>
-              );
-            }}
-          </Formik>
+            New member
+          </button>
         </div>
+
+        <Formik
+          initialValues={{ members }}
+          validationSchema={validationSchema}
+          onSubmit={handleConfirm}
+          enableReinitialize
+        >
+          {({ values, isValid, setFieldValue, handleSubmit, touched }) => {
+            submitFormRef.current = handleSubmit;
+            return (
+              <>
+                <div className="z-[9999]">
+                  <TailwindModal
+                    isOpen={isContactsOpen}
+                    setOpen={setIsContactsOpen}
+                    showContacts={true}
+                    showMemberManagementModal={true}
+                    onSelect={(selectedAddress: string) => {
+                      if (activeIndex !== null) {
+                        const fieldName = `members.${activeIndex}.address`;
+                        setFieldValue(fieldName, selectedAddress);
+                      }
+                      setIsContactsOpen(false);
+                      (document.getElementById(modalId) as HTMLDialogElement)?.close();
+                    }}
+                    currentAddress={address}
+                  />
+                </div>
+                <Form>
+                  <div className="flex items-center mb-4 px-4 text-sm text-gray-400">
+                    <div className="w-[10%] ml-3">#</div>
+                    <div className="w-[35%] ml-11">Name</div>
+                    <div className="w-[45%]">Address</div>
+                    <div className="w-[10%]"></div>
+                  </div>
+                  <div className="space-y-4 max-h-[22rem] overflow-y-auto">
+                    {values.members.map((member, index) => (
+                      <div
+                        key={index}
+                        className={`flex items-center dark:bg-[#2D2A3E] bg-[#0000000A] rounded-[12px] p-3 ${
+                          member.markedForDeletion ? 'opacity-50' : ''
+                        }`}
+                      >
+                        <div className="w-[10%] text-center">{index + 1}</div>
+                        {/* Name Field with Daisy UI Tooltip */}
+                        <div className="w-[35%] ml-12 pr-6 relative">
+                          <Field name={`members.${index}.metadata`}>
+                            {({ field, meta }: FieldProps) => (
+                              <div>
+                                <input
+                                  {...field}
+                                  type="text"
+                                  className={`input input-sm focus:outline-none input-ghost  bg-transparent w-full max-w-xs  ${
+                                    meta.touched && meta.error ? 'input-error' : ''
+                                  }`}
+                                  placeholder="member name"
+                                  disabled={member.markedForDeletion}
+                                />
+                                {meta.touched && meta.error && (
+                                  <div
+                                    className="tooltip tooltip-bottom tooltip-open tooltip-primary dark:text-white text-white text-xs mt-1 absolute left-1/2 transform translate-y-7 -translate-x-4 z-50"
+                                    data-tip={meta.error}
+                                  >
+                                    {/* Invisible element to anchor the tooltip */}
+                                    <div className="w-0 h-0"></div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </Field>
+                        </div>
+                        {/* Address Field with Daisy UI Tooltip */}
+                        <div className="w-[45%] flex items-center relative">
+                          <Field name={`members.${index}.address`}>
+                            {({ field, meta }: FieldProps) => (
+                              <div className="flex-grow relative">
+                                <input
+                                  {...field}
+                                  type="text"
+                                  className={`input input-sm focus:outline-none disabled:bg-transparent disabled:border-none bg-transparent input-ghost w-full ${
+                                    meta.touched && meta.error ? 'input-error' : ''
+                                  }`}
+                                  placeholder="manifest1..."
+                                  disabled={!member.isNew || member.markedForDeletion}
+                                />
+                                {member.isNew && !member.markedForDeletion && (
+                                  <button
+                                    type="button"
+                                    aria-label="contacts-btn"
+                                    onClick={() => {
+                                      handleContactButtonClick(index);
+                                      (
+                                        document.getElementById(modalId) as HTMLDialogElement
+                                      ).close();
+                                    }}
+                                    className="btn btn-primary btn-xs text-white absolute right-2 top-1"
+                                  >
+                                    <MdContacts className="w-4 h-4" />
+                                  </button>
+                                )}
+                                {meta.touched && meta.error && (
+                                  <div
+                                    className="tooltip tooltip-bottom tooltip-open tooltip-primary dark:text-white text-white text-xs mt-1 absolute left-1/2 transform translate-y-7 -translate-x-4 z-50"
+                                    data-tip={meta.error}
+                                  >
+                                    <div className="w-0 h-0"></div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </Field>
+                          <button
+                            onClick={e => {
+                              e.preventDefault();
+                              navigator.clipboard.writeText(member.address);
+                            }}
+                            className="btn btn-ghost hover:bg-transparent btn-sm ml-2"
+                          >
+                            <CopyIcon className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <div className="w-[10%] flex justify-end">
+                          <button
+                            type="button"
+                            onClick={() => handleMemberToggleDeletion(index)}
+                            className={`btn btn-primary btn-square rounded-[12px] btn-sm `}
+                          >
+                            <TrashIcon className="text-white w-5 h-5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-4 gap-6 flex justify-center w-full">
+                    <button
+                      type="button"
+                      className="btn w-[calc(50%-8px)] btn-md focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
+                      onClick={() => setShowMemberManagementModal(false)}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-md w-[calc(50%-8px)] btn-gradient  text-white"
+                      onClick={() => submitFormRef.current?.()}
+                      disabled={isSigning || !isValid || !touched}
+                    >
+                      {isSigning ? 'Signing...' : 'Save'}
+                    </button>
+                  </div>
+                </Form>
+              </>
+            );
+          }}
+        </Formik>
       </div>
-      <form method="dialog" className="modal-backdrop">
+      <form
+        method="dialog"
+        className="modal-backdrop"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: -1,
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        }}
+        onClick={() => setShowMemberManagementModal(false)}
+      >
         <button>close</button>
       </form>
     </dialog>
   );
+
+  // Only render if we're in the browser
+  if (typeof document !== 'undefined') {
+    return createPortal(modalContent, document.body);
+  }
+
+  return null;
 }

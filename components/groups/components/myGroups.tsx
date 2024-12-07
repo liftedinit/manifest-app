@@ -174,8 +174,11 @@ export function YourGroups({
 
   const isLoadingGroupInfo = isBalancesLoading || resolvedLoading || isMetadatasLoading;
 
+  const [activeInfoModalId, setActiveInfoModalId] = useState<string | null>(null);
+  const [activeMemberModalId, setActiveMemberModalId] = useState<string | null>(null);
+
   return (
-    <div className="relative w-full h-screen overflow-hidden">
+    <div className="relative w-full h-screen overflow-x-hidden scrollbar-hide">
       <div
         className={`absolute inset-0 transition-transform duration-300 ${
           selectedGroup ? '-translate-x-full' : 'translate-x-0'
@@ -280,6 +283,10 @@ export function YourGroups({
                               : []
                           }
                           onSelectGroup={handleSelectGroup}
+                          activeMemberModalId={activeMemberModalId}
+                          setActiveMemberModalId={setActiveMemberModalId}
+                          activeInfoModalId={activeInfoModalId}
+                          setActiveInfoModalId={setActiveInfoModalId}
                         />
                       ))}
                 </tbody>
@@ -398,6 +405,8 @@ export function YourGroups({
             address={address ?? ''}
             policyAddress={group.policies[0]?.address ?? ''}
             onUpdate={refetch}
+            showInfoModal={activeInfoModalId === group.id.toString()}
+            setShowInfoModal={show => setActiveInfoModalId(show ? group.id.toString() : null)}
           />
           <MemberManagementModal
             modalId={`member-management-modal-${group.id}`}
@@ -416,7 +425,11 @@ export function YourGroups({
             groupAdmin={group.admin}
             policyAddress={group.policies[0]?.address ?? ''}
             address={address ?? ''}
-            onUpdate={() => {}}
+            onUpdate={refetch}
+            setShowMemberManagementModal={show =>
+              setActiveMemberModalId(show ? group.id.toString() : null)
+            }
+            showMemberManagementModal={activeMemberModalId === group.id.toString()}
           />
         </React.Fragment>
       ))}
@@ -428,10 +441,18 @@ function GroupRow({
   group,
   proposals,
   onSelectGroup,
+  activeMemberModalId,
+  setActiveMemberModalId,
+  activeInfoModalId,
+  setActiveInfoModalId,
 }: {
   group: ExtendedQueryGroupsByMemberResponseSDKType['groups'][0];
   proposals: ProposalSDKType[];
   onSelectGroup: (policyAddress: string, groupName: string, threshold: string) => void;
+  activeMemberModalId: string | null;
+  setActiveMemberModalId: (id: string | null) => void;
+  activeInfoModalId: string | null;
+  setActiveInfoModalId: (id: string | null) => void;
 }) {
   const policyAddress = (group.policies && group.policies[0]?.address) || '';
   const groupName = group.ipfsMetadata?.title || 'Untitled Group';
@@ -449,22 +470,12 @@ function GroupRow({
 
   const openInfoModal = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const modal = document.getElementById(
-      `group-info-modal-${group.id}`
-    ) as HTMLDialogElement | null;
-    if (modal) {
-      modal.showModal();
-    }
+    setActiveInfoModalId(group.id.toString());
   };
 
   const openMemberModal = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const modal = document.getElementById(
-      `member-management-modal-${group.id}`
-    ) as HTMLDialogElement | null;
-    if (modal) {
-      modal.showModal();
-    }
+    setActiveMemberModalId(group.id.toString());
   };
 
   return (

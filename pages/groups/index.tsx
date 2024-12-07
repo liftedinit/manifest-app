@@ -96,19 +96,6 @@ export default function Groups() {
                 isLoading={isLoading}
                 refetch={refetchGroupByMember || refetchProposals}
               />
-              {selectedPolicyAddress && (
-                <GroupInfo
-                  modalId={selectedPolicyAddress}
-                  policyAddress={selectedPolicyAddress}
-                  group={
-                    groupByMemberData?.groups.find(
-                      g => g.policies[0]?.address === selectedPolicyAddress
-                    ) ?? null
-                  }
-                  address={address ?? ''}
-                  onUpdate={refetchGroupByMember}
-                />
-              )}
             </>
           )}
         </div>
