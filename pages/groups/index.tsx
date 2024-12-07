@@ -82,7 +82,7 @@ export default function Groups() {
               groups={groupByMemberData ?? { groups: [] }}
               proposals={proposalsByPolicyAccount}
               isLoading={isLoading}
-              refetch={refetchGroupByMember}
+              refetch={refetchGroupByMember || refetchProposals}
             />
           ) : isError ? (
             <div className="text-center text-error">Error loading groups or proposals</div>
@@ -94,7 +94,7 @@ export default function Groups() {
                 groups={groupByMemberData ?? { groups: [] }}
                 proposals={proposalsByPolicyAccount}
                 isLoading={isLoading}
-                refetch={refetchGroupByMember}
+                refetch={refetchGroupByMember || refetchProposals}
               />
               {selectedPolicyAddress && (
                 <GroupInfo

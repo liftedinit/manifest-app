@@ -487,6 +487,7 @@ export const mockProposals: { [key: string]: ProposalSDKType[] } = {
       messages: [
         {
           ...anyMessage,
+          // @ts-ignore
           '@type': '/cosmos.bank.v1beta1.MsgSend',
           $typeUrl: '/cosmos.bank.v1beta1.MsgSend',
           type_url: '/cosmos.bank.v1beta1.MsgSend',
@@ -515,6 +516,7 @@ export const mockProposals: { [key: string]: ProposalSDKType[] } = {
       messages: [
         {
           ...anyMessage,
+          // @ts-ignore
           '@type': '/cosmos.bank.v1beta1.MsgSend',
           $typeUrl: '/cosmos.bank.v1beta1.MsgSend',
           type_url: '/cosmos.bank.v1beta1.MsgSend',
@@ -597,11 +599,13 @@ export const mockTally = {
 export const mockMembers: MemberSDKType[] = [
   {
     address: manifestAddr1,
+    // @ts-ignore
     name: 'Member 1',
     weight: '1',
   },
   {
     address: manifestAddr2,
+    // @ts-ignore
     name: 'Member 2',
     weight: '2',
   },
@@ -633,6 +637,7 @@ export const mockGroupFormData: FormData = {
 
   votingPeriod: { seconds: BigInt(3600), nanos: 0 },
   votingThreshold: '2',
+  // @ts-ignore
   members: mockMembers,
 };
 export const mockProposalFormData: ProposalFormData = {

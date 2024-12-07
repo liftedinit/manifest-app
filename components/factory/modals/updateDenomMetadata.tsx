@@ -8,6 +8,7 @@ import Yup from '@/utils/yupExtensions';
 import { TextInput, TextArea } from '@/components/react/inputs';
 import { truncateString, ExtendedMetadataSDKType } from '@/utils';
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 const TokenDetailsSchema = Yup.object().shape({
   display: Yup.string().noProfanity(),
@@ -112,8 +113,27 @@ export function UpdateDenomMetadataModal({
     }
   };
 
-  return (
-    <dialog id={modalId} className={`modal ${openUpdateDenomMetadataModal ? 'modal-open' : ''}`}>
+  const modalContent = (
+    <dialog
+      id={modalId}
+      className={`modal ${openUpdateDenomMetadataModal ? 'modal-open' : ''}`}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 9999,
+        backgroundColor: 'transparent',
+        padding: 0,
+        margin: 0,
+        height: '100vh',
+        width: '100vw',
+        display: openUpdateDenomMetadataModal ? 'flex' : 'none',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
       <Formik
         initialValues={formData}
         validationSchema={TokenDetailsSchema}
@@ -122,7 +142,7 @@ export function UpdateDenomMetadataModal({
         validateOnBlur={true}
       >
         {({ isValid, dirty, values, handleChange, handleSubmit, resetForm }) => (
-          <div className="modal-box max-w-4xl mx-auto p-6 bg-[#F4F4FF] dark:bg-[#1D192D] rounded-[24px] shadow-lg">
+          <div className="modal-box max-w-4xl mx-auto p-6 bg-[#F4F4FF] dark:bg-[#1D192D] rounded-[24px] shadow-lg relative">
             <form method="dialog">
               <button
                 type="button"
@@ -196,9 +216,28 @@ export function UpdateDenomMetadataModal({
           </div>
         )}
       </Formik>
-      <form method="dialog" className="modal-backdrop">
+      <form
+        method="dialog"
+        className="modal-backdrop"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: -1,
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        }}
+      >
         <button onClick={() => handleCloseModal()}>close</button>
       </form>
     </dialog>
   );
+
+  // Only render if we're in the browser
+  if (typeof document !== 'undefined') {
+    return createPortal(modalContent, document.body);
+  }
+
+  return null;
 }

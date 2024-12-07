@@ -1,14 +1,21 @@
-import { ExtendedGroupType, ExtendedQueryGroupsByMemberResponseSDKType } from '@/hooks/useQueries';
+import {
+  ExtendedGroupType,
+  ExtendedQueryGroupsByMemberResponseSDKType,
+  useGetFilteredTxAndSuccessfulProposals,
+  useTokenBalances,
+  useTokenBalancesResolved,
+  useTokenFactoryDenomsMetadata,
+} from '@/hooks/useQueries';
 import ProfileAvatar from '@/utils/identicon';
-import { truncateString } from '@/utils';
-import React, { useState, useEffect } from 'react';
+import { CombinedBalanceInfo, MFX_TOKEN_DATA, truncateString } from '@/utils';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import {
   ProposalSDKType,
   ThresholdDecisionPolicySDKType,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
-import GroupProposals from './groupProposals';
+import GroupProposals from './groupControls';
 import { useBalance } from '@/hooks/useQueries';
 import { shiftDigits } from '@/utils';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
@@ -19,6 +26,8 @@ import { GroupInfo } from '../modals/groupInfo';
 import { MemberManagementModal } from '../modals/memberManagementModal';
 import { useChain } from '@cosmos-kit/react';
 import useIsMobile from '@/hooks/useIsMobile';
+import { chainName } from '@/config';
+import { useEndpointStore } from '@/store/endpointStore';
 
 export function YourGroups({
   groups,
@@ -91,6 +100,79 @@ export function YourGroups({
     setSelectedGroup(null);
     router.push('/groups', undefined, { shallow: true });
   };
+
+  const { balances, isBalancesLoading, refetchBalances } = useTokenBalances(
+    selectedGroup?.policyAddress ?? ''
+  );
+  const {
+    balances: resolvedBalances,
+    isBalancesLoading: resolvedLoading,
+    refetchBalances: resolveRefetch,
+  } = useTokenBalancesResolved(address ?? '');
+
+  const { selectedEndpoint } = useEndpointStore();
+  const indexerUrl = selectedEndpoint?.indexer || '';
+
+  const { metadatas, isMetadatasLoading } = useTokenFactoryDenomsMetadata();
+  const [currentPageGroupInfo, setCurrentPageGroupInfo] = useState(1);
+
+  const pageSizeGroupInfo = isMobile ? 4 : 4;
+  const pageSizeHistory = isMobile ? 4 : 3;
+  const skeletonGroupCount = 1;
+  const skeletonTxCount = isMobile ? 5 : 3;
+
+  const {
+    sendTxs,
+    totalPages: totalPagesGroupInfo,
+    isLoading: txLoading,
+    isError,
+    refetch: refetchHistory,
+  } = useGetFilteredTxAndSuccessfulProposals(
+    indexerUrl,
+    selectedGroup?.policyAddress ?? '',
+    currentPageGroupInfo,
+    pageSizeHistory
+  );
+
+  const combinedBalances = useMemo(() => {
+    if (!balances || !resolvedBalances || !metadatas) return [];
+
+    // Find 'umfx' balance (mfx token)
+    const mfxCoreBalance = balances.find(b => b.denom === 'umfx');
+    const mfxResolvedBalance = resolvedBalances.find(rb => rb.denom === 'mfx');
+
+    // Create combined balance for 'mfx'
+    const mfxCombinedBalance: CombinedBalanceInfo | null = mfxCoreBalance
+      ? {
+          denom: mfxResolvedBalance?.denom || 'mfx',
+          coreDenom: 'umfx',
+          amount: mfxCoreBalance.amount,
+          metadata: MFX_TOKEN_DATA,
+        }
+      : null;
+
+    // Process other balances
+    const otherBalances = balances
+      .filter(coreBalance => coreBalance.denom !== 'umfx')
+      .map((coreBalance): CombinedBalanceInfo => {
+        const resolvedBalance = resolvedBalances.find(
+          rb => rb.denom === coreBalance.denom || rb.denom === coreBalance.denom.split('/').pop()
+        );
+        const metadata = metadatas.metadatas.find(m => m.base === coreBalance.denom);
+
+        return {
+          denom: resolvedBalance?.denom || coreBalance.denom,
+          coreDenom: coreBalance.denom,
+          amount: coreBalance.amount,
+          metadata: metadata || null,
+        };
+      });
+
+    // Combine 'mfx' with other balances
+    return mfxCombinedBalance ? [mfxCombinedBalance, ...otherBalances] : otherBalances;
+  }, [balances, resolvedBalances, metadatas]);
+
+  const isLoadingGroupInfo = isBalancesLoading || resolvedLoading || isMetadatasLoading;
 
   return (
     <div className="relative w-full h-screen overflow-hidden">
@@ -290,6 +372,19 @@ export function YourGroups({
             groupName={selectedGroup.name}
             onBack={handleBack}
             policyThreshold={selectedGroup.threshold}
+            isLoading={isLoadingGroupInfo}
+            currentPage={currentPageGroupInfo}
+            setCurrentPage={setCurrentPageGroupInfo}
+            sendTxs={sendTxs}
+            totalPages={totalPagesGroupInfo}
+            txLoading={txLoading}
+            isError={isError}
+            balances={combinedBalances}
+            refetchBalances={resolveRefetch}
+            refetchHistory={refetchHistory}
+            pageSize={pageSizeGroupInfo}
+            skeletonGroupCount={skeletonGroupCount}
+            skeletonTxCount={skeletonTxCount}
           />
         )}
       </div>

@@ -18,13 +18,19 @@ export default function SendBox({
   refetchBalances,
   refetchHistory,
   selectedDenom,
+  isGroup,
+  admin,
+  refetchProposals,
 }: {
   address: string;
   balances: CombinedBalanceInfo[];
   isBalancesLoading: boolean;
   refetchBalances: () => void;
   refetchHistory: () => void;
+  refetchProposals?: () => void;
   selectedDenom?: string;
+  isGroup?: boolean;
+  admin?: string;
 }) {
   const [activeTab, setActiveTab] = useState<'send' | 'cross-chain'>('send');
   const [selectedChain, setSelectedChain] = useState('');
@@ -82,6 +88,7 @@ export default function SendBox({
                 refetchBalances={refetchBalances}
                 refetchHistory={refetchHistory}
                 selectedDenom={selectedDenom}
+                isGroup={isGroup}
               />
             ) : (
               <SendForm
@@ -91,6 +98,9 @@ export default function SendBox({
                 refetchBalances={refetchBalances}
                 refetchHistory={refetchHistory}
                 selectedDenom={selectedDenom}
+                isGroup={isGroup}
+                admin={admin}
+                refetchProposals={refetchProposals}
               />
             )}
           </>

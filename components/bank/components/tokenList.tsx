@@ -15,24 +15,28 @@ interface TokenListProps {
   refetchBalances: () => void;
   refetchHistory: () => void;
   address: string;
+  pageSize: number;
+  isGroup?: boolean;
+  admin?: string;
+  refetchProposals?: () => void;
 }
 
-export default function TokenList({
+export function TokenList({
   balances,
   isLoading,
   refetchBalances,
   refetchHistory,
   address,
+  pageSize,
+  isGroup,
+  admin,
+  refetchProposals,
 }: TokenListProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDenom, setSelectedDenom] = useState<any>(null);
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [openDenomInfoModal, setOpenDenomInfoModal] = useState(false);
-
-  const isMobile = useIsMobile();
-
-  const pageSize = isMobile ? 4 : 9;
 
   const filteredBalances = useMemo(() => {
     if (!Array.isArray(balances)) return [];
@@ -57,7 +61,7 @@ export default function TokenList({
       <div className="flex flex-col gap-4 mb-4">
         <div className="flex flex-row items-center justify-between">
           <h3 className="text-lg md:text-xl font-semibold text-[#161616] dark:text-white">
-            Your Assets
+            {isGroup ? 'Group Assets' : 'Your Assets'}
           </h3>
 
           {totalPages > 1 && (
@@ -237,6 +241,9 @@ export default function TokenList({
         refetchHistory={refetchHistory}
         selectedDenom={selectedDenom}
         setOpen={setIsSendModalOpen}
+        isGroup={isGroup}
+        admin={admin}
+        refetchProposals={refetchProposals}
       />
     </div>
   );

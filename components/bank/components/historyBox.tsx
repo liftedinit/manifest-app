@@ -53,6 +53,9 @@ export function HistoryBox({
   txLoading,
   isError,
   refetch,
+  skeletonGroupCount,
+  skeletonTxCount,
+  isGroup,
 }: {
   isLoading: boolean;
   address: string;
@@ -63,16 +66,15 @@ export function HistoryBox({
   txLoading: boolean;
   isError: boolean;
   refetch: () => void;
+  skeletonGroupCount: number;
+  skeletonTxCount: number;
+  isGroup?: boolean;
 }) {
   const [selectedTx, setSelectedTx] = useState<TransactionGroup | null>(null);
 
   const isLoading = initialLoading || txLoading;
 
   const { metadatas } = useTokenFactoryDenomsMetadata();
-
-  const isMobile = useIsMobile();
-  const skeletonGroupCount = 1;
-  const skeletonTxCount = isMobile ? 5 : 9;
 
   function formatDateShort(dateString: string): string {
     const date = new Date(dateString);
@@ -167,7 +169,7 @@ export function HistoryBox({
     <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
       <div className="flex items-center justify-between ">
         <h3 className="text-lg md:text-xl font-semibold text-[#161616] dark:text-white">
-          Transaction History
+          {isGroup ? 'Group Transactions' : 'Transaction History'}
         </h3>
 
         {totalPages > 1 && (
@@ -228,7 +230,7 @@ export function HistoryBox({
           <div aria-label="skeleton" className="space-y-4">
             {[...Array(skeletonGroupCount)].map((_, groupIndex) => (
               <div key={groupIndex}>
-                <div className="skeleton h-4 w-24 mb-2"></div>
+                <div className="skeleton h-4 w-24 mb-2 mt-4"></div>
                 <div className="space-y-2">
                   {[...Array(skeletonTxCount)].map((_, txIndex) => (
                     <div

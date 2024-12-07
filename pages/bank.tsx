@@ -1,6 +1,4 @@
 import { WalletNotConnected } from '@/components';
-
-import TokenList from '@/components/bank/components/tokenList';
 import { chainName } from '@/config';
 import {
   useGetFilteredTxAndSuccessfulProposals,
@@ -13,7 +11,7 @@ import {
 import { useChain } from '@cosmos-kit/react';
 import Head from 'next/head';
 import React, { useMemo, useState } from 'react';
-import { HistoryBox } from '@/components';
+import { HistoryBox, TokenList } from '@/components';
 import { BankIcon } from '@/components/icons';
 import { CombinedBalanceInfo } from '@/utils/types';
 import { MFX_TOKEN_DATA } from '@/utils/constants';
@@ -37,6 +35,9 @@ export default function Bank() {
   const isMobile = useIsMobile();
 
   const pageSize = isMobile ? 4 : 9;
+
+  const skeletonGroupCount = 1;
+  const skeletonTxCount = isMobile ? 5 : 9;
 
   const {
     sendTxs,
@@ -156,6 +157,7 @@ export default function Bank() {
                     balances={combinedBalances}
                     refetchHistory={refetchHistory}
                     address={address ?? ''}
+                    pageSize={pageSize}
                   />
                 </div>
                 <div className="w-full lg:w-1/2 h-1/2 lg:h-full overflow-hidden">
@@ -169,6 +171,8 @@ export default function Bank() {
                     txLoading={txLoading}
                     isError={isError}
                     refetch={refetchHistory}
+                    skeletonGroupCount={skeletonGroupCount}
+                    skeletonTxCount={skeletonTxCount}
                   />
                 </div>
               </div>
