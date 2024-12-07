@@ -3,10 +3,6 @@ const nextConfig = {
   output: 'standalone',
   reactStrictMode: true,
   swcMinify: true,
-  // TODO: Remove this when we are ready for prod
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   images: {
     domains: [
       'imgur.com',
