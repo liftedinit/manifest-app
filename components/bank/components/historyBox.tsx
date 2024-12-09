@@ -13,6 +13,7 @@ interface Transaction {
   from_address: string;
   to_address: string;
   amount: Array<{ amount: string; denom: string }>;
+  memo?: string;
 }
 
 export interface TransactionGroup {
@@ -20,6 +21,7 @@ export interface TransactionGroup {
   block_number: number;
   formatted_date: string;
   data: Transaction;
+  memo?: string;
 }
 
 function formatLargeNumber(num: number): string {

@@ -714,6 +714,7 @@ const _formatMessage = (
         from_address: string;
         to_address: string;
         amount: { amount: string; denom: string }[];
+        memo?: string;
       };
     }
   | undefined => {
@@ -728,6 +729,7 @@ const _formatMessage = (
             amount: amt.amount,
             denom: amt.denom,
           })),
+          memo: message.memo,
         },
       };
     case `/osmosis.tokenfactory.v1beta1.MsgMint`:
@@ -737,6 +739,7 @@ const _formatMessage = (
           from_address: message.sender,
           to_address: message.mintToAddress,
           amount: [message.amount],
+          memo: message.memo,
         },
       };
     case `/osmosis.tokenfactory.v1beta1.MsgBurn`:
@@ -746,6 +749,7 @@ const _formatMessage = (
           from_address: message.sender,
           to_address: message.burnFromAddress,
           amount: [message.amount],
+          memo: message.memo,
         },
       };
     case `/liftedinit.manifest.v1.MsgPayout`:
@@ -766,6 +770,7 @@ const _formatMessage = (
           from_address: message.authority,
           to_address: address,
           amount: totalAmount,
+          memo: message.memo,
         },
       };
     case `/lifted.init.manifest.v1.MsgBurnHeldBalance`:
@@ -775,6 +780,7 @@ const _formatMessage = (
           from_address: message.authority,
           to_address: message.authority,
           amount: message.burnCoins,
+          memo: message.memo,
         },
       };
     default:
@@ -799,7 +805,10 @@ const transformTransactions = (tx: any, address: string) => {
             tx_hash: tx.id,
             block_number: parseInt(tx.data.txResponse.height),
             formatted_date: tx.data.txResponse.timestamp,
-            ...formattedMessage,
+            data: {
+              ...formattedMessage.data,
+              memo: tx.data.tx.body.memo,
+            },
           });
         }
       }
@@ -811,6 +820,7 @@ const transformTransactions = (tx: any, address: string) => {
         tx_hash: tx.id,
         block_number: parseInt(tx.data.txResponse.height),
         formatted_date: tx.data.txResponse.timestamp,
+        memo: tx.data.tx.body.memo,
         ...formattedMessage,
       });
     }

@@ -90,6 +90,11 @@ export default function TxInfoModal({ tx, modalId }: TxInfoModalProps) {
             </div>
           </div>
         </div>
+        {tx?.data?.memo && (
+          <div className="mt-6">
+            <InfoItem label="MEMO" explorerUrl={explorerUrl} value={tx.data.memo} />
+          </div>
+        )}
       </div>
       <form method="dialog" className="modal-backdrop">
         <button>close</button>
