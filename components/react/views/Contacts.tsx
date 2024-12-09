@@ -18,7 +18,7 @@ export const Contacts = ({
   selectionMode = false,
   onSelect,
   currentAddress,
-  showMemberManagementModal = false,
+
   showMessageEditModal = false,
 }: {
   onClose: () => void;
@@ -26,7 +26,7 @@ export const Contacts = ({
   selectionMode?: boolean;
   onSelect?: (address: string) => void;
   currentAddress?: string;
-  showMemberManagementModal?: boolean;
+
   showMessageEditModal?: boolean;
 }) => {
   const { contacts, addContact, updateContact, removeContact, importContacts, exportContacts } =
@@ -221,11 +221,6 @@ export const Contacts = ({
             if (onSelect) {
               onSelect(currentAddress);
               onClose();
-              if (showMemberManagementModal) {
-                (
-                  document.getElementById('member-management-modal') as HTMLDialogElement
-                ).showModal();
-              }
               if (showMessageEditModal) {
                 (document.getElementById('message_edit_modal') as HTMLDialogElement).showModal();
               }
@@ -323,11 +318,6 @@ export const Contacts = ({
                     if (selectionMode && onSelect) {
                       onSelect(contact.address);
                       onClose();
-                      if (showMemberManagementModal) {
-                        (
-                          document.getElementById('member-management-modal') as HTMLDialogElement
-                        ).showModal();
-                      }
                       if (showMessageEditModal) {
                         (
                           document.getElementById('message_edit_modal') as HTMLDialogElement

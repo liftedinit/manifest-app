@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
+import { createPortal } from 'react-dom';
 
 import {
   MemberSDKType,
@@ -32,27 +33,31 @@ interface VoteMap {
   [key: string]: VoteOption;
 }
 
+interface VoteDetailsModalProps {
+  tallies: QueryTallyResultResponseSDKType;
+  votes: VoteSDKType[];
+  members: MemberSDKType[];
+  proposal: ProposalSDKType;
+  showVoteModal: boolean;
+  setShowVoteModal: (show: boolean) => void;
+  onClose: () => void;
+  refetchVotes: () => void;
+  refetchTally: () => void;
+  refetchProposals: () => void;
+}
+
 function VoteDetailsModal({
   tallies,
   votes,
   members,
   proposal,
+  showVoteModal,
+  setShowVoteModal,
   onClose,
-  modalId,
   refetchVotes,
   refetchTally,
   refetchProposals,
-}: {
-  tallies: QueryTallyResultResponseSDKType;
-  votes: VoteSDKType[];
-  members: MemberSDKType[];
-  proposal: ProposalSDKType;
-  onClose: () => void;
-  modalId: string;
-  refetchVotes: () => void;
-  refetchTally: () => void;
-  refetchProposals: () => void;
-}) {
+}: VoteDetailsModalProps) {
   const voteMap = useMemo(
     () =>
       votes?.reduce<VoteMap>((acc, vote) => {
@@ -444,12 +449,47 @@ function VoteDetailsModal({
     }
   };
 
-  return (
-    <>
-      <dialog id={modalId} className="modal">
-        <div className="modal-box relative max-w-4xl min-h-96 max-h-[80vh] overflow-y-hidden flex flex-col md:flex-row md:ml-20 -mt-12 rounded-[24px] shadow-lg bg-secondary transition-all duration-300 z-[1000]">
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && showVoteModal) {
+        e.stopPropagation();
+        setShowVoteModal(false);
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [showVoteModal, setShowVoteModal, onClose]);
+
+  const modalContent = (
+    <dialog
+      id="vote-details-modal"
+      className={`modal ${showVoteModal ? 'modal-open' : ''}`}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 9999,
+        backgroundColor: 'transparent',
+        padding: 0,
+        margin: 0,
+        height: '100vh',
+        width: '100vw',
+        display: showVoteModal ? 'flex' : 'none',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <div className="flex flex-col items-center justify-center w-full h-full">
+        <div
+          className="modal-box relative max-w-4xl min-h-96 max-h-[80vh] overflow-y-auto md:overflow-y-hidden flex flex-col md:flex-row md:ml-20 -mt-12 rounded-[24px] shadow-lg bg-secondary transition-all duration-300"
+          onClick={e => e.stopPropagation()}
+        >
           <form method="dialog" onSubmit={onClose}>
-            <button className="btn btn-sm btn-circle text-black dark:text-white btn-ghost absolute right-2 top-2">
+            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A] z-50">
               ✕
             </button>
           </form>
@@ -681,7 +721,64 @@ function VoteDetailsModal({
                   </button>
                 )}
             </div>
+            <dialog id="messages_modal" className="modal">
+              <div className="modal-box max-w-4xl bg-secondary">
+                <form method="dialog">
+                  <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+                    ✕
+                  </button>
+                </form>
+                <h3 className="font-bold text-lg mb-4">Proposal Messages</h3>
+                <div className="overflow-y-auto max-h-[60vh]">
+                  {proposal?.messages?.map((message: any, index: number) => {
+                    const messageType = message['@type'];
+                    const fieldsToShow = importantFields[messageType] || defaultFields;
 
+                    return (
+                      <div key={index} className="mb-6 bg-base-300 p-4 rounded-[12px]">
+                        <h3
+                          aria-label="msg"
+                          className="text-lg font-semibold mb-2 text-primary-content"
+                        >
+                          {messageType.split('.').pop().replace('Msg', '')}
+                        </h3>
+                        <div>
+                          {fieldsToShow.map(field => renderMessageField(field, message[field]))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              <form
+                method="dialog"
+                className="modal-backdrop"
+                style={{
+                  position: 'fixed',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  zIndex: -1,
+                  backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                }}
+                onClick={e => {
+                  e.preventDefault();
+                  setShowVoteModal(false);
+                  onClose();
+                }}
+              >
+                <button
+                  onClick={e => {
+                    e.preventDefault();
+                    setShowVoteModal(false);
+                    onClose();
+                  }}
+                >
+                  close
+                </button>
+              </form>
+            </dialog>
             <VotingPopup
               proposalId={proposal?.id ?? 0n}
               refetch={() => {
@@ -692,39 +789,43 @@ function VoteDetailsModal({
             />
           </div>
         </div>
-        <form method="dialog" className="modal-backdrop" onSubmit={onClose}>
-          <button>close</button>
-        </form>
-      </dialog>
-
-      <dialog id="messages_modal" className="modal">
-        <div className="modal-box max-w-4xl bg-secondary">
-          <form method="dialog">
-            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-          </form>
-          <h3 className="font-bold text-lg mb-4">Proposal Messages</h3>
-          <div className="overflow-y-auto max-h-[60vh]">
-            {proposal?.messages?.map((message: any, index: number) => {
-              const messageType = message['@type'];
-              const fieldsToShow = importantFields[messageType] || defaultFields;
-
-              return (
-                <div key={index} className="mb-6 bg-base-300 p-4 rounded-[12px]">
-                  <h3 aria-label="msg" className="text-lg font-semibold mb-2 text-primary-content">
-                    {messageType.split('.').pop().replace('Msg', '')}
-                  </h3>
-                  <div>{fieldsToShow.map(field => renderMessageField(field, message[field]))}</div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-        <form method="dialog" className="modal-backdrop">
-          <button>close</button>
-        </form>
-      </dialog>
-    </>
+      </div>
+      <form
+        method="dialog"
+        className="modal-backdrop"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: -1,
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        }}
+        onClick={e => {
+          e.preventDefault();
+          setShowVoteModal(false);
+          onClose();
+        }}
+      >
+        <button
+          onClick={e => {
+            e.preventDefault();
+            setShowVoteModal(false);
+            onClose();
+          }}
+        >
+          close
+        </button>
+      </form>
+    </dialog>
   );
+
+  if (typeof document !== 'undefined' && showVoteModal) {
+    return createPortal(modalContent, document.body);
+  }
+
+  return null;
 }
 
 export default VoteDetailsModal;

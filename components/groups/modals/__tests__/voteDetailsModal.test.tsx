@@ -2,24 +2,9 @@ import { describe, test, expect, jest, mock, afterEach } from 'bun:test';
 import React from 'react';
 import { screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
 import VoteDetailsModal from '../voteDetailsModal';
-import {
-  ProposalSDKType,
-  MemberSDKType,
-  VoteSDKType,
-  ProposalStatus,
-  ProposalExecutorResult,
-} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
-import { QueryTallyResultResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
 import matchers from '@testing-library/jest-dom/matchers';
 import { renderWithChainProvider } from '@/tests/render';
-import {
-  manifestAddr1,
-  mockGroupFormData,
-  mockMembers,
-  mockProposals,
-  mockTally,
-  mockVotes,
-} from '@/tests/mock';
+import { mockMembers, mockProposals, mockTally, mockVotes } from '@/tests/mock';
 
 expect.extend(matchers);
 
@@ -42,6 +27,8 @@ describe('VoteDetailsModal', () => {
     votes: mockVotes,
     members: mockMembers,
     proposal: mockProposal,
+    showVoteModal: true,
+    setShowVoteModal: jest.fn(),
     onClose: jest.fn(),
     modalId: 'voteDetailsModal',
     refetchVotes: jest.fn(),

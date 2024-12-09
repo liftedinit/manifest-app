@@ -1,7 +1,7 @@
-import { describe, test, expect, beforeEach } from 'bun:test';
+import { describe, test, expect, beforeEach, jest } from 'bun:test';
 import React from 'react';
-import { fireEvent, screen, within } from '@testing-library/react';
-import { UpdateGroupModal } from '../updateGroupModal';
+import { fireEvent, screen } from '@testing-library/react';
+import { UpdateGroupModal } from '@/components';
 import { renderWithChainProvider } from '@/tests/render';
 
 // Mock group data
@@ -48,6 +48,9 @@ const mockProps = {
   address: 'group_address',
   modalId: 'test-modal',
   policyAddress: 'policy_address',
+  showUpdateModal: true,
+  setShowUpdateModal: jest.fn(),
+  onUpdate: jest.fn(),
 };
 
 describe('UpdateGroupModal Component Input State Changes', () => {
