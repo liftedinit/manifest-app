@@ -939,6 +939,8 @@ const _formatMessage = (
 
 const transformTransactions = (tx: any, address: string) => {
   let messages: TransactionGroup[] = [];
+  let memo = tx.data.tx.body.memo ? { memo: tx.data.tx.body.memo } : {};
+
   for (const message of tx.data.tx.body.messages) {
     if (message['@type'] === '/cosmos.group.v1.MsgSubmitProposal') {
       for (const nestedMessage of message.messages) {
@@ -954,6 +956,7 @@ const transformTransactions = (tx: any, address: string) => {
             tx_hash: tx.id,
             block_number: parseInt(tx.data.txResponse.height),
             formatted_date: tx.data.txResponse.timestamp,
+            ...memo,
             ...formattedMessage,
           });
         }
@@ -966,6 +969,7 @@ const transformTransactions = (tx: any, address: string) => {
         tx_hash: tx.id,
         block_number: parseInt(tx.data.txResponse.height),
         formatted_date: tx.data.txResponse.timestamp,
+        ...memo,
         ...formattedMessage,
       });
     }
