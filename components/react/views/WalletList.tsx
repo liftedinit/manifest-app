@@ -15,15 +15,17 @@ export const WalletList = ({
   const isDarkMode = document.documentElement.classList.contains('dark');
 
   const social = wallets.filter(wallet =>
-    ['Google', 'Twitter', 'Apple', 'Discord', 'GitHub', 'Reddit'].includes(
+    ['Google', 'Twitter', 'Apple', 'Discord', 'GitHub', 'Reddit', 'Email', 'SMS'].includes(
       wallet.walletInfo.prettyName
     )
   );
 
   const browser = wallets.filter(wallet =>
-    ['Keplr', 'Cosmostation', 'Leap', 'Station'].includes(wallet.walletInfo.prettyName)
+    ['Keplr', 'Cosmostation', 'Leap', 'Station', 'Cosmos MetaMask Extension'].includes(
+      wallet.walletInfo.prettyName
+    )
   );
-
+  console.log(wallets);
   const mobile = wallets.filter(wallet =>
     ['Wallet Connect', 'Keplr Mobile', 'Cosmostation Mobile', 'Leap Mobile'].includes(
       wallet.walletInfo.prettyName
@@ -40,7 +42,7 @@ export const WalletList = ({
         <XMarkIcon className="w-5 h-5" aria-hidden="true" />
       </button>
 
-      {/* Browser and Social sections - browaer hidden on mobile/tablet */}
+      {/* Browser and Social sections - browser hidden on mobile/tablet */}
       <div className="hidden md:block">
         <div className="space-y-2 mb-4">
           {browser.map(({ walletInfo: { name, prettyName, logo } }) => (
@@ -50,11 +52,17 @@ export const WalletList = ({
               className="flex items-center w-full p-3 rounded-lg dark:bg-[#ffffff0c] bg-[#f0f0ff5c] dark:hover:bg-[#0000004c] hover:bg-[#a8a8a84c] transition"
             >
               <img
-                src={getRealLogo(logo?.toString() ?? '')}
+                src={
+                  prettyName === 'Cosmos MetaMask Extension'
+                    ? '/metamask.svg'
+                    : getRealLogo(logo?.toString() ?? '')
+                }
                 alt={prettyName}
                 className="w-10 h-10 rounded-xl mr-3"
               />
-              <span className="text-md">{prettyName}</span>
+              <span className="text-md">
+                {prettyName === 'Cosmos MetaMask Extension' ? 'MetaMask' : prettyName}
+              </span>
             </button>
           ))}
         </div>
