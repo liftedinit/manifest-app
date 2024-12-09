@@ -2,7 +2,7 @@ import { test, expect, afterEach, describe, mock, jest } from 'bun:test';
 import React from 'react';
 import matchers from '@testing-library/jest-dom/matchers';
 import { fireEvent, screen, cleanup, within, waitFor } from '@testing-library/react';
-import TokenList from '@/components/bank/components/tokenList';
+import { TokenList } from '@/components/bank/components/tokenList';
 import { CombinedBalanceInfo } from '@/utils/types';
 import { renderWithChainProvider } from '@/tests/render';
 
@@ -61,22 +61,58 @@ describe('TokenList', () => {
   });
 
   test('renders correctly', () => {
-    renderWithChainProvider(<TokenList balances={mockBalances} isLoading={false} />);
+    renderWithChainProvider(
+      <TokenList
+        balances={mockBalances}
+        isLoading={false}
+        refetchBalances={jest.fn()}
+        refetchHistory={jest.fn()}
+        address={''}
+        pageSize={1}
+      />
+    );
     expect(screen.getByText('Your Assets')).toBeInTheDocument();
   });
 
   test('displays loading skeleton when isLoading is true', () => {
-    renderWithChainProvider(<TokenList balances={undefined} isLoading={true} />);
+    renderWithChainProvider(
+      <TokenList
+        balances={undefined}
+        isLoading={true}
+        refetchBalances={jest.fn()}
+        refetchHistory={jest.fn()}
+        address={''}
+        pageSize={1}
+      />
+    );
     expect(screen.getByLabelText('skeleton-loader')).toBeInTheDocument();
   });
 
   test('displays empty state when there are no balances', () => {
-    renderWithChainProvider(<TokenList balances={[]} isLoading={false} />);
+    renderWithChainProvider(
+      <TokenList
+        balances={[]}
+        isLoading={false}
+        refetchBalances={jest.fn()}
+        refetchHistory={jest.fn()}
+        address={''}
+        pageSize={1}
+      />
+    );
     expect(screen.getByText('No tokens found!')).toBeInTheDocument();
   });
 
   test('filters balances based on search term', () => {
-    renderWithChainProvider(<TokenList balances={mockBalances} isLoading={false} />);
+    renderWithChainProvider(
+      <TokenList
+        balances={mockBalances}
+        isLoading={false}
+        refetchBalances={jest.fn()}
+        refetchHistory={jest.fn()}
+        address={''}
+        pageSize={1}
+      />
+    );
     const searchInput = screen.getByPlaceholderText('Search for a token...');
     fireEvent.change(searchInput, { target: { value: 'Token 1' } });
 
@@ -85,7 +121,16 @@ describe('TokenList', () => {
   });
 
   test('opens modal with correct denomination information', async () => {
-    renderWithChainProvider(<TokenList balances={mockBalances} isLoading={false} />);
+    renderWithChainProvider(
+      <TokenList
+        balances={mockBalances}
+        isLoading={false}
+        refetchBalances={jest.fn()}
+        refetchHistory={jest.fn()}
+        address={''}
+        pageSize={1}
+      />
+    );
     const token1Container = screen.getByLabelText('utoken1');
     const button = within(token1Container).getByLabelText('info-utoken1');
     fireEvent.click(button);
@@ -99,13 +144,31 @@ describe('TokenList', () => {
   });
 
   test('displays correct balance for each token', () => {
-    renderWithChainProvider(<TokenList balances={mockBalances} isLoading={false} />);
+    renderWithChainProvider(
+      <TokenList
+        balances={mockBalances}
+        isLoading={false}
+        refetchBalances={jest.fn()}
+        refetchHistory={jest.fn()}
+        address={''}
+        pageSize={2}
+      />
+    );
     expect(screen.getByText('0.001')).toBeInTheDocument();
     expect(screen.getByText('0.002')).toBeInTheDocument();
   });
 
   test('displays correct base denomination for each token', () => {
-    renderWithChainProvider(<TokenList balances={mockBalances} isLoading={false} />);
+    renderWithChainProvider(
+      <TokenList
+        balances={mockBalances}
+        isLoading={false}
+        refetchBalances={jest.fn()}
+        refetchHistory={jest.fn()}
+        address={''}
+        pageSize={2}
+      />
+    );
     expect(screen.getByText('utoken1')).toBeInTheDocument();
     expect(screen.getByText('utoken2')).toBeInTheDocument();
   });
