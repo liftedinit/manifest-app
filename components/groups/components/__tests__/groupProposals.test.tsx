@@ -1,7 +1,7 @@
 import { describe, test, afterEach, expect, jest, mock, beforeEach } from 'bun:test';
 import React from 'react';
 import { screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
-import ProposalsForPolicy from '@/components/groups/components/groupControls';
+import GroupProposals from '@/components/groups/components/groupControls';
 import matchers from '@testing-library/jest-dom/matchers';
 import { renderWithChainProvider } from '@/tests/render';
 import { mockProposals, mockGroup, mockGroup2 } from '@/tests/mock';
@@ -81,7 +81,7 @@ describe('ProposalsForPolicy Component', () => {
         refetchProposals: jest.fn(),
       }),
     }));
-    renderWithChainProvider(<ProposalsForPolicy {...mockProps} />);
+    renderWithChainProvider(<GroupProposals {...mockProps} />);
     expect(screen.getByRole('status')).toBeInTheDocument();
   });
 
@@ -94,7 +94,7 @@ describe('ProposalsForPolicy Component', () => {
         refetchProposals: jest.fn(),
       }),
     }));
-    renderWithChainProvider(<ProposalsForPolicy {...mockProps} />);
+    renderWithChainProvider(<GroupProposals {...mockProps} />);
     expect(screen.getByText('Error loading proposals')).toBeInTheDocument();
   });
 
@@ -107,7 +107,7 @@ describe('ProposalsForPolicy Component', () => {
         refetchProposals: jest.fn(),
       }),
     }));
-    renderWithChainProvider(<ProposalsForPolicy {...mockProps} />);
+    renderWithChainProvider(<GroupProposals {...mockProps} />);
     expect(screen.getByText('No proposal was found.')).toBeInTheDocument();
   });
 
@@ -120,7 +120,7 @@ describe('ProposalsForPolicy Component', () => {
         refetchProposals: jest.fn(),
       }),
     }));
-    renderWithChainProvider(<ProposalsForPolicy {...mockProps} />);
+    renderWithChainProvider(<GroupProposals {...mockProps} />);
     expect(screen.getByText('Proposals')).toBeInTheDocument();
     const proposals = mockProposals['test_policy_address'];
     proposals.forEach(proposal => {

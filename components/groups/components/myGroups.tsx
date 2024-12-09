@@ -470,12 +470,12 @@ function GroupRow({
 
   const openInfoModal = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setActiveInfoModalId(group.id.toString());
+    setActiveInfoModalId(group.id ? group.id.toString() : null);
   };
 
   const openMemberModal = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setActiveMemberModalId(group.id.toString());
+    setActiveMemberModalId(group.id ? group.id.toString() : null);
   };
 
   return (

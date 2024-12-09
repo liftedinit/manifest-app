@@ -16,6 +16,7 @@ interface BaseModalProps {
   onClose: () => void;
   admin: string;
   address: string;
+  refetchPlan: () => void;
 }
 
 interface UpgradeInfo {
@@ -23,47 +24,6 @@ interface UpgradeInfo {
   upgradeable: boolean;
   commitHash: string;
 }
-
-const mockRelease = {
-  url: 'https://api.github.com/repos/liftedinit/manifest-ledger/releases/1',
-  assets_url: 'https://api.github.com/repos/liftedinit/manifest-ledger/releases/1/assets',
-  upload_url:
-    'https://uploads.github.com/repos/liftedinit/manifest-ledger/releases/1/assets{?name,label}',
-  html_url: 'https://github.com/liftedinit/manifest-ledger/releases/tag/v1.2.0',
-  id: 123456789,
-  node_id: 'MDg6UmVsZWFzZTEyMzQ1Njc4OQ==',
-  tag_name: 'v1.2.0',
-  target_commitish: 'abc123def456', // Commit hash for the release
-  name: 'v1.2.0 - Upgradeable Version',
-  draft: false,
-  prerelease: false,
-  created_at: '2024-12-01T10:00:00Z',
-  published_at: '2024-12-01T12:00:00Z',
-  body: '### Upgrade Details:\n- **Upgrade Handler Name**: `upgrade-v1.2.0`\n- **Upgradeable**: `true`\n- **Commit Hash**: `abc123def456`\n- **Description**: This version introduces an important upgrade to handle breaking changes in the system and adds new features for scalability.\n\n### Changelog:\n- Fixed critical bug in consensus mechanism.\n- Improved block processing time.\n- New features added for validator management.',
-  author: {
-    login: 'liftedinit',
-    id: 12345678,
-    node_id: 'MDQ6VXNlcjEyMzQ1Njc4',
-    avatar_url: 'https://avatars.githubusercontent.com/u/12345678?v=4',
-    gravatar_id: '',
-    url: 'https://api.github.com/users/liftedinit',
-    html_url: 'https://github.com/liftedinit',
-    followers_url: 'https://api.github.com/users/liftedinit/followers',
-    following_url: 'https://api.github.com/users/liftedinit/following{/other_user}',
-    gists_url: 'https://api.github.com/users/liftedinit/gists{/gist_id}',
-    starred_url: 'https://api.github.com/users/liftedinit/starred{/owner}{/repo}',
-    subscriptions_url: 'https://api.github.com/users/liftedinit/subscriptions',
-    organizations_url: 'https://api.github.com/users/liftedinit/orgs',
-    repos_url: 'https://api.github.com/users/liftedinit/repos',
-    events_url: 'https://api.github.com/users/liftedinit/events{/privacy}',
-    received_events_url: 'https://api.github.com/users/liftedinit/received_events',
-    type: 'User',
-    site_admin: false,
-  },
-  assets: [],
-  tarball_url: 'https://api.github.com/repos/liftedinit/manifest-ledger/tarball/v1.2.0',
-  zipball_url: 'https://api.github.com/repos/liftedinit/manifest-ledger/zipball/v1.2.0',
-};
 
 const parseReleaseBody = (body: string): UpgradeInfo | null => {
   try {
@@ -87,16 +47,16 @@ const parseReleaseBody = (body: string): UpgradeInfo | null => {
 };
 
 const UpgradeSchema = Yup.object().shape({
-  height: Yup.string().required('Height is required').matches(/^\d+$/, 'Must be a valid number'),
+  height: Yup.number().required('Height is required').integer('Must be a valid number'),
 });
 
-export function UpgradeModal({ isOpen, onClose, admin, address }: BaseModalProps) {
+export function UpgradeModal({ isOpen, onClose, admin, address, refetchPlan }: BaseModalProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const { releases, isReleasesLoading } = useGitHubReleases();
 
   // Filter releases that are upgradeable
   const upgradeableReleases = useMemo(() => {
-    const allReleases = [...(releases || []), mockRelease]; // Remove mockRelease when going live
+    const allReleases = [...(releases || [])];
     return allReleases
       .map(release => ({
         ...release,
@@ -157,6 +117,7 @@ export function UpgradeModal({ isOpen, onClose, admin, address }: BaseModalProps
       fee,
       onSuccess: () => {
         setIsSigning(false);
+        refetchPlan();
       },
     });
     setIsSigning(false);

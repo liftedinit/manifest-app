@@ -1076,18 +1076,21 @@ export const useGitHubReleases = () => {
   const octokit = new Octokit({});
 
   const fetchReleases = async () => {
-    const response = await octokit.rest.repos.listReleases({
-      owner: 'liftedinit',
-      repo: 'manifest-ledger',
-    });
-
-    return response.data as GitHubRelease[];
+    try {
+      const response = await octokit.rest.repos.listReleases({
+        owner: 'liftedinit',
+        repo: 'manifest-ledger',
+      });
+      return response.data as GitHubRelease[];
+    } catch (error) {
+      console.error('Error fetching GitHub releases:', error);
+      throw error;
+    }
   };
 
   const releasesQuery = useQuery({
     queryKey: ['githubReleases'],
     queryFn: fetchReleases,
-    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 
   return {

@@ -13,6 +13,7 @@ interface BaseModalProps {
   admin: string;
   address: string | null;
   plan: PlanSDKType;
+  refetchPlan: () => void;
 }
 
 function InfoItem({ label, value }: { label: string; value?: string | number | bigint }) {
@@ -26,7 +27,14 @@ function InfoItem({ label, value }: { label: string; value?: string | number | b
   );
 }
 
-export function CancelUpgradeModal({ isOpen, onClose, admin, address, plan }: BaseModalProps) {
+export function CancelUpgradeModal({
+  isOpen,
+  onClose,
+  admin,
+  address,
+  plan,
+  refetchPlan,
+}: BaseModalProps) {
   const { cancelUpgrade } = cosmos.upgrade.v1beta1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const { tx, isSigning, setIsSigning } = useTx(chainName);
@@ -71,6 +79,7 @@ export function CancelUpgradeModal({ isOpen, onClose, admin, address, plan }: Ba
         onSuccess: () => {
           setIsSigning(false);
           onClose();
+          refetchPlan();
         },
       });
     } catch (error) {

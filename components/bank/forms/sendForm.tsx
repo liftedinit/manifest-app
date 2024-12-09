@@ -106,16 +106,8 @@ export default function SendForm({
   }) => {
     setIsSending(true);
     try {
-      if (!address) {
-        throw new Error('Wallet not connected');
-      }
-
       const exponent = values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
       const amountInBaseUnits = parseNumberToBigInt(values.amount, exponent).toString();
-
-      if (isGroup && !admin) {
-        throw new Error('Admin address not provided for group transaction');
-      }
 
       const msg = isGroup
         ? submitProposal({

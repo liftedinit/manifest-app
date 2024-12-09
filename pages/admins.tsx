@@ -121,7 +121,13 @@ export default function Admins() {
                     }
                     address={address ?? ''}
                   />
-                  <ChainUpgrader address={address ?? ''} admin={poaAdmin ?? ''} />
+                  <ChainUpgrader
+                    address={address ?? ''}
+                    admin={
+                      poaAdmin ??
+                      'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'
+                    }
+                  />
                 </div>
               </>
             )

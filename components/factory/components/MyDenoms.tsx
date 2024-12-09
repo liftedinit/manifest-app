@@ -9,9 +9,7 @@ import MintModal from '@/components/factory/modals/MintModal';
 import BurnModal from '@/components/factory/modals/BurnModal';
 import { UpdateDenomMetadataModal } from '@/components/factory/modals/updateDenomMetadata';
 import { PiInfo } from 'react-icons/pi';
-import { ExtendedMetadataSDKType, shiftDigits } from '@/utils';
-import { MultiMintModal } from '@/components/factory/modals';
-import { MultiBurnModal } from '../modals/multiMfxBurnModal';
+import { ExtendedMetadataSDKType, shiftDigits, formatTokenDisplay } from '@/utils';
 import { usePoaGetAdmin } from '@/hooks';
 import useIsMobile from '@/hooks/useIsMobile';
 
@@ -396,7 +394,6 @@ function TokenRow({
   // Add safety checks for the values
   const exponent = denom?.denom_units?.[1]?.exponent ?? 0;
   const totalSupply = denom?.totalSupply ?? '0';
-  const balance = denom?.balance ?? '0';
 
   // Format numbers safely
   const formatAmount = (amount: string) => {
@@ -418,15 +415,7 @@ function TokenRow({
       <td className="bg-secondary group-hover:bg-base-300 rounded-l-[12px] w-1/4">
         <div className="flex items-center space-x-3">
           <DenomImage denom={denom} />
-          <span className="font-medium sm:block hidden">
-            {denom.display.startsWith('factory')
-              ? (denom.display.split('/').pop()?.length || 0) > 9
-                ? `${denom.display.split('/').pop()?.slice(0, 5)}...`.toUpperCase()
-                : denom.display.split('/').pop()?.toUpperCase()
-              : denom.display.length > 9
-                ? `${denom.display.slice(0, 5)}...`
-                : truncateString(denom.display, 12)}
-          </span>
+          <span className="font-medium sm:block hidden">{formatTokenDisplay(denom.display)}</span>
         </div>
       </td>
       <td className="bg-secondary group-hover:bg-base-300 w-2/5 xl:table-cell hidden">
@@ -435,15 +424,7 @@ function TokenRow({
       <td className="bg-secondary group-hover:bg-base-300 w-2/5 md:table-cell hidden sm:w-1/4">
         <div className="flex flex-col sm:flex-row sm:items-center ">
           <span className="sm:mr-2">{formatAmount(totalSupply)}</span>
-          <span className="font-extralight">
-            {denom.display.startsWith('factory')
-              ? (denom.display.split('/').pop()?.length || 0) > 9
-                ? `${denom.display.split('/').pop()?.slice(0, 5)}...`.toUpperCase()
-                : denom.display.split('/').pop()?.toUpperCase()
-              : denom.display.length > 9
-                ? `${denom.display.slice(0, 5)}...`
-                : truncateString(denom.display, 12)}
-          </span>
+          <span className="font-extralight">{formatTokenDisplay(denom.display)}</span>
         </div>
       </td>
       <td

@@ -6,7 +6,25 @@ import { useState } from 'react';
 export const ChainUpgrader = ({ admin, address }: { admin: string; address: string }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isCancelOpen, setIsCancelOpen] = useState(false);
-  const { plan } = useCurrentPlan();
+  const { plan, isPlanLoading, refetchPlan } = useCurrentPlan();
+
+  if (isPlanLoading) {
+    return (
+      <div className="w-full md:w-1/2 h-full bg-secondary relative rounded-lg p-6 flex flex-col gap-4 shadow-lg animate-pulse">
+        <div className="absolute top-4 right-4">
+          <div className="skeleton h-4 w-32"></div>
+        </div>
+        <div className="space-y-2">
+          <div className="skeleton h-7 w-64"></div>
+          <div className="skeleton h-4 w-full"></div>
+        </div>
+        <div className="flex flex-row w-full justify-between gap-4 mt-4">
+          <div className="skeleton h-10 flex-1"></div>
+          <div className="skeleton h-10 flex-1"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full md:w-1/2 h-full bg-secondary relative rounded-lg p-6 flex flex-col gap-4 shadow-lg">
@@ -43,6 +61,7 @@ export const ChainUpgrader = ({ admin, address }: { admin: string; address: stri
         admin={admin}
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
+        refetchPlan={refetchPlan}
       />
       <CancelUpgradeModal
         plan={plan ?? ({} as PlanSDKType)}
@@ -50,6 +69,7 @@ export const ChainUpgrader = ({ admin, address }: { admin: string; address: stri
         address={address}
         isOpen={isCancelOpen}
         onClose={() => setIsCancelOpen(false)}
+        refetchPlan={refetchPlan}
       />
     </div>
   );

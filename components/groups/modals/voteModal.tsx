@@ -45,7 +45,6 @@ function VotingPopup({
       setError('Failed to cast vote. Please try again.');
       setIsSigning(false);
     }
-    setIsSigning(false);
   };
 
   const closeModal = () => {
