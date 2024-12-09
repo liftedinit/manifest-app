@@ -183,7 +183,6 @@ export const TailwindModal: React.FC<
             selectionMode={Boolean(onSelect)}
             onSelect={onSelect}
             currentAddress={currentAddress}
-            showMemberManagementModal={showMemberManagementModal}
             showMessageEditModal={showMessageEditModal}
           />
         );
