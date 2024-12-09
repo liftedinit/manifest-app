@@ -3,12 +3,11 @@ import { ExtendedMetadataSDKType, truncateString } from '@/utils';
 import { useDenomAuthorityMetadata, useFeeEstimation, useTx } from '@/hooks';
 import { chainName } from '@/config';
 import { osmosis } from '@liftedinit/manifestjs';
-import { TransferTokenFormData } from '@/helpers';
 import { createPortal } from 'react-dom';
 import Yup from '@/utils/yupExtensions';
-import { Form, Formik } from 'formik';
+import { Form, Formik, FormikValues } from 'formik';
 import { TextInput } from '@/components';
-import { useOsmosisRpcQueryClient } from '@/hooks/useOsmosisRpcQueryClient';
+import { useToast } from '@/contexts';
 
 const TokenOwnershipSchema = Yup.object().shape({
   newAdmin: Yup.string().required('New admin address is required').manifestAddress(),
@@ -43,17 +42,14 @@ export default function TransferModal({
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen]);
+  const { setToastMessage } = useToast();
 
   const handleCloseModal = (formikReset?: () => void) => {
     setOpenTransferDenomModal(false);
     formikReset?.();
   };
 
-  const { rpcQueryClient: osmosisClient } = useOsmosisRpcQueryClient();
-  const { authority_metadata } = osmosisClient?.osmosis.tokenfactory.v1beta1.denomAuthorityMetadata(
-    { denom: denom?.base ?? '' }
-  );
-
+  const { denomAuthority, isDenomAuthorityLoading } = useDenomAuthorityMetadata(denom?.base ?? '');
   const formData = {
     denom: denom?.base ?? '',
     currentAdmin: denomAuthority,
@@ -64,12 +60,12 @@ export default function TransferModal({
   const { estimateFee } = useFeeEstimation(chainName);
   const { changeAdmin } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
 
-  const handleTransfer = async (values: TransferTokenFormData, resetForm: () => void) => {
+  const handleTransfer = async (values: FormikValues, resetForm: () => void) => {
     setIsSigning(true);
     try {
       const msg = changeAdmin({
         sender: address,
-        denom: values.denom,
+        denom: denom?.base ?? '',
         newAdmin: values.newAdmin,
       });
 
@@ -84,6 +80,21 @@ export default function TransferModal({
       });
     } catch (error) {
       console.error('Error during transaction setup:', error);
+      let errorMessage = 'An unknown error occurred while adding the endpoint.';
+
+      if (error instanceof Error) {
+        if (error.message.includes('unauthorized account')) {
+          errorMessage = 'Unauthorized account. Please check your account and try again.';
+        }
+      }
+
+      setToastMessage({
+        type: 'alert-error',
+        title: 'Error transferring ownership',
+        description: errorMessage,
+        bgColor: '#e74c3c',
+      });
+      throw error;
     } finally {
       setIsSigning(false);
     }
@@ -174,7 +185,11 @@ export default function TransferModal({
                     onClick={() => handleSubmit()}
                     disabled={isSigning || !isValid || !dirty}
                   >
-                    {isSigning ? <span className="loading loading-dots"></span> : 'Update'}
+                    {isSigning ? (
+                      <span className="loading loading-dots"></span>
+                    ) : (
+                      'Transfer Ownership'
+                    )}
                   </button>
                 </div>
               </>
