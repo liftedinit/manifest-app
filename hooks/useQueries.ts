@@ -262,34 +262,6 @@ export const useGroupsByAdmin = (admin: string) => {
     refetchGroupByAdmin: groupQuery.refetch,
   };
 };
-
-export const usePoliciesById = (groupId: bigint) => {
-  const { lcdQueryClient } = useLcdQueryClient();
-
-  const fetchGroupInfo = async () => {
-    if (!lcdQueryClient) {
-      throw new Error('LCD Client not ready');
-    }
-    return await lcdQueryClient.cosmos.group.v1.groupPoliciesByGroup({
-      groupId: groupId,
-    });
-  };
-
-  const policyQuery = useQuery({
-    queryKey: ['policyInfo', groupId],
-    queryFn: fetchGroupInfo,
-    enabled: !!lcdQueryClient && !!groupId,
-    staleTime: Infinity,
-  });
-
-  return {
-    policy: policyQuery.data?.group_policies || [],
-    isPolicyLoading: policyQuery.isLoading,
-    isPolicyError: policyQuery.isError,
-    refetchPolicy: policyQuery.refetch,
-  };
-};
-
 export const useCurrentPlan = () => {
   const { lcdQueryClient } = useLcdQueryClient();
 
@@ -314,34 +286,6 @@ export const useCurrentPlan = () => {
     refetchPlan: currentPlanQuery.refetch,
   };
 };
-
-export const useMembersById = (groupId: bigint) => {
-  const { lcdQueryClient } = useLcdQueryClient();
-
-  const fetchGroupInfo = async () => {
-    if (!lcdQueryClient) {
-      throw new Error('LCD Client not ready');
-    }
-    return await lcdQueryClient.cosmos.group.v1.groupMembers({
-      groupId: groupId,
-    });
-  };
-
-  const memberQuery = useQuery({
-    queryKey: ['memberInfo', groupId],
-    queryFn: fetchGroupInfo,
-    enabled: !!lcdQueryClient && !!groupId,
-    staleTime: Infinity,
-  });
-
-  return {
-    members: memberQuery.data?.members || [],
-    isMembersLoading: memberQuery.isLoading,
-    isMembersError: memberQuery.isError,
-    refetchMembers: memberQuery.refetch,
-  };
-};
-
 export const useProposalsByPolicyAccount = (policyAccount: string) => {
   const { lcdQueryClient } = useLcdQueryClient();
 
@@ -585,59 +529,6 @@ export const usePendingValidators = () => {
     refetchPendingValidators: paramsQuery.refetch,
   };
 };
-
-export const useConsensusPower = (address: string) => {
-  const { lcdQueryClient } = usePoaLcdQueryClient();
-
-  const fetchParams = async () => {
-    if (!lcdQueryClient) {
-      throw new Error('LCD Client not ready');
-    }
-    return await lcdQueryClient.strangelove_ventures.poa.v1.consensusPower({
-      validatorAddress: address,
-    });
-  };
-
-  const paramsQuery = useQuery({
-    queryKey: ['consensusPower', address],
-    queryFn: fetchParams,
-    enabled: !!lcdQueryClient && !!address,
-    staleTime: Infinity,
-  });
-
-  return {
-    consensusPower: paramsQuery.data?.consensus_power,
-    isConsensusLoading: paramsQuery.isLoading,
-    isConsensusError: paramsQuery.isError,
-    refetchConsensusPower: paramsQuery.refetch,
-  };
-};
-
-export const useStakingParams = () => {
-  const { lcdQueryClient } = useLcdQueryClient();
-
-  const fetchParams = async () => {
-    if (!lcdQueryClient) {
-      throw new Error('LCD Client not ready');
-    }
-    return await lcdQueryClient.cosmos.staking.v1beta1.params({});
-  };
-
-  const paramsQuery = useQuery({
-    queryKey: ['stakingParams'],
-    queryFn: fetchParams,
-    enabled: !!lcdQueryClient,
-    staleTime: Infinity,
-  });
-
-  return {
-    stakingParams: paramsQuery.data?.params,
-    isParamsLoading: paramsQuery.isLoading,
-    isParamsError: paramsQuery.isError,
-    refetchParams: paramsQuery.refetch,
-  };
-};
-
 export const useValidators = () => {
   const { lcdQueryClient } = useLcdQueryClient();
   const { lcdQueryClient: poaLcdQueryCLient } = usePoaLcdQueryClient();
@@ -719,38 +610,6 @@ export const useTokenFactoryDenoms = (address: string) => {
     refetchDenoms: denomsQuery.refetch,
   };
 };
-
-export const useTokenFactoryDenomMetadata = (denom: string) => {
-  const { lcdQueryClient } = useLcdQueryClient();
-
-  const fetchDenoms = async () => {
-    if (!lcdQueryClient) {
-      throw new Error('LCD Client not ready');
-    }
-    if (!denom) {
-      throw new Error('Creator address not provided');
-    }
-    return await lcdQueryClient.cosmos.bank.v1beta1.denomMetadataByQueryString({
-      denom: denom,
-    });
-  };
-
-  const denomsQuery = useQuery({
-    queryKey: ['metadata', denom],
-    queryFn: fetchDenoms,
-    enabled: !!lcdQueryClient && !!denom,
-    staleTime: 0,
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
-  });
-  return {
-    metadata: denomsQuery.data,
-    isMetadataLoading: denomsQuery.isLoading,
-    isMetadataError: denomsQuery.isError,
-    refetchMetadata: denomsQuery.refetch,
-  };
-};
-
 export const useTokenFactoryDenomsMetadata = () => {
   const { lcdQueryClient } = useLcdQueryClient();
 
@@ -837,20 +696,6 @@ interface TransactionAmount {
   amount: string;
   denom: string;
 }
-
-interface TransactionMessage {
-  '@type': string;
-  amount: TransactionAmount[];
-  toAddress: string;
-  fromAddress: string;
-}
-
-interface TransactionResponse {
-  height: string;
-  txhash: string;
-  timestamp: string;
-}
-
 export enum HistoryTxType {
   SEND,
   MINT,
