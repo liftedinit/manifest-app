@@ -141,19 +141,31 @@ export default function GroupDetails({
                               className="flex-grow"
                               rightElement={
                                 values.authors.length > 1 && index !== 0 ? (
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      const newAuthors = values.authors.filter(
-                                        (_, i) => i !== index
-                                      );
-                                      setFieldValue('authors', newAuthors);
-                                      updateField('authors', newAuthors);
-                                    }}
-                                    className="btn btn-error btn-sm text-white"
-                                  >
-                                    <TrashIcon className="w-5 h-5" />
-                                  </button>
+                                  <div className="flex gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setActiveAuthorIndex(index);
+                                        setIsContactsOpen(true);
+                                      }}
+                                      className="btn btn-primary btn-sm text-white"
+                                    >
+                                      <MdContacts className="w-5 h-5" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        const newAuthors = values.authors.filter(
+                                          (_, i) => i !== index
+                                        );
+                                        setFieldValue('authors', newAuthors);
+                                        updateField('authors', newAuthors);
+                                      }}
+                                      className="btn btn-error btn-sm text-white"
+                                    >
+                                      <TrashIcon className="w-5 h-5" />
+                                    </button>
+                                  </div>
                                 ) : (
                                   <div className="flex gap-2">
                                     <button
