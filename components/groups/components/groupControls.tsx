@@ -231,7 +231,7 @@ export default function GroupProposals({
   const { tallies, isLoading: isTalliesLoading } = useMultipleTallyCounts(proposals.map(p => p.id));
 
   return (
-    <div className="h-full flex flex-col p-4">
+    <div className="h-full min-h-screen flex flex-col p-4">
       <div className="flex w-full h-full md:flex-row flex-col md:gap-8">
         <div className="flex flex-col w-full md:w-[48%] h-full">
           {/* Header section */}

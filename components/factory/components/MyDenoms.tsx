@@ -180,7 +180,7 @@ export default function MyDenoms({
                               <div>
                                 <div
                                   className="skeleton h-4 w-20 mb-1"
-                                  aria-label={`skeleton-${index}-name`}
+                                  aria-label={`skeleton-${index}-ticker`}
                                 />
                                 <div
                                   className="skeleton h-3 w-16 xxs:max-xs:hidden"
