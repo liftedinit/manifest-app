@@ -621,34 +621,35 @@ export const useTokenFactoryDenoms = (address: string) => {
   };
 };
 
-export const useTokenFactoryDenomMetadata = (denom: string) => {
-  const { lcdQueryClient } = useLcdQueryClient();
+export const useDenomAuthorityMetadata = (denom: string) => {
+  const { lcdQueryClient } = useManifestLcdQueryClient();
 
-  const fetchDenoms = async () => {
+  const fetchAuthority = async () => {
     if (!lcdQueryClient) {
       throw new Error('LCD Client not ready');
     }
     if (!denom) {
-      throw new Error('Creator address not provided');
+      throw new Error('Denom not provided');
     }
-    return await lcdQueryClient.cosmos.bank.v1beta1.denomMetadataByQueryString({
-      denom: denom,
+    const encodedDenom = encodeURIComponent(denom);
+    return await lcdQueryClient.osmosis.tokenfactory.v1beta1.denomAuthorityMetadata({
+      denom: encodedDenom,
     });
   };
 
   const denomsQuery = useQuery({
-    queryKey: ['metadata', denom],
-    queryFn: fetchDenoms,
+    queryKey: ['authority', denom],
+    queryFn: fetchAuthority,
     enabled: !!lcdQueryClient && !!denom,
     staleTime: 0,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
   });
   return {
-    metadata: denomsQuery.data,
-    isMetadataLoading: denomsQuery.isLoading,
-    isMetadataError: denomsQuery.isError,
-    refetchMetadata: denomsQuery.refetch,
+    denomAuthority: denomsQuery.data?.authority_metadata,
+    isDenomAuthorityLoading: denomsQuery.isLoading,
+    isDenomAuthorityError: denomsQuery.isError,
+    refetchDenomAuthority: denomsQuery.refetch,
   };
 };
 
