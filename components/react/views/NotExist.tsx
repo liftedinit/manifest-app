@@ -40,7 +40,7 @@ export const NotExist = ({
       </div>
       <div className="flex flex-col w-full h-full py-6 mt-4 sm:px-8">
         <img
-          src={getRealLogo(logo)}
+          src={name === 'Cosmos MetaMask Extension' ? '/metamask.svg' : getRealLogo(logo)}
           alt={name}
           className="flex-shrink-0 w-16 h-16 mx-auto aspect-1"
         />

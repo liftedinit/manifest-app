@@ -15,6 +15,7 @@ import {
   manifestTestnetAssets,
 } from '@/config';
 import { SignerOptions, wallets } from 'cosmos-kit';
+import { wallets as cosmosExtensionWallets } from '@cosmos-kit/cosmos-extension-metamask';
 import { ChainProvider } from '@cosmos-kit/react';
 import { Registry } from '@cosmjs/proto-signing';
 import { TailwindModal } from '../components';
@@ -145,6 +146,16 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
             name: 'Reddit',
             logo: '/reddit',
           },
+          {
+            provider: 'email_passwordless',
+            name: 'Email',
+            logo: '/email',
+          },
+          {
+            provider: 'sms_passwordless',
+            name: 'SMS',
+            logo: '/sms',
+          },
         ],
 
         client: {
@@ -167,7 +178,7 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
   );
 
   // combine the web3auth wallets with the other wallets
-  const combinedWallets = [...web3AuthWallets, ...wallets];
+  const combinedWallets = [...web3AuthWallets, ...wallets, ...cosmosExtensionWallets];
 
   // this is stop ssr errors when we render the web3auth signing modal
   const [isBrowser, setIsBrowser] = useState(false);
