@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 import { Formik, Form, FieldArray, Field, FieldProps } from 'formik';
 import Yup from '@/utils/yupExtensions';
@@ -8,10 +9,12 @@ import { PlusIcon, MinusIcon } from '@/components/icons';
 import { MdContacts } from 'react-icons/md';
 import { useTx, useFeeEstimation } from '@/hooks';
 import { chainName } from '@/config';
-import { cosmos, osmosis, liftedinit } from '@liftedinit/manifestjs';
+import { cosmos, liftedinit } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 
-import { ExtendedMetadataSDKType, parseNumberToBigInt } from '@/utils';
+import { parseNumberToBigInt } from '@/utils';
+import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { TailwindModal } from '@/components/react';
 
 interface BurnPair {
   address: string;
@@ -23,9 +26,7 @@ interface MultiBurnModalProps {
   onClose: () => void;
   admin: string;
   address: string;
-  denom: ExtendedMetadataSDKType | null;
-  exponent: number;
-  refetch: () => void;
+  denom: MetadataSDKType | null;
 }
 
 const BurnPairSchema = Yup.object().shape({
@@ -45,20 +46,25 @@ const MultiBurnSchema = Yup.object().shape({
     }),
 });
 
-export function MultiBurnModal({
-  isOpen,
-  onClose,
-  admin,
-  address,
-  denom,
-  exponent,
-  refetch,
-}: MultiBurnModalProps) {
+export function MultiBurnModal({ isOpen, onClose, admin, address, denom }: MultiBurnModalProps) {
   const [burnPairs, setBurnPairs] = useState([{ address: '', amount: '' }]);
   const { tx, isSigning, setIsSigning } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
   const { burnHeldBalance } = liftedinit.manifest.v1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
+  const [isContactsOpen, setIsContactsOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen]);
 
   const updateBurnPair = (index: number, field: 'address' | 'amount', value: string) => {
     const newPairs = [...burnPairs];
@@ -83,7 +89,7 @@ export function MultiBurnModal({
           burnCoins: [
             {
               denom: denom?.base ?? '',
-              amount: parseNumberToBigInt(pair.amount, exponent).toString(),
+              amount: parseNumberToBigInt(pair.amount, denom?.denom_units?.[0].exponent).toString(),
             },
           ],
         })
@@ -101,7 +107,7 @@ export function MultiBurnModal({
         messages: encodedMessages,
         metadata: '',
         proposers: [address],
-        title: `Manifest Module Control: Multi Burn MFX`,
+        title: `Multi Burn MFX`,
         summary: `This proposal includes a multi-burn action for MFX.`,
         exec: 0,
       });
@@ -110,7 +116,6 @@ export function MultiBurnModal({
       await tx([msg], {
         fee,
         onSuccess: () => {
-          refetch();
           onClose();
         },
       });
@@ -121,13 +126,26 @@ export function MultiBurnModal({
     }
   };
 
-  return (
+  const modalContent = (
     <dialog
       id="multi_burn_modal"
-      role="dialog"
-      aria-labelledby="modal-title"
-      aria-modal="true"
       className={`modal ${isOpen ? 'modal-open' : ''}`}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 9999,
+        backgroundColor: 'transparent',
+        padding: 0,
+        margin: 0,
+        height: '100vh',
+        width: '100vw',
+        display: isOpen ? 'flex' : 'none',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
     >
       <div className="modal-box max-w-4xl mx-auto min-h-[30vh] max-h-[70vh] rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg overflow-y-auto">
         <form method="dialog" onSubmit={onClose}>
@@ -138,7 +156,7 @@ export function MultiBurnModal({
             ✕
           </button>
         </form>
-        <h3 id="modal-title" className="text-xl font-semibold text-[#161616] dark:text-white mb-6">
+        <h3 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">
           Multi Burn <span className="font-light text-primary">MFX</span>
         </h3>
         <div className="py-4 flex flex-col h-[calc(100%-4rem)]">
@@ -154,7 +172,7 @@ export function MultiBurnModal({
                   <div className="text-lg font-semibold">Burn Pairs</div>
                   <button
                     type="button"
-                    className="btn btn-sm btn-primary text-white"
+                    className="btn btn-sm btn-error text-white"
                     onClick={() => {
                       setFieldValue('burnPairs', [
                         ...values.burnPairs,
@@ -196,10 +214,10 @@ export function MultiBurnModal({
                                         <button
                                           type="button"
                                           onClick={() => {
-                                            updateBurnPair(index, 'address', '');
-                                            setFieldValue(`burnPairs.${index}.address`, '');
+                                            setSelectedIndex(index);
+                                            setIsContactsOpen(true);
                                           }}
-                                          className="btn btn-primary btn-sm text-white absolute right-2 top-1/2 transform -translate-y-1/2"
+                                          className="btn btn-primary btn-sm text-white"
                                         >
                                           <MdContacts className="w-5 h-5" />
                                         </button>
@@ -257,15 +275,18 @@ export function MultiBurnModal({
                   </FieldArray>
                 </div>
 
-                <div className="modal-action mt-6">
-                  <button className="btn btn-ghost" onClick={onClose}>
+                <div className="mt-4 gap-6 flex justify-center w-full p-2">
+                  <button
+                    type="button"
+                    className="btn w-[calc(50%-8px)] btn-md focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
+                    onClick={onClose}
+                  >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="btn btn-error text-white"
+                    className="btn btn-md w-[calc(50%-8px)] btn-error  text-white"
                     disabled={isSigning || !isValid}
-                    aria-busy={isSigning}
                   >
                     {isSigning ? (
                       <span className="loading loading-dots loading-md"></span>
@@ -274,14 +295,48 @@ export function MultiBurnModal({
                     )}
                   </button>
                 </div>
+                <TailwindModal
+                  isOpen={isContactsOpen}
+                  setOpen={setIsContactsOpen}
+                  showContacts={true}
+                  currentAddress={address}
+                  onSelect={(selectedAddress: string) => {
+                    if (selectedIndex !== null) {
+                      updateBurnPair(selectedIndex, 'address', selectedAddress);
+                      setFieldValue(`burnPairs.${selectedIndex}.address`, selectedAddress);
+                    }
+                    setIsContactsOpen(false);
+                    setSelectedIndex(null);
+                  }}
+                />
               </Form>
             )}
           </Formik>
         </div>
       </div>
-      <form method="dialog" className="modal-backdrop">
-        <button onClick={onClose}>close</button>
+      <form
+        method="dialog"
+        className="modal-backdrop"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: -1,
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        }}
+        onSubmit={onClose}
+      >
+        <button>close</button>
       </form>
     </dialog>
   );
+
+  // Only render if we're in the browser
+  if (typeof document !== 'undefined') {
+    return createPortal(modalContent, document.body);
+  }
+
+  return null;
 }

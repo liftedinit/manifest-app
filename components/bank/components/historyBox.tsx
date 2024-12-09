@@ -76,6 +76,8 @@ export function HistoryBox({
 
   const { metadatas } = useTokenFactoryDenomsMetadata();
 
+  const isMobile = useIsMobile();
+
   function formatDateShort(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleString('en-US', {
@@ -230,25 +232,28 @@ export function HistoryBox({
 
       {isLoading ? (
         <div className="flex-1 overflow-hidden h-full">
-          <div aria-label="skeleton" className="space-y-4">
+          <div aria-label="skeleton" className="space-y-2">
             {[...Array(skeletonGroupCount)].map((_, groupIndex) => (
               <div key={groupIndex}>
-                <div className="skeleton h-4 w-24 mb-2 mt-4"></div>
+                <div className="skeleton h-4 w-24 mb-1 ml-1 mt-2"></div>
                 <div className="space-y-2">
                   {[...Array(skeletonTxCount)].map((_, txIndex) => (
                     <div
                       key={txIndex}
-                      className="flex items-center justify-between p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px] min-h-[80px]"
+                      className="flex items-center justify-between p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px]"
                     >
                       <div className="flex items-center space-x-3">
                         <div className="skeleton w-8 h-8 rounded-full"></div>
                         <div className="skeleton w-10 h-10 rounded-full"></div>
                         <div>
-                          <div className="skeleton h-4 w-24 mb-2"></div>
-                          <div className="skeleton h-3 w-32"></div>
+                          <div className="flex flex-row items-center gap-2">
+                            <div className="skeleton h-4 w-16"></div>
+                            <div className="skeleton h-4 w-12"></div>
+                          </div>
+                          <div className="skeleton h-3 w-32 mt-1"></div>
                         </div>
                       </div>
-                      <div className="skeleton h-4 w-32"></div>
+                      <div className="skeleton h-4 w-24 sm:block hidden"></div>
                     </div>
                   ))}
                 </div>
@@ -311,16 +316,19 @@ export function HistoryBox({
                                   const metadata = metadatas?.metadatas.find(
                                     m => m.base === amt.denom
                                   );
+                                  const display = metadata?.display ?? metadata?.symbol ?? '';
                                   return metadata?.display.startsWith('factory')
                                     ? metadata?.display?.split('/').pop()?.toUpperCase()
-                                    : truncateString(
-                                        metadata?.display ?? metadata?.symbol ?? '',
-                                        10
-                                      ).toUpperCase();
+                                    : display.length > 4
+                                      ? display.slice(0, 4).toUpperCase() + '...'
+                                      : display.toUpperCase();
                                 })}
                               </p>
                             </div>
-                            <div className="address-copy" onClick={e => e.stopPropagation()}>
+                            <div
+                              className="address-copy xs:block hidden"
+                              onClick={e => e.stopPropagation()}
+                            >
                               {tx.data.from_address.startsWith('manifest1') ? (
                                 <TruncatedAddressWithCopy
                                   address={
@@ -339,8 +347,11 @@ export function HistoryBox({
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className={`font-semibold ${getTransactionColor(tx, address)}`}>
+                          <p
+                            className={`font-semibold ${getTransactionColor(tx, address)} sm:block hidden`}
+                          >
                             {getTransactionPlusMinus(tx, address)}
+
                             {tx.data.amount
                               .map(amt => {
                                 const metadata = metadatas?.metadatas.find(

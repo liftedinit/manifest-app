@@ -31,7 +31,7 @@ export default function MyDenoms({
   const [openUpdateDenomMetadataModal, setOpenUpdateDenomMetadataModal] = useState(false);
   const isMobile = useIsMobile();
 
-  const pageSize = isMobile ? 6 : 8;
+  const pageSize = isMobile ? 5 : 8;
 
   const router = useRouter();
   const [selectedDenom, setSelectedDenom] = useState<ExtendedMetadataSDKType | null>(null);
@@ -169,31 +169,37 @@ export default function MyDenoms({
               </thead>
               <tbody className="space-y-4">
                 {isLoading
-                  ? Array(isMobile ? 6 : 8)
+                  ? Array(isMobile ? 5 : 8)
                       .fill(0)
                       .map((_, index) => (
                         <tr key={index}>
                           <td className="bg-secondary rounded-l-[12px] w-1/4">
                             <div className="flex items-center space-x-3">
                               <div
-                                className="skeleton w-10 h-8 rounded-full shrink-0"
+                                className="skeleton w-10 h-10 rounded-full shrink-0"
                                 aria-label={`skeleton-${index}-avatar`}
                               />
-                              <div
-                                className="skeleton font-medium xxs:max-xs:hidden block"
-                                aria-label={`skeleton-${index}-name`}
-                              />
+                              <div>
+                                <div
+                                  className="skeleton h-4 w-20 mb-1"
+                                  aria-label={`skeleton-${index}-name`}
+                                />
+                                <div
+                                  className="skeleton h-3 w-16 xxs:max-xs:hidden"
+                                  aria-label={`skeleton-${index}-symbol`}
+                                />
+                              </div>
                             </div>
                           </td>
                           <td className="bg-secondary w-2/5 xl:table-cell hidden">
                             <div
-                              className="skeleton h-2 w-8"
-                              aria-label={`skeleton-${index}-symbol`}
+                              className="skeleton h-4 w-32"
+                              aria-label={`skeleton-${index}-name`}
                             />
                           </td>
-                          <td className="bg-secondary w-2/5 sm:w-1/4">
+                          <td className="bg-secondary w-2/5 md:table-cell hidden">
                             <div
-                              className="skeleton h-2 w-24"
+                              className="skeleton h-4 w-28"
                               aria-label={`skeleton-${index}-supply`}
                             />
                           </td>
@@ -370,24 +376,6 @@ export default function MyDenoms({
           }
         }}
       />
-      <MultiMintModal
-        admin={poaAdmin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'}
-        address={address}
-        denom={selectedDenom}
-        exponent={selectedDenom?.denom_units[1]?.exponent ?? 0}
-        refetch={refetchDenoms}
-        isOpen={modalType === 'multimint'}
-        onClose={handleCloseModal}
-      />
-      <MultiBurnModal
-        admin={poaAdmin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'}
-        address={address}
-        denom={selectedDenom}
-        exponent={selectedDenom?.denom_units[1]?.exponent ?? 0}
-        refetch={refetchDenoms}
-        isOpen={modalType === 'multiburn'}
-        onClose={handleCloseModal}
-      />
     </div>
   );
 }
@@ -430,10 +418,14 @@ function TokenRow({
       <td className="bg-secondary group-hover:bg-base-300 rounded-l-[12px] w-1/4">
         <div className="flex items-center space-x-3">
           <DenomImage denom={denom} />
-          <span className="font-medium xxs:max-xs:hidden block">
+          <span className="font-medium sm:block hidden">
             {denom.display.startsWith('factory')
-              ? denom.display.split('/').pop()?.toUpperCase()
-              : truncateString(denom.display, 12)}
+              ? (denom.display.split('/').pop()?.length || 0) > 9
+                ? `${denom.display.split('/').pop()?.slice(0, 5)}...`.toUpperCase()
+                : denom.display.split('/').pop()?.toUpperCase()
+              : denom.display.length > 9
+                ? `${denom.display.slice(0, 5)}...`
+                : truncateString(denom.display, 12)}
           </span>
         </div>
       </td>
@@ -444,7 +436,13 @@ function TokenRow({
         <div className="flex flex-col sm:flex-row sm:items-center ">
           <span className="sm:mr-2">{formatAmount(totalSupply)}</span>
           <span className="font-extralight">
-            {truncateString(denom?.display ?? 'No ticker provided', 10).toUpperCase()}
+            {denom.display.startsWith('factory')
+              ? (denom.display.split('/').pop()?.length || 0) > 9
+                ? `${denom.display.split('/').pop()?.slice(0, 5)}...`.toUpperCase()
+                : denom.display.split('/').pop()?.toUpperCase()
+              : denom.display.length > 9
+                ? `${denom.display.slice(0, 5)}...`
+                : truncateString(denom.display, 12)}
           </span>
         </div>
       </td>

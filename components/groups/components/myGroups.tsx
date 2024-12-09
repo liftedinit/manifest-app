@@ -44,7 +44,7 @@ export function YourGroups({
   const [currentPage, setCurrentPage] = useState(1);
   const isMobile = useIsMobile();
 
-  const pageSize = isMobile ? 6 : 8;
+  const pageSize = isMobile ? 4 : 8;
 
   const [selectedGroup, setSelectedGroup] = useState<{
     policyAddress: string;
@@ -244,7 +244,7 @@ export function YourGroups({
                             <td className="bg-secondary hidden xl:table-cell">
                               <div className="skeleton h-2 w-8"></div>
                             </td>
-                            <td className="bg-secondary hidden sm:table-cell">
+                            <td className="bg-secondary hidden sm:table-cell ">
                               <div className="skeleton h-2 w-16"></div>
                             </td>
                             <td className="bg-secondary hidden xl:table-cell">
@@ -253,7 +253,7 @@ export function YourGroups({
                             <td className="bg-secondary hidden lg:table-cell">
                               <div className="skeleton h-2 w-32"></div>
                             </td>
-                            <td className="bg-secondary rounded-r-[12px] w-1/6">
+                            <td className="bg-secondary rounded-r-[12px] w-1/6 hidden xs:table-cell">
                               <div className="flex space-x-2 justify-end">
                                 <button
                                   className="btn btn-md btn-outline btn-square btn-info"
@@ -496,9 +496,12 @@ function GroupRow({
       aria-label={`Select ${groupName} group`}
     >
       <td className="bg-secondary group-hover:bg-base-300 rounded-l-[12px] w-1/6">
-        <div className="flex items-center space-x-3">
+        <div className="items-center space-x-3 hidden xs:flex">
           <ProfileAvatar walletAddress={policyAddress} />
           <span className="font-medium">{truncateString(groupName, 24)}</span>
+        </div>
+        <div className="items-center flex xs:hidden">
+          <ProfileAvatar walletAddress={policyAddress} />
         </div>
       </td>
       <td className="bg-secondary group-hover:bg-base-300 hidden xl:table-cell w-1/6">
