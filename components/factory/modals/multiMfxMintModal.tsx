@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Formik, Form, FieldArray, Field, FieldProps } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { NumberInput, TextInput } from '@/components/react/inputs';
 import { TailwindModal } from '@/components/react';
+import { createPortal } from 'react-dom';
 
 import { MdContacts } from 'react-icons/md';
 import { PlusIcon, MinusIcon } from '@/components/icons';
@@ -11,7 +12,8 @@ import { chainName } from '@/config';
 import { cosmos, liftedinit } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgPayout } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
-import { ExtendedMetadataSDKType, parseNumberToBigInt } from '@/utils';
+import { parseNumberToBigInt } from '@/utils';
+import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 //TODO: find max mint amount from team for mfx. Find tx size limit for max payout pairs
 interface PayoutPair {
   address: string;
@@ -23,9 +25,7 @@ interface MultiMintModalProps {
   onClose: () => void;
   admin: string;
   address: string;
-  denom: ExtendedMetadataSDKType | null;
-  exponent: number;
-  refetch: () => void;
+  denom: MetadataSDKType | null;
 }
 
 const PayoutPairSchema = Yup.object().shape({
@@ -46,15 +46,7 @@ const MultiMintSchema = Yup.object().shape({
     }),
 });
 
-export function MultiMintModal({
-  isOpen,
-  onClose,
-  admin,
-  address,
-  denom,
-  exponent,
-  refetch,
-}: MultiMintModalProps) {
+export function MultiMintModal({ isOpen, onClose, admin, address, denom }: MultiMintModalProps) {
   const [payoutPairs, setPayoutPairs] = useState([{ address: '', amount: '' }]);
   const { tx, isSigning, setIsSigning } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
@@ -62,6 +54,17 @@ export function MultiMintModal({
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const [isContactsOpen, setIsContactsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen]);
 
   const updatePayoutPair = (index: number, field: 'address' | 'amount', value: string) => {
     const newPairs = [...payoutPairs];
@@ -86,7 +89,10 @@ export function MultiMintModal({
           address: pair.address,
           coin: {
             denom: denom?.base ?? '',
-            amount: parseNumberToBigInt(pair.amount, exponent).toString(),
+            amount: parseNumberToBigInt(
+              pair.amount,
+              denom?.denom_units?.[0].exponent ?? 0
+            ).toString(),
           },
         })),
       });
@@ -101,7 +107,7 @@ export function MultiMintModal({
         messages: [encodedMessage],
         metadata: '',
         proposers: [address],
-        title: `Manifest Module Control: Multi Mint MFX`,
+        title: `Multi Mint MFX`,
         summary: `This proposal includes a multi-mint action for MFX.`,
         exec: 0,
       });
@@ -110,7 +116,6 @@ export function MultiMintModal({
       await tx([msg], {
         fee,
         onSuccess: () => {
-          refetch();
           onClose();
         },
       });
@@ -121,12 +126,26 @@ export function MultiMintModal({
     }
   };
 
-  return (
+  const modalContent = (
     <dialog
       id="multi_mint_modal"
       className={`modal ${isOpen ? 'modal-open' : ''}`}
-      aria-labelledby="modal-title"
-      aria-modal="true"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 9999,
+        backgroundColor: 'transparent',
+        padding: 0,
+        margin: 0,
+        height: '100vh',
+        width: '100vw',
+        display: isOpen ? 'flex' : 'none',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
     >
       <div className="modal-box max-w-4xl mx-auto min-h-[30vh] max-h-[70vh] rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg overflow-y-auto">
         <form method="dialog" onSubmit={onClose}>
@@ -172,7 +191,7 @@ export function MultiMintModal({
                         {values.payoutPairs.map((pair, index) => (
                           <div
                             key={index}
-                            className="flex relative flex-row dark:bg-[#FFFFFF0A] bg-[#FFFFFF] p-4 gap-2 rounded-lg items-end"
+                            className="flex relative flex-row dark:bg-[#FFFFFF0A] bg-[#FFFFFF] h-full p-4 gap-2 rounded-lg items-end"
                           >
                             {index > 0 && (
                               <div className="absolute -top-2 left-2 text-xs">#{index + 1}</div>
@@ -196,7 +215,7 @@ export function MultiMintModal({
                                             setSelectedIndex(index);
                                             setIsContactsOpen(true);
                                           }}
-                                          className="btn btn-primary btn-sm text-white absolute right-2 top-1/2 transform -translate-y-1/2"
+                                          className="btn btn-primary btn-sm text-white"
                                         >
                                           <MdContacts className="w-5 h-5" />
                                         </button>
@@ -255,13 +274,17 @@ export function MultiMintModal({
                   </FieldArray>
                 </div>
 
-                <div className="modal-action mt-6">
-                  <button className="btn btn-ghost" onClick={onClose}>
+                <div className="mt-4 gap-6 flex justify-center w-full p-2">
+                  <button
+                    type="button"
+                    className="btn w-[calc(50%-8px)] btn-md focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
+                    onClick={onClose}
+                  >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="btn btn-gradient text-white"
+                    className="btn btn-md w-[calc(50%-8px)] btn-gradient  text-white"
                     disabled={isSigning || !isValid}
                   >
                     {isSigning ? (
@@ -291,9 +314,29 @@ export function MultiMintModal({
           </Formik>
         </div>
       </div>
-      <form method="dialog" className="modal-backdrop">
-        <button onClick={onClose}>close</button>
+      <form
+        method="dialog"
+        className="modal-backdrop"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: -1,
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        }}
+        onSubmit={onClose}
+      >
+        <button>close</button>
       </form>
     </dialog>
   );
+
+  // Only render if we're in the browser
+  if (typeof document !== 'undefined') {
+    return createPortal(modalContent, document.body);
+  }
+
+  return null;
 }

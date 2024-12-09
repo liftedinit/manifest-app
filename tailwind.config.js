@@ -163,6 +163,24 @@ module.exports = {
           textColor: '#FFFFFF',
         },
       };
+      const errorButton = {
+        '.btn-error': {
+          border: 'none',
+          color: '#FFFFFF',
+          backgroundColor: '#E53935',
+          transition: 'all 0.3s ease',
+          '&:hover:not(:disabled)': {
+            backgroundColor: '#D32F2F',
+          },
+          '&:disabled': {
+            opacity: '0.5',
+            cursor: 'not-allowed',
+            border: 'none',
+            boxShadow: 'none',
+            backgroundColor: '#4f1312',
+          },
+        },
+      };
       const connectButton = {
         '.btn-gradient': {
           border: 'none',
@@ -206,6 +224,7 @@ module.exports = {
       addUtilities(connectButton, ['responsive', 'hover', 'disabled']);
       addUtilities(dropDownBtns, ['responsive', 'hover', 'disabled']);
       addUtilities(toolTip, ['responsive', 'hover', 'disabled']);
+      addUtilities(errorButton, ['responsive', 'hover', 'disabled']);
     },
   ],
 };

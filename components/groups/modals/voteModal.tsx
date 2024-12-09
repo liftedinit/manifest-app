@@ -4,7 +4,15 @@ import { cosmos } from '@liftedinit/manifestjs';
 import { useChain } from '@cosmos-kit/react';
 import React, { useState } from 'react';
 import { CloseIcon } from '@/components/icons';
-function VotingPopup({ proposalId, refetch }: { proposalId: bigint; refetch: () => void }) {
+function VotingPopup({
+  proposalId,
+  refetch,
+  setIsSigning,
+}: {
+  proposalId: bigint;
+  refetch: () => void;
+  setIsSigning: (isSigning: boolean) => void;
+}) {
   const { estimateFee } = useFeeEstimation('manifest');
   const { tx } = useTx('manifest');
   const { address } = useChain('manifest');
@@ -13,6 +21,7 @@ function VotingPopup({ proposalId, refetch }: { proposalId: bigint; refetch: () 
   const { vote } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
   const handleVote = async (option: number) => {
+    setIsSigning(true);
     const msg = vote({
       proposalId: proposalId,
       voter: address ?? '',
@@ -28,12 +37,15 @@ function VotingPopup({ proposalId, refetch }: { proposalId: bigint; refetch: () 
         onSuccess: () => {
           refetch();
           closeModal();
+          setIsSigning(false);
         },
       });
     } catch (error) {
       console.error('Failed to vote: ', error);
       setError('Failed to cast vote. Please try again.');
+      setIsSigning(false);
     }
+    setIsSigning(false);
   };
 
   const closeModal = () => {
