@@ -3,7 +3,7 @@ import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank
 import MintForm from '@/components/factory/forms/MintForm';
 import { useGroupsByAdmin, usePoaGetAdmin } from '@/hooks';
 import { ExtendedMetadataSDKType, truncateString } from '@/utils';
-import { MultiMintModal } from './multiMfxMintModal';
+import { MultiMintModal } from '../../admins/modals/multiMfxMintModal';
 import { createPortal } from 'react-dom';
 
 export default function MintModal({

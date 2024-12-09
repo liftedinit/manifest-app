@@ -118,7 +118,7 @@ export default function BurnForm({
           messages: [encodedMessage],
           metadata: '',
           proposers: [address ?? ''],
-          title: `Manifest Module Control: Burn MFX`,
+          title: `Burn MFX`,
           summary: `This proposal includes a burn action for MFX.`,
           exec: 0,
         });
@@ -176,7 +176,7 @@ export default function BurnForm({
         messages: [encodedMessage],
         metadata: '',
         proposers: [address ?? ''],
-        title: `Manifest Module Control: Multi Burn MFX`,
+        title: `Multi Burn MFX`,
         summary: `This proposal includes multiple burn actions for MFX.`,
         exec: 0,
       });

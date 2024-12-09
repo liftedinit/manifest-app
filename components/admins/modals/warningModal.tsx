@@ -96,6 +96,10 @@ export function WarningModal({
       id={modalId}
       className={`modal ${openWarningModal ? 'modal-open' : ''}`}
       onClose={handleClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+      aria-describedby="modal-description"
       style={{
         position: 'fixed',
         top: 0,

@@ -151,6 +151,9 @@ export function GroupInfo({
     <dialog
       id={modalId}
       className={`modal ${showInfoModal ? 'modal-open' : ''}`}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
       style={{
         position: 'fixed',
         top: 0,
