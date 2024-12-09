@@ -19,6 +19,7 @@ export interface TransactionGroup {
   tx_hash: string;
   block_number: number;
   formatted_date: string;
+  memo?: string;
   data: Transaction;
 }
 

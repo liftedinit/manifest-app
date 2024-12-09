@@ -90,6 +90,9 @@ export default function TxInfoModal({ tx, modalId }: TxInfoModalProps) {
             </div>
           </div>
         </div>
+        <div>
+          <InfoItem label="MEMO" explorerUrl={explorerUrl} value={tx?.memo ?? 'N/A'} />
+        </div>
       </div>
       <form method="dialog" className="modal-backdrop">
         <button>close</button>
