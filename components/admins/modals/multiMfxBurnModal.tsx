@@ -47,7 +47,7 @@ const MultiBurnSchema = Yup.object().shape({
 });
 
 export function MultiBurnModal({ isOpen, onClose, admin, address, denom }: MultiBurnModalProps) {
-  const [burnPairs, setBurnPairs] = useState([{ address: '', amount: '' }]);
+  const [burnPairs, setBurnPairs] = useState([{ address: admin, amount: '' }]);
   const { tx, isSigning, setIsSigning } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
   const { burnHeldBalance } = liftedinit.manifest.v1.MessageComposer.withTypeUrl;
@@ -73,7 +73,7 @@ export function MultiBurnModal({ isOpen, onClose, admin, address, denom }: Multi
   };
 
   const addBurnPair = () => {
-    setBurnPairs([...burnPairs, { address: '', amount: '' }]);
+    setBurnPairs([...burnPairs, { address: admin, amount: '' }]);
   };
 
   const removeBurnPair = (index: number) => {
@@ -107,7 +107,7 @@ export function MultiBurnModal({ isOpen, onClose, admin, address, denom }: Multi
         messages: encodedMessages,
         metadata: '',
         proposers: [address],
-        title: `Multi Burn MFX`,
+        title: `Burn MFX`,
         summary: `This proposal includes a multi-burn action for MFX.`,
         exec: 0,
       });
@@ -157,7 +157,7 @@ export function MultiBurnModal({ isOpen, onClose, admin, address, denom }: Multi
           </button>
         </form>
         <h3 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">
-          Multi Burn <span className="font-light text-primary">MFX</span>
+          Burn <span className="font-light text-primary">MFX</span>
         </h3>
         <div className="py-4 flex flex-col h-[calc(100%-4rem)]">
           <Formik
@@ -170,20 +170,6 @@ export function MultiBurnModal({ isOpen, onClose, admin, address, denom }: Multi
               <Form className="flex flex-col h-full">
                 <div className="flex justify-between items-center mb-4">
                   <div className="text-lg font-semibold">Burn Pairs</div>
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-error text-white"
-                    onClick={() => {
-                      setFieldValue('burnPairs', [
-                        ...values.burnPairs,
-                        { address: '', amount: '' },
-                      ]);
-                      addBurnPair();
-                    }}
-                  >
-                    <PlusIcon className="text-lg" />
-                    <span className="ml-1">Add Burn</span>
-                  </button>
                 </div>
 
                 <div className="overflow-y-auto flex-grow px-1 max-h-[40vh]">
@@ -206,22 +192,12 @@ export function MultiBurnModal({ isOpen, onClose, admin, address, denom }: Multi
                                       showError={false}
                                       label="Address"
                                       {...field}
+                                      value={admin}
+                                      disabled={true}
                                       placeholder="manifest1..."
                                       className={`input input-bordered w-full ${
                                         meta.touched && meta.error ? 'input-error' : ''
                                       }`}
-                                      rightElement={
-                                        <button
-                                          type="button"
-                                          onClick={() => {
-                                            setSelectedIndex(index);
-                                            setIsContactsOpen(true);
-                                          }}
-                                          className="btn btn-primary btn-sm text-white"
-                                        >
-                                          <MdContacts className="w-5 h-5" />
-                                        </button>
-                                      }
                                     />
                                     {meta.touched && meta.error && (
                                       <div
@@ -288,11 +264,7 @@ export function MultiBurnModal({ isOpen, onClose, admin, address, denom }: Multi
                     className="btn btn-md w-[calc(50%-8px)] btn-error  text-white"
                     disabled={isSigning || !isValid}
                   >
-                    {isSigning ? (
-                      <span className="loading loading-dots loading-md"></span>
-                    ) : (
-                      'Multi Burn'
-                    )}
+                    {isSigning ? <span className="loading loading-dots loading-md"></span> : 'Burn'}
                   </button>
                 </div>
                 <TailwindModal
