@@ -46,7 +46,7 @@ export const Error = ({
         <div className="p-3 border rounded-full border-red-600 mx-auto aspect-1 flex-shrink-0">
           <Image
             src={
-              currentWalletName === 'Cosmos MetaMask Extension'
+              currentWalletName === 'cosmos-extension-metamask'
                 ? '/metamask.svg'
                 : getRealLogo(logo)
             }

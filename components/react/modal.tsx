@@ -83,12 +83,18 @@ export const TailwindModal: React.FC<
       // 1ms timeout prevents _render from determining the view to show first
       setTimeout(() => {
         const wallet = walletRepo?.getWallet(name);
-
-        if (wallet?.isWalletNotExist) {
+        console.log(wallet?.state);
+        if (
+          wallet?.walletInfo.name === 'cosmos-extension-metamask' &&
+          wallet.message?.includes("Cannot read properties of undefined (reading 'request')")
+        ) {
+          // This specific error indicates Metamask is not installed
           setCurrentView(ModalView.NotExist);
           setSelectedWallet(wallet);
-        }
-        if (wallet?.walletInfo.mode === 'wallet-connect') {
+        } else if (wallet?.isWalletNotExist) {
+          setCurrentView(ModalView.NotExist);
+          setSelectedWallet(wallet);
+        } else if (wallet?.walletInfo.mode === 'wallet-connect') {
           setCurrentView(ModalView.QRCode);
           setQRWallet(wallet);
         }
@@ -125,11 +131,11 @@ export const TailwindModal: React.FC<
         );
       case ModalView.Connecting:
         let subtitle: string;
-        if (currentWalletData!.mode === 'wallet-connect') {
+        if (currentWalletData!?.mode === 'wallet-connect') {
           subtitle = `Approve ${currentWalletData!.prettyName} connection request on your mobile.`;
         } else {
           subtitle = `Open the ${
-            currentWalletData!.prettyName
+            currentWalletData!?.prettyName
           } browser extension to connect your wallet.`;
         }
 

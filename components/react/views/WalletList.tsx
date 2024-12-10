@@ -25,7 +25,7 @@ export const WalletList = ({
       wallet.walletInfo.prettyName
     )
   );
-  console.log(wallets);
+
   const mobile = wallets.filter(wallet =>
     ['Wallet Connect', 'Keplr Mobile', 'Cosmostation Mobile', 'Leap Mobile'].includes(
       wallet.walletInfo.prettyName
