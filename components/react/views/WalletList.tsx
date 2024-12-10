@@ -21,7 +21,7 @@ export const WalletList = ({
   );
 
   const browser = wallets.filter(wallet =>
-    ['Keplr', 'Cosmostation', 'Leap', 'Station'].includes(wallet.walletInfo.prettyName)
+    ['Keplr', 'Cosmostation', 'Leap', 'Station', 'Ledger'].includes(wallet.walletInfo.prettyName)
   );
 
   const mobile = wallets.filter(wallet =>
