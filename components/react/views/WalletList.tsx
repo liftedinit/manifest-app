@@ -25,12 +25,19 @@ export const WalletList = ({
       wallet.walletInfo.prettyName
     )
   );
-  console.log(wallets);
+
   const mobile = wallets.filter(wallet =>
-    ['Wallet Connect', 'Keplr Mobile', 'Cosmostation Mobile', 'Leap Mobile'].includes(
-      wallet.walletInfo.prettyName
-    )
+    ['Keplr Mobile', 'Cosmostation Mobile', 'Leap Mobile'].includes(wallet.walletInfo.prettyName)
   );
+
+  const hasMobileVersion = (prettyName: string) => {
+    return mobile.some(w => w.walletInfo.prettyName.startsWith(prettyName));
+  };
+
+  const getMobileWalletName = (browserName: string) => {
+    return mobile.find(w => w.walletInfo.prettyName.startsWith(browserName))?.walletInfo.name;
+  };
+
   return (
     <div className="p-1 relative max-w-sm mx-auto">
       <h1 className="text-sm font-semibold text-center mb-6">Connect Wallet</h1>
@@ -46,24 +53,37 @@ export const WalletList = ({
       <div className="hidden md:block">
         <div className="space-y-2 mb-4">
           {browser.map(({ walletInfo: { name, prettyName, logo } }) => (
-            <button
-              key={name}
-              onClick={() => onWalletClicked(name)}
-              className="flex items-center w-full p-3 rounded-lg dark:bg-[#ffffff0c] bg-[#f0f0ff5c] dark:hover:bg-[#0000004c] hover:bg-[#a8a8a84c] transition"
-            >
-              <img
-                src={
-                  prettyName === 'Cosmos MetaMask Extension'
-                    ? '/metamask.svg'
-                    : getRealLogo(logo?.toString() ?? '')
-                }
-                alt={prettyName}
-                className="w-10 h-10 rounded-xl mr-3"
-              />
-              <span className="text-md">
-                {prettyName === 'Cosmos MetaMask Extension' ? 'MetaMask' : prettyName}
-              </span>
-            </button>
+            <div key={name} className="w-full">
+              <button
+                onClick={() => onWalletClicked(name)}
+                className="flex items-center w-full p-3 rounded-lg dark:bg-[#ffffff0c] bg-[#f0f0ff5c] dark:hover:bg-[#0000004c] hover:bg-[#a8a8a84c] transition"
+              >
+                <img
+                  src={
+                    prettyName === 'Cosmos MetaMask Extension'
+                      ? '/metamask.svg'
+                      : getRealLogo(logo?.toString() ?? '')
+                  }
+                  alt={prettyName}
+                  className="w-10 h-10 rounded-xl mr-3"
+                />
+                <span className="text-md flex-1 text-left">
+                  {prettyName === 'Cosmos MetaMask Extension' ? 'MetaMask' : prettyName}
+                </span>
+                {hasMobileVersion(prettyName) && (
+                  <div
+                    onClick={e => {
+                      e.stopPropagation();
+                      onWalletClicked(getMobileWalletName(prettyName) || '');
+                    }}
+                    className="p-1.5 rounded-lg dark:hover:bg-[#ffffff1a] hover:bg-[#0000000d] dark:bg-[#ffffff37] bg-[#d5d5e4]  transition cursor-pointer"
+                    title={`Connect with ${prettyName} Mobile`}
+                  >
+                    <img src={getRealLogo('/sms')} alt="mobile" className="w-5 h-5" />
+                  </div>
+                )}
+              </button>
+            </div>
           ))}
         </div>
 

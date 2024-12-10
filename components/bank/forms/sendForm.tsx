@@ -136,7 +136,6 @@ export default function SendForm({
             amount: [{ denom: values.selectedToken.coreDenom, amount: amountInBaseUnits }],
           });
 
-      console.log('Estimating fee for address:', address);
       const fee = await estimateFee(address, [msg]);
 
       await tx([msg], {
