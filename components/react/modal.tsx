@@ -76,15 +76,29 @@ export const TailwindModal: React.FC<
     }
   }, [isOpen, walletStatus, currentWalletName, showContacts]);
 
+  useEffect(() => {
+    if (!isOpen && current?.walletStatus === WalletStatus.Connecting) {
+      current.disconnect();
+    }
+  }, [isOpen, current]);
+
   const onWalletClicked = useCallback(
     (name: string) => {
+      const timeoutId = setTimeout(() => {
+        const wallet = walletRepo?.getWallet(name);
+        if (wallet?.walletStatus === WalletStatus.Connecting) {
+          wallet.disconnect();
+          setCurrentView(ModalView.Error);
+        }
+      }, 30000);
+
       walletRepo?.connect(name);
 
-      // 1ms timeout prevents _render from determining the view to show first
       setTimeout(() => {
         const wallet = walletRepo?.getWallet(name);
 
         if (wallet?.isWalletNotExist) {
+          clearTimeout(timeoutId);
           setCurrentView(ModalView.NotExist);
           setSelectedWallet(wallet);
         }
@@ -93,13 +107,18 @@ export const TailwindModal: React.FC<
           setQRWallet(wallet);
         }
       }, 1);
+
+      return () => clearTimeout(timeoutId);
     },
     [walletRepo]
   );
 
   const onCloseModal = useCallback(() => {
+    if (current?.walletStatus === WalletStatus.Connecting) {
+      current.disconnect();
+    }
     setOpen(false);
-  }, [setOpen]);
+  }, [setOpen, current]);
 
   const _render = useMemo(() => {
     switch (currentView) {
@@ -125,11 +144,11 @@ export const TailwindModal: React.FC<
         );
       case ModalView.Connecting:
         let subtitle: string;
-        if (currentWalletData!.mode === 'wallet-connect') {
-          subtitle = `Approve ${currentWalletData!.prettyName} connection request on your mobile.`;
+        if (currentWalletData!?.mode === 'wallet-connect') {
+          subtitle = `Approve ${currentWalletData!.prettyName} connection request on your mobile device.`;
         } else {
           subtitle = `Open the ${
-            currentWalletData!.prettyName
+            currentWalletData!?.prettyName
           } browser extension to connect your wallet.`;
         }
 
