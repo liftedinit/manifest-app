@@ -215,7 +215,7 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
             <p className="text-sm text-gray-500">v{version}</p>
           </Link>
           <div className="flex flex-row justify-between items-center gap-3">
-            <Link href="https://x.com/liftedinit" target="_blank">
+            <Link href="https://discord.gg/ndYMdRmFpG" target="_blank">
               <Image
                 src={getRealLogo('/discord', true)}
                 alt={'Discord'}
@@ -224,7 +224,7 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
                 className="w-4 h-4 rounded-xl"
               />
             </Link>
-            <Link href="https://x.com/liftedinit" target="_blank">
+            <Link href="https://x.com/ManifestAIs" target="_blank">
               <Image
                 src={getRealLogo('/x', true)}
                 alt={'Twitter'}
