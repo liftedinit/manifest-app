@@ -128,8 +128,6 @@ export function MemberManagementModal({
         weight: member.markedForDeletion ? '0' : member.weight || '1',
       }));
 
-    console.log('Member updates:', memberUpdates);
-
     const msg = updateGroupMembers({
       admin: groupAdmin,
       groupId: BigInt(groupId),

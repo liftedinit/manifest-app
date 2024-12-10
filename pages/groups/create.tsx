@@ -26,7 +26,7 @@ export default function CreateGroup() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, dispatch] = useReducer(formDataReducer, initialFormData);
   const { address } = useChain(chainName);
-  console.log(formData);
+
   const nextStep = () => {
     if (currentStep < 5) {
       setCurrentStep(currentStep + 1);
