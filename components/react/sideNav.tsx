@@ -18,6 +18,7 @@ import {
 } from '@/components/icons';
 
 import { MdContacts, MdOutlineNetworkPing } from 'react-icons/md';
+import { getRealLogo } from '@/utils';
 
 interface SideNavProps {
   isDrawerVisible: boolean;
@@ -209,8 +210,30 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
             <WalletSection chainName="manifest" />
           </div>
         </ul>
-        <div className="flex flex-row justify-center items-center">
-          <p className="text-sm text-gray-500">v{version}</p>
+        <div className="flex flex-row justify-between items-center">
+          <Link href="https://github.com/liftedinit/manifest-app" target="_blank">
+            <p className="text-sm text-gray-500">v{version}</p>
+          </Link>
+          <div className="flex flex-row justify-between items-center gap-3">
+            <Link href="https://x.com/liftedinit" target="_blank">
+              <Image
+                src={getRealLogo('/discord', true)}
+                alt={'Discord'}
+                width={12}
+                height={12}
+                className="w-4 h-4 rounded-xl"
+              />
+            </Link>
+            <Link href="https://x.com/liftedinit" target="_blank">
+              <Image
+                src={getRealLogo('/x', true)}
+                alt={'Twitter'}
+                width={12}
+                height={12}
+                className="w-4 h-4 rounded-xl"
+              />
+            </Link>
+          </div>
         </div>
       </div>
     </div>

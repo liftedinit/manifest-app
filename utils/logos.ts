@@ -40,11 +40,11 @@ export const convertChainName = (chainName: string) => {
   }
 };
 
-export const getRealLogo = (logo: string) => {
+export const getRealLogo = (logo: string, flip?: boolean) => {
   const isDarkMode = document.documentElement.classList.contains('dark');
   const localAndHasExtension = /^\/(?!.*\.[0-9a-z]+$)/i.test(logo);
   return localAndHasExtension
-    ? isDarkMode
+    ? isDarkMode !== flip
       ? logo?.toString() + '_light.svg'
       : logo?.toString() + '_dark.svg'
     : logo;
