@@ -339,7 +339,9 @@ export function MemberManagementModal({
                           <button
                             onClick={e => {
                               e.preventDefault();
-                              navigator.clipboard.writeText(member.address);
+                              navigator.clipboard.writeText(member.address).catch(error => {
+                                console.error('Failed to copy address:', error);
+                              });
                             }}
                             className="btn btn-ghost hover:bg-transparent btn-sm ml-2"
                           >

@@ -14,8 +14,6 @@ export default function Groups() {
   const { groupByMemberData, isGroupByMemberLoading, isGroupByMemberError, refetchGroupByMember } =
     useGroupsByMember(address ?? '');
 
-  const [selectedPolicyAddress, _setSelectedPolicyAddress] = useState<string | null>(null);
-
   const groupPolicyAddresses =
     groupByMemberData?.groups?.map(group => group.policies[0].address) ?? [];
 

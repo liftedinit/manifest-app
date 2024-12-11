@@ -317,6 +317,8 @@ export function UpdateGroupModal({
     <dialog
       id="update-group-modal"
       className={`modal ${showUpdateModal ? 'modal-open' : ''}`}
+      aria-modal="true"
+      role="dialog"
       style={{
         position: 'fixed',
         top: '50%',

@@ -1,43 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+
 import { Formik, Form, FieldArray, Field, FieldProps } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { NumberInput, TextInput } from '@/components/react/inputs';
-import { TailwindModal } from '@/components/react';
 
-import { MdContacts } from 'react-icons/md';
 import { PlusIcon, MinusIcon } from '@/components/icons';
+import { MdContacts } from 'react-icons/md';
 import { useTx, useFeeEstimation } from '@/hooks';
 import { chainName } from '@/config';
 import { cosmos, liftedinit } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
-import { MsgPayout } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
-import { ExtendedMetadataSDKType, parseNumberToBigInt } from '@/utils';
-//TODO: find max mint amount from team for mfx. Find tx size limit for max payout pairs
-interface PayoutPair {
+
+import { parseNumberToBigInt } from '@/utils';
+import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { TailwindModal } from '@/components/react';
+
+interface BurnPair {
   address: string;
   amount: string;
 }
 
-interface MultiMintModalProps {
+interface MultiBurnModalProps {
   isOpen: boolean;
   onClose: () => void;
   admin: string;
   address: string;
-  denom: ExtendedMetadataSDKType | null;
-  exponent: number;
-  refetch: () => void;
+  denom: MetadataSDKType | null;
 }
 
-const PayoutPairSchema = Yup.object().shape({
+const BurnPairSchema = Yup.object().shape({
   address: Yup.string().manifestAddress().required('Required'),
   amount: Yup.number().positive('Amount must be positive').required('Required'),
 });
 
-const MultiMintSchema = Yup.object().shape({
-  payoutPairs: Yup.array()
-    .of(PayoutPairSchema)
-    .max(100, 'Maximum 100 payout pairs allowed')
-    .min(1, 'At least one payout pair is required')
+const MultiBurnSchema = Yup.object().shape({
+  burnPairs: Yup.array()
+    .of(BurnPairSchema)
+    .min(1, 'At least one burn pair is required')
     .test('unique-address', 'Addresses must be unique', function (pairs) {
       if (!pairs) return true;
       const addresses = pairs.map(pair => pair.address);
@@ -46,63 +46,69 @@ const MultiMintSchema = Yup.object().shape({
     }),
 });
 
-export function MultiMintModal({
-  isOpen,
-  onClose,
-  admin,
-  address,
-  denom,
-  exponent,
-  refetch,
-}: MultiMintModalProps) {
-  const [payoutPairs, setPayoutPairs] = useState([{ address: '', amount: '' }]);
+export function MultiBurnModal({ isOpen, onClose, admin, address, denom }: MultiBurnModalProps) {
+  const [burnPairs, setBurnPairs] = useState([{ address: admin, amount: '' }]);
   const { tx, isSigning, setIsSigning } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
-  const { payout } = liftedinit.manifest.v1.MessageComposer.withTypeUrl;
+  const { burnHeldBalance } = liftedinit.manifest.v1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const [isContactsOpen, setIsContactsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
-  const updatePayoutPair = (index: number, field: 'address' | 'amount', value: string) => {
-    const newPairs = [...payoutPairs];
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
+
+  const updateBurnPair = (index: number, field: 'address' | 'amount', value: string) => {
+    const newPairs = [...burnPairs];
     newPairs[index] = { ...newPairs[index], [field]: value };
-    setPayoutPairs(newPairs);
+    setBurnPairs(newPairs);
   };
 
-  const addPayoutPair = () => {
-    setPayoutPairs([...payoutPairs, { address: '', amount: '' }]);
+  const addBurnPair = () => {
+    setBurnPairs([...burnPairs, { address: admin, amount: '' }]);
   };
 
-  const removePayoutPair = (index: number) => {
-    setPayoutPairs(payoutPairs.filter((_, i) => i !== index));
+  const removeBurnPair = (index: number) => {
+    setBurnPairs(burnPairs.filter((_, i) => i !== index));
   };
 
-  const handleMultiMint = async (values: { payoutPairs: PayoutPair[] }) => {
+  const handleMultiBurn = async (values: { burnPairs: BurnPair[] }) => {
     setIsSigning(true);
     try {
-      const payoutMsg = payout({
-        authority: admin,
-        payoutPairs: values.payoutPairs.map(pair => ({
-          address: pair.address,
-          coin: {
-            denom: denom?.base ?? '',
-            amount: parseNumberToBigInt(pair.amount, exponent).toString(),
-          },
-        })),
-      });
+      const messages = values.burnPairs.map(pair =>
+        burnHeldBalance({
+          authority: admin,
+          burnCoins: [
+            {
+              denom: denom?.base ?? '',
+              amount: parseNumberToBigInt(pair.amount, denom?.denom_units?.[1].exponent).toString(),
+            },
+          ],
+        })
+      );
 
-      const encodedMessage = Any.fromPartial({
-        typeUrl: payoutMsg.typeUrl,
-        value: MsgPayout.encode(payoutMsg.value).finish(),
-      });
+      const encodedMessages = messages.map(msg =>
+        Any.fromPartial({
+          typeUrl: msg.typeUrl,
+          value: liftedinit.manifest.v1.MsgBurnHeldBalance.encode(msg.value).finish(),
+        })
+      );
 
       const msg = submitProposal({
         groupPolicyAddress: admin,
-        messages: [encodedMessage],
+        messages: encodedMessages,
         metadata: '',
         proposers: [address],
-        title: `Manifest Module Control: Multi Mint MFX`,
-        summary: `This proposal includes a multi-mint action for MFX.`,
+        title: `Burn MFX`,
+        summary: `This proposal includes a multi-burn action for MFX.`,
         exec: 0,
       });
 
@@ -110,66 +116,67 @@ export function MultiMintModal({
       await tx([msg], {
         fee,
         onSuccess: () => {
-          refetch();
           onClose();
         },
       });
     } catch (error) {
-      console.error('Error during multi-mint:', error);
+      console.error('Error during multi-burn:', error);
     } finally {
       setIsSigning(false);
     }
   };
 
-  return (
+  const modalContent = (
     <dialog
-      id="multi_mint_modal"
+      id="multi_burn_modal"
       className={`modal ${isOpen ? 'modal-open' : ''}`}
-      aria-labelledby="modal-title"
-      aria-modal="true"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 9999,
+        backgroundColor: 'transparent',
+        padding: 0,
+        margin: 0,
+        height: '100vh',
+        width: '100vw',
+        display: isOpen ? 'flex' : 'none',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
     >
       <div className="modal-box max-w-4xl mx-auto min-h-[30vh] max-h-[70vh] rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg overflow-y-auto">
         <form method="dialog" onSubmit={onClose}>
-          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]">
+          <button
+            aria-label="Close modal"
+            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]"
+          >
             ✕
           </button>
         </form>
         <h3 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">
-          Multi Mint <span className="font-light text-primary">MFX</span>
+          Burn <span className="font-light text-primary">MFX</span>
         </h3>
         <div className="py-4 flex flex-col h-[calc(100%-4rem)]">
           <Formik
-            initialValues={{ payoutPairs }}
-            validationSchema={MultiMintSchema}
-            onSubmit={handleMultiMint}
+            initialValues={{ burnPairs }}
+            validationSchema={MultiBurnSchema}
+            onSubmit={handleMultiBurn}
             validateOnMount={true}
           >
             {({ values, isValid, setFieldValue }) => (
               <Form className="flex flex-col h-full">
                 <div className="flex justify-between items-center mb-4">
-                  <div className="text-lg font-semibold">Payout Pairs</div>
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-primary text-white"
-                    onClick={() => {
-                      // Update both Formik state and parent component state
-                      setFieldValue('payoutPairs', [
-                        ...values.payoutPairs,
-                        { address: '', amount: '' },
-                      ]);
-                      addPayoutPair();
-                    }}
-                  >
-                    <PlusIcon className="text-lg" />
-                    <span className="ml-1">Add Payout</span>
-                  </button>
+                  <div className="text-lg font-semibold">Burn Pairs</div>
                 </div>
 
                 <div className="overflow-y-auto flex-grow px-1 max-h-[40vh]">
-                  <FieldArray name="payoutPairs">
+                  <FieldArray name="burnPairs">
                     {({ remove }) => (
                       <div className="flex flex-col gap-4 overflow-y-auto">
-                        {values.payoutPairs.map((pair, index) => (
+                        {values.burnPairs.map((pair, index) => (
                           <div
                             key={index}
                             className="flex relative flex-row dark:bg-[#FFFFFF0A] bg-[#FFFFFF] p-4 gap-2 rounded-lg items-end"
@@ -178,29 +185,19 @@ export function MultiMintModal({
                               <div className="absolute -top-2 left-2 text-xs">#{index + 1}</div>
                             )}
                             <div className="flex-grow relative">
-                              <Field name={`payoutPairs.${index}.address`}>
+                              <Field name={`burnPairs.${index}.address`}>
                                 {({ field, meta }: FieldProps) => (
                                   <div className="relative">
                                     <TextInput
                                       showError={false}
                                       label="Address"
                                       {...field}
+                                      value={admin}
+                                      disabled={true}
                                       placeholder="manifest1..."
                                       className={`input input-bordered w-full ${
                                         meta.touched && meta.error ? 'input-error' : ''
                                       }`}
-                                      rightElement={
-                                        <button
-                                          type="button"
-                                          onClick={() => {
-                                            setSelectedIndex(index);
-                                            setIsContactsOpen(true);
-                                          }}
-                                          className="btn btn-primary btn-sm text-white absolute right-2 top-1/2 transform -translate-y-1/2"
-                                        >
-                                          <MdContacts className="w-5 h-5" />
-                                        </button>
-                                      }
                                     />
                                     {meta.touched && meta.error && (
                                       <div
@@ -213,7 +210,7 @@ export function MultiMintModal({
                               </Field>
                             </div>
                             <div className="flex-grow relative">
-                              <Field name={`payoutPairs.${index}.amount`}>
+                              <Field name={`burnPairs.${index}.amount`}>
                                 {({ field, meta }: FieldProps) => (
                                   <div className="relative">
                                     <NumberInput
@@ -241,9 +238,8 @@ export function MultiMintModal({
                                 className="btn btn-error btn-sm text-white absolute top-3 right-5"
                                 onClick={() => {
                                   remove(index);
-                                  removePayoutPair(index);
+                                  removeBurnPair(index);
                                 }}
-                                aria-label="Remove payout pair"
                               >
                                 <MinusIcon className="w-5 h-5" />
                               </button>
@@ -255,20 +251,20 @@ export function MultiMintModal({
                   </FieldArray>
                 </div>
 
-                <div className="modal-action mt-6">
-                  <button className="btn btn-ghost" onClick={onClose}>
+                <div className="mt-4 gap-6 flex justify-center w-full p-2">
+                  <button
+                    type="button"
+                    className="btn w-[calc(50%-8px)] btn-md focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
+                    onClick={onClose}
+                  >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="btn btn-gradient text-white"
+                    className="btn btn-md w-[calc(50%-8px)] btn-error  text-white"
                     disabled={isSigning || !isValid}
                   >
-                    {isSigning ? (
-                      <span className="loading loading-dots loading-md"></span>
-                    ) : (
-                      'Multi Mint'
-                    )}
+                    {isSigning ? <span className="loading loading-dots loading-md"></span> : 'Burn'}
                   </button>
                 </div>
                 <TailwindModal
@@ -278,9 +274,8 @@ export function MultiMintModal({
                   currentAddress={address}
                   onSelect={(selectedAddress: string) => {
                     if (selectedIndex !== null) {
-                      // Update both the local state and Formik state
-                      updatePayoutPair(selectedIndex, 'address', selectedAddress);
-                      setFieldValue(`payoutPairs.${selectedIndex}.address`, selectedAddress);
+                      updateBurnPair(selectedIndex, 'address', selectedAddress);
+                      setFieldValue(`burnPairs.${selectedIndex}.address`, selectedAddress);
                     }
                     setIsContactsOpen(false);
                     setSelectedIndex(null);
@@ -291,9 +286,29 @@ export function MultiMintModal({
           </Formik>
         </div>
       </div>
-      <form method="dialog" className="modal-backdrop">
-        <button onClick={onClose}>close</button>
+      <form
+        method="dialog"
+        className="modal-backdrop"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: -1,
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        }}
+        onSubmit={onClose}
+      >
+        <button>close</button>
       </form>
     </dialog>
   );
+
+  // Only render if we're in the browser
+  if (typeof document !== 'undefined') {
+    return createPortal(modalContent, document.body);
+  }
+
+  return null;
 }

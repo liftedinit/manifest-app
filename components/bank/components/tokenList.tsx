@@ -134,16 +134,18 @@ export function TokenList({
             {[...Array(pageSize)].map((_, i) => (
               <div
                 key={i}
-                className="flex flex-row justify-between gap-4 items-center p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px] min-h-[80px]"
+                className="flex flex-row justify-between gap-4 items-center p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px]"
               >
                 <div className="flex flex-row gap-4 items-center justify-start">
                   <div className="skeleton w-10 h-10 rounded-full" />
-                  <div className="space-y-2">
-                    <div className="skeleton h-4 w-24" />
-                    <div className="skeleton h-3 w-16" />
+                  <div className="space-y-1">
+                    <div className="skeleton h-4 w-20" />
+                    <div className="skeleton h-3 w-14" />
                   </div>
                 </div>
-                <div className="skeleton h-4 w-32" />
+                <div className="text-center hidden sm:block md:block lg:hidden xl:block">
+                  <div className="skeleton h-4 w-28" />
+                </div>
                 <div className="flex flex-row gap-2">
                   <div className="skeleton w-8 h-8 rounded-md" />
                   <div className="skeleton w-8 h-8 rounded-md" />

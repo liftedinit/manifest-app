@@ -14,7 +14,8 @@ import {
   GroupPolicyInfoSDKType,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { TransactionGroup } from '@/components';
-import { MAX_INTEGER } from '@ethereumjs/util';
+import { Octokit } from 'octokit';
+
 import { useOsmosisRpcQueryClient } from '@/hooks/useOsmosisRpcQueryClient';
 export interface IPFSMetadata {
   title: string;
@@ -33,6 +34,79 @@ export type ExtendedGroupType = QueryGroupsByMemberResponseSDKType['groups'][0] 
 
 export interface ExtendedQueryGroupsByMemberResponseSDKType {
   groups: ExtendedGroupType[];
+}
+
+export interface GitHubRelease {
+  url: string;
+  assets_url: string;
+  upload_url: string;
+  html_url: string;
+  id: number;
+  author: {
+    login: string;
+    id: number;
+    node_id: string;
+    avatar_url: string;
+    gravatar_id: string;
+    url: string;
+    html_url: string;
+    followers_url: string;
+    following_url: string;
+    gists_url: string;
+    starred_url: string;
+    subscriptions_url: string;
+    organizations_url: string;
+    repos_url: string;
+    events_url: string;
+    received_events_url: string;
+    type: string;
+    site_admin: boolean;
+  };
+  node_id: string;
+  tag_name: string;
+  target_commitish: string;
+  name: string;
+  draft: boolean;
+  prerelease: boolean;
+  created_at: string;
+  published_at: string;
+  assets: {
+    url: string;
+    id: number;
+    node_id: string;
+    name: string;
+    label: string | null;
+    uploader: {
+      login: string;
+      id: number;
+      node_id: string;
+      avatar_url: string;
+      gravatar_id: string;
+      url: string;
+      html_url: string;
+      followers_url: string;
+      following_url: string;
+      gists_url: string;
+      starred_url: string;
+      subscriptions_url: string;
+      organizations_url: string;
+      repos_url: string;
+      events_url: string;
+      received_events_url: string;
+      type: string;
+      site_admin: boolean;
+    };
+    content_type: string;
+    state: string;
+    size: number;
+    download_count: number;
+    created_at: string;
+    updated_at: string;
+    browser_download_url: string;
+  }[];
+  tarball_url: string;
+  zipball_url: string;
+  body: string;
 }
 
 export const useGroupsByMember = (address: string) => {
@@ -189,61 +263,30 @@ export const useGroupsByAdmin = (admin: string) => {
     refetchGroupByAdmin: groupQuery.refetch,
   };
 };
-
-export const usePoliciesById = (groupId: bigint) => {
+export const useCurrentPlan = () => {
   const { lcdQueryClient } = useLcdQueryClient();
 
-  const fetchGroupInfo = async () => {
+  const fetchCurrentPlan = async () => {
     if (!lcdQueryClient) {
       throw new Error('LCD Client not ready');
     }
-    return await lcdQueryClient.cosmos.group.v1.groupPoliciesByGroup({
-      groupId: groupId,
-    });
+    return await lcdQueryClient.cosmos.upgrade.v1beta1.currentPlan({});
   };
 
-  const policyQuery = useQuery({
-    queryKey: ['policyInfo', groupId],
-    queryFn: fetchGroupInfo,
-    enabled: !!lcdQueryClient && !!groupId,
+  const currentPlanQuery = useQuery({
+    queryKey: ['currentPlan'],
+    queryFn: fetchCurrentPlan,
+    enabled: !!lcdQueryClient,
     staleTime: Infinity,
   });
 
   return {
-    policy: policyQuery.data?.group_policies || [],
-    isPolicyLoading: policyQuery.isLoading,
-    isPolicyError: policyQuery.isError,
-    refetchPolicy: policyQuery.refetch,
+    plan: currentPlanQuery.data?.plan,
+    isPlanLoading: currentPlanQuery.isLoading,
+    isPlanError: currentPlanQuery.isError,
+    refetchPlan: currentPlanQuery.refetch,
   };
 };
-
-export const useMembersById = (groupId: bigint) => {
-  const { lcdQueryClient } = useLcdQueryClient();
-
-  const fetchGroupInfo = async () => {
-    if (!lcdQueryClient) {
-      throw new Error('LCD Client not ready');
-    }
-    return await lcdQueryClient.cosmos.group.v1.groupMembers({
-      groupId: groupId,
-    });
-  };
-
-  const memberQuery = useQuery({
-    queryKey: ['memberInfo', groupId],
-    queryFn: fetchGroupInfo,
-    enabled: !!lcdQueryClient && !!groupId,
-    staleTime: Infinity,
-  });
-
-  return {
-    members: memberQuery.data?.members || [],
-    isMembersLoading: memberQuery.isLoading,
-    isMembersError: memberQuery.isError,
-    refetchMembers: memberQuery.refetch,
-  };
-};
-
 export const useProposalsByPolicyAccount = (policyAccount: string) => {
   const { lcdQueryClient } = useLcdQueryClient();
 
@@ -487,59 +530,6 @@ export const usePendingValidators = () => {
     refetchPendingValidators: paramsQuery.refetch,
   };
 };
-
-export const useConsensusPower = (address: string) => {
-  const { lcdQueryClient } = usePoaLcdQueryClient();
-
-  const fetchParams = async () => {
-    if (!lcdQueryClient) {
-      throw new Error('LCD Client not ready');
-    }
-    return await lcdQueryClient.strangelove_ventures.poa.v1.consensusPower({
-      validatorAddress: address,
-    });
-  };
-
-  const paramsQuery = useQuery({
-    queryKey: ['consensusPower', address],
-    queryFn: fetchParams,
-    enabled: !!lcdQueryClient && !!address,
-    staleTime: Infinity,
-  });
-
-  return {
-    consensusPower: paramsQuery.data?.consensus_power,
-    isConsensusLoading: paramsQuery.isLoading,
-    isConsensusError: paramsQuery.isError,
-    refetchConsensusPower: paramsQuery.refetch,
-  };
-};
-
-export const useStakingParams = () => {
-  const { lcdQueryClient } = useLcdQueryClient();
-
-  const fetchParams = async () => {
-    if (!lcdQueryClient) {
-      throw new Error('LCD Client not ready');
-    }
-    return await lcdQueryClient.cosmos.staking.v1beta1.params({});
-  };
-
-  const paramsQuery = useQuery({
-    queryKey: ['stakingParams'],
-    queryFn: fetchParams,
-    enabled: !!lcdQueryClient,
-    staleTime: Infinity,
-  });
-
-  return {
-    stakingParams: paramsQuery.data?.params,
-    isParamsLoading: paramsQuery.isLoading,
-    isParamsError: paramsQuery.isError,
-    refetchParams: paramsQuery.refetch,
-  };
-};
-
 export const useValidators = () => {
   const { lcdQueryClient } = useLcdQueryClient();
   const { lcdQueryClient: poaLcdQueryCLient } = usePoaLcdQueryClient();
@@ -740,20 +730,6 @@ interface TransactionAmount {
   amount: string;
   denom: string;
 }
-
-interface TransactionMessage {
-  '@type': string;
-  amount: TransactionAmount[];
-  toAddress: string;
-  fromAddress: string;
-}
-
-interface TransactionResponse {
-  height: string;
-  txhash: string;
-  timestamp: string;
-}
-
 export enum HistoryTxType {
   SEND,
   MINT,
@@ -842,6 +818,8 @@ const _formatMessage = (
 
 const transformTransactions = (tx: any, address: string) => {
   let messages: TransactionGroup[] = [];
+  let memo = tx.data.tx.body.memo ? { memo: tx.data.tx.body.memo } : {};
+
   for (const message of tx.data.tx.body.messages) {
     if (message['@type'] === '/cosmos.group.v1.MsgSubmitProposal') {
       for (const nestedMessage of message.messages) {
@@ -857,6 +835,7 @@ const transformTransactions = (tx: any, address: string) => {
             tx_hash: tx.id,
             block_number: parseInt(tx.data.txResponse.height),
             formatted_date: tx.data.txResponse.timestamp,
+            ...memo,
             ...formattedMessage,
           });
         }
@@ -869,6 +848,7 @@ const transformTransactions = (tx: any, address: string) => {
         tx_hash: tx.id,
         block_number: parseInt(tx.data.txResponse.height),
         formatted_date: tx.data.txResponse.timestamp,
+        ...memo,
         ...formattedMessage,
       });
     }
@@ -972,5 +952,34 @@ export const useMultipleTallyCounts = (proposalIds: bigint[]) => {
     isLoading: tallyQueries.some(query => query.isLoading),
     isError: tallyQueries.some(query => query.isError),
     refetchTallies: () => tallyQueries.forEach(query => query.refetch()),
+  };
+};
+
+export const useGitHubReleases = () => {
+  const octokit = new Octokit({});
+
+  const fetchReleases = async () => {
+    try {
+      const response = await octokit.rest.repos.listReleases({
+        owner: 'liftedinit',
+        repo: 'manifest-ledger',
+      });
+      return response.data as GitHubRelease[];
+    } catch (error) {
+      console.error('Error fetching GitHub releases:', error);
+      throw error;
+    }
+  };
+
+  const releasesQuery = useQuery({
+    queryKey: ['githubReleases'],
+    queryFn: fetchReleases,
+  });
+
+  return {
+    releases: releasesQuery.data || [],
+    isReleasesLoading: releasesQuery.isLoading,
+    isReleasesError: releasesQuery.isError,
+    refetchReleases: releasesQuery.refetch,
   };
 };
