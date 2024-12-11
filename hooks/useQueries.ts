@@ -590,7 +590,7 @@ export const useValidators = () => {
   };
 };
 
-export const useTokenFactoryDenoms = (address: string) => {
+export const useTokenFactoryDenomsFromAdmin = (address: string) => {
   const { lcdQueryClient } = useManifestLcdQueryClient();
 
   const fetchDenoms = async () => {
@@ -600,8 +600,8 @@ export const useTokenFactoryDenoms = (address: string) => {
     if (!address) {
       return { denoms: [] };
     }
-    return await lcdQueryClient.osmosis.tokenfactory.v1beta1.denomsFromCreator({
-      creator: address,
+    return await lcdQueryClient.osmosis.tokenfactory.v1beta1.denomsFromAdmin({
+      admin: address,
     });
   };
 
