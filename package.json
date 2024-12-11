@@ -39,7 +39,7 @@
     "@headlessui/react": "^1.7.18",
     "@heroicons/react": "^2.1.5",
     "@interchain-ui/react": "1.23.31",
-    "@liftedinit/manifestjs": "0.0.1-alpha.19",
+    "@liftedinit/manifestjs": "0.0.1-rc.1",
     "@react-three/drei": "^9.114.0",
     "@react-three/fiber": "^8.17.8",
     "@tanstack/react-query": "^5.55.0",

@@ -16,6 +16,7 @@ import {
 import { TransactionGroup } from '@/components';
 import { Octokit } from 'octokit';
 
+import { useOsmosisRpcQueryClient } from '@/hooks/useOsmosisRpcQueryClient';
 export interface IPFSMetadata {
   title: string;
   authors: string | string[];
@@ -579,7 +580,7 @@ export const useValidators = () => {
   };
 };
 
-export const useTokenFactoryDenoms = (address: string) => {
+export const useTokenFactoryDenomsFromAdmin = (address: string) => {
   const { lcdQueryClient } = useManifestLcdQueryClient();
 
   const fetchDenoms = async () => {
@@ -589,8 +590,8 @@ export const useTokenFactoryDenoms = (address: string) => {
     if (!address) {
       return { denoms: [] };
     }
-    return await lcdQueryClient.osmosis.tokenfactory.v1beta1.denomsFromCreator({
-      creator: address,
+    return await lcdQueryClient.osmosis.tokenfactory.v1beta1.denomsFromAdmin({
+      admin: address,
     });
   };
 
@@ -610,6 +611,39 @@ export const useTokenFactoryDenoms = (address: string) => {
     refetchDenoms: denomsQuery.refetch,
   };
 };
+
+// We can't use the REST client here because the subdenom is not supported by the REST API
+export const useDenomAuthorityMetadata = (denom: string) => {
+  const { rpcQueryClient } = useOsmosisRpcQueryClient();
+
+  const fetchAuthority = async () => {
+    if (!rpcQueryClient) {
+      throw new Error('RPC Client not ready');
+    }
+    if (!denom) {
+      throw new Error('Denom not provided');
+    }
+    return await rpcQueryClient.osmosis.tokenfactory.v1beta1.denomAuthorityMetadata({
+      denom: denom,
+    });
+  };
+
+  const denomsQuery = useQuery({
+    queryKey: ['authority', denom],
+    queryFn: fetchAuthority,
+    enabled: !!rpcQueryClient && !!denom,
+    staleTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+  });
+  return {
+    denomAuthority: denomsQuery.data?.authorityMetadata,
+    isDenomAuthorityLoading: denomsQuery.isLoading,
+    isDenomAuthorityError: denomsQuery.isError,
+    refetchDenomAuthority: denomsQuery.refetch,
+  };
+};
+
 export const useTokenFactoryDenomsMetadata = () => {
   const { lcdQueryClient } = useLcdQueryClient();
 

@@ -377,3 +377,9 @@ export const proposalFormDataReducer = (
       throw new Error('Unknown action type');
   }
 };
+
+export type TransferTokenFormData = {
+  denom: string;
+  currentAdmin: string | undefined;
+  newAdmin: string;
+};
