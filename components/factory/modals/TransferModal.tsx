@@ -80,7 +80,7 @@ export default function TransferModal({
       });
     } catch (error) {
       console.error('Error during transaction setup:', error);
-      let errorMessage = 'An unknown error occurred while adding the endpoint.';
+      let errorMessage = 'An unknown error occurred while transferring ownership.';
 
       if (error instanceof Error) {
         if (error.message.includes('unauthorized account')) {
