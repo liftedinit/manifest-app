@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, ReactNode, useContext, useState, useEffect } from 'react';
 
 export interface ThemeContext {
   theme: 'light' | 'dark';
@@ -10,51 +10,45 @@ export const Theme = createContext<ThemeContext>({
   toggleTheme: () => {},
 });
 
-export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [theme, setTheme] = useState<'dark' | 'light'>('light');
+const getInitialTheme = (): 'light' | 'dark' => {
+  if (typeof window === 'undefined') return 'light';
 
+  // Move localStorage and system preference check to client-side only
+  return 'light'; // Default for initial render
+};
+
+export const ThemeProvider = ({ children }: { children: ReactNode }) => {
+  const [theme, setTheme] = useState<'light' | 'dark'>(getInitialTheme);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // New effect to handle client-side initialization
   useEffect(() => {
-    if (window.matchMedia('(prefers-color-scheme: light)').matches) {
-      document.documentElement.classList.add('light');
-      setTheme('light');
+    const stored = localStorage.getItem('theme');
+    if (stored === 'dark' || stored === 'light') {
+      setTheme(stored);
     } else {
-      document.documentElement.classList.remove('light');
-      setTheme('dark');
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setTheme(isDark ? 'dark' : 'light');
     }
+    setIsInitialized(true);
   }, []);
 
+  // Only apply theme changes after initialization
   useEffect(() => {
-    switch (theme) {
-      case 'light':
-        document.documentElement.classList.remove('dark');
-        break;
-      case 'dark':
-        document.documentElement.classList.add('dark');
-        break;
-    }
-  }, [theme]);
+    if (!isInitialized) return;
 
-  const toggleTheme = useCallback(() => {
-    switch (theme) {
-      case 'light':
-        setTheme('dark');
-        break;
-      case 'dark':
-        setTheme('light');
-        break;
-    }
-  }, [theme]);
+    const root = document.documentElement;
+    root.classList.remove('light', 'dark');
+    root.classList.add(theme);
+    root.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme, isInitialized]);
 
-  return (
-    <Theme.Provider
-      value={{
-        theme,
-        toggleTheme,
-      }}
-    >
-      {children}
-    </Theme.Provider>
-  );
+  const toggleTheme = () => {
+    setTheme(current => (current === 'light' ? 'dark' : 'light'));
+  };
+
+  return <Theme.Provider value={{ theme, toggleTheme }}>{children}</Theme.Provider>;
 };
 
 export const useTheme = (): ThemeContext => useContext(Theme);
