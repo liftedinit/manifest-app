@@ -2,16 +2,16 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { DenomImage } from './DenomImage';
 import Link from 'next/link';
-import { truncateString } from '@/utils';
-import { SearchIcon, MintIcon, BurnIcon } from '@/components/icons';
+import { truncateString, ExtendedMetadataSDKType, shiftDigits, formatTokenDisplay } from '@/utils';
+import { SearchIcon, MintIcon, BurnIcon, TransferIcon } from '@/components/icons';
 import { DenomInfoModal } from '@/components/factory/modals/denomInfo';
 import MintModal from '@/components/factory/modals/MintModal';
 import BurnModal from '@/components/factory/modals/BurnModal';
 import { UpdateDenomMetadataModal } from '@/components/factory/modals/updateDenomMetadata';
 import { PiInfo } from 'react-icons/pi';
-import { ExtendedMetadataSDKType, shiftDigits, formatTokenDisplay } from '@/utils';
 import { usePoaGetAdmin } from '@/hooks';
 import useIsMobile from '@/hooks/useIsMobile';
+import TransferModal from '@/components/factory/modals/TransferModal';
 
 export default function MyDenoms({
   denoms,
@@ -27,6 +27,7 @@ export default function MyDenoms({
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [openUpdateDenomMetadataModal, setOpenUpdateDenomMetadataModal] = useState(false);
+  const [openTransferDenomModal, setOpenTransferDenomModal] = useState(false);
   const isMobile = useIsMobile();
 
   const pageSize = isMobile ? 5 : 8;
@@ -34,7 +35,7 @@ export default function MyDenoms({
   const router = useRouter();
   const [selectedDenom, setSelectedDenom] = useState<ExtendedMetadataSDKType | null>(null);
   const [modalType, setModalType] = useState<
-    'mint' | 'burn' | 'multimint' | 'multiburn' | 'update' | 'info' | null
+    'mint' | 'burn' | 'multimint' | 'multiburn' | 'update' | 'info' | 'transfer' | null
   >(null);
 
   const filteredDenoms = useMemo(() => {
@@ -70,11 +71,17 @@ export default function MyDenoms({
           action === 'multimint' ||
           action === 'multiburn' ||
           action === 'update' ||
+          action === 'transfer' ||
           action === 'info'
         ) {
-          setModalType(action as 'mint' | 'burn' | 'multimint' | 'multiburn' | 'update' | 'info');
+          setModalType(
+            action as 'mint' | 'burn' | 'multimint' | 'multiburn' | 'update' | 'info' | 'transfer'
+          );
           if (action === 'update') {
             setOpenUpdateDenomMetadataModal(true);
+          }
+          if (action === 'transfer') {
+            setOpenTransferDenomModal(true);
           }
         } else {
           setModalType('info');
@@ -90,12 +97,14 @@ export default function MyDenoms({
     setSelectedDenom(null);
     setModalType(null);
     setOpenUpdateDenomMetadataModal(false);
+    setOpenTransferDenomModal(false);
     router.push('/factory', undefined, { shallow: true });
   };
 
   const handleUpdateModalClose = () => {
     setSelectedDenom(null);
     setOpenUpdateDenomMetadataModal(false);
+    setOpenTransferDenomModal(false);
     setModalType(null);
     router.push('/factory', undefined, { shallow: true });
   };
@@ -107,6 +116,15 @@ export default function MyDenoms({
     setModalType('update');
     setOpenUpdateDenomMetadataModal(true);
     router.push(`/factory?denom=${denom.base}&action=update`, undefined, { shallow: true });
+  };
+
+  const handleTransferModal = (denom: ExtendedMetadataSDKType, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedDenom(denom);
+    setModalType('transfer');
+    setOpenTransferDenomModal(true);
+    router.push(`/factory?denom=${denom.base}&action=transfer`, undefined, { shallow: true });
   };
 
   const handleSwitchToMultiMint = () => {
@@ -246,6 +264,7 @@ export default function MyDenoms({
                             shallow: true,
                           });
                         }}
+                        onTransfer={e => handleTransferModal(denom, e)}
                         onUpdate={e => handleUpdateModal(denom, e)}
                       />
                     ))}
@@ -374,6 +393,25 @@ export default function MyDenoms({
           }
         }}
       />
+      <TransferModal
+        modalId="transfer-denom-modal"
+        openTransferDenomModal={openTransferDenomModal}
+        setOpenTransferDenomModal={open => {
+          if (!open) {
+            handleCloseModal();
+          } else {
+            setOpenTransferDenomModal(true);
+          }
+        }}
+        onSuccess={() => {
+          refetchDenoms();
+          handleUpdateModalClose();
+        }}
+        denom={selectedDenom}
+        address={address}
+        isOpen={modalType === 'transfer'}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 }
@@ -383,12 +421,14 @@ function TokenRow({
   onSelectDenom,
   onMint,
   onBurn,
+  onTransfer,
   onUpdate,
 }: {
   denom: ExtendedMetadataSDKType;
   onSelectDenom: () => void;
   onMint: (e: React.MouseEvent) => void;
   onBurn: (e: React.MouseEvent) => void;
+  onTransfer: (e: React.MouseEvent) => void;
   onUpdate: (e: React.MouseEvent) => void;
 }) {
   // Add safety checks for the values
@@ -445,6 +485,14 @@ function TokenRow({
             onClick={onBurn}
           >
             <BurnIcon className="w-7 h-7 text-current" />
+          </button>
+
+          <button
+            disabled={denom.base.includes('umfx')}
+            className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+            onClick={onTransfer}
+          >
+            <TransferIcon className="w-7 h-7 text-current" />
           </button>
 
           <button
