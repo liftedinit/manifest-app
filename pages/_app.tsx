@@ -15,6 +15,7 @@ import {
   manifestTestnetAssets,
 } from '@/config';
 import { SignerOptions, wallets } from 'cosmos-kit';
+import { wallets as cosmosExtensionWallets } from '@cosmos-kit/cosmos-extension-metamask';
 import { ChainProvider } from '@cosmos-kit/react';
 import { Registry } from '@cosmjs/proto-signing';
 import { TailwindModal } from '../components';
@@ -47,6 +48,15 @@ type ManifestAppProps = AppProps & {
 };
 
 function ManifestApp({ Component, pageProps }: ManifestAppProps) {
+  const { theme } = useTheme();
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      console.log({ localStorageTheme: localStorage?.getItem('theme') });
+    }
+    console.log({ theme });
+  }, [theme]);
+
   const [isDrawerVisible, setDrawerVisible] = useState(() => {
     // Initialize from localStorage if available, otherwise default to true
     if (typeof window !== 'undefined') {
@@ -145,6 +155,16 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
             name: 'Reddit',
             logo: '/reddit',
           },
+          {
+            provider: 'email_passwordless',
+            name: 'Email',
+            logo: '/email',
+          },
+          {
+            provider: 'sms_passwordless',
+            name: 'SMS',
+            logo: '/sms',
+          },
         ],
 
         client: {
@@ -167,7 +187,7 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
   );
 
   // combine the web3auth wallets with the other wallets
-  const combinedWallets = [...web3AuthWallets, ...wallets];
+  const combinedWallets = [...web3AuthWallets, ...wallets, ...cosmosExtensionWallets];
 
   // this is stop ssr errors when we render the web3auth signing modal
   const [isBrowser, setIsBrowser] = useState(false);
