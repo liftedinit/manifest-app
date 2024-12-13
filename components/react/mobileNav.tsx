@@ -16,6 +16,7 @@ import { WalletSection } from '../wallet';
 import { RiMenuUnfoldFill } from 'react-icons/ri';
 import { useState } from 'react';
 import { MdOutlineNetworkPing, MdContacts } from 'react-icons/md';
+import env from '@/config/env';
 
 export default function MobileNav() {
   const closeDrawer = () => {
@@ -60,7 +61,12 @@ export default function MobileNav() {
             <div className="flex flex-row justify-between items-center">
               <div className="flex flex-row gap-4 justify-between items-center">
                 <Image src={'/logo.svg'} alt="logo" width={42} height={42} />
-                <span className="text-2xl leading-tight text-balance">Alberto</span>
+                <div className="flex flex-col">
+                  <p className="text-2xl leading-tight text-balance">Alberto</p>
+                  {env.chainTier === 'mainnet' ? null : (
+                    <p className="text-md uppercase">{env.chainTier}</p>
+                  )}
+                </div>
               </div>
 
               {/* Updated Theme Toggle */}
