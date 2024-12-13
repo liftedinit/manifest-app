@@ -63,7 +63,6 @@ module.exports = {
           '100%': { opacity: 1, transform: 'translateX(0%)' },
         },
       },
-
       fontFamily: {
         sans: ['Manrope', 'sans-serif'],
         body: ['Manrope', 'sans-serif'],
@@ -76,14 +75,6 @@ module.exports = {
     },
   },
   daisyui: {
-    themes: false,
-    darkTheme: 'dark',
-    base: true,
-    styled: true,
-    utils: true,
-    prefix: '',
-    logs: true,
-    themeRoot: ':root',
     themes: [
       {
         light: {
@@ -108,8 +99,6 @@ module.exports = {
           error: '#E53935',
           '--shadow-color-light': 'rgba(0, 0, 0, 0.1)',
         },
-      },
-      {
         dark: {
           primary: '#A087FF',
           'primary-content': '#FFFFFF',
@@ -134,6 +123,13 @@ module.exports = {
         },
       },
     ],
+    darkTheme: 'dark',
+    base: true,
+    styled: true,
+    utils: true,
+    prefix: '',
+    logs: false,
+    themeRoot: ':root',
   },
   plugins: [
     require('@tailwindcss/typography'),
