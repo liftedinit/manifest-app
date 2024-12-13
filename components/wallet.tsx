@@ -35,6 +35,7 @@ interface WalletSectionProps {
 
 export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
   const { connect, openView, status, username, address } = useChain(chainName);
+
   const [localStatus, setLocalStatus] = useState(status);
 
   useEffect(() => {
