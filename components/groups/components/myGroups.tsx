@@ -1,14 +1,21 @@
-import { ExtendedGroupType, ExtendedQueryGroupsByMemberResponseSDKType } from '@/hooks/useQueries';
+import {
+  ExtendedGroupType,
+  ExtendedQueryGroupsByMemberResponseSDKType,
+  useGetFilteredTxAndSuccessfulProposals,
+  useTokenBalances,
+  useTokenBalancesResolved,
+  useTokenFactoryDenomsMetadata,
+} from '@/hooks/useQueries';
 import ProfileAvatar from '@/utils/identicon';
-import { truncateString } from '@/utils';
-import React, { useState, useEffect } from 'react';
+import { CombinedBalanceInfo, MFX_TOKEN_DATA, truncateString } from '@/utils';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import {
   ProposalSDKType,
   ThresholdDecisionPolicySDKType,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
-import GroupProposals from './groupProposals';
+import GroupProposals from './groupControls';
 import { useBalance } from '@/hooks/useQueries';
 import { shiftDigits } from '@/utils';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
@@ -19,6 +26,8 @@ import { GroupInfo } from '../modals/groupInfo';
 import { MemberManagementModal } from '../modals/memberManagementModal';
 import { useChain } from '@cosmos-kit/react';
 import useIsMobile from '@/hooks/useIsMobile';
+import { chainName } from '@/config';
+import { useEndpointStore } from '@/store/endpointStore';
 
 export function YourGroups({
   groups,
@@ -35,7 +44,7 @@ export function YourGroups({
   const [currentPage, setCurrentPage] = useState(1);
   const isMobile = useIsMobile();
 
-  const pageSize = isMobile ? 6 : 8;
+  const pageSize = isMobile ? 4 : 8;
 
   const [selectedGroup, setSelectedGroup] = useState<{
     policyAddress: string;
@@ -92,8 +101,84 @@ export function YourGroups({
     router.push('/groups', undefined, { shallow: true });
   };
 
+  const { balances, isBalancesLoading, refetchBalances } = useTokenBalances(
+    selectedGroup?.policyAddress ?? ''
+  );
+  const {
+    balances: resolvedBalances,
+    isBalancesLoading: resolvedLoading,
+    refetchBalances: resolveRefetch,
+  } = useTokenBalancesResolved(address ?? '');
+
+  const { selectedEndpoint } = useEndpointStore();
+  const indexerUrl = selectedEndpoint?.indexer || '';
+
+  const { metadatas, isMetadatasLoading } = useTokenFactoryDenomsMetadata();
+  const [currentPageGroupInfo, setCurrentPageGroupInfo] = useState(1);
+
+  const pageSizeGroupInfo = isMobile ? 4 : 4;
+  const pageSizeHistory = isMobile ? 4 : 3;
+  const skeletonGroupCount = 1;
+  const skeletonTxCount = isMobile ? 5 : 3;
+
+  const {
+    sendTxs,
+    totalPages: totalPagesGroupInfo,
+    isLoading: txLoading,
+    isError,
+    refetch: refetchHistory,
+  } = useGetFilteredTxAndSuccessfulProposals(
+    indexerUrl,
+    selectedGroup?.policyAddress ?? '',
+    currentPageGroupInfo,
+    pageSizeHistory
+  );
+
+  const combinedBalances = useMemo(() => {
+    if (!balances || !resolvedBalances || !metadatas) return [];
+
+    // Find 'umfx' balance (mfx token)
+    const mfxCoreBalance = balances.find(b => b.denom === 'umfx');
+    const mfxResolvedBalance = resolvedBalances.find(rb => rb.denom === 'mfx');
+
+    // Create combined balance for 'mfx'
+    const mfxCombinedBalance: CombinedBalanceInfo | null = mfxCoreBalance
+      ? {
+          denom: mfxResolvedBalance?.denom || 'mfx',
+          coreDenom: 'umfx',
+          amount: mfxCoreBalance.amount,
+          metadata: MFX_TOKEN_DATA,
+        }
+      : null;
+
+    // Process other balances
+    const otherBalances = balances
+      .filter(coreBalance => coreBalance.denom !== 'umfx')
+      .map((coreBalance): CombinedBalanceInfo => {
+        const resolvedBalance = resolvedBalances.find(
+          rb => rb.denom === coreBalance.denom || rb.denom === coreBalance.denom.split('/').pop()
+        );
+        const metadata = metadatas.metadatas.find(m => m.base === coreBalance.denom);
+
+        return {
+          denom: resolvedBalance?.denom || coreBalance.denom,
+          coreDenom: coreBalance.denom,
+          amount: coreBalance.amount,
+          metadata: metadata || null,
+        };
+      });
+
+    // Combine 'mfx' with other balances
+    return mfxCombinedBalance ? [mfxCombinedBalance, ...otherBalances] : otherBalances;
+  }, [balances, resolvedBalances, metadatas]);
+
+  const isLoadingGroupInfo = isBalancesLoading || resolvedLoading || isMetadatasLoading;
+
+  const [activeInfoModalId, setActiveInfoModalId] = useState<string | null>(null);
+  const [activeMemberModalId, setActiveMemberModalId] = useState<string | null>(null);
+
   return (
-    <div className="relative w-full h-screen overflow-hidden">
+    <div className="relative w-full h-screen overflow-x-hidden scrollbar-hide">
       <div
         className={`absolute inset-0 transition-transform duration-300 ${
           selectedGroup ? '-translate-x-full' : 'translate-x-0'
@@ -159,7 +244,7 @@ export function YourGroups({
                             <td className="bg-secondary hidden xl:table-cell">
                               <div className="skeleton h-2 w-8"></div>
                             </td>
-                            <td className="bg-secondary hidden sm:table-cell">
+                            <td className="bg-secondary hidden sm:table-cell ">
                               <div className="skeleton h-2 w-16"></div>
                             </td>
                             <td className="bg-secondary hidden xl:table-cell">
@@ -168,7 +253,7 @@ export function YourGroups({
                             <td className="bg-secondary hidden lg:table-cell">
                               <div className="skeleton h-2 w-32"></div>
                             </td>
-                            <td className="bg-secondary rounded-r-[12px] w-1/6">
+                            <td className="bg-secondary rounded-r-[12px] w-1/6 hidden xs:table-cell">
                               <div className="flex space-x-2 justify-end">
                                 <button
                                   className="btn btn-md btn-outline btn-square btn-info"
@@ -198,6 +283,10 @@ export function YourGroups({
                               : []
                           }
                           onSelectGroup={handleSelectGroup}
+                          activeMemberModalId={activeMemberModalId}
+                          setActiveMemberModalId={setActiveMemberModalId}
+                          activeInfoModalId={activeInfoModalId}
+                          setActiveInfoModalId={setActiveInfoModalId}
                         />
                       ))}
                 </tbody>
@@ -290,6 +379,19 @@ export function YourGroups({
             groupName={selectedGroup.name}
             onBack={handleBack}
             policyThreshold={selectedGroup.threshold}
+            isLoading={isLoadingGroupInfo}
+            currentPage={currentPageGroupInfo}
+            setCurrentPage={setCurrentPageGroupInfo}
+            sendTxs={sendTxs}
+            totalPages={totalPagesGroupInfo}
+            txLoading={txLoading}
+            isError={isError}
+            balances={combinedBalances}
+            refetchBalances={resolveRefetch}
+            refetchHistory={refetchHistory}
+            pageSize={pageSizeGroupInfo}
+            skeletonGroupCount={skeletonGroupCount}
+            skeletonTxCount={skeletonTxCount}
           />
         )}
       </div>
@@ -303,6 +405,8 @@ export function YourGroups({
             address={address ?? ''}
             policyAddress={group.policies[0]?.address ?? ''}
             onUpdate={refetch}
+            showInfoModal={activeInfoModalId === group.id.toString()}
+            setShowInfoModal={show => setActiveInfoModalId(show ? group.id.toString() : null)}
           />
           <MemberManagementModal
             modalId={`member-management-modal-${group.id}`}
@@ -321,7 +425,11 @@ export function YourGroups({
             groupAdmin={group.admin}
             policyAddress={group.policies[0]?.address ?? ''}
             address={address ?? ''}
-            onUpdate={() => {}}
+            onUpdate={refetch}
+            setShowMemberManagementModal={show =>
+              setActiveMemberModalId(show ? group.id.toString() : null)
+            }
+            showMemberManagementModal={activeMemberModalId === group.id.toString()}
           />
         </React.Fragment>
       ))}
@@ -333,10 +441,18 @@ function GroupRow({
   group,
   proposals,
   onSelectGroup,
+  activeMemberModalId,
+  setActiveMemberModalId,
+  activeInfoModalId,
+  setActiveInfoModalId,
 }: {
   group: ExtendedQueryGroupsByMemberResponseSDKType['groups'][0];
   proposals: ProposalSDKType[];
   onSelectGroup: (policyAddress: string, groupName: string, threshold: string) => void;
+  activeMemberModalId: string | null;
+  setActiveMemberModalId: (id: string | null) => void;
+  activeInfoModalId: string | null;
+  setActiveInfoModalId: (id: string | null) => void;
 }) {
   const policyAddress = (group.policies && group.policies[0]?.address) || '';
   const groupName = group.ipfsMetadata?.title || 'Untitled Group';
@@ -354,22 +470,12 @@ function GroupRow({
 
   const openInfoModal = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const modal = document.getElementById(
-      `group-info-modal-${group.id}`
-    ) as HTMLDialogElement | null;
-    if (modal) {
-      modal.showModal();
-    }
+    setActiveInfoModalId(group.id ? group.id.toString() : null);
   };
 
   const openMemberModal = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const modal = document.getElementById(
-      `member-management-modal-${group.id}`
-    ) as HTMLDialogElement | null;
-    if (modal) {
-      modal.showModal();
-    }
+    setActiveMemberModalId(group.id ? group.id.toString() : null);
   };
 
   return (
@@ -390,9 +496,12 @@ function GroupRow({
       aria-label={`Select ${groupName} group`}
     >
       <td className="bg-secondary group-hover:bg-base-300 rounded-l-[12px] w-1/6">
-        <div className="flex items-center space-x-3">
+        <div className="items-center space-x-3 hidden xs:flex">
           <ProfileAvatar walletAddress={policyAddress} />
           <span className="font-medium">{truncateString(groupName, 24)}</span>
+        </div>
+        <div className="items-center flex xs:hidden">
+          <ProfileAvatar walletAddress={policyAddress} />
         </div>
       </td>
       <td className="bg-secondary group-hover:bg-base-300 hidden xl:table-cell w-1/6">

@@ -6,15 +6,39 @@ import { ThresholdDecisionPolicySDKType } from '@liftedinit/manifestjs/dist/code
 import { useFeeEstimation, useTx } from '@/hooks';
 import { chainName } from '@/config';
 import { cosmos } from '@liftedinit/manifestjs';
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
+
 interface GroupInfoProps {
   modalId: string;
   group: ExtendedGroupType | null;
   policyAddress: string;
   address: string;
   onUpdate: () => void;
+  showInfoModal: boolean;
+  setShowInfoModal: (show: boolean) => void;
 }
 
-export function GroupInfo({ modalId, group, policyAddress, address, onUpdate }: GroupInfoProps) {
+export function GroupInfo({
+  modalId,
+  group,
+  policyAddress,
+  address,
+  onUpdate,
+  showInfoModal,
+  setShowInfoModal,
+}: GroupInfoProps) {
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && showInfoModal) {
+        setShowInfoModal(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [showInfoModal, setShowInfoModal]);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
   const { tx, isSigning, setIsSigning } = useTx(chainName);
   const { leaveGroup } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const { estimateFee } = useFeeEstimation(chainName);
@@ -113,8 +137,7 @@ export function GroupInfo({ modalId, group, policyAddress, address, onUpdate }: 
         onSuccess: () => {
           setIsSigning(false);
           onUpdate();
-          const modal = document.getElementById(modalId) as HTMLDialogElement;
-          if (modal) modal.close();
+          setShowInfoModal(false);
         },
       });
     } catch (error) {
@@ -124,8 +147,30 @@ export function GroupInfo({ modalId, group, policyAddress, address, onUpdate }: 
     }
   };
 
-  return (
-    <dialog id={modalId} className="modal">
+  const modalContent = (
+    <dialog
+      id={modalId}
+      className={`modal ${showInfoModal ? 'modal-open' : ''}`}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 9999,
+        backgroundColor: 'transparent',
+        padding: 0,
+        margin: 0,
+        height: '100vh',
+        width: '100vw',
+        display: showInfoModal ? 'flex' : 'none',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
       <div className="modal-box bg-secondary rounded-[24px] max-h-['574px'] max-w-[542px] p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
@@ -133,7 +178,10 @@ export function GroupInfo({ modalId, group, policyAddress, address, onUpdate }: 
             <h3 className="font-bold text-lg">{group.ipfsMetadata?.title ?? 'No title'}</h3>
           </div>
           <form method="dialog">
-            <button className=" absolute top-3 right-3 btn btn-sm btn-circle btn-ghost text-black dark:text-white outline-none">
+            <button
+              onClick={() => setShowInfoModal(false)}
+              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+            >
               ✕
             </button>
           </form>
@@ -154,10 +202,7 @@ export function GroupInfo({ modalId, group, policyAddress, address, onUpdate }: 
             <button
               aria-label={'update-btn'}
               className="btn btn-gradient text-white rounded-[12px] h-[52px] w-[140px]"
-              onClick={() => {
-                const modal = document.getElementById('update-group-modal') as HTMLDialogElement;
-                if (modal) modal.showModal();
-              }}
+              onClick={() => setShowUpdateModal(true)}
             >
               Update
             </button>
@@ -181,7 +226,20 @@ export function GroupInfo({ modalId, group, policyAddress, address, onUpdate }: 
           {renderAuthors()}
         </div>
       </div>
-      <form method="dialog" className="modal-backdrop">
+      <form
+        method="dialog"
+        className="modal-backdrop"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: -1,
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        }}
+        onClick={() => setShowInfoModal(false)}
+      >
         <button>close</button>
       </form>
       <UpdateGroupModal
@@ -189,9 +247,17 @@ export function GroupInfo({ modalId, group, policyAddress, address, onUpdate }: 
         policyAddress={policyAddress}
         address={address}
         onUpdate={onUpdate}
+        showUpdateModal={showUpdateModal}
+        setShowUpdateModal={setShowUpdateModal}
       />
     </dialog>
   );
+
+  if (typeof document !== 'undefined') {
+    return createPortal(modalContent, document.body);
+  }
+
+  return null;
 }
 
 function InfoItem({

@@ -4,8 +4,9 @@ import { cosmos, strangelove_ventures } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgRemoveValidator } from '@liftedinit/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
 import { useChain } from '@cosmos-kit/react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { PiWarning } from 'react-icons/pi';
+import { createPortal } from 'react-dom';
 
 interface WarningModalProps {
   admin: string;
@@ -90,11 +91,31 @@ export function WarningModal({
     (document.getElementById(modalId) as HTMLDialogElement)?.close();
   };
 
-  return (
+  const modalContent = (
     <dialog
       id={modalId}
       className={`modal ${openWarningModal ? 'modal-open' : ''}`}
       onClose={handleClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+      aria-describedby="modal-description"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 9999,
+        backgroundColor: 'transparent',
+        padding: 0,
+        margin: 0,
+        height: '100vh',
+        width: '100vw',
+        display: openWarningModal ? 'flex' : 'none',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
     >
       <form
         method="dialog"
@@ -106,7 +127,7 @@ export function WarningModal({
         >
           ✕
         </button>
-        <div className="p-4 ">
+        <div className="p-4">
           <div className="flex flex-col gap-2 items-center mb-6">
             <PiWarning className="text-yellow-200 text-6xl" />
           </div>
@@ -136,9 +157,29 @@ export function WarningModal({
           </button>
         </div>
       </form>
-      <form method="dialog" className="modal-backdrop">
-        <button onClick={handleClose}>close</button>
+      <form
+        method="dialog"
+        className="modal-backdrop"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: -1,
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        }}
+        onSubmit={handleClose}
+      >
+        <button>close</button>
       </form>
     </dialog>
   );
+
+  // Only render if we're in the browser
+  if (typeof document !== 'undefined') {
+    return createPortal(modalContent, document.body);
+  }
+
+  return null;
 }

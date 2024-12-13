@@ -12,17 +12,22 @@ import {
 import { cosmos } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { ExtendedGroupType } from '@/hooks';
+import { createPortal } from 'react-dom';
 
 export function UpdateGroupModal({
   group,
   policyAddress,
   address,
   onUpdate,
+  showUpdateModal,
+  setShowUpdateModal,
 }: {
   group: ExtendedGroupType;
   policyAddress: string;
   address: string;
   onUpdate: () => void;
+  showUpdateModal: boolean;
+  setShowUpdateModal: (show: boolean) => void;
 }) {
   const { tx, isSigning, setIsSigning } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
@@ -296,8 +301,40 @@ export function UpdateGroupModal({
     return hasMetadataChanges || hasThresholdChange || hasVotingPeriodChange;
   };
 
-  return (
-    <dialog id="update-group-modal" className="modal">
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && showUpdateModal) {
+        e.stopPropagation();
+        setShowUpdateModal(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [showUpdateModal, setShowUpdateModal]);
+
+  const modalContent = (
+    <dialog
+      id="update-group-modal"
+      className={`modal ${showUpdateModal ? 'modal-open' : ''}`}
+      aria-modal="true"
+      role="dialog"
+      style={{
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        zIndex: 10000,
+        backgroundColor: 'transparent',
+        padding: 0,
+        margin: 0,
+        width: '100vw',
+        height: '100vh',
+        display: showUpdateModal ? 'flex' : 'none',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
       <Formik
         initialValues={{
           name: name,
@@ -314,13 +351,17 @@ export function UpdateGroupModal({
       >
         {({ setFieldValue, values, isValid, dirty, errors, touched }) => (
           <>
-            <div className="flex flex-col items-center w-full h-full">
-              <div className="modal-box dark:bg-[#1D192D] bg-[#FFFFFF] rounded-[24px] max-w-4xl  p-6 dark:text-white text-black">
-                <form method="dialog">
-                  <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-                    ✕
-                  </button>
-                </form>
+            <div
+              className="flex flex-col items-center justify-center w-full h-full"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="modal-box dark:bg-[#1D192D] bg-[#FFFFFF] rounded-[24px] max-w-4xl p-6 dark:text-white text-black relative">
+                <button
+                  onClick={() => setShowUpdateModal(false)}
+                  className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                >
+                  ✕
+                </button>
                 <h3 className="text-2xl font-semibold mb-4">Update Group</h3>
 
                 <Form className="flex flex-col gap-4">
@@ -472,12 +513,22 @@ export function UpdateGroupModal({
               </div>
               {/* Action buttons */}
             </div>
-            <form method="dialog" className="modal-backdrop">
-              <button>close</button>
-            </form>
+            <div
+              className="fixed inset-0 bg-black bg-opacity-50"
+              style={{ zIndex: -1 }}
+              onClick={() => setShowUpdateModal(false)}
+              aria-hidden="true"
+            />
           </>
         )}
       </Formik>
     </dialog>
   );
+
+  // Only render if we're in the browser and modal is shown
+  if (typeof document !== 'undefined' && showUpdateModal) {
+    return createPortal(modalContent, document.body);
+  }
+
+  return null;
 }

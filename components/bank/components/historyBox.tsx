@@ -19,6 +19,7 @@ export interface TransactionGroup {
   tx_hash: string;
   block_number: number;
   formatted_date: string;
+  memo?: string;
   data: Transaction;
 }
 
@@ -53,6 +54,9 @@ export function HistoryBox({
   txLoading,
   isError,
   refetch,
+  skeletonGroupCount,
+  skeletonTxCount,
+  isGroup,
 }: {
   isLoading: boolean;
   address: string;
@@ -63,16 +67,15 @@ export function HistoryBox({
   txLoading: boolean;
   isError: boolean;
   refetch: () => void;
+  skeletonGroupCount: number;
+  skeletonTxCount: number;
+  isGroup?: boolean;
 }) {
   const [selectedTx, setSelectedTx] = useState<TransactionGroup | null>(null);
 
   const isLoading = initialLoading || txLoading;
 
   const { metadatas } = useTokenFactoryDenomsMetadata();
-
-  const isMobile = useIsMobile();
-  const skeletonGroupCount = 1;
-  const skeletonTxCount = isMobile ? 5 : 9;
 
   function formatDateShort(dateString: string): string {
     const date = new Date(dateString);
@@ -166,8 +169,11 @@ export function HistoryBox({
   return (
     <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
       <div className="flex items-center justify-between ">
-        <h3 className="text-lg md:text-xl font-semibold text-[#161616] dark:text-white">
-          Transaction History
+        <h3 className="text-lg md:text-xl font-semibold text-[#161616] dark:text-white hidden xl:block">
+          {isGroup ? 'Group Transactions' : 'Transaction History'}
+        </h3>
+        <h3 className="text-lg md:text-xl font-semibold text-[#161616] dark:text-white block xl:hidden">
+          {isGroup ? 'Transactions' : 'History'}
         </h3>
 
         {totalPages > 1 && (
@@ -225,7 +231,7 @@ export function HistoryBox({
 
       {isLoading ? (
         <div className="flex-1 overflow-hidden h-full">
-          <div aria-label="skeleton" className="space-y-4">
+          <div aria-label="skeleton" className="space-y-2">
             {[...Array(skeletonGroupCount)].map((_, groupIndex) => (
               <div key={groupIndex}>
                 <div className="skeleton h-4 w-24 mb-2"></div>
@@ -233,17 +239,20 @@ export function HistoryBox({
                   {[...Array(skeletonTxCount)].map((_, txIndex) => (
                     <div
                       key={txIndex}
-                      className="flex items-center justify-between p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px] min-h-[80px]"
+                      className="flex items-center justify-between p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px]"
                     >
                       <div className="flex items-center space-x-3">
                         <div className="skeleton w-8 h-8 rounded-full"></div>
                         <div className="skeleton w-10 h-10 rounded-full"></div>
                         <div>
-                          <div className="skeleton h-4 w-24 mb-2"></div>
-                          <div className="skeleton h-3 w-32"></div>
+                          <div className="flex flex-row items-center gap-2">
+                            <div className="skeleton h-4 w-16"></div>
+                            <div className="skeleton h-4 w-12"></div>
+                          </div>
+                          <div className="skeleton h-3 w-32 mt-1"></div>
                         </div>
                       </div>
-                      <div className="skeleton h-4 w-32"></div>
+                      <div className="skeleton h-4 w-24 sm:block hidden"></div>
                     </div>
                   ))}
                 </div>
@@ -306,16 +315,19 @@ export function HistoryBox({
                                   const metadata = metadatas?.metadatas.find(
                                     m => m.base === amt.denom
                                   );
+                                  const display = metadata?.display ?? metadata?.symbol ?? '';
                                   return metadata?.display.startsWith('factory')
                                     ? metadata?.display?.split('/').pop()?.toUpperCase()
-                                    : truncateString(
-                                        metadata?.display ?? metadata?.symbol ?? '',
-                                        10
-                                      ).toUpperCase();
+                                    : display.length > 4
+                                      ? display.slice(0, 4).toUpperCase() + '...'
+                                      : display.toUpperCase();
                                 })}
                               </p>
                             </div>
-                            <div className="address-copy" onClick={e => e.stopPropagation()}>
+                            <div
+                              className="address-copy xs:block hidden"
+                              onClick={e => e.stopPropagation()}
+                            >
                               {tx.data.from_address.startsWith('manifest1') ? (
                                 <TruncatedAddressWithCopy
                                   address={
@@ -334,8 +346,11 @@ export function HistoryBox({
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className={`font-semibold ${getTransactionColor(tx, address)}`}>
+                          <p
+                            className={`font-semibold ${getTransactionColor(tx, address)} sm:block hidden`}
+                          >
                             {getTransactionPlusMinus(tx, address)}
+
                             {tx.data.amount
                               .map(amt => {
                                 const metadata = metadatas?.metadatas.find(

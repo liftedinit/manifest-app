@@ -4,6 +4,7 @@ import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { useToast } from '@/contexts/toastContext';
 import { useState } from 'react';
 import { SigningStargateClient } from '@cosmjs/stargate';
+import { useEndpointStore } from '@/store/endpointStore';
 
 interface Msg {
   typeUrl: string;
@@ -32,6 +33,8 @@ export const useTx = (chainName: string) => {
   const { address, getSigningStargateClient, estimateFee } = useChain(chainName);
   const { setToastMessage } = useToast();
   const [isSigning, setIsSigning] = useState(false);
+  const { selectedEndpoint } = useEndpointStore();
+  const explorerUrl = selectedEndpoint?.explorer || '';
 
   const tx = async (msgs: Msg[], options: TxOptions) => {
     if (!address) {
@@ -95,7 +98,7 @@ export const useTx = (chainName: string) => {
           type: 'alert-success',
           title: 'Transaction Successful',
           description: `Transaction completed successfully`,
-          link: `https://testnet.manifest.explorers.guru/transaction/${res?.transactionHash}`,
+          link: `${explorerUrl}/transaction/${res?.transactionHash}`,
           bgColor: '#2ecc71',
         });
         return options.returnError ? { error: null } : undefined;

@@ -12,6 +12,8 @@ import { TextInput } from '@/components/react/inputs';
 import { SearchIcon } from '@/components/icons';
 import { TailwindModal } from '@/components/react/modal';
 import { MdContacts } from 'react-icons/md';
+import { Any } from 'cosmjs-types/google/protobuf/any';
+import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
 
 export default function SendForm({
   address,
@@ -20,6 +22,9 @@ export default function SendForm({
   refetchBalances,
   refetchHistory,
   selectedDenom,
+  isGroup,
+  admin,
+  refetchProposals,
 }: Readonly<{
   address: string;
   balances: CombinedBalanceInfo[];
@@ -27,6 +32,9 @@ export default function SendForm({
   refetchBalances: () => void;
   refetchHistory: () => void;
   selectedDenom?: string;
+  isGroup?: boolean;
+  admin?: string;
+  refetchProposals?: () => void;
 }>) {
   const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -34,6 +42,7 @@ export default function SendForm({
   const { tx } = useTx(chainName);
   const { estimateFee } = useFeeEstimation(chainName);
   const { send } = cosmos.bank.v1beta1.MessageComposer.withTypeUrl;
+  const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const [isContactsOpen, setIsContactsOpen] = useState(false);
 
   const filteredBalances = balances?.filter(token => {
@@ -99,23 +108,49 @@ export default function SendForm({
     try {
       const exponent = values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
       const amountInBaseUnits = parseNumberToBigInt(values.amount, exponent).toString();
-      const msg = send({
-        fromAddress: address,
-        toAddress: values.recipient,
-        amount: [{ denom: values.selectedToken.coreDenom, amount: amountInBaseUnits }],
-      });
 
+      const msg = isGroup
+        ? submitProposal({
+            groupPolicyAddress: admin!,
+            messages: [
+              Any.fromPartial({
+                typeUrl: MsgSend.typeUrl,
+                value: MsgSend.encode(
+                  send({
+                    fromAddress: admin!,
+                    toAddress: values.recipient,
+                    amount: [{ denom: values.selectedToken.coreDenom, amount: amountInBaseUnits }],
+                  }).value
+                ).finish(),
+              }),
+            ],
+            metadata: '',
+            proposers: [address],
+            title: `Send Tokens`,
+            summary: `This proposal will send ${values.amount} ${values.selectedToken.metadata?.display} to ${values.recipient}`,
+            exec: 0,
+          })
+        : send({
+            fromAddress: address,
+            toAddress: values.recipient,
+            amount: [{ denom: values.selectedToken.coreDenom, amount: amountInBaseUnits }],
+          });
+
+      console.log('Estimating fee for address:', address);
       const fee = await estimateFee(address, [msg]);
+
       await tx([msg], {
         memo: values.memo,
         fee,
         onSuccess: () => {
           refetchBalances();
           refetchHistory();
+          refetchProposals?.();
         },
       });
     } catch (error) {
       console.error('Error during sending:', error);
+      // You might want to show this error to the user through a toast or alert
     } finally {
       setIsSending(false);
     }

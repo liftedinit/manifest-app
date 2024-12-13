@@ -48,3 +48,11 @@ export const formatTokenDisplayName = (token: {
     ? tokenDisplayName.split('/').pop()?.toUpperCase()
     : truncateString(tokenDisplayName, 10).toUpperCase();
 };
+
+export const formatTokenDisplay = (display: string) => {
+  if (display.startsWith('factory')) {
+    const token = display.split('/').pop() || '';
+    return token.length > 9 ? `${token.slice(0, 5)}...`.toUpperCase() : token.toUpperCase();
+  }
+  return display.length > 9 ? `${display.slice(0, 5)}...` : truncateString(display, 12);
+};

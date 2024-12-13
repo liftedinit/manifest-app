@@ -15,24 +15,28 @@ interface TokenListProps {
   refetchBalances: () => void;
   refetchHistory: () => void;
   address: string;
+  pageSize: number;
+  isGroup?: boolean;
+  admin?: string;
+  refetchProposals?: () => void;
 }
 
-export default function TokenList({
+export function TokenList({
   balances,
   isLoading,
   refetchBalances,
   refetchHistory,
   address,
+  pageSize,
+  isGroup,
+  admin,
+  refetchProposals,
 }: TokenListProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDenom, setSelectedDenom] = useState<any>(null);
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [openDenomInfoModal, setOpenDenomInfoModal] = useState(false);
-
-  const isMobile = useIsMobile();
-
-  const pageSize = isMobile ? 4 : 9;
 
   const filteredBalances = useMemo(() => {
     if (!Array.isArray(balances)) return [];
@@ -57,7 +61,7 @@ export default function TokenList({
       <div className="flex flex-col gap-4 mb-4">
         <div className="flex flex-row items-center justify-between">
           <h3 className="text-lg md:text-xl font-semibold text-[#161616] dark:text-white">
-            Your Assets
+            {isGroup ? 'Group Assets' : 'Your Assets'}
           </h3>
 
           {totalPages > 1 && (
@@ -130,16 +134,18 @@ export default function TokenList({
             {[...Array(pageSize)].map((_, i) => (
               <div
                 key={i}
-                className="flex flex-row justify-between gap-4 items-center p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px] min-h-[80px]"
+                className="flex flex-row justify-between gap-4 items-center p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px]"
               >
                 <div className="flex flex-row gap-4 items-center justify-start">
                   <div className="skeleton w-10 h-10 rounded-full" />
-                  <div className="space-y-2">
-                    <div className="skeleton h-4 w-24" />
-                    <div className="skeleton h-3 w-16" />
+                  <div className="space-y-1">
+                    <div className="skeleton h-4 w-20" />
+                    <div className="skeleton h-3 w-14" />
                   </div>
                 </div>
-                <div className="skeleton h-4 w-32" />
+                <div className="text-center hidden sm:block md:block lg:hidden xl:block">
+                  <div className="skeleton h-4 w-28" />
+                </div>
                 <div className="flex flex-row gap-2">
                   <div className="skeleton w-8 h-8 rounded-md" />
                   <div className="skeleton w-8 h-8 rounded-md" />
@@ -237,6 +243,9 @@ export default function TokenList({
         refetchHistory={refetchHistory}
         selectedDenom={selectedDenom}
         setOpen={setIsSendModalOpen}
+        isGroup={isGroup}
+        admin={admin}
+        refetchProposals={refetchProposals}
       />
     </div>
   );

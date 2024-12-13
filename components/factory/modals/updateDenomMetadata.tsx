@@ -8,19 +8,28 @@ import Yup from '@/utils/yupExtensions';
 import { TextInput, TextArea } from '@/components/react/inputs';
 import { truncateString, ExtendedMetadataSDKType } from '@/utils';
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
-const TokenDetailsSchema = Yup.object().shape({
-  display: Yup.string().noProfanity(),
-  name: Yup.string().noProfanity(),
-  description: Yup.string()
-    .min(10, 'Description must be at least 10 characters long')
-    .noProfanity(),
-  uri: Yup.string()
-    .url('Must be a valid URL')
-    .matches(/^https:\/\//i, 'URL must use HTTPS protocol')
-    .matches(/\.(jpg|jpeg|png|gif)$/i, 'URL must point to an image file')
-    .supportedImageUrl(),
-});
+const TokenDetailsSchema = (context: { subdenom: string }) =>
+  Yup.object().shape({
+    display: Yup.string()
+      .required('Display is required')
+      .noProfanity()
+      .test('display-contains-subdenom', 'Display must contain subdenom', function (value) {
+        const subdenom = context.subdenom;
+        return !subdenom || value.toLowerCase().includes(subdenom.slice(1).toLowerCase());
+      }),
+    name: Yup.string().required('Name is required').noProfanity(),
+    description: Yup.string()
+      .required('Description is required')
+      .min(10, 'Description must be at least 10 characters long')
+      .noProfanity(),
+    uri: Yup.string()
+      .url('Must be a valid URL')
+      .matches(/^https:\/\//i, 'URL must use HTTPS protocol')
+      .matches(/\.(jpg|jpeg|png|gif)$/i, 'URL must point to an image file')
+      .supportedImageUrl(),
+  });
 
 export function UpdateDenomMetadataModal({
   openUpdateDenomMetadataModal,
@@ -112,17 +121,36 @@ export function UpdateDenomMetadataModal({
     }
   };
 
-  return (
-    <dialog id={modalId} className={`modal ${openUpdateDenomMetadataModal ? 'modal-open' : ''}`}>
+  const modalContent = (
+    <dialog
+      id={modalId}
+      className={`modal ${openUpdateDenomMetadataModal ? 'modal-open' : ''}`}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 9999,
+        backgroundColor: 'transparent',
+        padding: 0,
+        margin: 0,
+        height: '100vh',
+        width: '100vw',
+        display: openUpdateDenomMetadataModal ? 'flex' : 'none',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
       <Formik
         initialValues={formData}
-        validationSchema={TokenDetailsSchema}
+        validationSchema={() => TokenDetailsSchema({ subdenom: baseDenom })}
         onSubmit={(values, { resetForm }) => handleUpdate(values, resetForm)}
         validateOnChange={true}
         validateOnBlur={true}
       >
         {({ isValid, dirty, values, handleChange, handleSubmit, resetForm }) => (
-          <div className="modal-box max-w-4xl mx-auto p-6 bg-[#F4F4FF] dark:bg-[#1D192D] rounded-[24px] shadow-lg">
+          <div className="modal-box max-w-4xl mx-auto p-6 bg-[#F4F4FF] dark:bg-[#1D192D] rounded-[24px] shadow-lg relative">
             <form method="dialog">
               <button
                 type="button"
@@ -144,7 +172,14 @@ export function UpdateDenomMetadataModal({
 
             <Form className="py-4 space-y-6">
               <div className="grid gap-6 sm:grid-cols-2">
-                <TextInput label="SUBDENOM" name="subdemom" value={fullDenom} disabled={true} />
+                <TextInput
+                  label="SUBDENOM"
+                  name="subdenom"
+                  value={fullDenom}
+                  title={fullDenom}
+                  disabled={true}
+                  helperText="This field cannot be modified"
+                />
                 <TextInput
                   label="NAME"
                   name="name"
@@ -196,9 +231,28 @@ export function UpdateDenomMetadataModal({
           </div>
         )}
       </Formik>
-      <form method="dialog" className="modal-backdrop">
+      <form
+        method="dialog"
+        className="modal-backdrop"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: -1,
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        }}
+      >
         <button onClick={() => handleCloseModal()}>close</button>
       </form>
     </dialog>
   );
+
+  // Only render if we're in the browser
+  if (typeof document !== 'undefined') {
+    return createPortal(modalContent, document.body);
+  }
+
+  return null;
 }

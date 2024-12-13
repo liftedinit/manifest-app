@@ -31,6 +31,7 @@ export default function IbcSendForm({
   selectedChain,
   setSelectedChain,
   selectedDenom,
+  isGroup,
 }: Readonly<{
   address: string;
   destinationChain: string;
@@ -43,6 +44,7 @@ export default function IbcSendForm({
   selectedChain: string;
   setSelectedChain: (selectedChain: string) => void;
   selectedDenom?: string;
+  isGroup?: boolean;
 }>) {
   const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
