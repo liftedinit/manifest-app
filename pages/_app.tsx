@@ -163,7 +163,6 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
           clientId: process.env.NEXT_PUBLIC_WEB3_CLIENT_ID ?? '',
           web3AuthNetwork: 'testnet',
         },
-        loginHint: '',
         promptSign: async (_, signData) =>
           new Promise(resolve =>
             setWeb3AuthPrompt({
