@@ -6,6 +6,7 @@ import type { AppProps } from 'next/app';
 import { createPortal } from 'react-dom';
 import { SignData } from '@cosmos-kit/web3auth';
 import { makeWeb3AuthWallets } from '@cosmos-kit/web3auth/esm/index';
+
 import { useEffect, useMemo, useRef, useState } from 'react';
 import SignModal from '@/components/react/authSignerModal';
 import {
@@ -36,7 +37,7 @@ import {
   cosmosProtoRegistry,
 } from '@liftedinit/manifestjs';
 import { ToastProvider, ContactsModalProvider } from '@/contexts';
-import { useTheme } from '@/contexts/theme';
+
 import MobileNav from '@/components/react/mobileNav';
 
 import { useEndpointStore } from '@/store/endpointStore';
@@ -162,7 +163,7 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
           clientId: process.env.NEXT_PUBLIC_WEB3_CLIENT_ID ?? '',
           web3AuthNetwork: 'testnet',
         },
-
+        loginHint: '',
         promptSign: async (_, signData) =>
           new Promise(resolve =>
             setWeb3AuthPrompt({

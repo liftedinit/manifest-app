@@ -3,9 +3,20 @@ import type { ChainWalletBase, WalletModalProps } from 'cosmos-kit';
 import { WalletStatus } from 'cosmos-kit';
 import React, { useCallback, Fragment, useState, useMemo, useEffect } from 'react';
 import { Dialog, Transition, Portal } from '@headlessui/react';
-import { Connected, Connecting, Error, NotExist, QRCode, WalletList, Contacts } from './views';
+import {
+  Connected,
+  Connecting,
+  Error,
+  NotExist,
+  QRCode,
+  WalletList,
+  Contacts,
+  EmailInput,
+  SMSInput,
+} from './views';
 import { useRouter } from 'next/router';
 import { ToastProvider } from '@/contexts/toastContext';
+import { Web3AuthClient, Web3AuthWallet } from '@cosmos-kit/web3auth';
 
 export enum ModalView {
   WalletList,
@@ -15,6 +26,8 @@ export enum ModalView {
   Error,
   NotExist,
   Contacts,
+  EmailInput,
+  SMSInput,
 }
 
 export const TailwindModal: React.FC<
@@ -78,17 +91,23 @@ export const TailwindModal: React.FC<
 
   const onWalletClicked = useCallback(
     (name: string) => {
+      const wallet = walletRepo?.getWallet(name);
+      if (wallet?.walletInfo.prettyName === 'Email') {
+        setCurrentView(ModalView.EmailInput);
+        return;
+      }
+      if (wallet?.walletInfo.prettyName === 'SMS') {
+        setCurrentView(ModalView.SMSInput);
+        return;
+      }
+
       walletRepo?.connect(name);
 
-      // 1ms timeout prevents _render from determining the view to show first
       setTimeout(() => {
-        const wallet = walletRepo?.getWallet(name);
-        console.log(wallet?.state);
         if (
           wallet?.walletInfo.name === 'cosmos-extension-metamask' &&
           wallet.message?.includes("Cannot read properties of undefined (reading 'request')")
         ) {
-          // This specific error indicates Metamask is not installed
           setCurrentView(ModalView.NotExist);
           setSelectedWallet(wallet);
         } else if (wallet?.isWalletNotExist) {
@@ -115,6 +134,49 @@ export const TailwindModal: React.FC<
             onClose={onCloseModal}
             onWalletClicked={onWalletClicked}
             wallets={walletRepo?.wallets || []}
+          />
+        );
+      case ModalView.EmailInput:
+        return (
+          <EmailInput
+            onClose={onCloseModal}
+            onReturn={() => setCurrentView(ModalView.WalletList)}
+            onSubmit={async email => {
+              try {
+                const emailWallet = walletRepo?.wallets.find(
+                  w => w.walletInfo.prettyName === 'Email'
+                ) as Web3AuthWallet | undefined;
+
+                if (emailWallet?.client instanceof Web3AuthClient) {
+                  console.log('Setting login hint:', email);
+                  emailWallet.client.setLoginHint(email);
+                  await walletRepo?.connect(emailWallet.walletInfo.name);
+                } else {
+                  console.error('Email wallet or client not found');
+                }
+              } catch (error) {
+                console.error('Email login error:', error);
+                // Handle the error appropriately in your UI
+              }
+            }}
+          />
+        );
+
+      case ModalView.SMSInput:
+        return (
+          <SMSInput
+            onClose={onCloseModal}
+            onReturn={() => setCurrentView(ModalView.WalletList)}
+            onSubmit={phone => {
+              const smsWallet = walletRepo?.wallets.find(w => w.walletInfo.prettyName === 'SMS') as
+                | Web3AuthWallet
+                | undefined;
+
+              if (smsWallet?.client instanceof Web3AuthClient) {
+                smsWallet.client.setLoginHint(phone);
+                walletRepo?.connect(smsWallet.walletInfo.name);
+              }
+            }}
           />
         );
       case ModalView.Connected:
