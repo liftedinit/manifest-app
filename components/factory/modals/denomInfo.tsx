@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
-import { useEndpointStore } from '@/store/endpointStore';
+import env from '@/config/env';
 
 export const DenomInfoModal: React.FC<{
   openDenomInfoModal: boolean;
@@ -24,9 +24,6 @@ export const DenomInfoModal: React.FC<{
   if (denom?.name?.startsWith('factory/manifest1')) {
     nameIsAddress = true;
   }
-
-  const { selectedEndpoint } = useEndpointStore();
-  const explorerUrl = selectedEndpoint?.explorer || '';
 
   const handleClose = () => {
     setOpenDenomInfoModal(false);
@@ -55,18 +52,18 @@ export const DenomInfoModal: React.FC<{
           <InfoItem
             label="Name"
             value={denom?.name ?? 'No name available'}
-            explorerUrl={explorerUrl}
+            explorerUrl={env.explorerUrl}
             isAddress={nameIsAddress}
           />
           <InfoItem
             label="Ticker"
             value={denom?.display?.toUpperCase() ?? 'No ticker available'}
-            explorerUrl={explorerUrl}
+            explorerUrl={env.explorerUrl}
           />
           <InfoItem
             label="Description"
             value={denom?.description ?? 'No description available'}
-            explorerUrl={explorerUrl}
+            explorerUrl={env.explorerUrl}
             className="col-span-2 row-span-2"
           />
         </div>
@@ -88,13 +85,13 @@ export const DenomInfoModal: React.FC<{
                   })()
                 : ''
             }
-            explorerUrl={explorerUrl}
+            explorerUrl={env.explorerUrl}
             isAddress={true}
           />
           <InfoItem
             label="DISPLAY"
             value={denom?.display ?? 'No display available'}
-            explorerUrl={explorerUrl}
+            explorerUrl={env.explorerUrl}
           />
         </div>
       </div>

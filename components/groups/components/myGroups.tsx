@@ -26,8 +26,7 @@ import { GroupInfo } from '../modals/groupInfo';
 import { MemberManagementModal } from '../modals/memberManagementModal';
 import { useChain } from '@cosmos-kit/react';
 import useIsMobile from '@/hooks/useIsMobile';
-import { chainName } from '@/config';
-import { useEndpointStore } from '@/store/endpointStore';
+import env from '@/config/env';
 
 export function YourGroups({
   groups,
@@ -110,9 +109,6 @@ export function YourGroups({
     refetchBalances: resolveRefetch,
   } = useTokenBalancesResolved(address ?? '');
 
-  const { selectedEndpoint } = useEndpointStore();
-  const indexerUrl = selectedEndpoint?.indexer || '';
-
   const { metadatas, isMetadatasLoading } = useTokenFactoryDenomsMetadata();
   const [currentPageGroupInfo, setCurrentPageGroupInfo] = useState(1);
 
@@ -128,7 +124,7 @@ export function YourGroups({
     isError,
     refetch: refetchHistory,
   } = useGetFilteredTxAndSuccessfulProposals(
-    indexerUrl,
+    env.indexerUrl,
     selectedGroup?.policyAddress ?? '',
     currentPageGroupInfo,
     pageSizeHistory

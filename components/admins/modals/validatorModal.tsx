@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
-import { ExtendedValidatorSDKType } from '../components';
+import { ExtendedValidatorSDKType } from '@/components';
 import ProfileAvatar from '@/utils/identicon';
 import { BsThreeDots } from 'react-icons/bs';
 import { DescriptionModal } from './descriptionModal';
-import { chainName } from '@/config';
 import { useTx, useFeeEstimation } from '@/hooks';
-import { strangelove_ventures } from '@liftedinit/manifestjs';
+import { strangelove_ventures, cosmos } from '@liftedinit/manifestjs';
 import { useChain } from '@cosmos-kit/react';
-import { cosmos } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgSetPower } from '@liftedinit/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
-import { Formik, Form, Field, ErrorMessage, FieldProps } from 'formik';
+import { Formik, Field, FieldProps } from 'formik';
 import * as Yup from 'yup';
 import { calculateIsUnsafe } from '@/utils/maths';
 import { TextInput } from '@/components/react';
+import env from '@/config/env';
 import { createPortal } from 'react-dom';
 
 const PowerUpdateSchema = Yup.object().shape({
@@ -55,9 +54,9 @@ export function ValidatorDetailsModal({
 
   const [power, setPowerInput] = useState(validator?.consensus_power?.toString() || '');
 
-  const { tx, isSigning, setIsSigning } = useTx(chainName);
-  const { estimateFee } = useFeeEstimation(chainName);
-  const { address: userAddress } = useChain(chainName);
+  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { estimateFee } = useFeeEstimation(env.chain);
+  const { address: userAddress } = useChain(env.chain);
 
   const { setPower } = strangelove_ventures.poa.v1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;

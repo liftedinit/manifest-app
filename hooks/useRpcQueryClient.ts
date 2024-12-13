@@ -1,22 +1,17 @@
-import { useState, useEffect } from 'react';
 import { osmosis } from '@liftedinit/manifestjs';
 import { useQuery } from '@tanstack/react-query';
-import { useChain } from '@cosmos-kit/react';
-import { chainName } from '../config';
-import { useEndpointStore } from '@/store/endpointStore';
+import env from '@/config/env';
 
 const createRpcQueryClient = osmosis.ClientFactory.createRPCQueryClient;
 
 export const useRpcQueryClient = () => {
-  const { selectedEndpoint } = useEndpointStore();
-
   const rpcQueryClient = useQuery({
-    queryKey: ['rpcQueryClient', selectedEndpoint?.rpc],
+    queryKey: ['rpcQueryClient', env.rpcUrl],
     queryFn: () =>
       createRpcQueryClient({
-        rpcEndpoint: selectedEndpoint?.rpc || '',
+        rpcEndpoint: env.rpcUrl,
       }),
-    enabled: !!selectedEndpoint?.rpc,
+    enabled: !!env.rpcUrl,
     staleTime: Infinity,
   });
 
