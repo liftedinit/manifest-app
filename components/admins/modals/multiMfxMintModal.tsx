@@ -8,12 +8,12 @@ import { createPortal } from 'react-dom';
 import { MdContacts } from 'react-icons/md';
 import { PlusIcon, MinusIcon } from '@/components/icons';
 import { useTx, useFeeEstimation } from '@/hooks';
-import { chainName } from '@/config';
 import { cosmos, liftedinit } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgPayout } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
 import { parseNumberToBigInt, shiftDigits } from '@/utils';
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import env from '@/config/env';
 //TODO: find max mint amount from team for mfx. Find tx size limit for max payout pairs
 interface PayoutPair {
   address: string;
@@ -48,8 +48,8 @@ const MultiMintSchema = Yup.object().shape({
 
 export function MultiMintModal({ isOpen, onClose, admin, address, denom }: MultiMintModalProps) {
   const [payoutPairs, setPayoutPairs] = useState([{ address: '', amount: '' }]);
-  const { tx, isSigning, setIsSigning } = useTx(chainName);
-  const { estimateFee } = useFeeEstimation(chainName);
+  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { estimateFee } = useFeeEstimation(env.chain);
   const { payout } = liftedinit.manifest.v1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const [isContactsOpen, setIsContactsOpen] = useState(false);

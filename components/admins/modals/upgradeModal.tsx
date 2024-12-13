@@ -2,7 +2,6 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { cosmos } from '@liftedinit/manifestjs';
 import { useTx, useFeeEstimation, useGitHubReleases, GitHubRelease } from '@/hooks';
-import { chainName } from '@/config';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgSoftwareUpgrade } from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
 import { Formik, Form } from 'formik';
@@ -10,6 +9,7 @@ import Yup from '@/utils/yupExtensions';
 import { TextInput } from '@/components/react/inputs';
 import { PiCaretDownBold } from 'react-icons/pi';
 import { SearchIcon } from '@/components/icons';
+import env from '@/config/env';
 
 interface BaseModalProps {
   isOpen: boolean;
@@ -82,8 +82,8 @@ export function UpgradeModal({ isOpen, onClose, admin, address, refetchPlan }: B
 
   const { softwareUpgrade } = cosmos.upgrade.v1beta1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
-  const { tx, isSigning, setIsSigning } = useTx(chainName);
-  const { estimateFee } = useFeeEstimation(chainName);
+  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { estimateFee } = useFeeEstimation(env.chain);
 
   const handleUpgrade = async (values: { name: string; height: string; info: string }) => {
     setIsSigning(true);

@@ -1,13 +1,13 @@
 import { useEffect } from 'react';
 import { ExtendedMetadataSDKType, truncateString } from '@/utils';
 import { useDenomAuthorityMetadata, useFeeEstimation, useTx } from '@/hooks';
-import { chainName } from '@/config';
 import { osmosis } from '@liftedinit/manifestjs';
 import { createPortal } from 'react-dom';
 import Yup from '@/utils/yupExtensions';
 import { Form, Formik, FormikValues } from 'formik';
 import { TextInput } from '@/components';
 import { useToast } from '@/contexts';
+import env from '@/config/env';
 
 const TokenOwnershipSchema = Yup.object().shape({
   newAdmin: Yup.string().required('New admin address is required').manifestAddress(),
@@ -56,8 +56,8 @@ export default function TransferModal({
     newAdmin: '',
   };
 
-  const { tx, isSigning, setIsSigning } = useTx(chainName);
-  const { estimateFee } = useFeeEstimation(chainName);
+  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { estimateFee } = useFeeEstimation(env.chain);
   const { changeAdmin } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
 
   const handleTransfer = async (values: FormikValues, resetForm: () => void) => {

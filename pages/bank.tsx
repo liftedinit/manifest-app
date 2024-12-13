@@ -1,5 +1,5 @@
-import { WalletNotConnected } from '@/components';
-import { chainName } from '@/config';
+import { WalletNotConnected, HistoryBox } from '@/components';
+import { TokenList } from '@/components/bank/components/tokenList';
 import {
   useGetFilteredTxAndSuccessfulProposals,
   useIsMobile,
@@ -7,27 +7,22 @@ import {
   useTokenBalancesResolved,
   useTokenFactoryDenomsMetadata,
 } from '@/hooks';
-
 import { useChain } from '@cosmos-kit/react';
 import Head from 'next/head';
 import React, { useMemo, useState } from 'react';
-import { HistoryBox, TokenList } from '@/components';
 import { BankIcon } from '@/components/icons';
 import { CombinedBalanceInfo } from '@/utils/types';
 import { MFX_TOKEN_DATA } from '@/utils/constants';
-import { useEndpointStore } from '@/store/endpointStore'; // Import MFX_TOKEN_DATA
+import env from '@/config/env';
 
 export default function Bank() {
-  const { address, isWalletConnected } = useChain(chainName);
+  const { address, isWalletConnected } = useChain(env.chain);
   const { balances, isBalancesLoading, refetchBalances } = useTokenBalances(address ?? '');
   const {
     balances: resolvedBalances,
     isBalancesLoading: resolvedLoading,
     refetchBalances: resolveRefetch,
   } = useTokenBalancesResolved(address ?? '');
-
-  const { selectedEndpoint } = useEndpointStore();
-  const indexerUrl = selectedEndpoint?.indexer || '';
 
   const { metadatas, isMetadatasLoading } = useTokenFactoryDenomsMetadata();
   const [currentPage, setCurrentPage] = useState(1);
@@ -45,7 +40,7 @@ export default function Bank() {
     isLoading: txLoading,
     isError,
     refetch: refetchHistory,
-  } = useGetFilteredTxAndSuccessfulProposals(indexerUrl, address ?? '', currentPage, pageSize);
+  } = useGetFilteredTxAndSuccessfulProposals(env.indexerUrl, address ?? '', currentPage, pageSize);
 
   const combinedBalances = useMemo(() => {
     if (!balances || !resolvedBalances || !metadatas) return [];

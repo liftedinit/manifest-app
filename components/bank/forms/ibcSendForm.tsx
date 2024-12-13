@@ -1,8 +1,13 @@
 import React, { useState, useMemo } from 'react';
-import { chainName } from '@/config';
 import { useFeeEstimation, useTx } from '@/hooks';
 import { ibc } from '@liftedinit/manifestjs';
-import { getIbcInfo, parseNumberToBigInt } from '@/utils';
+import {
+  getIbcInfo,
+  parseNumberToBigInt,
+  shiftDigits,
+  truncateString,
+  formatTokenDisplayName,
+} from '@/utils';
 import { PiCaretDownBold } from 'react-icons/pi';
 import { MdContacts } from 'react-icons/md';
 import { CombinedBalanceInfo } from '@/utils/types';
@@ -10,13 +15,12 @@ import { DenomImage } from '@/components/factory';
 import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { TextInput } from '@/components/react/inputs';
-import { IbcChain } from '../components/sendBox';
+import { IbcChain } from '@/components';
 import Image from 'next/image';
-import { shiftDigits, truncateString } from '@/utils';
 import { SearchIcon } from '@/components/icons';
 
 import { TailwindModal } from '@/components/react/modal';
-import { formatTokenDisplayName } from '@/utils';
+import env from '@/config/env';
 
 //TODO: use formatTokenDisplayName instead of repeating format
 export default function IbcSendForm({
@@ -49,8 +53,8 @@ export default function IbcSendForm({
   const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [feeWarning, setFeeWarning] = useState('');
-  const { tx } = useTx(chainName);
-  const { estimateFee } = useFeeEstimation(chainName);
+  const { tx } = useTx(env.chain);
+  const { estimateFee } = useFeeEstimation(env.chain);
   const { transfer } = ibc.applications.transfer.v1.MessageComposer.withTypeUrl;
   const [isContactsOpen, setIsContactsOpen] = useState(false);
 
@@ -114,7 +118,7 @@ export default function IbcSendForm({
       const exponent = values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
       const amountInBaseUnits = parseNumberToBigInt(values.amount, exponent).toString();
 
-      const { source_port, source_channel } = getIbcInfo(chainName ?? '', destinationChain ?? '');
+      const { source_port, source_channel } = getIbcInfo(env.chain, destinationChain ?? '');
 
       const token = {
         denom: values.selectedToken.coreDenom,

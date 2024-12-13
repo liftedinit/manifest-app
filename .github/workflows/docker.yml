@@ -32,19 +32,14 @@ jobs:
           touch .env
           echo "NEXT_PUBLIC_CHAIN=${{ vars.NEXT_PUBLIC_CHAIN }}" >> .env
           echo "NEXT_PUBLIC_CHAIN_ID=${{ vars.NEXT_PUBLIC_CHAIN_ID }}" >> .env
-          echo "NEXT_PUBLIC_TESTNET_CHAIN_ID=${{ vars.NEXT_PUBLIC_TESTNET_CHAIN_ID }}" >> .env
-          echo "NEXT_PUBLIC_MAINNET_RPC_URL=${{ vars.NEXT_PUBLIC_MAINNET_RPC_URL }}" >> .env
-          echo "NEXT_PUBLIC_TESTNET_RPC_URL=${{ vars.NEXT_PUBLIC_TESTNET_RPC_URL }}" >> .env
-          echo "NEXT_PUBLIC_MAINNET_API_URL=${{ vars.NEXT_PUBLIC_MAINNET_API_URL }}" >> .env
-          echo "NEXT_PUBLIC_TESTNET_API_URL=${{ vars.NEXT_PUBLIC_TESTNET_API_URL }}" >> .env
-          echo "NEXT_PUBLIC_ABLY_API_KEY=${{ secrets.NEXT_PUBLIC_ABLY_API_KEY }}" >> .env
+          echo "NEXT_PUBLIC_CHAIN_TIER=${{ vars.NEXT_PUBLIC_CHAIN_TIER }}" >> .env
+          echo "NEXT_PUBLIC_RPC_URL=${{ vars.NEXT_PUBLIC_RPC_URL }}" >> .env
+          echo "NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}" >> .env
           echo "NEXT_PUBLIC_WALLETCONNECT_KEY=${{ secrets.NEXT_PUBLIC_WALLETCONNECT_KEY }}" >> .env
           echo "NEXT_PUBLIC_WEB3AUTH_NETWORK=${{ vars.NEXT_PUBLIC_WEB3AUTH_NETWORK }}" >> .env
           echo "NEXT_PUBLIC_WEB3AUTH_CLIENT_ID=${{ secrets.NEXT_PUBLIC_WEB3AUTH_CLIENT_ID }}" >> .env
-          echo "NEXT_PUBLIC_TESTNET_EXPLORER_URL=${{ vars.NEXT_PUBLIC_TESTNET_EXPLORER_URL }}" >> .env
-          echo "NEXT_PUBLIC_MAINNET_EXPLORER_URL=${{ vars.NEXT_PUBLIC_MAINNET_EXPLORER_URL }}" >> .env
-          echo "NEXT_PUBLIC_TESTNET_INDEXER_URL=${{ vars.NEXT_PUBLIC_TESTNET_INDEXER_URL }}" >> .env
-          echo "NEXT_PUBLIC_MAINNET_INDEXER_URL=${{ vars.NEXT_PUBLIC_MAINNET_INDEXER_URL }}" >> .env
+          echo "NEXT_PUBLIC_EXPLORER_URL=${{ vars.NEXT_PUBLIC_EXPLORER_URL }}" >> .env
+          echo "NEXT_PUBLIC_INDEXER_URL=${{ vars.NEXT_PUBLIC_INDEXER_URL }}" >> .env
           cat .env
 
       - name: Get the Git tag

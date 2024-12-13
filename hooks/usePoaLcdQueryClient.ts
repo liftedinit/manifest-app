@@ -1,22 +1,18 @@
+import env from '@/config/env';
 import { strangelove_ventures } from '@liftedinit/manifestjs';
 
 import { useQuery } from '@tanstack/react-query';
-import { useChain } from '@cosmos-kit/react';
-import { chainName } from '../config';
-import { useEndpointStore } from '@/store/endpointStore';
 
 const createLcdQueryClient = strangelove_ventures.ClientFactory.createLCDClient;
 
 export const usePoaLcdQueryClient = () => {
-  const { selectedEndpoint } = useEndpointStore();
-
   const lcdQueryClient = useQuery({
-    queryKey: ['lcdQueryClient', selectedEndpoint?.api],
+    queryKey: ['lcdQueryClient', env.apiUrl],
     queryFn: () =>
       createLcdQueryClient({
-        restEndpoint: selectedEndpoint?.api || '',
+        restEndpoint: env.apiUrl,
       }),
-    enabled: !!selectedEndpoint?.api,
+    enabled: !!env.apiUrl,
     staleTime: Infinity,
   });
 

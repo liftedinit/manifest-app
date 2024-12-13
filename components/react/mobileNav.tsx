@@ -87,21 +87,7 @@ export default function MobileNav() {
 
             <div className="divider divider-horizon"></div>
 
-            {/* Added Endpoint Selector and Contacts buttons */}
-            <li>
-              <button
-                onClick={() => {
-                  const modal = document.getElementById(
-                    'endpoint_selector_modal'
-                  ) as HTMLDialogElement;
-                  if (modal) modal.showModal();
-                }}
-                className="flex flex-row justify-start items-center transition-all duration-300 ease-in-out text-primary"
-              >
-                <MdOutlineNetworkPing className="w-8 h-8" />
-                <span className="text-2xl">Endpoints</span>
-              </button>
-            </li>
+            {/* Added Contacts button */}
             <li className="mb-4">
               <button
                 onClick={() => {

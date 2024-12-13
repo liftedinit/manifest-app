@@ -1,11 +1,11 @@
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import ProfileAvatar from '@/utils/identicon';
 import { ExtendedGroupType } from '@/hooks/useQueries';
-import { UpdateGroupModal } from './updateGroupModal';
+import { UpdateGroupModal } from '@/components';
 import { ThresholdDecisionPolicySDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { useFeeEstimation, useTx } from '@/hooks';
-import { chainName } from '@/config';
 import { cosmos } from '@liftedinit/manifestjs';
+import env from '@/config/env';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -39,9 +39,9 @@ export function GroupInfo({
     return () => document.removeEventListener('keydown', handleEscape);
   }, [showInfoModal, setShowInfoModal]);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
-  const { tx, isSigning, setIsSigning } = useTx(chainName);
+  const { tx, isSigning, setIsSigning } = useTx(env.chain);
   const { leaveGroup } = cosmos.group.v1.MessageComposer.withTypeUrl;
-  const { estimateFee } = useFeeEstimation(chainName);
+  const { estimateFee } = useFeeEstimation(env.chain);
   if (!group || !group.policies || group.policies.length === 0) return null;
 
   const policy = group.policies[0];

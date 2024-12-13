@@ -2,15 +2,14 @@ import React, { useState, useReducer } from 'react';
 import { tokenFormDataReducer, TokenFormData } from '@/helpers/formReducer';
 import ConfirmationForm from '@/components/factory/forms/ConfirmationForm';
 import TokenDetails from '@/components/factory/forms/TokenDetailsForm';
-import { Duration } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/duration';
 import StepIndicator from '@/components/react/StepIndicator';
 import { useChain } from '@cosmos-kit/react';
-import { chainName } from '@/config';
-import { WalletNotConnected, WalletSection } from '@/components';
+import { WalletNotConnected } from '@/components';
 import Success from '@/components/factory/forms/Success';
 import Head from 'next/head';
 import CreateDenom from '@/components/factory/forms/CreateDenom';
 import { FactoryIcon } from '@/components/icons';
+import env from '@/config/env';
 
 const initialFormData: TokenFormData = {
   subdenom: '',
@@ -30,7 +29,7 @@ export default function CreateToken() {
   const [currentStep, setCurrentStep] = useState(1);
 
   const [formData, dispatch] = useReducer(tokenFormDataReducer, initialFormData);
-  const { address } = useChain(chainName);
+  const { address, isWalletConnected } = useChain(env.chain);
   const nextStep = () => {
     if (currentStep < 4) {
       setCurrentStep(currentStep + 1);
@@ -42,8 +41,6 @@ export default function CreateToken() {
       setCurrentStep(currentStep - 1);
     }
   };
-
-  const { isWalletConnected } = useChain(chainName);
 
   const steps = [
     { label: 'Create Denom', mobileLabel: 'Denom', step: 1 },
