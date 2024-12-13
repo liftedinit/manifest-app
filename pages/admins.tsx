@@ -2,19 +2,19 @@ import { WalletNotConnected, WalletSection } from '@/components';
 import { useChain } from '@cosmos-kit/react';
 import ValidatorList from '@/components/admins/components/validatorList';
 import Head from 'next/head';
-import React, { useState } from 'react';
+import React from 'react';
 
 import { useGroupsByAdmin, usePendingValidators, usePoaGetAdmin, useValidators } from '@/hooks';
 import { ValidatorSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
 import { PiWarning } from 'react-icons/pi';
 import { AdminsIcon } from '@/components/icons';
-
+import { StakeHolderPayout, ChainUpgrader } from '@/components/admins/components';
 export default function Admins() {
   const { address, isWalletConnected } = useChain('manifest');
-  const { poaAdmin, isPoaAdminLoading } = usePoaGetAdmin();
+  const { poaAdmin } = usePoaGetAdmin();
   const { pendingValidators, isPendingValidatorsLoading } = usePendingValidators();
   const { validators, isActiveValidatorsLoading } = useValidators();
-  const [active, setActive] = useState(true);
+
   const { groupByAdmin, isGroupByAdminLoading } = useGroupsByAdmin(
     poaAdmin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'
   );
@@ -22,7 +22,7 @@ export default function Admins() {
   const group = groupByAdmin?.groups?.[0];
 
   const isMember = group?.members?.some(member => member?.member?.address === address);
-  console.log(group, groupByAdmin, isMember);
+
   return (
     <div className="min-h-screen relative py-4 px-2 mx-auto text-white ">
       <Head>
@@ -68,7 +68,7 @@ export default function Admins() {
           })}
         </script>
       </Head>
-      <div className="flex-grow h-full animate-fadeIn h-screen transition-all duration-300">
+      <div className="flex-grow h-full animate-fadeIn transition-all duration-300">
         <div className="w-full mx-auto">
           {!isWalletConnected ? (
             <WalletNotConnected
@@ -103,14 +103,33 @@ export default function Admins() {
           ) : (
             isMember &&
             isWalletConnected && (
-              <ValidatorList
-                isLoading={isActiveValidatorsLoading || isPendingValidatorsLoading}
-                activeValidators={validators ?? ([] as ValidatorSDKType[])}
-                pendingValidators={pendingValidators ?? ([] as ValidatorSDKType[])}
-                admin={
-                  poaAdmin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'
-                }
-              />
+              <>
+                <ValidatorList
+                  isLoading={isActiveValidatorsLoading || isPendingValidatorsLoading}
+                  activeValidators={validators ?? ([] as ValidatorSDKType[])}
+                  pendingValidators={pendingValidators ?? ([] as ValidatorSDKType[])}
+                  admin={
+                    poaAdmin ??
+                    'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'
+                  }
+                />
+                <div className="w-full h-full justify-between items-center flex flex-col md:flex-row p-4 gap-4">
+                  <StakeHolderPayout
+                    admin={
+                      poaAdmin ??
+                      'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'
+                    }
+                    address={address ?? ''}
+                  />
+                  <ChainUpgrader
+                    address={address ?? ''}
+                    admin={
+                      poaAdmin ??
+                      'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'
+                    }
+                  />
+                </div>
+              </>
             )
           )}
         </div>

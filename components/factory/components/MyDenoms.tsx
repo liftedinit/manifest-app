@@ -2,18 +2,16 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { DenomImage } from './DenomImage';
 import Link from 'next/link';
-import { truncateString } from '@/utils';
-import { SearchIcon, MintIcon, BurnIcon } from '@/components/icons';
+import { truncateString, ExtendedMetadataSDKType, shiftDigits, formatTokenDisplay } from '@/utils';
+import { SearchIcon, MintIcon, BurnIcon, TransferIcon } from '@/components/icons';
 import { DenomInfoModal } from '@/components/factory/modals/denomInfo';
 import MintModal from '@/components/factory/modals/MintModal';
 import BurnModal from '@/components/factory/modals/BurnModal';
 import { UpdateDenomMetadataModal } from '@/components/factory/modals/updateDenomMetadata';
 import { PiInfo } from 'react-icons/pi';
-import { ExtendedMetadataSDKType, shiftDigits } from '@/utils';
-import { MultiMintModal } from '@/components/factory/modals';
-import { MultiBurnModal } from '../modals/multiMfxBurnModal';
 import { usePoaGetAdmin } from '@/hooks';
 import useIsMobile from '@/hooks/useIsMobile';
+import TransferModal from '@/components/factory/modals/TransferModal';
 
 export default function MyDenoms({
   denoms,
@@ -29,14 +27,15 @@ export default function MyDenoms({
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [openUpdateDenomMetadataModal, setOpenUpdateDenomMetadataModal] = useState(false);
+  const [openTransferDenomModal, setOpenTransferDenomModal] = useState(false);
   const isMobile = useIsMobile();
 
-  const pageSize = isMobile ? 6 : 8;
+  const pageSize = isMobile ? 5 : 8;
 
   const router = useRouter();
   const [selectedDenom, setSelectedDenom] = useState<ExtendedMetadataSDKType | null>(null);
   const [modalType, setModalType] = useState<
-    'mint' | 'burn' | 'multimint' | 'multiburn' | 'update' | 'info' | null
+    'mint' | 'burn' | 'multimint' | 'multiburn' | 'update' | 'info' | 'transfer' | null
   >(null);
 
   const filteredDenoms = useMemo(() => {
@@ -72,11 +71,17 @@ export default function MyDenoms({
           action === 'multimint' ||
           action === 'multiburn' ||
           action === 'update' ||
+          action === 'transfer' ||
           action === 'info'
         ) {
-          setModalType(action as 'mint' | 'burn' | 'multimint' | 'multiburn' | 'update' | 'info');
+          setModalType(
+            action as 'mint' | 'burn' | 'multimint' | 'multiburn' | 'update' | 'info' | 'transfer'
+          );
           if (action === 'update') {
             setOpenUpdateDenomMetadataModal(true);
+          }
+          if (action === 'transfer') {
+            setOpenTransferDenomModal(true);
           }
         } else {
           setModalType('info');
@@ -92,12 +97,14 @@ export default function MyDenoms({
     setSelectedDenom(null);
     setModalType(null);
     setOpenUpdateDenomMetadataModal(false);
+    setOpenTransferDenomModal(false);
     router.push('/factory', undefined, { shallow: true });
   };
 
   const handleUpdateModalClose = () => {
     setSelectedDenom(null);
     setOpenUpdateDenomMetadataModal(false);
+    setOpenTransferDenomModal(false);
     setModalType(null);
     router.push('/factory', undefined, { shallow: true });
   };
@@ -109,6 +116,15 @@ export default function MyDenoms({
     setModalType('update');
     setOpenUpdateDenomMetadataModal(true);
     router.push(`/factory?denom=${denom.base}&action=update`, undefined, { shallow: true });
+  };
+
+  const handleTransferModal = (denom: ExtendedMetadataSDKType, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedDenom(denom);
+    setModalType('transfer');
+    setOpenTransferDenomModal(true);
+    router.push(`/factory?denom=${denom.base}&action=transfer`, undefined, { shallow: true });
   };
 
   const handleSwitchToMultiMint = () => {
@@ -169,31 +185,37 @@ export default function MyDenoms({
               </thead>
               <tbody className="space-y-4">
                 {isLoading
-                  ? Array(isMobile ? 6 : 8)
+                  ? Array(isMobile ? 5 : 8)
                       .fill(0)
                       .map((_, index) => (
                         <tr key={index}>
                           <td className="bg-secondary rounded-l-[12px] w-1/4">
                             <div className="flex items-center space-x-3">
                               <div
-                                className="skeleton w-10 h-8 rounded-full shrink-0"
+                                className="skeleton w-10 h-10 rounded-full shrink-0"
                                 aria-label={`skeleton-${index}-avatar`}
                               />
-                              <div
-                                className="skeleton font-medium xxs:max-xs:hidden block"
-                                aria-label={`skeleton-${index}-name`}
-                              />
+                              <div>
+                                <div
+                                  className="skeleton h-4 w-20 mb-1"
+                                  aria-label={`skeleton-${index}-ticker`}
+                                />
+                                <div
+                                  className="skeleton h-3 w-16 xxs:max-xs:hidden"
+                                  aria-label={`skeleton-${index}-symbol`}
+                                />
+                              </div>
                             </div>
                           </td>
                           <td className="bg-secondary w-2/5 xl:table-cell hidden">
                             <div
-                              className="skeleton h-2 w-8"
-                              aria-label={`skeleton-${index}-symbol`}
+                              className="skeleton h-4 w-32"
+                              aria-label={`skeleton-${index}-name`}
                             />
                           </td>
-                          <td className="bg-secondary w-2/5 sm:w-1/4">
+                          <td className="bg-secondary w-2/5 md:table-cell hidden">
                             <div
-                              className="skeleton h-2 w-24"
+                              className="skeleton h-4 w-28"
                               aria-label={`skeleton-${index}-supply`}
                             />
                           </td>
@@ -242,6 +264,7 @@ export default function MyDenoms({
                             shallow: true,
                           });
                         }}
+                        onTransfer={e => handleTransferModal(denom, e)}
                         onUpdate={e => handleUpdateModal(denom, e)}
                       />
                     ))}
@@ -370,22 +393,23 @@ export default function MyDenoms({
           }
         }}
       />
-      <MultiMintModal
-        admin={poaAdmin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'}
-        address={address}
+      <TransferModal
+        modalId="transfer-denom-modal"
+        openTransferDenomModal={openTransferDenomModal}
+        setOpenTransferDenomModal={open => {
+          if (!open) {
+            handleCloseModal();
+          } else {
+            setOpenTransferDenomModal(true);
+          }
+        }}
+        onSuccess={() => {
+          refetchDenoms();
+          handleUpdateModalClose();
+        }}
         denom={selectedDenom}
-        exponent={selectedDenom?.denom_units[1]?.exponent ?? 0}
-        refetch={refetchDenoms}
-        isOpen={modalType === 'multimint'}
-        onClose={handleCloseModal}
-      />
-      <MultiBurnModal
-        admin={poaAdmin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'}
         address={address}
-        denom={selectedDenom}
-        exponent={selectedDenom?.denom_units[1]?.exponent ?? 0}
-        refetch={refetchDenoms}
-        isOpen={modalType === 'multiburn'}
+        isOpen={modalType === 'transfer'}
         onClose={handleCloseModal}
       />
     </div>
@@ -397,18 +421,19 @@ function TokenRow({
   onSelectDenom,
   onMint,
   onBurn,
+  onTransfer,
   onUpdate,
 }: {
   denom: ExtendedMetadataSDKType;
   onSelectDenom: () => void;
   onMint: (e: React.MouseEvent) => void;
   onBurn: (e: React.MouseEvent) => void;
+  onTransfer: (e: React.MouseEvent) => void;
   onUpdate: (e: React.MouseEvent) => void;
 }) {
   // Add safety checks for the values
   const exponent = denom?.denom_units?.[1]?.exponent ?? 0;
   const totalSupply = denom?.totalSupply ?? '0';
-  const balance = denom?.balance ?? '0';
 
   // Format numbers safely
   const formatAmount = (amount: string) => {
@@ -430,11 +455,7 @@ function TokenRow({
       <td className="bg-secondary group-hover:bg-base-300 rounded-l-[12px] w-1/4">
         <div className="flex items-center space-x-3">
           <DenomImage denom={denom} />
-          <span className="font-medium xxs:max-xs:hidden block">
-            {denom.display.startsWith('factory')
-              ? denom.display.split('/').pop()?.toUpperCase()
-              : truncateString(denom.display, 12)}
-          </span>
+          <span className="font-medium sm:block hidden">{formatTokenDisplay(denom.display)}</span>
         </div>
       </td>
       <td className="bg-secondary group-hover:bg-base-300 w-2/5 xl:table-cell hidden">
@@ -443,9 +464,7 @@ function TokenRow({
       <td className="bg-secondary group-hover:bg-base-300 w-2/5 md:table-cell hidden sm:w-1/4">
         <div className="flex flex-col sm:flex-row sm:items-center ">
           <span className="sm:mr-2">{formatAmount(totalSupply)}</span>
-          <span className="font-extralight">
-            {truncateString(denom?.display ?? 'No ticker provided', 10).toUpperCase()}
-          </span>
+          <span className="font-extralight">{formatTokenDisplay(denom.display)}</span>
         </div>
       </td>
       <td
@@ -466,6 +485,14 @@ function TokenRow({
             onClick={onBurn}
           >
             <BurnIcon className="w-7 h-7 text-current" />
+          </button>
+
+          <button
+            disabled={denom.base.includes('umfx')}
+            className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+            onClick={onTransfer}
+          >
+            <TransferIcon className="w-7 h-7 text-current" />
           </button>
 
           <button

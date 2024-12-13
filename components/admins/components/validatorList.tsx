@@ -6,6 +6,8 @@ import ProfileAvatar from '@/utils/identicon';
 import Image from 'next/image';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { SearchIcon, TrashIcon } from '@/components/icons';
+import useIsMobile from '@/hooks/useIsMobile';
+
 export interface ExtendedValidatorSDKType extends ValidatorSDKType {
   consensus_power?: bigint;
   logo_url?: string;
@@ -46,12 +48,23 @@ export default function ValidatorList({
       }))
     : [];
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const isMobile = useIsMobile();
+
+  const pageSize = isMobile ? 4 : 5;
+
   const filteredValidators = useMemo(() => {
     const validators = active ? activeValidators : pendingValidators;
     return validators.filter(validator =>
       validator.description.moniker.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [active, activeValidators, pendingValidators, searchTerm]);
+
+  const totalPages = Math.ceil(filteredValidators.length / pageSize);
+  const paginatedValidators = filteredValidators.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
   const handleRemove = (validator: ExtendedValidatorSDKType) => {
     setValidatorToRemove(validator);
@@ -68,7 +81,7 @@ export default function ValidatorList({
   };
 
   return (
-    <div className="relative w-full h-screen overflow-hidden">
+    <div className="relative w-full h-full overflow-hidden">
       <div className="h-full flex flex-col p-4">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
@@ -124,10 +137,10 @@ export default function ValidatorList({
                     <th className="bg-transparent text-left sticky top-0 bg-base-100 z-10">
                       Moniker
                     </th>
-                    <th className=" hidden lg:table-cell bg-transparent text-left sticky top-0 bg-base-100 z-10">
+                    <th className="hidden lg:table-cell bg-transparent text-left sticky top-0 bg-base-100 z-10">
                       Address
                     </th>
-                    <th className=" hidden md:table-cell bg-transparent text-left sticky top-0 bg-base-100 z-10">
+                    <th className="hidden md:table-cell bg-transparent text-left sticky top-0 bg-base-100 z-10">
                       Consensus Power
                     </th>
                     <th className="bg-transparent text-right sticky top-0 bg-base-100 z-10">
@@ -140,20 +153,20 @@ export default function ValidatorList({
                     .fill(0)
                     .map((_, index) => (
                       <tr key={index}>
-                        <td className="bg-secondary rounded-l-[12px] w-1/6">
+                        <td className="bg-secondary rounded-l-[12px]">
                           <div className="flex items-center space-x-3">
-                            <div className="skeleton w-10 h-8 rounded-full shrink-0"></div>
-                            <div className="skeleton h-3 w-24"></div>
+                            <div className="skeleton w-8 h-8 rounded-full shrink-0"></div>
+                            <div className="skeleton h-4 w-24"></div>
                           </div>
                         </td>
-                        <td className="bg-secondary w-1/6 hidden lg:table-cell">
-                          <div className="skeleton h-2 w-24"></div>
+                        <td className="bg-secondary hidden lg:table-cell">
+                          <div className="skeleton h-4 w-32"></div>
                         </td>
-                        <td className="bg-secondary w-1/6 hidden md:table-cell">
-                          <div className="skeleton h-2 w-8"></div>
+                        <td className="bg-secondary hidden md:table-cell">
+                          <div className="skeleton h-4 w-16"></div>
                         </td>
-                        <td className="bg-secondary w-1/6 rounded-r-[12px] text-right">
-                          <div className="skeleton h-2 w-8 ml-auto"></div>
+                        <td className="bg-secondary rounded-r-[12px] text-right">
+                          <div className="skeleton h-8 w-8 rounded-md ml-auto"></div>
                         </td>
                       </tr>
                     ))}
@@ -186,7 +199,7 @@ export default function ValidatorList({
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredValidators.map(validator => (
+                  {paginatedValidators.map(validator => (
                     <tr
                       key={validator.operator_address}
                       className="group text-black dark:text-white rounded-lg cursor-pointer focus:outline-none transition-colors"
@@ -260,6 +273,71 @@ export default function ValidatorList({
         openWarningModal={openWarningModal}
         setOpenWarningModal={setOpenWarningModal}
       />
+
+      {totalPages > 1 && (
+        <div
+          className="flex items-center justify-center gap-2 mt-4"
+          onClick={e => e.stopPropagation()}
+          role="navigation"
+          aria-label="Pagination"
+        >
+          <button
+            onClick={e => {
+              e.stopPropagation();
+              setCurrentPage(prev => Math.max(1, prev - 1));
+            }}
+            disabled={currentPage === 1 || isLoading}
+            className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="Previous page"
+          >
+            ‹
+          </button>
+
+          {[...Array(totalPages)].map((_, index) => {
+            const pageNum = index + 1;
+            if (
+              pageNum === 1 ||
+              pageNum === totalPages ||
+              (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+            ) {
+              return (
+                <button
+                  key={pageNum}
+                  onClick={e => {
+                    e.stopPropagation();
+                    setCurrentPage(pageNum);
+                  }}
+                  className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors text-black dark:text-white
+                    ${currentPage === pageNum ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A]' : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A]'}`}
+                  aria-label={`Page ${pageNum}`}
+                  aria-current={currentPage === pageNum ? 'page' : undefined}
+                >
+                  {pageNum}
+                </button>
+              );
+            } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
+              return (
+                <span key={pageNum} aria-hidden="true">
+                  ...
+                </span>
+              );
+            }
+            return null;
+          })}
+
+          <button
+            onClick={e => {
+              e.stopPropagation();
+              setCurrentPage(prev => Math.min(totalPages, prev + 1));
+            }}
+            disabled={currentPage === totalPages || isLoading}
+            className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="Next page"
+          >
+            ›
+          </button>
+        </div>
+      )}
     </div>
   );
 }
