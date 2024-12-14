@@ -228,16 +228,10 @@ export default function MyDenoms({
                                 <MintIcon className="w-7 h-7 text-current opacity-50" />
                               </button>
                               <button
-                                className="btn btn-md btn-outline btn-square btn-primary"
+                                className="btn btn-md btn-outline btn-square btn-error"
                                 disabled
                               >
                                 <BurnIcon className="w-7 h-7 text-current opacity-50" />
-                              </button>
-                              <button
-                                className="btn btn-md btn-outline btn-square btn-primary"
-                                disabled
-                              >
-                                <TransferIcon className="w-7 h-7 text-current opacity-50" />
                               </button>
                               <button
                                 className="btn btn-md btn-outline btn-square btn-info"
