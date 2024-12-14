@@ -1,4 +1,4 @@
-import { WalletNotConnected, FactoryIcon } from '@/components';
+import { WalletNotConnected, FactoryIcon, GithubIcon } from '@/components';
 import MyDenoms from '@/components/factory/components/MyDenoms';
 import {
   useTokenBalances,
@@ -12,6 +12,7 @@ import Head from 'next/head';
 import React, { useMemo } from 'react';
 import { ExtendedMetadataSDKType } from '@/utils';
 import env from '@/config/env';
+import Link from 'next/link';
 
 export default function Factory() {
   const { address, isWalletConnected } = useChain(env.chain);
@@ -122,11 +123,58 @@ export default function Factory() {
               address={address ?? ''}
             />
           ) : isError ? (
-            <div className="text-center my-auto text-error">
-              Error loading tokens. Please try again.
-            </div>
+            <section className="transition-opacity duration-300 h-[80vh] ease-in-out animate-fadeIn w-full flex items-center justify-center">
+              <div className="grid max-w-4xl bg-base-300 p-12 rounded-md w-full mx-auto gap-8 lg:grid-cols-12">
+                <div className="mr-auto place-self-center lg:col-span-7">
+                  <h1 className="max-w-2xl mb-4 text-2xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white text-black">
+                    Error loading tokens!
+                  </h1>
+                  <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl">
+                    Please refresh the page and check the logs! Use the button to create an issue on
+                    Github.
+                  </p>
+                  <div className="w-[50%]">
+                    <Link
+                      href="https://github.com/liftedinit/manifest-app/issues"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn w-full border-0 duration-300 ease-in-out text-white btn-gradient"
+                    >
+                      <GithubIcon className="w-5 h-5 mr-2 hidden md:block" />
+                      Open an issue
+                    </Link>
+                  </div>
+                </div>
+                <div className="hidden lg:mt-0 lg:ml-24 lg:col-span-5 lg:flex">
+                  <FactoryIcon className="h-60 w-60 text-primary" />
+                </div>
+              </div>
+            </section>
           ) : !isDataReady ? (
-            <div className="text-center my-auto">No token data available.</div>
+            <section className="transition-opacity duration-300 h-[80vh] ease-in-out animate-fadeIn w-full flex items-center justify-center">
+              <div className="grid max-w-4xl bg-base-300 p-12 rounded-md w-full mx-auto gap-8 lg:grid-cols-12">
+                <div className="mr-auto place-self-center lg:col-span-7">
+                  <h1 className="max-w-2xl mb-4 text-2xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white text-black">
+                    No factory tokens!
+                  </h1>
+                  <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl">
+                    Click the button to create your own token!
+                  </p>
+                  <div className="w-[50%]">
+                    <Link
+                      href="/factory/create"
+                      className="btn w-full border-0 duration-300 ease-in-out text-white btn-gradient"
+                    >
+                      <FactoryIcon className="w-5 h-5 mr-2 hidden md:block" />
+                      Create a token
+                    </Link>
+                  </div>
+                </div>
+                <div className="hidden lg:mt-0 lg:ml-24 lg:col-span-5 lg:flex">
+                  <FactoryIcon className="h-60 w-60 text-primary" />
+                </div>
+              </div>
+            </section>
           ) : (
             <MyDenoms
               denoms={combinedData}
