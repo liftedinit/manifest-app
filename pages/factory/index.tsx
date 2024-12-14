@@ -12,9 +12,20 @@ import Head from 'next/head';
 import React, { useMemo } from 'react';
 import { ExtendedMetadataSDKType } from '@/utils';
 import env from '@/config/env';
+import { useGroupAddressStore } from '@/stores/groupAddressStore';
 
 export default function Factory() {
   const { address, isWalletConnected } = useChain(env.chain);
+  const {
+    groups,
+    policyAddresses,
+    selectedAddress,
+    setSelectedAddress,
+    isGroupByMemberLoading,
+    isGroupByMemberError,
+    refetchGroupByMember,
+  } = useGroupAddressStore();
+
   const { denoms, isDenomsLoading, isDenomsError, refetchDenoms } = useTokenFactoryDenomsFromAdmin(
     address ?? ''
   );

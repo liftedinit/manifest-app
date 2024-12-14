@@ -7,14 +7,21 @@ import Link from 'next/link';
 import React, { useState } from 'react';
 import { useGroupsByMember, useProposalsByPolicyAccountAll } from '@/hooks';
 import env from '@/config/env';
+import { useGroupAddressStore } from '@/stores/groupAddressStore';
 
 export default function Groups() {
   const { address, isWalletConnected } = useChain(env.chain);
-  const { groupByMemberData, isGroupByMemberLoading, isGroupByMemberError, refetchGroupByMember } =
-    useGroupsByMember(address ?? '');
+  const {
+    groups,
+    policyAddresses,
+    selectedAddress,
+    setSelectedAddress,
+    isGroupByMemberLoading,
+    isGroupByMemberError,
+    refetchGroupByMember,
+  } = useGroupAddressStore();
 
-  const groupPolicyAddresses =
-    groupByMemberData?.groups?.map(group => group.policies[0].address) ?? [];
+  const groupPolicyAddresses = groups?.map(group => group.policies[0].address) ?? [];
 
   const { proposalsByPolicyAccount, isProposalsError, isProposalsLoading, refetchProposals } =
     useProposalsByPolicyAccountAll(groupPolicyAddresses ?? []);
@@ -76,19 +83,19 @@ export default function Groups() {
             />
           ) : isLoading ? (
             <YourGroups
-              groups={groupByMemberData ?? { groups: [] }}
+              groups={groups ?? { groups: [] }}
               proposals={proposalsByPolicyAccount}
               isLoading={isLoading}
               refetch={refetchGroupByMember || refetchProposals}
             />
           ) : isError ? (
             <div className="text-center text-error">Error loading groups or proposals</div>
-          ) : groupByMemberData?.groups.length === 0 ? (
+          ) : groups?.length === 0 ? (
             <NoGroupsFound />
           ) : (
             <>
               <YourGroups
-                groups={groupByMemberData ?? { groups: [] }}
+                groups={groups ?? { groups: [] }}
                 proposals={proposalsByPolicyAccount}
                 isLoading={isLoading}
                 refetch={refetchGroupByMember || refetchProposals}
