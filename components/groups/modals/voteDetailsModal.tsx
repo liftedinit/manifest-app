@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { createPortal } from 'react-dom';
-import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
-import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';
-import { githubGist, github } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import { PrismAsyncLight as SyntaxHighlighter } from 'react-syntax-highlighter';
+import json from 'react-syntax-highlighter/dist/esm/languages/prism/json';
+import oneDark from 'react-syntax-highlighter/dist/esm/styles/prism/one-dark';
+import oneLight from 'react-syntax-highlighter/dist/esm/styles/prism/one-light';
 
 import {
   MemberSDKType,
@@ -582,7 +583,7 @@ function VoteDetailsModal({
                         <pre className="whitespace-pre-wrap break-words bg-base-200  rounded-lg text-sm overflow-x-auto">
                           <SyntaxHighlighter
                             language="json"
-                            style={theme === 'dark' ? github : githubGist}
+                            style={theme === 'dark' ? oneDark : oneLight}
                             customStyle={{
                               backgroundColor: 'transparent',
                               padding: '1rem',
@@ -771,7 +772,7 @@ function VoteDetailsModal({
                           <pre className="whitespace-pre-wrap break-words bg-base-200 p-4 rounded-lg text-sm overflow-x-auto">
                             <SyntaxHighlighter
                               language="json"
-                              style={theme === 'dark' ? github : githubGist}
+                              style={theme === 'dark' ? oneDark : oneLight}
                               customStyle={{
                                 backgroundColor: 'transparent',
                                 padding: '1rem',
