@@ -1,6 +1,10 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { createPortal } from 'react-dom';
+import { PrismAsyncLight as SyntaxHighlighter } from 'react-syntax-highlighter';
+import json from 'react-syntax-highlighter/dist/esm/languages/prism/json';
+import oneDark from 'react-syntax-highlighter/dist/esm/styles/prism/one-dark';
+import oneLight from 'react-syntax-highlighter/dist/esm/styles/prism/one-light';
 
 import {
   MemberSDKType,
@@ -28,6 +32,8 @@ import env from '@/config/env';
 const Chart = dynamic(() => import('react-apexcharts'), {
   ssr: false,
 }) as any;
+
+SyntaxHighlighter.registerLanguage('json', json);
 
 interface VoteMap {
   [key: string]: VoteOption;
@@ -569,8 +575,25 @@ function VoteDetailsModal({
                       <h3 className="text-lg font-semibold mb-2 text-primary-content">
                         {messageType.split('.').pop().replace('Msg', '')}
                       </h3>
-                      <div>
-                        {fieldsToShow.map(field => renderMessageField(field, message[field]))}
+                      <div className="font-mono">
+                        <pre className="whitespace-pre-wrap break-words bg-base-200  rounded-lg text-sm overflow-x-auto">
+                          <SyntaxHighlighter
+                            language="json"
+                            style={theme === 'dark' ? oneDark : oneLight}
+                            customStyle={{
+                              backgroundColor: 'transparent',
+                              padding: '1rem',
+                              borderRadius: '0.5rem',
+                            }}
+                          >
+                            {prettyPrintJSON(
+                              fieldsToShow.reduce<Record<string, any>>((acc, field) => {
+                                acc[field] = message[field];
+                                return acc;
+                              }, {})
+                            )}
+                          </SyntaxHighlighter>
+                        </pre>
                       </div>
                     </div>
                   );
@@ -741,8 +764,25 @@ function VoteDetailsModal({
                         >
                           {messageType.split('.').pop().replace('Msg', '')}
                         </h3>
-                        <div>
-                          {fieldsToShow.map(field => renderMessageField(field, message[field]))}
+                        <div className="font-mono">
+                          <pre className="whitespace-pre-wrap break-words bg-base-200 p-4 rounded-lg text-sm overflow-x-auto">
+                            <SyntaxHighlighter
+                              language="json"
+                              style={theme === 'dark' ? oneDark : oneLight}
+                              customStyle={{
+                                backgroundColor: 'transparent',
+                                padding: '1rem',
+                                borderRadius: '0.5rem',
+                              }}
+                            >
+                              {prettyPrintJSON(
+                                fieldsToShow.reduce<Record<string, any>>((acc, field) => {
+                                  acc[field] = message[field];
+                                  return acc;
+                                }, {})
+                              )}
+                            </SyntaxHighlighter>
+                          </pre>
                         </div>
                       </div>
                     );
