@@ -6,7 +6,7 @@ const createLcdQueryClient = cosmos.ClientFactory.createLCDClient;
 
 export const useLcdQueryClient = () => {
   const lcdQueryClient = useQuery({
-    queryKey: ['lcdQueryClient', env.apiUrl],
+    queryKey: ['cosmosQueryClient', env.apiUrl],
     queryFn: () =>
       createLcdQueryClient({
         restEndpoint: env.apiUrl,

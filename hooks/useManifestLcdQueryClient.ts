@@ -6,7 +6,7 @@ const createLcdQueryClient = osmosis.ClientFactory.createLCDClient;
 
 export const useManifestLcdQueryClient = () => {
   const lcdQueryClient = useQuery({
-    queryKey: ['lcdQueryClient', env.apiUrl],
+    queryKey: ['factoryQueryClient', env.apiUrl],
     queryFn: () =>
       createLcdQueryClient({
         restEndpoint: env.apiUrl,
@@ -16,6 +16,6 @@ export const useManifestLcdQueryClient = () => {
   });
 
   return {
-    lcdQueryClient: lcdQueryClient.data,
+    manifestLcdQueryClient: lcdQueryClient.data,
   };
 };

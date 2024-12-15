@@ -3,26 +3,43 @@ import { useRouter } from 'next/router';
 import { DenomImage } from './DenomImage';
 import Link from 'next/link';
 import { truncateString, ExtendedMetadataSDKType, shiftDigits, formatTokenDisplay } from '@/utils';
-import { SearchIcon, MintIcon, BurnIcon, TransferIcon } from '@/components/icons';
+import {
+  SearchIcon,
+  MintIcon,
+  BurnIcon,
+  TransferIcon,
+  FactoryIcon,
+  GithubIcon,
+} from '@/components/icons';
 import { DenomInfoModal } from '@/components/factory/modals/denomInfo';
 import MintModal from '@/components/factory/modals/MintModal';
 import BurnModal from '@/components/factory/modals/BurnModal';
 import { UpdateDenomMetadataModal } from '@/components/factory/modals/updateDenomMetadata';
-import { PiInfo } from 'react-icons/pi';
-import { usePoaGetAdmin } from '@/hooks';
+import { PiCaretDownBold, PiInfo } from 'react-icons/pi';
+import { ExtendedGroupType, usePoaGetAdmin } from '@/hooks';
 import useIsMobile from '@/hooks/useIsMobile';
 import TransferModal from '@/components/factory/modals/TransferModal';
 
 export default function MyDenoms({
+  groups,
+  setSelectedAddress,
+  selectedAddress,
   denoms,
   isLoading,
   refetchDenoms,
   address,
+  isDataReady,
+  isError,
 }: {
+  groups: ExtendedGroupType[];
+  setSelectedAddress: (address: string) => void;
+  selectedAddress: string;
   denoms: ExtendedMetadataSDKType[];
   isLoading: boolean;
   refetchDenoms: () => void;
   address: string;
+  isDataReady: boolean;
+  isError: boolean;
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -164,185 +181,314 @@ export default function MyDenoms({
             </div>
           </div>
 
-          <div className="hidden md:block">
-            <Link href="/factory/create" passHref>
-              <button className="btn btn-gradient w-[224px] h-[52px] text-white rounded-[12px] focus:outline-none focus-visible:ring-1 focus-visible:ring-primary">
-                Create New Token
-              </button>
-            </Link>
-          </div>
-        </div>
-        <div className="overflow-auto">
-          <div className="max-w-8xl mx-auto">
-            <table className="table w-full border-separate border-spacing-y-3">
-              <thead className="sticky top-0 bg-[#F0F0FF] dark:bg-[#0E0A1F]">
-                <tr className="text-sm font-medium">
-                  <th className="bg-transparent w-1/4">Token</th>
-                  <th className="bg-transparent w-2/5 xl:table-cell hidden">Name</th>
-                  <th className="bg-transparent w-2/5  md:table-cell hidden">Total Supply</th>
-                  <th className="bg-transparent w-1/4">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="space-y-4">
-                {isLoading
-                  ? Array(isMobile ? 5 : 8)
-                      .fill(0)
-                      .map((_, index) => (
-                        <tr key={index}>
-                          <td className="bg-secondary rounded-l-[12px] w-1/4">
-                            <div className="flex items-center space-x-3">
-                              <div
-                                className="skeleton w-10 h-10 rounded-full shrink-0"
-                                aria-label={`skeleton-${index}-avatar`}
-                              />
-                              <div>
-                                <div
-                                  className="skeleton h-4 w-20 mb-1"
-                                  aria-label={`skeleton-${index}-ticker`}
-                                />
-                                <div
-                                  className="skeleton h-3 w-16 xxs:max-xs:hidden"
-                                  aria-label={`skeleton-${index}-symbol`}
-                                />
-                              </div>
-                            </div>
-                          </td>
-                          <td className="bg-secondary w-2/5 xl:table-cell hidden">
-                            <div
-                              className="skeleton h-4 w-32"
-                              aria-label={`skeleton-${index}-name`}
-                            />
-                          </td>
-                          <td className="bg-secondary w-2/5 md:table-cell hidden">
-                            <div
-                              className="skeleton h-4 w-28"
-                              aria-label={`skeleton-${index}-supply`}
-                            />
-                          </td>
-                          <td className="bg-secondary rounded-r-[12px] w-1/4">
-                            <div className="flex space-x-2">
-                              <button
-                                className="btn btn-md btn-outline btn-square btn-primary"
-                                disabled
-                              >
-                                <MintIcon className="w-7 h-7 text-current opacity-50" />
-                              </button>
-                              <button
-                                className="btn btn-md btn-outline btn-square btn-error"
-                                disabled
-                              >
-                                <BurnIcon className="w-7 h-7 text-current opacity-50" />
-                              </button>
-                              <button
-                                className="btn btn-md btn-outline btn-square btn-info"
-                                disabled
-                              >
-                                <PiInfo className="w-7 h-7 text-current opacity-50" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                  : paginatedDenoms.map(denom => (
-                      <TokenRow
-                        key={denom.base}
-                        denom={denom}
-                        onSelectDenom={() => handleDenomSelect(denom)}
-                        onMint={e => {
-                          e.stopPropagation();
-                          setSelectedDenom(denom);
-                          setModalType('mint');
-                          router.push(`/factory?denom=${denom.base}&action=mint`, undefined, {
-                            shallow: true,
-                          });
-                        }}
-                        onBurn={e => {
-                          e.stopPropagation();
-                          setSelectedDenom(denom);
-                          setModalType('burn');
-                          router.push(`/factory?denom=${denom.base}&action=burn`, undefined, {
-                            shallow: true,
-                          });
-                        }}
-                        onTransfer={e => handleTransferModal(denom, e)}
-                        onUpdate={e => handleUpdateModal(denom, e)}
-                      />
-                    ))}
-              </tbody>
-            </table>
-            {totalPages > 1 && (
-              <div
-                className="flex items-center justify-center gap-2 "
-                onClick={e => e.stopPropagation()}
-                role="navigation"
-                aria-label="Pagination"
+          <div className="flex items-center gap-6">
+            <div className="dropdown dropdown-end h-full">
+              <label
+                aria-label="group-selector"
+                tabIndex={0}
+                className="btn btn-md h-full px-3 bg-[#FFFFFF] dark:bg-[#FFFFFF0F] border-none hover:bg-transparent"
               >
-                <button
-                  onClick={e => {
-                    e.stopPropagation();
-                    setCurrentPage(prev => Math.max(1, prev - 1));
-                  }}
-                  disabled={currentPage === 1 || isLoading}
-                  className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  aria-label="Previous page"
+                {selectedAddress ? (
+                  <div className="flex items-center gap-2">
+                    {selectedAddress === address
+                      ? 'My Address'
+                      : groups.find(group =>
+                          group.policies.some(policy => policy.address === selectedAddress)
+                        )?.ipfsMetadata?.title ||
+                        `Untitled Group ${
+                          groups.find(group =>
+                            group.policies.some(policy => policy.address === selectedAddress)
+                          )?.id
+                        }`}
+                  </div>
+                ) : (
+                  'Select Address'
+                )}
+                <PiCaretDownBold className="ml-1" />
+              </label>
+              <ul
+                tabIndex={0}
+                role="listbox"
+                aria-label="Address selection"
+                className="dropdown-content z-20 p-2 shadow bg-base-300 rounded-lg w-full mt-1 max-h-72 min-w-44 overflow-y-auto dark:text-[#FFFFFF] text-[#161616]"
+              >
+                <li
+                  className="hover:bg-[#E0E0FF33] dark:hover:bg-[#FFFFFF0F] cursor-pointer rounded-lg"
+                  aria-label="My Address"
                 >
-                  ‹
-                </button>
+                  <a
+                    className="flex flex-row items-center gap-2 px-2 py-2"
+                    onClick={() => setSelectedAddress(address)}
+                  >
+                    <span className="truncate">My Address</span>
+                  </a>
+                </li>
 
-                {[...Array(totalPages)].map((_, index) => {
-                  const pageNum = index + 1;
-                  if (
-                    pageNum === 1 ||
-                    pageNum === totalPages ||
-                    (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
-                  ) {
-                    return (
-                      <button
-                        key={pageNum}
-                        onClick={e => {
-                          e.stopPropagation();
-                          setCurrentPage(pageNum);
-                        }}
-                        className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors text-black dark:text-white 
-                          ${currentPage === pageNum ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A]' : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A]'}`}
-                        aria-label={`Page ${pageNum}`}
-                        aria-current={currentPage === pageNum ? 'page' : undefined}
+                <div className="divider my-1"></div>
+
+                {groups.map(group => (
+                  <li
+                    key={Number(group.id)}
+                    className="hover:bg-[#E0E0FF33] dark:hover:bg-[#FFFFFF0F] cursor-pointer rounded-lg"
+                    aria-label={group.ipfsMetadata?.title}
+                  >
+                    {group.policies.map(policy => (
+                      <a
+                        key={policy.address}
+                        className="flex flex-row items-center gap-2 px-2 py-2"
+                        onClick={() => setSelectedAddress(policy.address)}
                       >
-                        {pageNum}
-                      </button>
-                    );
-                  } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
-                    return (
-                      <span key={pageNum} aria-hidden="true">
-                        ...
-                      </span>
-                    );
-                  }
-                  return null;
-                })}
+                        <span className="truncate">
+                          {group.ipfsMetadata?.title || `Untitled Group ${group.id}`}
+                        </span>
+                      </a>
+                    ))}
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-                <button
-                  onClick={e => {
-                    e.stopPropagation();
-                    setCurrentPage(prev => Math.min(totalPages, prev + 1));
-                  }}
-                  disabled={currentPage === totalPages || isLoading}
-                  className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  aria-label="Next page"
-                >
-                  ›
+            <div className="hidden md:block">
+              <Link href="/factory/create" passHref>
+                <button className="btn btn-gradient w-[224px] h-[52px] text-white rounded-[12px] focus:outline-none focus-visible:ring-1 focus-visible:ring-primary">
+                  Create New Token
                 </button>
-              </div>
-            )}
-          </div>
-          <div className="block md:hidden mt-8">
-            <Link href="/factory/create" passHref>
-              <button className="btn btn-gradient w-full h-[52px] text-white rounded-[12px]">
-                Create New Token
-              </button>
-            </Link>
+              </Link>
+            </div>
           </div>
         </div>
+        {isError && !isLoading ? (
+          <section className="transition-opacity duration-300 h-[80vh] ease-in-out animate-fadeIn w-full flex items-center justify-center">
+            <div className="grid max-w-4xl bg-base-300 p-12 rounded-md w-full mx-auto gap-8 lg:grid-cols-12">
+              <div className="mr-auto place-self-center lg:col-span-7">
+                <h1 className="max-w-2xl mb-4 text-2xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white text-black">
+                  Error loading tokens!
+                </h1>
+                <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl">
+                  Please refresh the page and check the logs! Use the button to create an issue on
+                  Github.
+                </p>
+                <div className="w-[50%]">
+                  <Link
+                    href="https://github.com/liftedinit/manifest-app/issues"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn w-full border-0 duration-300 ease-in-out text-white btn-gradient"
+                  >
+                    <GithubIcon className="w-5 h-5 mr-2 hidden md:block" />
+                    Open an issue
+                  </Link>
+                </div>
+              </div>
+              <div className="hidden lg:mt-0 lg:ml-24 lg:col-span-5 lg:flex">
+                <FactoryIcon className="h-60 w-60 text-primary" />
+              </div>
+            </div>
+          </section>
+        ) : !isDataReady && !isLoading ? (
+          <section className="transition-opacity duration-300 h-[80vh] ease-in-out animate-fadeIn w-full flex items-center justify-center">
+            <div className="grid max-w-4xl bg-base-300 p-12 rounded-md w-full mx-auto gap-8 lg:grid-cols-12">
+              <div className="mr-auto place-self-center lg:col-span-7">
+                <h1 className="max-w-2xl mb-4 text-2xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white text-black">
+                  No factory tokens!
+                </h1>
+                <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl">
+                  Click the button to create your own token!
+                </p>
+                <div className="w-[50%]">
+                  <Link
+                    href="/factory/create"
+                    className="btn w-full border-0 duration-300 ease-in-out text-white btn-gradient"
+                  >
+                    <FactoryIcon className="w-5 h-5 mr-2 hidden md:block" />
+                    Create a token
+                  </Link>
+                </div>
+              </div>
+              <div className="hidden lg:mt-0 lg:ml-24 lg:col-span-5 lg:flex">
+                <FactoryIcon className="h-60 w-60 text-primary" />
+              </div>
+            </div>
+          </section>
+        ) : (
+          <div className="overflow-auto">
+            <div className="max-w-8xl mx-auto">
+              <table className="table w-full border-separate border-spacing-y-3">
+                <thead className="sticky top-0 bg-[#F0F0FF] dark:bg-[#0E0A1F]">
+                  <tr className="text-sm font-medium">
+                    <th className="bg-transparent w-1/4">Token</th>
+                    <th className="bg-transparent w-2/5 xl:table-cell hidden">Name</th>
+                    <th className="bg-transparent w-2/5  md:table-cell hidden">Total Supply</th>
+                    <th className="bg-transparent w-1/4">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="space-y-4">
+                  {isLoading
+                    ? Array(isMobile ? 5 : 8)
+                        .fill(0)
+                        .map((_, index) => (
+                          <tr key={index}>
+                            <td className="bg-secondary rounded-l-[12px] w-1/4">
+                              <div className="flex items-center space-x-3">
+                                <div
+                                  className="skeleton w-10 h-10 rounded-full shrink-0"
+                                  aria-label={`skeleton-${index}-avatar`}
+                                />
+                                <div>
+                                  <div
+                                    className="skeleton h-4 w-20 mb-1"
+                                    aria-label={`skeleton-${index}-ticker`}
+                                  />
+                                  <div
+                                    className="skeleton h-3 w-16 xxs:max-xs:hidden"
+                                    aria-label={`skeleton-${index}-symbol`}
+                                  />
+                                </div>
+                              </div>
+                            </td>
+                            <td className="bg-secondary w-2/5 xl:table-cell hidden">
+                              <div
+                                className="skeleton h-4 w-32"
+                                aria-label={`skeleton-${index}-name`}
+                              />
+                            </td>
+                            <td className="bg-secondary w-2/5 md:table-cell hidden">
+                              <div
+                                className="skeleton h-4 w-28"
+                                aria-label={`skeleton-${index}-supply`}
+                              />
+                            </td>
+                            <td className="bg-secondary rounded-r-[12px] w-1/4">
+                              <div className="flex space-x-2">
+                                <button
+                                  className="btn btn-md btn-outline btn-square btn-primary"
+                                  disabled
+                                >
+                                  <MintIcon className="w-7 h-7 text-current opacity-50" />
+                                </button>
+                                <button
+                                  className="btn btn-md btn-outline btn-square btn-primary"
+                                  disabled
+                                >
+                                  <BurnIcon className="w-7 h-7 text-current opacity-50" />
+                                </button>
+                                <button
+                                  className="btn btn-md btn-outline btn-square btn-primary"
+                                  disabled
+                                >
+                                  <TransferIcon className="w-7 h-7 text-current opacity-50" />
+                                </button>
+                                <button
+                                  className="btn btn-md btn-outline btn-square btn-info"
+                                  disabled
+                                >
+                                  <PiInfo className="w-7 h-7 text-current opacity-50" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                    : paginatedDenoms.map(denom => (
+                        <TokenRow
+                          key={denom.base}
+                          denom={denom}
+                          onSelectDenom={() => handleDenomSelect(denom)}
+                          onMint={e => {
+                            e.stopPropagation();
+                            setSelectedDenom(denom);
+                            setModalType('mint');
+                            router.push(`/factory?denom=${denom.base}&action=mint`, undefined, {
+                              shallow: true,
+                            });
+                          }}
+                          onBurn={e => {
+                            e.stopPropagation();
+                            setSelectedDenom(denom);
+                            setModalType('burn');
+                            router.push(`/factory?denom=${denom.base}&action=burn`, undefined, {
+                              shallow: true,
+                            });
+                          }}
+                          onTransfer={e => handleTransferModal(denom, e)}
+                          onUpdate={e => handleUpdateModal(denom, e)}
+                        />
+                      ))}
+                </tbody>
+              </table>
+              {totalPages > 1 && (
+                <div
+                  className="flex items-center justify-center gap-2 "
+                  onClick={e => e.stopPropagation()}
+                  role="navigation"
+                  aria-label="Pagination"
+                >
+                  <button
+                    onClick={e => {
+                      e.stopPropagation();
+                      setCurrentPage(prev => Math.max(1, prev - 1));
+                    }}
+                    disabled={currentPage === 1 || isLoading}
+                    className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Previous page"
+                  >
+                    ‹
+                  </button>
+
+                  {[...Array(totalPages)].map((_, index) => {
+                    const pageNum = index + 1;
+                    if (
+                      pageNum === 1 ||
+                      pageNum === totalPages ||
+                      (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                    ) {
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={e => {
+                            e.stopPropagation();
+                            setCurrentPage(pageNum);
+                          }}
+                          className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors text-black dark:text-white 
+                          ${currentPage === pageNum ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A]' : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A]'}`}
+                          aria-label={`Page ${pageNum}`}
+                          aria-current={currentPage === pageNum ? 'page' : undefined}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
+                      return (
+                        <span key={pageNum} aria-hidden="true">
+                          ...
+                        </span>
+                      );
+                    }
+                    return null;
+                  })}
+
+                  <button
+                    onClick={e => {
+                      e.stopPropagation();
+                      setCurrentPage(prev => Math.min(totalPages, prev + 1));
+                    }}
+                    disabled={currentPage === totalPages || isLoading}
+                    className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Next page"
+                  >
+                    ›
+                  </button>
+                </div>
+              )}
+            </div>
+            <div className="block md:hidden mt-8">
+              <Link href="/factory/create" passHref>
+                <button className="btn btn-gradient w-full h-[52px] text-white rounded-[12px]">
+                  Create New Token
+                </button>
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
       <DenomInfoModal
         openDenomInfoModal={modalType === 'info'}

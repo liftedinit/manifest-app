@@ -16,26 +16,25 @@ import { useGroupAddressStore } from '@/stores/groupAddressStore';
 
 export default function Factory() {
   const { address, isWalletConnected } = useChain(env.chain);
-  const {
-    groups,
-    policyAddresses,
-    selectedAddress,
-    setSelectedAddress,
-    isGroupByMemberLoading,
-    isGroupByMemberError,
-    refetchGroupByMember,
-  } = useGroupAddressStore();
+  const { groups, selectedAddress, setSelectedAddress } = useGroupAddressStore();
 
-  const { denoms, isDenomsLoading, isDenomsError, refetchDenoms } = useTokenFactoryDenomsFromAdmin(
-    address ?? ''
-  );
-  const { metadatas, isMetadatasLoading, isMetadatasError, refetchMetadatas } =
+  // Only proceed with a valid address
+  const effectiveAddress = selectedAddress || address || '';
+  const isValidAddress = Boolean(effectiveAddress && effectiveAddress.length > 0);
+
+  const { denoms, isDenomsLoading, isDenomsError, refetchDenoms, denomsError } =
+    useTokenFactoryDenomsFromAdmin();
+  const { metadatas, isMetadatasLoading, isMetadatasError, refetchMetadatas, metadatasError } =
     useTokenFactoryDenomsMetadata();
-  const { balances, isBalancesLoading, isBalancesError, refetchBalances } = useTokenBalances(
-    address ?? ''
-  );
-  const { totalSupply, isTotalSupplyLoading, isTotalSupplyError, refetchTotalSupply } =
-    useTotalSupply();
+  const { balances, isBalancesLoading, isBalancesError, refetchBalances, balancesError } =
+    useTokenBalances(selectedAddress ? selectedAddress : (address ?? ''));
+  const {
+    totalSupply,
+    isTotalSupplyLoading,
+    isTotalSupplyError,
+    refetchTotalSupply,
+    totalSupplyError,
+  } = useTotalSupply();
 
   const isLoading =
     isDenomsLoading || isMetadatasLoading || isBalancesLoading || isTotalSupplyLoading;
@@ -72,6 +71,16 @@ export default function Factory() {
   }, [denoms, metadatas, balances, totalSupply]);
 
   const isDataReady = combinedData.length > 0;
+
+  // Early return if no valid address
+  if (!isValidAddress) {
+    return (
+      <WalletNotConnected
+        description="Use the button below to connect your wallet and start creating new tokens."
+        icon={<FactoryIcon className="h-60 w-60 text-primary" />}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen relative py-4 px-2 mx-auto text-white ">
@@ -125,25 +134,17 @@ export default function Factory() {
               description="Use the button below to connect your wallet and start creating new tokens."
               icon={<FactoryIcon className="h-60 w-60 text-primary" />}
             />
-          ) : isLoading ? (
-            <MyDenoms
-              denoms={combinedData}
-              isLoading={isLoading}
-              refetchDenoms={refetchData}
-              address={address ?? ''}
-            />
-          ) : isError ? (
-            <div className="text-center my-auto text-error">
-              Error loading tokens. Please try again.
-            </div>
-          ) : !isDataReady ? (
-            <div className="text-center my-auto">No token data available.</div>
           ) : (
             <MyDenoms
+              groups={groups}
+              setSelectedAddress={setSelectedAddress}
+              selectedAddress={selectedAddress ?? ''}
               denoms={combinedData}
               isLoading={isLoading}
               refetchDenoms={refetchData}
               address={address ?? ''}
+              isDataReady={isDataReady}
+              isError={isError}
             />
           )}
         </div>

@@ -212,12 +212,8 @@ export const IconWallet: React.FC<WalletSectionProps> = ({ chainName }) => {
     return (
       <div className="relative group">
         <button
-          onClick={
-            status === WalletStatus.Disconnected || status === WalletStatus.Rejected
-              ? onClick
-              : () => {}
-          }
-          className={`flex justify-center items-center w-8 h-8 hover:text-primary  duration-200 ease-in-out  ${status === WalletStatus.Disconnected || status === WalletStatus.Rejected ? 'cursor-pointer' : 'cursor-default'}`}
+          onClick={onClick}
+          className={`flex justify-center items-center w-8 h-8 hover:text-primary  duration-200 ease-in-out  `}
         >
           <buttonData.icon className="w-8 h-8" />
         </button>

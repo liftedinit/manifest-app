@@ -17,7 +17,10 @@ export const useGroupAddressStore = create<GroupAddressStore>(set => ({
   groups: [],
   policyAddresses: [],
   selectedAddress: null,
-  setSelectedAddress: address => set({ selectedAddress: address }),
+  setSelectedAddress: address =>
+    set({
+      selectedAddress: address && address.length > 0 ? address : null,
+    }),
   refetchGroupByMember: () => set({ groups: [], policyAddresses: [] }),
   isGroupByMemberLoading: false,
   isGroupByMemberError: false,
@@ -37,13 +40,13 @@ export const useInitializeGroupStore = (address: string) => {
       useGroupAddressStore.setState({
         groups: groupByMemberData.groups,
         policyAddresses,
-        // Only set selectedAddress if it's not already set
+        // Prioritize user's address if it exists
         selectedAddress:
-          useGroupAddressStore.getState().selectedAddress ?? policyAddresses[0] ?? null,
+          useGroupAddressStore.getState().selectedAddress ?? address ?? policyAddresses[0] ?? null,
         isGroupByMemberLoading,
         isGroupByMemberError,
         refetchGroupByMember,
       });
     }
-  }, [groupByMemberData]);
+  }, [groupByMemberData, address]);
 };
