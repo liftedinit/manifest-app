@@ -15,7 +15,6 @@ import { MsgMint } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactor
 import { useGroupAddressStore } from '@/stores/groupAddressStore';
 
 export default function MintForm({
-  isAdmin,
   denom,
   address,
   refetch,
@@ -23,7 +22,6 @@ export default function MintForm({
   totalSupply,
   isGroup,
 }: Readonly<{
-  isAdmin: boolean;
   denom: ExtendedMetadataSDKType;
   address: string;
   refetch: () => void;
@@ -109,144 +107,136 @@ export default function MintForm({
   return (
     <div className="animate-fadeIn text-sm z-10">
       <div className="rounded-lg">
-        {isMFX && !isAdmin ? (
-          <div className="w-full p-2 justify-center items-center my-auto leading-tight text-xl flex flex-col font-medium text-pretty">
-            <span>You must be a member of the admin group to mint MFX.</span>
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">NAME</p>
-                <div className="bg-base-300 p-4 rounded-md">
-                  <p className="font-semibold text-md  truncate text-black dark:text-white">
-                    {denom.name}
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <p className="text-sm font-light text-gray-500 truncate dark:text-gray-400 mb-2">
-                  CIRCULATING SUPPLY
-                </p>
-                <div className="bg-base-300 p-4 rounded-md">
-                  <p className="font-semibold text-md truncate text-black dark:text-white">
-                    {Number(shiftDigits(totalSupply, -exponent)).toLocaleString(undefined, {
-                      maximumFractionDigits: exponent,
-                    })}{' '}
-                  </p>
-                </div>
-              </div>
+        <div className="grid grid-cols-2 gap-6">
+          <div>
+            <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">NAME</p>
+            <div className="bg-base-300 p-4 rounded-md">
+              <p className="font-semibold text-md  truncate text-black dark:text-white">
+                {denom.name}
+              </p>
             </div>
-            {!denom.base.includes('umfx') && (
-              <Formik
-                initialValues={{ amount: '', recipient: address }}
-                validationSchema={MintSchema}
-                onSubmit={values => {
-                  setAmount(values.amount);
-                  setRecipient(values.recipient);
-                  handleMint();
-                }}
-                validateOnChange={true}
-                validateOnBlur={true}
-              >
-                {({ isValid, dirty, setFieldValue, errors, touched }) => (
-                  <Form>
-                    <div className="flex space-x-4 mt-8">
-                      <div className="flex-grow relative">
-                        <NumberInput
-                          showError={false}
-                          label="AMOUNT"
-                          name="amount"
-                          placeholder="Enter amount"
-                          value={amount}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                            setAmount(e.target.value);
-                            setFieldValue('amount', e.target.value);
-                          }}
-                          className={`input input-bordered w-full ${
-                            touched.amount && errors.amount ? 'input-error' : ''
-                          }`}
-                        />
-                        {touched.amount && errors.amount && (
-                          <div
-                            className="tooltip tooltip-bottom tooltip-open tooltip-error bottom-0 absolute left-1/2 transform -translate-x-1/2 translate-y-full mt-1 z-50 text-white text-xs"
-                            data-tip={errors.amount}
-                          >
-                            <div className="w-0 h-0"></div>
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-grow relative">
-                        <TextInput
-                          showError={false}
-                          label="RECIPIENT"
-                          name="recipient"
-                          placeholder="Recipient address"
-                          value={recipient}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                            setRecipient(e.target.value);
-                            setFieldValue('recipient', e.target.value);
-                          }}
-                          className={`input input-bordered w-full transition-none ${
-                            touched.recipient && errors.recipient ? 'input-error' : ''
-                          }`}
-                          rightElement={
-                            <button
-                              type="button"
-                              aria-label="contacts-btn"
-                              onClick={() => setIsContactsOpen(true)}
-                              className="btn btn-primary btn-sm text-white"
-                            >
-                              <MdContacts className="w-5 h-5" />
-                            </button>
-                          }
-                        />
-                        {touched.recipient && errors.recipient && (
-                          <div
-                            className="tooltip tooltip-bottom tooltip-open tooltip-error bottom-0 absolute left-1/2 transform -translate-x-1/2 translate-y-full mt-1 z-50 text-white text-xs"
-                            data-tip={errors.recipient}
-                          >
-                            <div className="w-0 h-0"></div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex justify-end mt-6">
-                      {!denom.base.includes('umfx') && (
-                        <button
-                          type="submit"
-                          aria-label={`mint-btn-${denom.display}`}
-                          className="btn btn-gradient btn-md flex-grow text-white"
-                          disabled={isSigning || !isValid || !dirty}
-                        >
-                          {isSigning ? (
-                            <span className="loading loading-dots loading-xs"></span>
-                          ) : (
-                            `Mint ${
-                              denom.display.startsWith('factory')
-                                ? denom.display.split('/').pop()?.toUpperCase()
-                                : truncateString(denom.display, 12)
-                            }`
-                          )}
-                        </button>
-                      )}
-                    </div>
-                    <TailwindModal
-                      isOpen={isContactsOpen}
-                      setOpen={setIsContactsOpen}
-                      showContacts={true}
-                      currentAddress={address}
-                      onSelect={(selectedAddress: string) => {
-                        setRecipient(selectedAddress);
-                        setFieldValue('recipient', selectedAddress);
+          </div>
+
+          <div>
+            <p className="text-sm font-light text-gray-500 truncate dark:text-gray-400 mb-2">
+              CIRCULATING SUPPLY
+            </p>
+            <div className="bg-base-300 p-4 rounded-md">
+              <p className="font-semibold text-md truncate text-black dark:text-white">
+                {Number(shiftDigits(totalSupply, -exponent)).toLocaleString(undefined, {
+                  maximumFractionDigits: exponent,
+                })}{' '}
+              </p>
+            </div>
+          </div>
+        </div>
+        {!denom.base.includes('umfx') && (
+          <Formik
+            initialValues={{ amount: '', recipient: address }}
+            validationSchema={MintSchema}
+            onSubmit={values => {
+              setAmount(values.amount);
+              setRecipient(values.recipient);
+              handleMint();
+            }}
+            validateOnChange={true}
+            validateOnBlur={true}
+          >
+            {({ isValid, dirty, setFieldValue, errors, touched }) => (
+              <Form>
+                <div className="flex space-x-4 mt-8">
+                  <div className="flex-grow relative">
+                    <NumberInput
+                      showError={false}
+                      label="AMOUNT"
+                      name="amount"
+                      placeholder="Enter amount"
+                      value={amount}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        setAmount(e.target.value);
+                        setFieldValue('amount', e.target.value);
                       }}
+                      className={`input input-bordered w-full ${
+                        touched.amount && errors.amount ? 'input-error' : ''
+                      }`}
                     />
-                  </Form>
-                )}
-              </Formik>
+                    {touched.amount && errors.amount && (
+                      <div
+                        className="tooltip tooltip-bottom tooltip-open tooltip-error bottom-0 absolute left-1/2 transform -translate-x-1/2 translate-y-full mt-1 z-50 text-white text-xs"
+                        data-tip={errors.amount}
+                      >
+                        <div className="w-0 h-0"></div>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-grow relative">
+                    <TextInput
+                      showError={false}
+                      label="RECIPIENT"
+                      name="recipient"
+                      placeholder="Recipient address"
+                      value={recipient}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        setRecipient(e.target.value);
+                        setFieldValue('recipient', e.target.value);
+                      }}
+                      className={`input input-bordered w-full transition-none ${
+                        touched.recipient && errors.recipient ? 'input-error' : ''
+                      }`}
+                      rightElement={
+                        <button
+                          type="button"
+                          aria-label="contacts-btn"
+                          onClick={() => setIsContactsOpen(true)}
+                          className="btn btn-primary btn-sm text-white"
+                        >
+                          <MdContacts className="w-5 h-5" />
+                        </button>
+                      }
+                    />
+                    {touched.recipient && errors.recipient && (
+                      <div
+                        className="tooltip tooltip-bottom tooltip-open tooltip-error bottom-0 absolute left-1/2 transform -translate-x-1/2 translate-y-full mt-1 z-50 text-white text-xs"
+                        data-tip={errors.recipient}
+                      >
+                        <div className="w-0 h-0"></div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="flex justify-end mt-6">
+                  {!denom.base.includes('umfx') && (
+                    <button
+                      type="submit"
+                      aria-label={`mint-btn-${denom.display}`}
+                      className="btn btn-gradient btn-md flex-grow text-white"
+                      disabled={isSigning || !isValid || !dirty}
+                    >
+                      {isSigning ? (
+                        <span className="loading loading-dots loading-xs"></span>
+                      ) : (
+                        `Mint ${
+                          denom.display.startsWith('factory')
+                            ? denom.display.split('/').pop()?.toUpperCase()
+                            : truncateString(denom.display, 12)
+                        }`
+                      )}
+                    </button>
+                  )}
+                </div>
+                <TailwindModal
+                  isOpen={isContactsOpen}
+                  setOpen={setIsContactsOpen}
+                  showContacts={true}
+                  currentAddress={address}
+                  onSelect={(selectedAddress: string) => {
+                    setRecipient(selectedAddress);
+                    setFieldValue('recipient', selectedAddress);
+                  }}
+                />
+              </Form>
             )}
-          </>
+          </Formik>
         )}
       </div>
     </div>

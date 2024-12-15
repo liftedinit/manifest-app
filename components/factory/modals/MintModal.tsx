@@ -98,7 +98,6 @@ export default function MintModal({
             <div className="skeleton h-[17rem] max-h-72 w-full"></div>
           ) : (
             <MintForm
-              isAdmin={isAdmin ?? false}
               balance={safeBalance}
               totalSupply={safeTotalSupply}
               refetch={refetch}
