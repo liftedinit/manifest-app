@@ -13,6 +13,7 @@ export default function BurnModal({
   isOpen,
   onClose,
   onSwitchToMultiBurn,
+  isGroup,
 }: {
   denom: ExtendedMetadataSDKType | null;
   address: string;
@@ -22,6 +23,7 @@ export default function BurnModal({
   isOpen: boolean;
   onClose: () => void;
   onSwitchToMultiBurn: () => void;
+  isGroup: boolean;
 }) {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {

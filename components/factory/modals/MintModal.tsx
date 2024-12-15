@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+
 import MintForm from '@/components/factory/forms/MintForm';
-import { useGroupsByAdmin, usePoaGetAdmin } from '@/hooks';
+import { useGroupsByAdmin } from '@/hooks';
 import { ExtendedMetadataSDKType, truncateString } from '@/utils';
-import { MultiMintModal } from '../../admins/modals/multiMfxMintModal';
+
 import { createPortal } from 'react-dom';
 
 export default function MintModal({
@@ -17,6 +17,7 @@ export default function MintModal({
   onSwitchToMultiMint,
   admin,
   isPoaAdminLoading,
+  isGroup,
 }: {
   denom: ExtendedMetadataSDKType | null;
   address: string;
@@ -28,6 +29,7 @@ export default function MintModal({
   onSwitchToMultiMint: () => void;
   admin: string;
   isPoaAdminLoading: boolean;
+  isGroup: boolean;
 }) {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -39,8 +41,6 @@ export default function MintModal({
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen]);
-
-  const [isMultiMintOpen, setIsMultiMintOpen] = useState(false);
 
   const { groupByAdmin, isGroupByAdminLoading } = useGroupsByAdmin(
     admin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'
@@ -54,14 +54,6 @@ export default function MintModal({
 
   const safeBalance = balance || '0';
   const safeTotalSupply = totalSupply || '0';
-
-  const handleMultiMintOpen = () => {
-    onSwitchToMultiMint();
-  };
-
-  const handleMultiMintClose = () => {
-    setIsMultiMintOpen(false);
-  };
 
   const modalContent = (
     <dialog
@@ -112,7 +104,7 @@ export default function MintModal({
               refetch={refetch}
               address={address}
               denom={denom}
-              onMultiMintClick={handleMultiMintOpen}
+              isGroup={isGroup}
             />
           )}
         </div>

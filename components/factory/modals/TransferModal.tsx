@@ -22,6 +22,7 @@ export default function TransferModal({
   isOpen,
   onClose,
   onSuccess,
+  isGroup,
 }: {
   openTransferDenomModal: boolean;
   setOpenTransferDenomModal: (open: boolean) => void;
@@ -31,6 +32,7 @@ export default function TransferModal({
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  isGroup: boolean;
 }) {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {

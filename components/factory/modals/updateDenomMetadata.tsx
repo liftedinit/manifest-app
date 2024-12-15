@@ -38,6 +38,7 @@ export function UpdateDenomMetadataModal({
   address,
   modalId,
   onSuccess,
+  isGroup,
 }: {
   openUpdateDenomMetadataModal: boolean;
   setOpenUpdateDenomMetadataModal: (open: boolean) => void;
@@ -45,6 +46,7 @@ export function UpdateDenomMetadataModal({
   address: string;
   modalId: string;
   onSuccess: () => void;
+  isGroup: boolean;
 }) {
   const handleCloseModal = (formikReset?: () => void) => {
     setOpenUpdateDenomMetadataModal(false);

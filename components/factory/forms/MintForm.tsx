@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useFeeEstimation, useTx } from '@/hooks';
-import { osmosis } from '@liftedinit/manifestjs';
+import { osmosis, cosmos } from '@liftedinit/manifestjs';
 
 import { parseNumberToBigInt, shiftDigits, ExtendedMetadataSDKType, truncateString } from '@/utils';
 import { MdContacts } from 'react-icons/md';
@@ -10,6 +10,9 @@ import Yup from '@/utils/yupExtensions';
 import { NumberInput, TextInput } from '@/components/react/inputs';
 import { TailwindModal } from '@/components/react/modal';
 import env from '@/config/env';
+import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
+import { MsgMint } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+import { useGroupAddressStore } from '@/stores/groupAddressStore';
 
 export default function MintForm({
   isAdmin,
@@ -18,7 +21,7 @@ export default function MintForm({
   refetch,
   balance,
   totalSupply,
-  onMultiMintClick,
+  isGroup,
 }: Readonly<{
   isAdmin: boolean;
   denom: ExtendedMetadataSDKType;
@@ -26,16 +29,16 @@ export default function MintForm({
   refetch: () => void;
   balance: string;
   totalSupply: string;
-  onMultiMintClick: () => void;
+  isGroup: boolean;
 }>) {
   const [amount, setAmount] = useState('');
   const [recipient, setRecipient] = useState(address);
   const [isContactsOpen, setIsContactsOpen] = useState(false);
-
+  const { selectedAddress } = useGroupAddressStore();
   const { tx, isSigning, setIsSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
   const { mint } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
-
+  const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const exponent =
     denom?.denom_units?.find((unit: { denom: string }) => unit.denom === denom.display)?.exponent ||
     0;
@@ -64,8 +67,32 @@ export default function MintForm({
         mintToAddress: recipient,
       });
 
-      const fee = await estimateFee(address ?? '', [msg]);
-      await tx([msg], {
+      const mintProp = submitProposal({
+        groupPolicyAddress: selectedAddress ?? '',
+        messages: [
+          Any.fromPartial({
+            typeUrl: MsgMint.typeUrl,
+            value: MsgMint.encode(
+              mint({
+                amount: {
+                  amount: amountInBaseUnits,
+                  denom: denom.base,
+                },
+                sender: selectedAddress ?? '',
+                mintToAddress: recipient,
+              }).value
+            ).finish(),
+          }),
+        ],
+        metadata: '',
+        proposers: [address],
+        title: `Mint Tokens`,
+        summary: `This proposal will mint ${amount} ${denom.display.split('/').pop()} to ${recipient}`,
+        exec: 0,
+      });
+
+      const fee = await estimateFee(address ?? '', [isGroup ? mintProp : msg]);
+      await tx([isGroup ? mintProp : msg], {
         fee,
         onSuccess: () => {
           setAmount('');
@@ -222,17 +249,6 @@ export default function MintForm({
           </>
         )}
       </div>
-      {isMFX && (
-        <button
-          type="button"
-          onClick={onMultiMintClick}
-          className="btn btn-gradient btn-md flex-grow w-full text-white mt-6"
-          aria-label="multi-mint-button"
-          disabled={!isAdmin}
-        >
-          Multi Mint
-        </button>
-      )}
     </div>
   );
 }

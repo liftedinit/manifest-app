@@ -511,6 +511,7 @@ export default function MyDenoms({
         isOpen={modalType === 'mint'}
         onClose={handleCloseModal}
         onSwitchToMultiMint={handleSwitchToMultiMint}
+        isGroup={selectedAddress !== address}
       />
       <BurnModal
         denom={selectedDenom}
@@ -521,9 +522,11 @@ export default function MyDenoms({
         isOpen={modalType === 'burn'}
         onClose={handleCloseModal}
         onSwitchToMultiBurn={handleSwitchToMultiBurn}
+        isGroup={selectedAddress !== address}
       />
       <UpdateDenomMetadataModal
         modalId="update-denom-metadata-modal"
+        isGroup={selectedAddress !== address}
         denom={selectedDenom}
         address={address}
         onSuccess={() => {
@@ -541,6 +544,7 @@ export default function MyDenoms({
       />
       <TransferModal
         modalId="transfer-denom-modal"
+        isGroup={selectedAddress !== address}
         openTransferDenomModal={openTransferDenomModal}
         setOpenTransferDenomModal={open => {
           if (!open) {
