@@ -1,7 +1,7 @@
 import { TokenFormData } from '@/helpers/formReducer';
 import { useFeeEstimation } from '@/hooks/useFeeEstimation';
 import { useTx } from '@/hooks/useTx';
-import { osmosis } from '@liftedinit/manifestjs';
+import { osmosis, cosmos } from '@liftedinit/manifestjs';
 import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { TextInput, TextArea } from '@/components/react/inputs';
@@ -9,6 +9,9 @@ import { truncateString, ExtendedMetadataSDKType } from '@/utils';
 import { useEffect } from 'react';
 import env from '@/config/env';
 import { createPortal } from 'react-dom';
+import { MsgSetDenomMetadata } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
+import { useGroupAddressStore } from '@/stores/groupAddressStore';
 
 const TokenDetailsSchema = (context: { subdenom: string }) =>
   Yup.object().shape({
@@ -63,6 +66,7 @@ export function UpdateDenomMetadataModal({
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
   }, [openUpdateDenomMetadataModal]);
+  const { selectedAddress } = useGroupAddressStore();
   const baseDenom = denom?.base?.split('/').pop() || '';
   const fullDenom = `factory/${address}/${baseDenom}`;
   const symbol = baseDenom.slice(1).toUpperCase();
@@ -85,6 +89,7 @@ export function UpdateDenomMetadataModal({
   const { tx, isSigning, setIsSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
   const { setDenomMetadata } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
+  const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
   const handleUpdate = async (values: TokenFormData, resetForm: () => void) => {
     setIsSigning(true);
@@ -108,8 +113,41 @@ export function UpdateDenomMetadataModal({
         },
       });
 
-      const fee = await estimateFee(address, [msg]);
-      await tx([msg], {
+      const updateProp = submitProposal({
+        groupPolicyAddress: selectedAddress ?? '',
+        messages: [
+          Any.fromPartial({
+            typeUrl: MsgSetDenomMetadata.typeUrl,
+            value: MsgSetDenomMetadata.encode(
+              setDenomMetadata({
+                sender: selectedAddress ?? '',
+                metadata: {
+                  description: values.description || formData.description,
+                  denomUnits:
+                    [
+                      { denom: fullDenom, exponent: 0, aliases: [symbol] },
+                      { denom: symbol, exponent: 6, aliases: [fullDenom] },
+                    ] || formData.denomUnits,
+                  base: fullDenom,
+                  display: symbol,
+                  name: values.name || formData.name,
+                  symbol: symbol,
+                  uri: values.uri || formData.uri,
+                  uriHash: '',
+                },
+              }).value
+            ).finish(),
+          }),
+        ],
+        metadata: '',
+        proposers: [address],
+        title: `Update Metadata`,
+        summary: `This proposal will update the metadata for ${denom?.display?.split('/').pop()}`,
+        exec: 0,
+      });
+
+      const fee = await estimateFee(address, [isGroup ? updateProp : msg]);
+      await tx([isGroup ? updateProp : msg], {
         fee,
         onSuccess: () => {
           onSuccess();

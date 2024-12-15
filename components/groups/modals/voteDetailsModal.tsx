@@ -1,6 +1,9 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { createPortal } from 'react-dom';
+import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
+import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';
+import { githubGist, github } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
 import {
   MemberSDKType,
@@ -28,6 +31,8 @@ import env from '@/config/env';
 const Chart = dynamic(() => import('react-apexcharts'), {
   ssr: false,
 }) as any;
+
+SyntaxHighlighter.registerLanguage('json', json);
 
 interface VoteMap {
   [key: string]: VoteOption;
@@ -461,6 +466,10 @@ function VoteDetailsModal({
     return () => document.removeEventListener('keydown', handleEscape);
   }, [showVoteModal, setShowVoteModal, onClose]);
 
+  const prettyPrintJSON = (obj: any): string => {
+    return JSON.stringify(obj, null, 2);
+  };
+
   const modalContent = (
     <dialog
       id="vote-details-modal"
@@ -556,7 +565,7 @@ function VoteDetailsModal({
                 </button>
               </div>
               <div
-                className={`bg-base-300 rounded-[12px] p-4 overflow-y-auto ${
+                className={`bg-base-300 rounded-[12px] p-4 overflow-y-auto max-w-[22rem] overflow-x-auto ${
                   proposal.summary ? 'max-h-[10rem]' : 'max-h-[17rem]'
                 }`}
               >
@@ -569,8 +578,25 @@ function VoteDetailsModal({
                       <h3 className="text-lg font-semibold mb-2 text-primary-content">
                         {messageType.split('.').pop().replace('Msg', '')}
                       </h3>
-                      <div>
-                        {fieldsToShow.map(field => renderMessageField(field, message[field]))}
+                      <div className="font-mono">
+                        <pre className="whitespace-pre-wrap break-words bg-base-200  rounded-lg text-sm overflow-x-auto">
+                          <SyntaxHighlighter
+                            language="json"
+                            style={theme === 'dark' ? github : githubGist}
+                            customStyle={{
+                              backgroundColor: 'transparent',
+                              padding: '1rem',
+                              borderRadius: '0.5rem',
+                            }}
+                          >
+                            {prettyPrintJSON(
+                              fieldsToShow.reduce<Record<string, any>>((acc, field) => {
+                                acc[field] = message[field];
+                                return acc;
+                              }, {})
+                            )}
+                          </SyntaxHighlighter>
+                        </pre>
                       </div>
                     </div>
                   );
@@ -741,8 +767,25 @@ function VoteDetailsModal({
                         >
                           {messageType.split('.').pop().replace('Msg', '')}
                         </h3>
-                        <div>
-                          {fieldsToShow.map(field => renderMessageField(field, message[field]))}
+                        <div className="font-mono">
+                          <pre className="whitespace-pre-wrap break-words bg-base-200 p-4 rounded-lg text-sm overflow-x-auto">
+                            <SyntaxHighlighter
+                              language="json"
+                              style={theme === 'dark' ? github : githubGist}
+                              customStyle={{
+                                backgroundColor: 'transparent',
+                                padding: '1rem',
+                                borderRadius: '0.5rem',
+                              }}
+                            >
+                              {prettyPrintJSON(
+                                fieldsToShow.reduce<Record<string, any>>((acc, field) => {
+                                  acc[field] = message[field];
+                                  return acc;
+                                }, {})
+                              )}
+                            </SyntaxHighlighter>
+                          </pre>
                         </div>
                       </div>
                     );
