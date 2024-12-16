@@ -1,22 +1,17 @@
-import { useState, useEffect } from 'react';
+import env from '@/config/env';
 import { cosmos } from '@liftedinit/manifestjs';
 import { useQuery } from '@tanstack/react-query';
-import { useChain } from '@cosmos-kit/react';
-import { chainName } from '../config';
-import { useEndpointStore } from '@/store/endpointStore';
 
 const createLcdQueryClient = cosmos.ClientFactory.createLCDClient;
 
 export const useLcdQueryClient = () => {
-  const { selectedEndpoint } = useEndpointStore();
-
   const lcdQueryClient = useQuery({
-    queryKey: ['lcdQueryClient', selectedEndpoint?.api],
+    queryKey: ['lcdQueryClient', env.apiUrl],
     queryFn: () =>
       createLcdQueryClient({
-        restEndpoint: selectedEndpoint?.api || '',
+        restEndpoint: env.apiUrl,
       }),
-    enabled: !!selectedEndpoint?.api,
+    enabled: !!env.apiUrl,
     staleTime: Infinity,
   });
 

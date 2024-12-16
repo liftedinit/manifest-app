@@ -5,12 +5,12 @@ import { createPortal } from 'react-dom';
 import * as Yup from 'yup';
 import { cosmos } from '@liftedinit/manifestjs';
 import { useTx, useFeeEstimation } from '@/hooks';
-import { chainName } from '@/config';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MemberSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { CopyIcon, TrashIcon } from '@/components/icons';
 import { MdContacts } from 'react-icons/md';
 import { TailwindModal } from '@/components/react/modal';
+import env from '@/config/env';
 
 interface ExtendedMember extends MemberSDKType {
   isNew: boolean;
@@ -50,8 +50,8 @@ export function MemberManagementModal({
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
   }, [showMemberManagementModal]);
-  const { tx, isSigning, setIsSigning } = useTx(chainName);
-  const { estimateFee } = useFeeEstimation(chainName);
+  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { estimateFee } = useFeeEstimation(env.chain);
 
   const validationSchema = Yup.object().shape({
     members: Yup.array().of(

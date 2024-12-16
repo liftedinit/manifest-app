@@ -1,10 +1,9 @@
 import React, { useMemo, useState } from 'react';
-import { chainName } from '@/config';
 import { useTokenFactoryBalance, useFeeEstimation, useTx } from '@/hooks';
 import { cosmos, osmosis, liftedinit } from '@liftedinit/manifestjs';
 
 import { MdContacts } from 'react-icons/md';
-import { parseNumberToBigInt, shiftDigits } from '@/utils';
+import { parseNumberToBigInt, shiftDigits, ExtendedMetadataSDKType, truncateString } from '@/utils';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgBurnHeldBalance } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
 
@@ -12,8 +11,8 @@ import { useToast } from '@/contexts';
 import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { NumberInput, TextInput } from '@/components/react/inputs';
-import { ExtendedMetadataSDKType, truncateString } from '@/utils';
 import { TailwindModal } from '@/components/react/modal';
+import env from '@/config/env';
 
 interface BurnPair {
   address: string;
@@ -49,8 +48,8 @@ export default function BurnForm({
 
   const [isContactsOpen, setIsContactsOpen] = useState(false);
 
-  const { tx, isSigning, setIsSigning } = useTx(chainName);
-  const { estimateFee } = useFeeEstimation(chainName);
+  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { estimateFee } = useFeeEstimation(env.chain);
   const { burn } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
   const { burnHeldBalance } = liftedinit.manifest.v1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;

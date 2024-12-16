@@ -9,14 +9,12 @@ import {
 
 import { useChain } from '@cosmos-kit/react';
 import Head from 'next/head';
-
 import React, { useMemo } from 'react';
-import { chainName } from '@/config';
-
 import { ExtendedMetadataSDKType } from '@/utils';
+import env from '@/config/env';
 
 export default function Factory() {
-  const { address, isWalletConnected } = useChain(chainName);
+  const { address, isWalletConnected } = useChain(env.chain);
   const { denoms, isDenomsLoading, isDenomsError, refetchDenoms } = useTokenFactoryDenomsFromAdmin(
     address ?? ''
   );
