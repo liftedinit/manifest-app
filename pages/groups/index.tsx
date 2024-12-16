@@ -1,16 +1,15 @@
-import { WalletNotConnected } from '@/components';
+import { WalletNotConnected, GroupsIcon } from '@/components';
 import { YourGroups } from '@/components/groups/components/myGroups';
 import { GroupInfo } from '@/components/groups/modals/groupInfo';
 import { useChain } from '@cosmos-kit/react';
 import Head from 'next/head';
 import Link from 'next/link';
 import React, { useState } from 'react';
-import { chainName } from '../../config';
-import { useGroupsByMember, useProposalsByPolicyAccountAll } from '../../hooks/useQueries';
-import { GroupsIcon } from '@/components';
+import { useGroupsByMember, useProposalsByPolicyAccountAll } from '@/hooks';
+import env from '@/config/env';
 
 export default function Groups() {
-  const { address, isWalletConnected } = useChain(chainName);
+  const { address, isWalletConnected } = useChain(env.chain);
   const { groupByMemberData, isGroupByMemberLoading, isGroupByMemberError, refetchGroupByMember } =
     useGroupsByMember(address ?? '');
 

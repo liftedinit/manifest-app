@@ -1,4 +1,3 @@
-import { chainName } from '@/config';
 import { useFeeEstimation, useTx } from '@/hooks';
 import { cosmos, strangelove_ventures } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
@@ -6,6 +5,7 @@ import { MsgRemoveValidator } from '@liftedinit/manifestjs/dist/codegen/strangel
 import { useChain } from '@cosmos-kit/react';
 import React, { useEffect } from 'react';
 import { PiWarning } from 'react-icons/pi';
+import env from '@/config/env';
 import { createPortal } from 'react-dom';
 
 interface WarningModalProps {
@@ -38,9 +38,9 @@ export function WarningModal({
     return () => document.removeEventListener('keydown', handleEscape);
   }, [openWarningModal]);
 
-  const { tx, isSigning, setIsSigning } = useTx(chainName);
-  const { estimateFee } = useFeeEstimation(chainName);
-  const { address: userAddress } = useChain(chainName);
+  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { estimateFee } = useFeeEstimation(env.chain);
+  const { address: userAddress } = useChain(env.chain);
   const { removePending, removeValidator } =
     strangelove_ventures.poa.v1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;

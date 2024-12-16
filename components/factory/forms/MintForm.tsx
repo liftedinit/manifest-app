@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
-import { chainName } from '@/config';
 import { useFeeEstimation, useTx } from '@/hooks';
 import { osmosis } from '@liftedinit/manifestjs';
 
-import { parseNumberToBigInt, shiftDigits } from '@/utils';
+import { parseNumberToBigInt, shiftDigits, ExtendedMetadataSDKType, truncateString } from '@/utils';
 import { MdContacts } from 'react-icons/md';
 
 import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { NumberInput, TextInput } from '@/components/react/inputs';
-import { ExtendedMetadataSDKType, truncateString } from '@/utils';
 import { TailwindModal } from '@/components/react/modal';
+import env from '@/config/env';
 
 export default function MintForm({
   isAdmin,
@@ -33,8 +32,8 @@ export default function MintForm({
   const [recipient, setRecipient] = useState(address);
   const [isContactsOpen, setIsContactsOpen] = useState(false);
 
-  const { tx, isSigning, setIsSigning } = useTx(chainName);
-  const { estimateFee } = useFeeEstimation(chainName);
+  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { estimateFee } = useFeeEstimation(env.chain);
   const { mint } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
 
   const exponent =

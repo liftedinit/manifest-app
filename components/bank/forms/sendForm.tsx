@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { chainName } from '@/config';
 import { useFeeEstimation, useTx } from '@/hooks';
 import { cosmos } from '@liftedinit/manifestjs';
 import { PiCaretDownBold } from 'react-icons/pi';
@@ -12,6 +11,7 @@ import { TextInput } from '@/components/react/inputs';
 import { SearchIcon } from '@/components/icons';
 import { TailwindModal } from '@/components/react/modal';
 import { MdContacts } from 'react-icons/md';
+import env from '@/config/env';
 import { Any } from 'cosmjs-types/google/protobuf/any';
 import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
 
@@ -39,8 +39,8 @@ export default function SendForm({
   const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [feeWarning, setFeeWarning] = useState('');
-  const { tx } = useTx(chainName);
-  const { estimateFee } = useFeeEstimation(chainName);
+  const { tx } = useTx(env.chain);
+  const { estimateFee } = useFeeEstimation(env.chain);
   const { send } = cosmos.bank.v1beta1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const [isContactsOpen, setIsContactsOpen] = useState(false);

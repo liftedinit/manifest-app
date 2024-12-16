@@ -2,6 +2,7 @@
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { ChainWalletBase } from 'cosmos-kit';
 import { getRealLogo } from '@/utils';
+import { useDeviceDetect } from '@/hooks';
 
 export const WalletList = ({
   onClose,
@@ -29,7 +30,7 @@ export const WalletList = ({
   const mobile = wallets.filter(wallet =>
     ['Keplr Mobile', 'Cosmostation Mobile', 'Leap Mobile'].includes(wallet.walletInfo.prettyName)
   );
-
+  const { isMobile } = useDeviceDetect();
   const hasMobileVersion = (prettyName: string) => {
     return mobile.some(w => w.walletInfo.prettyName.startsWith(prettyName));
   };
@@ -37,7 +38,6 @@ export const WalletList = ({
   const getMobileWalletName = (browserName: string) => {
     return mobile.find(w => w.walletInfo.prettyName.startsWith(browserName))?.walletInfo.name;
   };
-
   return (
     <div className="p-1 relative max-w-sm mx-auto">
       <h1 className="text-sm font-semibold text-center mb-6">Connect Wallet</h1>
@@ -50,7 +50,7 @@ export const WalletList = ({
       </button>
 
       {/* Browser and Social sections - browser hidden on mobile/tablet */}
-      <div className="hidden md:block">
+      <div className={`${isMobile ? 'hidden' : 'block'}`}>
         <div className="space-y-2 mb-4">
           {browser.map(({ walletInfo: { name, prettyName, logo } }) => (
             <div key={name} className="w-full">
@@ -109,7 +109,7 @@ export const WalletList = ({
       </div>
 
       {/* Mobile Wallets Section - shown on mobile/tablet, hidden on desktop */}
-      <div className="md:hidden">
+      <div className={`${isMobile ? 'block' : 'hidden'}`}>
         <div className="space-y-2">
           {mobile.map(({ walletInfo: { name, prettyName, logo } }) => (
             <button

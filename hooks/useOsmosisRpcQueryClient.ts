@@ -1,10 +1,10 @@
+import env from '@/config/env';
 import { osmosis } from '@liftedinit/manifestjs';
 import { useQuery } from '@tanstack/react-query';
-import env from '@/config/env';
 
 const createRpcQueryClient = osmosis.ClientFactory.createRPCQueryClient;
 
-export const useRpcQueryClient = () => {
+export const useOsmosisRpcQueryClient = () => {
   const rpcQueryClient = useQuery({
     queryKey: ['rpcQueryClient', env.rpcUrl],
     queryFn: () =>

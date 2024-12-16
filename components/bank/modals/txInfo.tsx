@@ -3,7 +3,7 @@ import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { formatDenom, TransactionGroup } from '@/components';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { shiftDigits } from '@/utils';
-import { useEndpointStore } from '@/store/endpointStore';
+import env from '@/config/env';
 
 interface TxInfoModalProps {
   tx: TransactionGroup;
@@ -12,9 +12,6 @@ interface TxInfoModalProps {
 }
 
 export default function TxInfoModal({ tx, modalId }: TxInfoModalProps) {
-  const { selectedEndpoint } = useEndpointStore();
-  const explorerUrl = selectedEndpoint?.explorer || '';
-
   function formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleString('en-US', {
@@ -45,31 +42,31 @@ export default function TxInfoModal({ tx, modalId }: TxInfoModalProps) {
           <div>
             <InfoItem
               label="TRANSACTION HASH"
-              explorerUrl={explorerUrl}
+              explorerUrl={env.explorerUrl}
               value={tx?.tx_hash}
               isAddress={true}
             />
             <InfoItem
               label="BLOCK"
-              explorerUrl={explorerUrl}
+              explorerUrl={env.explorerUrl}
               value={tx?.block_number?.toString()}
             />
             <InfoItem
               label="TIMESTAMP"
-              explorerUrl={explorerUrl}
+              explorerUrl={env.explorerUrl}
               value={formatDate(tx?.formatted_date)}
             />
           </div>
           <div>
             <InfoItem
               label="FROM"
-              explorerUrl={explorerUrl}
+              explorerUrl={env.explorerUrl}
               value={tx?.data?.from_address}
               isAddress={true}
             />
             <InfoItem
               label="TO"
-              explorerUrl={explorerUrl}
+              explorerUrl={env.explorerUrl}
               value={tx?.data?.to_address}
               isAddress={true}
             />
@@ -89,6 +86,9 @@ export default function TxInfoModal({ tx, modalId }: TxInfoModalProps) {
               </div>
             </div>
           </div>
+        </div>
+        <div>
+          <InfoItem label="MEMO" explorerUrl={env.explorerUrl} value={tx?.memo ?? 'N/A'} />
         </div>
       </div>
       <form method="dialog" className="modal-backdrop">
@@ -117,7 +117,7 @@ function InfoItem({
           <div className="flex items-center">
             <TruncatedAddressWithCopy address={value} slice={8} />
             <a
-              href={`${explorerUrl}/${label === 'TRANSACTION HASH' ? 'transaction' : 'account'}/${label?.includes('TRANSACTION') ? value?.toUpperCase() : value}`}
+              href={`${env.explorerUrl}/${label === 'TRANSACTION HASH' ? 'transaction' : 'account'}/${label?.includes('TRANSACTION') ? value?.toUpperCase() : value}`}
               target="_blank"
               rel="noopener noreferrer"
               className="ml-2 text-primary hover:text-primary/50"

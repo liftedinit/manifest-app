@@ -7,11 +7,10 @@ import MemberInfoForm from '@/components/groups/forms/groups/MemberInfoForm';
 import { Duration } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/duration';
 import StepIndicator from '@/components/react/StepIndicator';
 import { useChain } from '@cosmos-kit/react';
-import { chainName } from '@/config';
-import { WalletNotConnected, WalletSection } from '@/components';
+import { WalletNotConnected, GroupsIcon } from '@/components';
 import Success from '@/components/groups/forms/groups/Success';
 import Head from 'next/head';
-import { GroupsIcon } from '@/components';
+import env from '@/config/env';
 
 const initialFormData: FormData = {
   title: '',
@@ -25,8 +24,7 @@ const initialFormData: FormData = {
 export default function CreateGroup() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, dispatch] = useReducer(formDataReducer, initialFormData);
-  const { address } = useChain(chainName);
-
+  const { address, isWalletConnected } = useChain(env.chain);
   const nextStep = () => {
     if (currentStep < 5) {
       setCurrentStep(currentStep + 1);
@@ -38,8 +36,6 @@ export default function CreateGroup() {
       setCurrentStep(currentStep - 1);
     }
   };
-
-  const { isWalletConnected } = useChain(chainName);
 
   const steps = [
     { label: 'Details', step: 1 },

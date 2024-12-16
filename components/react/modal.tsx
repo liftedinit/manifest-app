@@ -6,7 +6,7 @@ import { Dialog, Transition, Portal } from '@headlessui/react';
 import { Connected, Connecting, Error, NotExist, QRCode, WalletList, Contacts } from './views';
 import { useRouter } from 'next/router';
 import { ToastProvider } from '@/contexts/toastContext';
-
+import { useDeviceDetect } from '@/hooks';
 export enum ModalView {
   WalletList,
   QRCode,
@@ -46,6 +46,7 @@ export const TailwindModal: React.FC<
 
   const walletStatus = current?.walletStatus || WalletStatus.Disconnected;
   const currentWalletName = current?.walletName;
+  const { isMobile } = useDeviceDetect();
 
   useEffect(() => {
     if (isOpen) {
@@ -103,7 +104,7 @@ export const TailwindModal: React.FC<
           setSelectedWallet(wallet);
         }
         if (wallet?.walletInfo.mode === 'wallet-connect') {
-          setCurrentView(ModalView.QRCode);
+          setCurrentView(isMobile ? ModalView.Connecting : ModalView.QRCode);
           setQRWallet(wallet);
         }
       }, 1);

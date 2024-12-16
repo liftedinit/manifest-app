@@ -16,7 +16,6 @@ import VotingPopup from './voteModal';
 import { ApexOptions } from 'apexcharts';
 
 import { useChain } from '@cosmos-kit/react';
-import { chainName } from '@/config';
 import { useTx } from '@/hooks/useTx';
 import { cosmos } from '@liftedinit/manifestjs';
 import { useTheme } from '@/contexts/theme';
@@ -25,6 +24,7 @@ import { useFeeEstimation } from '@/hooks';
 
 import { TrashIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { ArrowUpIcon, CopyIcon } from '@/components/icons';
+import env from '@/config/env';
 const Chart = dynamic(() => import('react-apexcharts'), {
   ssr: false,
 }) as any;
@@ -68,8 +68,7 @@ function VoteDetailsModal({
     [votes]
   );
 
-  const { address } = useChain(chainName);
-
+  const { address } = useChain(env.chain);
   const { theme } = useTheme();
 
   const textColor = theme === 'dark' ? '#FFFFFF' : '#161616';
@@ -196,8 +195,8 @@ function VoteDetailsModal({
       enabled: false,
     },
   };
-  const { tx, isSigning, setIsSigning } = useTx(chainName);
-  const { estimateFee } = useFeeEstimation(chainName);
+  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { estimateFee } = useFeeEstimation(env.chain);
 
   const { exec } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const { withdrawProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
