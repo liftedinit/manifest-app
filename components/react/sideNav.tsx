@@ -18,6 +18,7 @@ import {
 } from '@/components/icons';
 
 import { MdContacts, MdOutlineNetworkPing } from 'react-icons/md';
+import env from '@/config/env';
 
 interface SideNavProps {
   isDrawerVisible: boolean;
@@ -133,7 +134,12 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
         <Link href={'/#'} passHref legacyBehavior>
           <Image src={'/logo.svg'} alt="logo" width={48} height={48} className="cursor-pointer" />
         </Link>
-        <p className="text-4xl font-bold">Alberto</p>
+        <div className="flex flex-col">
+          <p className="text-4xl font-bold">Alberto</p>
+          {env.chainTier === 'mainnet' ? null : (
+            <p className="text-md uppercase">{env.chainTier}</p>
+          )}
+        </div>
       </div>
       <ul className="flex-grow mt-8 p-1">
         <NavDrawer Icon={BankIcon} href="/bank" label="Bank" />
