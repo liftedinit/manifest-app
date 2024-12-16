@@ -1,9 +1,8 @@
-import { useState } from 'react';
+import env from '@/config/env';
 import { TokenFormData } from '@/helpers/formReducer';
 import { useFeeEstimation } from '@/hooks/useFeeEstimation';
 import { useTx } from '@/hooks/useTx';
 import { osmosis } from '@liftedinit/manifestjs';
-import { chainName } from '@/config';
 
 export default function ConfirmationForm({
   nextStep,
@@ -16,8 +15,8 @@ export default function ConfirmationForm({
   formData: TokenFormData;
   address: string;
 }>) {
-  const { tx, isSigning, setIsSigning } = useTx(chainName);
-  const { estimateFee } = useFeeEstimation(chainName);
+  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { estimateFee } = useFeeEstimation(env.chain);
   const { setDenomMetadata, createDenom } =
     osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
 

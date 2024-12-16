@@ -1,3 +1,5 @@
+import env from '@/config/env';
+
 import '../styles/globals.css';
 import '@interchain-ui/react/styles';
 import '@fontsource/manrope';
@@ -5,22 +7,16 @@ import '@fontsource/manrope';
 import type { AppProps } from 'next/app';
 import { createPortal } from 'react-dom';
 import { SignData } from '@cosmos-kit/web3auth';
-import { makeWeb3AuthWallets } from '@cosmos-kit/web3auth/esm/index';
-
+import { makeWeb3AuthWallets } from '@cosmos-kit/web3auth/esm/index'; // Leave this as is or you will get an error at compile time
 import { useEffect, useMemo, useRef, useState } from 'react';
 import SignModal from '@/components/react/authSignerModal';
-import {
-  manifestAssets,
-  manifestChain,
-  manifestTestnetChain,
-  manifestTestnetAssets,
-} from '@/config';
+import { manifestAssets, manifestChain } from '@/config';
 import { SignerOptions, wallets } from 'cosmos-kit';
 import { wallets as cosmosExtensionWallets } from '@cosmos-kit/cosmos-extension-metamask';
 import { ChainProvider } from '@cosmos-kit/react';
 import { Registry } from '@cosmjs/proto-signing';
-import { TailwindModal } from '../components';
-import { ThemeProvider } from '../contexts/theme';
+import { TailwindModal } from '@/components';
+import { ThemeProvider, ToastProvider, ContactsModalProvider } from '@/contexts';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import SideNav from '../components/react/sideNav';
@@ -37,11 +33,9 @@ import {
   cosmosProtoRegistry,
 } from '@liftedinit/manifestjs';
 import { ToastProvider, ContactsModalProvider } from '@/contexts';
-
 import MobileNav from '@/components/react/mobileNav';
 
-import { useEndpointStore } from '@/store/endpointStore';
-import EndpointSelector from '@/components/react/endpointSelector';
+import { OPENLOGIN_NETWORK_TYPE } from '@toruslabs/openlogin-utils';
 
 type ManifestAppProps = AppProps & {
   Component: AppProps['Component'];
@@ -49,7 +43,7 @@ type ManifestAppProps = AppProps & {
 };
 
 function ManifestApp({ Component, pageProps }: ManifestAppProps) {
-  const [isDrawerVisible, setDrawerVisible] = useState(() => {
+  const [isDrawerVisible, setIsDrawerVisible] = useState(() => {
     // Initialize from localStorage if available, otherwise default to true
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('isDrawerVisible');
@@ -86,23 +80,6 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
     },
   };
 
-  const { selectedEndpoint } = useEndpointStore();
-  const [isLoading, setIsLoading] = useState(false);
-  const [endpointKey, setEndpointKey] = useState(0);
-  const previousEndpointRef = useRef<typeof selectedEndpoint | undefined>(undefined);
-
-  useEffect(() => {
-    if (previousEndpointRef.current && previousEndpointRef.current !== selectedEndpoint) {
-      setIsLoading(true);
-      const timer = setTimeout(() => {
-        setEndpointKey(prev => prev + 1);
-        setIsLoading(false);
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-    previousEndpointRef.current = selectedEndpoint;
-  }, [selectedEndpoint]);
-
   // tanstack query client
   const client = new QueryClient();
   // web3auth helpers for cosmoskit
@@ -113,6 +90,7 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
       }
     | undefined
   >();
+
   const web3AuthWallets = useMemo(
     () =>
       makeWeb3AuthWallets({
@@ -160,8 +138,8 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
         ],
 
         client: {
-          clientId: process.env.NEXT_PUBLIC_WEB3_CLIENT_ID ?? '',
-          web3AuthNetwork: 'testnet',
+          clientId: env.web3AuthClientId,
+          web3AuthNetwork: env.web3AuthNetwork as OPENLOGIN_NETWORK_TYPE, // Safe to cast since we validate the env vars in config/env.ts
         },
         promptSign: async (_, signData) =>
           new Promise(resolve =>
@@ -187,44 +165,31 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
     setIsBrowser(true);
   }, []);
 
-  const endpointOptions = useMemo(
-    () => ({
-      isLazy: true,
-      endpoints: {
-        manifest: {
-          rpc: [selectedEndpoint?.rpc ?? 'https://nodes.liftedinit.tech/manifest/testnet/rpc'],
-          rest: [selectedEndpoint?.api ?? 'https://nodes.liftedinit.tech/manifest/testnet/api'],
-        },
+  const endpointOptions = {
+    isLazy: true,
+    endpoints: {
+      manifest: {
+        rpc: [env.rpcUrl],
+        rest: [env.apiUrl],
       },
-    }),
-    [selectedEndpoint]
-  );
+    },
+  };
 
   return (
     <ToastProvider>
       <QueryClientProvider client={client}>
         <ReactQueryDevtools />
-        {isLoading ? (
-          <div className="fixed inset-0 flex flex-col items-center justify-center z-50">
-            <div className="loading w-[8rem] loading-ring text-primary mb-4"></div>
-            <p className="text-xl font-semibold">Swapping endpoints...</p>
-          </div>
-        ) : (
+        {
           <ChainProvider
-            key={endpointKey}
-            chains={
-              selectedEndpoint?.network === 'testnet' ? [manifestTestnetChain] : [manifestChain]
-            }
-            assetLists={
-              selectedEndpoint?.network === 'testnet' ? [manifestTestnetAssets] : [manifestAssets]
-            }
+            chains={[manifestChain]}
+            assetLists={[manifestAssets]}
             // @ts-ignore
             wallets={combinedWallets}
             logLevel="NONE"
             endpointOptions={endpointOptions}
             walletConnectOptions={{
               signClient: {
-                projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_KEY ?? '',
+                projectId: env.walletConnectKey,
                 relayUrl: 'wss://relay.walletconnect.org',
                 metadata: {
                   name: 'Alberto',
@@ -244,7 +209,7 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
                   <div className="hidden md:block">
                     <SideNav
                       isDrawerVisible={isDrawerVisible}
-                      setDrawerVisible={setDrawerVisible}
+                      setDrawerVisible={setIsDrawerVisible}
                     />
                   </div>
 
@@ -261,8 +226,6 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
                   </div>
                 </div>
 
-                <EndpointSelector />
-
                 {/* Web3auth signing modal */}
                 {isBrowser &&
                   createPortal(
@@ -278,7 +241,7 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
               </ContactsModalProvider>
             </ThemeProvider>
           </ChainProvider>
-        )}
+        }
       </QueryClientProvider>
     </ToastProvider>
   );

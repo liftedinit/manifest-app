@@ -18,6 +18,7 @@ import {
 } from '@/components/icons';
 
 import { MdContacts, MdOutlineNetworkPing } from 'react-icons/md';
+import env from '@/config/env';
 
 interface SideNavProps {
   isDrawerVisible: boolean;
@@ -25,10 +26,8 @@ interface SideNavProps {
 }
 
 export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavProps) {
-  const [isdark, setIsdark] = useState(false);
-  const [isContactsOpen, setContactsOpen] = useState(false);
-
   const { toggleTheme, theme } = useTheme();
+  const [isContactsOpen, setContactsOpen] = useState(false);
 
   const toggleDrawer = () => setDrawerVisible(!isDrawerVisible);
   const version = packageInfo.version;
@@ -78,19 +77,13 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
       </ul>
       <div className="mt-auto flex flex-col items-center space-y-6 dark:bg-[#FFFFFF0F] bg-[#0000000A] rounded-lg p-4 w-[75%]">
         <button
-          onClick={() => {
-            const modal = document.getElementById('endpoint_selector_modal') as HTMLDialogElement;
-            if (modal) modal.showModal();
-          }}
-          className="flex justify-center w-full text-[#00000066] dark:text-[#FFFFFF66] hover:text-primary dark:hover:text-primary transition-all duration-300 ease-in-out"
-        >
-          <MdOutlineNetworkPing className="w-8 h-8" />
-        </button>
-        <button
           onClick={() => setContactsOpen(true)}
-          className="flex justify-center w-full text-[#00000066] dark:text-[#FFFFFF66] hover:text-primary dark:hover:text-primary transition-all duration-300 ease-in-out"
+          className="relative group flex justify-center w-full text-[#00000066] dark:text-[#FFFFFF66] hover:text-primary dark:hover:text-primary transition-all duration-300 ease-in-out"
         >
           <MdContacts className="w-8 h-8" />
+          <span className="tooltip fixed z-[9999] left-[6.8rem] px-3 py-2 bg-primary text-white text-sm font-medium rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-in-out whitespace-nowrap">
+            Contacts
+          </span>
         </button>
         <div className="flex justify-center w-full text-[#00000066] dark:text-[#FFFFFF66]">
           <IconWallet chainName="manifest" />
@@ -99,15 +92,11 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
           <input
             type="checkbox"
             className="theme-controller hidden"
-            value="light"
-            checked={isdark}
-            onChange={() => {
-              setIsdark(!isdark);
-              toggleTheme();
-            }}
+            checked={theme === 'dark'}
+            onChange={toggleTheme}
           />
-          <DarkIcon className="swap-on fill-current w-9 h-9 duration-300" />
-          <LightIcon className="swap-off fill-current w-9 h-9 duration-300" />
+          <LightIcon className="swap-on fill-current w-9 h-9 duration-300" />
+          <DarkIcon className="swap-off fill-current w-9 h-9 duration-300" />
         </label>
       </div>
     </div>
@@ -128,7 +117,7 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
             className={`flex items-center p-2 text-base font-normal rounded-lg transition duration-300 ease-in-out ${
               isActive
                 ? 'bg-primary text-white'
-                : 'text-[#00000066] dark:text-[#FFFFFF66]  hover:bg-base-300 hover:text-primary dark:hover:text-primary dark:hover:bg-base-300'
+                : 'text-[#00000066] dark:text-[#FFFFFF66]  hover:bg-[#0000000A] hover:text-primary dark:hover:text-primary dark:hover:bg-base-300'
             }`}
           >
             <Icon className="w-8 h-8 mr-6" />
@@ -145,7 +134,12 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
         <Link href={'/#'} passHref legacyBehavior>
           <Image src={'/logo.svg'} alt="logo" width={48} height={48} className="cursor-pointer" />
         </Link>
-        <p className="text-4xl font-bold">Alberto</p>
+        <div className="flex flex-col">
+          <p className="text-4xl font-bold">Alberto</p>
+          {env.chainTier === 'mainnet' ? null : (
+            <p className="text-md uppercase">{env.chainTier}</p>
+          )}
+        </div>
       </div>
       <ul className="flex-grow mt-8 p-1">
         <NavDrawer Icon={BankIcon} href="/bank" label="Bank" />
@@ -156,19 +150,8 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
       <div className="mt-auto">
         <div className="flex flex-col space-y-2 mb-4">
           <button
-            onClick={() => {
-              const modal = document.getElementById('endpoint_selector_modal') as HTMLDialogElement;
-              if (modal) modal.showModal();
-            }}
-            className="flex items-center p-2 text-base font-normal rounded-lg text-[#00000066] dark:text-[#FFFFFF66] hover:bg-base-300 hover:text-primary dark:hover:text-primary dark:hover:bg-base-300 transition duration-300 ease-in-out"
-          >
-            <MdOutlineNetworkPing className="w-8 h-8 mr-6" />
-            <span className="text-xl">Endpoints</span>
-          </button>
-
-          <button
             onClick={() => setContactsOpen(true)}
-            className="flex items-center p-2 text-base font-normal rounded-lg text-[#00000066] dark:text-[#FFFFFF66] hover:bg-base-300 hover:text-primary dark:hover:text-primary dark:hover:bg-base-300 transition duration-300 ease-in-out"
+            className="flex items-center p-2 text-base font-normal rounded-lg text-[#00000066] dark:text-[#FFFFFF66] hover:bg-[#0000000A] hover:text-primary dark:hover:text-primary dark:hover:bg-base-300 transition duration-300 ease-in-out"
           >
             <MdContacts className="w-8 h-8 mr-6" />
             <span className="text-xl">Contacts</span>
@@ -182,24 +165,24 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
               <input
                 type="checkbox"
                 className="sr-only peer"
-                checked={isdark}
-                onChange={() => {
-                  setIsdark(!isdark);
-                  toggleTheme();
-                }}
+                checked={theme === 'dark'}
+                onChange={toggleTheme}
               />
-
-              <div className="flex items-center justify-center w-1/2 h-full z-10">
-                <DarkIcon
-                  className={`w-8 h-8 ${theme === 'dark' ? 'text-white' : 'text-gray-500'} transition-colors duration-300`}
-                />
-              </div>
               <div className="flex items-center justify-center w-1/2 h-full z-10">
                 <LightIcon
                   className={`w-8 h-8 ${theme === 'light' ? 'text-white' : 'text-gray-500'} transition-colors duration-300`}
                 />
               </div>
-              <span className="absolute left-1 w-[calc(50%-0.5rem)] h-12 bg-primary rounded-xl transition-all duration-300 ease-in-out transform peer-checked:translate-x-[calc(100%+0.5rem)]" />
+              <div className="flex items-center justify-center w-1/2 h-full z-10">
+                <DarkIcon
+                  className={`w-8 h-8 ${theme === 'dark' ? 'text-white' : 'text-gray-500'} transition-colors duration-300`}
+                />
+              </div>
+              <span
+                className={`absolute left-1 w-[calc(50%-0.5rem)] h-12 bg-primary rounded-xl transition-all duration-300 ease-in-out transform ${
+                  theme === 'dark' ? 'translate-x-[calc(100%+0.5rem)]' : ''
+                }`}
+              />
             </label>
           </div>
         </div>

@@ -16,6 +16,7 @@ import { WalletSection } from '../wallet';
 import { RiMenuUnfoldFill } from 'react-icons/ri';
 import { useState } from 'react';
 import { MdOutlineNetworkPing, MdContacts } from 'react-icons/md';
+import env from '@/config/env';
 
 export default function MobileNav() {
   const closeDrawer = () => {
@@ -60,7 +61,12 @@ export default function MobileNav() {
             <div className="flex flex-row justify-between items-center">
               <div className="flex flex-row gap-4 justify-between items-center">
                 <Image src={'/logo.svg'} alt="logo" width={42} height={42} />
-                <span className="text-2xl leading-tight text-balance">Alberto</span>
+                <div className="flex flex-col">
+                  <p className="text-2xl leading-tight text-balance">Alberto</p>
+                  {env.chainTier === 'mainnet' ? null : (
+                    <p className="text-md uppercase">{env.chainTier}</p>
+                  )}
+                </div>
               </div>
 
               {/* Updated Theme Toggle */}
@@ -87,21 +93,7 @@ export default function MobileNav() {
 
             <div className="divider divider-horizon"></div>
 
-            {/* Added Endpoint Selector and Contacts buttons */}
-            <li>
-              <button
-                onClick={() => {
-                  const modal = document.getElementById(
-                    'endpoint_selector_modal'
-                  ) as HTMLDialogElement;
-                  if (modal) modal.showModal();
-                }}
-                className="flex flex-row justify-start items-center transition-all duration-300 ease-in-out text-primary"
-              >
-                <MdOutlineNetworkPing className="w-8 h-8" />
-                <span className="text-2xl">Endpoints</span>
-              </button>
-            </li>
+            {/* Added Contacts button */}
             <li className="mb-4">
               <button
                 onClick={() => {

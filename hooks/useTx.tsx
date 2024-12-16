@@ -1,10 +1,14 @@
-import { DeliverTxResponse, isDeliverTxSuccess, StdFee } from '@cosmjs/stargate';
+import {
+  DeliverTxResponse,
+  isDeliverTxSuccess,
+  StdFee,
+  SigningStargateClient,
+} from '@cosmjs/stargate';
 import { useChain } from '@cosmos-kit/react';
 import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { useToast } from '@/contexts/toastContext';
 import { useState } from 'react';
-import { SigningStargateClient } from '@cosmjs/stargate';
-import { useEndpointStore } from '@/store/endpointStore';
+import env from '@/config/env';
 
 interface Msg {
   typeUrl: string;
@@ -33,8 +37,7 @@ export const useTx = (chainName: string) => {
   const { address, getSigningStargateClient, estimateFee } = useChain(chainName);
   const { setToastMessage } = useToast();
   const [isSigning, setIsSigning] = useState(false);
-  const { selectedEndpoint } = useEndpointStore();
-  const explorerUrl = selectedEndpoint?.explorer || '';
+  const explorerUrl = env.explorerUrl;
 
   const tx = async (msgs: Msg[], options: TxOptions) => {
     if (!address) {

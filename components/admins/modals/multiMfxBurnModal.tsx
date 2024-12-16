@@ -8,13 +8,13 @@ import { NumberInput, TextInput } from '@/components/react/inputs';
 import { PlusIcon, MinusIcon } from '@/components/icons';
 import { MdContacts } from 'react-icons/md';
 import { useTx, useFeeEstimation } from '@/hooks';
-import { chainName } from '@/config';
 import { cosmos, liftedinit } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 
 import { parseNumberToBigInt } from '@/utils';
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { TailwindModal } from '@/components/react';
+import env from '@/config/env';
 
 interface BurnPair {
   address: string;
@@ -48,8 +48,8 @@ const MultiBurnSchema = Yup.object().shape({
 
 export function MultiBurnModal({ isOpen, onClose, admin, address, denom }: MultiBurnModalProps) {
   const [burnPairs, setBurnPairs] = useState([{ address: admin, amount: '' }]);
-  const { tx, isSigning, setIsSigning } = useTx(chainName);
-  const { estimateFee } = useFeeEstimation(chainName);
+  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { estimateFee } = useFeeEstimation(env.chain);
   const { burnHeldBalance } = liftedinit.manifest.v1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const [isContactsOpen, setIsContactsOpen] = useState(false);
