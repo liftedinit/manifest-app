@@ -1,10 +1,9 @@
 import { ExtendedValidatorSDKType } from '@/components';
 
-export const getRealLogo = (logo: string) => {
-  const isDarkMode = document.documentElement.classList.contains('dark');
+export const getRealLogo = (logo: string, isDarkMode?: boolean) => {
   const localAndHasExtension = /^\/(?!.*\.[0-9a-z]+$)/i.test(logo);
   return localAndHasExtension
-    ? isDarkMode
+    ? isDarkMode === true
       ? logo?.toString() + '_light.svg'
       : logo?.toString() + '_dark.svg'
     : logo;
