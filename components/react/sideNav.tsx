@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { IconWallet, WalletSection } from '../wallet';
 import { useTheme } from '@/contexts/theme';
-import { useCallback } from 'react';
 import { TailwindModal } from './modal';
 import packageInfo from '../../package.json';
 
@@ -17,7 +16,8 @@ import {
   LightIcon,
 } from '@/components/icons';
 
-import { MdContacts, MdOutlineNetworkPing } from 'react-icons/md';
+import { MdContacts } from 'react-icons/md';
+import { getRealLogo } from '@/utils';
 import env from '@/config/env';
 
 interface SideNavProps {
@@ -192,8 +192,30 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
             <WalletSection chainName="manifest" />
           </div>
         </ul>
-        <div className="flex flex-row justify-center items-center">
-          <p className="text-sm text-gray-500">v{version}</p>
+        <div className="flex flex-row justify-between items-center">
+          <Link href="https://github.com/liftedinit/manifest-app" target="_blank">
+            <p className="text-sm text-gray-500">v{version}</p>
+          </Link>
+          <div className="flex flex-row justify-between items-center gap-3">
+            <Link href="https://discord.gg/ndYMdRmFpG" target="_blank">
+              <Image
+                src={getRealLogo('/discord', theme === 'dark')}
+                alt={'Discord'}
+                width={12}
+                height={12}
+                className="w-4 h-4 rounded-xl"
+              />
+            </Link>
+            <Link href="https://x.com/ManifestAIs" target="_blank">
+              <Image
+                src={getRealLogo('/x', theme === 'dark')}
+                alt={'Twitter'}
+                width={12}
+                height={12}
+                className="w-4 h-4 rounded-xl"
+              />
+            </Link>
+          </div>
         </div>
       </div>
     </div>
