@@ -1,3 +1,4 @@
+import env from '@/config/env';
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
 import {
   BookmarkSquareIcon,
@@ -7,12 +8,8 @@ import {
 } from '@heroicons/react/24/solid';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useEndpointStore } from '@/store/endpointStore';
 
 export default function FourOhFour() {
-  const { selectedEndpoint } = useEndpointStore();
-  const explorerUrl = selectedEndpoint?.explorer || '';
-
   const links = [
     {
       name: 'Chain Docs',
@@ -22,7 +19,7 @@ export default function FourOhFour() {
     },
     {
       name: 'Block Explorer',
-      href: explorerUrl,
+      href: env.explorerUrl,
       description: 'Search for transactions, wallets, and other chain data.',
       icon: MagnifyingGlassCircleIcon,
     },

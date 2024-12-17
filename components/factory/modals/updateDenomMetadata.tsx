@@ -2,12 +2,12 @@ import { TokenFormData } from '@/helpers/formReducer';
 import { useFeeEstimation } from '@/hooks/useFeeEstimation';
 import { useTx } from '@/hooks/useTx';
 import { osmosis } from '@liftedinit/manifestjs';
-import { chainName } from '@/config';
 import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { TextInput, TextArea } from '@/components/react/inputs';
 import { truncateString, ExtendedMetadataSDKType } from '@/utils';
 import { useEffect } from 'react';
+import env from '@/config/env';
 import { createPortal } from 'react-dom';
 
 const TokenDetailsSchema = (context: { subdenom: string }) =>
@@ -80,8 +80,8 @@ export function UpdateDenomMetadataModal({
     exponent: '6',
     label: fullDenom,
   };
-  const { tx, isSigning, setIsSigning } = useTx(chainName);
-  const { estimateFee } = useFeeEstimation(chainName);
+  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { estimateFee } = useFeeEstimation(env.chain);
   const { setDenomMetadata } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
 
   const handleUpdate = async (values: TokenFormData, resetForm: () => void) => {

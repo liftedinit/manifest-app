@@ -3,9 +3,9 @@ import { createPortal } from 'react-dom';
 import { cosmos } from '@liftedinit/manifestjs';
 import { useFeeEstimation, useTx } from '@/hooks';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
-import { chainName } from '@/config';
 import { MsgCancelUpgrade } from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
 import { PlanSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/upgrade';
+import env from '@/config/env';
 
 interface BaseModalProps {
   isOpen: boolean;
@@ -37,8 +37,8 @@ export function CancelUpgradeModal({
 }: BaseModalProps) {
   const { cancelUpgrade } = cosmos.upgrade.v1beta1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
-  const { tx, isSigning, setIsSigning } = useTx(chainName);
-  const { estimateFee } = useFeeEstimation(chainName);
+  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { estimateFee } = useFeeEstimation(env.chain);
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {

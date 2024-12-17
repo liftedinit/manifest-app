@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { IconWallet, WalletSection } from '../wallet';
 import { useTheme } from '@/contexts/theme';
-import { useCallback } from 'react';
 import { TailwindModal } from './modal';
 import packageInfo from '../../package.json';
 
@@ -17,7 +16,9 @@ import {
   LightIcon,
 } from '@/components/icons';
 
-import { MdContacts, MdOutlineNetworkPing } from 'react-icons/md';
+import { MdContacts } from 'react-icons/md';
+import { getRealLogo } from '@/utils';
+import env from '@/config/env';
 
 interface SideNavProps {
   isDrawerVisible: boolean;
@@ -76,18 +77,6 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
       </ul>
       <div className="mt-auto flex flex-col items-center space-y-6 dark:bg-[#FFFFFF0F] bg-[#0000000A] rounded-lg p-4 w-[75%]">
         <button
-          onClick={() => {
-            const modal = document.getElementById('endpoint_selector_modal') as HTMLDialogElement;
-            if (modal) modal.showModal();
-          }}
-          className="relative group flex justify-center w-full text-[#00000066] dark:text-[#FFFFFF66] hover:text-primary dark:hover:text-primary transition-all duration-300 ease-in-out"
-        >
-          <MdOutlineNetworkPing className="w-8 h-8" />
-          <span className="tooltip fixed z-[9999] left-[6.8rem] px-3 py-2 bg-primary text-white text-sm font-medium rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-in-out whitespace-nowrap">
-            Endpoints
-          </span>
-        </button>
-        <button
           onClick={() => setContactsOpen(true)}
           className="relative group flex justify-center w-full text-[#00000066] dark:text-[#FFFFFF66] hover:text-primary dark:hover:text-primary transition-all duration-300 ease-in-out"
         >
@@ -145,7 +134,12 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
         <Link href={'/#'} passHref legacyBehavior>
           <Image src={'/logo.svg'} alt="logo" width={48} height={48} className="cursor-pointer" />
         </Link>
-        <p className="text-4xl font-bold">Alberto</p>
+        <div className="flex flex-col">
+          <p className="text-4xl font-bold">Alberto</p>
+          {env.chainTier === 'mainnet' ? null : (
+            <p className="text-md uppercase">{env.chainTier}</p>
+          )}
+        </div>
       </div>
       <ul className="flex-grow mt-8 p-1">
         <NavDrawer Icon={BankIcon} href="/bank" label="Bank" />
@@ -155,17 +149,6 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
       </ul>
       <div className="mt-auto">
         <div className="flex flex-col space-y-2 mb-4">
-          <button
-            onClick={() => {
-              const modal = document.getElementById('endpoint_selector_modal') as HTMLDialogElement;
-              if (modal) modal.showModal();
-            }}
-            className="flex items-center p-2 text-base font-normal rounded-lg text-[#00000066] dark:text-[#FFFFFF66] hover:bg-[#0000000A] hover:text-primary dark:hover:text-primary dark:hover:bg-base-300 transition duration-300 ease-in-out"
-          >
-            <MdOutlineNetworkPing className="w-8 h-8 mr-6" />
-            <span className="text-xl">Endpoints</span>
-          </button>
-
           <button
             onClick={() => setContactsOpen(true)}
             className="flex items-center p-2 text-base font-normal rounded-lg text-[#00000066] dark:text-[#FFFFFF66] hover:bg-[#0000000A] hover:text-primary dark:hover:text-primary dark:hover:bg-base-300 transition duration-300 ease-in-out"
@@ -209,8 +192,30 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
             <WalletSection chainName="manifest" />
           </div>
         </ul>
-        <div className="flex flex-row justify-center items-center">
-          <p className="text-sm text-gray-500">v{version}</p>
+        <div className="flex flex-row justify-between items-center">
+          <Link href="https://github.com/liftedinit/manifest-app" target="_blank">
+            <p className="text-sm text-gray-500">v{version}</p>
+          </Link>
+          <div className="flex flex-row justify-between items-center gap-3">
+            <Link href="https://discord.gg/ndYMdRmFpG" target="_blank">
+              <Image
+                src={getRealLogo('/discord', theme === 'dark')}
+                alt={'Discord'}
+                width={12}
+                height={12}
+                className="w-4 h-4 rounded-xl"
+              />
+            </Link>
+            <Link href="https://x.com/ManifestAIs" target="_blank">
+              <Image
+                src={getRealLogo('/x', theme === 'dark')}
+                alt={'Twitter'}
+                width={12}
+                height={12}
+                className="w-4 h-4 rounded-xl"
+              />
+            </Link>
+          </div>
         </div>
       </div>
     </div>

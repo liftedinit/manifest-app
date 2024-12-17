@@ -22,19 +22,29 @@ For more information on the Manifest Network and its modules, please visit the [
 
 ```
 NEXT_PUBLIC_WALLETCONNECT_KEY=
-NEXT_PUBLIC_WEB3_CLIENT_ID=
-NEXT_PUBLIC_CHAIN=manifest
-NEXT_PUBLIC_CHAIN_ID=manifest-1
-NEXT_PUBLIC_TESTNET_CHAIN_ID=manifest-ledger-beta
-NEXT_PUBLIC_MAINNET_RPC_URL=https://nodes.chandrastation.com/rpc/manifest/
-NEXT_PUBLIC_TESTNET_RPC_URL=https://manifest-beta-rpc.liftedinit.tech/
-NEXT_PUBLIC_MAINNET_API_URL=https://nodes.chandrastation.com/api/manifest/
-NEXT_PUBLIC_TESTNET_API_URL=https://manifest-beta-rest.liftedinit.tech/
-NEXT_PUBLIC_TESTNET_EXPLORER_URL=https://testnet.manifest.explorers.guru
-NEXT_PUBLIC_MAINNET_EXPLORER_URL=https://manifest.explorers.guru
-NEXT_PUBLIC_TESTNET_INDEXER_URL=https://testnet-indexer.liftedinit.tech
-NEXT_PUBLIC_MAINNET_INDEXER_URL=https://indexer.liftedinit.app
+NEXT_PUBLIC_WEB3AUTH_NETWORK=
+NEXT_PUBLIC_WEB3AUTH_CLIENT_ID=
+NEXT_PUBLIC_CHAIN=
+NEXT_PUBLIC_CHAIN_ID=
+NEXT_PUBLIC_CHAIN_TIER=
+NEXT_PUBLIC_RPC_URL=
+NEXT_PUBLIC_API_URL=
+NEXT_PUBLIC_EXPLORER_URL=
+NEXT_PUBLIC_INDEXER_URL=
 ```
+
+where
+
+- `NEXT_PUBLIC_WALLETCONNECT_KEY` is the WalletConnect key
+- `NEXT_PUBLIC_WEB3AUTH_NETWORK` is the Web3Auth network to use for social login
+- `NEXT_PUBLIC_WEB3AUTH_CLIENT_ID` is the Web3Auth client ID to use for social login
+- `NEXT_PUBLIC_CHAIN` is the chain name
+- `NEXT_PUBLIC_CHAIN_ID` is the chain ID
+- `NEXT_PUBLIC_CHAIN_TIER` is the chain tier (e.g., `testnet`, `mainnet`)
+- `NEXT_PUBLIC_RPC_URL` is the chain RPC URL
+- `NEXT_PUBLIC_API_URL` is the chain API URL
+- `NEXT_PUBLIC_EXPLORER_URL` is the block explorer URL
+- `NEXT_PUBLIC_INDEXER_URL` is the YACI indexer URL
 
 ### Development
 

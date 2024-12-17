@@ -3,15 +3,14 @@ import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { TextInput, TextArea, NumberInput } from '@/components/react/inputs';
 
-import { useTx, useFeeEstimation } from '@/hooks';
-import { chainName } from '@/config';
+import { useTx, useFeeEstimation, ExtendedGroupType } from '@/hooks';
 import {
   ThresholdDecisionPolicy,
   ThresholdDecisionPolicySDKType,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { cosmos } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
-import { ExtendedGroupType } from '@/hooks';
+import env from '@/config/env';
 import { createPortal } from 'react-dom';
 
 export function UpdateGroupModal({
@@ -29,8 +28,8 @@ export function UpdateGroupModal({
   showUpdateModal: boolean;
   setShowUpdateModal: (show: boolean) => void;
 }) {
-  const { tx, isSigning, setIsSigning } = useTx(chainName);
-  const { estimateFee } = useFeeEstimation(chainName);
+  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { estimateFee } = useFeeEstimation(env.chain);
 
   const maybeIpfsMetadata = group?.ipfsMetadata;
   const maybeTitle = maybeIpfsMetadata?.title ?? '';

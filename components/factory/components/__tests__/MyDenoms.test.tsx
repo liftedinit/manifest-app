@@ -27,6 +27,10 @@ mock.module('@/hooks/useQueries', () => ({
     poaAdmin: '',
     isPoaAdminLoading: false,
   }),
+  useDenomAuthorityMetadata: jest.fn().mockReturnValue({
+    denomAuthority: '',
+    isDenomAuthorityLoading: false,
+  }),
 }));
 
 const renderWithProps = (props = {}) => {
