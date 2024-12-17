@@ -27,8 +27,7 @@
     "@types/react": "18.0.25",
     "@types/react-dom": "18.0.9",
     "**/@chain-registry/types": "0.25.0",
-    "**/@cosmjs/stargate": "npm:@liftedinit/stargate@0.32.4-ll.3",
-    "**/@cosmos-kit/web3auth": "file:../cosmos-kit/wallets/web3auth"
+    "**/@cosmjs/stargate": "npm:@liftedinit/stargate@0.32.4-ll.3"
   },
   "dependencies": {
     "@chain-registry/assets": "^1.70.65",
