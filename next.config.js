@@ -2,6 +2,7 @@
 const nextConfig = {
   output: 'standalone',
   reactStrictMode: true,
+  transpilePackages: ['react-syntax-highlighter'],
   swcMinify: true,
   images: {
     domains: [
