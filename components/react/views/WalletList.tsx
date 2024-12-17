@@ -20,7 +20,6 @@ export const WalletList = ({
       wallet.walletInfo.prettyName
     )
   );
-  console.log(wallets.filter(wallet => ['Email'].includes(wallet.walletInfo.prettyName)));
   const browser = wallets.filter(wallet =>
     ['Keplr', 'Cosmostation', 'Leap', 'Station', 'Cosmos MetaMask Extension'].includes(
       wallet.walletInfo.prettyName

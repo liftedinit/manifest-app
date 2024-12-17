@@ -149,7 +149,6 @@ export const TailwindModal: React.FC<
                 ) as Web3AuthWallet | undefined;
 
                 if (emailWallet?.client instanceof Web3AuthClient) {
-                  console.log('Setting login hint:', email);
                   emailWallet.client.setLoginHint(email);
                   await walletRepo?.connect(emailWallet.walletInfo.name);
                 } else {

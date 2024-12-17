@@ -8,7 +8,7 @@ import type { AppProps } from 'next/app';
 import { createPortal } from 'react-dom';
 import { SignData } from '@cosmos-kit/web3auth';
 import { makeWeb3AuthWallets } from '@cosmos-kit/web3auth/esm/index'; // Leave this as is or you will get an error at compile time
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import SignModal from '@/components/react/authSignerModal';
 import { manifestAssets, manifestChain } from '@/config';
 import { SignerOptions, wallets } from 'cosmos-kit';
@@ -32,7 +32,6 @@ import {
   cosmosAminoConverters,
   cosmosProtoRegistry,
 } from '@liftedinit/manifestjs';
-import { ToastProvider, ContactsModalProvider } from '@/contexts';
 import MobileNav from '@/components/react/mobileNav';
 
 import { OPENLOGIN_NETWORK_TYPE } from '@toruslabs/openlogin-utils';
