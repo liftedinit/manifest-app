@@ -59,7 +59,11 @@ export const Connected = ({
           <Image
             height={0}
             width={0}
-            src={getRealLogo(logo, theme === 'dark')}
+            src={
+              name === 'Cosmos MetaMask Extension'
+                ? '/metamask.svg'
+                : getRealLogo(logo, theme === 'dark')
+            }
             alt={name}
             className="w-8 h-8 rounded-full mr-2"
           />
