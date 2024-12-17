@@ -2,9 +2,9 @@ import React, { useEffect, useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { createPortal } from 'react-dom';
 import { PrismAsyncLight as SyntaxHighlighter } from 'react-syntax-highlighter';
-import json from 'react-syntax-highlighter/dist/esm/languages/prism/json';
-import oneDark from 'react-syntax-highlighter/dist/esm/styles/prism/one-dark';
-import oneLight from 'react-syntax-highlighter/dist/esm/styles/prism/one-light';
+import json from 'react-syntax-highlighter/dist/cjs/languages/prism/json';
+import oneDark from 'react-syntax-highlighter/dist/cjs/styles/prism/one-dark';
+import oneLight from 'react-syntax-highlighter/dist/cjs/styles/prism/one-light';
 
 import {
   MemberSDKType,
