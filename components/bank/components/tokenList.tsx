@@ -56,20 +56,23 @@ export function TokenList({
     return filteredBalances.slice(startIndex, startIndex + pageSize);
   }, [filteredBalances, currentPage, pageSize]);
 
+  // TODO: Fix search bar for group tokens
   return (
     <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
       <div className="flex flex-col gap-4 mb-4">
-        <div className="relative w-full sm:w-[224px]">
-          <input
-            type="text"
-            placeholder="Search for an asset..."
-            className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            aria-label="Search assets"
-          />
-          <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-        </div>
+        {!isGroup && (
+          <div className="relative w-full sm:w-[224px]">
+            <input
+              type="text"
+              placeholder="Search for an asset..."
+              className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              aria-label="Search assets"
+            />
+            <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          </div>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto">
@@ -149,9 +152,9 @@ export function TokenList({
                         document?.getElementById(`denom-info-modal`) as HTMLDialogElement
                       )?.showModal();
                     }}
-                    className="p-2 rounded-md bg-[#0000000A] dark:bg-[#FFFFFF0F] hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF33] transition-colors"
+                    className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
                   >
-                    <QuestionIcon className="w-4 h-4 text-primary" />
+                    <QuestionIcon className="w-7 h-7 text-current" />
                   </button>
                   <button
                     aria-label={`send-${balance?.denom}`}
@@ -160,9 +163,9 @@ export function TokenList({
                       setSelectedDenom(balance?.denom);
                       setIsSendModalOpen(true);
                     }}
-                    className="p-2 rounded-md bg-[#0000000A] dark:bg-[#FFFFFF0F] hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF33] transition-colors"
+                    className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
                   >
-                    <SendTxIcon className="w-4 h-4 text-primary" />
+                    <SendTxIcon className="w-7 h-7 text-current" />
                   </button>
                 </div>
               </div>

@@ -151,21 +151,24 @@ export default function DenomList({
     });
   };
 
+  // TODO: Fix search bar for group tokens
   return (
     <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
       <div className="flex flex-col gap-4 mb-4">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
-            <div className="relative w-full sm:w-[224px]">
-              <input
-                type="text"
-                placeholder="Search for a token..."
-                className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-              />
-              <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            </div>
+            {!isGroup && (
+              <div className="relative w-full sm:w-[224px]">
+                <input
+                  type="text"
+                  placeholder="Search for a token..."
+                  className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                />
+                <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              </div>
+            )}
           </div>
         </div>
         <div className="overflow-auto">
