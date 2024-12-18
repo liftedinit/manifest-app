@@ -54,7 +54,6 @@ export const WalletList = ({
       <div className={`${isMobile ? 'hidden' : 'block'}`}>
         <div className="space-y-2 mb-4">
           {browser.map(({ walletInfo: { name, prettyName, logo } }) => (
-
             <div key={name} className="w-full">
               <button
                 onClick={() => onWalletClicked(name)}
@@ -86,7 +85,6 @@ export const WalletList = ({
                 )}
               </button>
             </div>
-
           ))}
         </div>
 
