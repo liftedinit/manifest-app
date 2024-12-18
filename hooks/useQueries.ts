@@ -17,6 +17,7 @@ import { TransactionGroup } from '@/components';
 import { Octokit } from 'octokit';
 
 import { useOsmosisRpcQueryClient } from '@/hooks/useOsmosisRpcQueryClient';
+import { useGroupAddressStore } from '@/stores/groupAddressStore';
 export interface IPFSMetadata {
   title: string;
   authors: string | string[];
@@ -452,6 +453,7 @@ export const useTotalSupply = () => {
     isTotalSupplyLoading: totalSupplyQuery.isLoading,
     isTotalSupplyError: totalSupplyQuery.isError,
     refetchTotalSupply: totalSupplyQuery.refetch,
+    totalSupplyError: totalSupplyQuery.error,
   };
 };
 
@@ -580,28 +582,27 @@ export const useValidators = () => {
   };
 };
 
-export const useTokenFactoryDenomsFromAdmin = (address: string) => {
-  const { lcdQueryClient } = useManifestLcdQueryClient();
+export const useTokenFactoryDenomsFromAdmin = () => {
+  const { manifestLcdQueryClient } = useManifestLcdQueryClient();
+  const { selectedAddress } = useGroupAddressStore();
 
   const fetchDenoms = async () => {
-    if (!lcdQueryClient) {
-      throw new Error('LCD Client not ready');
-    }
-    if (!address) {
+    if (!manifestLcdQueryClient || !selectedAddress) {
       return { denoms: [] };
     }
-    return await lcdQueryClient.osmosis.tokenfactory.v1beta1.denomsFromAdmin({
-      admin: address,
+    return await manifestLcdQueryClient.osmosis.tokenfactory.v1beta1.denomsFromAdmin({
+      admin: selectedAddress,
     });
   };
 
   const denomsQuery = useQuery({
-    queryKey: [address + 'denoms'],
+    queryKey: ['denoms', selectedAddress, !!manifestLcdQueryClient],
     queryFn: fetchDenoms,
-    enabled: !!lcdQueryClient && !!address,
+    enabled: Boolean(manifestLcdQueryClient && selectedAddress),
     staleTime: 0,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
+    retry: 2,
   });
 
   return {
@@ -609,6 +610,7 @@ export const useTokenFactoryDenomsFromAdmin = (address: string) => {
     isDenomsLoading: denomsQuery.isLoading,
     isDenomsError: denomsQuery.isError,
     refetchDenoms: denomsQuery.refetch,
+    denomsError: denomsQuery.error,
   };
 };
 
@@ -667,6 +669,7 @@ export const useTokenFactoryDenomsMetadata = () => {
     isMetadatasLoading: denomsQuery.isLoading,
     isMetadatasError: denomsQuery.isError,
     refetchMetadatas: denomsQuery.refetch,
+    metadatasError: denomsQuery.error,
   };
 };
 
@@ -695,6 +698,7 @@ export const useTokenBalances = (address: string) => {
     isBalancesLoading: balancesQuery.isLoading,
     isBalancesError: balancesQuery.isError,
     refetchBalances: balancesQuery.refetch,
+    balancesError: balancesQuery.error,
   };
 };
 

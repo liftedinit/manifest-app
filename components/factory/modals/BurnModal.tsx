@@ -13,6 +13,7 @@ export default function BurnModal({
   isOpen,
   onClose,
   onSwitchToMultiBurn,
+  isGroup,
 }: {
   denom: ExtendedMetadataSDKType | null;
   address: string;
@@ -22,6 +23,7 @@ export default function BurnModal({
   isOpen: boolean;
   onClose: () => void;
   onSwitchToMultiBurn: () => void;
+  isGroup: boolean;
 }) {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -88,14 +90,12 @@ export default function BurnModal({
             <div className="skeleton h-[17rem] max-h-72 w-full"></div>
           ) : (
             <BurnForm
-              isAdmin={isAdmin ?? false}
-              admin={poaAdmin ?? ''}
               balance={balance}
               totalSupply={totalSupply}
               refetch={refetch}
               address={address}
               denom={denom}
-              onMultiBurnClick={onSwitchToMultiBurn}
+              isGroup={isGroup}
             />
           )}
         </div>

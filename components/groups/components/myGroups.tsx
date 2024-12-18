@@ -34,7 +34,7 @@ export function YourGroups({
   isLoading,
   refetch,
 }: {
-  groups: ExtendedQueryGroupsByMemberResponseSDKType;
+  groups: ExtendedGroupType[];
   proposals: { [policyAddress: string]: ProposalSDKType[] };
   isLoading: boolean;
   refetch: () => void;
@@ -54,7 +54,7 @@ export function YourGroups({
   const router = useRouter();
   const { address } = useChain('manifest');
 
-  const filteredGroups = groups.groups.filter(group =>
+  const filteredGroups = groups.filter(group =>
     (group.ipfsMetadata?.title || 'Untitled Group').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -68,7 +68,7 @@ export function YourGroups({
     // Check if there's a policy address in the URL on component mount
     const { policyAddress } = router.query;
     if (policyAddress && typeof policyAddress === 'string') {
-      const group = groups.groups.find(
+      const group = groups.find(
         g => g.policies && g.policies.length > 0 && g.policies[0]?.address === policyAddress
       );
       if (group) {
@@ -81,7 +81,7 @@ export function YourGroups({
         });
       }
     }
-  }, [router.query, groups.groups]);
+  }, [router.query, groups]);
 
   useEffect(() => {
     // Scroll to top when a group is selected
