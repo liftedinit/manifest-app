@@ -156,7 +156,11 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
   );
 
   // combine the web3auth wallets with the other wallets
-  const combinedWallets = [...web3AuthWallets, ...wallets, ...cosmosExtensionWallets];
+  const combinedWallets = [
+    ...web3AuthWallets,
+    ...wallets.for('keplr', 'cosmostation', 'leap', 'station'),
+    ...cosmosExtensionWallets,
+  ];
 
   // this is stop ssr errors when we render the web3auth signing modal
   const [isBrowser, setIsBrowser] = useState(false);

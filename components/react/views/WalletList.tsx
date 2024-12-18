@@ -10,7 +10,7 @@ export const WalletList = ({
   wallets,
 }: {
   onClose: () => void;
-  onWalletClicked: (name: string) => void;
+  onWalletClicked: (name: string, isMobileConnect?: boolean) => void;
   wallets: ChainWalletBase[];
 }) => {
   const isDarkMode = document.documentElement.classList.contains('dark');
@@ -70,11 +70,11 @@ export const WalletList = ({
                 <span className="text-md flex-1 text-left">
                   {prettyName === 'Cosmos MetaMask Extension' ? 'MetaMask' : prettyName}
                 </span>
-                {hasMobileVersion(prettyName) && (
+                {hasMobileVersion(prettyName) && prettyName !== 'Cosmostation' && (
                   <div
                     onClick={e => {
                       e.stopPropagation();
-                      onWalletClicked(getMobileWalletName(prettyName) || '');
+                      onWalletClicked(getMobileWalletName(prettyName) || '', true);
                     }}
                     className="p-1.5 rounded-lg dark:hover:bg-[#ffffff1a] hover:bg-[#0000000d] dark:bg-[#ffffff37] bg-[#d5d5e4]  transition cursor-pointer"
                     title={`Connect with ${prettyName} Mobile`}
