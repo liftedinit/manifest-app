@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useFeeEstimation, useTx } from '@/hooks';
-import { osmosis } from '@liftedinit/manifestjs';
+import { cosmos, osmosis } from '@liftedinit/manifestjs';
 
 import { parseNumberToBigInt, shiftDigits, ExtendedMetadataSDKType, truncateString } from '@/utils';
 import { MdContacts } from 'react-icons/md';
@@ -10,6 +10,8 @@ import Yup from '@/utils/yupExtensions';
 import { NumberInput, TextInput } from '@/components/react/inputs';
 import { TailwindModal } from '@/components/react/modal';
 import env from '@/config/env';
+import { Any } from 'cosmjs-types/google/protobuf/any';
+import { MsgMint } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
 
 export default function MintForm({
   isAdmin,
@@ -18,6 +20,8 @@ export default function MintForm({
   refetch,
   balance,
   totalSupply,
+  isGroup,
+  admin,
   onMultiMintClick,
 }: Readonly<{
   isAdmin: boolean;
@@ -26,6 +30,8 @@ export default function MintForm({
   refetch: () => void;
   balance: string;
   totalSupply: string;
+  isGroup?: boolean;
+  admin?: string;
   onMultiMintClick: () => void;
 }>) {
   const [amount, setAmount] = useState('');
@@ -35,6 +41,7 @@ export default function MintForm({
   const { tx, isSigning, setIsSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
   const { mint } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
+  const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
   const exponent =
     denom?.denom_units?.find((unit: { denom: string }) => unit.denom === denom.display)?.exponent ||
@@ -55,15 +62,40 @@ export default function MintForm({
       const amountInBaseUnits = parseNumberToBigInt(amount, exponent).toString();
       let msg;
 
-      msg = mint({
-        amount: {
-          amount: amountInBaseUnits,
-          denom: denom.base,
-        },
-        sender: address,
-        mintToAddress: recipient,
-      });
+      msg = isGroup
+        ? submitProposal({
+            groupPolicyAddress: admin!,
+            messages: [
+              Any.fromPartial({
+                typeUrl: MsgMint.typeUrl,
+                value: MsgMint.encode(
+                  mint({
+                    amount: {
+                      amount: amountInBaseUnits,
+                      denom: denom.base,
+                    },
+                    sender: admin!,
+                    mintToAddress: recipient,
+                  }).value
+                ).finish(),
+              }),
+            ],
+            metadata: '',
+            proposers: [address],
+            title: `Mint Tokens`,
+            summary: `This proposal will mint ${amount} ${denom.display} to ${recipient}`,
+            exec: 0,
+          })
+        : mint({
+            amount: {
+              amount: amountInBaseUnits,
+              denom: denom.base,
+            },
+            sender: address,
+            mintToAddress: recipient,
+          });
 
+      console.log('Estimating fee for address (mint):', address);
       const fee = await estimateFee(address ?? '', [msg]);
       await tx([msg], {
         fee,

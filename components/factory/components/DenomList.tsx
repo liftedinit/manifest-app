@@ -20,6 +20,7 @@ export default function DenomList({
   address,
   pageSize,
   isGroup,
+  admin,
 }: {
   denoms: ExtendedMetadataSDKType[];
   isLoading: boolean;
@@ -27,6 +28,7 @@ export default function DenomList({
   address: string;
   pageSize: number;
   isGroup?: boolean;
+  admin?: string;
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -100,6 +102,7 @@ export default function DenomList({
     setModalType(null);
     setOpenUpdateDenomMetadataModal(false);
     setOpenTransferDenomModal(false);
+    // TODO: Handle isGroup
     router.push('/factory', undefined, { shallow: true });
   };
 
@@ -108,6 +111,7 @@ export default function DenomList({
     setOpenUpdateDenomMetadataModal(false);
     setOpenTransferDenomModal(false);
     setModalType(null);
+    // TODO: Handle isGroup
     router.push('/factory', undefined, { shallow: true });
   };
 
@@ -117,6 +121,7 @@ export default function DenomList({
     setSelectedDenom(denom);
     setModalType('update');
     setOpenUpdateDenomMetadataModal(true);
+    // TODO: Handle isGroup
     router.push(`/factory?denom=${denom.base}&action=update`, undefined, { shallow: true });
   };
 
@@ -126,11 +131,13 @@ export default function DenomList({
     setSelectedDenom(denom);
     setModalType('transfer');
     setOpenTransferDenomModal(true);
+    // TODO: Handle isGroup
     router.push(`/factory?denom=${denom.base}&action=transfer`, undefined, { shallow: true });
   };
 
   const handleSwitchToMultiMint = () => {
     setModalType('multimint');
+    // TODO: Handle isGroup
     router.push(`/factory?denom=${selectedDenom?.base}&action=multimint`, undefined, {
       shallow: true,
     });
@@ -138,6 +145,7 @@ export default function DenomList({
 
   const handleSwitchToMultiBurn = () => {
     setModalType('multiburn');
+    // TODO: Handle isGroup
     router.push(`/factory?denom=${selectedDenom?.base}&action=multiburn`, undefined, {
       shallow: true,
     });
@@ -240,9 +248,6 @@ export default function DenomList({
                           e.stopPropagation();
                           setSelectedDenom(denom);
                           setModalType('mint');
-                          router.push(`/factory?denom=${denom.base}&action=mint`, undefined, {
-                            shallow: true,
-                          });
                         }}
                         onBurn={e => {
                           e.stopPropagation();
@@ -353,6 +358,7 @@ export default function DenomList({
         isOpen={modalType === 'mint'}
         onClose={handleCloseModal}
         onSwitchToMultiMint={handleSwitchToMultiMint}
+        isGroup={isGroup}
       />
       <BurnModal
         denom={selectedDenom}
@@ -363,11 +369,13 @@ export default function DenomList({
         isOpen={modalType === 'burn'}
         onClose={handleCloseModal}
         onSwitchToMultiBurn={handleSwitchToMultiBurn}
+        isGroup={isGroup}
       />
       <UpdateDenomMetadataModal
         modalId="update-denom-metadata-modal"
         denom={selectedDenom}
         address={address}
+        isGroup={isGroup}
         onSuccess={() => {
           refetchDenoms();
           handleUpdateModalClose();
@@ -399,6 +407,7 @@ export default function DenomList({
         address={address}
         isOpen={modalType === 'transfer'}
         onClose={handleCloseModal}
+        isGroup={isGroup}
       />
     </div>
   );

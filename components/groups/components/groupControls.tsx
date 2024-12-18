@@ -463,7 +463,8 @@ export default function GroupProposals({
             denoms={denoms}
             isLoading={isLoading}
             refetchDenoms={refetchDenoms}
-            address={policyAddress}
+            address={address ?? ''}
+            admin={policyAddress}
             pageSize={pageSize}
             isGroup={true}
           />
