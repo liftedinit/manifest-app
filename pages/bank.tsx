@@ -1,4 +1,4 @@
-import { WalletNotConnected, HistoryBox } from '@/components';
+import { WalletNotConnected, HistoryBox, SearchIcon } from '@/components';
 import { TokenList } from '@/components/bank/components/tokenList';
 import {
   useGetFilteredTxAndSuccessfulProposals,
@@ -26,9 +26,9 @@ export default function Bank() {
 
   const { metadatas, isMetadatasLoading } = useTokenFactoryDenomsMetadata();
   const [currentPage, setCurrentPage] = useState(1);
+  const [activeTab, setActiveTab] = useState('assets');
 
   const isMobile = useIsMobile();
-
   const pageSize = isMobile ? 4 : 9;
 
   const skeletonGroupCount = 1;
@@ -84,95 +84,75 @@ export default function Bank() {
 
   return (
     <>
-      <div className="min-h-screen relative px-2 mx-auto text-white mt-12 md:mt-0">
+      <div className="min-h-screen relative py-4 px-2 mx-auto text-white">
         <Head>
           <title>Bank - Alberto</title>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <meta name="description" content="Alberto is the gateway to the Manifest Network" />
-          <meta
-            name="keywords"
-            content="crypto, blockchain, application, Cosmos-SDK, Alberto, Manifest Network"
-          />
-          <meta name="author" content="Chandra Station" />
-          <link rel="icon" href="/favicon.ico" />
-
-          <meta property="og:title" content="Bank - Alberto" />
-          <meta
-            property="og:description"
-            content="Alberto is the gateway to the Manifest Network"
-          />
-          <meta property="og:url" content="https://" />
-          <meta property="og:image" content="https://" />
-          <meta property="og:type" content="website" />
-          <meta property="og:site_name" content="Alberto" />
-
-          <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:title" content="Bank - Alberto" />
-          <meta
-            name="twitter:description"
-            content="Alberto is the gateway to the Manifest Network"
-          />
-          <meta name="twitter:image" content="https://" />
-          <meta name="twitter:site" content="@" />
-
-          <script type="application/ld+json">
-            {JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'WebPage',
-              name: 'Bank - Alberto',
-              description: 'Alberto is the gateway to the Manifest Network',
-              url: 'https://',
-              image: 'https://',
-              publisher: {
-                '@type': 'Organization',
-                name: 'Chandra Station',
-                logo: {
-                  '@type': 'ImageObject',
-                  url: 'https:///img/logo.png',
-                },
-              },
-            })}
-          </script>
         </Head>
 
-        <div className="h-[calc(100vh-1.5rem)] py-1 gap-4 flex flex-col w-full lg:flex-row animate-fadeIn">
-          {!isWalletConnected ? (
-            <WalletNotConnected
-              description="Use the button below to connect your wallet and start interacting with your tokens."
-              icon={<BankIcon className="h-60 w-60 text-primary" />}
-            />
-          ) : (
-            isWalletConnected &&
-            combinedBalances && (
-              <div className="flex flex-col lg:flex-row w-full gap-4 max-h-full">
-                <div className="w-full lg:w-1/2 h-[calc(50vh)] lg:h-full overflow-hidden">
-                  <TokenList
-                    refetchBalances={refetchBalances || resolveRefetch}
-                    isLoading={isLoading}
-                    balances={combinedBalances}
-                    refetchHistory={refetchHistory}
-                    address={address ?? ''}
-                    pageSize={pageSize}
-                  />
+        <div className="flex-grow h-full animate-fadeIn transition-all duration-300">
+          <div className="w-full mx-auto">
+            {!isWalletConnected ? (
+              <WalletNotConnected
+                description="Use the button below to connect your wallet and start interacting with your tokens."
+                icon={<BankIcon className="h-60 w-60 text-primary" />}
+              />
+            ) : (
+              <>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
+                  <h1
+                    className="text-secondary-content"
+                    style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
+                  >
+                    Bank
+                  </h1>
                 </div>
-                <div className="w-full lg:w-1/2 h-1/2 lg:h-full overflow-hidden">
-                  <HistoryBox
-                    currentPage={currentPage}
-                    setCurrentPage={setCurrentPage}
-                    address={address ?? ''}
-                    isLoading={isLoading}
-                    sendTxs={sendTxs}
-                    totalPages={totalPages}
-                    txLoading={txLoading}
-                    isError={isError}
-                    refetch={refetchHistory}
-                    skeletonGroupCount={skeletonGroupCount}
-                    skeletonTxCount={skeletonTxCount}
-                  />
+                <div role="tablist" className="tabs tabs-bordered tabs-lg">
+                  <button
+                    role={'tab'}
+                    className={`font-bold tab ${activeTab === 'assets' ? 'tab-active' : ''}`}
+                    onClick={() => setActiveTab('assets')}
+                  >
+                    Assets
+                  </button>
+                  <button
+                    role={'tab'}
+                    className={`font-bold tab ${activeTab === 'history' ? 'tab-active' : ''}`}
+                    onClick={() => setActiveTab('history')}
+                  >
+                    Activity
+                  </button>
                 </div>
-              </div>
-            )
-          )}
+
+                <div className="flex flex-col w-full mt-4">
+                  {activeTab === 'assets' && (
+                    <TokenList
+                      refetchBalances={refetchBalances || resolveRefetch}
+                      isLoading={isLoading}
+                      balances={combinedBalances}
+                      refetchHistory={refetchHistory}
+                      address={address ?? ''}
+                      pageSize={pageSize}
+                    />
+                  )}
+                  {activeTab === 'history' && (
+                    <HistoryBox
+                      currentPage={currentPage}
+                      setCurrentPage={setCurrentPage}
+                      address={address ?? ''}
+                      isLoading={isLoading}
+                      sendTxs={sendTxs}
+                      totalPages={totalPages}
+                      txLoading={txLoading}
+                      isError={isError}
+                      refetch={refetchHistory}
+                      skeletonGroupCount={skeletonGroupCount}
+                      skeletonTxCount={skeletonTxCount}
+                    />
+                  )}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </>

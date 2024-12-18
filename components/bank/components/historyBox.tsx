@@ -168,67 +168,6 @@ export function HistoryBox({
 
   return (
     <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
-      <div className="flex items-center justify-between ">
-        <h3 className="text-lg md:text-xl font-semibold text-[#161616] dark:text-white hidden xl:block">
-          {isGroup ? 'Group Transactions' : 'Transaction History'}
-        </h3>
-        <h3 className="text-lg md:text-xl font-semibold text-[#161616] dark:text-white block xl:hidden">
-          {isGroup ? 'Transactions' : 'History'}
-        </h3>
-
-        {totalPages > 1 && (
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-              disabled={currentPage === 1 || isLoading}
-              className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              ‹
-            </button>
-
-            {[...Array(totalPages)].map((_, index) => {
-              const pageNum = index + 1;
-              // Only show current page and adjacent pages
-              if (
-                pageNum === 1 ||
-                pageNum === totalPages ||
-                (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
-              ) {
-                return (
-                  <button
-                    key={pageNum}
-                    onClick={() => setCurrentPage(pageNum)}
-                    className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors
-                      ${
-                        currentPage === pageNum
-                          ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A] text-black dark:text-white'
-                          : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white'
-                      }`}
-                  >
-                    {pageNum}
-                  </button>
-                );
-              } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
-                return (
-                  <span className="text-black dark:text-white" key={pageNum}>
-                    ...
-                  </span>
-                );
-              }
-              return null;
-            })}
-
-            <button
-              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-              disabled={currentPage === totalPages || isLoading}
-              className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              ›
-            </button>
-          </div>
-        )}
-      </div>
-
       {isLoading ? (
         <div className="flex-1 overflow-hidden h-full">
           <div aria-label="skeleton" className="space-y-2">
@@ -371,6 +310,58 @@ export function HistoryBox({
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-end gap-2 mt-4">
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            disabled={currentPage === 1 || isLoading}
+            className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            ‹
+          </button>
+
+          {[...Array(totalPages)].map((_, index) => {
+            const pageNum = index + 1;
+            // Only show current page and adjacent pages
+            if (
+              pageNum === 1 ||
+              pageNum === totalPages ||
+              (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+            ) {
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => setCurrentPage(pageNum)}
+                  className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors
+                      ${
+                        currentPage === pageNum
+                          ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A] text-black dark:text-white'
+                          : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white'
+                      }`}
+                >
+                  {pageNum}
+                </button>
+              );
+            } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
+              return (
+                <span className="text-black dark:text-white" key={pageNum}>
+                  ...
+                </span>
+              );
+            }
+            return null;
+          })}
+
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            disabled={currentPage === totalPages || isLoading}
+            className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            ›
+          </button>
         </div>
       )}
 

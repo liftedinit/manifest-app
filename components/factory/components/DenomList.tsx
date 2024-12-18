@@ -13,24 +13,26 @@ import { usePoaGetAdmin } from '@/hooks';
 import useIsMobile from '@/hooks/useIsMobile';
 import TransferModal from '@/components/factory/modals/TransferModal';
 
-export default function MyDenoms({
+export default function DenomList({
   denoms,
   isLoading,
   refetchDenoms,
   address,
+  pageSize,
+  isGroup,
 }: {
   denoms: ExtendedMetadataSDKType[];
   isLoading: boolean;
   refetchDenoms: () => void;
   address: string;
+  pageSize: number;
+  isGroup?: boolean;
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [openUpdateDenomMetadataModal, setOpenUpdateDenomMetadataModal] = useState(false);
   const [openTransferDenomModal, setOpenTransferDenomModal] = useState(false);
   const isMobile = useIsMobile();
-
-  const pageSize = isMobile ? 5 : 8;
 
   const router = useRouter();
   const [selectedDenom, setSelectedDenom] = useState<ExtendedMetadataSDKType | null>(null);
@@ -142,16 +144,10 @@ export default function MyDenoms({
   };
 
   return (
-    <div className="relative w-full h-screen overflow-hidden">
-      <div className="h-full flex flex-col p-4">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+    <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
+      <div className="flex flex-col gap-4 mb-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
-            <h1
-              className="text-secondary-content"
-              style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
-            >
-              My Factory
-            </h1>
             <div className="relative w-full sm:w-[224px]">
               <input
                 type="text"
@@ -162,14 +158,6 @@ export default function MyDenoms({
               />
               <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             </div>
-          </div>
-
-          <div className="hidden md:block">
-            <Link href="/factory/create" passHref>
-              <button className="btn btn-gradient w-[224px] h-[52px] text-white rounded-[12px] focus:outline-none focus-visible:ring-1 focus-visible:ring-primary">
-                Create New Token
-              </button>
-            </Link>
           </div>
         </div>
         <div className="overflow-auto">
@@ -270,79 +258,79 @@ export default function MyDenoms({
                     ))}
               </tbody>
             </table>
-            {totalPages > 1 && (
-              <div
-                className="flex items-center justify-center gap-2 "
-                onClick={e => e.stopPropagation()}
-                role="navigation"
-                aria-label="Pagination"
-              >
-                <button
-                  onClick={e => {
-                    e.stopPropagation();
-                    setCurrentPage(prev => Math.max(1, prev - 1));
-                  }}
-                  disabled={currentPage === 1 || isLoading}
-                  className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  aria-label="Previous page"
-                >
-                  ‹
-                </button>
-
-                {[...Array(totalPages)].map((_, index) => {
-                  const pageNum = index + 1;
-                  if (
-                    pageNum === 1 ||
-                    pageNum === totalPages ||
-                    (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
-                  ) {
-                    return (
-                      <button
-                        key={pageNum}
-                        onClick={e => {
-                          e.stopPropagation();
-                          setCurrentPage(pageNum);
-                        }}
-                        className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors text-black dark:text-white 
-                          ${currentPage === pageNum ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A]' : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A]'}`}
-                        aria-label={`Page ${pageNum}`}
-                        aria-current={currentPage === pageNum ? 'page' : undefined}
-                      >
-                        {pageNum}
-                      </button>
-                    );
-                  } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
-                    return (
-                      <span key={pageNum} aria-hidden="true">
-                        ...
-                      </span>
-                    );
-                  }
-                  return null;
-                })}
-
-                <button
-                  onClick={e => {
-                    e.stopPropagation();
-                    setCurrentPage(prev => Math.min(totalPages, prev + 1));
-                  }}
-                  disabled={currentPage === totalPages || isLoading}
-                  className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  aria-label="Next page"
-                >
-                  ›
-                </button>
-              </div>
-            )}
-          </div>
-          <div className="block md:hidden mt-8">
-            <Link href="/factory/create" passHref>
-              <button className="btn btn-gradient w-full h-[52px] text-white rounded-[12px]">
-                Create New Token
-              </button>
-            </Link>
           </div>
         </div>
+      </div>
+      <div className="flex item-center justify-between">
+        <Link href="/factory/create" passHref>
+          <button className="btn btn-gradient w-[224px] h-[52px] text-white rounded-[12px] focus:outline-none focus-visible:ring-1 focus-visible:ring-primary">
+            Create New Token
+          </button>
+        </Link>
+        {totalPages > 1 && (
+          <div
+            className="flex items-center justify-center gap-2"
+            onClick={e => e.stopPropagation()}
+            role="navigation"
+            aria-label="Pagination"
+          >
+            <button
+              onClick={e => {
+                e.stopPropagation();
+                setCurrentPage(prev => Math.max(1, prev - 1));
+              }}
+              disabled={currentPage === 1 || isLoading}
+              className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Previous page"
+            >
+              ‹
+            </button>
+
+            {[...Array(totalPages)].map((_, index) => {
+              const pageNum = index + 1;
+              if (
+                pageNum === 1 ||
+                pageNum === totalPages ||
+                (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+              ) {
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={e => {
+                      e.stopPropagation();
+                      setCurrentPage(pageNum);
+                    }}
+                    className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors text-black dark:text-white 
+                          ${currentPage === pageNum ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A]' : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A]'}`}
+                    aria-label={`Page ${pageNum}`}
+                    aria-current={currentPage === pageNum ? 'page' : undefined}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
+                return (
+                  <span key={pageNum} aria-hidden="true">
+                    ...
+                  </span>
+                );
+              }
+              return null;
+            })}
+
+            <button
+              onClick={e => {
+                e.stopPropagation();
+                setCurrentPage(prev => Math.min(totalPages, prev + 1));
+              }}
+              disabled={currentPage === totalPages || isLoading}
+              className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Next page"
+            >
+              ›
+            </button>
+          </div>
+        )}
       </div>
       <DenomInfoModal
         openDenomInfoModal={modalType === 'info'}

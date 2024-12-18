@@ -1,2 +1,2 @@
-export * from './MyDenoms';
+export * from './DenomList';
 export * from './DenomImage';

@@ -1,7 +1,7 @@
 import { afterAll, afterEach, describe, expect, test, jest, mock } from 'bun:test';
 import React from 'react';
 import { screen, cleanup, fireEvent, waitFor } from '@testing-library/react';
-import MyDenoms from '@/components/factory/components/MyDenoms';
+import DenomList from '@/components/factory/components/DenomList';
 import matchers from '@testing-library/jest-dom/matchers';
 import { renderWithChainProvider } from '@/tests/render';
 import { mockDenom, mockMfxDenom } from '@/tests/mock';
@@ -41,7 +41,7 @@ const renderWithProps = (props = {}) => {
     refetchDenoms: jest.fn(),
     address: '',
   };
-  return renderWithChainProvider(<MyDenoms {...defaultProps} {...props} />);
+  return renderWithChainProvider(<DenomList {...defaultProps} {...props} />);
 };
 
 const allDenoms = [mockDenom, mockMfxDenom];
