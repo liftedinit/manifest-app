@@ -13,6 +13,7 @@ export const WalletList = ({
   onWalletClicked: (name: string, isMobileConnect?: boolean) => void;
   wallets: ChainWalletBase[];
 }) => {
+  // Can't use `useTheme` here because it's not wrapped in a ThemeProvider
   const isDarkMode = document.documentElement.classList.contains('dark');
 
   const social = wallets.filter(wallet =>
@@ -53,6 +54,7 @@ export const WalletList = ({
       <div className={`${isMobile ? 'hidden' : 'block'}`}>
         <div className="space-y-2 mb-4">
           {browser.map(({ walletInfo: { name, prettyName, logo } }) => (
+
             <div key={name} className="w-full">
               <button
                 onClick={() => onWalletClicked(name)}
@@ -84,6 +86,7 @@ export const WalletList = ({
                 )}
               </button>
             </div>
+
           ))}
         </div>
 
@@ -99,7 +102,7 @@ export const WalletList = ({
               className="flex items-center justify-center p-4 dark:bg-[#ffffff0c] bg-[#f0f0ff5c] dark:hover:bg-[#0000004c] hover:bg-[#a8a8a84c] rounded-lg transition"
             >
               <img
-                src={getRealLogo(logo?.toString() ?? '')}
+                src={getRealLogo(logo?.toString() ?? '', isDarkMode)}
                 alt={prettyName}
                 className={`${prettyName === 'Reddit' || prettyName === 'Google' ? 'w-8 h-8' : 'w-7 h-7'} rounded-md`}
               />
@@ -118,7 +121,7 @@ export const WalletList = ({
               className="flex items-center w-full p-3 rounded-lg dark:bg-[#ffffff0c] bg-[#f0f0ff5c] dark:hover:bg-[#0000004c] hover:bg-[#a8a8a84c] transition"
             >
               <img
-                src={getRealLogo(logo?.toString() ?? '')}
+                src={getRealLogo(logo?.toString() ?? '', isDarkMode)}
                 alt={prettyName}
                 className="w-10 h-10 rounded-xl mr-3"
               />
@@ -138,7 +141,7 @@ export const WalletList = ({
               className="flex items-center justify-center p-4 dark:bg-[#ffffff0c] bg-[#f0f0ff5c] dark:hover:bg-[#0000004c] hover:bg-[#a8a8a84c] rounded-lg transition"
             >
               <img
-                src={isDarkMode ? logo?.toString() + '_light.svg' : logo?.toString() + '_dark.svg'}
+                src={getRealLogo(logo?.toString() ?? '', isDarkMode)}
                 alt={prettyName}
                 className={`${prettyName === 'Reddit' || prettyName === 'Google' ? 'w-8 h-8' : 'w-7 h-7'} rounded-md`}
               />
