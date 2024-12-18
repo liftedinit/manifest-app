@@ -1,12 +1,10 @@
-import { Fragment, useEffect } from 'react';
-import { Dialog, Transition } from '@headlessui/react';
+import { useEffect } from 'react';
 import { SignData } from '@cosmos-kit/web3auth';
-import { SignDoc } from '@liftedinit/manifestjs/dist/codegen/cosmos/tx/v1beta1/tx';
 import { TxBody, AuthInfo } from '@liftedinit/manifestjs/dist/codegen/cosmos/tx/v1beta1/tx';
 import { decodePubkey } from '@cosmjs/proto-signing';
 import { useWallet, useChain } from '@cosmos-kit/react';
-import Image from 'next/image';
 import { getRealLogo } from '@/utils';
+import { useTheme } from '@/contexts';
 
 type DisplayDataToSignProps = {
   data: SignData;
@@ -121,6 +119,7 @@ const SignModal = ({
   const { address } = useChain('manifest');
   const walletIcon = wallet.wallet?.logo;
   const walletName = wallet.wallet?.prettyName;
+  const { theme } = useTheme();
 
   useEffect(() => {
     const modal = document.getElementById('sign-modal') as HTMLDialogElement;
@@ -138,7 +137,11 @@ const SignModal = ({
       <div className="modal-box max-w-lg w-full dark:bg-[#1D192D] bg-[#FFFFFF] rounded-lg shadow-xl">
         <div className="flex justify-between items-center pb-4">
           <div className="flex items-center gap-3">
-            <img src={getRealLogo(walletIconString)} alt="Wallet type logo" className="w-8 h-8" />
+            <img
+              src={getRealLogo(walletIconString, theme === 'dark')}
+              alt="Wallet type logo"
+              className="w-8 h-8"
+            />
             <h3 className="text-xl font-semibold">{walletName?.toString()} Direct Signer</h3>
           </div>
           <button className="btn btn-sm btn-circle btn-ghost" onClick={onClose}>

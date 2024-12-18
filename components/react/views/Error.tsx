@@ -5,6 +5,7 @@ import { XMarkIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { ChevronLeftIcon } from '@heroicons/react/20/solid';
 import Image from 'next/image';
 import { getRealLogo } from '@/utils';
+import { useTheme } from '@/contexts';
 export const Error = ({
   currentWalletName,
   onClose,
@@ -18,6 +19,7 @@ export const Error = ({
   onReconnect: () => void;
   logo: string;
 }) => {
+  const { theme } = useTheme();
   return (
     <div className="mt-3 text-center sm:mt-1.5">
       <div className="flex flex-row items-center justify-between">
@@ -45,7 +47,7 @@ export const Error = ({
       <div className="flex flex-col w-full h-full py-6 mt-4 sm:px-8">
         <div className="p-3 border rounded-full border-red-600 mx-auto aspect-1 flex-shrink-0">
           <Image
-            src={getRealLogo(logo)}
+            src={getRealLogo(logo, theme === 'dark')}
             alt="Wallet type logo"
             className="flex-shrink-0 w-16 h-16 aspect-1"
             width={16}
