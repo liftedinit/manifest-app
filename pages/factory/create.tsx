@@ -1,4 +1,4 @@
-import React, { useState, useReducer } from 'react';
+import React, { useState, useReducer, useEffect } from 'react';
 import { tokenFormDataReducer, TokenFormData } from '@/helpers/formReducer';
 import ConfirmationForm from '@/components/factory/forms/ConfirmationForm';
 import TokenDetails from '@/components/factory/forms/TokenDetailsForm';
@@ -10,6 +10,7 @@ import Head from 'next/head';
 import CreateDenom from '@/components/factory/forms/CreateDenom';
 import { FactoryIcon } from '@/components/icons';
 import env from '@/config/env';
+import { useRouter } from 'next/router';
 
 const initialFormData: TokenFormData = {
   subdenom: '',
@@ -23,13 +24,27 @@ const initialFormData: TokenFormData = {
   name: '',
   uriHash: '',
   denomUnits: [],
+  isGroup: false,
+  groupPolicyAddress: '',
 };
 
 export default function CreateToken() {
   const [currentStep, setCurrentStep] = useState(1);
-
   const [formData, dispatch] = useReducer(tokenFormDataReducer, initialFormData);
   const { address, isWalletConnected } = useChain(env.chain);
+  const router = useRouter();
+
+  useEffect(() => {
+    const { isGroup, groupPolicyAddress } = router.query;
+    if (isGroup) {
+      // Use the parameter as needed, for example, set it in the form data
+      dispatch({ type: 'UPDATE_FIELD', field: 'isGroup', value: isGroup });
+    }
+    if (groupPolicyAddress) {
+      dispatch({ type: 'UPDATE_FIELD', field: 'groupPolicyAddress', value: groupPolicyAddress });
+    }
+  }, [router.query]);
+
   const nextStep = () => {
     if (currentStep < 4) {
       setCurrentStep(currentStep + 1);

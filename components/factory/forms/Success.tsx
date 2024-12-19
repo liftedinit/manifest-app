@@ -15,12 +15,26 @@ export default function Success({
     <section className="lg:max-h-[90vh] max-h-screen lg:mt-1 mt-12 flex items-center justify-center">
       <div className="max-w-2xl mx-auto bg-base-300 shadow-lg rounded-lg p-8">
         <h1 className="text-3xl font-bold mb-4">Success!</h1>
-        <p className="text-lg mb-2 text-pretty">
-          Your token was successfully created and the metadata was set.
-        </p>
-        <p className="text-md text-[#808080] mb-6 text-pretty">
-          You can now mint, burn, or change the admin of your tokens and send them to other wallets.
-        </p>
+        {formData.isGroup ? (
+          <>
+            <p className="text-lg mb-2 text-pretty">
+              Your token creation proposal was successfully created.
+            </p>
+            <p className="text-md text-[#808080] mb-6 text-pretty">
+              You can now vote on the proposal to create the token.
+            </p>
+          </>
+        ) : (
+          <>
+            <p className="text-lg mb-2 text-pretty">
+              Your token was successfully created and the metadata was set.
+            </p>
+            <p className="text-md text-[#808080] mb-6 text-pretty">
+              You can now mint, burn, or change the admin of your tokens and send them to other
+              wallets.
+            </p>
+          </>
+        )}
 
         <div className="text-md text-[#808080] mb-6 text-pretty">
           The full denom of your token is:{' '}
@@ -52,9 +66,20 @@ export default function Success({
           </div>
           <div className="mt-6">
             <div className="w-full justify-between items-center">
-              <Link href={'/factory'} legacyBehavior>
-                <button className="btn btn-md btn-secondary w-full">Back to Factory</button>
-              </Link>
+              {formData.isGroup ? (
+                <Link
+                  href={`/groups?policyAddress=${formData.groupPolicyAddress}&tab=proposals`}
+                  legacyBehavior
+                >
+                  <button className="btn btn-md btn-secondary w-full">
+                    Back to Group Proposals
+                  </button>
+                </Link>
+              ) : (
+                <Link href={'/factory'} legacyBehavior>
+                  <button className="btn btn-md btn-secondary w-full">Back to Factory</button>
+                </Link>
+              )}
             </div>
           </div>
         </div>

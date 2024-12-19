@@ -23,9 +23,16 @@ type DenomListProps = {
   admin: string; // The admin of the group tokens
 };
 
-export default function DenomList(props: Readonly<DenomListProps>) {
-  const { denoms, isLoading, refetchDenoms, address, pageSize, isGroup, admin } = props;
-
+export default function DenomList({
+  denoms,
+  isLoading,
+  refetchDenoms,
+  refetchProposals,
+  address,
+  pageSize,
+  isGroup = false,
+  admin,
+}: Readonly<DenomListProps>) {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [openUpdateDenomMetadataModal, setOpenUpdateDenomMetadataModal] = useState(false);
@@ -58,8 +65,8 @@ export default function DenomList(props: Readonly<DenomListProps>) {
 
   const refetch = () => {
     refetchDenoms();
-    if (props.refetchProposals) {
-      props.refetchProposals();
+    if (refetchProposals) {
+      refetchProposals();
     }
   };
 
@@ -301,7 +308,14 @@ export default function DenomList(props: Readonly<DenomListProps>) {
         </div>
       </div>
       <div className="flex item-center justify-between">
-        <Link href="/factory/create" passHref>
+        <Link
+          href={
+            isGroup
+              ? `/factory/create?isGroup=${isGroup}&groupPolicyAddress=${admin}`
+              : '/factory/create'
+          }
+          passHref
+        >
           <button className="btn btn-gradient w-[224px] h-[52px] text-white rounded-[12px] focus:outline-none focus-visible:ring-1 focus-visible:ring-primary">
             Create New Token
           </button>
