@@ -334,7 +334,7 @@ export function YourGroups({
               </table>
               <div className="flex item-center justify-between">
                 <Link href="/groups/create" passHref aria-label="Create new group">
-                  <button className="btn btn-gradient w-[224px] h-[52px] text-white rounded-[12px] focus:outline-none focus-visible:ring-1 focus-visible:ring-primary">
+                  <button className="btn btn-gradient w-[224px] h-[52px] hidden md:block text-white rounded-[12px] focus:outline-none focus-visible:ring-1 focus-visible:ring-primary">
                     Create New Group
                   </button>
                 </Link>
@@ -403,14 +403,14 @@ export function YourGroups({
                   </div>
                 )}
               </div>
+              <div className="mt-6  w-full justify-center md:hidden block">
+                <Link href="/groups/create" passHref>
+                  <button className="btn btn-gradient w-full h-[52px] text-white rounded-[12px]">
+                    Create New Group
+                  </button>
+                </Link>
+              </div>
             </div>
-          </div>
-          <div className="mt-6  w-full justify-center md:hidden block">
-            <Link href="/groups/create" passHref>
-              <button className="btn btn-gradient w-full h-[52px] text-white rounded-[12px]">
-                Create New Group
-              </button>
-            </Link>
           </div>
         </div>
       </div>
