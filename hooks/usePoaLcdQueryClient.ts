@@ -7,7 +7,7 @@ const createLcdQueryClient = strangelove_ventures.ClientFactory.createLCDClient;
 
 export const usePoaLcdQueryClient = () => {
   const lcdQueryClient = useQuery({
-    queryKey: ['lcdQueryClient', env.apiUrl],
+    queryKey: ['lcdQueryClientPOA', env.apiUrl],
     queryFn: () =>
       createLcdQueryClient({
         restEndpoint: env.apiUrl,

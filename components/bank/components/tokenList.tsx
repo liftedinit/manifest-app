@@ -1,13 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { DenomImage } from '@/components/factory';
-import { shiftDigits } from '@/utils';
+import { DenomImage, DenomInfoModal } from '@/components/factory';
+import { shiftDigits, truncateString } from '@/utils';
 import { CombinedBalanceInfo } from '@/utils/types';
-import { DenomInfoModal } from '@/components/factory';
-import { PiMagnifyingGlass } from 'react-icons/pi';
 import { SendTxIcon, QuestionIcon } from '@/components/icons';
-import { truncateString } from '@/utils';
 import SendModal from '@/components/bank/modals/sendModal';
-import useIsMobile from '@/hooks/useIsMobile';
 
 interface TokenListProps {
   balances: CombinedBalanceInfo[] | undefined;
@@ -19,20 +15,22 @@ interface TokenListProps {
   isGroup?: boolean;
   admin?: string;
   refetchProposals?: () => void;
+  searchTerm?: string;
 }
 
-export function TokenList({
-  balances,
-  isLoading,
-  refetchBalances,
-  refetchHistory,
-  address,
-  pageSize,
-  isGroup,
-  admin,
-  refetchProposals,
-}: TokenListProps) {
-  const [searchTerm, setSearchTerm] = useState('');
+export function TokenList(props: Readonly<TokenListProps>) {
+  const {
+    balances,
+    isLoading,
+    refetchBalances,
+    refetchHistory,
+    address,
+    pageSize,
+    isGroup,
+    admin,
+    refetchProposals,
+    searchTerm = '',
+  } = props;
   const [selectedDenom, setSelectedDenom] = useState<any>(null);
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -58,76 +56,6 @@ export function TokenList({
 
   return (
     <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
-      <div className="flex flex-col gap-4 mb-4">
-        <div className="flex flex-row items-center justify-between">
-          <h3 className="text-lg md:text-xl font-semibold text-[#161616] dark:text-white">
-            {isGroup ? 'Group Assets' : 'Your Assets'}
-          </h3>
-
-          {totalPages > 1 && (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                disabled={currentPage === 1 || isLoading}
-                className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                ‹
-              </button>
-
-              {[...Array(totalPages)].map((_, index) => {
-                const pageNum = index + 1;
-                if (
-                  pageNum === 1 ||
-                  pageNum === totalPages ||
-                  (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
-                ) {
-                  return (
-                    <button
-                      key={pageNum}
-                      onClick={() => setCurrentPage(pageNum)}
-                      className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors
-                        ${
-                          currentPage === pageNum
-                            ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A] text-black dark:text-white'
-                            : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white'
-                        }`}
-                    >
-                      {pageNum}
-                    </button>
-                  );
-                } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
-                  return (
-                    <span key={pageNum} className="text-black dark:text-white">
-                      ...
-                    </span>
-                  );
-                }
-                return null;
-              })}
-
-              <button
-                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                disabled={currentPage === totalPages || isLoading}
-                className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                ›
-              </button>
-            </div>
-          )}
-        </div>
-
-        <div className="w-full">
-          <input
-            type="text"
-            placeholder="Search for a token..."
-            className="input input-md w-full pr-8 bg-[#0000000A] dark:bg-[#FFFFFF0F]"
-            style={{ borderRadius: '12px' }}
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-          />
-        </div>
-      </div>
-
       <div className="flex-1 overflow-y-auto">
         {isLoading ? (
           <div className="space-y-2" aria-label="skeleton-loader">
@@ -205,9 +133,9 @@ export function TokenList({
                         document?.getElementById(`denom-info-modal`) as HTMLDialogElement
                       )?.showModal();
                     }}
-                    className="p-2 rounded-md bg-[#0000000A] dark:bg-[#FFFFFF0F] hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF33] transition-colors"
+                    className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
                   >
-                    <QuestionIcon className="w-4 h-4 text-primary" />
+                    <QuestionIcon className="w-7 h-7 text-current" />
                   </button>
                   <button
                     aria-label={`send-${balance?.denom}`}
@@ -216,9 +144,9 @@ export function TokenList({
                       setSelectedDenom(balance?.denom);
                       setIsSendModalOpen(true);
                     }}
-                    className="p-2 rounded-md bg-[#0000000A] dark:bg-[#FFFFFF0F] hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF33] transition-colors"
+                    className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
                   >
-                    <SendTxIcon className="w-4 h-4 text-primary" />
+                    <SendTxIcon className="w-7 h-7 text-current" />
                   </button>
                 </div>
               </div>
@@ -226,6 +154,57 @@ export function TokenList({
           </div>
         )}
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-end gap-2 mt-4">
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            disabled={currentPage === 1 || isLoading}
+            className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            ‹
+          </button>
+
+          {[...Array(totalPages)].map((_, index) => {
+            const pageNum = index + 1;
+            if (
+              pageNum === 1 ||
+              pageNum === totalPages ||
+              (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+            ) {
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => setCurrentPage(pageNum)}
+                  className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors
+                        ${
+                          currentPage === pageNum
+                            ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A] text-black dark:text-white'
+                            : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white'
+                        }`}
+                >
+                  {pageNum}
+                </button>
+              );
+            } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
+              return (
+                <span key={pageNum} className="text-black dark:text-white">
+                  ...
+                </span>
+              );
+            }
+            return null;
+          })}
+
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            disabled={currentPage === totalPages || isLoading}
+            className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            ›
+          </button>
+        </div>
+      )}
 
       <DenomInfoModal
         denom={filteredBalances.find(b => b.denom === selectedDenom)?.metadata ?? null}

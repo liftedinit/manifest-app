@@ -13,6 +13,7 @@ import Yup from '@/utils/yupExtensions';
 import { NumberInput, TextInput } from '@/components/react/inputs';
 import { TailwindModal } from '@/components/react/modal';
 import env from '@/config/env';
+import { MsgBurn } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
 
 interface BurnPair {
   address: string;
@@ -28,6 +29,7 @@ interface BurnFormProps {
   balance: string;
   totalSupply: string;
   onMultiBurnClick: () => void;
+  isGroup?: boolean;
 }
 
 export default function BurnForm({
@@ -39,7 +41,8 @@ export default function BurnForm({
   balance,
   totalSupply,
   onMultiBurnClick,
-}: BurnFormProps) {
+  isGroup,
+}: Readonly<BurnFormProps>) {
   const [amount, setAmount] = useState('');
   const [recipient, setRecipient] = useState(address);
 
@@ -122,14 +125,38 @@ export default function BurnForm({
           exec: 0,
         });
       } else {
-        msg = burn({
-          amount: {
-            amount: amountInBaseUnits,
-            denom: denom.base,
-          },
-          sender: address,
-          burnFromAddress: recipient,
-        });
+        msg = isGroup
+          ? submitProposal({
+              groupPolicyAddress: admin,
+              messages: [
+                Any.fromPartial({
+                  typeUrl: MsgBurn.typeUrl,
+                  value: MsgBurn.encode(
+                    burn({
+                      amount: {
+                        amount: amountInBaseUnits,
+                        denom: denom.base,
+                      },
+                      sender: admin,
+                      burnFromAddress: recipient,
+                    }).value
+                  ).finish(),
+                }),
+              ],
+              metadata: '',
+              proposers: [address ?? ''],
+              title: `Burn ${denom.display}`,
+              summary: `This proposal will burn ${amount} ${denom.display} from ${recipient}.`,
+              exec: 0,
+            })
+          : burn({
+              amount: {
+                amount: amountInBaseUnits,
+                denom: denom.base,
+              },
+              sender: address,
+              burnFromAddress: recipient,
+            });
       }
 
       const fee = await estimateFee(address ?? '', [msg]);

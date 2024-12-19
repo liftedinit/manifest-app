@@ -1,13 +1,15 @@
 import { useEffect } from 'react';
 import { ExtendedMetadataSDKType, truncateString } from '@/utils';
 import { useDenomAuthorityMetadata, useFeeEstimation, useTx } from '@/hooks';
-import { osmosis } from '@liftedinit/manifestjs';
+import { cosmos, osmosis } from '@liftedinit/manifestjs';
 import { createPortal } from 'react-dom';
 import Yup from '@/utils/yupExtensions';
 import { Form, Formik, FormikValues } from 'formik';
 import { TextInput } from '@/components';
 import { useToast } from '@/contexts';
 import env from '@/config/env';
+import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
+import { MsgChangeAdmin } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
 
 const TokenOwnershipSchema = Yup.object().shape({
   newAdmin: Yup.string().required('New admin address is required').manifestAddress(),
@@ -22,6 +24,8 @@ export default function TransferModal({
   isOpen,
   onClose,
   onSuccess,
+  admin,
+  isGroup,
 }: {
   openTransferDenomModal: boolean;
   setOpenTransferDenomModal: (open: boolean) => void;
@@ -31,6 +35,8 @@ export default function TransferModal({
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  admin: string;
+  isGroup?: boolean;
 }) {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -59,15 +65,37 @@ export default function TransferModal({
   const { tx, isSigning, setIsSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
   const { changeAdmin } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
+  const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
   const handleTransfer = async (values: FormikValues, resetForm: () => void) => {
     setIsSigning(true);
     try {
-      const msg = changeAdmin({
-        sender: address,
-        denom: denom?.base ?? '',
-        newAdmin: values.newAdmin,
-      });
+      const msg = isGroup
+        ? submitProposal({
+            groupPolicyAddress: admin,
+            messages: [
+              Any.fromPartial({
+                typeUrl: MsgChangeAdmin.typeUrl,
+                value: MsgChangeAdmin.encode(
+                  changeAdmin({
+                    sender: admin,
+                    denom: denom?.base ?? '',
+                    newAdmin: values.newAdmin,
+                  }).value
+                ).finish(),
+              }),
+            ],
+            metadata: '',
+            proposers: [address ?? ''],
+            title: `Transfer ${denom?.display} ownership`,
+            summary: `This proposal will transfer ownership of ${denom?.display} to ${values.newAdmin}`,
+            exec: 0,
+          })
+        : changeAdmin({
+            sender: address,
+            denom: denom?.base ?? '',
+            newAdmin: values.newAdmin,
+          });
 
       const fee = await estimateFee(address, [msg]);
 
