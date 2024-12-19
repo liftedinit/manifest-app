@@ -86,7 +86,7 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
           </span>
         </button>
         <div className="flex justify-center w-full text-[#00000066] dark:text-[#FFFFFF66]">
-          <IconWallet chainName="manifest" />
+          <IconWallet chainName={env.chain} />
         </div>
         <label className="swap swap-rotate text-[#00000066] dark:text-[#FFFFFF66] hover:text-primary dark:hover:text-primary transition-all duration-300 ease-in-out">
           <input
@@ -189,7 +189,7 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
 
         <ul className="pt-5 pb-4">
           <div className="mx-auto w-full justify-center items-center h-full">
-            <WalletSection chainName="manifest" />
+            <WalletSection chainName={env.chain} />
           </div>
         </ul>
         <div className="flex flex-row justify-between items-center">

@@ -2,7 +2,7 @@ import { AssetList, Chain } from '@chain-registry/types';
 import env from './env';
 
 export const manifestChain: Chain = {
-  chain_name: 'manifest',
+  chain_name: env.chain,
   status: 'live',
   network_type: env.chainTier,
   website: '',
@@ -64,7 +64,7 @@ export const manifestChain: Chain = {
   },
 };
 export const manifestAssets: AssetList = {
-  chain_name: 'manifest',
+  chain_name: env.chain,
   assets: [
     {
       description: 'Manifest testnet native token',

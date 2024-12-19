@@ -107,7 +107,7 @@ export default function MobileNav() {
             </li>
 
             <div className="justify-between items-center">
-              <WalletSection chainName="manifest" />
+              <WalletSection chainName={env.chain} />
             </div>
 
             {/* Updated close button - now uses flex-1 and mt-auto to push to bottom */}

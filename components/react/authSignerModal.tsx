@@ -5,6 +5,7 @@ import { decodePubkey } from '@cosmjs/proto-signing';
 import { useWallet, useChain } from '@cosmos-kit/react';
 import { getRealLogo } from '@/utils';
 import { useTheme } from '@/contexts';
+import env from '@/config/env';
 
 type DisplayDataToSignProps = {
   data: SignData;
@@ -116,7 +117,7 @@ const SignModal = ({
   reject: () => void;
 }) => {
   const wallet = useWallet();
-  const { address } = useChain('manifest');
+  const { address } = useChain(env.chain);
   const walletIcon = wallet.wallet?.logo;
   const walletName = wallet.wallet?.prettyName;
   const { theme } = useTheme();

@@ -1,4 +1,4 @@
-import { WalletNotConnected, WalletSection } from '@/components';
+import { WalletNotConnected } from '@/components';
 import { useChain } from '@cosmos-kit/react';
 import ValidatorList from '@/components/admins/components/validatorList';
 import Head from 'next/head';
@@ -9,8 +9,9 @@ import { ValidatorSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/sta
 import { PiWarning } from 'react-icons/pi';
 import { AdminsIcon } from '@/components/icons';
 import { StakeHolderPayout, ChainUpgrader } from '@/components/admins/components';
+import env from '@/config/env';
 export default function Admins() {
-  const { address, isWalletConnected } = useChain('manifest');
+  const { address, isWalletConnected } = useChain(env.chain);
   const { poaAdmin } = usePoaGetAdmin();
   const { pendingValidators, isPendingValidatorsLoading } = usePendingValidators();
   const { validators, isActiveValidatorsLoading } = useValidators();
