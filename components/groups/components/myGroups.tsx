@@ -4,10 +4,17 @@ import {
   useGetFilteredTxAndSuccessfulProposals,
   useTokenBalances,
   useTokenBalancesResolved,
+  useTokenFactoryDenomsFromAdmin,
   useTokenFactoryDenomsMetadata,
+  useTotalSupply,
 } from '@/hooks/useQueries';
 import ProfileAvatar from '@/utils/identicon';
-import { CombinedBalanceInfo, MFX_TOKEN_DATA, truncateString } from '@/utils';
+import {
+  CombinedBalanceInfo,
+  ExtendedMetadataSDKType,
+  MFX_TOKEN_DATA,
+  truncateString,
+} from '@/utils';
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -109,13 +116,14 @@ export function YourGroups({
     refetchBalances: resolveRefetch,
   } = useTokenBalancesResolved(address ?? '');
 
-  const { metadatas, isMetadatasLoading } = useTokenFactoryDenomsMetadata();
+  const { metadatas, isMetadatasLoading, isMetadatasError, refetchMetadatas } =
+    useTokenFactoryDenomsMetadata();
   const [currentPageGroupInfo, setCurrentPageGroupInfo] = useState(1);
 
-  const pageSizeGroupInfo = isMobile ? 4 : 4;
-  const pageSizeHistory = isMobile ? 4 : 3;
+  const pageSizeGroupInfo = isMobile ? 4 : 7;
+  const pageSizeHistory = isMobile ? 4 : 7;
   const skeletonGroupCount = 1;
-  const skeletonTxCount = isMobile ? 5 : 3;
+  const skeletonTxCount = isMobile ? 4 : 7;
 
   const {
     sendTxs,
@@ -129,6 +137,45 @@ export function YourGroups({
     currentPageGroupInfo,
     pageSizeHistory
   );
+
+  const { denoms, isDenomsLoading, isDenomsError, denomError, refetchDenoms } =
+    useTokenFactoryDenomsFromAdmin(selectedGroup?.policyAddress ?? '');
+  const { totalSupply, isTotalSupplyLoading, isTotalSupplyError, refetchTotalSupply } =
+    useTotalSupply();
+
+  useEffect(() => {
+    console.log('denomError', denomError);
+  }, [denomError]);
+  const refetchData = () => {
+    refetchDenoms();
+    refetchMetadatas();
+    refetchBalances();
+    refetchTotalSupply();
+  };
+
+  const combinedData = useMemo(() => {
+    if (denoms?.denoms && metadatas?.metadatas && balances && totalSupply) {
+      const otherTokens = denoms.denoms
+        .filter(denom => denom !== 'umfx')
+        .map((denom: string) => {
+          const metadata = metadatas.metadatas.find(meta => meta.base === denom);
+          const balance = balances.find(bal => bal.denom === denom);
+          const supply = totalSupply.find(supply => supply.denom === denom);
+          return metadata
+            ? {
+                ...metadata,
+                balance: balance?.amount || '0',
+                totalSupply: supply?.amount || '0',
+              }
+            : null;
+        })
+        .filter((meta): meta is ExtendedMetadataSDKType => meta !== null);
+
+      return [...otherTokens];
+    }
+    return [];
+  }, [denoms, metadatas, balances, totalSupply]);
+  const isDataReady = combinedData.length > 0;
 
   const combinedBalances = useMemo(() => {
     if (!balances || !resolvedBalances || !metadatas) return [];
@@ -168,7 +215,12 @@ export function YourGroups({
     return mfxCombinedBalance ? [mfxCombinedBalance, ...otherBalances] : otherBalances;
   }, [balances, resolvedBalances, metadatas]);
 
-  const isLoadingGroupInfo = isBalancesLoading || resolvedLoading || isMetadatasLoading;
+  const isLoadingGroupInfo =
+    isBalancesLoading ||
+    resolvedLoading ||
+    isMetadatasLoading ||
+    isDenomsLoading ||
+    isTotalSupplyLoading;
 
   const [activeInfoModalId, setActiveInfoModalId] = useState<string | null>(null);
   const [activeMemberModalId, setActiveMemberModalId] = useState<string | null>(null);
@@ -187,7 +239,7 @@ export function YourGroups({
                 className="text-secondary-content"
                 style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
               >
-                My groups
+                Groups
               </h1>
               <div className="relative w-full sm:w-[224px]">
                 <input
@@ -200,13 +252,6 @@ export function YourGroups({
                 />
                 <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               </div>
-            </div>
-            <div className="hidden md:block ">
-              <Link href="/groups/create" passHref aria-label="Create new group">
-                <button className="btn btn-gradient w-[224px] h-[52px] text-white rounded-[12px] focus:outline-none focus-visible:ring-1 focus-visible:ring-primary">
-                  Create New Group
-                </button>
-              </Link>
             </div>
           </div>
           <div className="overflow-auto">
@@ -287,70 +332,77 @@ export function YourGroups({
                       ))}
                 </tbody>
               </table>
-              {totalPages > 1 && (
-                <div
-                  className="flex items-center justify-center gap-2"
-                  onClick={e => e.stopPropagation()}
-                  role="navigation"
-                  aria-label="Pagination"
-                >
-                  <button
-                    onClick={e => {
-                      e.stopPropagation();
-                      setCurrentPage(prev => Math.max(1, prev - 1));
-                    }}
-                    disabled={currentPage === 1 || isLoading}
-                    className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    aria-label="Previous page"
-                  >
-                    ‹
+              <div className="flex item-center justify-between">
+                <Link href="/groups/create" passHref aria-label="Create new group">
+                  <button className="btn btn-gradient w-[224px] h-[52px] text-white rounded-[12px] focus:outline-none focus-visible:ring-1 focus-visible:ring-primary">
+                    Create New Group
                   </button>
+                </Link>
+                {totalPages > 1 && (
+                  <div
+                    className="flex items-center justify-end gap-2"
+                    onClick={e => e.stopPropagation()}
+                    role="navigation"
+                    aria-label="Pagination"
+                  >
+                    <button
+                      onClick={e => {
+                        e.stopPropagation();
+                        setCurrentPage(prev => Math.max(1, prev - 1));
+                      }}
+                      disabled={currentPage === 1 || isLoading}
+                      className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      aria-label="Previous page"
+                    >
+                      ‹
+                    </button>
 
-                  {[...Array(totalPages)].map((_, index) => {
-                    const pageNum = index + 1;
-                    if (
-                      pageNum === 1 ||
-                      pageNum === totalPages ||
-                      (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
-                    ) {
-                      return (
-                        <button
-                          key={pageNum}
-                          onClick={e => {
-                            e.stopPropagation();
-                            setCurrentPage(pageNum);
-                          }}
-                          className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors text-black dark:text-white
+                    {[...Array(totalPages)].map((_, index) => {
+                      const pageNum = index + 1;
+                      if (
+                        pageNum === 1 ||
+                        pageNum === totalPages ||
+                        (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                      ) {
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={e => {
+                              e.stopPropagation();
+                              setCurrentPage(pageNum);
+                            }}
+                            className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors text-black dark:text-white
                             ${currentPage === pageNum ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A]' : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A]'}`}
-                          aria-label={`Page ${pageNum}`}
-                          aria-current={currentPage === pageNum ? 'page' : undefined}
-                        >
-                          {pageNum}
-                        </button>
-                      );
-                    } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
-                      return (
-                        <span key={pageNum} aria-hidden="true">
-                          ...
-                        </span>
-                      );
-                    }
-                    return null;
-                  })}
+                            aria-label={`Page ${pageNum}`}
+                            aria-current={currentPage === pageNum ? 'page' : undefined}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
+                        return (
+                          <span key={pageNum} aria-hidden="true">
+                            ...
+                          </span>
+                        );
+                      }
+                      return null;
+                    })}
 
-                  <button
-                    onClick={e => {
-                      e.stopPropagation();
-                      setCurrentPage(prev => Math.min(totalPages, prev + 1));
-                    }}
-                    disabled={currentPage === totalPages || isLoading}
-                    className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    aria-label="Next page"
-                  >
-                    ›
-                  </button>
-                </div>
-              )}
+                    <button
+                      onClick={e => {
+                        e.stopPropagation();
+                        setCurrentPage(prev => Math.min(totalPages, prev + 1));
+                      }}
+                      disabled={currentPage === totalPages || isLoading}
+                      className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      aria-label="Next page"
+                    >
+                      ›
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
           <div className="mt-6  w-full justify-center md:hidden block">
@@ -383,8 +435,12 @@ export function YourGroups({
             txLoading={txLoading}
             isError={isError}
             balances={combinedBalances}
+            denoms={combinedData}
+            denomLoading={isDenomsLoading}
+            isDenomError={isDenomsError}
             refetchBalances={resolveRefetch}
             refetchHistory={refetchHistory}
+            refetchDenoms={refetchData}
             pageSize={pageSizeGroupInfo}
             skeletonGroupCount={skeletonGroupCount}
             skeletonTxCount={skeletonTxCount}

@@ -587,6 +587,10 @@ export const useTokenFactoryDenomsFromAdmin = (address: string) => {
     if (!lcdQueryClient) {
       throw new Error('LCD Client not ready');
     }
+    if (!lcdQueryClient.osmosis) {
+      throw new Error('Osmosis module not found in LCD client');
+    }
+
     if (!address) {
       return { denoms: [] };
     }
@@ -608,6 +612,7 @@ export const useTokenFactoryDenomsFromAdmin = (address: string) => {
     denoms: denomsQuery.data,
     isDenomsLoading: denomsQuery.isLoading,
     isDenomsError: denomsQuery.isError,
+    denomError: denomsQuery.error,
     refetchDenoms: denomsQuery.refetch,
   };
 };

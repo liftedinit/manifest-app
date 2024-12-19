@@ -17,6 +17,7 @@ export default function MintModal({
   onSwitchToMultiMint,
   admin,
   isPoaAdminLoading,
+  isGroup,
 }: {
   denom: ExtendedMetadataSDKType | null;
   address: string;
@@ -28,6 +29,7 @@ export default function MintModal({
   onSwitchToMultiMint: () => void;
   admin: string;
   isPoaAdminLoading: boolean;
+  isGroup?: boolean;
 }) {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -112,6 +114,8 @@ export default function MintModal({
               refetch={refetch}
               address={address}
               denom={denom}
+              isGroup={isGroup}
+              admin={admin}
               onMultiMintClick={handleMultiMintOpen}
             />
           )}

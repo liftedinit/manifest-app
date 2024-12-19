@@ -1,5 +1,5 @@
 import { WalletNotConnected, FactoryIcon } from '@/components';
-import MyDenoms from '@/components/factory/components/MyDenoms';
+import DenomList from '@/components/factory/components/DenomList';
 import {
   useTokenBalances,
   useTokenFactoryDenomsFromAdmin,
@@ -12,6 +12,7 @@ import Head from 'next/head';
 import React, { useMemo } from 'react';
 import { ExtendedMetadataSDKType } from '@/utils';
 import env from '@/config/env';
+import useIsMobile from '../../hooks/useIsMobile';
 
 export default function Factory() {
   const { address, isWalletConnected } = useChain(env.chain);
@@ -25,6 +26,9 @@ export default function Factory() {
   );
   const { totalSupply, isTotalSupplyLoading, isTotalSupplyError, refetchTotalSupply } =
     useTotalSupply();
+
+  const isMobile = useIsMobile();
+  const pageSize = isMobile ? 5 : 8;
 
   const isLoading =
     isDenomsLoading || isMetadatasLoading || isBalancesLoading || isTotalSupplyLoading;
@@ -114,26 +118,43 @@ export default function Factory() {
               description="Use the button below to connect your wallet and start creating new tokens."
               icon={<FactoryIcon className="h-60 w-60 text-primary" />}
             />
-          ) : isLoading ? (
-            <MyDenoms
-              denoms={combinedData}
-              isLoading={isLoading}
-              refetchDenoms={refetchData}
-              address={address ?? ''}
-            />
-          ) : isError ? (
-            <div className="text-center my-auto text-error">
-              Error loading tokens. Please try again.
-            </div>
-          ) : !isDataReady ? (
-            <div className="text-center my-auto">No token data available.</div>
           ) : (
-            <MyDenoms
-              denoms={combinedData}
-              isLoading={isLoading}
-              refetchDenoms={refetchData}
-              address={address ?? ''}
-            />
+            <>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
+                <h1
+                  className="text-secondary-content"
+                  style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
+                >
+                  Tokens
+                </h1>
+              </div>
+
+              <div className="flex flex-col w-full mt-4">
+                {isLoading ? (
+                  <DenomList
+                    denoms={combinedData}
+                    isLoading={isLoading}
+                    refetchDenoms={refetchData}
+                    pageSize={pageSize}
+                    address={address ?? ''}
+                  />
+                ) : isError ? (
+                  <div className="text-center my-auto text-error">
+                    Error loading tokens. Please try again.
+                  </div>
+                ) : !isDataReady ? (
+                  <div className="text-center my-auto">No token data available.</div>
+                ) : (
+                  <DenomList
+                    denoms={combinedData}
+                    isLoading={isLoading}
+                    refetchDenoms={refetchData}
+                    pageSize={pageSize}
+                    address={address ?? ''}
+                  />
+                )}
+              </div>
+            </>
           )}
         </div>
       </div>
