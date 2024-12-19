@@ -24,8 +24,8 @@ export type TokenFormData = {
   name: string;
   uriHash: string;
   denomUnits: DenomUnit[];
-  isGroup: boolean;
-  groupPolicyAddress: string;
+  isGroup?: boolean;
+  groupPolicyAddress?: string;
 };
 
 export type TokenAction = {

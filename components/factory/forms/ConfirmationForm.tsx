@@ -34,13 +34,13 @@ export default function ConfirmationForm({
     const createAsGroup = async () => {
       const symbol = formData.subdenom.slice(1).toUpperCase();
       const msg = submitProposal({
-        groupPolicyAddress: formData.groupPolicyAddress,
+        groupPolicyAddress: formData.groupPolicyAddress || '',
         messages: [
           Any.fromPartial({
             typeUrl: MsgCreateDenom.typeUrl,
             value: MsgCreateDenom.encode(
               createDenom({
-                sender: formData.groupPolicyAddress,
+                sender: formData.groupPolicyAddress || '',
                 subdenom: formData.subdenom,
               }).value
             ).finish(),
@@ -49,7 +49,7 @@ export default function ConfirmationForm({
             typeUrl: MsgSetDenomMetadata.typeUrl,
             value: MsgSetDenomMetadata.encode(
               setDenomMetadata({
-                sender: formData.groupPolicyAddress,
+                sender: formData.groupPolicyAddress || '',
                 metadata: {
                   description: formData.description,
                   denomUnits: [

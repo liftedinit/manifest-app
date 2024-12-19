@@ -21,7 +21,7 @@ type DenomListProps = {
   pageSize: number;
   isGroup?: boolean;
   admin: string;
-  searchTerm: string;
+  searchTerm?: string;
 };
 
 export default function DenomList({

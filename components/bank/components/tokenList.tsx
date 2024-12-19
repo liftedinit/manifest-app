@@ -15,7 +15,7 @@ interface TokenListProps {
   isGroup?: boolean;
   admin?: string;
   refetchProposals?: () => void;
-  searchTerm: string;
+  searchTerm?: string;
 }
 
 export function TokenList(props: Readonly<TokenListProps>) {
