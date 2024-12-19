@@ -232,7 +232,7 @@ export function YourGroups({
           selectedGroup ? '-translate-x-full' : 'translate-x-0'
         }`}
       >
-        <div className="h-full flex flex-col p-4">
+        <div className="h-full flex flex-col gap-4 mb-4 p-4">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
               <h1
@@ -332,85 +332,85 @@ export function YourGroups({
                       ))}
                 </tbody>
               </table>
-              <div className="flex item-center justify-between">
-                <Link href="/groups/create" passHref aria-label="Create new group">
-                  <button className="btn btn-gradient w-[224px] h-[52px] hidden md:block text-white rounded-[12px] focus:outline-none focus-visible:ring-1 focus-visible:ring-primary">
-                    Create New Group
-                  </button>
-                </Link>
-                {totalPages > 1 && (
-                  <div
-                    className="flex items-center justify-end gap-2"
-                    onClick={e => e.stopPropagation()}
-                    role="navigation"
-                    aria-label="Pagination"
-                  >
-                    <button
-                      onClick={e => {
-                        e.stopPropagation();
-                        setCurrentPage(prev => Math.max(1, prev - 1));
-                      }}
-                      disabled={currentPage === 1 || isLoading}
-                      className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      aria-label="Previous page"
-                    >
-                      ‹
-                    </button>
-
-                    {[...Array(totalPages)].map((_, index) => {
-                      const pageNum = index + 1;
-                      if (
-                        pageNum === 1 ||
-                        pageNum === totalPages ||
-                        (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
-                      ) {
-                        return (
-                          <button
-                            key={pageNum}
-                            onClick={e => {
-                              e.stopPropagation();
-                              setCurrentPage(pageNum);
-                            }}
-                            className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors text-black dark:text-white
-                            ${currentPage === pageNum ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A]' : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A]'}`}
-                            aria-label={`Page ${pageNum}`}
-                            aria-current={currentPage === pageNum ? 'page' : undefined}
-                          >
-                            {pageNum}
-                          </button>
-                        );
-                      } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
-                        return (
-                          <span key={pageNum} aria-hidden="true">
-                            ...
-                          </span>
-                        );
-                      }
-                      return null;
-                    })}
-
-                    <button
-                      onClick={e => {
-                        e.stopPropagation();
-                        setCurrentPage(prev => Math.min(totalPages, prev + 1));
-                      }}
-                      disabled={currentPage === totalPages || isLoading}
-                      className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      aria-label="Next page"
-                    >
-                      ›
-                    </button>
-                  </div>
-                )}
-              </div>
-              <div className="mt-6  w-full justify-center md:hidden block">
-                <Link href="/groups/create" passHref>
-                  <button className="btn btn-gradient w-full h-[52px] text-white rounded-[12px]">
-                    Create New Group
-                  </button>
-                </Link>
-              </div>
             </div>
+          </div>
+          <div className="flex item-center justify-between">
+            <Link href="/groups/create" passHref aria-label="Create new group">
+              <button className="btn btn-gradient w-[224px] h-[52px] hidden md:block text-white rounded-[12px] focus:outline-none focus-visible:ring-1 focus-visible:ring-primary">
+                Create New Group
+              </button>
+            </Link>
+            {totalPages > 1 && (
+              <div
+                className="flex items-center justify-end gap-2"
+                onClick={e => e.stopPropagation()}
+                role="navigation"
+                aria-label="Pagination"
+              >
+                <button
+                  onClick={e => {
+                    e.stopPropagation();
+                    setCurrentPage(prev => Math.max(1, prev - 1));
+                  }}
+                  disabled={currentPage === 1 || isLoading}
+                  className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  aria-label="Previous page"
+                >
+                  ‹
+                </button>
+
+                {[...Array(totalPages)].map((_, index) => {
+                  const pageNum = index + 1;
+                  if (
+                    pageNum === 1 ||
+                    pageNum === totalPages ||
+                    (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                  ) {
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={e => {
+                          e.stopPropagation();
+                          setCurrentPage(pageNum);
+                        }}
+                        className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors text-black dark:text-white
+                            ${currentPage === pageNum ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A]' : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A]'}`}
+                        aria-label={`Page ${pageNum}`}
+                        aria-current={currentPage === pageNum ? 'page' : undefined}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
+                    return (
+                      <span key={pageNum} aria-hidden="true">
+                        ...
+                      </span>
+                    );
+                  }
+                  return null;
+                })}
+
+                <button
+                  onClick={e => {
+                    e.stopPropagation();
+                    setCurrentPage(prev => Math.min(totalPages, prev + 1));
+                  }}
+                  disabled={currentPage === totalPages || isLoading}
+                  className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  aria-label="Next page"
+                >
+                  ›
+                </button>
+              </div>
+            )}
+          </div>
+          <div className="mt-6 w-full justify-center md:hidden block">
+            <Link href="/groups/create" passHref>
+              <button className="btn btn-gradient w-full h-[52px] text-white rounded-[12px]">
+                Create New Group
+              </button>
+            </Link>
           </div>
         </div>
       </div>

@@ -184,7 +184,6 @@ export default function DenomList({
     );
   };
 
-  // TODO: Fix search bar for group tokens
   return (
     <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
       <div className="flex flex-col gap-4 mb-4">
@@ -279,9 +278,6 @@ export default function DenomList({
                           e.stopPropagation();
                           setSelectedDenom(denom);
                           setModalType('burn');
-                          // router.push(`/factory?denom=${denom.base}&action=burn`, undefined, {
-                          //   shallow: true,
-                          // });
                         }}
                         onTransfer={e => handleTransferModal(denom, e)}
                         onUpdate={e => handleUpdateModal(denom, e)}
