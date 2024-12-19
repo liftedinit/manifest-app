@@ -15,6 +15,7 @@ interface TokenListProps {
   isGroup?: boolean;
   admin?: string;
   refetchProposals?: () => void;
+  searchTerm: string;
 }
 
 export function TokenList(props: Readonly<TokenListProps>) {
@@ -28,8 +29,8 @@ export function TokenList(props: Readonly<TokenListProps>) {
     isGroup,
     admin,
     refetchProposals,
+    searchTerm = '',
   } = props;
-  const [searchTerm, setSearchTerm] = useState('');
   const [selectedDenom, setSelectedDenom] = useState<any>(null);
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -53,25 +54,8 @@ export function TokenList(props: Readonly<TokenListProps>) {
     return filteredBalances.slice(startIndex, startIndex + pageSize);
   }, [filteredBalances, currentPage, pageSize]);
 
-  // TODO: Fix search bar for group tokens
   return (
     <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
-      {/*<div className="flex flex-col gap-4 mb-4">*/}
-      {/*  {!isGroup && (*/}
-      {/*    <div className="relative w-full sm:w-[224px]">*/}
-      {/*      <input*/}
-      {/*        type="text"*/}
-      {/*        placeholder="Search for an asset..."*/}
-      {/*        className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"*/}
-      {/*        value={searchTerm}*/}
-      {/*        onChange={e => setSearchTerm(e.target.value)}*/}
-      {/*        aria-label="Search assets"*/}
-      {/*      />*/}
-      {/*      <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />*/}
-      {/*    </div>*/}
-      {/*  )}*/}
-      {/*</div>*/}
-
       <div className="flex-1 overflow-y-auto">
         {isLoading ? (
           <div className="space-y-2" aria-label="skeleton-loader">
