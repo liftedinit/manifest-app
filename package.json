@@ -53,6 +53,7 @@
     "chain-registry": "1.69.65",
     "cosmjs-types": "^0.9.0",
     "cosmos-kit": "2.23.1",
+    "country-flag-icons": "^1.5.13",
     "daisyui": "^4.12.10",
     "dayjs": "^1.11.13",
     "decimal.js": "^10.4.3",

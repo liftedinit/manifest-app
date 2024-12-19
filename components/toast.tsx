@@ -97,7 +97,7 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
           )}
           <button
             type="button"
-            className="p-2 text-[#161616] dark:text-white rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 absolute top-2 right-2 transition-colors duration-200 z-10"
+            className="p-2 text-[#161616] dark:text-white rounded-full hover:bg-gray-200 dark:hover:bg-[#00000033] absolute top-2 right-2 transition-colors duration-200 z-10"
             onClick={handleClose}
           >
             <CloseIcon className="w-3 h-3" aria-hidden="true" />
@@ -128,7 +128,7 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
               <button
                 type="button"
                 id="copyButton3"
-                className="p-1 text-[#161616] dark:text-white absolute bottom-2 right-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
+                className="p-1 text-[#161616] dark:text-white absolute bottom-2 right-2 rounded-full hover:bg-gray-200 dark:hover:bg-[#00000033] transition-colors duration-200"
                 onClick={() => {
                   navigator.clipboard.writeText(toastMessage.description || '');
                   const button = document.getElementById('copyButton3');

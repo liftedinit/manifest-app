@@ -126,7 +126,7 @@ export const Contacts = ({
           {onReturn ? (
             <button
               type="button"
-              className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+              className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-[#00000033]"
               onClick={onReturn}
             >
               <ChevronLeftIcon className="w-5 h-5" aria-hidden="true" />
@@ -139,7 +139,7 @@ export const Contacts = ({
           </Dialog.Title>
           <button
             type="button"
-            className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+            className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-[#00000033]"
             onClick={onClose}
           >
             <XMarkIcon className="w-5 h-5" aria-hidden="true" />
@@ -192,7 +192,7 @@ export const Contacts = ({
         {onReturn ? (
           <button
             type="button"
-            className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+            className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-[#00000033]"
             onClick={onReturn}
           >
             <ChevronLeftIcon className="w-5 h-5" aria-hidden="true" />
@@ -208,7 +208,7 @@ export const Contacts = ({
         </div>
         <button
           type="button"
-          className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+          className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-[#00000033]"
           onClick={onClose}
         >
           <XMarkIcon className="w-5 h-5" aria-hidden="true" />
@@ -347,13 +347,13 @@ export const Contacts = ({
                     <div className="flex items-center">
                       <button
                         onClick={() => setEditingIndex(index)}
-                        className="ml-2 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 text-blue-500"
+                        className="ml-2 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-[#00000033] transition-colors duration-200 text-blue-500"
                       >
                         <PencilIcon className="w-5 h-5" aria-hidden="true" />
                       </button>
                       <button
                         onClick={() => handleRemoveContact(index)}
-                        className="ml-2 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 text-red-500"
+                        className="ml-2 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-[#00000033] transition-colors duration-200 text-red-500"
                       >
                         <XMarkIcon className="w-5 h-5" aria-hidden="true" />
                       </button>

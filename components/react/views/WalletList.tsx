@@ -13,7 +13,6 @@ export const WalletList = ({
   onWalletClicked: (name: string) => void;
   wallets: ChainWalletBase[];
 }) => {
-  // Can't use `useTheme` here because it's not wrapped in a ThemeProvider
   const isDarkMode = document.documentElement.classList.contains('dark');
 
   const social = wallets.filter(wallet =>
@@ -38,7 +37,7 @@ export const WalletList = ({
       <h1 className="text-sm font-semibold text-center mb-6">Connect Wallet</h1>
       <button
         type="button"
-        className="p-2 text-primary absolute -top-1 right-0 bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+        className="p-2 text-primary absolute -top-1 right-0 bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-[#00000033]"
         onClick={onClose}
       >
         <XMarkIcon className="w-5 h-5" aria-hidden="true" />

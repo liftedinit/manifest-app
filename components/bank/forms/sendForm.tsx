@@ -149,7 +149,6 @@ export default function SendForm({
       });
     } catch (error) {
       console.error('Error during sending:', error);
-      // You might want to show this error to the user through a toast or alert
     } finally {
       setIsSending(false);
     }
