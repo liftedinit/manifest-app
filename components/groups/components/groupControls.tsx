@@ -275,7 +275,7 @@ export default function GroupProposals({
         </div>
       </div>
 
-      <div role="tablist" className="tabs tabs-bordered tabs-lg">
+      <div role="tablist" className="tabs tabs-bordered tabs-xs md:tabs-lg flex flex-row">
         <button
           role={'tab'}
           className={`font-bold tab ${activeTab === 'proposals' ? 'tab-active' : ''}`}
