@@ -166,7 +166,7 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
   const endpointOptions = {
     isLazy: true,
     endpoints: {
-      manifest: {
+      [env.chain]: {
         rpc: [env.rpcUrl],
         rest: [env.apiUrl],
       },

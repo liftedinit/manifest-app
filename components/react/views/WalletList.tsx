@@ -21,7 +21,7 @@ export const WalletList = ({
     )
   );
   const browser = wallets.filter(wallet =>
-    ['Keplr', 'Cosmostation', 'Leap', 'Station', 'Cosmos MetaMask Extension'].includes(
+    ['Keplr', 'Cosmostation', 'Leap', 'Station', 'Cosmos MetaMask Extension', 'Ledger'].includes(
       wallet.walletInfo.prettyName
     )
   );
