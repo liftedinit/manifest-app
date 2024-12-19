@@ -467,6 +467,10 @@ function VoteDetailsModal({
     return () => document.removeEventListener('keydown', handleEscape);
   }, [showVoteModal, setShowVoteModal, onClose]);
 
+  const prettyPrintJSON = (obj: any): string => {
+    return JSON.stringify(obj, null, 2);
+  };
+
   const modalContent = (
     <dialog
       id="vote-details-modal"
@@ -562,7 +566,7 @@ function VoteDetailsModal({
                 </button>
               </div>
               <div
-                className={`bg-base-300 rounded-[12px] p-4 overflow-y-auto ${
+                className={`bg-base-300 rounded-[12px] p-4 overflow-y-auto max-w-[22rem] overflow-x-auto ${
                   proposal.summary ? 'max-h-[10rem]' : 'max-h-[17rem]'
                 }`}
               >

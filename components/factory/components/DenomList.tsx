@@ -372,13 +372,13 @@ export default function DenomList({
         isOpen={modalType === 'burn'}
         onClose={handleCloseModal}
         onSwitchToMultiBurn={handleSwitchToMultiBurn}
-        isGroup={isGroup}
+        // isGroup={isGroup}
       />
       <UpdateDenomMetadataModal
         modalId="update-denom-metadata-modal"
         denom={selectedDenom}
         address={address}
-        isGroup={isGroup}
+        // isGroup={isGroup}
         onSuccess={() => {
           refetchDenoms();
           handleUpdateModalClose();
@@ -410,7 +410,7 @@ export default function DenomList({
         address={address}
         isOpen={modalType === 'transfer'}
         onClose={handleCloseModal}
-        isGroup={isGroup}
+        // isGroup={isGroup}
       />
     </div>
   );
