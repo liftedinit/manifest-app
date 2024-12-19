@@ -9,7 +9,6 @@ import MintModal from '@/components/factory/modals/MintModal';
 import BurnModal from '@/components/factory/modals/BurnModal';
 import { UpdateDenomMetadataModal } from '@/components/factory/modals/updateDenomMetadata';
 import { PiInfo } from 'react-icons/pi';
-import { usePoaGetAdmin } from '@/hooks';
 import useIsMobile from '@/hooks/useIsMobile';
 import TransferModal from '@/components/factory/modals/TransferModal';
 
@@ -17,6 +16,7 @@ type DenomListProps = {
   denoms: ExtendedMetadataSDKType[]; // The list of denoms to display
   isLoading: boolean; // Whether the denoms are still loading
   refetchDenoms: () => void; // Function to refetch the denoms
+  refetchProposals?: () => void; // Function to refetch the proposals
   address: string; // The address of the user
   pageSize: number; // The number of denoms to display per page
   isGroup?: boolean; // Whether the denoms are group tokens
@@ -53,6 +53,13 @@ export default function DenomList(props: Readonly<DenomListProps>) {
       setSelectedDenom(denom);
       setModalType('info');
       // router.push(`/factory?denom=${denom.base}&action=info`, undefined, { shallow: true });
+    }
+  };
+
+  const refetch = () => {
+    refetchDenoms();
+    if (props.refetchProposals) {
+      props.refetchProposals();
     }
   };
 
@@ -96,8 +103,9 @@ export default function DenomList(props: Readonly<DenomListProps>) {
     setModalType(null);
     setOpenUpdateDenomMetadataModal(false);
     setOpenTransferDenomModal(false);
-    // TODO: Handle isGroup
-    // router.push('/factory', undefined, { shallow: true });
+    router.push(isGroup ? `/groups?policyAddress=${admin}&tab=tokens` : '/factory', undefined, {
+      shallow: true,
+    });
   };
 
   const handleUpdateModalClose = () => {
@@ -105,8 +113,9 @@ export default function DenomList(props: Readonly<DenomListProps>) {
     setOpenUpdateDenomMetadataModal(false);
     setOpenTransferDenomModal(false);
     setModalType(null);
-    // TODO: Handle isGroup
-    // router.push('/factory', undefined, { shallow: true });
+    router.push(isGroup ? `/groups?policyAddress=${admin}&tab=tokens` : '/factory', undefined, {
+      shallow: true,
+    });
   };
 
   const handleUpdateModal = (denom: ExtendedMetadataSDKType, e: React.MouseEvent) => {
@@ -115,8 +124,15 @@ export default function DenomList(props: Readonly<DenomListProps>) {
     setSelectedDenom(denom);
     setModalType('update');
     setOpenUpdateDenomMetadataModal(true);
-    // TODO: Handle isGroup
-    // router.push(`/factory?denom=${denom.base}&action=update`, undefined, { shallow: true });
+    router.push(
+      isGroup
+        ? `/groups?policyAddress=${admin}&tab=tokens`
+        : `/factory?denom=${denom.base}&action=update`,
+      undefined,
+      {
+        shallow: true,
+      }
+    );
   };
 
   const handleTransferModal = (denom: ExtendedMetadataSDKType, e: React.MouseEvent) => {
@@ -125,24 +141,39 @@ export default function DenomList(props: Readonly<DenomListProps>) {
     setSelectedDenom(denom);
     setModalType('transfer');
     setOpenTransferDenomModal(true);
-    // TODO: Handle isGroup
-    // router.push(`/factory?denom=${denom.base}&action=transfer`, undefined, { shallow: true });
+    router.push(
+      isGroup
+        ? `/groups?policyAddress=${admin}&tab=tokens`
+        : `/factory?denom=${denom.base}&action=transfer`,
+      undefined,
+      { shallow: true }
+    );
   };
 
   const handleSwitchToMultiMint = () => {
     setModalType('multimint');
-    // TODO: Handle isGroup
-    // router.push(`/factory?denom=${selectedDenom?.base}&action=multimint`, undefined, {
-    //   shallow: true,
-    // });
+    router.push(
+      isGroup
+        ? `/groups?policyAddress=${admin}&tab=tokens`
+        : `/factory?denom=${selectedDenom?.base}&action=multimint`,
+      undefined,
+      {
+        shallow: true,
+      }
+    );
   };
 
   const handleSwitchToMultiBurn = () => {
     setModalType('multiburn');
-    // TODO: Handle isGroup
-    // router.push(`/factory?denom=${selectedDenom?.base}&action=multiburn`, undefined, {
-    //   shallow: true,
-    // });
+    router.push(
+      isGroup
+        ? `/groups?policyAddress=${admin}&tab=tokens`
+        : `/factory?denom=${selectedDenom?.base}&action=multiburn`,
+      undefined,
+      {
+        shallow: true,
+      }
+    );
   };
 
   // TODO: Fix search bar for group tokens
@@ -344,6 +375,7 @@ export default function DenomList(props: Readonly<DenomListProps>) {
         openDenomInfoModal={modalType === 'info'}
         setOpenDenomInfoModal={open => {
           if (!open) {
+            refetch();
             handleCloseModal();
           }
         }}
@@ -354,7 +386,7 @@ export default function DenomList(props: Readonly<DenomListProps>) {
         admin={admin}
         denom={modalType === 'mint' ? selectedDenom : null}
         address={address}
-        refetch={refetchDenoms}
+        refetch={refetch}
         balance={selectedDenom?.balance ?? '0'}
         totalSupply={selectedDenom?.totalSupply ?? '0'}
         isOpen={modalType === 'mint'}
@@ -366,7 +398,7 @@ export default function DenomList(props: Readonly<DenomListProps>) {
         admin={admin}
         denom={selectedDenom}
         address={address}
-        refetch={refetchDenoms}
+        refetch={refetch}
         balance={selectedDenom?.balance ?? '0'}
         totalSupply={selectedDenom?.totalSupply ?? '0'}
         isOpen={modalType === 'burn'}
@@ -379,7 +411,7 @@ export default function DenomList(props: Readonly<DenomListProps>) {
         denom={selectedDenom}
         address={address}
         onSuccess={() => {
-          refetchDenoms();
+          refetch();
           handleUpdateModalClose();
         }}
         openUpdateDenomMetadataModal={openUpdateDenomMetadataModal}
@@ -404,7 +436,7 @@ export default function DenomList(props: Readonly<DenomListProps>) {
           }
         }}
         onSuccess={() => {
-          refetchDenoms();
+          refetch();
           handleUpdateModalClose();
         }}
         denom={selectedDenom}

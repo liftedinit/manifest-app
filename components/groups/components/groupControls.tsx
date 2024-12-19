@@ -98,6 +98,18 @@ export default function GroupProposals({
   const router = useRouter();
 
   useEffect(() => {
+    const { tab } = router.query;
+    if (tab && typeof tab === 'string') {
+      setActiveTab(tab);
+    }
+  }, [router.query]);
+
+  const handleTabClick = (tab: string) => {
+    setActiveTab(tab);
+    router.push(`/groups?policyAddress=${policyAddress}&tab=${tab}`, undefined, { shallow: true });
+  };
+
+  useEffect(() => {
     const { proposalId } = router.query;
     if (proposalId && typeof proposalId === 'string' && proposals.length > 0) {
       const proposalToOpen = proposals.find(p => p.id.toString() === proposalId);
@@ -267,28 +279,28 @@ export default function GroupProposals({
         <button
           role={'tab'}
           className={`font-bold tab ${activeTab === 'proposals' ? 'tab-active' : ''}`}
-          onClick={() => setActiveTab('proposals')}
+          onClick={() => handleTabClick('proposals')}
         >
           Proposals
         </button>
         <button
           role={'tab'}
           className={`font-bold tab ${activeTab === 'assets' ? 'tab-active' : ''}`}
-          onClick={() => setActiveTab('assets')}
+          onClick={() => handleTabClick('assets')}
         >
           Assets
         </button>
         <button
           role={'tab'}
           className={`font-bold tab ${activeTab === 'history' ? 'tab-active' : ''}`}
-          onClick={() => setActiveTab('history')}
+          onClick={() => handleTabClick('history')}
         >
           Activity
         </button>
         <button
           role={'tab'}
           className={`font-bold tab ${activeTab === 'tokens' ? 'tab-active' : ''}`}
-          onClick={() => setActiveTab('tokens')}
+          onClick={() => handleTabClick('tokens')}
         >
           Tokens
         </button>
@@ -463,6 +475,7 @@ export default function GroupProposals({
             denoms={denoms}
             isLoading={isLoading}
             refetchDenoms={refetchDenoms}
+            refetchProposals={refetchProposals}
             address={address ?? ''}
             admin={policyAddress}
             pageSize={pageSize}
