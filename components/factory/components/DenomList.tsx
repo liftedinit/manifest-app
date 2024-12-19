@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { DenomImage } from './DenomImage';
 import Link from 'next/link';
 import { truncateString, ExtendedMetadataSDKType, shiftDigits, formatTokenDisplay } from '@/utils';
-import { SearchIcon, MintIcon, BurnIcon, TransferIcon } from '@/components/icons';
+import { MintIcon, BurnIcon, TransferIcon } from '@/components/icons';
 import { DenomInfoModal } from '@/components/factory/modals/denomInfo';
 import MintModal from '@/components/factory/modals/MintModal';
 import BurnModal from '@/components/factory/modals/BurnModal';
@@ -13,23 +13,19 @@ import { usePoaGetAdmin } from '@/hooks';
 import useIsMobile from '@/hooks/useIsMobile';
 import TransferModal from '@/components/factory/modals/TransferModal';
 
-export default function DenomList({
-  denoms,
-  isLoading,
-  refetchDenoms,
-  address,
-  pageSize,
-  isGroup,
-  admin,
-}: {
-  denoms: ExtendedMetadataSDKType[];
-  isLoading: boolean;
-  refetchDenoms: () => void;
-  address: string;
-  pageSize: number;
-  isGroup?: boolean;
-  admin?: string;
-}) {
+type DenomListProps = {
+  denoms: ExtendedMetadataSDKType[]; // The list of denoms to display
+  isLoading: boolean; // Whether the denoms are still loading
+  refetchDenoms: () => void; // Function to refetch the denoms
+  address: string; // The address of the user
+  pageSize: number; // The number of denoms to display per page
+  isGroup?: boolean; // Whether the denoms are group tokens
+  admin: string; // The admin of the group tokens
+};
+
+export default function DenomList(props: Readonly<DenomListProps>) {
+  const { denoms, isLoading, refetchDenoms, address, pageSize, isGroup, admin } = props;
+
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [openUpdateDenomMetadataModal, setOpenUpdateDenomMetadataModal] = useState(false);
@@ -56,11 +52,9 @@ export default function DenomList({
     if (!modalType) {
       setSelectedDenom(denom);
       setModalType('info');
-      router.push(`/factory?denom=${denom.base}&action=info`, undefined, { shallow: true });
+      // router.push(`/factory?denom=${denom.base}&action=info`, undefined, { shallow: true });
     }
   };
-
-  const { poaAdmin, isPoaAdminLoading } = usePoaGetAdmin();
 
   useEffect(() => {
     const { denom, action } = router.query;
@@ -103,7 +97,7 @@ export default function DenomList({
     setOpenUpdateDenomMetadataModal(false);
     setOpenTransferDenomModal(false);
     // TODO: Handle isGroup
-    router.push('/factory', undefined, { shallow: true });
+    // router.push('/factory', undefined, { shallow: true });
   };
 
   const handleUpdateModalClose = () => {
@@ -112,7 +106,7 @@ export default function DenomList({
     setOpenTransferDenomModal(false);
     setModalType(null);
     // TODO: Handle isGroup
-    router.push('/factory', undefined, { shallow: true });
+    // router.push('/factory', undefined, { shallow: true });
   };
 
   const handleUpdateModal = (denom: ExtendedMetadataSDKType, e: React.MouseEvent) => {
@@ -122,7 +116,7 @@ export default function DenomList({
     setModalType('update');
     setOpenUpdateDenomMetadataModal(true);
     // TODO: Handle isGroup
-    router.push(`/factory?denom=${denom.base}&action=update`, undefined, { shallow: true });
+    // router.push(`/factory?denom=${denom.base}&action=update`, undefined, { shallow: true });
   };
 
   const handleTransferModal = (denom: ExtendedMetadataSDKType, e: React.MouseEvent) => {
@@ -132,45 +126,45 @@ export default function DenomList({
     setModalType('transfer');
     setOpenTransferDenomModal(true);
     // TODO: Handle isGroup
-    router.push(`/factory?denom=${denom.base}&action=transfer`, undefined, { shallow: true });
+    // router.push(`/factory?denom=${denom.base}&action=transfer`, undefined, { shallow: true });
   };
 
   const handleSwitchToMultiMint = () => {
     setModalType('multimint');
     // TODO: Handle isGroup
-    router.push(`/factory?denom=${selectedDenom?.base}&action=multimint`, undefined, {
-      shallow: true,
-    });
+    // router.push(`/factory?denom=${selectedDenom?.base}&action=multimint`, undefined, {
+    //   shallow: true,
+    // });
   };
 
   const handleSwitchToMultiBurn = () => {
     setModalType('multiburn');
     // TODO: Handle isGroup
-    router.push(`/factory?denom=${selectedDenom?.base}&action=multiburn`, undefined, {
-      shallow: true,
-    });
+    // router.push(`/factory?denom=${selectedDenom?.base}&action=multiburn`, undefined, {
+    //   shallow: true,
+    // });
   };
 
   // TODO: Fix search bar for group tokens
   return (
     <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
       <div className="flex flex-col gap-4 mb-4">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
-            {!isGroup && (
-              <div className="relative w-full sm:w-[224px]">
-                <input
-                  type="text"
-                  placeholder="Search for a token..."
-                  className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                />
-                <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              </div>
-            )}
-          </div>
-        </div>
+        {/*<div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">*/}
+        {/*  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">*/}
+        {/*    {!isGroup && (*/}
+        {/*      <div className="relative w-full sm:w-[224px]">*/}
+        {/*        <input*/}
+        {/*          type="text"*/}
+        {/*          placeholder="Search for a token..."*/}
+        {/*          className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"*/}
+        {/*          value={searchQuery}*/}
+        {/*          onChange={e => setSearchQuery(e.target.value)}*/}
+        {/*        />*/}
+        {/*        <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />*/}
+        {/*      </div>*/}
+        {/*    )}*/}
+        {/*  </div>*/}
+        {/*</div>*/}
         <div className="overflow-auto">
           <div className="max-w-8xl mx-auto">
             <table className="table w-full border-separate border-spacing-y-3">
@@ -227,10 +221,16 @@ export default function DenomList({
                                 <MintIcon className="w-7 h-7 text-current opacity-50" />
                               </button>
                               <button
-                                className="btn btn-md btn-outline btn-square btn-error"
+                                className="btn btn-md btn-outline btn-square btn-primary"
                                 disabled
                               >
                                 <BurnIcon className="w-7 h-7 text-current opacity-50" />
+                              </button>
+                              <button
+                                className="btn btn-md btn-outline btn-square btn-info"
+                                disabled
+                              >
+                                <TransferIcon className="w-7 h-7 text-current opacity-50" />
                               </button>
                               <button
                                 className="btn btn-md btn-outline btn-square btn-info"
@@ -256,9 +256,9 @@ export default function DenomList({
                           e.stopPropagation();
                           setSelectedDenom(denom);
                           setModalType('burn');
-                          router.push(`/factory?denom=${denom.base}&action=burn`, undefined, {
-                            shallow: true,
-                          });
+                          // router.push(`/factory?denom=${denom.base}&action=burn`, undefined, {
+                          //   shallow: true,
+                          // });
                         }}
                         onTransfer={e => handleTransferModal(denom, e)}
                         onUpdate={e => handleUpdateModal(denom, e)}
@@ -351,8 +351,7 @@ export default function DenomList({
         modalId="denom-info-modal"
       />
       <MintModal
-        admin={poaAdmin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'}
-        isPoaAdminLoading={isPoaAdminLoading}
+        admin={admin}
         denom={modalType === 'mint' ? selectedDenom : null}
         address={address}
         refetch={refetchDenoms}
@@ -364,6 +363,7 @@ export default function DenomList({
         isGroup={isGroup}
       />
       <BurnModal
+        admin={admin}
         denom={selectedDenom}
         address={address}
         refetch={refetchDenoms}
@@ -372,13 +372,12 @@ export default function DenomList({
         isOpen={modalType === 'burn'}
         onClose={handleCloseModal}
         onSwitchToMultiBurn={handleSwitchToMultiBurn}
-        // isGroup={isGroup}
+        isGroup={isGroup}
       />
       <UpdateDenomMetadataModal
         modalId="update-denom-metadata-modal"
         denom={selectedDenom}
         address={address}
-        // isGroup={isGroup}
         onSuccess={() => {
           refetchDenoms();
           handleUpdateModalClose();
@@ -391,6 +390,8 @@ export default function DenomList({
             setOpenUpdateDenomMetadataModal(true);
           }
         }}
+        admin={admin}
+        isGroup={isGroup}
       />
       <TransferModal
         modalId="transfer-denom-modal"
@@ -410,7 +411,8 @@ export default function DenomList({
         address={address}
         isOpen={modalType === 'transfer'}
         onClose={handleCloseModal}
-        // isGroup={isGroup}
+        isGroup={isGroup}
+        admin={admin}
       />
     </div>
   );

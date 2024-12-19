@@ -43,9 +43,6 @@ export default function MintForm({
   const { mint } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
-  const exponent =
-    denom?.denom_units?.find((unit: { denom: string }) => unit.denom === denom.display)?.exponent ||
-    0;
   const isMFX = denom.base.includes('mfx');
 
   const MintSchema = Yup.object().shape({
@@ -59,7 +56,7 @@ export default function MintForm({
     }
     setIsSigning(true);
     try {
-      const amountInBaseUnits = parseNumberToBigInt(amount, exponent).toString();
+      const amountInBaseUnits = parseNumberToBigInt(amount).toString();
       let msg;
 
       msg = isGroup
@@ -136,8 +133,8 @@ export default function MintForm({
                 </p>
                 <div className="bg-base-300 p-4 rounded-md">
                   <p className="font-semibold text-md truncate text-black dark:text-white">
-                    {Number(shiftDigits(totalSupply, -exponent)).toLocaleString(undefined, {
-                      maximumFractionDigits: exponent,
+                    {Number(shiftDigits(totalSupply, -6)).toLocaleString(undefined, {
+                      maximumFractionDigits: 6,
                     })}{' '}
                   </p>
                 </div>

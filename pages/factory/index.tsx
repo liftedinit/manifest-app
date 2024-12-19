@@ -137,6 +137,7 @@ export default function Factory() {
                     refetchDenoms={refetchData}
                     pageSize={pageSize}
                     address={address ?? ''}
+                    admin={address ?? ''}
                   />
                 ) : isError ? (
                   <div className="text-center my-auto text-error">
@@ -151,6 +152,7 @@ export default function Factory() {
                     refetchDenoms={refetchData}
                     pageSize={pageSize}
                     address={address ?? ''}
+                    admin={address ?? ''}
                   />
                 )}
               </div>

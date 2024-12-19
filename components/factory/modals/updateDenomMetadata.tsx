@@ -1,7 +1,7 @@
 import { TokenFormData } from '@/helpers/formReducer';
 import { useFeeEstimation } from '@/hooks/useFeeEstimation';
 import { useTx } from '@/hooks/useTx';
-import { osmosis } from '@liftedinit/manifestjs';
+import { cosmos, osmosis } from '@liftedinit/manifestjs';
 import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { TextInput, TextArea } from '@/components/react/inputs';
@@ -9,6 +9,8 @@ import { truncateString, ExtendedMetadataSDKType } from '@/utils';
 import { useEffect } from 'react';
 import env from '@/config/env';
 import { createPortal } from 'react-dom';
+import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
+import { MsgSetDenomMetadata } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
 
 const TokenDetailsSchema = (context: { subdenom: string }) =>
   Yup.object().shape({
@@ -38,6 +40,8 @@ export function UpdateDenomMetadataModal({
   address,
   modalId,
   onSuccess,
+  admin,
+  isGroup,
 }: {
   openUpdateDenomMetadataModal: boolean;
   setOpenUpdateDenomMetadataModal: (open: boolean) => void;
@@ -45,6 +49,8 @@ export function UpdateDenomMetadataModal({
   address: string;
   modalId: string;
   onSuccess: () => void;
+  admin: string;
+  isGroup?: boolean;
 }) {
   const handleCloseModal = (formikReset?: () => void) => {
     setOpenUpdateDenomMetadataModal(false);
@@ -83,28 +89,60 @@ export function UpdateDenomMetadataModal({
   const { tx, isSigning, setIsSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
   const { setDenomMetadata } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
+  const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
   const handleUpdate = async (values: TokenFormData, resetForm: () => void) => {
     setIsSigning(true);
     const symbol = values.display.toUpperCase();
     try {
-      const msg = setDenomMetadata({
-        sender: address,
-        metadata: {
-          description: values.description || formData.description,
-          denomUnits:
-            [
-              { denom: fullDenom, exponent: 0, aliases: [symbol] },
-              { denom: symbol, exponent: 6, aliases: [fullDenom] },
-            ] || formData.denomUnits,
-          base: fullDenom,
-          display: symbol,
-          name: values.name || formData.name,
-          symbol: symbol,
-          uri: values.uri || formData.uri,
-          uriHash: '',
-        },
-      });
+      const msg = isGroup
+        ? submitProposal({
+            groupPolicyAddress: admin,
+            messages: [
+              Any.fromPartial({
+                typeUrl: MsgSetDenomMetadata.typeUrl,
+                value: MsgSetDenomMetadata.encode({
+                  sender: admin,
+                  metadata: {
+                    description: values.description || formData.description,
+                    denomUnits:
+                      [
+                        { denom: fullDenom, exponent: 0, aliases: [symbol] },
+                        { denom: symbol, exponent: 6, aliases: [fullDenom] },
+                      ] || formData.denomUnits,
+                    base: fullDenom,
+                    display: symbol,
+                    name: values.name || formData.name,
+                    symbol: symbol,
+                    uri: values.uri || formData.uri,
+                    uriHash: '',
+                  },
+                }).finish(),
+              }),
+            ],
+            metadata: '',
+            proposers: [address ?? ''],
+            title: `Update ${symbol} metadata`,
+            summary: `This proposal will update ${symbol}'s metadata.`,
+            exec: 0,
+          })
+        : setDenomMetadata({
+            sender: address,
+            metadata: {
+              description: values.description || formData.description,
+              denomUnits:
+                [
+                  { denom: fullDenom, exponent: 0, aliases: [symbol] },
+                  { denom: symbol, exponent: 6, aliases: [fullDenom] },
+                ] || formData.denomUnits,
+              base: fullDenom,
+              display: symbol,
+              name: values.name || formData.name,
+              symbol: symbol,
+              uri: values.uri || formData.uri,
+              uriHash: '',
+            },
+          });
 
       const fee = await estimateFee(address, [msg]);
       await tx([msg], {

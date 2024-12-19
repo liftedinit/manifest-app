@@ -7,21 +7,25 @@ import { ExtendedMetadataSDKType, truncateString } from '@/utils';
 export default function BurnModal({
   denom,
   address,
+  admin,
   refetch,
   balance,
   totalSupply,
   isOpen,
   onClose,
   onSwitchToMultiBurn,
+  isGroup,
 }: {
   denom: ExtendedMetadataSDKType | null;
   address: string;
+  admin: string;
   refetch: () => void;
   balance: string;
   totalSupply: string;
   isOpen: boolean;
   onClose: () => void;
   onSwitchToMultiBurn: () => void;
+  isGroup?: boolean;
 }) {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -34,14 +38,11 @@ export default function BurnModal({
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen]);
 
-  const { poaAdmin, isPoaAdminLoading } = usePoaGetAdmin();
-  const { groupByAdmin, isGroupByAdminLoading } = useGroupsByAdmin(
-    poaAdmin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'
-  );
+  const { groupByAdmin, isGroupByAdminLoading } = useGroupsByAdmin(admin);
 
   const members = groupByAdmin?.groups?.[0]?.members;
   const isAdmin = members?.some(member => member?.member?.address === address);
-  const isLoading = isPoaAdminLoading || isGroupByAdminLoading;
+  const isLoading = isGroupByAdminLoading;
 
   if (!denom) return null;
 
@@ -89,13 +90,14 @@ export default function BurnModal({
           ) : (
             <BurnForm
               isAdmin={isAdmin ?? false}
-              admin={poaAdmin ?? ''}
+              admin={admin}
               balance={balance}
               totalSupply={totalSupply}
               refetch={refetch}
               address={address}
               denom={denom}
               onMultiBurnClick={onSwitchToMultiBurn}
+              isGroup={isGroup}
             />
           )}
         </div>

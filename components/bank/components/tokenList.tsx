@@ -1,13 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { DenomImage } from '@/components/factory';
-import { shiftDigits } from '@/utils';
+import { DenomImage, DenomInfoModal } from '@/components/factory';
+import { shiftDigits, truncateString } from '@/utils';
 import { CombinedBalanceInfo } from '@/utils/types';
-import { DenomInfoModal } from '@/components/factory';
-import { PiMagnifyingGlass } from 'react-icons/pi';
-import { SendTxIcon, QuestionIcon, SearchIcon } from '@/components/icons';
-import { truncateString } from '@/utils';
+import { SendTxIcon, QuestionIcon } from '@/components/icons';
 import SendModal from '@/components/bank/modals/sendModal';
-import useIsMobile from '@/hooks/useIsMobile';
 
 interface TokenListProps {
   balances: CombinedBalanceInfo[] | undefined;
@@ -21,17 +17,18 @@ interface TokenListProps {
   refetchProposals?: () => void;
 }
 
-export function TokenList({
-  balances,
-  isLoading,
-  refetchBalances,
-  refetchHistory,
-  address,
-  pageSize,
-  isGroup,
-  admin,
-  refetchProposals,
-}: TokenListProps) {
+export function TokenList(props: Readonly<TokenListProps>) {
+  const {
+    balances,
+    isLoading,
+    refetchBalances,
+    refetchHistory,
+    address,
+    pageSize,
+    isGroup,
+    admin,
+    refetchProposals,
+  } = props;
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDenom, setSelectedDenom] = useState<any>(null);
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
@@ -59,21 +56,21 @@ export function TokenList({
   // TODO: Fix search bar for group tokens
   return (
     <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
-      <div className="flex flex-col gap-4 mb-4">
-        {!isGroup && (
-          <div className="relative w-full sm:w-[224px]">
-            <input
-              type="text"
-              placeholder="Search for an asset..."
-              className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              aria-label="Search assets"
-            />
-            <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          </div>
-        )}
-      </div>
+      {/*<div className="flex flex-col gap-4 mb-4">*/}
+      {/*  {!isGroup && (*/}
+      {/*    <div className="relative w-full sm:w-[224px]">*/}
+      {/*      <input*/}
+      {/*        type="text"*/}
+      {/*        placeholder="Search for an asset..."*/}
+      {/*        className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"*/}
+      {/*        value={searchTerm}*/}
+      {/*        onChange={e => setSearchTerm(e.target.value)}*/}
+      {/*        aria-label="Search assets"*/}
+      {/*      />*/}
+      {/*      <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />*/}
+      {/*    </div>*/}
+      {/*  )}*/}
+      {/*</div>*/}
 
       <div className="flex-1 overflow-y-auto">
         {isLoading ? (

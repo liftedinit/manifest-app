@@ -16,7 +16,6 @@ export default function MintModal({
   onClose,
   onSwitchToMultiMint,
   admin,
-  isPoaAdminLoading,
   isGroup,
 }: {
   denom: ExtendedMetadataSDKType | null;
@@ -28,7 +27,6 @@ export default function MintModal({
   onClose: () => void;
   onSwitchToMultiMint: () => void;
   admin: string;
-  isPoaAdminLoading: boolean;
   isGroup?: boolean;
 }) {
   useEffect(() => {
@@ -44,15 +42,12 @@ export default function MintModal({
 
   const [isMultiMintOpen, setIsMultiMintOpen] = useState(false);
 
-  const { groupByAdmin, isGroupByAdminLoading } = useGroupsByAdmin(
-    admin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'
-  );
-
+  const { groupByAdmin, isGroupByAdminLoading } = useGroupsByAdmin(admin);
   if (!denom) return null;
 
   const members = groupByAdmin?.groups?.[0]?.members;
   const isAdmin = members?.some(member => member?.member?.address === address);
-  const isLoading = isPoaAdminLoading || isGroupByAdminLoading;
+  const isLoading = isGroupByAdminLoading;
 
   const safeBalance = balance || '0';
   const safeTotalSupply = totalSupply || '0';
