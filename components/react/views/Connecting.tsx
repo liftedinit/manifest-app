@@ -27,7 +27,7 @@ export const Connecting = ({
       <div className="flex justify-between items-center mb-2">
         <button
           type="button"
-          className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+          className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-[#00000033]"
           onClick={onReturn}
         >
           <ChevronLeftIcon className="w-5 h-5" aria-hidden="true" />
@@ -37,7 +37,7 @@ export const Connecting = ({
         </Dialog.Title>
         <button
           type="button"
-          className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+          className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-[#00000033]"
           onClick={onClose}
         >
           <XMarkIcon className="w-5 h-5" aria-hidden="true" />
@@ -45,7 +45,11 @@ export const Connecting = ({
       </div>
       <div className="flex flex-col w-full h-full mt-4 sm:px-8 sm:py-6">
         <img
-          src={getRealLogo(logo, theme === 'dark')}
+          src={
+            name === 'Cosmos MetaMask Extension'
+              ? '/metamask.svg'
+              : getRealLogo(logo, theme === 'dark')
+          }
           alt={name}
           className="flex-shrink-0 w-20 h-20 mx-auto aspect-1"
         />

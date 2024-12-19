@@ -3,9 +3,20 @@ import type { ChainWalletBase, WalletModalProps } from 'cosmos-kit';
 import { WalletStatus } from 'cosmos-kit';
 import React, { useCallback, Fragment, useState, useMemo, useEffect } from 'react';
 import { Dialog, Transition, Portal } from '@headlessui/react';
-import { Connected, Connecting, Error, NotExist, QRCode, WalletList, Contacts } from './views';
+import {
+  Connected,
+  Connecting,
+  Error,
+  NotExist,
+  QRCode,
+  WalletList,
+  Contacts,
+  EmailInput,
+  SMSInput,
+} from './views';
 import { useRouter } from 'next/router';
 import { ToastProvider } from '@/contexts/toastContext';
+import { Web3AuthClient, Web3AuthWallet } from '@cosmos-kit/web3auth';
 import { useDeviceDetect } from '@/hooks';
 export enum ModalView {
   WalletList,
@@ -15,6 +26,8 @@ export enum ModalView {
   Error,
   NotExist,
   Contacts,
+  EmailInput,
+  SMSInput,
 }
 
 export const TailwindModal: React.FC<
@@ -79,17 +92,29 @@ export const TailwindModal: React.FC<
 
   const onWalletClicked = useCallback(
     (name: string) => {
+      const wallet = walletRepo?.getWallet(name);
+      if (wallet?.walletInfo.prettyName === 'Email') {
+        setCurrentView(ModalView.EmailInput);
+        return;
+      }
+      if (wallet?.walletInfo.prettyName === 'SMS') {
+        setCurrentView(ModalView.SMSInput);
+        return;
+      }
+
       walletRepo?.connect(name);
 
-      // 1ms timeout prevents _render from determining the view to show first
       setTimeout(() => {
-        const wallet = walletRepo?.getWallet(name);
-
-        if (wallet?.isWalletNotExist) {
+        if (
+          wallet?.walletInfo.name === 'cosmos-extension-metamask' &&
+          wallet.message?.includes("Cannot read properties of undefined (reading 'request')")
+        ) {
           setCurrentView(ModalView.NotExist);
           setSelectedWallet(wallet);
-        }
-        if (wallet?.walletInfo.mode === 'wallet-connect') {
+        } else if (wallet?.isWalletNotExist) {
+          setCurrentView(ModalView.NotExist);
+          setSelectedWallet(wallet);
+        } else if (wallet?.walletInfo.mode === 'wallet-connect') {
           setCurrentView(isMobile ? ModalView.Connecting : ModalView.QRCode);
           setQRWallet(wallet);
         }
@@ -112,6 +137,48 @@ export const TailwindModal: React.FC<
             wallets={walletRepo?.wallets || []}
           />
         );
+      case ModalView.EmailInput:
+        return (
+          <EmailInput
+            onClose={onCloseModal}
+            onReturn={() => setCurrentView(ModalView.WalletList)}
+            onSubmit={async email => {
+              try {
+                const emailWallet = walletRepo?.wallets.find(
+                  w => w.walletInfo.prettyName === 'Email'
+                ) as Web3AuthWallet | undefined;
+
+                if (emailWallet?.client instanceof Web3AuthClient) {
+                  emailWallet.client.setLoginHint(email);
+                  await walletRepo?.connect(emailWallet.walletInfo.name);
+                } else {
+                  console.error('Email wallet or client not found');
+                }
+              } catch (error) {
+                console.error('Email login error:', error);
+                // Handle the error appropriately in your UI
+              }
+            }}
+          />
+        );
+
+      case ModalView.SMSInput:
+        return (
+          <SMSInput
+            onClose={onCloseModal}
+            onReturn={() => setCurrentView(ModalView.WalletList)}
+            onSubmit={phone => {
+              const smsWallet = walletRepo?.wallets.find(w => w.walletInfo.prettyName === 'SMS') as
+                | Web3AuthWallet
+                | undefined;
+
+              if (smsWallet?.client instanceof Web3AuthClient) {
+                smsWallet.client.setLoginHint(phone);
+                walletRepo?.connect(smsWallet.walletInfo.name);
+              }
+            }}
+          />
+        );
       case ModalView.Connected:
         return (
           <Connected
@@ -126,11 +193,11 @@ export const TailwindModal: React.FC<
         );
       case ModalView.Connecting:
         let subtitle: string;
-        if (currentWalletData!.mode === 'wallet-connect') {
+        if (currentWalletData!?.mode === 'wallet-connect') {
           subtitle = `Approve ${currentWalletData!.prettyName} connection request on your mobile.`;
         } else {
           subtitle = `Open the ${
-            currentWalletData!.prettyName
+            currentWalletData!?.prettyName
           } browser extension to connect your wallet.`;
         }
 
