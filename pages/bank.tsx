@@ -106,7 +106,7 @@ export default function Bank() {
                     Bank
                   </h1>
                 </div>
-                <div role="tablist" className="tabs tabs-bordered tabs-lg">
+                <div role="tablist" className="tabs tabs-bordered tabs-lg flex flex-row">
                   <button
                     role={'tab'}
                     className={`font-bold tab ${activeTab === 'assets' ? 'tab-active' : ''}`}
