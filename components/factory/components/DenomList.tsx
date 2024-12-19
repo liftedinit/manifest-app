@@ -13,14 +13,15 @@ import useIsMobile from '@/hooks/useIsMobile';
 import TransferModal from '@/components/factory/modals/TransferModal';
 
 type DenomListProps = {
-  denoms: ExtendedMetadataSDKType[]; // The list of denoms to display
-  isLoading: boolean; // Whether the denoms are still loading
-  refetchDenoms: () => void; // Function to refetch the denoms
-  refetchProposals?: () => void; // Function to refetch the proposals
-  address: string; // The address of the user
-  pageSize: number; // The number of denoms to display per page
-  isGroup?: boolean; // Whether the denoms are group tokens
-  admin: string; // The admin of the group tokens
+  denoms: ExtendedMetadataSDKType[];
+  isLoading: boolean;
+  refetchDenoms: () => void;
+  refetchProposals?: () => void;
+  address: string;
+  pageSize: number;
+  isGroup?: boolean;
+  admin: string;
+  searchTerm: string;
 };
 
 export default function DenomList({
@@ -32,8 +33,8 @@ export default function DenomList({
   pageSize,
   isGroup = false,
   admin,
+  searchTerm = '',
 }: Readonly<DenomListProps>) {
-  const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [openUpdateDenomMetadataModal, setOpenUpdateDenomMetadataModal] = useState(false);
   const [openTransferDenomModal, setOpenTransferDenomModal] = useState(false);
@@ -46,8 +47,8 @@ export default function DenomList({
   >(null);
 
   const filteredDenoms = useMemo(() => {
-    return denoms.filter(denom => denom?.display.toLowerCase().includes(searchQuery.toLowerCase()));
-  }, [denoms, searchQuery]);
+    return denoms.filter(denom => denom?.display.toLowerCase().includes(searchTerm.toLowerCase()));
+  }, [denoms, searchTerm]);
 
   const totalPages = Math.ceil(filteredDenoms.length / pageSize);
   const paginatedDenoms = filteredDenoms.slice(
@@ -187,22 +188,6 @@ export default function DenomList({
   return (
     <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
       <div className="flex flex-col gap-4 mb-4">
-        {/*<div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">*/}
-        {/*  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">*/}
-        {/*    {!isGroup && (*/}
-        {/*      <div className="relative w-full sm:w-[224px]">*/}
-        {/*        <input*/}
-        {/*          type="text"*/}
-        {/*          placeholder="Search for a token..."*/}
-        {/*          className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"*/}
-        {/*          value={searchQuery}*/}
-        {/*          onChange={e => setSearchQuery(e.target.value)}*/}
-        {/*        />*/}
-        {/*        <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />*/}
-        {/*      </div>*/}
-        {/*    )}*/}
-        {/*  </div>*/}
-        {/*</div>*/}
         <div className="overflow-auto">
           <div className="max-w-8xl mx-auto">
             <table className="table w-full border-separate border-spacing-y-3">
