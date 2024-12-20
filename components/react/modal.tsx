@@ -118,11 +118,25 @@ export const TailwindModal: React.FC<
     (name: string) => {
       const wallet = walletRepo?.getWallet(name);
 
+      if (wallet?.walletInfo.prettyName === 'Email') {
+        setCurrentView(ModalView.EmailInput);
+        return;
+      }
+      if (wallet?.walletInfo.prettyName === 'SMS') {
+        setCurrentView(ModalView.SMSInput);
+        return;
+      }
+
       setTimeout(() => {
-        if (wallet?.isWalletNotExist) {
-          setSelectedWallet(wallet);
+        if (
+          wallet?.walletInfo.name === 'cosmos-extension-metamask' &&
+          wallet.message?.includes("Cannot read properties of undefined (reading 'request')")
+        ) {
           setCurrentView(ModalView.NotExist);
-          return;
+          setSelectedWallet(wallet);
+        } else if (wallet?.isWalletNotExist) {
+          setCurrentView(ModalView.NotExist);
+          setSelectedWallet(wallet);
         }
       }, 1);
 
