@@ -1,4 +1,4 @@
-import React, { MouseEventHandler, useEffect, useMemo, useState } from 'react';
+import React, { MouseEventHandler, useEffect, useMemo, useState, useRef } from 'react';
 
 import { ArrowDownTrayIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { ArrowUpIcon, CopyIcon } from './icons';
@@ -38,20 +38,32 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
   const { connect, openView, status, username, address } = useChain(chainName);
 
   const [localStatus, setLocalStatus] = useState(status);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
-    let timeoutId: ReturnType<typeof setTimeout>;
-
     if (status === WalletStatus.Connecting) {
-      timeoutId = setTimeout(() => {
+      // Clear any existing timeout
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+
+      // Set new timeout
+      timeoutRef.current = setTimeout(() => {
         setLocalStatus(WalletStatus.Error);
-      }, 10000); // 10 seconds timeout
+      }, 30000); // 30 seconds timeout
     } else {
       setLocalStatus(status);
+      // Clear timeout when status changes
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
     }
 
+    // Cleanup on unmount
     return () => {
-      if (timeoutId) clearTimeout(timeoutId);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
     };
   }, [status]);
 
@@ -204,7 +216,11 @@ export const IconWallet: React.FC<WalletSectionProps> = ({ chainName }) => {
     }
 
     let onClick;
-    if (status === WalletStatus.Disconnected || status === WalletStatus.Rejected)
+    if (
+      status === WalletStatus.Disconnected ||
+      status === WalletStatus.Rejected ||
+      status === WalletStatus.Error
+    )
       onClick = onClickConnect;
     else onClick = openView;
 
@@ -213,12 +229,10 @@ export const IconWallet: React.FC<WalletSectionProps> = ({ chainName }) => {
     return (
       <div className="relative group">
         <button
-          onClick={
-            status === WalletStatus.Disconnected || status === WalletStatus.Rejected
-              ? onClick
-              : () => {}
-          }
-          className={`flex justify-center items-center w-8 h-8 hover:text-primary  duration-200 ease-in-out  ${status === WalletStatus.Disconnected || status === WalletStatus.Rejected ? 'cursor-pointer' : 'cursor-default'}`}
+          onClick={onClick}
+          className={`flex justify-center items-center w-8 h-8 hover:text-primary duration-200 ease-in-out ${
+            status === WalletStatus.Connected ? 'cursor-default' : 'cursor-pointer'
+          }`}
         >
           <buttonData.icon className="w-8 h-8" />
         </button>

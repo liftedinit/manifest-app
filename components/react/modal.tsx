@@ -8,7 +8,7 @@ import {
   Connecting,
   Error,
   NotExist,
-  QRCode,
+  QRCodeView,
   WalletList,
   Contacts,
   EmailInput,
@@ -18,6 +18,8 @@ import { useRouter } from 'next/router';
 import { ToastProvider } from '@/contexts/toastContext';
 import { Web3AuthClient, Web3AuthWallet } from '@cosmos-kit/web3auth';
 import { useDeviceDetect } from '@/hooks';
+import { State, ExpiredError } from '@cosmos-kit/core';
+
 export enum ModalView {
   WalletList,
   QRCode,
@@ -48,11 +50,11 @@ export const TailwindModal: React.FC<
   showMemberManagementModal = false,
   showMessageEditModal = false,
 }) => {
-  const router = useRouter();
-
   const [currentView, setCurrentView] = useState<ModalView>(ModalView.WalletList);
   const [qrWallet, setQRWallet] = useState<ChainWalletBase | undefined>();
   const [selectedWallet, setSelectedWallet] = useState<ChainWalletBase | undefined>();
+  const [qrState, setQRState] = useState<State>(State.Init);
+  const [qrMessage, setQrMessage] = useState<string>('');
 
   const current = walletRepo?.current;
   const currentWalletData = current?.walletInfo;
@@ -71,7 +73,11 @@ export const TailwindModal: React.FC<
             setCurrentView(ModalView.WalletList);
             break;
           case WalletStatus.Connecting:
-            setCurrentView(ModalView.Connecting);
+            if (current?.walletInfo.mode === 'wallet-connect' && !isMobile) {
+              setCurrentView(ModalView.QRCode);
+            } else {
+              setCurrentView(ModalView.Connecting);
+            }
             break;
           case WalletStatus.Connected:
             setCurrentView(ModalView.Connected);
@@ -88,11 +94,30 @@ export const TailwindModal: React.FC<
         }
       }
     }
-  }, [isOpen, walletStatus, currentWalletName, showContacts]);
+  }, [isOpen, walletStatus, currentWalletName, showContacts, current?.walletInfo.mode, isMobile]);
+
+  useEffect(() => {
+    if (currentView === ModalView.QRCode && qrWallet) {
+      (qrWallet.client as any)?.setActions?.({
+        qrUrl: {
+          state: (s: State) => setQRState(s),
+          message: (msg: string) => setQrMessage(msg),
+        },
+        onError: (err: Error) => {
+          if (err.message?.includes('No matching key')) {
+            setQRState(State.Error);
+            setQrMessage(err.message);
+            qrWallet.setMessage?.(err.message);
+          }
+        },
+      });
+    }
+  }, [currentView, qrWallet]);
 
   const onWalletClicked = useCallback(
     (name: string) => {
       const wallet = walletRepo?.getWallet(name);
+
       if (wallet?.walletInfo.prettyName === 'Email') {
         setCurrentView(ModalView.EmailInput);
         return;
@@ -101,8 +126,6 @@ export const TailwindModal: React.FC<
         setCurrentView(ModalView.SMSInput);
         return;
       }
-
-      walletRepo?.connect(name);
 
       setTimeout(() => {
         if (
@@ -114,18 +137,100 @@ export const TailwindModal: React.FC<
         } else if (wallet?.isWalletNotExist) {
           setCurrentView(ModalView.NotExist);
           setSelectedWallet(wallet);
-        } else if (wallet?.walletInfo.mode === 'wallet-connect') {
-          setCurrentView(isMobile ? ModalView.Connecting : ModalView.QRCode);
-          setQRWallet(wallet);
         }
       }, 1);
+
+      if (wallet?.walletInfo.mode === 'wallet-connect') {
+        if (isMobile) {
+          setCurrentView(ModalView.Connecting);
+          walletRepo?.connect(name).catch(error => {
+            console.error('Wallet connection error:', error);
+            setCurrentView(ModalView.Error);
+          });
+          return;
+        }
+
+        setQRWallet(wallet);
+        setCurrentView(ModalView.QRCode);
+
+        const timeoutId = setTimeout(() => {
+          if (wallet?.walletStatus === WalletStatus.Connecting) {
+            wallet.disconnect();
+            setCurrentView(ModalView.Error);
+          }
+        }, 30000);
+
+        walletRepo
+          ?.connect(name)
+          .then(() => {
+            if (wallet?.walletStatus === WalletStatus.Connected) {
+              setCurrentView(ModalView.Connected);
+            }
+          })
+          .catch(error => {
+            console.error('Wallet connection error:', error);
+            setCurrentView(ModalView.QRCode);
+            setQRState(State.Error);
+            setQrMessage(error.message);
+          })
+          .finally(() => {
+            clearTimeout(timeoutId);
+          });
+
+        if (qrState === State.Pending && !wallet?.qrUrl?.data) {
+          setCurrentView(ModalView.Connecting);
+        }
+      } else {
+        setQRWallet(undefined);
+
+        setCurrentView(ModalView.Connecting);
+
+        const timeoutId = setTimeout(() => {
+          if (wallet?.walletStatus === WalletStatus.Connecting) {
+            wallet.disconnect();
+            setCurrentView(ModalView.Error);
+          }
+        }, 30000);
+
+        walletRepo
+          ?.connect(name)
+          .catch(error => {
+            console.error('Wallet connection error:', error);
+            setCurrentView(ModalView.Error);
+          })
+          .finally(() => {
+            clearTimeout(timeoutId);
+          });
+      }
     },
-    [walletRepo]
+    [walletRepo, isMobile, qrState, currentView]
   );
 
+  useEffect(() => {
+    if (!isOpen) {
+      if (qrWallet?.walletStatus === WalletStatus.Connecting) {
+        qrWallet.disconnect();
+        setQRWallet(undefined);
+      }
+      setQRState(State.Init);
+      setQrMessage('');
+    }
+  }, [isOpen, qrWallet]);
+
   const onCloseModal = useCallback(() => {
+    if (qrWallet?.walletStatus === WalletStatus.Connecting) {
+      qrWallet.disconnect();
+    }
     setOpen(false);
-  }, [setOpen]);
+  }, [setOpen, qrWallet]);
+
+  const onReturnToWalletList = useCallback(() => {
+    if (qrWallet?.walletStatus === WalletStatus.Connecting) {
+      qrWallet.disconnect();
+      setQRWallet(undefined);
+    }
+    setCurrentView(ModalView.WalletList);
+  }, [qrWallet]);
 
   const _render = useMemo(() => {
     switch (currentView) {
@@ -194,7 +299,7 @@ export const TailwindModal: React.FC<
       case ModalView.Connecting:
         let subtitle: string;
         if (currentWalletData!?.mode === 'wallet-connect') {
-          subtitle = `Approve ${currentWalletData!.prettyName} connection request on your mobile.`;
+          subtitle = `Approve ${currentWalletData!.prettyName} connection request on your mobile device.`;
         } else {
           subtitle = `Open the ${
             currentWalletData!?.prettyName
@@ -213,12 +318,7 @@ export const TailwindModal: React.FC<
         );
       case ModalView.QRCode:
         return (
-          <QRCode
-            onClose={onCloseModal}
-            onReturn={() => setCurrentView(ModalView.WalletList)}
-            qrUri={qrWallet?.qrUrl.data}
-            name={qrWallet?.walletInfo.prettyName}
-          />
+          <QRCodeView onClose={onCloseModal} onReturn={onReturnToWalletList} wallet={qrWallet!} />
         );
       case ModalView.Error:
         return (
@@ -254,23 +354,32 @@ export const TailwindModal: React.FC<
             showMessageEditModal={showMessageEditModal}
           />
         );
+
+      default:
+        return (
+          <div className="flex flex-col items-center justify-center p-6 gap-3">
+            <p className="text-sm text-gray-600 dark:text-gray-400">Reconnecting your wallet...</p>
+            <div className="loading loading-ring w-8 h-8 text-primary" />
+          </div>
+        );
     }
   }, [
     currentView,
     onCloseModal,
     onWalletClicked,
     walletRepo,
-    walletRepo?.wallets,
     currentWalletData,
     current,
-    qrWallet?.qrUrl.data,
-    qrWallet?.walletInfo.prettyName,
-    router,
     onSelect,
     currentAddress,
-    showMemberManagementModal,
     showMessageEditModal,
     selectedWallet,
+    qrState,
+    qrMessage,
+    qrWallet,
+    onReturnToWalletList,
+
+    currentWalletName,
   ]);
 
   return (

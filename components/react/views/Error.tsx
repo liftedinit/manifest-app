@@ -5,7 +5,7 @@ import { XMarkIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { ChevronLeftIcon } from '@heroicons/react/20/solid';
 import Image from 'next/image';
 import { getRealLogo } from '@/utils';
-import { useTheme } from '@/contexts';
+
 export const Error = ({
   currentWalletName,
   onClose,
@@ -19,7 +19,8 @@ export const Error = ({
   onReconnect: () => void;
   logo: string;
 }) => {
-  const { theme } = useTheme();
+  const isDarkMode = document.documentElement.classList.contains('dark');
+
   return (
     <div className="mt-3 text-center sm:mt-1.5">
       <div className="flex flex-row items-center justify-between">
@@ -48,9 +49,9 @@ export const Error = ({
         <div className="p-3 border rounded-full border-red-600 mx-auto aspect-1 flex-shrink-0">
           <Image
             src={
-              currentWalletName === 'cosmos-extension-metamask'
+              currentWalletName === 'Cosmos MetaMask Extension'
                 ? '/metamask.svg'
-                : getRealLogo(logo, theme === 'dark')
+                : getRealLogo(logo, isDarkMode)
             }
             alt="Wallet type logo"
             className="flex-shrink-0 w-16 h-16 aspect-1"
@@ -66,7 +67,7 @@ export const Error = ({
           className="rounded-lg w-[180px] btn btn-error  inline-flex justify-center items-center py-2.5 font-medium mt-4 bg-mint mx-auto text-black dark:text-white"
           onClick={onReconnect}
         >
-          <ArrowPathIcon className="flex-shrink-0 w-5 h-5 mr-2 text-black dark:text-white" />
+          <ArrowPathIcon className="flex-shrink-0 w-5 h-5 mr-2 " />
           Reconnect
         </button>
       </div>
