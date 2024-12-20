@@ -25,7 +25,7 @@ export const Error = ({
       <div className="flex flex-row items-center justify-between">
         <button
           type="button"
-          className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+          className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-[#00000033]"
           onClick={onReturn}
         >
           <ChevronLeftIcon className="w-5 h-5" aria-hidden="true" />
@@ -38,7 +38,7 @@ export const Error = ({
         </Dialog.Title>
         <button
           type="button"
-          className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+          className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-[#00000033]"
           onClick={onClose}
         >
           <XMarkIcon className="w-5 h-5" aria-hidden="true" />
@@ -47,7 +47,11 @@ export const Error = ({
       <div className="flex flex-col w-full h-full py-6 mt-4 sm:px-8">
         <div className="p-3 border rounded-full border-red-600 mx-auto aspect-1 flex-shrink-0">
           <Image
-            src={getRealLogo(logo, theme === 'dark')}
+            src={
+              currentWalletName === 'cosmos-extension-metamask'
+                ? '/metamask.svg'
+                : getRealLogo(logo, theme === 'dark')
+            }
             alt="Wallet type logo"
             className="flex-shrink-0 w-16 h-16 aspect-1"
             width={16}

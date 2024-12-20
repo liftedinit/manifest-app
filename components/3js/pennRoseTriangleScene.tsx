@@ -148,7 +148,6 @@ function PenroseTriangleScene({ onLoad }: { onLoad: () => void }) {
       <CameraSetup />
 
       {/* Lighting */}
-      <ambientLight intensity={0.5} />
 
       {/* Suspense for async loading */}
       <Suspense fallback={null}>
@@ -156,7 +155,7 @@ function PenroseTriangleScene({ onLoad }: { onLoad: () => void }) {
         <AnimatedPenroseTriangle />
 
         {/* Environment */}
-        <Environment files="/rosendal_park_sunset_puresky_4k.hdr" background={false} />
+        <Environment files="/rosendal_park_sunset_puresky_1k.hdr" background={false} />
       </Suspense>
 
       {/* Adjust the plane to be closer to the Penrose Triangle */}
