@@ -11,7 +11,7 @@ import { useEffect, useMemo, useState } from 'react';
 import SignModal from '@/components/react/authSignerModal';
 import { manifestAssets, manifestChain } from '@/config';
 import { SignerOptions, wallets } from 'cosmos-kit';
-import { wallets as cosmosExtensionWallets } from '@cosmos-kit/cosmos-extension-metamask';
+
 import { wallets as cosmosExtensionWallets } from '@cosmos-kit/cosmos-extension-metamask';
 import { ChainProvider } from '@cosmos-kit/react';
 import { Registry } from '@cosmjs/proto-signing';
@@ -134,16 +134,6 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
             name: 'SMS',
             logo: '/sms',
           },
-          {
-            provider: 'email_passwordless',
-            name: 'Email',
-            logo: '/email',
-          },
-          {
-            provider: 'sms_passwordless',
-            name: 'SMS',
-            logo: '/sms',
-          },
         ],
 
         client: {
@@ -167,7 +157,7 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
   // combine the web3auth wallets with the other wallets
   const combinedWallets = [
     ...web3AuthWallets,
-    ...wallets.for('keplr', 'cosmostation', 'leap', 'station'),
+    ...wallets.for('keplr', 'cosmostation', 'leap', 'station', 'ledger'),
     ...cosmosExtensionWallets,
   ];
 

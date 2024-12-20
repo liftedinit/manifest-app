@@ -5,7 +5,7 @@ import { XMarkIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { ChevronLeftIcon } from '@heroicons/react/20/solid';
 import Image from 'next/image';
 import { getRealLogo } from '@/utils';
-import { useTheme } from '@/contexts';
+
 export const Error = ({
   currentWalletName,
   onClose,
@@ -19,7 +19,8 @@ export const Error = ({
   onReconnect: () => void;
   logo: string;
 }) => {
-  const { theme } = useTheme();
+  const isDarkMode = document.documentElement.classList.contains('dark');
+
   return (
     <div className="mt-3 text-center sm:mt-1.5">
       <div className="flex flex-row items-center justify-between">
@@ -50,7 +51,7 @@ export const Error = ({
             src={
               currentWalletName === 'Cosmos MetaMask Extension'
                 ? '/metamask.svg'
-                : getRealLogo(logo)
+                : getRealLogo(logo, isDarkMode)
             }
             alt="Wallet type logo"
             className="flex-shrink-0 w-16 h-16 aspect-1"

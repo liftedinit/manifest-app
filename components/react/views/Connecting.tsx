@@ -4,7 +4,6 @@ import { Dialog } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { ChevronLeftIcon } from '@heroicons/react/20/solid';
 import { getRealLogo } from '@/utils';
-import { useTheme } from '@/contexts';
 
 export const Connecting = ({
   onClose,
@@ -21,7 +20,8 @@ export const Connecting = ({
   title: string;
   subtitle: string;
 }) => {
-  const { theme } = useTheme();
+  const isDarkMode = document.documentElement.classList.contains('dark');
+
   return (
     <div className="mt-3 text-center sm:mt-1.5">
       <div className="flex justify-between items-center mb-2">
@@ -45,7 +45,9 @@ export const Connecting = ({
       </div>
       <div className="flex flex-col w-full h-full mt-4 sm:px-8 sm:py-6">
         <img
-          src={name === 'Cosmos MetaMask Extension' ? '/metamask.svg' : getRealLogo(logo)}
+          src={
+            name === 'Cosmos MetaMask Extension' ? '/metamask.svg' : getRealLogo(logo, isDarkMode)
+          }
           alt={name}
           className="flex-shrink-0 w-20 h-20 mx-auto aspect-1"
         />
