@@ -5,6 +5,7 @@ import { ArrowUpIcon, CopyIcon } from './icons';
 import { useChain } from '@cosmos-kit/react';
 import { WalletStatus } from 'cosmos-kit';
 import { MdWallet } from 'react-icons/md';
+import env from '@/config/env';
 
 const buttons = {
   Disconnected: {
@@ -291,7 +292,7 @@ export function WalletNotConnected({
             {description}
           </p>
           <div className="w-[50%]">
-            <WalletSection chainName="manifest" />
+            <WalletSection chainName={env.chain} />
           </div>
         </div>
         <div className="hidden lg:mt-0 lg:ml-24 lg:col-span-5 lg:flex">{icon}</div>

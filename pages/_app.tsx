@@ -6,12 +6,12 @@ import '@fontsource/manrope';
 
 import type { AppProps } from 'next/app';
 import { createPortal } from 'react-dom';
-import { SignData } from '@cosmos-kit/web3auth';
-import { makeWeb3AuthWallets } from '@cosmos-kit/web3auth/esm/index'; // Leave this as is or you will get an error at compile time
+import { makeWeb3AuthWallets, SignData } from '@cosmos-kit/web3auth';
 import { useEffect, useMemo, useState } from 'react';
 import SignModal from '@/components/react/authSignerModal';
 import { manifestAssets, manifestChain } from '@/config';
 import { SignerOptions, wallets } from 'cosmos-kit';
+import { wallets as cosmosExtensionWallets } from '@cosmos-kit/cosmos-extension-metamask';
 import { wallets as cosmosExtensionWallets } from '@cosmos-kit/cosmos-extension-metamask';
 import { ChainProvider } from '@cosmos-kit/react';
 import { Registry } from '@cosmjs/proto-signing';
@@ -134,13 +134,22 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
             name: 'SMS',
             logo: '/sms',
           },
+          {
+            provider: 'email_passwordless',
+            name: 'Email',
+            logo: '/email',
+          },
+          {
+            provider: 'sms_passwordless',
+            name: 'SMS',
+            logo: '/sms',
+          },
         ],
 
         client: {
           clientId: env.web3AuthClientId,
           web3AuthNetwork: env.web3AuthNetwork as OPENLOGIN_NETWORK_TYPE, // Safe to cast since we validate the env vars in config/env.ts
         },
-
         promptSign: async (_, signData) =>
           new Promise(resolve =>
             setWeb3AuthPrompt({
@@ -172,7 +181,7 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
   const endpointOptions = {
     isLazy: true,
     endpoints: {
-      manifest: {
+      [env.chain]: {
         rpc: [env.rpcUrl],
         rest: [env.apiUrl],
       },

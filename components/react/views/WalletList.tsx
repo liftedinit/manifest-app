@@ -13,7 +13,6 @@ export const WalletList = ({
   onWalletClicked: (name: string, isMobileConnect?: boolean) => void;
   wallets: ChainWalletBase[];
 }) => {
-  // Can't use `useTheme` here because it's not wrapped in a ThemeProvider
   const isDarkMode = document.documentElement.classList.contains('dark');
 
   const social = wallets.filter(wallet =>
@@ -21,16 +20,16 @@ export const WalletList = ({
       wallet.walletInfo.prettyName
     )
   );
-
   const browser = wallets.filter(wallet =>
-    ['Keplr', 'Cosmostation', 'Leap', 'Station', 'Cosmos MetaMask Extension'].includes(
+    ['Keplr', 'Cosmostation', 'Leap', 'Station', 'Cosmos MetaMask Extension', 'Ledger'].includes(
       wallet.walletInfo.prettyName
     )
   );
 
   const mobile = wallets.filter(wallet =>
-    ['Keplr Mobile', 'Cosmostation Mobile', 'Leap Mobile'].includes(wallet.walletInfo.prettyName)
+    ['Wallet Connect', 'Keplr Mobile', 'Leap Mobile'].includes(wallet.walletInfo.prettyName)
   );
+
   const { isMobile } = useDeviceDetect();
   const hasMobileVersion = (prettyName: string) => {
     return mobile.some(w => w.walletInfo.prettyName.startsWith(prettyName));
@@ -44,7 +43,7 @@ export const WalletList = ({
       <h1 className="text-sm font-semibold text-center mb-6">Connect Wallet</h1>
       <button
         type="button"
-        className="p-2 text-primary absolute -top-1 right-0 bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+        className="p-2 text-primary absolute -top-1 right-0 bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-[#00000033]"
         onClick={onClose}
       >
         <XMarkIcon className="w-5 h-5" aria-hidden="true" />
@@ -63,7 +62,7 @@ export const WalletList = ({
                   src={
                     prettyName === 'Cosmos MetaMask Extension'
                       ? '/metamask.svg'
-                      : getRealLogo(logo?.toString() ?? '')
+                      : getRealLogo(logo?.toString() ?? '', isDarkMode)
                   }
                   alt={prettyName}
                   className="w-10 h-10 rounded-xl mr-3"

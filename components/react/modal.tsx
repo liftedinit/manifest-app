@@ -3,9 +3,20 @@ import type { ChainWalletBase, WalletModalProps } from 'cosmos-kit';
 import { WalletStatus } from 'cosmos-kit';
 import React, { useCallback, Fragment, useState, useMemo, useEffect } from 'react';
 import { Dialog, Transition, Portal } from '@headlessui/react';
-import { Connected, Connecting, Error, NotExist, QRCodeView, WalletList, Contacts } from './views';
+import {
+  Connected,
+  Connecting,
+  Error,
+  NotExist,
+  QRCodeView,
+  WalletList,
+  Contacts,
+  EmailInput,
+  SMSInput,
+} from './views';
 import { useRouter } from 'next/router';
 import { ToastProvider } from '@/contexts/toastContext';
+import { Web3AuthClient, Web3AuthWallet } from '@cosmos-kit/web3auth';
 import { useDeviceDetect } from '@/hooks';
 import { State, ExpiredError } from '@cosmos-kit/core';
 
@@ -17,6 +28,8 @@ export enum ModalView {
   Error,
   NotExist,
   Contacts,
+  EmailInput,
+  SMSInput,
 }
 
 export const TailwindModal: React.FC<
@@ -213,6 +226,48 @@ export const TailwindModal: React.FC<
             onClose={onCloseModal}
             onWalletClicked={onWalletClicked}
             wallets={walletRepo?.wallets || []}
+          />
+        );
+      case ModalView.EmailInput:
+        return (
+          <EmailInput
+            onClose={onCloseModal}
+            onReturn={() => setCurrentView(ModalView.WalletList)}
+            onSubmit={async email => {
+              try {
+                const emailWallet = walletRepo?.wallets.find(
+                  w => w.walletInfo.prettyName === 'Email'
+                ) as Web3AuthWallet | undefined;
+
+                if (emailWallet?.client instanceof Web3AuthClient) {
+                  emailWallet.client.setLoginHint(email);
+                  await walletRepo?.connect(emailWallet.walletInfo.name);
+                } else {
+                  console.error('Email wallet or client not found');
+                }
+              } catch (error) {
+                console.error('Email login error:', error);
+                // Handle the error appropriately in your UI
+              }
+            }}
+          />
+        );
+
+      case ModalView.SMSInput:
+        return (
+          <SMSInput
+            onClose={onCloseModal}
+            onReturn={() => setCurrentView(ModalView.WalletList)}
+            onSubmit={phone => {
+              const smsWallet = walletRepo?.wallets.find(w => w.walletInfo.prettyName === 'SMS') as
+                | Web3AuthWallet
+                | undefined;
+
+              if (smsWallet?.client instanceof Web3AuthClient) {
+                smsWallet.client.setLoginHint(phone);
+                walletRepo?.connect(smsWallet.walletInfo.name);
+              }
+            }}
           />
         );
       case ModalView.Connected:

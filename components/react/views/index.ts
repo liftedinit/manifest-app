@@ -5,3 +5,5 @@ export * from './NotExist';
 export * from './QRCodeView';
 export * from './WalletList';
 export * from './Contacts';
+export * from './EmailInput';
+export * from './SMSInput';

@@ -9,7 +9,6 @@ import { getRealLogo, shiftDigits, truncateString } from '@/utils';
 import Image from 'next/image';
 import { MdContacts } from 'react-icons/md';
 import { Contacts } from './Contacts';
-import { useTheme } from '@/contexts';
 
 export const Connected = ({
   onClose,
@@ -31,7 +30,7 @@ export const Connected = ({
   const { balance } = useBalance(address ?? '');
   const [copied, setCopied] = useState(false);
   const [showContacts, setShowContacts] = useState(false);
-  const { theme } = useTheme();
+  const isDarkMode = document.documentElement.classList.contains('dark');
 
   const copyAddress = () => {
     if (address) {
@@ -50,7 +49,7 @@ export const Connected = ({
       <div className="flex justify-between items-center -mt-4 mb-6">
         <button
           type="button"
-          className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+          className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-[#00000033]"
           onClick={onReturn}
         >
           <ChevronLeftIcon className="w-5 h-5" aria-hidden="true" />
@@ -59,7 +58,9 @@ export const Connected = ({
           <Image
             height={0}
             width={0}
-            src={name === 'Cosmos MetaMask Extension' ? '/metamask.svg' : getRealLogo(logo)}
+            src={
+              name === 'Cosmos MetaMask Extension' ? '/metamask.svg' : getRealLogo(logo, isDarkMode)
+            }
             alt={name}
             className="w-8 h-8 rounded-full mr-2"
           />
@@ -69,7 +70,7 @@ export const Connected = ({
         </div>
         <button
           type="button"
-          className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+          className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-[#00000033]"
           onClick={onClose}
         >
           <XMarkIcon className="w-5 h-5" aria-hidden="true" />
