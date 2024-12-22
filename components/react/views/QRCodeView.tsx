@@ -42,10 +42,18 @@ export const QRCodeView = ({
   wallet: ChainWalletBase;
 }) => {
   const qrUrl = wallet?.qrUrl;
-  const isExpired = qrUrl?.message === ExpiredError.message;
+
+  // Enhanced error detection
+  const isExpired =
+    qrUrl?.message === ExpiredError.message ||
+    (wallet?.message && wallet.message.includes('Proposal expired'));
+
   const hasError =
     qrUrl?.state === State.Error ||
-    (wallet?.message && wallet.message.includes('No matching key.'));
+    (wallet?.message &&
+      (wallet.message.includes('No matching key') ||
+        wallet.message.includes('Record was recently deleted') ||
+        wallet.message.includes('Proposal expired')));
 
   const statusDict: Record<State, 'pending' | 'done' | 'error' | 'expired' | undefined> = {
     [State.Pending]: 'pending',
@@ -61,6 +69,19 @@ export const QRCodeView = ({
   const errorMessage = isExpired
     ? 'Click to refresh and try again'
     : wallet?.message || qrUrl?.message || 'Failed to establish connection';
+
+  // Add error boundary to handle runtime errors
+  const handleRetry = () => {
+    try {
+      wallet?.connect(false);
+    } catch (error) {
+      console.error('Retry connection error:', error);
+      // Force error state if retry fails
+      if (error instanceof Error) {
+        wallet.setMessage?.(error.message);
+      }
+    }
+  };
 
   // If the user specifically expects the QR code but there's no data or recognized status,
   // show a "Re-establishing connection" fallback rather than a blank screen:
@@ -137,7 +158,7 @@ export const QRCodeView = ({
               <h3 className="text-lg font-semibold">{errorTitle}</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">{errorMessage}</p>
               <div className="flex gap-2">
-                <button onClick={() => wallet?.connect(false)} className="btn btn-primary">
+                <button onClick={handleRetry} className="btn btn-primary">
                   Retry Connection
                 </button>
                 <button onClick={onReturn} className="btn btn-secondary">
