@@ -247,6 +247,7 @@ export default function MemberInfoForm({
                       isOpen={isContactsOpen}
                       setOpen={setIsContactsOpen}
                       showContacts={true}
+                      currentAddress={address}
                       onSelect={(selectedAddress: string) => {
                         if (activeMemberIndex !== null) {
                           setFieldValue(`members.${activeMemberIndex}.address`, selectedAddress);

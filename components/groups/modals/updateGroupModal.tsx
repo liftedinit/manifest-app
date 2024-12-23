@@ -31,12 +31,18 @@ export function UpdateGroupModal({
   const { tx, isSigning, setIsSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
 
-  const maybeIpfsMetadata = group?.ipfsMetadata;
-  const maybeTitle = maybeIpfsMetadata?.title ?? '';
-  const maybeAuthors = maybeIpfsMetadata?.authors ?? '';
-  const maybeSummary = maybeIpfsMetadata?.summary ?? '';
-  const maybeProposalForumURL = maybeIpfsMetadata?.proposalForumURL ?? '';
-  const maybeDetails = maybeIpfsMetadata?.details ?? '';
+  let maybeMetadata = null;
+  try {
+    maybeMetadata = group.metadata ? JSON.parse(group.metadata) : null;
+  } catch (e) {
+    console.warn('Failed to parse group metadata:', e);
+  }
+
+  const maybeTitle = maybeMetadata?.title ?? '';
+  const maybeAuthors = maybeMetadata?.authors ?? '';
+  const maybeSummary = maybeMetadata?.summary ?? '';
+  const maybeProposalForumURL = maybeMetadata?.proposalForumURL ?? '';
+  const maybeDetails = maybeMetadata?.details ?? '';
   const maybePolicies = group?.policies?.[0];
   const maybeDecisionPolicy = maybePolicies?.decision_policy;
   const maybeThreshold = (maybeDecisionPolicy as ThresholdDecisionPolicySDKType)?.threshold ?? '';

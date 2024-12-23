@@ -1,15 +1,17 @@
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
-import { IPFSMetadata } from '@/hooks/useQueries';
-import ProfileAvatar from '@/utils/identicon';
+import {
+  GroupMemberSDKType,
+  GroupPolicyInfoSDKType,
+  ThresholdDecisionPolicySDKType,
+} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { PiXCircleLight } from 'react-icons/pi';
 
 interface Group {
   group: {
     admin: string;
     metadata: string;
-    ipfsMetadata: IPFSMetadata | null;
-    members: any[];
-    policies: any[];
+    members: GroupMemberSDKType[];
+    policies: GroupPolicyInfoSDKType[];
   };
 }
 
@@ -24,6 +26,13 @@ export function GroupDetailsModal({ group, modalId }: Group & { modalId: string 
     return adminAddresses.includes(address);
   };
 
+  const metadata = group.metadata ? JSON.parse(group.metadata) : null;
+
+  const authors = metadata?.authors || 'No authors available';
+  const summary = metadata?.summary || 'No summary available';
+  const details = metadata?.details || 'No details available';
+  const proposalForumURL = metadata?.proposalForumURL || 'No forum URL available';
+
   return (
     <dialog id={modalId} className="modal">
       <div className="modal-box absolute max-w-4xl mx-auto rounded-lg md:ml-20 shadow-lg">
@@ -37,29 +46,25 @@ export function GroupDetailsModal({ group, modalId }: Group & { modalId: string 
             <div>
               <p className="text-sm font-light mt-4 ">AUTHORS</p>
               <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
-                <p className="text-md ">{group?.ipfsMetadata?.authors ?? 'No authors available'}</p>
+                <p className="text-md ">{authors}</p>
               </div>
             </div>
             <div>
               <p className="text-sm font-light mt-4 ">SUMMARY</p>
               <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
-                <p className="text-md ">{group?.ipfsMetadata?.summary ?? 'No summary available'}</p>
+                <p className="text-md ">{summary}</p>
               </div>
             </div>
             <div>
               <p className="text-sm font-light mt-4 ">DETAILS</p>
               <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2 max-h-[9.53rem] overflow-y-auto">
-                <p className="text-md text-wrap ">
-                  {group?.ipfsMetadata?.details ?? 'No details available'}
-                </p>
+                <p className="text-md text-wrap ">{details}</p>
               </div>
             </div>
             <div>
               <p className="text-sm font-light mt-4 ">FORUM</p>
               <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
-                <p className="text-md ">
-                  {group?.ipfsMetadata?.proposalForumURL ?? 'No forum URL available'}
-                </p>
+                <p className="text-md ">{proposalForumURL}</p>
               </div>
             </div>
           </div>
@@ -82,10 +87,14 @@ export function GroupDetailsModal({ group, modalId }: Group & { modalId: string 
                   <p className="text-sm font-light mt-4 ">VOTING WINDOW</p>
                   <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
                     <p className="text-md ">
-                      {policy?.decision_policy?.windows?.voting_period
+                      {(policy?.decision_policy as ThresholdDecisionPolicySDKType)?.windows
+                        ?.voting_period
                         ? Math.floor(
-                            parseInt(policy.decision_policy.windows.voting_period.slice(0, -1)) /
-                              86400
+                            parseInt(
+                              (
+                                policy?.decision_policy as ThresholdDecisionPolicySDKType
+                              )?.windows?.voting_period.seconds.toString() ?? '0'
+                            ) / 86400
                           )
                         : 'No voting period available'}{' '}
                       days
@@ -96,8 +105,9 @@ export function GroupDetailsModal({ group, modalId }: Group & { modalId: string 
                   <p className="text-sm font-light mt-4 ">THRESHOLD</p>
                   <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
                     <p className="text-md ">
-                      {policy?.decision_policy?.threshold ?? 'No threshold available'} /
-                      {group?.members.length ?? 'No members available'}
+                      {(policy?.decision_policy as ThresholdDecisionPolicySDKType)?.threshold ??
+                        'No threshold available'}{' '}
+                      / {group?.members.length ?? 'No members available'}
                     </p>
                   </div>
                 </div>
@@ -152,12 +162,12 @@ export function GroupDetailsModal({ group, modalId }: Group & { modalId: string 
                       />
                     </td>
                     <td>
-                      {isPolicyAdmin(member?.member?.address) &&
-                      isAdmin(member?.member?.address) ? (
+                      {isPolicyAdmin(member?.member?.address ?? '') &&
+                      isAdmin(member?.member?.address ?? '') ? (
                         'Super Admin'
-                      ) : isPolicyAdmin(member?.member?.address) ? (
+                      ) : isPolicyAdmin(member?.member?.address ?? '') ? (
                         'Policy'
-                      ) : isAdmin(member?.member?.address) ? (
+                      ) : isAdmin(member?.member?.address ?? '') ? (
                         'Group'
                       ) : (
                         <PiXCircleLight className="text-red-500 h-5 w-5" />
