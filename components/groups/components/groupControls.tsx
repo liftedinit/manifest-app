@@ -378,9 +378,11 @@ export default function GroupControls({
                   }
 
                   const proposalTally = tallies.find(t => t.proposalId === proposal.id)?.tally;
-
+                  console.log(proposal.executor_result.toString());
                   let status = 'Pending';
-                  if (proposal.status.toString() === 'PROPOSAL_STATUS_ACCEPTED') {
+                  if (proposal.executor_result.toString() === 'PROPOSAL_EXECUTOR_RESULT_FAILURE') {
+                    status = 'Failure';
+                  } else if (proposal.status.toString() === 'PROPOSAL_STATUS_ACCEPTED') {
                     status = 'Execute';
                   } else if (proposal.status.toString() === 'PROPOSAL_STATUS_CLOSED') {
                     status = 'Executed';
