@@ -746,78 +746,80 @@ export enum HistoryTxType {
 const _formatMessage = (
   message: any,
   address: string
-):
-  | {
-      data: {
-        tx_type: HistoryTxType;
-        from_address: string;
-        to_address: string;
-        amount: { amount: string; denom: string }[];
-      };
-    }
-  | undefined => {
+): {
+  data: {
+    tx_type: HistoryTxType;
+    from_address: string;
+    to_address: string;
+    amount: { amount: string; denom: string }[];
+  };
+}[] => {
   switch (message['@type']) {
     case `/cosmos.bank.v1beta1.MsgSend`:
-      return {
-        data: {
-          tx_type: HistoryTxType.SEND,
-          from_address: message.fromAddress,
-          to_address: message.toAddress,
-          amount: message.amount.map((amt: TransactionAmount) => ({
-            amount: amt.amount,
-            denom: amt.denom,
-          })),
+      return [
+        {
+          data: {
+            tx_type: HistoryTxType.SEND,
+            from_address: message.fromAddress,
+            to_address: message.toAddress,
+            amount: message.amount.map((amt: TransactionAmount) => ({
+              amount: amt.amount,
+              denom: amt.denom,
+            })),
+          },
         },
-      };
+      ];
     case `/osmosis.tokenfactory.v1beta1.MsgMint`:
-      return {
-        data: {
-          tx_type: HistoryTxType.MINT,
-          from_address: message.sender,
-          to_address: message.mintToAddress,
-          amount: [message.amount],
+      return [
+        {
+          data: {
+            tx_type: HistoryTxType.MINT,
+            from_address: message.sender,
+            to_address: message.mintToAddress,
+            amount: [message.amount],
+          },
         },
-      };
+      ];
     case `/osmosis.tokenfactory.v1beta1.MsgBurn`:
-      return {
-        data: {
-          tx_type: HistoryTxType.BURN,
-          from_address: message.sender,
-          to_address: message.burnFromAddress,
-          amount: [message.amount],
+      return [
+        {
+          data: {
+            tx_type: HistoryTxType.BURN,
+            from_address: message.sender,
+            to_address: message.burnFromAddress,
+            amount: [message.amount],
+          },
         },
-      };
+      ];
     case `/liftedinit.manifest.v1.MsgPayout`:
-      const totalAmountMap = new Map<string, bigint>();
-      message.payoutPairs.forEach((pair: { coin: TransactionAmount; address: string }) => {
-        if (pair.address === address) {
-          const currentAmount = totalAmountMap.get(pair.coin.denom) || BigInt(0);
-          totalAmountMap.set(pair.coin.denom, currentAmount + BigInt(pair.coin.amount));
-        }
-      });
-      const totalAmount = Array.from(totalAmountMap.entries()).map(([denom, amount]) => ({
-        amount: amount.toString(),
-        denom,
-      }));
-      return {
-        data: {
-          tx_type: HistoryTxType.PAYOUT,
-          from_address: message.authority,
-          to_address: address,
-          amount: totalAmount,
-        },
-      };
+      return message.payoutPairs
+        .map((pair: { coin: TransactionAmount; address: string }) => {
+          if (message.authority === address || pair.address === address) {
+            return {
+              data: {
+                tx_type: HistoryTxType.PAYOUT,
+                from_address: message.authority,
+                to_address: pair.address,
+                amount: [{ amount: pair.coin.amount, denom: pair.coin.denom }],
+              },
+            };
+          }
+          return null;
+        })
+        .filter((msg: any) => msg !== null);
     case `/lifted.init.manifest.v1.MsgBurnHeldBalance`:
-      return {
-        data: {
-          tx_type: HistoryTxType.BURN_HELD_BALANCE,
-          from_address: message.authority,
-          to_address: message.authority,
-          amount: message.burnCoins,
+      return [
+        {
+          data: {
+            tx_type: HistoryTxType.BURN_HELD_BALANCE,
+            from_address: message.authority,
+            to_address: message.authority,
+            amount: message.burnCoins,
+          },
         },
-      };
+      ];
     default:
-      break;
+      return [];
   }
 };
 
@@ -834,8 +836,8 @@ const transformTransactions = (tx: any, address: string) => {
           continue;
         }
 
-        const formattedMessage = _formatMessage(nestedMessage, address);
-        if (formattedMessage) {
+        const formattedMessages = _formatMessage(nestedMessage, address);
+        for (const formattedMessage of formattedMessages) {
           messages.push({
             tx_hash: tx.id,
             block_number: parseInt(tx.data.txResponse.height),
@@ -847,8 +849,8 @@ const transformTransactions = (tx: any, address: string) => {
       }
     }
 
-    const formattedMessage = _formatMessage(message, address);
-    if (formattedMessage) {
+    const formattedMessages = _formatMessage(message, address);
+    for (const formattedMessage of formattedMessages) {
       messages.push({
         tx_hash: tx.id,
         block_number: parseInt(tx.data.txResponse.height),
@@ -858,6 +860,7 @@ const transformTransactions = (tx: any, address: string) => {
       });
     }
   }
+
   return messages;
 };
 

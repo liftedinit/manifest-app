@@ -159,7 +159,9 @@ export default function Home() {
                             height={0}
                             className="w-32 h-32 mx-auto mb-2 rounded-full"
                           />
-                          <h4 className="text-xl font-semibold mb-2">Proof of Authority</h4>
+                          <h4 className="text-xl md:text-lg font-semibold mb-2">
+                            Proof of Authority
+                          </h4>
                           <h5 className="text-2xl font-bold mb-4">Pioneering Implementation</h5>
                           <p className="text-gray-400 group-hover:text-black dark:group-hover:text-white">
                             Alberto is the first to implement the POA module, replacing traditional

@@ -208,11 +208,9 @@ export default function AnimatedAsterisk({ onLoad }: { onLoad?: () => void }) {
       style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
       camera={{ position: [0, 0, 10] }}
     >
-      <ambientLight intensity={0.2} />
-
       <Suspense fallback={null}>
         {meshes}
-        <Environment files="/rosendal_park_sunset_puresky_4k.hdr" background={false} />
+        <Environment files="/rosendal_park_sunset_puresky_1k.hdr" background={false} />
       </Suspense>
     </Canvas>
   );
