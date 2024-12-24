@@ -15,14 +15,14 @@ import {
   MFX_TOKEN_DATA,
   truncateString,
 } from '@/utils';
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import {
   ProposalSDKType,
   ThresholdDecisionPolicySDKType,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
-import GroupProposals from './groupControls';
+import GroupControls from './groupControls';
 import { useBalance } from '@/hooks/useQueries';
 import { shiftDigits } from '@/utils';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
@@ -49,8 +49,59 @@ export function YourGroups({
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const isMobile = useIsMobile();
+  const [pageSize, setPageSize] = useState({ groupInfo: 7, history: 6, skeleton: 7 });
 
-  const pageSize = isMobile ? 4 : 8;
+  const updatePageSizes = useCallback(() => {
+    const height = window.innerHeight;
+
+    // Small screens (mobile)
+    if (height < 768) {
+      setPageSize({
+        groupInfo: 4,
+        history: 3,
+        skeleton: 4,
+      });
+      return;
+    }
+
+    // Adjust based on height for larger screens
+    if (height < 800) {
+      setPageSize({
+        groupInfo: 5,
+        history: 5,
+        skeleton: 5,
+      });
+    } else if (height < 1000) {
+      setPageSize({
+        groupInfo: 7,
+        history: 6,
+        skeleton: 7,
+      });
+    } else {
+      // For very tall screens
+      setPageSize({
+        groupInfo: 9,
+        history: 8,
+        skeleton: 9,
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    // Initial setup
+    updatePageSizes();
+
+    // Add resize listener
+    window.addEventListener('resize', updatePageSizes);
+
+    // Cleanup
+    return () => window.removeEventListener('resize', updatePageSizes);
+  }, [updatePageSizes]);
+
+  const pageSizeGroupInfo = pageSize.groupInfo;
+  const pageSizeHistory = pageSize.history;
+  const skeletonGroupCount = 1;
+  const skeletonTxCount = pageSize.skeleton;
 
   const [selectedGroup, setSelectedGroup] = useState<{
     policyAddress: string;
@@ -65,10 +116,10 @@ export function YourGroups({
     (group.ipfsMetadata?.title || 'Untitled Group').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const totalPages = Math.ceil(filteredGroups.length / pageSize);
+  const totalPages = Math.ceil(filteredGroups.length / pageSize.groupInfo);
   const paginatedGroups = filteredGroups.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
+    (currentPage - 1) * pageSize.groupInfo,
+    currentPage * pageSize.groupInfo
   );
 
   useEffect(() => {
@@ -120,11 +171,6 @@ export function YourGroups({
     useTokenFactoryDenomsMetadata();
   const [currentPageGroupInfo, setCurrentPageGroupInfo] = useState(1);
 
-  const pageSizeGroupInfo = isMobile ? 4 : 7;
-  const pageSizeHistory = isMobile ? 4 : 6;
-  const skeletonGroupCount = 1;
-  const skeletonTxCount = isMobile ? 4 : 7;
-
   const {
     sendTxs,
     totalPages: totalPagesGroupInfo,
@@ -143,9 +189,6 @@ export function YourGroups({
   const { totalSupply, isTotalSupplyLoading, isTotalSupplyError, refetchTotalSupply } =
     useTotalSupply();
 
-  useEffect(() => {
-    console.log('denomError', denomError);
-  }, [denomError]);
   const refetchData = () => {
     refetchDenoms();
     refetchMetadatas();
@@ -422,7 +465,7 @@ export function YourGroups({
         }`}
       >
         {selectedGroup && (
-          <GroupProposals
+          <GroupControls
             policyAddress={selectedGroup.policyAddress}
             groupName={selectedGroup.name}
             onBack={handleBack}

@@ -903,7 +903,7 @@ export const useGetFilteredTxAndSuccessfulProposals = (
       const transactions = dataResponse.data
         .flatMap((tx: any) => transformTransactions(tx, address))
         .filter((tx: any) => tx !== null)
-        // Add secondary sort in JavaScript to ensure consistent ordering
+        // Add secondary JS sort
         .sort((a: any, b: any) => {
           // Sort by timestamp descending (newest first)
           const dateComparison =

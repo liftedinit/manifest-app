@@ -23,7 +23,7 @@ import { TokenList } from '@/components';
 import { CombinedBalanceInfo, ExtendedMetadataSDKType } from '@/utils';
 import DenomList from '@/components/factory/components/DenomList';
 
-type GroupProposalsProps = {
+type GroupControlsProps = {
   policyAddress: string;
   groupName: string;
   onBack: () => void;
@@ -47,7 +47,7 @@ type GroupProposalsProps = {
   skeletonTxCount: number;
 };
 
-export default function GroupProposals({
+export default function GroupControls({
   policyAddress,
   groupName,
   onBack,
@@ -69,7 +69,7 @@ export default function GroupProposals({
   pageSize,
   skeletonGroupCount,
   skeletonTxCount,
-}: GroupProposalsProps) {
+}: GroupControlsProps) {
   const { proposals, isProposalsLoading, isProposalsError, refetchProposals } =
     useProposalsByPolicyAccount(policyAddress);
 
@@ -275,7 +275,7 @@ export default function GroupProposals({
         </div>
       </div>
 
-      <div role="tablist" className="tabs tabs-bordered tabs-xs md:tabs-lg flex flex-row">
+      <div role="tablist" className="tabs tabs-bordered tabs-md md:tabs-lg flex flex-row">
         <button
           role={'tab'}
           className={`font-bold tab ${activeTab === 'proposals' ? 'tab-active' : ''}`}

@@ -8,8 +8,8 @@ import {
   useTokenFactoryDenomsMetadata,
 } from '@/hooks';
 import { useChain } from '@cosmos-kit/react';
-import Head from 'next/head';
-import React, { useMemo, useState } from 'react';
+
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { BankIcon } from '@/components/icons';
 import { CombinedBalanceInfo } from '@/utils/types';
 import { MFX_TOKEN_DATA } from '@/utils/constants';
@@ -30,11 +30,58 @@ export default function Bank() {
   const [activeTab, setActiveTab] = useState('assets');
 
   const isMobile = useIsMobile();
-  const pageSize = isMobile ? 4 : 7;
-  const tokenListPageSize = isMobile ? 6 : 8;
+  const [pageSize, setPageSize] = useState({
+    tokenList: 8,
+    history: 7,
+    skeleton: 9,
+  });
+
+  const updatePageSizes = useCallback(() => {
+    const height = window.innerHeight;
+
+    // Small screens (mobile)
+    if (height < 700) {
+      setPageSize({
+        tokenList: 5,
+        history: 4,
+        skeleton: 5,
+      });
+      return;
+    }
+
+    // Adjust based on height for larger screens
+    if (height < 800) {
+      setPageSize({
+        tokenList: 6,
+        history: 5,
+        skeleton: 7,
+      });
+    } else if (height < 1300) {
+      setPageSize({
+        tokenList: 8,
+        history: 7,
+        skeleton: 9,
+      });
+    } else {
+      // For very tall screens
+      setPageSize({
+        tokenList: 10,
+        history: 9,
+        skeleton: 11,
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    updatePageSizes();
+    window.addEventListener('resize', updatePageSizes);
+    return () => window.removeEventListener('resize', updatePageSizes);
+  }, [updatePageSizes]);
 
   const skeletonGroupCount = 1;
-  const skeletonTxCount = isMobile ? 5 : 9;
+  const skeletonTxCount = pageSize.skeleton;
+  const tokenListPageSize = pageSize.tokenList;
+  const historyPageSize = pageSize.history;
 
   const {
     sendTxs,
@@ -42,7 +89,12 @@ export default function Bank() {
     isLoading: txLoading,
     isError,
     refetch: refetchHistory,
-  } = useGetFilteredTxAndSuccessfulProposals(env.indexerUrl, address ?? '', currentPage, pageSize);
+  } = useGetFilteredTxAndSuccessfulProposals(
+    env.indexerUrl,
+    address ?? '',
+    currentPage,
+    historyPageSize
+  );
 
   const combinedBalances = useMemo(() => {
     if (!balances || !resolvedBalances || !metadatas) return [];

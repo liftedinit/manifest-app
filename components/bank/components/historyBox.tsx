@@ -173,7 +173,7 @@ export function HistoryBox({
           <div aria-label="skeleton" className="space-y-2">
             {[...Array(skeletonGroupCount)].map((_, groupIndex) => (
               <div key={groupIndex}>
-                <div className="skeleton h-4 w-24 mb-2"></div>
+                <div className="skeleton h-4 w-24 mb-2 mt-2"></div>
                 <div className="space-y-2">
                   {[...Array(skeletonTxCount)].map((_, txIndex) => (
                     <div
