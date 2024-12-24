@@ -414,11 +414,7 @@ export default function GroupControls({
                       </td>
                       <td className="bg-secondary group-hover:bg-base-300 px-4 py-4 w-[25%] sm:table-cell md:hidden hidden xl:table-cell ">
                         {proposal.messages.length > 0
-                          ? proposal.messages.map((message, index) => (
-                              <div key={index}>
-                                {getHumanReadableType((message as any)['@type'])}
-                              </div>
-                            ))
+                          ? getHumanReadableType((proposal.messages[0] as any)['@type'])
                           : 'No messages'}
                       </td>
                       <td className="bg-secondary group-hover:bg-base-300 rounded-r-[12px] sm:table-cell xxs:hidden hidden 2xl:table-cell">

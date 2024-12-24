@@ -9,7 +9,7 @@ import {
 
 import { useChain } from '@cosmos-kit/react';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { ExtendedMetadataSDKType, SEO } from '@/utils';
 import env from '@/config/env';
 import useIsMobile from '../../hooks/useIsMobile';
@@ -28,7 +28,51 @@ export default function Factory() {
     useTotalSupply();
 
   const isMobile = useIsMobile();
-  const pageSize = isMobile ? 5 : 8;
+  const [pageSize, setPageSize] = useState({
+    denomList: 8,
+    skeleton: 9,
+  });
+
+  const updatePageSizes = useCallback(() => {
+    const height = window.innerHeight;
+    const width = window.innerWidth;
+
+    // Small screens (mobile)
+    if (height < 768) {
+      setPageSize({
+        denomList: 4,
+        skeleton: 5,
+      });
+      return;
+    }
+
+    // Adjust based on height for larger screens
+    if (height < 800) {
+      setPageSize({
+        denomList: 6,
+        skeleton: 7,
+      });
+    } else if (height < 1000) {
+      setPageSize({
+        denomList: 8,
+        skeleton: 9,
+      });
+    } else {
+      // For very tall screens
+      setPageSize({
+        denomList: 10,
+        skeleton: 11,
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    updatePageSizes();
+    window.addEventListener('resize', updatePageSizes);
+    return () => window.removeEventListener('resize', updatePageSizes);
+  }, [updatePageSizes]);
+
+  const denomListPageSize = pageSize.denomList;
 
   const isLoading =
     isDenomsLoading || isMetadatasLoading || isBalancesLoading || isTotalSupplyLoading;
@@ -107,7 +151,7 @@ export default function Factory() {
                       denoms={combinedData}
                       isLoading={isLoading}
                       refetchDenoms={refetchData}
-                      pageSize={pageSize}
+                      pageSize={denomListPageSize}
                       address={address ?? ''}
                       admin={address ?? ''}
                       searchTerm={searchTerm}
@@ -123,7 +167,7 @@ export default function Factory() {
                       denoms={combinedData}
                       isLoading={isLoading}
                       refetchDenoms={refetchData}
-                      pageSize={pageSize}
+                      pageSize={denomListPageSize}
                       address={address ?? ''}
                       admin={address ?? ''}
                       searchTerm={searchTerm}
