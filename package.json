@@ -35,7 +35,7 @@
     "@cosmjs/stargate": "npm:@liftedinit/stargate@0.32.4-ll.3",
     "@cosmos-kit/cosmos-extension-metamask": "^0.12.2",
     "@cosmos-kit/react": "2.21.1",
-    "@cosmos-kit/web3auth": "2.14.1",
+    "@cosmos-kit/web3auth": "^2.14.2",
     "@fontsource/manrope": "^5.0.21",
     "@headlessui/react": "^1.7.18",
     "@heroicons/react": "^2.1.5",
