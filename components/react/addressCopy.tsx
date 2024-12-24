@@ -35,14 +35,14 @@ export const TruncatedAddressWithCopy = ({
   const iconSize = size === 'small' ? 10 : 16;
 
   return (
-    <div
+    <span
       className="flex items-center hover:text-primary dark:hover:text-primary space-x-2 text-[#00000099] dark:text-[#FFFFFF99]"
       onClick={handleCopy}
       style={{ cursor: 'pointer' }}
     >
       <span className="truncate ">{truncatedAddress}</span>
       {copied ? <FiCheck size={iconSize} /> : <FiCopy size={iconSize} />}
-    </div>
+    </span>
   );
 };
 
@@ -67,13 +67,13 @@ export const AddressWithCopy = ({ address }: { address: string }) => {
   };
 
   return (
-    <div
-      className="flex  items-center space-x-2"
+    <span
+      className="flex items-center space-x-2"
       onClick={handleCopy}
       style={{ cursor: 'pointer' }}
     >
       <span className="hover:text-primary">{address}</span>
       {copied ? <FiCheck size="16" /> : <FiCopy size="16" />}
-    </div>
+    </span>
   );
 };

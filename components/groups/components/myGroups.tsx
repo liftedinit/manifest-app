@@ -121,7 +121,7 @@ export function YourGroups({
   const [currentPageGroupInfo, setCurrentPageGroupInfo] = useState(1);
 
   const pageSizeGroupInfo = isMobile ? 4 : 7;
-  const pageSizeHistory = isMobile ? 4 : 7;
+  const pageSizeHistory = isMobile ? 4 : 6;
   const skeletonGroupCount = 1;
   const skeletonTxCount = isMobile ? 4 : 7;
 
@@ -224,7 +224,7 @@ export function YourGroups({
 
   const [activeInfoModalId, setActiveInfoModalId] = useState<string | null>(null);
   const [activeMemberModalId, setActiveMemberModalId] = useState<string | null>(null);
-
+  console.log(sendTxs);
   return (
     <div className="relative w-full h-screen overflow-x-hidden scrollbar-hide ">
       <div

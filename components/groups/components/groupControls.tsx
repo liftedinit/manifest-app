@@ -267,7 +267,7 @@ export default function GroupProposals({
                 <ArrowRightIcon className="text-primary" />
               </button>
               <h1 className="text-2xl font-bold text-primary-content truncate">{groupName}</h1>
-              <div className="hidden sm:block">
+              <div className="">
                 <ProfileAvatar walletAddress={policyAddress} size={40} />
               </div>
             </div>
@@ -322,7 +322,7 @@ export default function GroupProposals({
             </div>
           ) : filteredProposals.length > 0 ? (
             <table
-              className="table w-full border-separate border-spacing-y-3"
+              className="table w-full border-separate border-spacing-y-3 -mt-6"
               aria-label="Group proposals"
             >
               <thead>
@@ -471,16 +471,18 @@ export default function GroupProposals({
         )}
 
         {activeTab === 'tokens' && (
-          <DenomList
-            denoms={denoms}
-            isLoading={isLoading}
-            refetchDenoms={refetchDenoms}
-            refetchProposals={refetchProposals}
-            address={address ?? ''}
-            admin={policyAddress}
-            pageSize={pageSize}
-            isGroup={true}
-          />
+          <div className="h-full w-full -mt-7">
+            <DenomList
+              denoms={denoms}
+              isLoading={isLoading}
+              refetchDenoms={refetchDenoms}
+              refetchProposals={refetchProposals}
+              address={address ?? ''}
+              admin={policyAddress}
+              pageSize={pageSize}
+              isGroup={true}
+            />
+          </div>
         )}
       </div>
       {selectedProposal && (
