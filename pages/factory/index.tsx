@@ -8,9 +8,9 @@ import {
 } from '@/hooks';
 
 import { useChain } from '@cosmos-kit/react';
-import Head from 'next/head';
+
 import React, { useMemo, useState } from 'react';
-import { ExtendedMetadataSDKType } from '@/utils';
+import { ExtendedMetadataSDKType, SEO } from '@/utils';
 import env from '@/config/env';
 import useIsMobile from '../../hooks/useIsMobile';
 
@@ -68,50 +68,8 @@ export default function Factory() {
   const [searchTerm, setSearchTerm] = useState('');
 
   return (
-    <div className="min-h-screen relative py-4 px-2 mx-auto text-white ">
-      <Head>
-        <title>Factory - Alberto</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="description" content="Alberto is the gateway to the Manifest Network" />
-        <meta
-          name="keywords"
-          content="crypto, blockchain, application, Cosmos-SDK, Alberto, Manifest Network"
-        />
-        <meta name="author" content="Chandra Station" />
-        <link rel="icon" href="/favicon.ico" />
-
-        <meta property="og:title" content="Factory - Alberto" />
-        <meta property="og:description" content="Alberto is the gateway to the Manifest Network" />
-        <meta property="og:url" content="https://" />
-        <meta property="og:image" content="https://" />
-        <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="Alberto" />
-
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Factory - Alberto" />
-        <meta name="twitter:description" content="Alberto is the gateway to the Manifest Network" />
-        <meta name="twitter:image" content="https://" />
-        <meta name="twitter:site" content="@" />
-
-        <script type="application/ld+json">
-          {JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'WebPage',
-            name: 'Factory - Alberto',
-            description: 'Alberto is the gateway to the Manifest Network',
-            url: 'https://',
-            image: 'https://',
-            publisher: {
-              '@type': 'Organization',
-              name: 'Chandra Station',
-              logo: {
-                '@type': 'ImageObject',
-                url: 'https:///img/logo.png',
-              },
-            },
-          })}
-        </script>
-      </Head>
+    <div className="min-h-screen relative lg:py-0 py-4 px-2 mx-auto text-white ">
+      <SEO title="Factory - Alberto" />
       <div className="flex-grow animate-fadeIn transition-all duration-300">
         <div className="w-full mx-auto">
           {!isWalletConnected ? (
@@ -120,8 +78,8 @@ export default function Factory() {
               icon={<FactoryIcon className="h-60 w-60 text-primary" />}
             />
           ) : (
-            <div className="relative w-full h-full overflow-hidden scrollbar-hide">
-              <div className="h-full flex flex-col p-4">
+            <div className="relative w-full h-full overflow-hidden scrollbar-hide p-1">
+              <div className="h-full flex flex-col ">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
                     <h1

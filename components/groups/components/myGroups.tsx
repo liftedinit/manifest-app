@@ -226,13 +226,13 @@ export function YourGroups({
   const [activeMemberModalId, setActiveMemberModalId] = useState<string | null>(null);
 
   return (
-    <div className="relative w-full h-screen overflow-x-hidden scrollbar-hide">
+    <div className="relative w-full h-screen overflow-x-hidden scrollbar-hide ">
       <div
         className={`absolute inset-0 transition-transform duration-300 ${
           selectedGroup ? '-translate-x-full' : 'translate-x-0'
         }`}
       >
-        <div className="h-full flex flex-col gap-4 mb-4 p-4">
+        <div className="h-full flex flex-col gap-4 mb-4 p-1">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
               <h1

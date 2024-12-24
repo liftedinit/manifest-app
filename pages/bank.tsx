@@ -14,6 +14,7 @@ import { BankIcon } from '@/components/icons';
 import { CombinedBalanceInfo } from '@/utils/types';
 import { MFX_TOKEN_DATA } from '@/utils/constants';
 import env from '@/config/env';
+import { SEO } from '@/utils';
 
 export default function Bank() {
   const { address, isWalletConnected } = useChain(env.chain);
@@ -29,7 +30,8 @@ export default function Bank() {
   const [activeTab, setActiveTab] = useState('assets');
 
   const isMobile = useIsMobile();
-  const pageSize = isMobile ? 4 : 9;
+  const pageSize = isMobile ? 4 : 7;
+  const tokenListPageSize = isMobile ? 6 : 8;
 
   const skeletonGroupCount = 1;
   const skeletonTxCount = isMobile ? 5 : 9;
@@ -84,50 +86,8 @@ export default function Bank() {
   const [searchTerm, setSearchTerm] = useState('');
 
   return (
-    <div className="min-h-screen relative py-4 px-2 mx-auto text-white">
-      <Head>
-        <title>Bank - Alberto</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="description" content="Alberto is the gateway to the Manifest Network" />
-        <meta
-          name="keywords"
-          content="crypto, blockchain, application, Cosmos-SDK, Alberto, Manifest Network"
-        />
-        <meta name="author" content="Chandra Station" />
-        <link rel="icon" href="/favicon.ico" />
-
-        <meta property="og:title" content="Admins - Alberto" />
-        <meta property="og:description" content="Alberto is the gateway to the Manifest Network" />
-        <meta property="og:url" content="https://" />
-        <meta property="og:image" content="https://" />
-        <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="Alberto" />
-
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Admins - Alberto" />
-        <meta name="twitter:description" content="Alberto is the gateway to the Manifest Network" />
-        <meta name="twitter:image" content="https://" />
-        <meta name="twitter:site" content="@" />
-
-        <script type="application/ld+json">
-          {JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'WebPage',
-            name: 'Admins - Alberto',
-            description: 'Alberto is the gateway to the Manifest Network',
-            url: 'https://',
-            image: 'https://',
-            publisher: {
-              '@type': 'Organization',
-              name: 'Chandra Station',
-              logo: {
-                '@type': 'ImageObject',
-                url: 'https:///img/logo.png',
-              },
-            },
-          })}
-        </script>
-      </Head>
+    <div className="min-h-screen relative px-2 lg:py-0 py-4 mx-auto text-white">
+      <SEO title="Bank - Alberto" />
 
       <div className="flex-grow h-full animate-fadeIn transition-all duration-300">
         <div className="w-full mx-auto">
@@ -137,8 +97,8 @@ export default function Bank() {
               icon={<BankIcon className="h-60 w-60 text-primary" />}
             />
           ) : (
-            <div className="relative w-full h-full overflow-hidden scrollbar-hide">
-              <div className="h-full flex flex-col p-4">
+            <div className="relative w-full h-full overflow-hidden scrollbar-hide p-1">
+              <div className="h-full flex flex-col">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
                     <h1
@@ -184,7 +144,7 @@ export default function Bank() {
                       balances={combinedBalances}
                       refetchHistory={refetchHistory}
                       address={address ?? ''}
-                      pageSize={pageSize}
+                      pageSize={tokenListPageSize}
                       searchTerm={searchTerm}
                     />
                   )}

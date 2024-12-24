@@ -167,7 +167,7 @@ export function HistoryBox({
   }
 
   return (
-    <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
+    <div className="w-full mx-auto rounded-[24px] -mt-3 h-full flex flex-col">
       {isLoading ? (
         <div className="flex-1 overflow-hidden h-full">
           <div aria-label="skeleton" className="space-y-2">
