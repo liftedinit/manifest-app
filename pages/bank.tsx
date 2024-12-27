@@ -29,11 +29,10 @@ export default function Bank() {
   const [currentPage, setCurrentPage] = useState(1);
   const [activeTab, setActiveTab] = useState('assets');
 
-  const isMobile = useIsMobile();
   const [pageSize, setPageSize] = useState({
     tokenList: 8,
-    history: 7,
-    skeleton: 9,
+    history: 8,
+    skeleton: 8,
   });
 
   const updatePageSizes = useCallback(() => {
@@ -59,8 +58,8 @@ export default function Bank() {
     } else if (height < 1300) {
       setPageSize({
         tokenList: 8,
-        history: 7,
-        skeleton: 9,
+        history: 8,
+        skeleton: 8,
       });
     } else {
       // For very tall screens

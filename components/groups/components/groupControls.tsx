@@ -477,7 +477,7 @@ export default function GroupControls({
               refetchProposals={refetchProposals}
               address={address ?? ''}
               admin={policyAddress}
-              pageSize={pageSize}
+              pageSize={pageSize - 1}
               isGroup={true}
             />
           </div>

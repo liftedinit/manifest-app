@@ -49,17 +49,21 @@ export function YourGroups({
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const isMobile = useIsMobile();
-  const [pageSize, setPageSize] = useState({ groupInfo: 7, history: 6, skeleton: 7 });
+  const [pageSize, setPageSize] = useState({
+    groupInfo: 8,
+    history: 8,
+    skeleton: 8,
+  });
 
   const updatePageSizes = useCallback(() => {
     const height = window.innerHeight;
 
     // Small screens (mobile)
-    if (height < 768) {
+    if (height < 700) {
       setPageSize({
         groupInfo: 4,
-        history: 3,
-        skeleton: 4,
+        history: 4,
+        skeleton: 5,
       });
       return;
     }
@@ -69,32 +73,27 @@ export function YourGroups({
       setPageSize({
         groupInfo: 5,
         history: 5,
-        skeleton: 5,
-      });
-    } else if (height < 1000) {
-      setPageSize({
-        groupInfo: 7,
-        history: 6,
         skeleton: 7,
+      });
+    } else if (height < 1300) {
+      setPageSize({
+        groupInfo: 8,
+        history: 8,
+        skeleton: 8,
       });
     } else {
       // For very tall screens
       setPageSize({
-        groupInfo: 9,
-        history: 8,
-        skeleton: 9,
+        groupInfo: 10,
+        history: 9,
+        skeleton: 11,
       });
     }
   }, []);
 
   useEffect(() => {
-    // Initial setup
     updatePageSizes();
-
-    // Add resize listener
     window.addEventListener('resize', updatePageSizes);
-
-    // Cleanup
     return () => window.removeEventListener('resize', updatePageSizes);
   }, [updatePageSizes]);
 
