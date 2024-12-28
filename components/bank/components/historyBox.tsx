@@ -214,7 +214,7 @@ export function HistoryBox({
                     <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center">
                       {getTransactionIcon(tx, address)}
                     </div>
-                    <div className="w-10 h-10 rounded-full overflow-hidden bg-[#0000000A] dark:bg-[#FFFFFF0F] flex items-center justify-center">
+                    <div className="w-10 h-10  overflow-hidden  flex items-center justify-center">
                       {tx.data.amount.map((amt, index) => {
                         const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
                         return <DenomImage key={index} denom={metadata} />;

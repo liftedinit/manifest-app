@@ -619,7 +619,7 @@ function GroupRow({
           <ProfileAvatar walletAddress={policyAddress} />
           <span className="font-medium">{truncateString(groupName, 24)}</span>
         </div>
-        <div className="items-center flex xs:hidden">
+        <div className="items-center flex xs:hidden block">
           <ProfileAvatar walletAddress={policyAddress} />
         </div>
       </td>

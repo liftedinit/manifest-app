@@ -98,7 +98,7 @@ export function TokenList(props: Readonly<TokenListProps>) {
                 }}
               >
                 <div className="flex flex-row gap-4 items-center justify-start">
-                  <div className="w-10 h-10 rounded-full  bg-[#0000000A] dark:bg-[#FFFFFF0F] flex items-center justify-center">
+                  <div className="w-10 h-10  flex items-center justify-center">
                     <DenomImage denom={balance.metadata} />
                   </div>
                   <div>

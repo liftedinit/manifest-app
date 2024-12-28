@@ -45,7 +45,6 @@ export default function Factory() {
       return;
     }
 
-    // Adjust based on height for larger screens
     if (height < 800) {
       setPageSize({
         denomList: 5,
