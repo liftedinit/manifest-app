@@ -258,13 +258,11 @@ export function HistoryBox({
                       </div>
                     </div>
                   </div>
-                  <div className="text-right flex flex-col items-end">
+                  <div className="text-right flex flex-col items-end sm:block hidden">
                     <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99] mb-1">
                       {formatDateShort(tx.formatted_date)}
                     </p>
-                    <p
-                      className={`font-semibold ${getTransactionColor(tx, address)} sm:block hidden`}
-                    >
+                    <p className={`font-semibold ${getTransactionColor(tx, address)} `}>
                       {getTransactionPlusMinus(tx, address)}
                       {tx.data.amount
                         .map(amt => {

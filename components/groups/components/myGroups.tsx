@@ -51,33 +51,51 @@ export function YourGroups({
   const isMobile = useIsMobile();
   const [pageSize, setPageSize] = useState({
     groupInfo: 8,
+    groupEntries: 8,
     history: 8,
     skeleton: 8,
   });
 
   const updatePageSizes = useCallback(() => {
     const height = window.innerHeight;
+    const width = window.innerWidth;
 
     // Small screens (mobile)
     if (height < 700) {
       setPageSize({
         groupInfo: 4,
+        groupEntries: 2,
         history: 4,
         skeleton: 5,
       });
       return;
     }
 
-    // Adjust based on height for larger screens
     if (height < 800) {
       setPageSize({
         groupInfo: 5,
+        groupEntries: 3,
         history: 5,
         skeleton: 7,
+      });
+    } else if (height < 1000 && width < 800) {
+      setPageSize({
+        groupInfo: 7,
+        groupEntries: 5,
+        history: 7,
+        skeleton: 7,
+      });
+    } else if (height < 1000) {
+      setPageSize({
+        groupInfo: 8,
+        groupEntries: 8,
+        history: 8,
+        skeleton: 8,
       });
     } else if (height < 1300) {
       setPageSize({
         groupInfo: 8,
+        groupEntries: 8,
         history: 8,
         skeleton: 8,
       });
@@ -85,6 +103,7 @@ export function YourGroups({
       // For very tall screens
       setPageSize({
         groupInfo: 10,
+        groupEntries: 10,
         history: 9,
         skeleton: 11,
       });
@@ -119,6 +138,12 @@ export function YourGroups({
   const paginatedGroups = filteredGroups.slice(
     (currentPage - 1) * pageSize.groupInfo,
     currentPage * pageSize.groupInfo
+  );
+
+  const totalPagesGroupEntries = Math.ceil(filteredGroups.length / pageSize.groupEntries);
+  const paginatedGroupEntries = filteredGroups.slice(
+    (currentPage - 1) * pageSize.groupEntries,
+    currentPage * pageSize.groupEntries
   );
 
   useEffect(() => {
@@ -266,7 +291,7 @@ export function YourGroups({
 
   const [activeInfoModalId, setActiveInfoModalId] = useState<string | null>(null);
   const [activeMemberModalId, setActiveMemberModalId] = useState<string | null>(null);
-  console.log(sendTxs);
+
   return (
     <div className="relative w-full h-screen overflow-x-hidden scrollbar-hide ">
       <div
@@ -354,7 +379,7 @@ export function YourGroups({
                             </td>
                           </tr>
                         ))
-                    : paginatedGroups.map((group, index) => (
+                    : paginatedGroupEntries.map((group, index) => (
                         <GroupRow
                           key={index}
                           group={group}

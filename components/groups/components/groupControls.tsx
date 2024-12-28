@@ -4,12 +4,10 @@ import {
   useTallyCount,
   useVotesByProposal,
   useMultipleTallyCounts,
-  useTokenFactoryDenomsFromAdmin,
 } from '@/hooks/useQueries';
 import { ProposalSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { QueryTallyResultResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
 
-import { SearchIcon } from '@/components/icons';
 import { useRouter } from 'next/router';
 
 import VoteDetailsModal from '@/components/groups/modals/voteDetailsModal';
@@ -378,7 +376,7 @@ export default function GroupControls({
                   }
 
                   const proposalTally = tallies.find(t => t.proposalId === proposal.id)?.tally;
-                  console.log(proposal.executor_result.toString());
+
                   let status = 'Pending';
                   if (proposal.executor_result.toString() === 'PROPOSAL_EXECUTOR_RESULT_FAILURE') {
                     status = 'Failure';

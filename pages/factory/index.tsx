@@ -36,12 +36,11 @@ export default function Factory() {
   const updatePageSizes = useCallback(() => {
     const height = window.innerHeight;
     const width = window.innerWidth;
-
     // Small screens (mobile)
     if (height < 768) {
       setPageSize({
-        denomList: 4,
-        skeleton: 5,
+        denomList: 3,
+        skeleton: 3,
       });
       return;
     }
@@ -49,19 +48,29 @@ export default function Factory() {
     // Adjust based on height for larger screens
     if (height < 800) {
       setPageSize({
-        denomList: 6,
-        skeleton: 7,
+        denomList: 5,
+        skeleton: 5,
       });
-    } else if (height < 1000) {
+    } else if (height < 1000 && width < 800) {
+      setPageSize({
+        denomList: 6,
+        skeleton: 6,
+      });
+    } else if (height < 1000 && width > 800) {
       setPageSize({
         denomList: 8,
-        skeleton: 9,
+        skeleton: 8,
+      });
+    } else if (height < 1200) {
+      setPageSize({
+        denomList: 11,
+        skeleton: 11,
       });
     } else {
       // For very tall screens
       setPageSize({
-        denomList: 10,
-        skeleton: 11,
+        denomList: 12,
+        skeleton: 12,
       });
     }
   }, []);

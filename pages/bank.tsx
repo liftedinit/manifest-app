@@ -37,7 +37,7 @@ export default function Bank() {
 
   const updatePageSizes = useCallback(() => {
     const height = window.innerHeight;
-
+    const width = window.innerWidth;
     // Small screens (mobile)
     if (height < 700) {
       setPageSize({
@@ -48,25 +48,36 @@ export default function Bank() {
       return;
     }
 
-    // Adjust based on height for larger screens
     if (height < 800) {
       setPageSize({
         tokenList: 6,
-        history: 5,
+        history: 6,
         skeleton: 7,
       });
-    } else if (height < 1300) {
+    } else if (height < 1000 && width < 800) {
+      setPageSize({
+        tokenList: 7,
+        history: 7,
+        skeleton: 7,
+      });
+    } else if (height < 1000) {
       setPageSize({
         tokenList: 8,
         history: 8,
         skeleton: 8,
       });
+    } else if (height < 1300) {
+      setPageSize({
+        tokenList: 9,
+        history: 9,
+        skeleton: 9,
+      });
     } else {
       // For very tall screens
       setPageSize({
         tokenList: 10,
-        history: 9,
-        skeleton: 11,
+        history: 10,
+        skeleton: 10,
       });
     }
   }, []);

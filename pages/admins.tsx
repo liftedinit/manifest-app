@@ -73,7 +73,7 @@ export default function Admins() {
                     'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'
                   }
                 />
-                <div className="w-full h-full justify-between items-center flex flex-col md:flex-row p-4 gap-4">
+                <div className="w-full h-full justify-between items-center flex flex-col md:flex-row mt-4  gap-4">
                   <StakeHolderPayout
                     admin={
                       poaAdmin ??

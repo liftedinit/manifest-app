@@ -106,7 +106,7 @@ export default function ValidatorList({
         <div
           role="tablist"
           aria-label="Validator status filter"
-          className="flex mb-6 w-full h-[3.5rem] rounded-xl p-1 bg-secondary"
+          className="flex mb-2 w-full h-[3.5rem] rounded-xl p-1 bg-secondary"
         >
           <button
             onClick={() => setActive(true)}
