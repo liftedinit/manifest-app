@@ -165,14 +165,14 @@ export function HistoryBox({
                       className="flex items-center justify-between p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px]"
                     >
                       <div className="flex items-center space-x-3">
-                        <div className="skeleton w-8 h-8 rounded-full"></div>
-                        <div className="skeleton w-10 h-12 rounded-full"></div>
+                        <div className="skeleton w-9 h-9 rounded-full"></div>
+                        <div className="skeleton w-11 h-11 rounded-md"></div>
                         <div>
                           <div className="flex flex-row items-center gap-2">
-                            <div className="skeleton h-4 w-16"></div>
-                            <div className="skeleton h-4 w-12"></div>
+                            <div className="skeleton h-6 w-16"></div>
+                            <div className="skeleton h-6 w-12"></div>
                           </div>
-                          <div className="skeleton h-3 w-32 mt-1"></div>
+                          <div className="skeleton h-5 w-32 mt-1"></div>
                         </div>
                       </div>
                       <div className="skeleton h-4 w-24 sm:block hidden"></div>
@@ -214,12 +214,12 @@ export function HistoryBox({
                     <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center">
                       {getTransactionIcon(tx, address)}
                     </div>
-                    <div className="w-10 h-10  overflow-hidden  flex items-center justify-center">
-                      {tx.data.amount.map((amt, index) => {
-                        const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
-                        return <DenomImage key={index} denom={metadata} />;
-                      })}
-                    </div>
+
+                    {tx.data.amount.map((amt, index) => {
+                      const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
+                      return <DenomImage key={index} denom={metadata} />;
+                    })}
+
                     <div>
                       <div className="flex flex-row items-center gap-2">
                         <p className="font-semibold text-[#161616] dark:text-white">

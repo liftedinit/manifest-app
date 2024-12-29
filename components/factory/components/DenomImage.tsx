@@ -85,7 +85,7 @@ export const DenomImage = ({ denom }: { denom: any }) => {
   if (isLoading) {
     return (
       <div
-        className="skeleton w-8 h-8 rounded-md animate-pulse bg-gray-300"
+        className="skeleton w-11 h-11 rounded-md animate-pulse bg-gray-300"
         aria-label="denom image skeleton"
       ></div>
     );
@@ -94,13 +94,13 @@ export const DenomImage = ({ denom }: { denom: any }) => {
   // Check for MFX token first
   if (denom?.base?.includes('umfx')) {
     return (
-      <div className="w-full h-full p-2 rounded-md dark:bg-[#ffffff0f] bg-[#0000000A]">
+      <div className="w-11 h-11 p-2 rounded-md dark:bg-[#ffffff0f] bg-[#0000000A]">
         <Image
-          width={0}
-          height={0}
+          width={44}
+          height={44}
           src="/logo.svg"
           alt="MFX Token Icon"
-          className="w-[28px] h-[28px] -mt-[2px]"
+          className="w-full h-full -mt-[1px]"
         />
       </div>
     );
@@ -113,14 +113,14 @@ export const DenomImage = ({ denom }: { denom: any }) => {
 
   // For all other cases, use the denom.uri
   return (
-    <div className="w-auto h-auto p-2 rounded-md dark:bg-[#ffffff0f] bg-[#0000000A]">
+    <div className="w-11 h-11 p-2 rounded-md dark:bg-[#ffffff0f] bg-[#0000000A]">
       <Image
-        width={32}
-        height={32}
+        width={44}
+        height={44}
         src={denom?.uri}
         alt="Token Icon"
         onError={() => setImageError(true)}
-        className="rounded-md w-[32px] h-[32px]"
+        className="rounded-md w-full h-full"
       />
     </div>
   );

@@ -65,7 +65,7 @@ export function TokenList(props: Readonly<TokenListProps>) {
                 className="flex flex-row justify-between gap-4 items-center p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px]"
               >
                 <div className="flex flex-row gap-4 items-center justify-start">
-                  <div className="skeleton w-10 h-10 rounded-full" />
+                  <div className="skeleton w-11 h-11 rounded-md" />
                   <div className="space-y-1">
                     <div className="skeleton h-4 w-20" />
                     <div className="skeleton h-3 w-14" />

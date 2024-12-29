@@ -345,7 +345,7 @@ export function YourGroups({
                           <tr key={index} data-testid="skeleton-row">
                             <td className="bg-secondary rounded-l-[12px] ">
                               <div className="flex items-center space-x-3">
-                                <div className="skeleton w-10 h-8 rounded-full shrink-0"></div>
+                                <div className="skeleton w-11 h-11 rounded-md shrink-0"></div>
                                 <div className="skeleton h-3 w-24"></div>
                               </div>
                             </td>
