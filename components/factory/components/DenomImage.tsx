@@ -100,7 +100,7 @@ export const DenomImage = ({ denom }: { denom: any }) => {
           height={44}
           src="/logo.svg"
           alt="MFX Token Icon"
-          className="w-full h-full -mt-[1px]"
+          className="w-full h-full "
         />
       </div>
     );
