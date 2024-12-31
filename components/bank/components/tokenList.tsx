@@ -54,32 +54,38 @@ export function TokenList(props: Readonly<TokenListProps>) {
     return filteredBalances.slice(startIndex, startIndex + pageSize);
   }, [filteredBalances, currentPage, pageSize]);
 
+  const skeletonItems = useMemo(
+    () =>
+      [...Array(pageSize)].map((_, i) => (
+        <div
+          key={i}
+          className="flex flex-row justify-between gap-4 items-center p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px]"
+        >
+          <div className="flex flex-row gap-4 items-center justify-start">
+            <div className="skeleton w-11 h-11 rounded-md" />
+            <div className="space-y-1">
+              <div className="skeleton h-4 w-20" />
+              <div className="skeleton h-3 w-14" />
+            </div>
+          </div>
+          <div className="text-center hidden sm:block md:block lg:hidden xl:block">
+            <div className="skeleton h-4 w-28" />
+          </div>
+          <div className="flex flex-row gap-2">
+            <div className="skeleton w-8 h-8 rounded-md" />
+            <div className="skeleton w-8 h-8 rounded-md" />
+          </div>
+        </div>
+      )),
+    [totalPages]
+  );
+
   return (
     <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
       <div className="flex-1 overflow-y-auto">
         {isLoading ? (
           <div className="space-y-2" aria-label="skeleton-loader">
-            {[...Array(pageSize)].map((_, i) => (
-              <div
-                key={i}
-                className="flex flex-row justify-between gap-4 items-center p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px]"
-              >
-                <div className="flex flex-row gap-4 items-center justify-start">
-                  <div className="skeleton w-11 h-11 rounded-md" />
-                  <div className="space-y-1">
-                    <div className="skeleton h-4 w-20" />
-                    <div className="skeleton h-3 w-14" />
-                  </div>
-                </div>
-                <div className="text-center hidden sm:block md:block lg:hidden xl:block">
-                  <div className="skeleton h-4 w-28" />
-                </div>
-                <div className="flex flex-row gap-2">
-                  <div className="skeleton w-8 h-8 rounded-md" />
-                  <div className="skeleton w-8 h-8 rounded-md" />
-                </div>
-              </div>
-            ))}
+            {skeletonItems}
           </div>
         ) : paginatedBalances.length === 0 ? (
           <div className="flex items-center justify-center h-[200px] w-full bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px]">
@@ -156,10 +162,14 @@ export function TokenList(props: Readonly<TokenListProps>) {
       </div>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-end gap-2 mt-4">
+        <nav
+          aria-label="Token list pagination"
+          className="flex items-center justify-end gap-2 mt-4"
+        >
           <button
             onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
             disabled={currentPage === 1 || isLoading}
+            aria-label="Go to previous page"
             className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             ‹
@@ -176,19 +186,21 @@ export function TokenList(props: Readonly<TokenListProps>) {
                 <button
                   key={pageNum}
                   onClick={() => setCurrentPage(pageNum)}
+                  aria-current={currentPage === pageNum ? 'page' : undefined}
+                  aria-label={`Page ${pageNum}`}
                   className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors
-                        ${
-                          currentPage === pageNum
-                            ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A] text-black dark:text-white'
-                            : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white'
-                        }`}
+                    ${
+                      currentPage === pageNum
+                        ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A] text-black dark:text-white'
+                        : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white'
+                    }`}
                 >
                   {pageNum}
                 </button>
               );
             } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
               return (
-                <span key={pageNum} className="text-black dark:text-white">
+                <span key={pageNum} className="text-black dark:text-white" aria-hidden="true">
                   ...
                 </span>
               );
@@ -199,11 +211,12 @@ export function TokenList(props: Readonly<TokenListProps>) {
           <button
             onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
             disabled={currentPage === totalPages || isLoading}
+            aria-label="Go to next page"
             className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             ›
           </button>
-        </div>
+        </nav>
       )}
 
       <DenomInfoModal
