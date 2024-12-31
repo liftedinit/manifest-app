@@ -5,7 +5,7 @@ import Link from 'next/link';
 import React from 'react';
 import { useGroupsByMember, useProposalsByPolicyAccountAll } from '@/hooks';
 import env from '@/config/env';
-import { SEO } from '@/utils';
+import { SEO } from '@/components';
 
 export default function Groups() {
   const { address, isWalletConnected } = useChain(env.chain);

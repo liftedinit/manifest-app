@@ -10,7 +10,7 @@ import { PiWarning } from 'react-icons/pi';
 import { AdminsIcon } from '@/components/icons';
 import { StakeHolderPayout, ChainUpgrader } from '@/components/admins/components';
 import env from '@/config/env';
-import { SEO } from '@/utils';
+import { SEO } from '@/components';
 export default function Admins() {
   const { address, isWalletConnected } = useChain(env.chain);
   const { poaAdmin } = usePoaGetAdmin();

@@ -10,4 +10,3 @@ export * from './yupExtensions';
 export * from './transactionUtils';
 export * from './types';
 export * from './constants';
-export * from './seo';

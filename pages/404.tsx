@@ -1,5 +1,5 @@
 import env from '@/config/env';
-import { SEO } from '@/utils';
+import { SEO } from '@/components';
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
 import {
   BookmarkSquareIcon,

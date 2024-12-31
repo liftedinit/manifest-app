@@ -11,7 +11,7 @@ import CreateDenom from '@/components/factory/forms/CreateDenom';
 import { FactoryIcon } from '@/components/icons';
 import env from '@/config/env';
 import { useRouter } from 'next/router';
-import { SEO } from '@/utils';
+import { SEO } from '@/components';
 
 const initialFormData: TokenFormData = {
   subdenom: '',

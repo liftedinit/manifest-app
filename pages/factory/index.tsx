@@ -10,9 +10,15 @@ import {
 import { useChain } from '@cosmos-kit/react';
 
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
-import { ExtendedMetadataSDKType, SEO } from '@/utils';
+import { ExtendedMetadataSDKType } from '@/utils';
+import { SEO } from '@/components';
 import env from '@/config/env';
 import useIsMobile from '../../hooks/useIsMobile';
+
+interface PageSizeConfig {
+  denomList: number;
+  skeleton: number;
+}
 
 export default function Factory() {
   const { address, isWalletConnected } = useChain(env.chain);
@@ -34,50 +40,59 @@ export default function Factory() {
   });
 
   const updatePageSizes = useCallback(() => {
-    const height = window.innerHeight;
-    const width = window.innerWidth;
-    // Small screens (mobile)
-    if (height < 768) {
-      setPageSize({
-        denomList: 3,
-        skeleton: 3,
-      });
-      return;
-    }
+    let timeoutId: ReturnType<typeof setTimeout>;
 
-    if (height < 800) {
-      setPageSize({
-        denomList: 5,
-        skeleton: 5,
-      });
-    } else if (height < 1000 && width < 800) {
-      setPageSize({
-        denomList: 6,
-        skeleton: 6,
-      });
-    } else if (height < 1000 && width > 800) {
-      setPageSize({
-        denomList: 8,
-        skeleton: 8,
-      });
-    } else if (height < 1200) {
-      setPageSize({
-        denomList: 11,
-        skeleton: 11,
-      });
-    } else {
-      // For very tall screens
-      setPageSize({
-        denomList: 12,
-        skeleton: 12,
-      });
-    }
+    return () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        const height = window.innerHeight;
+        const width = window.innerWidth;
+
+        const sizeLookup: Array<{ height: number; width: number; sizes: PageSizeConfig }> = [
+          {
+            height: 768,
+            width: Infinity,
+            sizes: { denomList: 3, skeleton: 3 },
+          },
+          {
+            height: 800,
+            width: Infinity,
+            sizes: { denomList: 5, skeleton: 5 },
+          },
+          {
+            height: 1000,
+            width: 800,
+            sizes: { denomList: 6, skeleton: 6 },
+          },
+          {
+            height: 1000,
+            width: Infinity,
+            sizes: { denomList: 8, skeleton: 8 },
+          },
+          {
+            height: 1200,
+            width: Infinity,
+            sizes: { denomList: 11, skeleton: 11 },
+          },
+        ];
+
+        const config = sizeLookup.find(
+          entry => height < entry.height && (width < entry.width || entry.width === Infinity)
+        );
+
+        setPageSize(config?.sizes || { denomList: 12, skeleton: 12 });
+      }, 150);
+    };
   }, []);
 
   useEffect(() => {
-    updatePageSizes();
-    window.addEventListener('resize', updatePageSizes);
-    return () => window.removeEventListener('resize', updatePageSizes);
+    const handleResize = updatePageSizes();
+
+    // Initial size calculation
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, [updatePageSizes]);
 
   const denomListPageSize = pageSize.denomList;

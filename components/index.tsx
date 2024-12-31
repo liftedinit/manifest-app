@@ -7,3 +7,4 @@ export * from './factory';
 export * from './bank';
 export * from './icons';
 export * from './divider';
+export * from './seo';

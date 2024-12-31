@@ -9,9 +9,9 @@ import StepIndicator from '@/components/react/StepIndicator';
 import { useChain } from '@cosmos-kit/react';
 import { WalletNotConnected, GroupsIcon } from '@/components';
 import Success from '@/components/groups/forms/groups/Success';
-import Head from 'next/head';
+
 import env from '@/config/env';
-import { SEO } from '@/utils';
+import { SEO } from '@/components';
 
 const initialFormData: FormData = {
   title: '',

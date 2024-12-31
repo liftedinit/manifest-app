@@ -14,7 +14,13 @@ import { BankIcon } from '@/components/icons';
 import { CombinedBalanceInfo } from '@/utils/types';
 import { MFX_TOKEN_DATA } from '@/utils/constants';
 import env from '@/config/env';
-import { SEO } from '@/utils';
+import { SEO } from '@/components';
+
+interface PageSizeConfig {
+  tokenList: number;
+  history: number;
+  skeleton: number;
+}
 
 export default function Bank() {
   const { address, isWalletConnected } = useChain(env.chain);
@@ -36,56 +42,59 @@ export default function Bank() {
   });
 
   const updatePageSizes = useCallback(() => {
-    const height = window.innerHeight;
-    const width = window.innerWidth;
-    // Small screens (mobile)
-    if (height < 700) {
-      setPageSize({
-        tokenList: 5,
-        history: 4,
-        skeleton: 5,
-      });
-      return;
-    }
+    let timeoutId: ReturnType<typeof setTimeout>;
 
-    if (height < 800) {
-      setPageSize({
-        tokenList: 6,
-        history: 6,
-        skeleton: 7,
-      });
-    } else if (height < 1000 && width < 800) {
-      setPageSize({
-        tokenList: 7,
-        history: 7,
-        skeleton: 7,
-      });
-    } else if (height < 1000) {
-      setPageSize({
-        tokenList: 8,
-        history: 8,
-        skeleton: 8,
-      });
-    } else if (height < 1300) {
-      setPageSize({
-        tokenList: 9,
-        history: 9,
-        skeleton: 9,
-      });
-    } else {
-      // For very tall screens
-      setPageSize({
-        tokenList: 10,
-        history: 10,
-        skeleton: 10,
-      });
-    }
+    return () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        const height = window.innerHeight;
+        const width = window.innerWidth;
+
+        const sizeLookup: Array<{ height: number; width: number; sizes: PageSizeConfig }> = [
+          {
+            height: 700,
+            width: Infinity,
+            sizes: { tokenList: 5, history: 4, skeleton: 5 },
+          },
+          {
+            height: 800,
+            width: Infinity,
+            sizes: { tokenList: 6, history: 6, skeleton: 7 },
+          },
+          {
+            height: 1000,
+            width: 800,
+            sizes: { tokenList: 7, history: 7, skeleton: 7 },
+          },
+          {
+            height: 1000,
+            width: Infinity,
+            sizes: { tokenList: 8, history: 8, skeleton: 8 },
+          },
+          {
+            height: 1300,
+            width: Infinity,
+            sizes: { tokenList: 9, history: 9, skeleton: 9 },
+          },
+        ];
+
+        const config = sizeLookup.find(
+          entry => height < entry.height && (width < entry.width || entry.width === Infinity)
+        );
+
+        setPageSize(config?.sizes || { tokenList: 10, history: 10, skeleton: 10 });
+      }, 150);
+    };
   }, []);
 
   useEffect(() => {
-    updatePageSizes();
-    window.addEventListener('resize', updatePageSizes);
-    return () => window.removeEventListener('resize', updatePageSizes);
+    const handleResize = updatePageSizes();
+
+    // Initial size calculation
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, [updatePageSizes]);
 
   const skeletonGroupCount = 1;
