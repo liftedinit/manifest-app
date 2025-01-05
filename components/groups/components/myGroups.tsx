@@ -139,11 +139,7 @@ export function YourGroups({
   const skeletonGroupCount = 1;
   const skeletonTxCount = pageSize.skeleton;
 
-  const [selectedGroup, setSelectedGroup] = useState<{
-    policyAddress: string;
-    name: string;
-    threshold: string;
-  } | null>(null);
+  const [selectedGroup, setSelectedGroup] = useState<ExtendedGroupType | null>(null);
 
   const router = useRouter();
   const { address } = useChain('manifest');
@@ -172,13 +168,7 @@ export function YourGroups({
         g => g.policies && g.policies.length > 0 && g.policies[0]?.address === policyAddress
       );
       if (group) {
-        setSelectedGroup({
-          policyAddress,
-          name: group.ipfsMetadata?.title ?? 'Untitled Group',
-          threshold:
-            (group.policies[0]?.decision_policy as ThresholdDecisionPolicySDKType)?.threshold ??
-            '0',
-        });
+        setSelectedGroup(group);
       }
     }
   }, [router.query, groups.groups]);
@@ -190,9 +180,11 @@ export function YourGroups({
     }
   }, [selectedGroup]);
 
-  const handleSelectGroup = (policyAddress: string, groupName: string, threshold: string) => {
-    setSelectedGroup({ policyAddress, name: groupName || 'Untitled Group', threshold });
-    router.push(`/groups?policyAddress=${policyAddress}`, undefined, { shallow: true });
+  const handleSelectGroup = (group: ExtendedGroupType) => {
+    setSelectedGroup(group);
+    router.push(`/groups?policyAddress=${group.policies[0]?.address}`, undefined, {
+      shallow: true,
+    });
   };
 
   const handleBack = () => {
@@ -201,7 +193,7 @@ export function YourGroups({
   };
 
   const { balances, isBalancesLoading, refetchBalances } = useTokenBalances(
-    selectedGroup?.policyAddress ?? ''
+    selectedGroup?.policies[0]?.address ?? ''
   );
   const {
     balances: resolvedBalances,
@@ -221,13 +213,13 @@ export function YourGroups({
     refetch: refetchHistory,
   } = useGetFilteredTxAndSuccessfulProposals(
     env.indexerUrl,
-    selectedGroup?.policyAddress ?? '',
+    selectedGroup?.policies[0]?.address ?? '',
     currentPageGroupInfo,
     pageSizeHistory
   );
 
   const { denoms, isDenomsLoading, isDenomsError, denomError, refetchDenoms } =
-    useTokenFactoryDenomsFromAdmin(selectedGroup?.policyAddress ?? '');
+    useTokenFactoryDenomsFromAdmin(selectedGroup?.policies[0]?.address ?? '');
   const { totalSupply, isTotalSupplyLoading, isTotalSupplyError, refetchTotalSupply } =
     useTotalSupply();
 
@@ -508,10 +500,13 @@ export function YourGroups({
       >
         {selectedGroup && (
           <GroupControls
-            policyAddress={selectedGroup.policyAddress}
-            groupName={selectedGroup.name}
+            policyAddress={selectedGroup.policies[0]?.address ?? ''}
+            groupName={selectedGroup.ipfsMetadata?.title ?? 'Untitled Group'}
             onBack={handleBack}
-            policyThreshold={selectedGroup.threshold}
+            policyThreshold={
+              (selectedGroup.policies[0]?.decision_policy as ThresholdDecisionPolicySDKType)
+                ?.threshold ?? '0'
+            }
             isLoading={isLoadingGroupInfo}
             currentPage={currentPageGroupInfo}
             setCurrentPage={setCurrentPageGroupInfo}
@@ -529,6 +524,7 @@ export function YourGroups({
             pageSize={pageSizeGroupInfo}
             skeletonGroupCount={skeletonGroupCount}
             skeletonTxCount={skeletonTxCount}
+            group={selectedGroup}
           />
         )}
       </div>
@@ -585,7 +581,8 @@ function GroupRow({
 }: {
   group: ExtendedQueryGroupsByMemberResponseSDKType['groups'][0];
   proposals: ProposalSDKType[];
-  onSelectGroup: (policyAddress: string, groupName: string, threshold: string) => void;
+  onSelectGroup: (group: ExtendedGroupType) => void;
+
   activeMemberModalId: string | null;
   setActiveMemberModalId: (id: string | null) => void;
   activeInfoModalId: string | null;
@@ -618,16 +615,7 @@ function GroupRow({
   return (
     <tr
       className="group text-black dark:text-white rounded-lg cursor-pointer"
-      onClick={e => {
-        e.stopPropagation();
-        onSelectGroup(
-          policyAddress,
-          groupName,
-          (group.policies &&
-            (group.policies[0]?.decision_policy as ThresholdDecisionPolicySDKType)?.threshold) ??
-            '0'
-        );
-      }}
+      onClick={() => onSelectGroup(group)}
       tabIndex={0}
       role="button"
       aria-label={`Select ${groupName} group`}

@@ -13,6 +13,8 @@ import {
   ProposalStatus,
   VoteOption,
   VoteSDKType,
+  GroupInfoSDKType,
+  ThresholdDecisionPolicySDKType,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { QueryTallyResultResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
@@ -24,7 +26,11 @@ import { useTx } from '@/hooks/useTx';
 import { cosmos } from '@liftedinit/manifestjs';
 import { useTheme } from '@/contexts/theme';
 import CountdownTimer from '../components/CountdownTimer';
-import { useFeeEstimation } from '@/hooks';
+import {
+  ExtendedGroupType,
+  ExtendedQueryGroupsByMemberResponseSDKType,
+  useFeeEstimation,
+} from '@/hooks';
 
 import { TrashIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { ArrowUpIcon, CopyIcon } from '@/components/icons';
@@ -45,6 +51,7 @@ interface VoteDetailsModalProps {
   members: MemberSDKType[];
   proposal: ProposalSDKType;
   showVoteModal: boolean;
+  group: ExtendedGroupType;
   setShowVoteModal: (show: boolean) => void;
   onClose: () => void;
   refetchVotes: () => void;
@@ -63,6 +70,7 @@ function VoteDetailsModal({
   refetchVotes,
   refetchTally,
   refetchProposals,
+  group,
 }: VoteDetailsModalProps) {
   const voteMap = useMemo(
     () =>
@@ -748,7 +756,7 @@ function VoteDetailsModal({
                 )}
             </div>
             <dialog id="messages_modal" className="modal">
-              <div className="modal-box max-w-4xl bg-secondary">
+              <div className="modal-box max-w-4xl ml-20 bg-secondary">
                 <form method="dialog">
                   <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
                     ✕
@@ -768,8 +776,8 @@ function VoteDetailsModal({
                         >
                           {messageType.split('.').pop().replace('Msg', '')}
                         </h3>
-                        <div className="font-mono">
-                          <pre className="whitespace-pre-wrap break-words bg-base-200 p-4 rounded-lg text-sm overflow-x-auto">
+                        <div className="font-mono ">
+                          <pre className=" whitespace-pre-wrap break-words bg-base-200 p-4 rounded-lg text-sm overflow-x-auto">
                             <SyntaxHighlighter
                               language="json"
                               style={theme === 'dark' ? oneDark : oneLight}

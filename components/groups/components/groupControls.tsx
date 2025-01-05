@@ -4,6 +4,8 @@ import {
   useTallyCount,
   useVotesByProposal,
   useMultipleTallyCounts,
+  ExtendedQueryGroupsByMemberResponseSDKType,
+  ExtendedGroupType,
 } from '@/hooks/useQueries';
 import { ProposalSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { QueryTallyResultResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
@@ -13,7 +15,10 @@ import { useRouter } from 'next/router';
 import VoteDetailsModal from '@/components/groups/modals/voteDetailsModal';
 import { useGroupsByMember } from '@/hooks/useQueries';
 import { useChain } from '@cosmos-kit/react';
-import { MemberSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import {
+  MemberSDKType,
+  GroupInfoSDKType,
+} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { ArrowRightIcon } from '@/components/icons';
 import ProfileAvatar from '@/utils/identicon';
 import { HistoryBox, TransactionGroup } from '@/components';
@@ -43,6 +48,7 @@ type GroupControlsProps = {
   pageSize: number;
   skeletonGroupCount: number;
   skeletonTxCount: number;
+  group: ExtendedGroupType;
 };
 
 export default function GroupControls({
@@ -67,6 +73,7 @@ export default function GroupControls({
   pageSize,
   skeletonGroupCount,
   skeletonTxCount,
+  group,
 }: GroupControlsProps) {
   const { proposals, isProposalsLoading, isProposalsError, refetchProposals } =
     useProposalsByPolicyAccount(policyAddress);
@@ -493,6 +500,7 @@ export default function GroupControls({
           refetchVotes={refetchVotes}
           refetchTally={refetchTally}
           refetchProposals={refetchProposals}
+          group={group}
         />
       )}
     </div>
