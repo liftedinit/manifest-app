@@ -7,6 +7,7 @@ import {
   shiftDigits,
   truncateString,
   formatTokenDisplayName,
+  getIbcDenom,
 } from '@/utils';
 import { PiCaretDownBold } from 'react-icons/pi';
 import { MdContacts } from 'react-icons/md';
@@ -125,7 +126,7 @@ export default function IbcSendForm({
       const { source_port, source_channel } = getIbcInfo(env.chain, destinationChain ?? '');
 
       const token = {
-        denom: values.selectedToken.coreDenom,
+        denom: getIbcDenom(selectedToChain, values.selectedToken.coreDenom) ?? '',
         amount: amountInBaseUnits,
       };
 
@@ -225,6 +226,9 @@ export default function IbcSendForm({
                     <li key={chain.id} role="option" aria-selected={selectedFromChain === chain.id}>
                       <a
                         onClick={e => {
+                          if (chain.id === selectedFromChain) {
+                            return;
+                          }
                           setSelectedFromChain(chain.id);
                           // Get the dropdown element and remove focus
                           const dropdown = (e.target as HTMLElement).closest('.dropdown');
@@ -237,6 +241,9 @@ export default function IbcSendForm({
                         onKeyDown={e => {
                           if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
+                            if (chain.id === selectedFromChain) {
+                              return;
+                            }
                             setSelectedFromChain(chain.id);
                             // Get the dropdown element and remove focus
                             const dropdown = (e.target as HTMLElement).closest('.dropdown');
@@ -248,7 +255,12 @@ export default function IbcSendForm({
                           }
                         }}
                         tabIndex={0}
-                        className="flex items-center"
+                        className={`flex items-center ${
+                          chain.id === selectedFromChain ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                        style={
+                          chain.id === selectedFromChain ? { pointerEvents: 'none' } : undefined
+                        }
                         aria-label={chain.name}
                       >
                         <Image
@@ -308,6 +320,9 @@ export default function IbcSendForm({
                     <li key={chain.id} role="option" aria-selected={selectedToChain === chain.id}>
                       <a
                         onClick={e => {
+                          if (chain.id === selectedToChain) {
+                            return;
+                          }
                           setSelectedToChain(chain.id);
                           // Get the dropdown element and remove focus
                           const dropdown = (e.target as HTMLElement).closest('.dropdown');
@@ -320,6 +335,9 @@ export default function IbcSendForm({
                         onKeyDown={e => {
                           if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
+                            if (chain.id === selectedToChain) {
+                              return;
+                            }
                             setSelectedToChain(chain.id);
                             // Get the dropdown element and remove focus
                             const dropdown = (e.target as HTMLElement).closest('.dropdown');
@@ -331,7 +349,10 @@ export default function IbcSendForm({
                           }
                         }}
                         tabIndex={0}
-                        className="flex items-center"
+                        className={`flex items-center ${
+                          chain.id === selectedToChain ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                        style={chain.id === selectedToChain ? { pointerEvents: 'none' } : undefined}
                         aria-label={chain.name}
                       >
                         <Image

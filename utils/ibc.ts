@@ -71,3 +71,8 @@ export const getIbcInfo = (fromChainName: string, toChainName: string) => {
 
   return { source_port, source_channel };
 };
+
+export const getIbcDenom = (chainName: string, denom: string) => {
+  const asset = denomToAsset(chainName, denom);
+  return asset?.base;
+};
