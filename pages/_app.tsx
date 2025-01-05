@@ -5,11 +5,19 @@ import '@interchain-ui/react/styles';
 import '@fontsource/manrope';
 
 import type { AppProps } from 'next/app';
+
 import { createPortal } from 'react-dom';
 import { makeWeb3AuthWallets, SignData } from '@cosmos-kit/web3auth';
 import { useEffect, useMemo, useState } from 'react';
 import SignModal from '@/components/react/authSignerModal';
-import { manifestAssets, manifestChain } from '@/config';
+import {
+  assets as manifestAssets,
+  chain as manifestChain,
+} from 'chain-registry/testnet/manifesttestnet';
+import {
+  assets as osmosisAssets,
+  chain as osmosisChain,
+} from 'chain-registry/testnet/osmosistestnet';
 import { SignerOptions, wallets } from 'cosmos-kit';
 import { wallets as cosmosExtensionWallets } from '@cosmos-kit/cosmos-extension-metamask';
 import { ChainProvider } from '@cosmos-kit/react';
@@ -179,8 +187,8 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
         <ReactQueryDevtools />
         {
           <ChainProvider
-            chains={[manifestChain]}
-            assetLists={[manifestAssets]}
+            chains={[manifestChain, osmosisChain]}
+            assetLists={[manifestAssets, osmosisAssets]}
             // @ts-ignore
             wallets={combinedWallets}
             logLevel="NONE"
