@@ -13,7 +13,8 @@ import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { ExtendedMetadataSDKType } from '@/utils';
 import { SEO } from '@/components';
 import env from '@/config/env';
-import useIsMobile from '../../hooks/useIsMobile';
+
+import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
 
 interface PageSizeConfig {
   denomList: number;
@@ -33,67 +34,37 @@ export default function Factory() {
   const { totalSupply, isTotalSupplyLoading, isTotalSupplyError, refetchTotalSupply } =
     useTotalSupply();
 
-  const isMobile = useIsMobile();
-  const [pageSize, setPageSize] = useState({
-    denomList: 8,
-    skeleton: 9,
-  });
+  const sizeLookup: Array<{ height: number; width: number; sizes: PageSizeConfig }> = [
+    {
+      height: 768,
+      width: Infinity,
+      sizes: { denomList: 3, skeleton: 3 },
+    },
+    {
+      height: 800,
+      width: Infinity,
+      sizes: { denomList: 5, skeleton: 5 },
+    },
+    {
+      height: 1000,
+      width: 800,
+      sizes: { denomList: 6, skeleton: 6 },
+    },
+    {
+      height: 1000,
+      width: Infinity,
+      sizes: { denomList: 8, skeleton: 8 },
+    },
+    {
+      height: 1200,
+      width: Infinity,
+      sizes: { denomList: 11, skeleton: 11 },
+    },
+  ];
 
-  const updatePageSizes = useCallback(() => {
-    let timeoutId: ReturnType<typeof setTimeout>;
+  const defaultSizes = { denomList: 8, skeleton: 9 };
 
-    return () => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        const height = window.innerHeight;
-        const width = window.innerWidth;
-
-        const sizeLookup: Array<{ height: number; width: number; sizes: PageSizeConfig }> = [
-          {
-            height: 768,
-            width: Infinity,
-            sizes: { denomList: 3, skeleton: 3 },
-          },
-          {
-            height: 800,
-            width: Infinity,
-            sizes: { denomList: 5, skeleton: 5 },
-          },
-          {
-            height: 1000,
-            width: 800,
-            sizes: { denomList: 6, skeleton: 6 },
-          },
-          {
-            height: 1000,
-            width: Infinity,
-            sizes: { denomList: 8, skeleton: 8 },
-          },
-          {
-            height: 1200,
-            width: Infinity,
-            sizes: { denomList: 11, skeleton: 11 },
-          },
-        ];
-
-        const config = sizeLookup.find(
-          entry => height < entry.height && (width < entry.width || entry.width === Infinity)
-        );
-
-        setPageSize(config?.sizes || { denomList: 12, skeleton: 12 });
-      }, 150);
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleResize = updatePageSizes();
-
-    // Initial size calculation
-    handleResize();
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [updatePageSizes]);
+  const pageSize = useResponsivePageSize(sizeLookup, defaultSizes);
 
   const denomListPageSize = pageSize.denomList;
 

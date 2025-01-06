@@ -35,6 +35,7 @@ import {
 import { TrashIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { ArrowUpIcon, CopyIcon } from '@/components/icons';
 import env from '@/config/env';
+import { messageSyntax } from '@/components';
 const Chart = dynamic(() => import('react-apexcharts'), {
   ssr: false,
 }) as any;
@@ -475,10 +476,6 @@ function VoteDetailsModal({
     return () => document.removeEventListener('keydown', handleEscape);
   }, [showVoteModal, setShowVoteModal, onClose]);
 
-  const prettyPrintJSON = (obj: any): string => {
-    return JSON.stringify(obj, null, 2);
-  };
-
   const modalContent = (
     <dialog
       id="vote-details-modal"
@@ -588,24 +585,8 @@ function VoteDetailsModal({
                         {messageType.split('.').pop().replace('Msg', '')}
                       </h3>
                       <div className="font-mono">
-                        <pre className="whitespace-pre-wrap break-words bg-base-200  rounded-lg text-sm overflow-x-auto">
-                          <SyntaxHighlighter
-                            aria-label="message-json"
-                            language="json"
-                            style={theme === 'dark' ? oneDark : oneLight}
-                            customStyle={{
-                              backgroundColor: 'transparent',
-                              padding: '1rem',
-                              borderRadius: '0.5rem',
-                            }}
-                          >
-                            {prettyPrintJSON(
-                              fieldsToShow.reduce<Record<string, any>>((acc, field) => {
-                                acc[field] = message[field];
-                                return acc;
-                              }, {})
-                            )}
-                          </SyntaxHighlighter>
+                        <pre className="whitespace-pre-wrap break-words bg-base-200 rounded-lg text-sm overflow-x-auto">
+                          {messageSyntax(fieldsToShow, message, theme)}
                         </pre>
                       </div>
                     </div>
@@ -777,24 +758,9 @@ function VoteDetailsModal({
                         >
                           {messageType.split('.').pop().replace('Msg', '')}
                         </h3>
-                        <div className="font-mono ">
-                          <pre className=" whitespace-pre-wrap break-words bg-base-200 p-4 rounded-lg text-sm overflow-x-auto">
-                            <SyntaxHighlighter
-                              language="json"
-                              style={theme === 'dark' ? oneDark : oneLight}
-                              customStyle={{
-                                backgroundColor: 'transparent',
-                                padding: '1rem',
-                                borderRadius: '0.5rem',
-                              }}
-                            >
-                              {prettyPrintJSON(
-                                fieldsToShow.reduce<Record<string, any>>((acc, field) => {
-                                  acc[field] = message[field];
-                                  return acc;
-                                }, {})
-                              )}
-                            </SyntaxHighlighter>
+                        <div className="font-mono">
+                          <pre className="whitespace-pre-wrap break-words bg-base-200 p-4 rounded-lg text-sm overflow-x-auto">
+                            {messageSyntax(fieldsToShow, message, theme)}
                           </pre>
                         </div>
                       </div>

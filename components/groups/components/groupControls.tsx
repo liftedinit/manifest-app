@@ -258,6 +258,13 @@ export default function GroupControls({
 
   const { tallies, isLoading: isTalliesLoading } = useMultipleTallyCounts(proposals.map(p => p.id));
 
+  const handleKeyDown = (e: React.KeyboardEvent, tab: string) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleTabClick(tab);
+    }
+  };
+
   return (
     <div className="">
       <div className="flex w-full h-full md:flex-row flex-col md:gap-8">
@@ -282,211 +289,264 @@ export default function GroupControls({
 
       <div role="tablist" className="tabs tabs-bordered tabs-md md:tabs-lg flex flex-row">
         <button
-          role={'tab'}
+          role="tab"
+          id="proposals-tab"
+          aria-selected={activeTab === 'proposals'}
+          aria-controls="proposals-panel"
+          tabIndex={activeTab === 'proposals' ? 0 : -1}
           className={`font-bold tab ${activeTab === 'proposals' ? 'tab-active' : ''}`}
           onClick={() => handleTabClick('proposals')}
+          onKeyDown={e => handleKeyDown(e, 'proposals')}
         >
           Proposals
         </button>
         <button
-          role={'tab'}
+          role="tab"
+          id="assets-tab"
+          aria-selected={activeTab === 'assets'}
+          aria-controls="assets-panel"
+          tabIndex={activeTab === 'assets' ? 0 : -1}
           className={`font-bold tab ${activeTab === 'assets' ? 'tab-active' : ''}`}
           onClick={() => handleTabClick('assets')}
+          onKeyDown={e => handleKeyDown(e, 'assets')}
         >
           Assets
         </button>
         <button
-          role={'tab'}
+          role="tab"
+          id="history-tab"
+          aria-selected={activeTab === 'history'}
+          aria-controls="history-panel"
+          tabIndex={activeTab === 'history' ? 0 : -1}
           className={`font-bold tab ${activeTab === 'history' ? 'tab-active' : ''}`}
           onClick={() => handleTabClick('history')}
+          onKeyDown={e => handleKeyDown(e, 'history')}
         >
           Activity
         </button>
         <button
-          role={'tab'}
+          role="tab"
+          id="tokens-tab"
+          aria-selected={activeTab === 'tokens'}
+          aria-controls="tokens-panel"
+          tabIndex={activeTab === 'tokens' ? 0 : -1}
           className={`font-bold tab ${activeTab === 'tokens' ? 'tab-active' : ''}`}
           onClick={() => handleTabClick('tokens')}
+          onKeyDown={e => handleKeyDown(e, 'tokens')}
         >
           Tokens
         </button>
       </div>
 
       <div className="flex flex-col w-full mt-4">
-        {activeTab === 'proposals' &&
-          (isProposalsLoading ? (
-            <div
-              className="flex justify-center items-center h-64"
-              role="status"
-              aria-label="Loading proposals"
-            >
-              <span className="loading loading-spinner loading-lg" aria-hidden="true"></span>
-            </div>
-          ) : isProposalsError ? (
-            <div className="text-center text-error" role="alert">
-              Error loading proposals
-            </div>
-          ) : filteredProposals.length > 0 ? (
-            <table
-              className="table w-full border-separate border-spacing-y-3 -mt-6"
-              aria-label="Group proposals"
-            >
-              <thead>
-                <tr className="text-sm font-medium">
-                  <th className="bg-transparent px-4 py-2 w-[25%]" scope="col">
-                    ID
-                  </th>
-                  <th className="bg-transparent px-4 py-2 w-[25%]" scope="col">
-                    Title
-                  </th>
-                  <th className="bg-transparent px-4 py-2 w-[25%] hidden xl:table-cell" scope="col">
-                    Time Left
-                  </th>
-                  <th
-                    className="bg-transparent px-4 py-2 w-[25%] sm:table-cell md:hidden hidden xl:table-cell"
-                    scope="col"
-                  >
-                    Type
-                  </th>
-                  <th
-                    className="bg-transparent px-4 py-2 w-[25%] sm:table-cell xxs:hidden hidden 2xl:table-cell"
-                    scope="col"
-                  >
-                    Status
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="space-y-4">
-                {filteredProposals.map(proposal => {
-                  const endTime = new Date(proposal?.voting_period_end);
-                  const now = new Date();
-                  const msPerMinute = 1000 * 60;
-                  const msPerHour = msPerMinute * 60;
-                  const msPerDay = msPerHour * 24;
+        <div
+          id="proposals-panel"
+          role="tabpanel"
+          aria-labelledby="proposals-tab"
+          hidden={activeTab !== 'proposals'}
+        >
+          {activeTab === 'proposals' &&
+            (isProposalsLoading ? (
+              <div
+                className="flex justify-center items-center h-64"
+                role="status"
+                aria-label="Loading proposals"
+              >
+                <span className="loading loading-spinner loading-lg" aria-hidden="true"></span>
+              </div>
+            ) : isProposalsError ? (
+              <div className="text-center text-error" role="alert">
+                Error loading proposals
+              </div>
+            ) : filteredProposals.length > 0 ? (
+              <table
+                className="table w-full border-separate border-spacing-y-3 -mt-6"
+                aria-label="Group proposals"
+              >
+                <thead>
+                  <tr className="text-sm font-medium">
+                    <th className="bg-transparent px-4 py-2 w-[25%]" scope="col">
+                      ID
+                    </th>
+                    <th className="bg-transparent px-4 py-2 w-[25%]" scope="col">
+                      Title
+                    </th>
+                    <th
+                      className="bg-transparent px-4 py-2 w-[25%] hidden xl:table-cell"
+                      scope="col"
+                    >
+                      Time Left
+                    </th>
+                    <th
+                      className="bg-transparent px-4 py-2 w-[25%] sm:table-cell md:hidden hidden xl:table-cell"
+                      scope="col"
+                    >
+                      Type
+                    </th>
+                    <th
+                      className="bg-transparent px-4 py-2 w-[25%] sm:table-cell xxs:hidden hidden 2xl:table-cell"
+                      scope="col"
+                    >
+                      Status
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="space-y-4">
+                  {filteredProposals.map(proposal => {
+                    const endTime = new Date(proposal?.voting_period_end);
+                    const now = new Date();
+                    const msPerMinute = 1000 * 60;
+                    const msPerHour = msPerMinute * 60;
+                    const msPerDay = msPerHour * 24;
 
-                  const diff = endTime.getTime() - now.getTime();
+                    const diff = endTime.getTime() - now.getTime();
 
-                  let timeLeft: string;
+                    let timeLeft: string;
 
-                  if (diff <= 0) {
-                    timeLeft = 'none';
-                  } else if (diff >= msPerDay) {
-                    const days = Math.floor(diff / msPerDay);
-                    timeLeft = `${days} day${days === 1 ? '' : 's'}`;
-                  } else if (diff >= msPerHour) {
-                    const hours = Math.floor(diff / msPerHour);
-                    timeLeft = `${hours} hour${hours === 1 ? '' : 's'}`;
-                  } else if (diff >= msPerMinute) {
-                    const minutes = Math.floor(diff / msPerMinute);
-                    timeLeft = `${minutes} minute${minutes === 1 ? '' : 's'}`;
-                  } else {
-                    timeLeft = 'less than a minute';
-                  }
+                    if (diff <= 0) {
+                      timeLeft = 'none';
+                    } else if (diff >= msPerDay) {
+                      const days = Math.floor(diff / msPerDay);
+                      timeLeft = `${days} day${days === 1 ? '' : 's'}`;
+                    } else if (diff >= msPerHour) {
+                      const hours = Math.floor(diff / msPerHour);
+                      timeLeft = `${hours} hour${hours === 1 ? '' : 's'}`;
+                    } else if (diff >= msPerMinute) {
+                      const minutes = Math.floor(diff / msPerMinute);
+                      timeLeft = `${minutes} minute${minutes === 1 ? '' : 's'}`;
+                    } else {
+                      timeLeft = 'less than a minute';
+                    }
 
-                  const proposalTally = tallies.find(t => t.proposalId === proposal.id)?.tally;
+                    const proposalTally = tallies.find(t => t.proposalId === proposal.id)?.tally;
 
-                  let status = 'Pending';
-                  if (proposal.executor_result.toString() === 'PROPOSAL_EXECUTOR_RESULT_FAILURE') {
-                    status = 'Failure';
-                  } else if (proposal.status.toString() === 'PROPOSAL_STATUS_ACCEPTED') {
-                    status = 'Execute';
-                  } else if (proposal.status.toString() === 'PROPOSAL_STATUS_CLOSED') {
-                    status = 'Executed';
-                  } else if (proposalTally) {
-                    const { isPassing, isThresholdReached, isTie } =
-                      isProposalPassing(proposalTally);
-                    if (isThresholdReached) {
-                      if (isTie) {
-                        status = 'Tie';
-                      } else {
-                        status = isPassing ? 'Passing' : 'Failing';
+                    let status = 'Pending';
+                    if (
+                      proposal.executor_result.toString() === 'PROPOSAL_EXECUTOR_RESULT_FAILURE'
+                    ) {
+                      status = 'Failure';
+                    } else if (proposal.status.toString() === 'PROPOSAL_STATUS_ACCEPTED') {
+                      status = 'Execute';
+                    } else if (proposal.status.toString() === 'PROPOSAL_STATUS_CLOSED') {
+                      status = 'Executed';
+                    } else if (proposalTally) {
+                      const { isPassing, isThresholdReached, isTie } =
+                        isProposalPassing(proposalTally);
+                      if (isThresholdReached) {
+                        if (isTie) {
+                          status = 'Tie';
+                        } else {
+                          status = isPassing ? 'Passing' : 'Failing';
+                        }
                       }
                     }
-                  }
-                  return (
-                    <tr
-                      key={proposal.id.toString()}
-                      onClick={() => handleRowClick(proposal)}
-                      className="group text-black dark:text-white rounded-lg cursor-pointer"
-                    >
-                      <td className="bg-secondary group-hover:bg-base-300 rounded-l-[12px] px-4 py-4 w-[25%]">
-                        {proposal.id.toString()}
-                      </td>
-                      <td
-                        className={`bg-secondary group-hover:bg-base-300 px-4 py-4 w-[25%] sm:rounded-none xxs:rounded-r-[12px] xs:rounded-r-[12px] xl:rounded-r-none`}
+                    return (
+                      <tr
+                        key={proposal.id.toString()}
+                        onClick={() => handleRowClick(proposal)}
+                        className="group text-black dark:text-white rounded-lg cursor-pointer"
                       >
-                        {proposal.title}
-                      </td>
-                      <td className="bg-secondary group-hover:bg-base-300 px-4 py-4 w-[25%] hidden xl:table-cell">
-                        {timeLeft}
-                      </td>
-                      <td className="bg-secondary group-hover:bg-base-300 px-4 py-4 w-[25%] sm:table-cell md:hidden hidden xl:table-cell ">
-                        {proposal.messages.length > 0
-                          ? getHumanReadableType((proposal.messages[0] as any)['@type'])
-                          : 'No messages'}
-                      </td>
-                      <td className="bg-secondary group-hover:bg-base-300 rounded-r-[12px] sm:table-cell xxs:hidden hidden 2xl:table-cell">
-                        {isTalliesLoading ? (
-                          <span className="loading loading-spinner loading-xs"></span>
-                        ) : (
-                          status
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          ) : (
-            <div className="text-center py-8 text-gray-500" role="status">
-              No proposal was found.
-            </div>
-          ))}
+                        <td className="bg-secondary group-hover:bg-base-300 rounded-l-[12px] px-4 py-4 w-[25%]">
+                          {proposal.id.toString()}
+                        </td>
+                        <td
+                          className={`bg-secondary group-hover:bg-base-300 px-4 py-4 w-[25%] sm:rounded-none xxs:rounded-r-[12px] xs:rounded-r-[12px] xl:rounded-r-none`}
+                        >
+                          {proposal.title}
+                        </td>
+                        <td className="bg-secondary group-hover:bg-base-300 px-4 py-4 w-[25%] hidden xl:table-cell">
+                          {timeLeft}
+                        </td>
+                        <td className="bg-secondary group-hover:bg-base-300 px-4 py-4 w-[25%] sm:table-cell md:hidden hidden xl:table-cell ">
+                          {proposal.messages.length > 0
+                            ? getHumanReadableType((proposal.messages[0] as any)['@type'])
+                            : 'No messages'}
+                        </td>
+                        <td className="bg-secondary group-hover:bg-base-300 rounded-r-[12px] sm:table-cell xxs:hidden hidden 2xl:table-cell">
+                          {isTalliesLoading ? (
+                            <span className="loading loading-spinner loading-xs"></span>
+                          ) : (
+                            status
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            ) : (
+              <div className="text-center py-8 text-gray-500" role="status">
+                No proposal was found.
+              </div>
+            ))}
+        </div>
 
-        {activeTab === 'assets' && (
-          <TokenList
-            balances={balances}
-            isLoading={isLoading}
-            refetchBalances={refetchBalances}
-            refetchHistory={refetchHistory}
-            address={address ?? ''}
-            pageSize={pageSize}
-            isGroup={true}
-            admin={policyAddress}
-            refetchProposals={refetchProposals}
-          />
-        )}
-
-        {activeTab === 'history' && (
-          <HistoryBox
-            isLoading={isLoading}
-            address={policyAddress}
-            currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
-            sendTxs={sendTxs}
-            totalPages={totalPages}
-            txLoading={txLoading}
-            isError={isError}
-            refetch={refetchHistory}
-            skeletonGroupCount={skeletonGroupCount}
-            skeletonTxCount={skeletonTxCount}
-            isGroup={true}
-          />
-        )}
-
-        {activeTab === 'tokens' && (
-          <div className="h-full w-full -mt-7">
-            <DenomList
-              denoms={denoms}
+        <div
+          id="assets-panel"
+          role="tabpanel"
+          aria-labelledby="assets-tab"
+          hidden={activeTab !== 'assets'}
+        >
+          {activeTab === 'assets' && (
+            <TokenList
+              balances={balances}
               isLoading={isLoading}
-              refetchDenoms={refetchDenoms}
-              refetchProposals={refetchProposals}
+              refetchBalances={refetchBalances}
+              refetchHistory={refetchHistory}
               address={address ?? ''}
+              pageSize={pageSize}
+              isGroup={true}
               admin={policyAddress}
-              pageSize={pageSize - 1}
+              refetchProposals={refetchProposals}
+            />
+          )}
+        </div>
+
+        <div
+          id="history-panel"
+          role="tabpanel"
+          aria-labelledby="history-tab"
+          hidden={activeTab !== 'history'}
+        >
+          {activeTab === 'history' && (
+            <HistoryBox
+              isLoading={isLoading}
+              address={policyAddress}
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              sendTxs={sendTxs}
+              totalPages={totalPages}
+              txLoading={txLoading}
+              isError={isError}
+              refetch={refetchHistory}
+              skeletonGroupCount={skeletonGroupCount}
+              skeletonTxCount={skeletonTxCount}
               isGroup={true}
             />
-          </div>
-        )}
+          )}
+        </div>
+
+        <div
+          id="tokens-panel"
+          role="tabpanel"
+          aria-labelledby="tokens-tab"
+          hidden={activeTab !== 'tokens'}
+        >
+          {activeTab === 'tokens' && (
+            <div className="h-full w-full -mt-7">
+              <DenomList
+                denoms={denoms}
+                isLoading={isLoading}
+                refetchDenoms={refetchDenoms}
+                refetchProposals={refetchProposals}
+                address={address ?? ''}
+                admin={policyAddress}
+                pageSize={pageSize - 1}
+                isGroup={true}
+              />
+            </div>
+          )}
+        </div>
       </div>
       {selectedProposal && (
         <VoteDetailsModal

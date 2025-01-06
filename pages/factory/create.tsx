@@ -35,10 +35,11 @@ export default function CreateToken() {
 
   useEffect(() => {
     const { isGroup, groupPolicyAddress } = router.query;
-    if (isGroup) {
+    if (isGroup && typeof isGroup === 'string') {
+      // Use the parameter as needed, for example, set it in the form data
       dispatch({ type: 'UPDATE_FIELD', field: 'isGroup', value: isGroup });
     }
-    if (groupPolicyAddress) {
+    if (groupPolicyAddress && typeof groupPolicyAddress === 'string') {
       dispatch({ type: 'UPDATE_FIELD', field: 'groupPolicyAddress', value: groupPolicyAddress });
     }
   }, [router.query]);
