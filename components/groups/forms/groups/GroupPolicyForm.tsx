@@ -91,7 +91,7 @@ export default function GroupPolicyForm({
                   onClick={prevStep}
                   className="btn btn-neutral text-black dark:text-white py-2.5 sm:py-3.5 w-[calc(50%-12px)]"
                 >
-                  Back: Group Details
+                  Back: Group Members
                 </button>
 
                 <button

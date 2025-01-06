@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { FormData } from '@/helpers/formReducer';
 import { useFeeEstimation } from '@/hooks/useFeeEstimation';
@@ -188,7 +187,7 @@ export default function ConfirmationForm({
           onClick={prevStep}
           className="btn btn-neutral text-black dark:text-white  w-[calc(50%-12px)]"
         >
-          Back: Member Info
+          Back: Group Policy
         </button>
         <button
           onClick={handleConfirm}
