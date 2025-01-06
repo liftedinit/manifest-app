@@ -288,7 +288,7 @@ export default function DenomList({
           </div>
         </div>
       </div>
-      <div className="flex item-center justify-between">
+      <div className="flex items-center justify-between">
         <Link
           href={
             isGroup

@@ -286,6 +286,7 @@ export function HistoryBox({
           <button
             onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
             disabled={currentPage === 1 || isLoading}
+            aria-label="Previous page"
             className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             ‹
@@ -303,7 +304,9 @@ export function HistoryBox({
                 <button
                   key={pageNum}
                   onClick={() => setCurrentPage(pageNum)}
-                  className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors
+                  aria-label={`Page ${pageNum}`}
+                  aria-current={currentPage === pageNum ? 'page' : undefined}
+                  className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors  
                       ${
                         currentPage === pageNum
                           ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A] text-black dark:text-white'
@@ -326,6 +329,7 @@ export function HistoryBox({
           <button
             onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
             disabled={currentPage === totalPages || isLoading}
+            aria-label="Next page"
             className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             ›

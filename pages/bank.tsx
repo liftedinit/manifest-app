@@ -15,6 +15,7 @@ import { CombinedBalanceInfo } from '@/utils/types';
 import { MFX_TOKEN_DATA } from '@/utils/constants';
 import env from '@/config/env';
 import { SEO } from '@/components';
+import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
 
 interface PageSizeConfig {
   tokenList: number;
@@ -35,67 +36,37 @@ export default function Bank() {
   const [currentPage, setCurrentPage] = useState(1);
   const [activeTab, setActiveTab] = useState('assets');
 
-  const [pageSize, setPageSize] = useState({
-    tokenList: 8,
-    history: 8,
-    skeleton: 8,
-  });
+  const sizeLookup: Array<{ height: number; width: number; sizes: PageSizeConfig }> = [
+    {
+      height: 700,
+      width: Infinity,
+      sizes: { tokenList: 5, history: 4, skeleton: 5 },
+    },
+    {
+      height: 800,
+      width: Infinity,
+      sizes: { tokenList: 6, history: 6, skeleton: 7 },
+    },
+    {
+      height: 1000,
+      width: 800,
+      sizes: { tokenList: 7, history: 7, skeleton: 7 },
+    },
+    {
+      height: 1000,
+      width: Infinity,
+      sizes: { tokenList: 8, history: 8, skeleton: 8 },
+    },
+    {
+      height: 1300,
+      width: Infinity,
+      sizes: { tokenList: 9, history: 9, skeleton: 9 },
+    },
+  ];
 
-  const updatePageSizes = useCallback(() => {
-    let timeoutId: ReturnType<typeof setTimeout>;
+  const defaultSizes = { tokenList: 10, history: 10, skeleton: 10 };
 
-    return () => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        const height = window.innerHeight;
-        const width = window.innerWidth;
-
-        const sizeLookup: Array<{ height: number; width: number; sizes: PageSizeConfig }> = [
-          {
-            height: 700,
-            width: Infinity,
-            sizes: { tokenList: 5, history: 4, skeleton: 5 },
-          },
-          {
-            height: 800,
-            width: Infinity,
-            sizes: { tokenList: 6, history: 6, skeleton: 7 },
-          },
-          {
-            height: 1000,
-            width: 800,
-            sizes: { tokenList: 7, history: 7, skeleton: 7 },
-          },
-          {
-            height: 1000,
-            width: Infinity,
-            sizes: { tokenList: 8, history: 8, skeleton: 8 },
-          },
-          {
-            height: 1300,
-            width: Infinity,
-            sizes: { tokenList: 9, history: 9, skeleton: 9 },
-          },
-        ];
-
-        const config = sizeLookup.find(
-          entry => height < entry.height && (width < entry.width || entry.width === Infinity)
-        );
-
-        setPageSize(config?.sizes || { tokenList: 10, history: 10, skeleton: 10 });
-      }, 150);
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleResize = updatePageSizes();
-
-    // Initial size calculation
-    handleResize();
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [updatePageSizes]);
+  const pageSize = useResponsivePageSize(sizeLookup, defaultSizes);
 
   const skeletonGroupCount = 1;
   const skeletonTxCount = pageSize.skeleton;

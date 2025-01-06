@@ -34,6 +34,7 @@ import { MemberManagementModal } from '../modals/memberManagementModal';
 import { useChain } from '@cosmos-kit/react';
 import useIsMobile from '@/hooks/useIsMobile';
 import env from '@/config/env';
+import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
 
 // Add this interface outside the component
 interface PageSizeConfig {
@@ -57,82 +58,38 @@ export function YourGroups({
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const isMobile = useIsMobile();
-  const [pageSize, setPageSize] = useState<PageSizeConfig>({
-    groupInfo: 8,
-    groupEntries: 8,
-    history: 8,
-    skeleton: 8,
-  });
 
-  // Memoize the size configurations
-  const sizeLookup = useMemo(
-    () => [
-      {
-        height: 700,
-        width: Infinity,
-        sizes: { groupInfo: 4, groupEntries: 2, history: 4, skeleton: 5 },
-      },
-      {
-        height: 800,
-        width: Infinity,
-        sizes: { groupInfo: 5, groupEntries: 3, history: 5, skeleton: 7 },
-      },
-      {
-        height: 1000,
-        width: 800,
-        sizes: { groupInfo: 7, groupEntries: 5, history: 7, skeleton: 7 },
-      },
-      {
-        height: 1000,
-        width: Infinity,
-        sizes: { groupInfo: 8, groupEntries: 8, history: 8, skeleton: 8 },
-      },
-      {
-        height: 1300,
-        width: Infinity,
-        sizes: { groupInfo: 8, groupEntries: 8, history: 8, skeleton: 8 },
-      },
-    ],
-    []
-  );
+  const sizeLookup: Array<{ height: number; width: number; sizes: PageSizeConfig }> = [
+    {
+      height: 700,
+      width: Infinity,
+      sizes: { groupInfo: 4, groupEntries: 2, history: 4, skeleton: 5 },
+    },
+    {
+      height: 800,
+      width: Infinity,
+      sizes: { groupInfo: 5, groupEntries: 3, history: 5, skeleton: 7 },
+    },
+    {
+      height: 1000,
+      width: 800,
+      sizes: { groupInfo: 7, groupEntries: 5, history: 7, skeleton: 7 },
+    },
+    {
+      height: 1000,
+      width: Infinity,
+      sizes: { groupInfo: 8, groupEntries: 8, history: 8, skeleton: 8 },
+    },
+    {
+      height: 1300,
+      width: Infinity,
+      sizes: { groupInfo: 8, groupEntries: 8, history: 8, skeleton: 8 },
+    },
+  ];
 
-  // Default sizes for very tall screens
-  const defaultSizes: PageSizeConfig = {
-    groupInfo: 10,
-    groupEntries: 10,
-    history: 9,
-    skeleton: 11,
-  };
+  const defaultSizes = { groupInfo: 8, groupEntries: 8, history: 8, skeleton: 8 };
 
-  const updatePageSizes = useCallback(() => {
-    let timeoutId: ReturnType<typeof setTimeout>;
-
-    return () => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        const height = window.innerHeight;
-        const width = window.innerWidth;
-
-        const config = sizeLookup.find(
-          entry => height < entry.height && (width < entry.width || entry.width === Infinity)
-        );
-
-        setPageSize(config?.sizes || defaultSizes);
-      }, 150); // 150ms debounce delay
-    };
-  }, [sizeLookup]);
-
-  useEffect(() => {
-    const handleResize = updatePageSizes();
-
-    // Initial size calculation
-    handleResize();
-
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [updatePageSizes]);
+  const pageSize = useResponsivePageSize(sizeLookup, defaultSizes);
 
   const pageSizeGroupInfo = pageSize.groupInfo;
   const pageSizeHistory = pageSize.history;
