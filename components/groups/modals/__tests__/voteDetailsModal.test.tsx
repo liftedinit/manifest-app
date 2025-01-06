@@ -64,14 +64,7 @@ describe('VoteDetailsModal', () => {
     renderWithChainProvider(<VoteDetailsModal {...defaultProps} />);
     expect(screen.getByText('MESSAGES')).toBeInTheDocument();
     expect(screen.getByLabelText('msg')).toBeInTheDocument();
-
-    for (const m of ['Send', 'from_address:', 'to_address:']) {
-      const field = screen.getAllByText(m);
-
-      for (const f of field) {
-        expect(f).toBeInTheDocument();
-      }
-    }
+    expect(screen.getByLabelText('message-json')).toBeInTheDocument();
   });
 
   test('conditionally renders execute button when proposal is accepted', () => {

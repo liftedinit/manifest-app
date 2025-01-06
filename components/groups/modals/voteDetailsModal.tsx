@@ -590,6 +590,7 @@ function VoteDetailsModal({
                       <div className="font-mono">
                         <pre className="whitespace-pre-wrap break-words bg-base-200  rounded-lg text-sm overflow-x-auto">
                           <SyntaxHighlighter
+                            aria-label="message-json"
                             language="json"
                             style={theme === 'dark' ? oneDark : oneLight}
                             customStyle={{

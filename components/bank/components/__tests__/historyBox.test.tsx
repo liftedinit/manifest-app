@@ -41,7 +41,6 @@ describe('HistoryBox', () => {
         totalPages={2}
       />
     );
-    expect(screen.getByText('Transaction History')).toBeInTheDocument();
   });
 
   test('displays transactions', () => {

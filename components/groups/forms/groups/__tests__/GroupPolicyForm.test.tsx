@@ -15,19 +15,6 @@ const mockProps = {
   dispatch: jest.fn(),
 };
 
-// TODO: This test suite is throwing. Fix it.
-//    Warning: Cannot update a component (`GroupPolicyForm`) while rendering a different component (`Formik`). To locate the bad setState() call inside `Formik`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render
-//        at Formik (node_modules/formik/dist/formik.cjs.development.js:1077:19)
-//        at div
-//        at div
-//        at div
-//        at section
-//        at GroupPolicyForm (components/groups/forms/groups/GroupPolicyForm.tsx:37:3)
-//        at ToastProvider (contexts/toastContext.tsx:13:43)
-//        at ChainProvider (node_modules/@cosmos-kit/react-lite/cjs/provider.js:8:26)
-//        at SelectedWalletRepoProvider (node_modules/@cosmos-kit/react/cjs/context/useSelectedWalletContext.js:8:64)
-//        at ChainProvider (node_modules/@cosmos-kit/react/cjs/provider.js:11:26)
-//        at QueryClientProvider (node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:20:3)
 describe('GroupPolicyForm Component', () => {
   afterEach(() => {
     cleanup();
@@ -87,13 +74,17 @@ describe('GroupPolicyForm Component', () => {
       expect(nextButton).toBeEnabled();
     });
     fireEvent.click(nextButton);
-    expect(mockProps.nextStep).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(mockProps.nextStep).toHaveBeenCalled();
+    });
   });
 
-  test('calls prevStep when prev button is clicked', () => {
+  test('calls prevStep when prev button is clicked', async () => {
     renderWithChainProvider(<GroupPolicyForm {...mockProps} />);
     const prevButton = screen.getByText('Back: Group Details');
     fireEvent.click(prevButton);
-    expect(mockProps.prevStep).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(mockProps.prevStep).toHaveBeenCalled();
+    });
   });
 });
