@@ -15,7 +15,6 @@ export function messageSyntax(fieldsToShow: string[], message: MessageType, them
   return (
     <SyntaxHighlighter
       language="json"
-      aria-label="message-json"
       style={theme === 'dark' ? oneDark : oneLight}
       customStyle={{
         backgroundColor: 'transparent',

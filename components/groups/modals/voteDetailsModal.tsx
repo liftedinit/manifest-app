@@ -585,7 +585,10 @@ function VoteDetailsModal({
                         {messageType.split('.').pop().replace('Msg', '')}
                       </h3>
                       <div className="font-mono">
-                        <pre className="whitespace-pre-wrap break-words bg-base-200 rounded-lg text-sm overflow-x-auto">
+                        <pre
+                          className="whitespace-pre-wrap break-words bg-base-200 rounded-lg text-sm overflow-x-auto"
+                          aria-label="message-json"
+                        >
                           {messageSyntax(fieldsToShow, message, theme)}
                         </pre>
                       </div>
@@ -759,7 +762,10 @@ function VoteDetailsModal({
                           {messageType.split('.').pop().replace('Msg', '')}
                         </h3>
                         <div className="font-mono">
-                          <pre className="whitespace-pre-wrap break-words bg-base-200 p-4 rounded-lg text-sm overflow-x-auto">
+                          <pre
+                            className="whitespace-pre-wrap break-words bg-base-200 p-4 rounded-lg text-sm overflow-x-auto"
+                            aria-label="message-json-modal"
+                          >
                             {messageSyntax(fieldsToShow, message, theme)}
                           </pre>
                         </div>
