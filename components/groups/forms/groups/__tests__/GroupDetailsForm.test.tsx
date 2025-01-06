@@ -91,37 +91,36 @@ describe('GroupDetails Component', () => {
     expect(screen.getByText('Next: Group Policy')).toBeEnabled();
   });
 
-  // TODO: Fix this test
-  // test('next button is disabled when form is dirty and invalid', async () => {
-  //   function updateField(field: string, validValue: string) {
-  //     const input = screen.getByLabelText(field);
-  //     fireEvent.change(input, { target: { value: validValue } });
-  //   }
-  //
-  //   const invalidProps = {
-  //     ...mockProps,
-  //     formData: {
-  //       ...mockGroupFormData,
-  //       title: '',
-  //       authors: [],
-  //       description: '',
-  //       members: [],
-  //       votingThreshold: '',
-  //       votingPeriod: Duration.fromPartial({ seconds: 1n, nanos: 1 }),
-  //     },
-  //   };
-  //
-  //   renderWithChainProvider(<GroupDetails {...invalidProps} />);
-  //   const nextButton = screen.getByText('Next: Group Policy');
-  //   await waitFor(() => expect(nextButton).toBeDisabled());
-  //
-  //   updateField('Group Title', 'New Group Title');
-  //   await waitFor(() => expect(nextButton).toBeDisabled());
-  //   updateField('Author name or address', manifestAddr1);
-  //   await waitFor(() => expect(nextButton).toBeDisabled());
-  //   updateField('Description', 'New Long Description is Long Enough well well well...');
-  //   await waitFor(() => expect(nextButton).toBeEnabled());
-  // });
+  test('next button is disabled when form is dirty and invalid', async () => {
+    function updateField(field: string, validValue: string) {
+      const input = screen.getByLabelText(field);
+      fireEvent.change(input, { target: { value: validValue } });
+    }
+
+    const invalidProps = {
+      ...mockProps,
+      formData: {
+        ...mockGroupFormData,
+        title: '',
+        authors: [],
+        description: '',
+        members: [],
+        votingThreshold: '',
+        votingPeriod: Duration.fromPartial({ seconds: 1n, nanos: 1 }),
+      },
+    };
+
+    renderWithChainProvider(<GroupDetails {...invalidProps} />);
+    const nextButton = screen.getByText('Next: Group Policy');
+    await waitFor(() => expect(nextButton).toBeDisabled());
+
+    updateField('Group Title', 'New Group Title');
+    await waitFor(() => expect(nextButton).toBeDisabled());
+    updateField('Author name or address', manifestAddr1);
+    await waitFor(() => expect(nextButton).toBeDisabled());
+    updateField('Description', 'New Long Description is Long Enough well well well...');
+    await waitFor(() => expect(nextButton).toBeEnabled());
+  });
 
   test('next button is enabled when form is valid and dirty', async () => {
     renderWithChainProvider(<GroupDetails {...mockProps} />);

@@ -85,7 +85,7 @@ describe('YourGroups Component', () => {
 
   test('renders empty group state correctly', () => {
     renderWithChainProvider(<YourGroups {...{ ...mockProps, groups: { groups: [] } }} />);
-    expect(screen.getByText('My groups')).toBeInTheDocument();
+    expect(screen.getByText('Groups')).toBeInTheDocument();
   });
 
   test('renders loading state correctly', () => {

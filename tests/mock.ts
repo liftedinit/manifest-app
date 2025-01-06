@@ -442,6 +442,16 @@ export const mockDenom = {
   symbol: 'TST',
 };
 
+export const mockDenom2 = {
+  base: 'TTT2',
+  display: 'TEST2',
+  denom_units: [
+    { denom: 'utest2', exponent: 0, aliases: ['utest2'] },
+    { denom: 'test2', exponent: 6, aliases: ['test2'] },
+  ],
+  symbol: 'TST2',
+};
+
 export const mockMfxDenom = {
   base: 'umfx',
   display: 'MFX',

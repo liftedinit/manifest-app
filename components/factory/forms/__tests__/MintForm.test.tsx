@@ -24,6 +24,7 @@ const mockProps = {
   address: 'cosmos1address',
   refetch: jest.fn(),
   balance: '1000000',
+  totalSupply: '1000000',
 };
 
 function renderWithProps(props = {}) {

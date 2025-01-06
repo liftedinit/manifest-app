@@ -4,14 +4,12 @@ import ConfirmationForm from '@/components/factory/forms/ConfirmationForm';
 import TokenDetails from '@/components/factory/forms/TokenDetailsForm';
 import StepIndicator from '@/components/react/StepIndicator';
 import { useChain } from '@cosmos-kit/react';
-import { WalletNotConnected } from '@/components';
+import { WalletNotConnected, SEO } from '@/components';
 import Success from '@/components/factory/forms/Success';
-import Head from 'next/head';
 import CreateDenom from '@/components/factory/forms/CreateDenom';
 import { FactoryIcon } from '@/components/icons';
 import env from '@/config/env';
 import { useRouter } from 'next/router';
-import { SEO } from '@/components';
 
 const initialFormData: TokenFormData = {
   subdenom: '',

@@ -9,7 +9,9 @@ export default function Success({
   formData: TokenFormData;
   address: string;
 }>) {
-  const fullDenom = `factory/${address}/${formData.subdenom}`;
+  const effectiveAddress =
+    formData.isGroup && formData.groupPolicyAddress ? formData.groupPolicyAddress : address;
+  const fullDenom = `factory/${effectiveAddress}/${formData.subdenom}`;
 
   return (
     <section className="lg:max-h-[90vh] max-h-screen lg:mt-1 mt-12 flex items-center justify-center">
