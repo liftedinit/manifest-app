@@ -26,7 +26,10 @@ export default function ConfirmationForm({
     osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
-  const fullDenom = `factory/${address}/${formData.subdenom}`;
+  const effectiveAddress =
+    formData.isGroup && formData.groupPolicyAddress ? formData.groupPolicyAddress : address;
+
+  const fullDenom = `factory/${effectiveAddress}/${formData.subdenom}`;
 
   const handleConfirm = async () => {
     setIsSigning(true);

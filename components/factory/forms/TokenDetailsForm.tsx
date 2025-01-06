@@ -2,7 +2,6 @@ import React from 'react';
 import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { TokenAction, TokenFormData } from '@/helpers/formReducer';
-import { DenomUnit } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { TextInput, TextArea } from '@/components/react/inputs';
 
 export default function TokenDetails({
@@ -41,7 +40,10 @@ export default function TokenDetails({
     dispatch({ type: 'UPDATE_FIELD', field, value });
   };
 
-  const fullDenom = `factory/${address}/${formData.subdenom}`;
+  const effectiveAddress =
+    formData.isGroup && formData.groupPolicyAddress ? formData.groupPolicyAddress : address;
+
+  const fullDenom = `factory/${effectiveAddress}/${formData.subdenom}`;
 
   // Automatically set denom units
   React.useEffect(() => {
