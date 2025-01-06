@@ -81,7 +81,7 @@ describe('GroupPolicyForm Component', () => {
 
   test('calls prevStep when prev button is clicked', async () => {
     renderWithChainProvider(<GroupPolicyForm {...mockProps} />);
-    const prevButton = screen.getByText('Back: Group Details');
+    const prevButton = screen.getByText('Back: Group Members');
     fireEvent.click(prevButton);
     await waitFor(() => {
       expect(mockProps.prevStep).toHaveBeenCalled();

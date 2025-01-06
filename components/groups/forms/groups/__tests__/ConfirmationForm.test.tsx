@@ -47,7 +47,7 @@ describe('ConfirmationModal Component', () => {
 
   test('calls prevStep when "Prev: Member Info" button is clicked', () => {
     renderWithChainProvider(<ConfirmationModal {...mockProps} />);
-    const prevButton = screen.getByText('Back: Member Info');
+    const prevButton = screen.getByText('Back: Group Policy');
     fireEvent.click(prevButton);
     expect(mockProps.prevStep).toHaveBeenCalled();
   });
