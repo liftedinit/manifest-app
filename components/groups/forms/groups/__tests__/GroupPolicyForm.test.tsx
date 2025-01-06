@@ -50,13 +50,13 @@ describe('GroupPolicyForm Component', () => {
 
   test('next button is disabled when form is not dirty', async () => {
     renderWithChainProvider(<GroupPolicyForm {...mockProps} />);
-    const nextButton = screen.getByText('Next: Member Info');
+    const nextButton = screen.getByText('Next: Confirmation');
     expect(nextButton).toBeDisabled();
   });
 
   test('next button is enabled when form is valid and dirty', async () => {
     renderWithChainProvider(<GroupPolicyForm {...mockProps} />);
-    const nextButton = screen.getByText('Next: Member Info');
+    const nextButton = screen.getByText('Next: Confirmation');
     expect(nextButton).toBeDisabled();
 
     const votingAmountInput = screen.getByPlaceholderText('Hours');
@@ -69,7 +69,7 @@ describe('GroupPolicyForm Component', () => {
     renderWithChainProvider(<GroupPolicyForm {...mockProps} />);
     const votingAmountInput = screen.getByPlaceholderText('Hours');
     fireEvent.change(votingAmountInput, { target: { value: '2' } });
-    const nextButton = screen.getByText('Next: Member Info');
+    const nextButton = screen.getByText('Next: Confirmation');
     await waitFor(() => {
       expect(nextButton).toBeEnabled();
     });

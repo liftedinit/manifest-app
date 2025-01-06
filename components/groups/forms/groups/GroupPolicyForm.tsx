@@ -106,7 +106,7 @@ export default function GroupPolicyForm({
                       values.votingPeriod.seconds === 0)
                   }
                 >
-                  Next: Member Info
+                  Next: Confirmation
                 </button>
               </div>
             </>

@@ -75,7 +75,7 @@ describe('GroupDetails Component', () => {
 
   test('next button is enabled when form is not dirty but valid', async () => {
     renderWithChainProvider(<GroupDetails {...mockProps} />);
-    expect(screen.getByText('Next: Group Policy')).toBeEnabled();
+    expect(screen.getByText('Next: Group Members')).toBeEnabled();
   });
 
   test('next button is disabled when form is dirty and invalid', async () => {
@@ -98,7 +98,7 @@ describe('GroupDetails Component', () => {
     };
 
     renderWithChainProvider(<GroupDetails {...invalidProps} />);
-    const nextButton = screen.getByText('Next: Group Policy');
+    const nextButton = screen.getByText('Next: Group Members');
     await waitFor(() => expect(nextButton).toBeDisabled());
 
     updateField('Group Title', 'New Group Title');
@@ -114,7 +114,7 @@ describe('GroupDetails Component', () => {
     const titleInput = screen.getByLabelText('Group Title');
     fireEvent.change(titleInput, { target: { value: 'New Group Title' } });
     await waitFor(() => {
-      expect(screen.getByText('Next: Group Policy')).toBeEnabled();
+      expect(screen.getByText('Next: Group Members')).toBeEnabled();
     });
   });
 
@@ -133,10 +133,10 @@ describe('GroupDetails Component', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText('Next: Group Policy')).toBeEnabled();
+      expect(screen.getByText('Next: Group Members')).toBeEnabled();
     });
 
-    const nextButton = screen.getByText('Next: Group Policy');
+    const nextButton = screen.getByText('Next: Group Members');
     fireEvent.click(nextButton);
 
     await waitFor(() => {

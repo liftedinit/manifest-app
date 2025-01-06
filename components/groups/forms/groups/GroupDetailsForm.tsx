@@ -257,7 +257,7 @@ export default function GroupDetails({
                     authors.some(author => author.trim() === '')
                   }
                 >
-                  Next: Group Policy
+                  Next: Group Members
                 </button>
               </div>
             </>

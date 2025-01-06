@@ -299,7 +299,7 @@ export default function MemberInfoForm({
                   className="w-[calc(50%-12px)] btn px-5 py-2.5 sm:py-3.5 btn-gradient text-white disabled:text-black"
                   disabled={!isValid}
                 >
-                  Next: Confirmation
+                  Next: Group Policy
                 </button>
               </div>
             </>

@@ -87,7 +87,7 @@ describe('MemberInfoForm Component', () => {
     fireEvent.blur(addressInput);
     await waitFor(
       () => {
-        const nextButton = screen.getByText('Next: Confirmation');
+        const nextButton = screen.getByText('Next: Group Policy');
         expect(nextButton).toBeDisabled();
       },
       { timeout: 2000 }
@@ -97,14 +97,14 @@ describe('MemberInfoForm Component', () => {
   test('next button is enabled when form is valid', async () => {
     renderWithChainProvider(<MemberInfoForm {...mockProps} />);
     await waitFor(() => {
-      const nextButton = screen.getByText('Next: Confirmation');
+      const nextButton = screen.getByText('Next: Group Policy');
       expect(nextButton).toBeEnabled();
     });
   });
 
   test('calls nextStep when next button is clicked', async () => {
     renderWithChainProvider(<MemberInfoForm {...mockProps} />);
-    const nextButton = screen.getByText('Next: Confirmation');
+    const nextButton = screen.getByText('Next: Group Policy');
     await waitFor(() => expect(nextButton).toBeEnabled());
     fireEvent.click(nextButton);
     await waitFor(() => {
