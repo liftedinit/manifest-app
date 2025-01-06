@@ -70,7 +70,6 @@ export default function CreateGroup() {
           {currentStep === 2 && (
             <div className="transition-opacity duration-300 animate-fadeIn">
               <MemberInfoForm
-                address={address ?? ''}
                 formData={formData}
                 dispatch={dispatch}
                 nextStep={nextStep}
