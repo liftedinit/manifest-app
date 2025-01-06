@@ -28,14 +28,12 @@ const MemberInfoSchema = Yup.object().shape({
 
 function MemberInfoFormFields({
   dispatch,
-  prevStep,
   isContactsOpen,
   setIsContactsOpen,
   activeMemberIndex,
   setActiveMemberIndex,
 }: Readonly<{
   dispatch: (action: Action) => void;
-  prevStep: () => void;
   isContactsOpen: boolean;
   setIsContactsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   activeMemberIndex: number | null;
@@ -234,23 +232,6 @@ function MemberInfoFormFields({
           }
         }}
       />
-
-      <div className="flex gap-6 mt-6 mx-auto w-full">
-        <button
-          type="button"
-          onClick={prevStep}
-          className="btn btn-neutral text-black dark:text-white py-2.5 sm:py-3.5 w-[calc(50%-12px)]"
-        >
-          Back: Group Details
-        </button>
-        <button
-          type="submit"
-          className="w-[calc(50%-12px)] btn px-5 py-2.5 sm:py-3.5 btn-gradient text-white disabled:text-black"
-          disabled={!isValid}
-        >
-          Next: Confirmation
-        </button>
-      </div>
     </Form>
   );
 }
@@ -260,13 +241,11 @@ export default function MemberInfoForm({
   dispatch,
   nextStep,
   prevStep,
-  address,
 }: Readonly<{
   formData: FormData;
   dispatch: (action: Action) => void;
   nextStep: () => void;
   prevStep: () => void;
-  address: string;
 }>) {
   // Local states needed by the form fields
   const [isContactsOpen, setIsContactsOpen] = useState(false);
@@ -274,35 +253,59 @@ export default function MemberInfoForm({
 
   return (
     <section className="">
-      <div className="lg:flex mx-auto">
-        <div className="flex items-center mx-auto w-full dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-[24px] rounded-[24px]">
-          <div className="w-full">
-            <h1 className="mb-4 text-xl font-extrabold tracking-tight sm:mb-6 leading-tight border-b-[0.5px] text-gray-500 dark:text-gray-400 dark:border-gray-400 pb-4">
-              Member Info
-            </h1>
+      <Formik
+        initialValues={{ members: formData.members }}
+        validationSchema={MemberInfoSchema}
+        onSubmit={() => {
+          nextStep();
+        }}
+        validateOnMount={true}
+        validateOnChange={true}
+        validateOnBlur={true}
+      >
+        {formikProps => {
+          const { handleSubmit, isValid } = formikProps;
+          return (
+            <>
+              <div className="lg:flex mx-auto">
+                <div className="flex items-center mx-auto w-full dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-[24px] rounded-[24px]">
+                  <div className="w-full">
+                    <h1 className="mb-4 text-xl font-extrabold tracking-tight sm:mb-6 leading-tight border-b-[0.5px] text-gray-500 dark:text-gray-400 dark:border-gray-400 pb-4">
+                      Member Info
+                    </h1>
 
-            <Formik
-              initialValues={{ members: formData.members }}
-              validationSchema={MemberInfoSchema}
-              onSubmit={() => {
-                nextStep();
-              }}
-              validateOnMount={true}
-              validateOnChange={true}
-              validateOnBlur={true}
-            >
-              <MemberInfoFormFields
-                dispatch={dispatch}
-                prevStep={prevStep}
-                isContactsOpen={isContactsOpen}
-                setIsContactsOpen={setIsContactsOpen}
-                activeMemberIndex={activeMemberIndex}
-                setActiveMemberIndex={setActiveMemberIndex}
-              />
-            </Formik>
-          </div>
-        </div>
-      </div>
+                    <MemberInfoFormFields
+                      dispatch={dispatch}
+                      isContactsOpen={isContactsOpen}
+                      setIsContactsOpen={setIsContactsOpen}
+                      activeMemberIndex={activeMemberIndex}
+                      setActiveMemberIndex={setActiveMemberIndex}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-6 mt-6 mx-auto w-full">
+                <button
+                  type="button"
+                  onClick={prevStep}
+                  className="btn btn-neutral text-black dark:text-white py-2.5 sm:py-3.5 w-[calc(50%-12px)]"
+                >
+                  Back: Group Details
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleSubmit()}
+                  className="w-[calc(50%-12px)] btn px-5 py-2.5 sm:py-3.5 btn-gradient text-white disabled:text-black"
+                  disabled={!isValid}
+                >
+                  Next: Confirmation
+                </button>
+              </div>
+            </>
+          );
+        }}
+      </Formik>
     </section>
   );
 }

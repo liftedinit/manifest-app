@@ -25,19 +25,6 @@ const mockProps = {
   address: 'manifest1address',
 };
 
-// TODO This test suite is throwing. Need to fix.
-//    Warning: Cannot update a component (`GroupDetails`) while rendering a different component (`Formik`). To locate the bad setState() call inside `Formik`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render
-//        at Formik (node_modules/formik/dist/formik.cjs.development.js:1077:19)
-//        at div
-//        at div
-//        at div
-//        at section
-//        at GroupDetails (components/groups/forms/groups/GroupDetailsForm.tsx:61:3)
-//        at ToastProvider (contexts/toastContext.tsx:13:43)
-//        at ChainProvider (node_modules/@cosmos-kit/react-lite/cjs/provider.js:8:26)
-//        at SelectedWalletRepoProvider (node_modules/@cosmos-kit/react/cjs/context/useSelectedWalletContext.js:8:64)
-//        at ChainProvider (node_modules/@cosmos-kit/react/cjs/provider.js:11:26)
-//        at QueryClientProvider (node_modules/@tanstack/react-query/build/modern/QueryClientProvider.js:20:3)
 describe('GroupDetails Component', () => {
   afterEach(() => {
     cleanup();

@@ -179,28 +179,6 @@ function GroupDetailsFormFields({
           }
         }}
       />
-
-      <div className="flex gap-6  mt-6 mx-auto w-full">
-        <Link href="/groups" legacyBehavior>
-          <button
-            type="button"
-            className="btn btn-neutral dark:text-white text-black py-2.5 sm:py-3.5 w-[calc(50%-12px)]"
-          >
-            <span className="hidden sm:inline">Back: Groups Page</span>
-            <span className="sm:hidden">Back: Groups</span>
-          </button>
-        </Link>
-
-        <button
-          type="submit"
-          className="w-[calc(50%-12px)] btn px-5 py-2.5 sm:py-3.5 btn-gradient text-white disabled:text-black"
-          disabled={
-            !isValid || !authors || !authors.length || authors.some(author => author.trim() === '')
-          }
-        >
-          Next: Group Policy
-        </button>
-      </div>
     </Form>
   );
 }
@@ -219,42 +197,73 @@ export default function GroupDetails({
   const [isContactsOpen, setIsContactsOpen] = React.useState(false);
   const [activeAuthorIndex, setActiveAuthorIndex] = React.useState<number | null>(null);
 
-  // Convert authors to array if needed
-  const authors = Array.isArray(formData.authors)
-    ? formData.authors
-    : [formData.authors].filter(Boolean);
+  const authors = Array.isArray(formData.authors) ? formData.authors : [formData.authors];
 
   return (
     <section>
-      <div className="lg:flex mx-auto">
-        <div className="flex items-center mx-auto w-full dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-[24px] rounded-[24px]">
-          <div className="w-full">
-            <h1 className="mb-4 text-xl font-extrabold tracking-tight sm:mb-6 leading-tight border-b-[0.5px] dark:text-[#FFFFFF99] dark:border-[#FFFFFF99] border-b-[black] pb-4">
-              Group details
-            </h1>
+      <Formik
+        initialValues={{
+          ...formData,
+          authors: authors.length > 0 ? authors : [''],
+        }}
+        validationSchema={GroupSchema}
+        onSubmit={() => {
+          nextStep();
+        }}
+      >
+        {formikProps => {
+          const { handleSubmit, isValid, values } = formikProps;
+          const authors = Array.isArray(values.authors) ? values.authors : [values.authors];
+          return (
+            <>
+              <div className="lg:flex mx-auto">
+                <div className="flex items-center mx-auto w-full dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-[24px] rounded-[24px]">
+                  <div className="w-full">
+                    <h1 className="mb-4 text-xl font-extrabold tracking-tight sm:mb-6 leading-tight border-b-[0.5px] dark:text-[#FFFFFF99] dark:border-[#FFFFFF99] border-b-[black] pb-4">
+                      Group details
+                    </h1>
 
-            <Formik
-              initialValues={{
-                ...formData,
-                authors: authors.length > 0 ? authors : [''],
-              }}
-              validationSchema={GroupSchema}
-              onSubmit={() => {
-                nextStep();
-              }}
-            >
-              <GroupDetailsFormFields
-                dispatch={dispatch}
-                address={address}
-                isContactsOpen={isContactsOpen}
-                setIsContactsOpen={setIsContactsOpen}
-                activeAuthorIndex={activeAuthorIndex}
-                setActiveAuthorIndex={setActiveAuthorIndex}
-              />
-            </Formik>
-          </div>
-        </div>
-      </div>
+                    <GroupDetailsFormFields
+                      dispatch={dispatch}
+                      address={address}
+                      isContactsOpen={isContactsOpen}
+                      setIsContactsOpen={setIsContactsOpen}
+                      activeAuthorIndex={activeAuthorIndex}
+                      setActiveAuthorIndex={setActiveAuthorIndex}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-6 mt-6 mx-auto w-full">
+                <Link href="/groups" legacyBehavior>
+                  <button
+                    type="button"
+                    className="btn btn-neutral dark:text-white text-black py-2.5 sm:py-3.5 w-[calc(50%-12px)]"
+                  >
+                    <span className="hidden sm:inline">Back: Groups Page</span>
+                    <span className="sm:hidden">Back: Groups</span>
+                  </button>
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={() => handleSubmit()}
+                  className="w-[calc(50%-12px)] btn px-5 py-2.5 sm:py-3.5 btn-gradient text-white disabled:text-black"
+                  disabled={
+                    !isValid ||
+                    !authors ||
+                    !authors.length ||
+                    authors.some(author => author.trim() === '')
+                  }
+                >
+                  Next: Group Policy
+                </button>
+              </div>
+            </>
+          );
+        }}
+      </Formik>
     </section>
   );
 }

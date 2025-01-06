@@ -52,35 +52,67 @@ export default function GroupPolicyForm({
 
   return (
     <section>
-      <div className="lg:flex mx-auto">
-        <div className="flex items-center mx-auto w-full dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-[24px] rounded-[24px]">
-          <div className="w-full">
-            <h1 className="mb-4 text-xl font-extrabold tracking-tight sm:mb-6 leading-tight border-b-[0.5px] text-gray-500 dark:text-gray-400 dark:border-gray-400 border-gray-500 pb-4">
-              Group Policy
-            </h1>
+      <Formik
+        initialValues={{
+          votingPeriod: {
+            days: 0,
+            hours: 0,
+            minutes: 0,
+            seconds: 0,
+          },
+          votingThreshold: formData.votingThreshold || '',
+        }}
+        validationSchema={createGroupPolicySchema(maxVotingThreshold)}
+        onSubmit={() => {
+          nextStep();
+        }}
+        validateOnChange={true}
+        validateOnBlur={true}
+      >
+        {formikProps => {
+          const { handleSubmit, isValid, values } = formikProps;
+          return (
+            <>
+              <div className="lg:flex mx-auto">
+                <div className="flex items-center mx-auto w-full dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-[24px] rounded-[24px]">
+                  <div className="w-full">
+                    <h1 className="mb-4 text-xl font-extrabold tracking-tight sm:mb-6 leading-tight border-b-[0.5px] text-gray-500 dark:text-gray-400 dark:border-gray-400 border-gray-500 pb-4">
+                      Group Policy
+                    </h1>
 
-            <Formik
-              initialValues={{
-                votingPeriod: {
-                  days: 0,
-                  hours: 0,
-                  minutes: 0,
-                  seconds: 0,
-                },
-                votingThreshold: formData.votingThreshold || '',
-              }}
-              validationSchema={createGroupPolicySchema(maxVotingThreshold)}
-              onSubmit={() => {
-                nextStep();
-              }}
-              validateOnChange={true}
-              validateOnBlur={true}
-            >
-              <GroupPolicyFormFields dispatch={dispatch} prevStep={prevStep} />
-            </Formik>
-          </div>
-        </div>
-      </div>
+                    <GroupPolicyFormFields dispatch={dispatch} prevStep={prevStep} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-6 mt-6 mx-auto w-full">
+                <button
+                  type="button"
+                  onClick={prevStep}
+                  className="btn btn-neutral text-black dark:text-white py-2.5 sm:py-3.5 w-[calc(50%-12px)]"
+                >
+                  Back: Group Details
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleSubmit()}
+                  className="w-[calc(50%-12px)] btn px-5 py-2.5 sm:py-3.5 btn-gradient text-white disabled:text-black"
+                  disabled={
+                    !isValid ||
+                    (values.votingPeriod.days === 0 &&
+                      values.votingPeriod.hours === 0 &&
+                      values.votingPeriod.minutes === 0 &&
+                      values.votingPeriod.seconds === 0)
+                  }
+                >
+                  Next: Member Info
+                </button>
+              </div>
+            </>
+          );
+        }}
+      </Formik>
     </section>
   );
 }
@@ -197,30 +229,6 @@ function GroupPolicyFormFields({ dispatch, prevStep }: Readonly<GroupPolicyFormF
           }}
           min={1}
         />
-      </div>
-
-      <div className="flex gap-6 mt-6 mx-auto w-full">
-        <button
-          type="button"
-          onClick={prevStep}
-          className="btn btn-neutral text-black dark:text-white py-2.5 sm:py-3.5 w-[calc(50%-12px)]"
-        >
-          Back: Group Details
-        </button>
-
-        <button
-          type="submit"
-          className="w-[calc(50%-12px)] btn px-5 py-2.5 sm:py-3.5 btn-gradient text-white disabled:text-black"
-          disabled={
-            !isValid ||
-            (values.votingPeriod.days === 0 &&
-              values.votingPeriod.hours === 0 &&
-              values.votingPeriod.minutes === 0 &&
-              values.votingPeriod.seconds === 0)
-          }
-        >
-          Next: Member Info
-        </button>
       </div>
     </Form>
   );
