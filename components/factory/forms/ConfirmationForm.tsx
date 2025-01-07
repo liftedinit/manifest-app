@@ -208,7 +208,7 @@ export default function ConfirmationForm({
           onClick={prevStep}
           className="btn btn-neutral dark:text-white text-black w-[calc(50%-12px)]"
         >
-          Edit Token Metadata
+          Back: Token Metadata
         </button>
         <button
           onClick={handleConfirm}
