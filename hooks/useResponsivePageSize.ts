@@ -1,5 +1,5 @@
 import { debounce } from '@/helpers';
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 
 interface PageSizeConfig {
   [key: string]: number;
@@ -31,18 +31,18 @@ export function useResponsivePageSize<T extends PageSizeConfig>(
     findMatchingConfig(getWindowDimensions(), sizeLookup, defaultSizes)
   );
 
-  const updatePageSizes = useCallback(() => {
-    return debounce(() => {
-      setPageSize(findMatchingConfig(getWindowDimensions(), sizeLookup, defaultSizes));
-    }, 150);
-  }, [sizeLookup, defaultSizes]);
-
+  const debouncedResizeHandler = useMemo(
+    () =>
+      debounce(() => {
+        setPageSize(findMatchingConfig(getWindowDimensions(), sizeLookup, defaultSizes));
+      }, 150),
+    [sizeLookup, defaultSizes]
+  );
   useEffect(() => {
-    const handleResize = updatePageSizes();
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [updatePageSizes]);
+    debouncedResizeHandler();
+    window.addEventListener('resize', debouncedResizeHandler);
+    return () => window.removeEventListener('resize', debouncedResizeHandler);
+  }, [debouncedResizeHandler]);
 
   return pageSize;
 }
