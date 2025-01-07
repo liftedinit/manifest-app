@@ -141,7 +141,7 @@ export default function TokenDetails({
                   onClick={() => handleSubmit()}
                   disabled={!isValid}
                 >
-                  Next: Group Policy
+                  Next: Confirmation
                 </button>
               </div>
             </>
