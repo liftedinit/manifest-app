@@ -57,14 +57,14 @@ const GroupSchema = Yup.object()
   })
   .test(
     'metadata-total-length',
-    'Total metadata length must not exceed 255 characters',
+    'Total metadata length must not exceed 10000 characters',
     function (values) {
       const metadata = JSON.stringify({
         title: values.title || '',
         authors: Array.isArray(values.authors) ? values.authors.join(', ') : values.authors || '',
         details: values.description || '',
       });
-      return metadata.length <= 255;
+      return metadata.length <= 10000;
     }
   );
 

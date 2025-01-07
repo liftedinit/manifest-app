@@ -280,14 +280,14 @@ export function UpdateGroupModal({
     })
     .test(
       'metadata-total-length',
-      'Total metadata length must not exceed 255 characters',
+      'Total metadata length must not exceed 100000 characters',
       function (values) {
         const metadata = JSON.stringify({
           title: values.name ?? '',
           authors: values.authors ?? '',
           details: values.description ?? '',
         });
-        return metadata.length <= 255;
+        return metadata.length <= 10000;
       }
     );
 
