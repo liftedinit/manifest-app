@@ -134,14 +134,14 @@ export default function TokenDetails({
                   onClick={prevStep}
                   className="btn btn-neutral dark:text-white text-black py-2.5 sm:py-3.5 w-[calc(50%-12px)]"
                 >
-                  Previous
+                  Back: Create Denom
                 </button>
                 <button
                   className="w-[calc(50%-12px)] btn px-5 py-2.5 sm:py-3.5 btn-gradient text-white disabled:text-black"
                   onClick={() => handleSubmit()}
                   disabled={!isValid}
                 >
-                  Next: Group Policy
+                  Next: Confirmation
                 </button>
               </div>
             </>
