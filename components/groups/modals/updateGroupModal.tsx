@@ -241,9 +241,9 @@ export function UpdateGroupModal({
           },
           then: schema => schema.optional(),
           otherwise: schema =>
-            schema.when(['authors', 'summary', 'forum', 'description'], {
-              is: (authors: string, summary: string, forum: string, description: string) =>
-                !authors && !summary && !forum && !description,
+            schema.when(['authors', 'summary', 'description'], {
+              is: (authors: string, summary: string, description: string) =>
+                !authors && !summary && !description,
               then: schema => schema.required('At least one metadata field is required'),
               otherwise: schema => schema.optional(),
             }),
