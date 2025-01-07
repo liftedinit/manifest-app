@@ -6,7 +6,7 @@ import CryptoJS from 'crypto-js';
 const ProfileAvatar = ({
   walletAddress,
   size,
-  withBackground = false,
+  withBackground = true,
 }: {
   walletAddress: string;
   size?: number;
