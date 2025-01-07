@@ -51,7 +51,7 @@ const GroupSchema = Yup.object()
     ),
     description: Yup.string()
       .required('Description is required')
-      .min(50, 'Description must be at least 50 characters')
+      .min(20, 'Description must be at least 20 characters')
       .max(100, 'Description must not exceed 100 characters')
       .noProfanity('Profanity is not allowed'),
   })
