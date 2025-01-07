@@ -1,4 +1,4 @@
-import { describe, test, afterEach, expect, jest, mock } from 'bun:test';
+import { describe, test, afterEach, expect, jest, mock, beforeEach } from 'bun:test';
 import React from 'react';
 import { screen, fireEvent, cleanup } from '@testing-library/react';
 import { YourGroups } from '@/components/groups/components/myGroups';
@@ -67,6 +67,7 @@ const mockPropsWithManyGroups = {
       .fill(null)
       .map((_, index) => ({
         id: `${index + 1}`,
+        metadata: `{"title":"title${index + 1}","authors":"author${index + 1}","summary":"summary${index + 1}","details":"details${index + 1}"}`,
         policies: [{ address: `policy${index + 1}`, decision_policy: { threshold: '1' } }],
         admin: `admin${index + 1}`,
         members: [{ member: { address: `member${index + 1}` } }],
@@ -78,6 +79,15 @@ const mockPropsWithManyGroups = {
 };
 
 describe('Groups Component', () => {
+  beforeEach(() => {
+    // Mock window.innerWidth and window.innerHeight to simulate desktop view
+    // Required for pagination tests
+    window.innerWidth = 1300;
+    window.innerHeight = 1300;
+
+    fireEvent(window, new Event('resize'));
+  });
+
   afterEach(() => {
     mock.restore();
     cleanup();
