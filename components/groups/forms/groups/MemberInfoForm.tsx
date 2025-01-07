@@ -32,12 +32,14 @@ function MemberInfoFormFields({
   setIsContactsOpen,
   activeMemberIndex,
   setActiveMemberIndex,
+  address,
 }: Readonly<{
   dispatch: (action: Action) => void;
   isContactsOpen: boolean;
   setIsContactsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   activeMemberIndex: number | null;
   setActiveMemberIndex: React.Dispatch<React.SetStateAction<number | null>>;
+  address: string;
 }>) {
   const { values, isValid, setFieldValue } = useFormikContext<{
     members: { address: string; name: string; weight: string }[];
@@ -228,6 +230,7 @@ function MemberInfoFormFields({
         isOpen={isContactsOpen}
         setOpen={setIsContactsOpen}
         showContacts={true}
+        currentAddress={address}
         onSelect={(selectedAddress: string) => {
           if (activeMemberIndex !== null) {
             setFieldValue(`members.${activeMemberIndex}.address`, selectedAddress);
@@ -250,11 +253,13 @@ export default function MemberInfoForm({
   dispatch,
   nextStep,
   prevStep,
+  address,
 }: Readonly<{
   formData: FormData;
   dispatch: (action: Action) => void;
   nextStep: () => void;
   prevStep: () => void;
+  address: string;
 }>) {
   // Local states needed by the form fields
   const [isContactsOpen, setIsContactsOpen] = useState(false);
@@ -289,6 +294,7 @@ export default function MemberInfoForm({
                       setIsContactsOpen={setIsContactsOpen}
                       activeMemberIndex={activeMemberIndex}
                       setActiveMemberIndex={setActiveMemberIndex}
+                      address={address}
                     />
                   </div>
                 </div>

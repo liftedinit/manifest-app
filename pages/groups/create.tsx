@@ -74,6 +74,7 @@ export default function CreateGroup() {
                 dispatch={dispatch}
                 nextStep={nextStep}
                 prevStep={prevStep}
+                address={address ?? ''}
               />
             </div>
           )}
