@@ -211,7 +211,10 @@ export default function SendForm({
                         className="btn btn-sm h-full px-3 bg-[#FFFFFF] dark:bg-[#FFFFFF0F] border-none hover:bg-transparent"
                       >
                         {values.selectedToken?.metadata ? (
-                          <DenomImage denom={values.selectedToken?.metadata} />
+                          <DenomImage
+                            denom={values.selectedToken?.metadata}
+                            withBackground={false}
+                          />
                         ) : null}
 
                         {(() => {
@@ -252,12 +255,17 @@ export default function SendForm({
                           filteredBalances?.map(token => (
                             <li
                               key={token.coreDenom}
-                              onClick={() => setFieldValue('selectedToken', token)}
+                              onClick={() => {
+                                setFieldValue('selectedToken', token);
+                                if (document.activeElement instanceof HTMLElement) {
+                                  document.activeElement.blur();
+                                }
+                              }}
                               className="hover:bg-[#E0E0FF33] dark:hover:bg-[#FFFFFF0F] cursor-pointer rounded-lg"
                               aria-label={token.metadata?.display}
                             >
                               <a className="flex flex-row items-center gap-2 px-2 py-2">
-                                <DenomImage denom={token?.metadata} />
+                                <DenomImage denom={token?.metadata} withBackground={false} />
                                 <span className="truncate">
                                   {token.metadata?.display.startsWith('factory')
                                     ? token.metadata?.display.split('/').pop()?.toUpperCase()

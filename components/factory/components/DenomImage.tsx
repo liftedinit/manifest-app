@@ -64,7 +64,13 @@ export const isUrlSupported = (url: string) => {
   }
 };
 
-export const DenomImage = ({ denom }: { denom: any }) => {
+export const DenomImage = ({
+  denom,
+  withBackground = true,
+}: {
+  denom: any;
+  withBackground?: boolean;
+}) => {
   const [imageError, setImageError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSupported, setIsSupported] = useState(false);
@@ -94,7 +100,9 @@ export const DenomImage = ({ denom }: { denom: any }) => {
   // Check for MFX token first
   if (denom?.base?.includes('umfx')) {
     return (
-      <div className="w-11 h-11 p-2 rounded-md dark:bg-[#ffffff0f] bg-[#0000000A]">
+      <div
+        className={`w-11 h-11 p-2 rounded-md ${withBackground ? 'dark:bg-[#ffffff0f] bg-[#0000000a]' : ''}`}
+      >
         <Image
           width={44}
           height={44}
@@ -108,12 +116,14 @@ export const DenomImage = ({ denom }: { denom: any }) => {
 
   // Then check for other conditions
   if (!denom?.uri || !isSupported || imageError) {
-    return <ProfileAvatar walletAddress={denom?.base} />;
+    return <ProfileAvatar walletAddress={denom?.base} withBackground={withBackground} />;
   }
 
   // For all other cases, use the denom.uri
   return (
-    <div className="w-11 h-11 p-2 rounded-md dark:bg-[#ffffff0f] bg-[#0000000A]">
+    <div
+      className={`w-11 h-11 p-2 rounded-md ${withBackground ? 'dark:bg-[#ffffff0f] bg-[#0000000A]' : ''}`}
+    >
       <Image
         width={44}
         height={44}
