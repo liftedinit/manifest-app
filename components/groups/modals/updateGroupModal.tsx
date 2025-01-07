@@ -254,7 +254,7 @@ export function UpdateGroupModal({
         .optional(),
       description: Yup.string()
         .noProfanity('Profanity is not allowed')
-        .min(50, 'Description must be at least 50 characters')
+        .min(20, 'Description must be at least 20 characters')
         .max(100, 'Description must not exceed 100 characters')
         .optional(),
       threshold: Yup.number().min(1, 'Threshold must be at least 1').optional(),
@@ -283,9 +283,9 @@ export function UpdateGroupModal({
       'Total metadata length must not exceed 255 characters',
       function (values) {
         const metadata = JSON.stringify({
-          title: values.name || '',
-          authors: values.authors || '',
-          details: values.description || '',
+          title: values.name ?? '',
+          authors: values.authors ?? '',
+          details: values.description ?? '',
         });
         return metadata.length <= 255;
       }
