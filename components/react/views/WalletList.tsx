@@ -101,8 +101,9 @@ export const WalletList = ({
               <img
                 src={getRealLogo(logo?.toString() ?? '', isDarkMode)}
                 alt={prettyName}
-                className={`${prettyName === 'Reddit' || prettyName === 'Google' ? 'w-8 h-8' : 'w-7 h-7'} rounded-md`}
+                className={`${prettyName === 'Reddit' || prettyName === 'Google' ? 'w-8 h-8' : 'w-7 h-7'} rounded-md mr-2`}
               />
+              <span className="text-md ml-2">{prettyName}</span>
             </button>
           ))}
         </div>
@@ -140,8 +141,9 @@ export const WalletList = ({
               <img
                 src={getRealLogo(logo?.toString() ?? '', isDarkMode)}
                 alt={prettyName}
-                className={`${prettyName === 'Reddit' || prettyName === 'Google' ? 'w-8 h-8' : 'w-7 h-7'} rounded-md`}
+                className={`${prettyName === 'Reddit' || prettyName === 'Google' ? 'w-8 h-8' : 'w-7 h-7'} rounded-md mr-2`}
               />
+              <span className="text-md ml-2">{prettyName}</span>
             </button>
           ))}
         </div>
