@@ -257,7 +257,7 @@ export default function SendForm({
                               key={token.coreDenom}
                               onClick={() => {
                                 setFieldValue('selectedToken', token);
-                                if (document.activeElement) {
+                                if (document.activeElement instanceof HTMLElement) {
                                   document.activeElement.blur();
                                 }
                               }}
