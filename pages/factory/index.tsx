@@ -140,22 +140,10 @@ export default function Factory() {
                 </div>
 
                 <div className="flex flex-col w-full mt-4">
-                  {isLoading ? (
-                    <DenomList
-                      denoms={combinedData}
-                      isLoading={isLoading}
-                      refetchDenoms={refetchData}
-                      pageSize={denomListPageSize}
-                      address={address ?? ''}
-                      admin={address ?? ''}
-                      searchTerm={searchTerm}
-                    />
-                  ) : isError ? (
+                  {isError ? (
                     <div className="text-center my-auto text-error">
                       Error loading tokens. Please try again.
                     </div>
-                  ) : !isDataReady ? (
-                    <div className="text-center my-auto">No token data available.</div>
                   ) : (
                     <DenomList
                       denoms={combinedData}
