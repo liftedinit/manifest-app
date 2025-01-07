@@ -69,7 +69,7 @@ function GroupDetailsFormFields({
   activeAuthorIndex: number | null;
   setActiveAuthorIndex: React.Dispatch<React.SetStateAction<number | null>>;
 }>) {
-  const { values, handleChange, setFieldValue, isValid } = useFormikContext<FormData>();
+  const { values, handleChange, setFieldValue } = useFormikContext<FormData>();
   const authors = Array.isArray(values.authors) ? values.authors : [values.authors];
 
   const updateField = (field: keyof FormData, value: any) => {

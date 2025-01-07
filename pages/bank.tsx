@@ -161,16 +161,26 @@ export default function Bank() {
                     </div>
                   </div>
                 </div>
-                <div role="tablist" className="tabs tabs-bordered tabs-lg flex flex-row">
+                <div
+                  role="tablist"
+                  className="tabs tabs-bordered tabs-lg flex flex-row"
+                  aria-label="Bank sections"
+                >
                   <button
-                    role={'tab'}
+                    role="tab"
+                    id="assets-tab"
+                    aria-controls="assets-panel"
+                    aria-selected={activeTab === 'assets'}
                     className={`font-bold tab ${activeTab === 'assets' ? 'tab-active' : ''}`}
                     onClick={() => setActiveTab('assets')}
                   >
                     Assets
                   </button>
                   <button
-                    role={'tab'}
+                    role="tab"
+                    id="history-tab"
+                    aria-controls="history-panel"
+                    aria-selected={activeTab === 'history'}
                     className={`font-bold tab ${activeTab === 'history' ? 'tab-active' : ''}`}
                     onClick={() => setActiveTab('history')}
                   >
