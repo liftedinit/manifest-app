@@ -89,9 +89,12 @@ export function GroupInfo({
 
     try {
       metadata = group?.metadata ? JSON.parse(group.metadata) : null;
-      authors = metadata?.authors || 'No authors available';
+      authors =
+        metadata?.authors && metadata.authors.length > 0
+          ? metadata.authors
+          : 'No authors available';
     } catch (e) {
-      console.warn('Failed to parse group metadata for authors:', e);
+      // console.warn('Failed to parse group metadata for authors:', e);
     }
 
     if (!authors) {
@@ -169,7 +172,7 @@ export function GroupInfo({
     title = metadata?.title || 'Untitled Group';
     details = metadata?.details || 'No description';
   } catch (e) {
-    console.warn('Failed to parse group metadata:', e);
+    // console.warn('Failed to parse group metadata:', e);
   }
 
   const modalContent = (

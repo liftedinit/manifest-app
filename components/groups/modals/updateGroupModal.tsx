@@ -35,7 +35,7 @@ export function UpdateGroupModal({
   try {
     maybeMetadata = group.metadata ? JSON.parse(group.metadata) : null;
   } catch (e) {
-    console.warn('Failed to parse group metadata:', e);
+    // console.warn('Failed to parse group metadata:', e);
   }
 
   const maybeTitle = maybeMetadata?.title ?? '';

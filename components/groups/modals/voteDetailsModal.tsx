@@ -1,6 +1,10 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { createPortal } from 'react-dom';
+import { PrismAsyncLight as SyntaxHighlighter } from 'react-syntax-highlighter';
+import json from 'react-syntax-highlighter/dist/esm/languages/prism/json';
+import oneDark from 'react-syntax-highlighter/dist/esm/styles/prism/one-dark';
+import oneLight from 'react-syntax-highlighter/dist/esm/styles/prism/one-light';
 
 import {
   MemberSDKType,
@@ -9,6 +13,8 @@ import {
   ProposalStatus,
   VoteOption,
   VoteSDKType,
+  GroupInfoSDKType,
+  ThresholdDecisionPolicySDKType,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { QueryTallyResultResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
@@ -20,14 +26,21 @@ import { useTx } from '@/hooks/useTx';
 import { cosmos } from '@liftedinit/manifestjs';
 import { useTheme } from '@/contexts/theme';
 import CountdownTimer from '../components/CountdownTimer';
-import { useFeeEstimation } from '@/hooks';
+import {
+  ExtendedGroupType,
+  ExtendedQueryGroupsByMemberResponseSDKType,
+  useFeeEstimation,
+} from '@/hooks';
 
 import { TrashIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { ArrowUpIcon, CopyIcon } from '@/components/icons';
 import env from '@/config/env';
+import { messageSyntax } from '@/components';
 const Chart = dynamic(() => import('react-apexcharts'), {
   ssr: false,
 }) as any;
+
+SyntaxHighlighter.registerLanguage('json', json);
 
 interface VoteMap {
   [key: string]: VoteOption;
@@ -39,6 +52,7 @@ interface VoteDetailsModalProps {
   members: MemberSDKType[];
   proposal: ProposalSDKType;
   showVoteModal: boolean;
+  group: ExtendedGroupType;
   setShowVoteModal: (show: boolean) => void;
   onClose: () => void;
   refetchVotes: () => void;
@@ -57,6 +71,7 @@ function VoteDetailsModal({
   refetchVotes,
   refetchTally,
   refetchProposals,
+  group,
 }: VoteDetailsModalProps) {
   const voteMap = useMemo(
     () =>
@@ -569,8 +584,13 @@ function VoteDetailsModal({
                       <h3 className="text-lg font-semibold mb-2 text-primary-content">
                         {messageType.split('.').pop().replace('Msg', '')}
                       </h3>
-                      <div>
-                        {fieldsToShow.map(field => renderMessageField(field, message[field]))}
+                      <div className="font-mono">
+                        <pre
+                          className="whitespace-pre-wrap break-words bg-base-200 rounded-lg text-sm overflow-x-auto"
+                          aria-label="message-json"
+                        >
+                          {messageSyntax(fieldsToShow, message, theme)}
+                        </pre>
                       </div>
                     </div>
                   );
@@ -721,7 +741,7 @@ function VoteDetailsModal({
                 )}
             </div>
             <dialog id="messages_modal" className="modal">
-              <div className="modal-box max-w-4xl bg-secondary">
+              <div className="modal-box max-w-4xl ml-20 bg-secondary">
                 <form method="dialog">
                   <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
                     ✕
@@ -741,8 +761,13 @@ function VoteDetailsModal({
                         >
                           {messageType.split('.').pop().replace('Msg', '')}
                         </h3>
-                        <div>
-                          {fieldsToShow.map(field => renderMessageField(field, message[field]))}
+                        <div className="font-mono">
+                          <pre
+                            className="whitespace-pre-wrap break-words bg-base-200 p-4 rounded-lg text-sm overflow-x-auto"
+                            aria-label="message-json-modal"
+                          >
+                            {messageSyntax(fieldsToShow, message, theme)}
+                          </pre>
                         </div>
                       </div>
                     );

@@ -1,10 +1,10 @@
 import { afterAll, afterEach, describe, expect, test, jest, mock } from 'bun:test';
 import React from 'react';
 import { screen, cleanup, fireEvent, waitFor } from '@testing-library/react';
-import MyDenoms from '@/components/factory/components/MyDenoms';
+import DenomList from '@/components/factory/components/DenomList';
 import matchers from '@testing-library/jest-dom/matchers';
 import { renderWithChainProvider } from '@/tests/render';
-import { mockDenom, mockMfxDenom } from '@/tests/mock';
+import { mockDenom, mockDenom2, mockMfxDenom } from '@/tests/mock';
 
 expect.extend(matchers);
 
@@ -40,11 +40,12 @@ const renderWithProps = (props = {}) => {
     isError: null,
     refetchDenoms: jest.fn(),
     address: '',
+    pageSize: 2,
   };
-  return renderWithChainProvider(<MyDenoms {...defaultProps} {...props} />);
+  return renderWithChainProvider(<DenomList {...defaultProps} {...props} />);
 };
 
-const allDenoms = [mockDenom, mockMfxDenom];
+const allDenoms = [mockDenom, mockDenom2];
 
 describe('MyDenoms', () => {
   afterEach(() => {
@@ -64,7 +65,7 @@ describe('MyDenoms', () => {
 
   test('renders denoms correctly', () => {
     renderWithProps({ denoms: allDenoms });
-    const mfxs = screen.getAllByText('MFX');
+    const mfxs = screen.getAllByText('TEST2');
     mfxs.forEach(element => {
       expect(element).toBeInTheDocument();
     });
@@ -76,12 +77,9 @@ describe('MyDenoms', () => {
   });
 
   test('filters denoms based on search query', async () => {
-    renderWithProps({ denoms: allDenoms });
-    const searchInput = screen.getByPlaceholderText('Search for a token...');
-    fireEvent.change(searchInput, { target: { value: 'MFX' } });
-
+    renderWithProps({ denoms: allDenoms, searchTerm: 'TEST2' });
     await waitFor(() => {
-      const tests = screen.getAllByText('MFX');
+      const tests = screen.getAllByText('TEST2');
       tests.forEach(element => {
         expect(element).toBeInTheDocument();
       });
@@ -91,10 +89,7 @@ describe('MyDenoms', () => {
   });
 
   test("displays 'No tokens found' when no denoms match search query", async () => {
-    renderWithProps({ denoms: allDenoms });
-
-    const searchInput = screen.getByPlaceholderText('Search for a token...');
-    fireEvent.change(searchInput, { target: { value: 'Nonexistent Denom' } });
+    renderWithProps({ denoms: allDenoms, searchTerm: 'Nonexistent Denom' });
     await waitFor(() => {
       expect(screen.queryByText('TEST')).not.toBeInTheDocument();
     });

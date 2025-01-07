@@ -335,7 +335,8 @@ export const mockPoaParams = {
 export const mockGroup: ExtendedGroupType = {
   id: 1n,
   admin: 'admin1',
-  metadata: 'metadata1',
+  metadata:
+    '{"title": "title1", "summary": "summary1", "details": "details1", "authors": ["author1, author2"], "voteOptionContext": "context1"}',
   version: 1n,
   created_at: new Date(),
   total_weight: '10',
@@ -377,7 +378,8 @@ export const mockGroup: ExtendedGroupType = {
 export const mockGroup2: ExtendedGroupType = {
   id: 2n,
   admin: 'admin2',
-  metadata: 'metadata2',
+  metadata:
+    '{"title": "title2", "summary": "summary2", "details": "details2", "authors": ["author2, author3"], "voteOptionContext": "context2"}',
   version: 1n,
   created_at: new Date(),
   total_weight: '10',
@@ -424,6 +426,16 @@ export const mockDenom = {
     { denom: 'test1', exponent: 6, aliases: ['test1'] },
   ],
   symbol: 'TST',
+};
+
+export const mockDenom2 = {
+  base: 'TTT2',
+  display: 'TEST2',
+  denom_units: [
+    { denom: 'utest2', exponent: 0, aliases: ['utest2'] },
+    { denom: 'test2', exponent: 6, aliases: ['test2'] },
+  ],
+  symbol: 'TST2',
 };
 
 export const mockMfxDenom = {

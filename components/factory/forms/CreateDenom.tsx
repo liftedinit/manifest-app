@@ -4,7 +4,7 @@ import Yup from '@/utils/yupExtensions';
 import { TokenAction, TokenFormData } from '@/helpers/formReducer';
 import Link from 'next/link';
 import { TextInput } from '@/components/react/inputs';
-import { useSimulateDenomCreation, tokenExponents } from '@/utils';
+import { useSimulateDenomCreation } from '@/utils';
 
 export default function CreateDenom({
   nextStep,

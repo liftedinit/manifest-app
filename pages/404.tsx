@@ -1,4 +1,5 @@
 import env from '@/config/env';
+import { SEO } from '@/components';
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
 import {
   BookmarkSquareIcon,
@@ -6,7 +7,7 @@ import {
   RssIcon,
   MagnifyingGlassCircleIcon,
 } from '@heroicons/react/24/solid';
-import Head from 'next/head';
+
 import Link from 'next/link';
 
 export default function FourOhFour() {
@@ -39,49 +40,7 @@ export default function FourOhFour() {
 
   return (
     <div className="">
-      <Head>
-        <title>404 - Alberto</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="description" content="Alberto is the gateway to the Manifest Network" />
-        <meta
-          name="keywords"
-          content="crypto, blockchain, application, Cosmos-SDK, Alberto, Manifest Network"
-        />
-        <meta name="author" content="Chandra Station" />
-        <link rel="icon" href="/favicon.ico" />
-
-        <meta property="og:title" content="404 - Alberto" />
-        <meta property="og:description" content="Alberto is the gateway to the Manifest Network" />
-        <meta property="og:url" content="https://" />
-        <meta property="og:image" content="https://" />
-        <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="Alberto" />
-
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="404 - Alberto" />
-        <meta name="twitter:description" content="Alberto is the gateway to the Manifest Network" />
-        <meta name="twitter:image" content="https://" />
-        <meta name="twitter:site" content="@" />
-
-        <script type="application/ld+json">
-          {JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'WebPage',
-            name: '404 - Alberto',
-            description: 'Alberto is the gateway to the Manifest Network',
-            url: 'https://',
-            image: 'https://',
-            publisher: {
-              '@type': 'Organization',
-              name: 'The Lifted Initiative',
-              logo: {
-                '@type': 'ImageObject',
-                url: 'https:///img/logo.png',
-              },
-            },
-          })}
-        </script>
-      </Head>
+      <SEO title="404 - Alberto" />
       <main className="mx-auto w-full max-w-7xl px-6 pb-16 sm:pb-24 lg:px-8">
         <div className="mx-auto mt-20 max-w-2xl text-center sm:mt-24">
           <p className="text-base font-semibold leading-8 ">404</p>

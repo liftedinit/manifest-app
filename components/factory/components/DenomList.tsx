@@ -3,34 +3,42 @@ import { useRouter } from 'next/router';
 import { DenomImage } from './DenomImage';
 import Link from 'next/link';
 import { truncateString, ExtendedMetadataSDKType, shiftDigits, formatTokenDisplay } from '@/utils';
-import { SearchIcon, MintIcon, BurnIcon, TransferIcon } from '@/components/icons';
+import { MintIcon, BurnIcon, TransferIcon } from '@/components/icons';
 import { DenomInfoModal } from '@/components/factory/modals/denomInfo';
 import MintModal from '@/components/factory/modals/MintModal';
 import BurnModal from '@/components/factory/modals/BurnModal';
 import { UpdateDenomMetadataModal } from '@/components/factory/modals/updateDenomMetadata';
 import { PiInfo } from 'react-icons/pi';
-import { usePoaGetAdmin } from '@/hooks';
 import useIsMobile from '@/hooks/useIsMobile';
 import TransferModal from '@/components/factory/modals/TransferModal';
 
-export default function MyDenoms({
-  denoms,
-  isLoading,
-  refetchDenoms,
-  address,
-}: {
+type DenomListProps = {
   denoms: ExtendedMetadataSDKType[];
   isLoading: boolean;
   refetchDenoms: () => void;
+  refetchProposals?: () => void;
   address: string;
-}) {
-  const [searchQuery, setSearchQuery] = useState('');
+  pageSize: number;
+  isGroup?: boolean;
+  admin: string;
+  searchTerm?: string;
+};
+
+export default function DenomList({
+  denoms,
+  isLoading,
+  refetchDenoms,
+  refetchProposals,
+  address,
+  pageSize,
+  isGroup = false,
+  admin,
+  searchTerm = '',
+}: Readonly<DenomListProps>) {
   const [currentPage, setCurrentPage] = useState(1);
   const [openUpdateDenomMetadataModal, setOpenUpdateDenomMetadataModal] = useState(false);
   const [openTransferDenomModal, setOpenTransferDenomModal] = useState(false);
   const isMobile = useIsMobile();
-
-  const pageSize = isMobile ? 5 : 8;
 
   const router = useRouter();
   const [selectedDenom, setSelectedDenom] = useState<ExtendedMetadataSDKType | null>(null);
@@ -39,8 +47,8 @@ export default function MyDenoms({
   >(null);
 
   const filteredDenoms = useMemo(() => {
-    return denoms.filter(denom => denom?.display.toLowerCase().includes(searchQuery.toLowerCase()));
-  }, [denoms, searchQuery]);
+    return denoms.filter(denom => denom?.display.toLowerCase().includes(searchTerm.toLowerCase()));
+  }, [denoms, searchTerm]);
 
   const totalPages = Math.ceil(filteredDenoms.length / pageSize);
   const paginatedDenoms = filteredDenoms.slice(
@@ -52,11 +60,16 @@ export default function MyDenoms({
     if (!modalType) {
       setSelectedDenom(denom);
       setModalType('info');
-      router.push(`/factory?denom=${denom.base}&action=info`, undefined, { shallow: true });
+      // router.push(`/factory?denom=${denom.base}&action=info`, undefined, { shallow: true });
     }
   };
 
-  const { poaAdmin, isPoaAdminLoading } = usePoaGetAdmin();
+  const refetch = () => {
+    refetchDenoms();
+    if (refetchProposals) {
+      refetchProposals();
+    }
+  };
 
   useEffect(() => {
     const { denom, action } = router.query;
@@ -98,7 +111,9 @@ export default function MyDenoms({
     setModalType(null);
     setOpenUpdateDenomMetadataModal(false);
     setOpenTransferDenomModal(false);
-    router.push('/factory', undefined, { shallow: true });
+    router.push(isGroup ? `/groups?policyAddress=${admin}&tab=tokens` : '/factory', undefined, {
+      shallow: true,
+    });
   };
 
   const handleUpdateModalClose = () => {
@@ -106,7 +121,9 @@ export default function MyDenoms({
     setOpenUpdateDenomMetadataModal(false);
     setOpenTransferDenomModal(false);
     setModalType(null);
-    router.push('/factory', undefined, { shallow: true });
+    router.push(isGroup ? `/groups?policyAddress=${admin}&tab=tokens` : '/factory', undefined, {
+      shallow: true,
+    });
   };
 
   const handleUpdateModal = (denom: ExtendedMetadataSDKType, e: React.MouseEvent) => {
@@ -115,7 +132,15 @@ export default function MyDenoms({
     setSelectedDenom(denom);
     setModalType('update');
     setOpenUpdateDenomMetadataModal(true);
-    router.push(`/factory?denom=${denom.base}&action=update`, undefined, { shallow: true });
+    router.push(
+      isGroup
+        ? `/groups?policyAddress=${admin}&tab=tokens`
+        : `/factory?denom=${denom.base}&action=update`,
+      undefined,
+      {
+        shallow: true,
+      }
+    );
   };
 
   const handleTransferModal = (denom: ExtendedMetadataSDKType, e: React.MouseEvent) => {
@@ -124,54 +149,44 @@ export default function MyDenoms({
     setSelectedDenom(denom);
     setModalType('transfer');
     setOpenTransferDenomModal(true);
-    router.push(`/factory?denom=${denom.base}&action=transfer`, undefined, { shallow: true });
+    router.push(
+      isGroup
+        ? `/groups?policyAddress=${admin}&tab=tokens`
+        : `/factory?denom=${denom.base}&action=transfer`,
+      undefined,
+      { shallow: true }
+    );
   };
 
   const handleSwitchToMultiMint = () => {
     setModalType('multimint');
-    router.push(`/factory?denom=${selectedDenom?.base}&action=multimint`, undefined, {
-      shallow: true,
-    });
+    router.push(
+      isGroup
+        ? `/groups?policyAddress=${admin}&tab=tokens`
+        : `/factory?denom=${selectedDenom?.base}&action=multimint`,
+      undefined,
+      {
+        shallow: true,
+      }
+    );
   };
 
   const handleSwitchToMultiBurn = () => {
     setModalType('multiburn');
-    router.push(`/factory?denom=${selectedDenom?.base}&action=multiburn`, undefined, {
-      shallow: true,
-    });
+    router.push(
+      isGroup
+        ? `/groups?policyAddress=${admin}&tab=tokens`
+        : `/factory?denom=${selectedDenom?.base}&action=multiburn`,
+      undefined,
+      {
+        shallow: true,
+      }
+    );
   };
 
   return (
-    <div className="relative w-full h-screen overflow-hidden">
-      <div className="h-full flex flex-col p-4">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
-            <h1
-              className="text-secondary-content"
-              style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
-            >
-              My Factory
-            </h1>
-            <div className="relative w-full sm:w-[224px]">
-              <input
-                type="text"
-                placeholder="Search for a token..."
-                className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-              />
-              <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            </div>
-          </div>
-
-          <div className="hidden md:block">
-            <Link href="/factory/create" passHref>
-              <button className="btn btn-gradient w-[224px] h-[52px] text-white rounded-[12px] focus:outline-none focus-visible:ring-1 focus-visible:ring-primary">
-                Create New Token
-              </button>
-            </Link>
-          </div>
-        </div>
+    <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
+      <div className="flex flex-col gap-4 mb-4">
         <div className="overflow-auto">
           <div className="max-w-8xl mx-auto">
             <table className="table w-full border-separate border-spacing-y-3">
@@ -228,10 +243,16 @@ export default function MyDenoms({
                                 <MintIcon className="w-7 h-7 text-current opacity-50" />
                               </button>
                               <button
-                                className="btn btn-md btn-outline btn-square btn-error"
+                                className="btn btn-md btn-outline btn-square btn-primary"
                                 disabled
                               >
                                 <BurnIcon className="w-7 h-7 text-current opacity-50" />
+                              </button>
+                              <button
+                                className="btn btn-md btn-outline btn-square btn-info"
+                                disabled
+                              >
+                                <TransferIcon className="w-7 h-7 text-current opacity-50" />
                               </button>
                               <button
                                 className="btn btn-md btn-outline btn-square btn-info"
@@ -252,17 +273,11 @@ export default function MyDenoms({
                           e.stopPropagation();
                           setSelectedDenom(denom);
                           setModalType('mint');
-                          router.push(`/factory?denom=${denom.base}&action=mint`, undefined, {
-                            shallow: true,
-                          });
                         }}
                         onBurn={e => {
                           e.stopPropagation();
                           setSelectedDenom(denom);
                           setModalType('burn');
-                          router.push(`/factory?denom=${denom.base}&action=burn`, undefined, {
-                            shallow: true,
-                          });
                         }}
                         onTransfer={e => handleTransferModal(denom, e)}
                         onUpdate={e => handleUpdateModal(denom, e)}
@@ -270,84 +285,107 @@ export default function MyDenoms({
                     ))}
               </tbody>
             </table>
-            {totalPages > 1 && (
-              <div
-                className="flex items-center justify-center gap-2 "
-                onClick={e => e.stopPropagation()}
-                role="navigation"
-                aria-label="Pagination"
-              >
-                <button
-                  onClick={e => {
-                    e.stopPropagation();
-                    setCurrentPage(prev => Math.max(1, prev - 1));
-                  }}
-                  disabled={currentPage === 1 || isLoading}
-                  className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  aria-label="Previous page"
-                >
-                  ‹
-                </button>
-
-                {[...Array(totalPages)].map((_, index) => {
-                  const pageNum = index + 1;
-                  if (
-                    pageNum === 1 ||
-                    pageNum === totalPages ||
-                    (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
-                  ) {
-                    return (
-                      <button
-                        key={pageNum}
-                        onClick={e => {
-                          e.stopPropagation();
-                          setCurrentPage(pageNum);
-                        }}
-                        className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors text-black dark:text-white 
-                          ${currentPage === pageNum ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A]' : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A]'}`}
-                        aria-label={`Page ${pageNum}`}
-                        aria-current={currentPage === pageNum ? 'page' : undefined}
-                      >
-                        {pageNum}
-                      </button>
-                    );
-                  } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
-                    return (
-                      <span key={pageNum} aria-hidden="true">
-                        ...
-                      </span>
-                    );
-                  }
-                  return null;
-                })}
-
-                <button
-                  onClick={e => {
-                    e.stopPropagation();
-                    setCurrentPage(prev => Math.min(totalPages, prev + 1));
-                  }}
-                  disabled={currentPage === totalPages || isLoading}
-                  className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  aria-label="Next page"
-                >
-                  ›
-                </button>
-              </div>
-            )}
-          </div>
-          <div className="block md:hidden mt-8">
-            <Link href="/factory/create" passHref>
-              <button className="btn btn-gradient w-full h-[52px] text-white rounded-[12px]">
-                Create New Token
-              </button>
-            </Link>
           </div>
         </div>
       </div>
+      <div className="flex items-center justify-between">
+        <Link
+          href={
+            isGroup
+              ? `/factory/create?isGroup=${isGroup}&groupPolicyAddress=${admin}`
+              : '/factory/create'
+          }
+          passHref
+        >
+          <button className="btn btn-gradient w-[224px] h-[52px] hidden md:block text-white rounded-[12px] focus:outline-none focus-visible:ring-1 focus-visible:ring-primary">
+            Create New Token
+          </button>
+        </Link>
+        {totalPages > 1 && (
+          <div
+            className="flex items-center justify-center gap-2"
+            onClick={e => e.stopPropagation()}
+            role="navigation"
+            aria-label="Pagination"
+          >
+            <button
+              onClick={e => {
+                e.stopPropagation();
+                setCurrentPage(prev => Math.max(1, prev - 1));
+              }}
+              disabled={currentPage === 1 || isLoading}
+              className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Previous page"
+            >
+              ‹
+            </button>
+
+            {[...Array(totalPages)].map((_, index) => {
+              const pageNum = index + 1;
+              if (
+                pageNum === 1 ||
+                pageNum === totalPages ||
+                (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+              ) {
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={e => {
+                      e.stopPropagation();
+                      setCurrentPage(pageNum);
+                    }}
+                    className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors text-black dark:text-white 
+                          ${currentPage === pageNum ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A]' : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A]'}`}
+                    aria-label={`Page ${pageNum}`}
+                    aria-current={currentPage === pageNum ? 'page' : undefined}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
+                return (
+                  <span key={pageNum} aria-hidden="true">
+                    ...
+                  </span>
+                );
+              }
+              return null;
+            })}
+
+            <button
+              onClick={e => {
+                e.stopPropagation();
+                setCurrentPage(prev => Math.min(totalPages, prev + 1));
+              }}
+              disabled={currentPage === totalPages || isLoading}
+              className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Next page"
+            >
+              ›
+            </button>
+          </div>
+        )}
+      </div>
+      <div className="mt-6  w-full justify-center md:hidden block">
+        <Link
+          href={
+            isGroup
+              ? `/factory/create?isGroup=${isGroup}&groupPolicyAddress=${admin}`
+              : '/factory/create'
+          }
+          passHref
+        >
+          <button className="btn btn-gradient w-full h-[52px] text-white rounded-[12px]">
+            Create New Token
+          </button>
+        </Link>
+      </div>
+
       <DenomInfoModal
         openDenomInfoModal={modalType === 'info'}
         setOpenDenomInfoModal={open => {
           if (!open) {
+            refetch();
             handleCloseModal();
           }
         }}
@@ -355,33 +393,35 @@ export default function MyDenoms({
         modalId="denom-info-modal"
       />
       <MintModal
-        admin={poaAdmin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'}
-        isPoaAdminLoading={isPoaAdminLoading}
+        admin={admin}
         denom={modalType === 'mint' ? selectedDenom : null}
         address={address}
-        refetch={refetchDenoms}
+        refetch={refetch}
         balance={selectedDenom?.balance ?? '0'}
         totalSupply={selectedDenom?.totalSupply ?? '0'}
         isOpen={modalType === 'mint'}
         onClose={handleCloseModal}
         onSwitchToMultiMint={handleSwitchToMultiMint}
+        isGroup={isGroup}
       />
       <BurnModal
+        admin={admin}
         denom={selectedDenom}
         address={address}
-        refetch={refetchDenoms}
+        refetch={refetch}
         balance={selectedDenom?.balance ?? '0'}
         totalSupply={selectedDenom?.totalSupply ?? '0'}
         isOpen={modalType === 'burn'}
         onClose={handleCloseModal}
         onSwitchToMultiBurn={handleSwitchToMultiBurn}
+        isGroup={isGroup}
       />
       <UpdateDenomMetadataModal
         modalId="update-denom-metadata-modal"
         denom={selectedDenom}
         address={address}
         onSuccess={() => {
-          refetchDenoms();
+          refetch();
           handleUpdateModalClose();
         }}
         openUpdateDenomMetadataModal={openUpdateDenomMetadataModal}
@@ -392,6 +432,8 @@ export default function MyDenoms({
             setOpenUpdateDenomMetadataModal(true);
           }
         }}
+        admin={admin}
+        isGroup={isGroup}
       />
       <TransferModal
         modalId="transfer-denom-modal"
@@ -404,13 +446,15 @@ export default function MyDenoms({
           }
         }}
         onSuccess={() => {
-          refetchDenoms();
+          refetch();
           handleUpdateModalClose();
         }}
         denom={selectedDenom}
         address={address}
         isOpen={modalType === 'transfer'}
         onClose={handleCloseModal}
+        isGroup={isGroup}
+        admin={admin}
       />
     </div>
   );

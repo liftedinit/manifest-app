@@ -39,6 +39,9 @@ export const parseNumberToBigInt = (v: string, maxDigits: number = 6) => {
   }
   const precision = new BigNumber(10).pow(maxDigits);
   const b = amount.times(precision).toFixed();
+  console.log('amount', amount);
+  console.log('precision', precision);
+  console.log('BBBBBBBBBBBBBBB', b);
   return BigInt(b);
 };
 

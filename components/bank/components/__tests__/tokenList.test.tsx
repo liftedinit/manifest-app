@@ -71,7 +71,7 @@ describe('TokenList', () => {
         pageSize={1}
       />
     );
-    expect(screen.getByText('Your Assets')).toBeInTheDocument();
+    expect(screen.getByText('utoken1')).toBeInTheDocument();
   });
 
   test('displays loading skeleton when isLoading is true', () => {
@@ -111,11 +111,9 @@ describe('TokenList', () => {
         refetchHistory={jest.fn()}
         address={''}
         pageSize={1}
+        searchTerm={'Token 1'}
       />
     );
-    const searchInput = screen.getByPlaceholderText('Search for a token...');
-    fireEvent.change(searchInput, { target: { value: 'Token 1' } });
-
     expect(screen.getByText('Token 1')).toBeInTheDocument();
     expect(screen.queryByText('Token 2')).not.toBeInTheDocument();
   });

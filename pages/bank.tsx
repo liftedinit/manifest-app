@@ -1,4 +1,4 @@
-import { WalletNotConnected, HistoryBox } from '@/components';
+import { WalletNotConnected, HistoryBox, SearchIcon } from '@/components';
 import { TokenList } from '@/components/bank/components/tokenList';
 import {
   useGetFilteredTxAndSuccessfulProposals,
@@ -8,12 +8,20 @@ import {
   useTokenFactoryDenomsMetadata,
 } from '@/hooks';
 import { useChain } from '@cosmos-kit/react';
-import Head from 'next/head';
-import React, { useMemo, useState } from 'react';
+
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { BankIcon } from '@/components/icons';
 import { CombinedBalanceInfo } from '@/utils/types';
 import { MFX_TOKEN_DATA } from '@/utils/constants';
 import env from '@/config/env';
+import { SEO } from '@/components';
+import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
+
+interface PageSizeConfig {
+  tokenList: number;
+  history: number;
+  skeleton: number;
+}
 
 export default function Bank() {
   const { address, isWalletConnected } = useChain(env.chain);
@@ -26,13 +34,44 @@ export default function Bank() {
 
   const { metadatas, isMetadatasLoading } = useTokenFactoryDenomsMetadata();
   const [currentPage, setCurrentPage] = useState(1);
+  const [activeTab, setActiveTab] = useState('assets');
 
-  const isMobile = useIsMobile();
+  const sizeLookup: Array<{ height: number; width: number; sizes: PageSizeConfig }> = [
+    {
+      height: 700,
+      width: Infinity,
+      sizes: { tokenList: 5, history: 4, skeleton: 5 },
+    },
+    {
+      height: 800,
+      width: Infinity,
+      sizes: { tokenList: 6, history: 6, skeleton: 7 },
+    },
+    {
+      height: 1000,
+      width: 800,
+      sizes: { tokenList: 7, history: 7, skeleton: 7 },
+    },
+    {
+      height: 1000,
+      width: Infinity,
+      sizes: { tokenList: 8, history: 8, skeleton: 8 },
+    },
+    {
+      height: 1300,
+      width: Infinity,
+      sizes: { tokenList: 9, history: 9, skeleton: 9 },
+    },
+  ];
 
-  const pageSize = isMobile ? 4 : 9;
+  const defaultSizes = { tokenList: 10, history: 10, skeleton: 10 };
+
+  const pageSize = useResponsivePageSize(sizeLookup, defaultSizes);
 
   const skeletonGroupCount = 1;
-  const skeletonTxCount = isMobile ? 5 : 9;
+  const skeletonTxCount = pageSize.skeleton;
+  const tokenListPageSize = pageSize.tokenList;
+  const historyPageSize = pageSize.history;
 
   const {
     sendTxs,
@@ -40,7 +79,12 @@ export default function Bank() {
     isLoading: txLoading,
     isError,
     refetch: refetchHistory,
-  } = useGetFilteredTxAndSuccessfulProposals(env.indexerUrl, address ?? '', currentPage, pageSize);
+  } = useGetFilteredTxAndSuccessfulProposals(
+    env.indexerUrl,
+    address ?? '',
+    currentPage,
+    historyPageSize
+  );
 
   const combinedBalances = useMemo(() => {
     if (!balances || !resolvedBalances || !metadatas) return [];
@@ -81,100 +125,102 @@ export default function Bank() {
   }, [balances, resolvedBalances, metadatas]);
 
   const isLoading = isBalancesLoading || resolvedLoading || isMetadatasLoading;
+  const [searchTerm, setSearchTerm] = useState('');
 
   return (
-    <>
-      <div className="min-h-screen relative px-2 mx-auto text-white mt-12 md:mt-0">
-        <Head>
-          <title>Bank - Alberto</title>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <meta name="description" content="Alberto is the gateway to the Manifest Network" />
-          <meta
-            name="keywords"
-            content="crypto, blockchain, application, Cosmos-SDK, Alberto, Manifest Network"
-          />
-          <meta name="author" content="Chandra Station" />
-          <link rel="icon" href="/favicon.ico" />
+    <div className="min-h-screen relative px-2 lg:py-0 py-4 mx-auto text-white">
+      <SEO title="Bank - Alberto" />
 
-          <meta property="og:title" content="Bank - Alberto" />
-          <meta
-            property="og:description"
-            content="Alberto is the gateway to the Manifest Network"
-          />
-          <meta property="og:url" content="https://" />
-          <meta property="og:image" content="https://" />
-          <meta property="og:type" content="website" />
-          <meta property="og:site_name" content="Alberto" />
-
-          <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:title" content="Bank - Alberto" />
-          <meta
-            name="twitter:description"
-            content="Alberto is the gateway to the Manifest Network"
-          />
-          <meta name="twitter:image" content="https://" />
-          <meta name="twitter:site" content="@" />
-
-          <script type="application/ld+json">
-            {JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'WebPage',
-              name: 'Bank - Alberto',
-              description: 'Alberto is the gateway to the Manifest Network',
-              url: 'https://',
-              image: 'https://',
-              publisher: {
-                '@type': 'Organization',
-                name: 'Chandra Station',
-                logo: {
-                  '@type': 'ImageObject',
-                  url: 'https:///img/logo.png',
-                },
-              },
-            })}
-          </script>
-        </Head>
-
-        <div className="h-[calc(100vh-1.5rem)] py-1 gap-4 flex flex-col w-full lg:flex-row animate-fadeIn">
+      <div className="flex-grow h-full animate-fadeIn transition-all duration-300">
+        <div className="w-full mx-auto">
           {!isWalletConnected ? (
             <WalletNotConnected
               description="Use the button below to connect your wallet and start interacting with your tokens."
               icon={<BankIcon className="h-60 w-60 text-primary" />}
             />
           ) : (
-            isWalletConnected &&
-            combinedBalances && (
-              <div className="flex flex-col lg:flex-row w-full gap-4 max-h-full">
-                <div className="w-full lg:w-1/2 h-[calc(50vh)] lg:h-full overflow-hidden">
-                  <TokenList
-                    refetchBalances={refetchBalances || resolveRefetch}
-                    isLoading={isLoading}
-                    balances={combinedBalances}
-                    refetchHistory={refetchHistory}
-                    address={address ?? ''}
-                    pageSize={pageSize}
-                  />
+            <div className="relative w-full h-full overflow-hidden scrollbar-hide p-1">
+              <div className="h-full flex flex-col">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
+                    <h1
+                      className="text-secondary-content"
+                      style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
+                    >
+                      Bank
+                    </h1>
+                    <div className="relative w-full sm:w-[224px]">
+                      <input
+                        type="text"
+                        placeholder="Search for an asset ..."
+                        className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+                        value={searchTerm}
+                        onChange={e => setSearchTerm(e.target.value)}
+                      />
+                      <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                    </div>
+                  </div>
                 </div>
-                <div className="w-full lg:w-1/2 h-1/2 lg:h-full overflow-hidden">
-                  <HistoryBox
-                    currentPage={currentPage}
-                    setCurrentPage={setCurrentPage}
-                    address={address ?? ''}
-                    isLoading={isLoading}
-                    sendTxs={sendTxs}
-                    totalPages={totalPages}
-                    txLoading={txLoading}
-                    isError={isError}
-                    refetch={refetchHistory}
-                    skeletonGroupCount={skeletonGroupCount}
-                    skeletonTxCount={skeletonTxCount}
-                  />
+                <div
+                  role="tablist"
+                  className="tabs tabs-bordered tabs-lg flex flex-row"
+                  aria-label="Bank sections"
+                >
+                  <button
+                    role="tab"
+                    id="assets-tab"
+                    aria-controls="assets-panel"
+                    aria-selected={activeTab === 'assets'}
+                    className={`font-bold tab ${activeTab === 'assets' ? 'tab-active' : ''}`}
+                    onClick={() => setActiveTab('assets')}
+                  >
+                    Assets
+                  </button>
+                  <button
+                    role="tab"
+                    id="history-tab"
+                    aria-controls="history-panel"
+                    aria-selected={activeTab === 'history'}
+                    className={`font-bold tab ${activeTab === 'history' ? 'tab-active' : ''}`}
+                    onClick={() => setActiveTab('history')}
+                  >
+                    Activity
+                  </button>
+                </div>
+
+                <div className="flex flex-col w-full mt-4">
+                  {activeTab === 'assets' && (
+                    <TokenList
+                      refetchBalances={refetchBalances || resolveRefetch}
+                      isLoading={isLoading}
+                      balances={combinedBalances}
+                      refetchHistory={refetchHistory}
+                      address={address ?? ''}
+                      pageSize={tokenListPageSize}
+                      searchTerm={searchTerm}
+                    />
+                  )}
+                  {activeTab === 'history' && (
+                    <HistoryBox
+                      currentPage={currentPage}
+                      setCurrentPage={setCurrentPage}
+                      address={address ?? ''}
+                      isLoading={isLoading}
+                      sendTxs={sendTxs}
+                      totalPages={totalPages}
+                      txLoading={txLoading}
+                      isError={isError}
+                      refetch={refetchHistory}
+                      skeletonGroupCount={skeletonGroupCount}
+                      skeletonTxCount={skeletonTxCount}
+                    />
+                  )}
                 </div>
               </div>
-            )
+            </div>
           )}
         </div>
       </div>
-    </>
+    </div>
   );
 }

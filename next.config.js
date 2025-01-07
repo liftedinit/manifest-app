@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
-  transpilePackages: ['@cosmos-kit/web3auth'],
+  transpilePackages: ['@cosmos-kit/web3auth', 'react-syntax-highlighter'],
   reactStrictMode: true,
   swcMinify: true,
   images: {

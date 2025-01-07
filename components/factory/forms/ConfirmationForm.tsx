@@ -2,7 +2,12 @@ import env from '@/config/env';
 import { TokenFormData } from '@/helpers/formReducer';
 import { useFeeEstimation } from '@/hooks/useFeeEstimation';
 import { useTx } from '@/hooks/useTx';
-import { osmosis } from '@liftedinit/manifestjs';
+import { osmosis, cosmos } from '@liftedinit/manifestjs';
+import {
+  MsgSetDenomMetadata,
+  MsgCreateDenom,
+} from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+import { Any } from 'cosmjs-types/google/protobuf/any';
 
 export default function ConfirmationForm({
   nextStep,
@@ -19,13 +24,78 @@ export default function ConfirmationForm({
   const { estimateFee } = useFeeEstimation(env.chain);
   const { setDenomMetadata, createDenom } =
     osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
+  const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
-  const fullDenom = `factory/${address}/${formData.subdenom}`;
+  const effectiveAddress =
+    formData.isGroup && formData.groupPolicyAddress ? formData.groupPolicyAddress : address;
+
+  const fullDenom = `factory/${effectiveAddress}/${formData.subdenom}`;
 
   const handleConfirm = async () => {
     setIsSigning(true);
 
-    try {
+    const createAsGroup = async () => {
+      const symbol = formData.subdenom.slice(1).toUpperCase();
+      const msg = submitProposal({
+        groupPolicyAddress: formData.groupPolicyAddress || '',
+        messages: [
+          Any.fromPartial({
+            typeUrl: MsgCreateDenom.typeUrl,
+            value: MsgCreateDenom.encode(
+              createDenom({
+                sender: formData.groupPolicyAddress || '',
+                subdenom: formData.subdenom,
+              }).value
+            ).finish(),
+          }),
+          Any.fromPartial({
+            typeUrl: MsgSetDenomMetadata.typeUrl,
+            value: MsgSetDenomMetadata.encode(
+              setDenomMetadata({
+                sender: formData.groupPolicyAddress || '',
+                metadata: {
+                  description: formData.description,
+                  denomUnits: [
+                    {
+                      denom: fullDenom,
+                      exponent: 0,
+                      aliases: [symbol],
+                    },
+                    {
+                      denom: symbol,
+                      exponent: 6,
+                      aliases: [fullDenom],
+                    },
+                  ],
+                  base: fullDenom,
+                  display: formData.display,
+                  name: formData.name,
+                  symbol: formData.display,
+                  uri: formData.uri,
+                  uriHash: formData.uriHash,
+                },
+              }).value
+            ).finish(),
+          }),
+        ],
+        metadata: '',
+        proposers: [address],
+        title: `Create ${formData.display} denom and set metadata`,
+        summary: `This proposal create the ${formData.display} denom and set its metadata`,
+        exec: 0,
+      });
+
+      const fee = await estimateFee(address, [msg]);
+      await tx([msg], {
+        fee: fee,
+        onSuccess: () => {
+          nextStep();
+        },
+        returnError: true,
+      });
+    };
+
+    const createAsUser = async () => {
       // First, create the denom
       const createDenomMsg = createDenom({
         sender: address,
@@ -78,6 +148,10 @@ export default function ConfirmationForm({
         },
         returnError: true,
       });
+    };
+
+    try {
+      formData.isGroup ? await createAsGroup() : await createAsUser();
     } catch (error) {
       console.error('Error during transaction setup:', error);
     } finally {
@@ -93,11 +167,13 @@ export default function ConfirmationForm({
         </div>
 
         <div className="space-y-6">
-          <div className="text-md">
-            You will be required to sign two messages: the first to create the token on the
-            blockchain, and the second to configure the token&#39;s metadata, including its name,
-            symbol, description, and other details.
-          </div>
+          {!formData.isGroup && (
+            <div className="text-md">
+              You will be required to sign two messages: the first to create the token on the
+              blockchain, and the second to configure the token&#39;s metadata, including its name,
+              symbol, description, and other details.
+            </div>
+          )}
           {/* Token Information */}
           <div>
             <h2 className="text-xl font-semibold mb-4 ">Token Information</h2>

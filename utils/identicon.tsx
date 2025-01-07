@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import React, { useState, useEffect } from 'react';
 import Identicon, { IdenticonOptions } from 'identicon.js';
 import CryptoJS from 'crypto-js';
@@ -31,13 +32,13 @@ const ProfileAvatar = ({ walletAddress, size }: { walletAddress: string; size?: 
     }
   }, [walletAddress]);
 
-  const imageSize = size ? `${size}px` : '32px';
+  const imageSize = size ? `${size}px` : '44px';
 
   return (
     <img
       src={avatarSrc}
       alt="Profile Avatar"
-      className="rounded-full dark:bg-[#FFFFFF0F] bg-[#0000000A]"
+      className="rounded-md dark:bg-[#FFFFFF0F] bg-[#0000000A]"
       style={{ height: imageSize, width: imageSize }}
     />
   );

@@ -77,7 +77,7 @@ describe('TokenDetailsForm Component', () => {
 
   test('next button is enabled when form is valid', async () => {
     renderWithChainProvider(<TokenDetailsForm {...mockProps} />);
-    const nextButton = screen.getByText('Next: Confirmation');
+    const nextButton = screen.getByText('Next: Group Policy');
     await waitFor(() => {
       expect(nextButton).toBeEnabled();
     });

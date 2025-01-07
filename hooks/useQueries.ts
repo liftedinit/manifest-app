@@ -4,7 +4,7 @@ import { QueryGroupsByMemberResponseSDKType } from '@liftedinit/manifestjs/dist/
 
 import { useLcdQueryClient } from './useLcdQueryClient';
 import { usePoaLcdQueryClient } from './usePoaLcdQueryClient';
-import { getLogoUrls, isValidIPFSCID } from '@/utils';
+import { getLogoUrls } from '@/utils';
 
 import { useManifestLcdQueryClient } from './useManifestLcdQueryClient';
 
@@ -544,6 +544,10 @@ export const useTokenFactoryDenomsFromAdmin = (address: string) => {
     if (!lcdQueryClient) {
       throw new Error('LCD Client not ready');
     }
+    if (!lcdQueryClient.osmosis) {
+      throw new Error('Osmosis module not found in LCD client');
+    }
+
     if (!address) {
       return { denoms: [] };
     }
@@ -565,6 +569,7 @@ export const useTokenFactoryDenomsFromAdmin = (address: string) => {
     denoms: denomsQuery.data,
     isDenomsLoading: denomsQuery.isLoading,
     isDenomsError: denomsQuery.isError,
+    denomError: denomsQuery.error,
     refetchDenoms: denomsQuery.refetch,
   };
 };
@@ -826,11 +831,12 @@ export const useGetFilteredTxAndSuccessfulProposals = (
   const fetchTransactions = async () => {
     const baseUrl = `${indexerUrl}/rpc/get_address_filtered_transactions_and_successful_proposals?address=${address}`;
 
-    // Add pagination parameters
+    // Update order parameter to sort by timestamp instead of height
     const offset = (page - 1) * pageSize;
     const paginationParams = `&limit=${pageSize}&offset=${offset}`;
+    const orderParam = `&order=data->txResponse->timestamp.desc`; // Changed from height to timestamp
 
-    const finalUrl = `${baseUrl}&order=data->txResponse->height.desc${paginationParams}`;
+    const finalUrl = `${baseUrl}${orderParam}${paginationParams}`;
 
     try {
       // First, get the total count
@@ -856,7 +862,16 @@ export const useGetFilteredTxAndSuccessfulProposals = (
 
       const transactions = dataResponse.data
         .flatMap((tx: any) => transformTransactions(tx, address))
-        .filter((tx: any) => tx !== null);
+        .filter((tx: any) => tx !== null)
+        // Add secondary JS sort
+        .sort((a: any, b: any) => {
+          // Sort by timestamp descending (newest first)
+          const dateComparison =
+            new Date(b.formatted_date).getTime() - new Date(a.formatted_date).getTime();
+          if (dateComparison !== 0) return dateComparison;
+          // If timestamps are equal, sort by block number descending
+          return b.block_number - a.block_number;
+        });
 
       return {
         transactions,

@@ -1,27 +1,32 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   useProposalsByPolicyAccount,
   useTallyCount,
   useVotesByProposal,
   useMultipleTallyCounts,
+  ExtendedQueryGroupsByMemberResponseSDKType,
+  ExtendedGroupType,
 } from '@/hooks/useQueries';
 import { ProposalSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { QueryTallyResultResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
 
-import { SearchIcon } from '@/components/icons';
 import { useRouter } from 'next/router';
 
 import VoteDetailsModal from '@/components/groups/modals/voteDetailsModal';
 import { useGroupsByMember } from '@/hooks/useQueries';
 import { useChain } from '@cosmos-kit/react';
-import { MemberSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import {
+  MemberSDKType,
+  GroupInfoSDKType,
+} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { ArrowRightIcon } from '@/components/icons';
 import ProfileAvatar from '@/utils/identicon';
 import { HistoryBox, TransactionGroup } from '@/components';
 import { TokenList } from '@/components';
-import { CombinedBalanceInfo } from '@/utils';
+import { CombinedBalanceInfo, ExtendedMetadataSDKType } from '@/utils';
+import DenomList from '@/components/factory/components/DenomList';
 
-type GroupProposalsProps = {
+type GroupControlsProps = {
   policyAddress: string;
   groupName: string;
   onBack: () => void;
@@ -34,14 +39,19 @@ type GroupProposalsProps = {
   txLoading: boolean;
   isError: boolean;
   balances: CombinedBalanceInfo[];
+  denoms: ExtendedMetadataSDKType[];
+  denomLoading: boolean;
+  isDenomError: boolean;
   refetchBalances: () => void;
   refetchHistory: () => void;
+  refetchDenoms: () => void;
   pageSize: number;
   skeletonGroupCount: number;
   skeletonTxCount: number;
+  group: ExtendedGroupType;
 };
 
-export default function GroupProposals({
+export default function GroupControls({
   policyAddress,
   groupName,
   onBack,
@@ -54,18 +64,24 @@ export default function GroupProposals({
   txLoading,
   isError,
   balances,
+  denoms,
+  denomLoading,
+  isDenomError,
   refetchBalances,
   refetchHistory,
+  refetchDenoms,
   pageSize,
   skeletonGroupCount,
   skeletonTxCount,
-}: GroupProposalsProps) {
+  group,
+}: GroupControlsProps) {
   const { proposals, isProposalsLoading, isProposalsError, refetchProposals } =
     useProposalsByPolicyAccount(policyAddress);
 
   const [selectedProposal, setSelectedProposal] = useState<ProposalSDKType | null>(null);
   const [members, setMembers] = useState<MemberSDKType[]>([]);
   const [showVoteModal, setShowVoteModal] = useState(false);
+  const [activeTab, setActiveTab] = useState('proposals');
 
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -85,6 +101,18 @@ export default function GroupProposals({
   };
 
   const router = useRouter();
+
+  useEffect(() => {
+    const { tab } = router.query;
+    if (tab && typeof tab === 'string') {
+      setActiveTab(tab);
+    }
+  }, [router.query]);
+
+  const handleTabClick = (tab: string) => {
+    setActiveTab(tab);
+    router.push(`/groups?policyAddress=${policyAddress}&tab=${tab}`, undefined, { shallow: true });
+  };
 
   useEffect(() => {
     const { proposalId } = router.query;
@@ -230,11 +258,17 @@ export default function GroupProposals({
 
   const { tallies, isLoading: isTalliesLoading } = useMultipleTallyCounts(proposals.map(p => p.id));
 
+  const handleKeyDown = (e: React.KeyboardEvent, tab: string) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleTabClick(tab);
+    }
+  };
+
   return (
-    <div className="h-full min-h-screen flex flex-col p-4">
+    <div className="">
       <div className="flex w-full h-full md:flex-row flex-col md:gap-8">
         <div className="flex flex-col w-full md:w-[48%] h-full">
-          {/* Header section */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-4">
               <button
@@ -245,36 +279,74 @@ export default function GroupProposals({
                 <ArrowRightIcon className="text-primary" />
               </button>
               <h1 className="text-2xl font-bold text-primary-content truncate">{groupName}</h1>
-              <div className="hidden sm:block">
+              <div className="">
                 <ProfileAvatar walletAddress={policyAddress} size={40} />
               </div>
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Search and New Proposal section */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
-              <h2 className="text-xl font-semibold text-primary-content">Proposals</h2>
-              <div className="relative w-full sm:w-[224px]">
-                <input
-                  type="text"
-                  placeholder="Search for a proposal..."
-                  className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
-                  value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
-                  aria-label="Search proposals"
-                />
-                <SearchIcon
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                  aria-hidden="true"
-                />
-              </div>
-            </div>
-          </div>
+      <div role="tablist" className="tabs tabs-bordered tabs-md md:tabs-lg flex flex-row">
+        <button
+          role="tab"
+          id="proposals-tab"
+          aria-selected={activeTab === 'proposals'}
+          aria-controls="proposals-panel"
+          tabIndex={activeTab === 'proposals' ? 0 : -1}
+          className={`font-bold tab ${activeTab === 'proposals' ? 'tab-active' : ''}`}
+          onClick={() => handleTabClick('proposals')}
+          onKeyDown={e => handleKeyDown(e, 'proposals')}
+        >
+          Proposals
+        </button>
+        <button
+          role="tab"
+          id="assets-tab"
+          aria-selected={activeTab === 'assets'}
+          aria-controls="assets-panel"
+          tabIndex={activeTab === 'assets' ? 0 : -1}
+          className={`font-bold tab ${activeTab === 'assets' ? 'tab-active' : ''}`}
+          onClick={() => handleTabClick('assets')}
+          onKeyDown={e => handleKeyDown(e, 'assets')}
+        >
+          Assets
+        </button>
+        <button
+          role="tab"
+          id="history-tab"
+          aria-selected={activeTab === 'history'}
+          aria-controls="history-panel"
+          tabIndex={activeTab === 'history' ? 0 : -1}
+          className={`font-bold tab ${activeTab === 'history' ? 'tab-active' : ''}`}
+          onClick={() => handleTabClick('history')}
+          onKeyDown={e => handleKeyDown(e, 'history')}
+        >
+          Activity
+        </button>
+        <button
+          role="tab"
+          id="tokens-tab"
+          aria-selected={activeTab === 'tokens'}
+          aria-controls="tokens-panel"
+          tabIndex={activeTab === 'tokens' ? 0 : -1}
+          className={`font-bold tab ${activeTab === 'tokens' ? 'tab-active' : ''}`}
+          onClick={() => handleTabClick('tokens')}
+          onKeyDown={e => handleKeyDown(e, 'tokens')}
+        >
+          Tokens
+        </button>
+      </div>
 
-          {/* Updated Table section */}
-          <div className="flex-1 overflow-auto">
-            {isProposalsLoading ? (
+      <div className="flex flex-col w-full mt-4">
+        <div
+          id="proposals-panel"
+          role="tabpanel"
+          aria-labelledby="proposals-tab"
+          hidden={activeTab !== 'proposals'}
+        >
+          {activeTab === 'proposals' &&
+            (isProposalsLoading ? (
               <div
                 className="flex justify-center items-center h-64"
                 role="status"
@@ -288,7 +360,7 @@ export default function GroupProposals({
               </div>
             ) : filteredProposals.length > 0 ? (
               <table
-                className="table w-full border-separate border-spacing-y-3"
+                className="table w-full border-separate border-spacing-y-3 -mt-6"
                 aria-label="Group proposals"
               >
                 <thead>
@@ -349,7 +421,11 @@ export default function GroupProposals({
                     const proposalTally = tallies.find(t => t.proposalId === proposal.id)?.tally;
 
                     let status = 'Pending';
-                    if (proposal.status.toString() === 'PROPOSAL_STATUS_ACCEPTED') {
+                    if (
+                      proposal.executor_result.toString() === 'PROPOSAL_EXECUTOR_RESULT_FAILURE'
+                    ) {
+                      status = 'Failure';
+                    } else if (proposal.status.toString() === 'PROPOSAL_STATUS_ACCEPTED') {
                       status = 'Execute';
                     } else if (proposal.status.toString() === 'PROPOSAL_STATUS_CLOSED') {
                       status = 'Executed';
@@ -383,11 +459,7 @@ export default function GroupProposals({
                         </td>
                         <td className="bg-secondary group-hover:bg-base-300 px-4 py-4 w-[25%] sm:table-cell md:hidden hidden xl:table-cell ">
                           {proposal.messages.length > 0
-                            ? proposal.messages.map((message, index) => (
-                                <div key={index}>
-                                  {getHumanReadableType((message as any)['@type'])}
-                                </div>
-                              ))
+                            ? getHumanReadableType((proposal.messages[0] as any)['@type'])
                             : 'No messages'}
                         </td>
                         <td className="bg-secondary group-hover:bg-base-300 rounded-r-[12px] sm:table-cell xxs:hidden hidden 2xl:table-cell">
@@ -406,12 +478,37 @@ export default function GroupProposals({
               <div className="text-center py-8 text-gray-500" role="status">
                 No proposal was found.
               </div>
-            )}
-          </div>
+            ))}
         </div>
 
-        <div className="flex w-full md:w-[50%] h-full flex-col gap-4 mt-4 md:mt-0">
-          <div className="md:h-[calc(40vh)] h-full">
+        <div
+          id="assets-panel"
+          role="tabpanel"
+          aria-labelledby="assets-tab"
+          hidden={activeTab !== 'assets'}
+        >
+          {activeTab === 'assets' && (
+            <TokenList
+              balances={balances}
+              isLoading={isLoading}
+              refetchBalances={refetchBalances}
+              refetchHistory={refetchHistory}
+              address={address ?? ''}
+              pageSize={pageSize}
+              isGroup={true}
+              admin={policyAddress}
+              refetchProposals={refetchProposals}
+            />
+          )}
+        </div>
+
+        <div
+          id="history-panel"
+          role="tabpanel"
+          aria-labelledby="history-tab"
+          hidden={activeTab !== 'history'}
+        >
+          {activeTab === 'history' && (
             <HistoryBox
               isLoading={isLoading}
               address={policyAddress}
@@ -426,24 +523,31 @@ export default function GroupProposals({
               skeletonTxCount={skeletonTxCount}
               isGroup={true}
             />
-          </div>
-          <div className="h-full md:h-[calc(70vh-1rem)]">
-            <TokenList
-              balances={balances}
-              isLoading={isLoading}
-              refetchBalances={refetchBalances}
-              refetchHistory={refetchHistory}
-              address={address ?? ''}
-              pageSize={pageSize}
-              isGroup={true}
-              admin={policyAddress}
-              refetchProposals={refetchProposals}
-            />
-          </div>
+          )}
+        </div>
+
+        <div
+          id="tokens-panel"
+          role="tabpanel"
+          aria-labelledby="tokens-tab"
+          hidden={activeTab !== 'tokens'}
+        >
+          {activeTab === 'tokens' && (
+            <div className="h-full w-full -mt-7">
+              <DenomList
+                denoms={denoms}
+                isLoading={isLoading}
+                refetchDenoms={refetchDenoms}
+                refetchProposals={refetchProposals}
+                address={address ?? ''}
+                admin={policyAddress}
+                pageSize={pageSize - 1}
+                isGroup={true}
+              />
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Modals */}
       {selectedProposal && (
         <VoteDetailsModal
           tallies={tally ?? ({} as QueryTallyResultResponseSDKType)}
@@ -456,6 +560,7 @@ export default function GroupProposals({
           refetchVotes={refetchVotes}
           refetchTally={refetchTally}
           refetchProposals={refetchProposals}
+          group={group}
         />
       )}
     </div>

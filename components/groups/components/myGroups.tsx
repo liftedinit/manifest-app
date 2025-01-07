@@ -4,18 +4,25 @@ import {
   useGetFilteredTxAndSuccessfulProposals,
   useTokenBalances,
   useTokenBalancesResolved,
+  useTokenFactoryDenomsFromAdmin,
   useTokenFactoryDenomsMetadata,
+  useTotalSupply,
 } from '@/hooks/useQueries';
 import ProfileAvatar from '@/utils/identicon';
-import { CombinedBalanceInfo, MFX_TOKEN_DATA, truncateString } from '@/utils';
-import React, { useState, useEffect, useMemo } from 'react';
+import {
+  CombinedBalanceInfo,
+  ExtendedMetadataSDKType,
+  MFX_TOKEN_DATA,
+  truncateString,
+} from '@/utils';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import {
   ProposalSDKType,
   ThresholdDecisionPolicySDKType,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
-import GroupProposals from './groupControls';
+import GroupControls from './groupControls';
 import { useBalance } from '@/hooks/useQueries';
 import { shiftDigits } from '@/utils';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
@@ -27,6 +34,15 @@ import { MemberManagementModal } from '../modals/memberManagementModal';
 import { useChain } from '@cosmos-kit/react';
 import useIsMobile from '@/hooks/useIsMobile';
 import env from '@/config/env';
+import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
+
+// Add this interface outside the component
+interface PageSizeConfig {
+  groupInfo: number;
+  groupEntries: number;
+  history: number;
+  skeleton: number;
+}
 
 export function YourGroups({
   groups,
@@ -43,13 +59,45 @@ export function YourGroups({
   const [currentPage, setCurrentPage] = useState(1);
   const isMobile = useIsMobile();
 
-  const pageSize = isMobile ? 4 : 8;
+  const sizeLookup: Array<{ height: number; width: number; sizes: PageSizeConfig }> = [
+    {
+      height: 700,
+      width: Infinity,
+      sizes: { groupInfo: 4, groupEntries: 2, history: 4, skeleton: 5 },
+    },
+    {
+      height: 800,
+      width: Infinity,
+      sizes: { groupInfo: 5, groupEntries: 3, history: 5, skeleton: 7 },
+    },
+    {
+      height: 1000,
+      width: 800,
+      sizes: { groupInfo: 7, groupEntries: 5, history: 7, skeleton: 7 },
+    },
+    {
+      height: 1000,
+      width: Infinity,
+      sizes: { groupInfo: 8, groupEntries: 8, history: 8, skeleton: 8 },
+    },
+    {
+      height: 1300,
+      width: Infinity,
+      sizes: { groupInfo: 8, groupEntries: 8, history: 8, skeleton: 8 },
+    },
+  ];
 
-  const [selectedGroup, setSelectedGroup] = useState<{
-    policyAddress: string;
-    name: string;
-    threshold: string;
-  } | null>(null);
+  const defaultSizes = { groupInfo: 8, groupEntries: 8, history: 8, skeleton: 8 };
+
+  const pageSize = useResponsivePageSize(sizeLookup, defaultSizes);
+
+  const pageSizeGroupInfo = pageSize.groupInfo;
+  const pageSizeHistory = pageSize.history;
+  const skeletonGroupCount = 1;
+  const skeletonTxCount = pageSize.skeleton;
+
+  const [selectedGroup, setSelectedGroup] = useState<ExtendedGroupType | null>(null);
+  const [selectedGroupName, setSelectedGroupName] = useState<string>('Untitled Group');
 
   const router = useRouter();
   const { address } = useChain('manifest');
@@ -60,15 +108,21 @@ export function YourGroups({
       const groupTitle = metadata?.title || 'Untitled Group';
       return groupTitle.toLowerCase().includes(searchTerm.toLowerCase());
     } catch (e) {
-      console.warn('Failed to parse group metadata:', e);
+      // console.warn('Failed to parse group metadata:', e);
       return 'Untitled Group'.toLowerCase().includes(searchTerm.toLowerCase());
     }
   });
 
-  const totalPages = Math.ceil(filteredGroups.length / pageSize);
+  const totalPages = Math.ceil(filteredGroups.length / pageSize.groupInfo);
   const paginatedGroups = filteredGroups.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
+    (currentPage - 1) * pageSize.groupInfo,
+    currentPage * pageSize.groupInfo
+  );
+
+  const totalPagesGroupEntries = Math.ceil(filteredGroups.length / pageSize.groupEntries);
+  const paginatedGroupEntries = filteredGroups.slice(
+    (currentPage - 1) * pageSize.groupEntries,
+    currentPage * pageSize.groupEntries
   );
 
   useEffect(() => {
@@ -85,16 +139,11 @@ export function YourGroups({
           groupName = metadata?.title ?? 'Untitled Group';
         } catch (e) {
           // If JSON parsing fails, fall back to default name
-          console.warn('Failed to parse group metadata:', e);
+          // console.warn('Failed to parse group metadata:', e);
         }
 
-        setSelectedGroup({
-          policyAddress,
-          name: groupName,
-          threshold:
-            (group.policies[0]?.decision_policy as ThresholdDecisionPolicySDKType)?.threshold ??
-            '0',
-        });
+        setSelectedGroupName(groupName);
+        setSelectedGroup(group);
       }
     }
   }, [router.query, groups.groups]);
@@ -106,18 +155,30 @@ export function YourGroups({
     }
   }, [selectedGroup]);
 
-  const handleSelectGroup = (policyAddress: string, groupName: string, threshold: string) => {
-    setSelectedGroup({ policyAddress, name: groupName || 'Untitled Group', threshold });
-    router.push(`/groups?policyAddress=${policyAddress}`, undefined, { shallow: true });
+  const handleSelectGroup = (group: ExtendedGroupType) => {
+    let groupName = 'Untitled Group';
+    try {
+      const metadata = group.metadata ? JSON.parse(group.metadata) : null;
+      groupName = metadata?.title ?? 'Untitled Group';
+    } catch (e) {
+      // If JSON parsing fails, fall back to default name
+      // console.warn('Failed to parse group metadata:', e);
+    }
+    setSelectedGroupName(groupName);
+    setSelectedGroup(group);
+    router.push(`/groups?policyAddress=${group.policies[0]?.address}`, undefined, {
+      shallow: true,
+    });
   };
 
   const handleBack = () => {
+    setSelectedGroupName('Untitled Group');
     setSelectedGroup(null);
     router.push('/groups', undefined, { shallow: true });
   };
 
   const { balances, isBalancesLoading, refetchBalances } = useTokenBalances(
-    selectedGroup?.policyAddress ?? ''
+    selectedGroup?.policies[0]?.address ?? ''
   );
   const {
     balances: resolvedBalances,
@@ -125,13 +186,9 @@ export function YourGroups({
     refetchBalances: resolveRefetch,
   } = useTokenBalancesResolved(address ?? '');
 
-  const { metadatas, isMetadatasLoading } = useTokenFactoryDenomsMetadata();
+  const { metadatas, isMetadatasLoading, isMetadatasError, refetchMetadatas } =
+    useTokenFactoryDenomsMetadata();
   const [currentPageGroupInfo, setCurrentPageGroupInfo] = useState(1);
-
-  const pageSizeGroupInfo = isMobile ? 4 : 4;
-  const pageSizeHistory = isMobile ? 4 : 3;
-  const skeletonGroupCount = 1;
-  const skeletonTxCount = isMobile ? 5 : 3;
 
   const {
     sendTxs,
@@ -141,10 +198,46 @@ export function YourGroups({
     refetch: refetchHistory,
   } = useGetFilteredTxAndSuccessfulProposals(
     env.indexerUrl,
-    selectedGroup?.policyAddress ?? '',
+    selectedGroup?.policies[0]?.address ?? '',
     currentPageGroupInfo,
     pageSizeHistory
   );
+
+  const { denoms, isDenomsLoading, isDenomsError, denomError, refetchDenoms } =
+    useTokenFactoryDenomsFromAdmin(selectedGroup?.policies[0]?.address ?? '');
+  const { totalSupply, isTotalSupplyLoading, isTotalSupplyError, refetchTotalSupply } =
+    useTotalSupply();
+
+  const refetchData = () => {
+    refetchDenoms();
+    refetchMetadatas();
+    refetchBalances();
+    refetchTotalSupply();
+  };
+
+  const combinedData = useMemo(() => {
+    if (denoms?.denoms && metadatas?.metadatas && balances && totalSupply) {
+      const otherTokens = denoms.denoms
+        .filter(denom => denom !== 'umfx')
+        .map((denom: string) => {
+          const metadata = metadatas.metadatas.find(meta => meta.base === denom);
+          const balance = balances.find(bal => bal.denom === denom);
+          const supply = totalSupply.find(supply => supply.denom === denom);
+          return metadata
+            ? {
+                ...metadata,
+                balance: balance?.amount || '0',
+                totalSupply: supply?.amount || '0',
+              }
+            : null;
+        })
+        .filter((meta): meta is ExtendedMetadataSDKType => meta !== null);
+
+      return [...otherTokens];
+    }
+    return [];
+  }, [denoms, metadatas, balances, totalSupply]);
+  const isDataReady = combinedData.length > 0;
 
   const combinedBalances = useMemo(() => {
     if (!balances || !resolvedBalances || !metadatas) return [];
@@ -184,26 +277,31 @@ export function YourGroups({
     return mfxCombinedBalance ? [mfxCombinedBalance, ...otherBalances] : otherBalances;
   }, [balances, resolvedBalances, metadatas]);
 
-  const isLoadingGroupInfo = isBalancesLoading || resolvedLoading || isMetadatasLoading;
+  const isLoadingGroupInfo =
+    isBalancesLoading ||
+    resolvedLoading ||
+    isMetadatasLoading ||
+    isDenomsLoading ||
+    isTotalSupplyLoading;
 
   const [activeInfoModalId, setActiveInfoModalId] = useState<string | null>(null);
   const [activeMemberModalId, setActiveMemberModalId] = useState<string | null>(null);
 
   return (
-    <div className="relative w-full h-screen overflow-x-hidden scrollbar-hide">
+    <div className="relative w-full h-screen overflow-x-hidden scrollbar-hide ">
       <div
         className={`absolute inset-0 transition-transform duration-300 ${
           selectedGroup ? '-translate-x-full' : 'translate-x-0'
         }`}
       >
-        <div className="h-full flex flex-col p-4">
+        <div className="h-full flex flex-col gap-4 mb-4 p-1">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
               <h1
                 className="text-secondary-content"
                 style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
               >
-                My groups
+                Groups
               </h1>
               <div className="relative w-full sm:w-[224px]">
                 <input
@@ -216,13 +314,6 @@ export function YourGroups({
                 />
                 <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               </div>
-            </div>
-            <div className="hidden md:block ">
-              <Link href="/groups/create" passHref aria-label="Create new group">
-                <button className="btn btn-gradient w-[224px] h-[52px] text-white rounded-[12px] focus:outline-none focus-visible:ring-1 focus-visible:ring-primary">
-                  Create New Group
-                </button>
-              </Link>
             </div>
           </div>
           <div className="overflow-auto">
@@ -249,7 +340,7 @@ export function YourGroups({
                           <tr key={index} data-testid="skeleton-row">
                             <td className="bg-secondary rounded-l-[12px] ">
                               <div className="flex items-center space-x-3">
-                                <div className="skeleton w-10 h-8 rounded-full shrink-0"></div>
+                                <div className="skeleton w-11 h-11 rounded-md shrink-0"></div>
                                 <div className="skeleton h-3 w-24"></div>
                               </div>
                             </td>
@@ -283,7 +374,7 @@ export function YourGroups({
                             </td>
                           </tr>
                         ))
-                    : paginatedGroups.map((group, index) => (
+                    : paginatedGroupEntries.map((group, index) => (
                         <GroupRow
                           key={index}
                           group={group}
@@ -303,73 +394,80 @@ export function YourGroups({
                       ))}
                 </tbody>
               </table>
-              {totalPages > 1 && (
-                <div
-                  className="flex items-center justify-center gap-2"
-                  onClick={e => e.stopPropagation()}
-                  role="navigation"
-                  aria-label="Pagination"
-                >
-                  <button
-                    onClick={e => {
-                      e.stopPropagation();
-                      setCurrentPage(prev => Math.max(1, prev - 1));
-                    }}
-                    disabled={currentPage === 1 || isLoading}
-                    className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    aria-label="Previous page"
-                  >
-                    ‹
-                  </button>
-
-                  {[...Array(totalPages)].map((_, index) => {
-                    const pageNum = index + 1;
-                    if (
-                      pageNum === 1 ||
-                      pageNum === totalPages ||
-                      (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
-                    ) {
-                      return (
-                        <button
-                          key={pageNum}
-                          onClick={e => {
-                            e.stopPropagation();
-                            setCurrentPage(pageNum);
-                          }}
-                          className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors text-black dark:text-white
-                            ${currentPage === pageNum ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A]' : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A]'}`}
-                          aria-label={`Page ${pageNum}`}
-                          aria-current={currentPage === pageNum ? 'page' : undefined}
-                        >
-                          {pageNum}
-                        </button>
-                      );
-                    } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
-                      return (
-                        <span key={pageNum} aria-hidden="true">
-                          ...
-                        </span>
-                      );
-                    }
-                    return null;
-                  })}
-
-                  <button
-                    onClick={e => {
-                      e.stopPropagation();
-                      setCurrentPage(prev => Math.min(totalPages, prev + 1));
-                    }}
-                    disabled={currentPage === totalPages || isLoading}
-                    className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    aria-label="Next page"
-                  >
-                    ›
-                  </button>
-                </div>
-              )}
             </div>
           </div>
-          <div className="mt-6  w-full justify-center md:hidden block">
+          <div className="flex item-center justify-between">
+            <Link href="/groups/create" passHref aria-label="Create new group">
+              <button className="btn btn-gradient w-[224px] h-[52px] hidden md:block text-white rounded-[12px] focus:outline-none focus-visible:ring-1 focus-visible:ring-primary">
+                Create New Group
+              </button>
+            </Link>
+            {totalPages > 1 && (
+              <div
+                className="flex items-center justify-end gap-2"
+                onClick={e => e.stopPropagation()}
+                role="navigation"
+                aria-label="Pagination"
+              >
+                <button
+                  onClick={e => {
+                    e.stopPropagation();
+                    setCurrentPage(prev => Math.max(1, prev - 1));
+                  }}
+                  disabled={currentPage === 1 || isLoading}
+                  className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  aria-label="Previous page"
+                >
+                  ‹
+                </button>
+
+                {[...Array(totalPages)].map((_, index) => {
+                  const pageNum = index + 1;
+                  if (
+                    pageNum === 1 ||
+                    pageNum === totalPages ||
+                    (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                  ) {
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={e => {
+                          e.stopPropagation();
+                          setCurrentPage(pageNum);
+                        }}
+                        className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors text-black dark:text-white
+                            ${currentPage === pageNum ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A]' : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A]'}`}
+                        aria-label={`Page ${pageNum}`}
+                        aria-current={currentPage === pageNum ? 'page' : undefined}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
+                    return (
+                      <span key={pageNum} aria-hidden="true">
+                        ...
+                      </span>
+                    );
+                  }
+                  return null;
+                })}
+
+                <button
+                  onClick={e => {
+                    e.stopPropagation();
+                    setCurrentPage(prev => Math.min(totalPages, prev + 1));
+                  }}
+                  disabled={currentPage === totalPages || isLoading}
+                  className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  aria-label="Next page"
+                >
+                  ›
+                </button>
+              </div>
+            )}
+          </div>
+          <div className="mt-6 w-full justify-center md:hidden block">
             <Link href="/groups/create" passHref>
               <button className="btn btn-gradient w-full h-[52px] text-white rounded-[12px]">
                 Create New Group
@@ -386,11 +484,14 @@ export function YourGroups({
         }`}
       >
         {selectedGroup && (
-          <GroupProposals
-            policyAddress={selectedGroup.policyAddress}
-            groupName={selectedGroup.name}
+          <GroupControls
+            policyAddress={selectedGroup.policies[0]?.address ?? ''}
+            groupName={selectedGroupName}
             onBack={handleBack}
-            policyThreshold={selectedGroup.threshold}
+            policyThreshold={
+              (selectedGroup.policies[0]?.decision_policy as ThresholdDecisionPolicySDKType)
+                ?.threshold ?? '0'
+            }
             isLoading={isLoadingGroupInfo}
             currentPage={currentPageGroupInfo}
             setCurrentPage={setCurrentPageGroupInfo}
@@ -399,11 +500,16 @@ export function YourGroups({
             txLoading={txLoading}
             isError={isError}
             balances={combinedBalances}
+            denoms={combinedData}
+            denomLoading={isDenomsLoading}
+            isDenomError={isDenomsError}
             refetchBalances={resolveRefetch}
             refetchHistory={refetchHistory}
+            refetchDenoms={refetchData}
             pageSize={pageSizeGroupInfo}
             skeletonGroupCount={skeletonGroupCount}
             skeletonTxCount={skeletonTxCount}
+            group={selectedGroup}
           />
         )}
       </div>
@@ -460,7 +566,8 @@ function GroupRow({
 }: {
   group: ExtendedQueryGroupsByMemberResponseSDKType['groups'][0];
   proposals: ProposalSDKType[];
-  onSelectGroup: (policyAddress: string, groupName: string, threshold: string) => void;
+  onSelectGroup: (group: ExtendedGroupType) => void;
+
   activeMemberModalId: string | null;
   setActiveMemberModalId: (id: string | null) => void;
   activeInfoModalId: string | null;
@@ -472,7 +579,7 @@ function GroupRow({
     const metadata = group.metadata ? JSON.parse(group.metadata) : null;
     groupName = metadata?.title || 'Untitled Group';
   } catch (e) {
-    console.warn('Failed to parse group metadata:', e);
+    // console.warn('Failed to parse group metadata:', e);
   }
   const filterActiveProposals = (proposals: ProposalSDKType[]) => {
     return proposals?.filter(
@@ -498,16 +605,7 @@ function GroupRow({
   return (
     <tr
       className="group text-black dark:text-white rounded-lg cursor-pointer"
-      onClick={e => {
-        e.stopPropagation();
-        onSelectGroup(
-          policyAddress,
-          groupName,
-          (group.policies &&
-            (group.policies[0]?.decision_policy as ThresholdDecisionPolicySDKType)?.threshold) ??
-            '0'
-        );
-      }}
+      onClick={() => onSelectGroup(group)}
       tabIndex={0}
       role="button"
       aria-label={`Select ${groupName} group`}
@@ -517,7 +615,7 @@ function GroupRow({
           <ProfileAvatar walletAddress={policyAddress} />
           <span className="font-medium">{truncateString(groupName, 24)}</span>
         </div>
-        <div className="items-center flex xs:hidden">
+        <div className="items-center flex xs:hidden block">
           <ProfileAvatar walletAddress={policyAddress} />
         </div>
       </td>

@@ -174,6 +174,7 @@ module.exports = {
             border: 'none',
             boxShadow: 'none',
             backgroundColor: '#4f1312',
+            color: '#FFFFFF',
           },
         },
       };
@@ -191,7 +192,8 @@ module.exports = {
             cursor: 'not-allowed',
             border: 'none',
             boxShadow: 'none',
-            textColor: '#fffcfc',
+            color: '#fffcfc',
+            cursor: 'not-allowed',
           },
         },
       };

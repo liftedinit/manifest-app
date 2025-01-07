@@ -28,11 +28,6 @@ export const ChainUpgrader = ({ admin, address }: { admin: string; address: stri
 
   return (
     <div className="w-full md:w-1/2 h-full bg-secondary relative rounded-lg p-6 flex flex-col gap-4 shadow-lg">
-      <div className="absolute top-4 right-4">
-        <p className={`text-xs ${plan ? 'text-success' : 'text-content'}`}>
-          {plan ? 'Upgrade in progress' : 'No upgrade in progress'}
-        </p>
-      </div>
       <div className="space-y-2">
         <h1 className="text-xl font-bold text-secondary-content">Submit Chain Upgrade Proposal</h1>
         <p className="text-secondary-content/80 text-sm">
