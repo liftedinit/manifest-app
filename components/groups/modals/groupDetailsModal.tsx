@@ -26,12 +26,18 @@ export function GroupDetailsModal({ group, modalId }: Group & { modalId: string 
     return adminAddresses.includes(address);
   };
 
-  const metadata = group.metadata ? JSON.parse(group.metadata) : null;
+  const metadata = (() => {
+    try {
+      return group.metadata ? JSON.parse(group.metadata) : null;
+    } catch (error) {
+      console.error('Failed to parse group metadata:', error);
+      return null;
+    }
+  })();
 
   const authors = metadata?.authors || 'No authors available';
   const summary = metadata?.summary || 'No summary available';
   const details = metadata?.details || 'No details available';
-  const proposalForumURL = metadata?.proposalForumURL || 'No forum URL available';
 
   return (
     <dialog id={modalId} className="modal">
@@ -59,12 +65,6 @@ export function GroupDetailsModal({ group, modalId }: Group & { modalId: string 
               <p className="text-sm font-light mt-4 ">DETAILS</p>
               <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2 max-h-[9.53rem] overflow-y-auto">
                 <p className="text-md text-wrap ">{details}</p>
-              </div>
-            </div>
-            <div>
-              <p className="text-sm font-light mt-4 ">FORUM</p>
-              <div className="bg-base-200 shadow rounded-lg p-4 mt-2 mb-2">
-                <p className="text-md ">{proposalForumURL}</p>
               </div>
             </div>
           </div>

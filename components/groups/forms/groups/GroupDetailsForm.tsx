@@ -10,51 +10,63 @@ import { isValidManifestAddress } from '@/utils/string';
 import { MdContacts } from 'react-icons/md';
 import { TailwindModal } from '@/components/react/modal';
 
-const GroupSchema = Yup.object().shape({
-  title: Yup.string()
-    .required('Title is required')
-    .max(50, 'Title must not exceed 50 characters')
-    .noProfanity(),
-  authors: Yup.lazy(val =>
-    Array.isArray(val)
-      ? Yup.array()
-          .of(
-            Yup.string().test(
-              'author-validation',
-              'Invalid author name or address',
-              function (value) {
-                if (value?.startsWith('manifest')) {
-                  return isValidManifestAddress(value);
+const GroupSchema = Yup.object()
+  .shape({
+    title: Yup.string()
+      .required('Title is required')
+      .max(50, 'Title must not exceed 50 characters')
+      .noProfanity(),
+    authors: Yup.lazy(val =>
+      Array.isArray(val)
+        ? Yup.array()
+            .of(
+              Yup.string().test(
+                'author-validation',
+                'Invalid author name or address',
+                function (value) {
+                  if (value?.startsWith('manifest')) {
+                    return isValidManifestAddress(value);
+                  }
+                  return Yup.string()
+                    .max(50, 'Author name must not exceed 50 characters')
+                    .noProfanity('Profanity is not allowed')
+                    .isValidSync(value);
                 }
-                return Yup.string()
-                  .max(50, 'Author name must not exceed 50 characters')
-                  .noProfanity('Profanity is not allowed')
-                  .isValidSync(value);
-              }
+              )
             )
-          )
-          .min(1, 'At least one author is required')
-      : Yup.string().test(
-          'single-author-validation',
-          'Invalid author name or address',
-          function (value) {
-            if (value?.startsWith('manifest')) {
-              return isValidManifestAddress(value);
+            .min(1, 'At least one author is required')
+        : Yup.string().test(
+            'single-author-validation',
+            'Invalid author name or address',
+            function (value) {
+              if (value?.startsWith('manifest')) {
+                return isValidManifestAddress(value);
+              }
+              return Yup.string()
+                .max(50, 'Author name must not exceed 50 characters')
+                .noProfanity('Profanity is not allowed')
+                .isValidSync(value);
             }
-            return Yup.string()
-              .max(50, 'Author name must not exceed 50 characters')
-              .noProfanity('Profanity is not allowed')
-              .isValidSync(value);
-          }
-        )
-  ),
-
-  description: Yup.string()
-    .required('Description is required')
-    .min(20, 'Description must be at least 20 characters')
-    .max(1000, 'Description must not exceed 1000 characters')
-    .noProfanity('Profanity is not allowed'),
-});
+          )
+    ),
+    description: Yup.string()
+      .required('Description is required')
+      .min(50, 'Description must be at least 50 characters')
+      .max(100, 'Description must not exceed 100 characters')
+      .noProfanity('Profanity is not allowed'),
+  })
+  .test(
+    'metadata-total-length',
+    'Total metadata length must not exceed 255 characters',
+    function (values) {
+      const metadata = JSON.stringify({
+        title: values.title || '',
+        authors: Array.isArray(values.authors) ? values.authors.join(', ') : values.authors || '',
+        details: values.description || '',
+      });
+      return metadata.length <= 255;
+    }
+  );
 
 export default function GroupDetails({
   nextStep,

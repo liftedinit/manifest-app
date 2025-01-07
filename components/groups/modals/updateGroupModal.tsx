@@ -41,7 +41,7 @@ export function UpdateGroupModal({
   const maybeTitle = maybeMetadata?.title ?? '';
   const maybeAuthors = maybeMetadata?.authors ?? '';
   const maybeSummary = maybeMetadata?.summary ?? '';
-  const maybeProposalForumURL = maybeMetadata?.proposalForumURL ?? '';
+
   const maybeDetails = maybeMetadata?.details ?? '';
   const maybePolicies = group?.policies?.[0];
   const maybeDecisionPolicy = maybePolicies?.decision_policy;
@@ -56,7 +56,7 @@ export function UpdateGroupModal({
   const [name, setName] = useState(maybeTitle);
   const [authors, setAuthors] = useState(maybeAuthors);
   const [summary, setSummary] = useState(maybeSummary);
-  const [forum, setForum] = useState(maybeProposalForumURL);
+
   const [description, setDescription] = useState(maybeDetails);
   const [threshold, setThreshold] = useState(maybeThreshold);
   const [votingPeriod, setVotingPeriod] = useState({
@@ -103,14 +103,13 @@ export function UpdateGroupModal({
       hasStateChanged(name, maybeTitle) ||
       hasStateChanged(authors, maybeAuthors) ||
       hasStateChanged(summary, maybeSummary) ||
-      hasStateChanged(forum, maybeProposalForumURL) ||
       hasStateChanged(description, maybeDetails)
     ) {
       const newMetadata = JSON.stringify({
         title: name,
         authors: authors,
         summary: summary,
-        proposalForumURL: forum,
+
         details: description,
       });
       const msgGroupMetadata = updateGroupMetadata({
@@ -221,74 +220,82 @@ export function UpdateGroupModal({
     }
   };
 
-  const validationSchema = Yup.object().shape({
-    name: Yup.string()
-      .max(24, 'Name must be at most 24 characters')
-      .noProfanity('Profanity is not allowed')
-      .when(['threshold', 'votingPeriod'], {
-        is: (threshold: number, votingPeriod: any) => {
-          // Convert both values to numbers for comparison
-          const hasThresholdChange = Number(threshold) !== Number(maybeThreshold);
+  const validationSchema = Yup.object()
+    .shape({
+      name: Yup.string()
+        .max(50, 'Name must be at most 50 characters')
+        .noProfanity('Profanity is not allowed')
+        .when(['threshold', 'votingPeriod'], {
+          is: (threshold: number, votingPeriod: any) => {
+            // Convert both values to numbers for comparison
+            const hasThresholdChange = Number(threshold) !== Number(maybeThreshold);
+            const totalSeconds =
+              (Number(votingPeriod?.days) || 0) * 86400 +
+              (Number(votingPeriod?.hours) || 0) * 3600 +
+              (Number(votingPeriod?.minutes) || 0) * 60 +
+              (Number(votingPeriod?.seconds) || 0);
+            const originalSeconds = Number(maybeVotingPeriod?.seconds) || 0;
+            const hasVotingPeriodChange = totalSeconds !== originalSeconds;
+
+            return hasThresholdChange || hasVotingPeriodChange;
+          },
+          then: schema => schema.optional(),
+          otherwise: schema =>
+            schema.when(['authors', 'summary', 'forum', 'description'], {
+              is: (authors: string, summary: string, forum: string, description: string) =>
+                !authors && !summary && !forum && !description,
+              then: schema => schema.required('At least one metadata field is required'),
+              otherwise: schema => schema.optional(),
+            }),
+        }),
+      authors: Yup.string()
+        .noProfanity('Profanity is not allowed')
+        .max(50, 'Authors must not exceed 50 characters')
+        .optional(),
+      description: Yup.string()
+        .noProfanity('Profanity is not allowed')
+        .min(50, 'Description must be at least 50 characters')
+        .max(100, 'Description must not exceed 100 characters')
+        .optional(),
+      threshold: Yup.number().min(1, 'Threshold must be at least 1').optional(),
+      votingPeriod: Yup.object()
+        .shape({
+          days: Yup.number().min(0, 'Must be 0 or greater').required('Required'),
+          hours: Yup.number().min(0, 'Must be 0 or greater').required('Required'),
+          minutes: Yup.number().min(0, 'Must be 0 or greater').required('Required'),
+          seconds: Yup.number().min(0, 'Must be 0 or greater').required('Required'),
+        })
+        .test('min-total-time', 'Voting period must be at least 30 minutes', function (value) {
+          // Only validate if voting period is being updated
+          if (!value || Object.values(value).every(v => v === 0)) return true;
+
+          const { days, hours, minutes, seconds } = value;
           const totalSeconds =
-            (Number(votingPeriod?.days) || 0) * 86400 +
-            (Number(votingPeriod?.hours) || 0) * 3600 +
-            (Number(votingPeriod?.minutes) || 0) * 60 +
-            (Number(votingPeriod?.seconds) || 0);
-          const originalSeconds = Number(maybeVotingPeriod?.seconds) || 0;
-          const hasVotingPeriodChange = totalSeconds !== originalSeconds;
-
-          return hasThresholdChange || hasVotingPeriodChange;
-        },
-        then: schema => schema.optional(),
-        otherwise: schema =>
-          schema.when(['authors', 'summary', 'forum', 'description'], {
-            is: (authors: string, summary: string, forum: string, description: string) =>
-              !authors && !summary && !forum && !description,
-            then: schema => schema.required('At least one metadata field is required'),
-            otherwise: schema => schema.optional(),
-          }),
-      }),
-    authors: Yup.string().noProfanity('Profanity is not allowed').optional(),
-    summary: Yup.string()
-      .noProfanity('Profanity is not allowed')
-      .min(10, 'Summary must be at least 10 characters')
-      .max(500, 'Summary must not exceed 500 characters')
-      .optional(),
-    threshold: Yup.number().min(1, 'Threshold must be at least 1').optional(),
-    votingPeriod: Yup.object()
-      .shape({
-        days: Yup.number().min(0, 'Must be 0 or greater').required('Required'),
-        hours: Yup.number().min(0, 'Must be 0 or greater').required('Required'),
-        minutes: Yup.number().min(0, 'Must be 0 or greater').required('Required'),
-        seconds: Yup.number().min(0, 'Must be 0 or greater').required('Required'),
-      })
-      .test('min-total-time', 'Voting period must be at least 30 minutes', function (value) {
-        // Only validate if voting period is being updated
-        if (!value || Object.values(value).every(v => v === 0)) return true;
-
-        const { days, hours, minutes, seconds } = value;
-        const totalSeconds =
-          (Number(days) || 0) * 86400 +
-          (Number(hours) || 0) * 3600 +
-          (Number(minutes) || 0) * 60 +
-          (Number(seconds) || 0);
-        return totalSeconds >= 1800;
-      }),
-    forum: Yup.string().url('Invalid URL').noProfanity('Profanity is not allowed').optional(),
-    description: Yup.string()
-      .noProfanity('Profanity is not allowed')
-      .min(10, 'Description must be at least 10 characters')
-      .max(500, 'Description must not exceed 500 characters')
-      .optional(),
-  });
+            (Number(days) || 0) * 86400 +
+            (Number(hours) || 0) * 3600 +
+            (Number(minutes) || 0) * 60 +
+            (Number(seconds) || 0);
+          return totalSeconds >= 1800;
+        }),
+    })
+    .test(
+      'metadata-total-length',
+      'Total metadata length must not exceed 255 characters',
+      function (values) {
+        const metadata = JSON.stringify({
+          title: values.name || '',
+          authors: values.authors || '',
+          details: values.description || '',
+        });
+        return metadata.length <= 255;
+      }
+    );
 
   const hasAnyChanges = (values: any) => {
     // Check metadata changes
     const hasMetadataChanges =
       values.name !== maybeTitle ||
       values.authors !== maybeAuthors ||
-      values.summary !== maybeSummary ||
-      values.forum !== maybeProposalForumURL ||
       values.description !== maybeDetails;
 
     // Check policy changes
@@ -345,7 +352,7 @@ export function UpdateGroupModal({
           name: name,
           authors: authors,
           summary: summary,
-          forum: forum,
+
           description: description,
           threshold: threshold,
           votingPeriod: votingPeriod,
@@ -402,16 +409,7 @@ export function UpdateGroupModal({
                         setFieldValue('summary', e.target.value);
                       }}
                     />
-                    <TextInput
-                      label="Forum URL"
-                      name="forum"
-                      placeholder="Forum URL"
-                      value={values.forum}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        setForum(e.target.value);
-                        setFieldValue('forum', e.target.value);
-                      }}
-                    />
+
                     <TextArea
                       label="Description"
                       name="description"
