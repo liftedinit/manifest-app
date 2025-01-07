@@ -72,6 +72,8 @@ function MemberInfoFormFields({
                             rightElement={
                               <button
                                 type="button"
+                                aria-label="Select contact from address book"
+                                title="Select contact from address book"
                                 onClick={() => {
                                   setActiveMemberIndex(index);
                                   setIsContactsOpen(true);
@@ -152,6 +154,13 @@ function MemberInfoFormFields({
                             {...field}
                             type="number"
                             min="1"
+                            step="1"
+                            onKeyDown={e => {
+                              // Prevent negative signs and decimals
+                              if (e.key === '-' || e.key === '.' || e.key === 'e') {
+                                e.preventDefault();
+                              }
+                            }}
                             placeholder="1"
                             className={`input input-bordered w-full ${
                               meta.touched && meta.error ? 'input-error' : ''
