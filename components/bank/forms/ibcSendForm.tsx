@@ -1,13 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useFeeEstimation, useTx } from '@/hooks';
 import { ibc } from '@liftedinit/manifestjs';
-import {
-  getIbcInfo,
-  parseNumberToBigInt,
-  shiftDigits,
-  truncateString,
-  formatTokenDisplayName,
-} from '@/utils';
+import { getIbcInfo, parseNumberToBigInt, shiftDigits, truncateString } from '@/utils';
 import { PiCaretDownBold } from 'react-icons/pi';
 import { MdContacts } from 'react-icons/md';
 import { CombinedBalanceInfo } from '@/utils/types';
@@ -291,7 +285,10 @@ export default function IbcSendForm({
                         className="btn btn-sm h-full px-3 bg-[#FFFFFF] dark:bg-[#FFFFFF0F] border-none hover:bg-transparent"
                       >
                         {values.selectedToken?.metadata ? (
-                          <DenomImage denom={values.selectedToken.metadata} />
+                          <DenomImage
+                            denom={values.selectedToken.metadata}
+                            withBackground={false}
+                          />
                         ) : null}
 
                         {(() => {
@@ -330,12 +327,19 @@ export default function IbcSendForm({
                           filteredBalances?.map(token => (
                             <li
                               key={token.coreDenom}
-                              onClick={() => setFieldValue('selectedToken', token)}
+                              onClick={() => {
+                                setFieldValue('selectedToken', token);
+                                if (document.activeElement) {
+                                  document.activeElement.blur();
+                                }
+                              }}
                               className="hover:bg-[#E0E0FF33] dark:hover:bg-[#FFFFFF0F] cursor-pointer rounded-lg"
                               aria-label={token.metadata?.display ?? token.denom}
                             >
                               <a className="flex flex-row items-center gap-2 px-2 py-2">
-                                {token.metadata ? <DenomImage denom={token.metadata} /> : null}
+                                {token.metadata ? (
+                                  <DenomImage denom={token.metadata} withBackground={false} />
+                                ) : null}
                                 <span className="truncate">
                                   {(() => {
                                     const tokenDisplayName =
