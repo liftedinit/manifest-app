@@ -338,14 +338,6 @@ export const mockGroup: ExtendedGroupType = {
   metadata: 'metadata1',
   version: 1n,
   created_at: new Date(),
-  ipfsMetadata: {
-    title: 'title1',
-    summary: 'summary1',
-    details: 'details1',
-    authors: 'author1, author2',
-    proposalForumURL: 'forum1.com',
-    voteOptionContext: 'context1',
-  },
   total_weight: '10',
   policies: [
     {
@@ -388,14 +380,6 @@ export const mockGroup2: ExtendedGroupType = {
   metadata: 'metadata2',
   version: 1n,
   created_at: new Date(),
-  ipfsMetadata: {
-    title: 'title2',
-    summary: 'summary2',
-    details: 'details2',
-    authors: 'author2, author3',
-    proposalForumURL: 'forum2.com',
-    voteOptionContext: 'context2',
-  },
   total_weight: '10',
   policies: [
     {
