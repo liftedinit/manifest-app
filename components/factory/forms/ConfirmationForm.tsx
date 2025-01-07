@@ -44,7 +44,7 @@ export default function ConfirmationForm({
             value: MsgCreateDenom.encode(
               createDenom({
                 sender: formData.groupPolicyAddress || '',
-                subdenom: formData.subdenom,
+                subdenom: 'u' + formData.subdenom,
               }).value
             ).finish(),
           }),
@@ -99,7 +99,7 @@ export default function ConfirmationForm({
       // First, create the denom
       const createDenomMsg = createDenom({
         sender: address,
-        subdenom: formData.subdenom,
+        subdenom: 'u' + formData.subdenom,
       });
 
       const createDenomFee = await estimateFee(address, [createDenomMsg]);

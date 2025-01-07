@@ -21,7 +21,6 @@ export default function CreateDenom({
   const DenomSchema = Yup.object().shape({
     subdenom: Yup.string()
       .required('Subdenom is required')
-      .matches(/^[u][a-zA-Z0-9]+$/, 'Subdenom must start with the letter u')
       .min(4, 'Subdenom must be at least 4 characters')
       .max(44, 'Subdenom must not exceed 44 characters')
       .noProfanity('Profanity is not allowed')
@@ -57,8 +56,7 @@ export default function CreateDenom({
                     <TextInput
                       label="Token Sub Denom"
                       name="subdenom"
-                      placeholder="utoken"
-                      helperText="Use a subdenom starting with a prefix (e.g., 'utoken')"
+                      placeholder="token"
                       value={formData.subdenom}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                         dispatch({
