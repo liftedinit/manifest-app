@@ -108,7 +108,7 @@ export function YourGroups({
       const groupTitle = metadata?.title || 'Untitled Group';
       return groupTitle.toLowerCase().includes(searchTerm.toLowerCase());
     } catch (e) {
-      console.warn('Failed to parse group metadata:', e);
+      // console.warn('Failed to parse group metadata:', e);
       return 'Untitled Group'.toLowerCase().includes(searchTerm.toLowerCase());
     }
   });
@@ -139,7 +139,7 @@ export function YourGroups({
           groupName = metadata?.title ?? 'Untitled Group';
         } catch (e) {
           // If JSON parsing fails, fall back to default name
-          console.warn('Failed to parse group metadata:', e);
+          // console.warn('Failed to parse group metadata:', e);
         }
 
         setSelectedGroupName(groupName);
@@ -162,7 +162,7 @@ export function YourGroups({
       groupName = metadata?.title ?? 'Untitled Group';
     } catch (e) {
       // If JSON parsing fails, fall back to default name
-      console.warn('Failed to parse group metadata:', e);
+      // console.warn('Failed to parse group metadata:', e);
     }
     setSelectedGroupName(groupName);
     setSelectedGroup(group);
@@ -579,7 +579,7 @@ function GroupRow({
     const metadata = group.metadata ? JSON.parse(group.metadata) : null;
     groupName = metadata?.title || 'Untitled Group';
   } catch (e) {
-    console.warn('Failed to parse group metadata:', e);
+    // console.warn('Failed to parse group metadata:', e);
   }
   const filterActiveProposals = (proposals: ProposalSDKType[]) => {
     return proposals?.filter(

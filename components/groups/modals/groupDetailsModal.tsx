@@ -30,7 +30,7 @@ export function GroupDetailsModal({ group, modalId }: Group & { modalId: string 
     try {
       return group.metadata ? JSON.parse(group.metadata) : null;
     } catch (error) {
-      console.error('Failed to parse group metadata:', error);
+      // console.error('Failed to parse group metadata:', error);
       return null;
     }
   })();

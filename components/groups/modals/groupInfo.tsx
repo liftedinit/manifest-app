@@ -94,7 +94,7 @@ export function GroupInfo({
           ? metadata.authors
           : 'No authors available';
     } catch (e) {
-      console.warn('Failed to parse group metadata for authors:', e);
+      // console.warn('Failed to parse group metadata for authors:', e);
     }
 
     if (!authors) {
@@ -172,7 +172,7 @@ export function GroupInfo({
     title = metadata?.title || 'Untitled Group';
     details = metadata?.details || 'No description';
   } catch (e) {
-    console.warn('Failed to parse group metadata:', e);
+    // console.warn('Failed to parse group metadata:', e);
   }
 
   const modalContent = (
