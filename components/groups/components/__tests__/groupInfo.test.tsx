@@ -51,18 +51,17 @@ describe('GroupInfo', () => {
     expect(screen.getByText('author1, author2')).toBeInTheDocument();
   });
 
-  test("renders 'No author information' when no authors are provided", () => {
+  test("renders 'No authors available' when no authors are provided", () => {
     const props = {
       ...defaultProps,
       group: {
         ...defaultProps.group,
-        ipfsMetadata: {
-          authors: '',
-        },
+        metadata:
+          '{"title": "title1", "summary": "summary1", "details": "details1", "authors": [], "voteOptionContext": "context1"}',
       },
     };
     renderWithProps({ ...props });
-    expect(screen.getByText('No author information')).toBeInTheDocument();
+    expect(screen.getByText('No authors available')).toBeInTheDocument();
   });
 
   test("renders 'No threshold available' when no threshold is provided", () => {

@@ -4,7 +4,7 @@ import { QueryGroupsByMemberResponseSDKType } from '@liftedinit/manifestjs/dist/
 
 import { useLcdQueryClient } from './useLcdQueryClient';
 import { usePoaLcdQueryClient } from './usePoaLcdQueryClient';
-import { getLogoUrls, isValidIPFSCID } from '@/utils';
+import { getLogoUrls } from '@/utils';
 
 import { useManifestLcdQueryClient } from './useManifestLcdQueryClient';
 
@@ -17,17 +17,8 @@ import { TransactionGroup } from '@/components';
 import { Octokit } from 'octokit';
 
 import { useOsmosisRpcQueryClient } from '@/hooks/useOsmosisRpcQueryClient';
-export interface IPFSMetadata {
-  title: string;
-  authors: string | string[];
-  summary: string;
-  details: string;
-  proposalForumURL: string;
-  voteOptionContext: string;
-}
 
 export type ExtendedGroupType = QueryGroupsByMemberResponseSDKType['groups'][0] & {
-  ipfsMetadata: IPFSMetadata | null;
   policies: GroupPolicyInfoSDKType[];
   members: GroupMemberSDKType[];
 };
@@ -136,34 +127,15 @@ export const useGroupsByMember = (address: string) => {
           const memberPromises = groupQuery.data.groups.map(group =>
             lcdQueryClient?.cosmos.group.v1.groupMembers({ groupId: group.id })
           );
-          const ipfsPromises = groupQuery.data.groups.map(group => {
-            if (isValidIPFSCID(group.metadata)) {
-              return fetch(`https://nodes.chandrastation.com/ipfs/gateway/${group.metadata}`)
-                .then(response => {
-                  if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                  }
-                  return response.json() as Promise<IPFSMetadata>;
-                })
-                .catch(err => {
-                  console.error(`Invalid IPFS CID for group #${group?.id}`, err);
-                  return null;
-                });
-            } else {
-              console.warn(`Invalid IPFS CID for group #${group?.id}`);
-              return Promise.resolve(null);
-            }
-          });
 
-          const [policiesResults, membersResults, ipfsResults] = await Promise.all([
+          const [policiesResults, membersResults] = await Promise.all([
             Promise.all(policyPromises),
             Promise.all(memberPromises),
-            Promise.all(ipfsPromises),
           ]);
 
           const groupsWithAllData = groupQuery.data.groups.map((group, index) => ({
             ...group,
-            ipfsMetadata: ipfsResults[index],
+
             policies: policiesResults[index]?.group_policies || [],
             members: membersResults[index]?.members || [],
           }));
@@ -216,29 +188,14 @@ export const useGroupsByAdmin = (admin: string) => {
           const memberPromises = groupQuery.data.groups.map(group =>
             lcdQueryClient?.cosmos.group.v1.groupMembers({ groupId: group.id })
           );
-          const ipfsPromises = groupQuery.data.groups.map(group =>
-            fetch(`https://nodes.chandrastation.com/ipfs/gateway/${group.metadata}`)
-              .then(response => {
-                if (!response.ok) {
-                  throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json() as Promise<IPFSMetadata>;
-              })
-              .catch(err => {
-                console.warn(`Failed to fetch IPFS metadata for group #${group.id}:`, err);
-                return null;
-              })
-          );
 
-          const [policiesResults, membersResults, ipfsResults] = await Promise.all([
+          const [policiesResults, membersResults] = await Promise.all([
             Promise.all(policyPromises),
             Promise.all(memberPromises),
-            Promise.all(ipfsPromises),
           ]);
 
           const groupsWithAllData = groupQuery.data.groups.map((group, index) => ({
             ...group,
-            ipfsMetadata: ipfsResults[index] || null,
             policies: policiesResults[index]?.group_policies || [],
             members: membersResults[index]?.members || [],
           }));

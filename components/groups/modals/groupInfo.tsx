@@ -84,39 +84,56 @@ export function GroupInfo({
     'No threshold available';
 
   function renderAuthors() {
-    const authors = group?.ipfsMetadata?.authors;
+    let metadata = null;
+    let authors: string | string[] = 'No authors available';
+
+    try {
+      metadata = group?.metadata ? JSON.parse(group.metadata) : null;
+      authors =
+        metadata?.authors && metadata.authors.length > 0
+          ? metadata.authors
+          : 'No authors available';
+    } catch (e) {
+      console.warn('Failed to parse group metadata for authors:', e);
+    }
 
     if (!authors) {
       return <InfoItem label="Author" value="No author information" />;
     }
 
-    const formatAddress = (author: string, index: number) => (
-      <InfoItem key={index} label="Address" value={author} isAddress={true} />
-    );
+    try {
+      const formatAddress = (author: string, index: number) => (
+        <InfoItem key={index} label="Address" value={author} isAddress={true} />
+      );
 
-    const formatAuthor = (author: string, index: number) => (
-      <InfoItem key={index} label={`Author ${index + 1}`} value={author} />
-    );
+      const formatAuthor = (author: string, index: number) => (
+        <InfoItem key={index} label={`Author ${index + 1}`} value={author} />
+      );
 
-    if (typeof authors === 'string') {
-      if (authors.startsWith('manifest1')) {
-        return <div className="grid grid-cols-2 gap-4">{formatAddress(authors, 0)}</div>;
+      if (typeof authors === 'string') {
+        if (authors.startsWith('manifest1')) {
+          return <div className="grid grid-cols-2 gap-4">{formatAddress(authors, 0)}</div>;
+        }
+        return formatAuthor(authors, 0);
       }
-      return formatAuthor(authors, 0);
-    }
 
-    if (Array.isArray(authors)) {
-      const manifestAddresses = authors.filter(author => author.startsWith('manifest1'));
-
-      if (manifestAddresses.length > 0) {
-        return (
-          <div className="grid grid-cols-2 gap-4">
-            {manifestAddresses.map((author, index) => formatAddress(author, index))}
-          </div>
+      if (Array.isArray(authors)) {
+        const manifestAddresses = authors.filter(
+          (author): author is string => typeof author === 'string' && author.startsWith('manifest1')
         );
-      }
 
-      return <div>{authors.map((author, index) => formatAuthor(author, index))}</div>;
+        if (manifestAddresses.length > 0) {
+          return (
+            <div className="grid grid-cols-2 gap-4">
+              {manifestAddresses.map((author, index) => formatAddress(author, index))}
+            </div>
+          );
+        }
+
+        return <div>{authors.map((author, index) => formatAuthor(String(author), index))}</div>;
+      }
+    } catch (e) {
+      console.warn('Failed to process authors data:', e);
     }
 
     return <InfoItem label="Author" value="Invalid author information" />;
@@ -147,6 +164,17 @@ export function GroupInfo({
     }
   };
 
+  let title = 'Untitled Group';
+  let details = 'No description';
+
+  try {
+    const metadata = group.metadata ? JSON.parse(group.metadata) : null;
+    title = metadata?.title || 'Untitled Group';
+    details = metadata?.details || 'No description';
+  } catch (e) {
+    console.warn('Failed to parse group metadata:', e);
+  }
+
   const modalContent = (
     <dialog
       id={modalId}
@@ -175,7 +203,7 @@ export function GroupInfo({
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
             <ProfileAvatar walletAddress={policyAddress} size={40} />
-            <h3 className="font-bold text-lg">{group.ipfsMetadata?.title ?? 'No title'}</h3>
+            <h3 className="font-bold text-lg">{title}</h3>
           </div>
           <form method="dialog">
             <button
@@ -216,11 +244,7 @@ export function GroupInfo({
           <InfoItem label="Voting period" value={votingPeriodDisplay} />
           <InfoItem label="Qualified Majority" value={threshold} />
 
-          <InfoItem
-            label="Description"
-            value={group.ipfsMetadata?.details ?? 'No description'}
-            isProposal={true}
-          />
+          <InfoItem label="Description" value={details} isProposal={true} />
           <InfoItem label="Policy Address" value={policyAddress} isAddress={true} />
           <h4 className="font-semibold mt-6 text-secondary-content">Authors</h4>
           {renderAuthors()}

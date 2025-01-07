@@ -11,14 +11,6 @@ const mockProps = {
     admin: 'admin_address',
     metadata:
       '{"title":"Test Group","authors":"Test Author","summary":"Test Summary","proposalForumURL":"https://example.com","details":"Test Description"}',
-    ipfsMetadata: {
-      title: 'Test Group',
-      authors: 'Test Author',
-      summary: 'Test Summary',
-      proposalForumURL: 'https://example.com',
-      details: 'Test Description',
-      voteOptionContext: 'VoteOptionContext',
-    },
     members: [
       {
         group_id: '1',
@@ -84,11 +76,6 @@ describe('UpdateGroupModal Component Input State Changes', () => {
     const thresholdInput = screen.getByLabelText('Threshold') as HTMLInputElement;
     fireEvent.change(thresholdInput, { target: { value: '2' } });
     expect(thresholdInput.value).toBe('2');
-
-    // Test forum input
-    const forumInput = screen.getByLabelText('Forum URL') as HTMLInputElement;
-    fireEvent.change(forumInput, { target: { value: 'https://newforum.com' } });
-    expect(forumInput.value).toBe('https://newforum.com');
 
     // Test voting unit select
     const minutes = screen.getByLabelText('Minutes') as HTMLSelectElement;

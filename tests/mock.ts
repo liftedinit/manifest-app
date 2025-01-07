@@ -335,17 +335,10 @@ export const mockPoaParams = {
 export const mockGroup: ExtendedGroupType = {
   id: 1n,
   admin: 'admin1',
-  metadata: 'metadata1',
+  metadata:
+    '{"title": "title1", "summary": "summary1", "details": "details1", "authors": ["author1, author2"], "voteOptionContext": "context1"}',
   version: 1n,
   created_at: new Date(),
-  ipfsMetadata: {
-    title: 'title1',
-    summary: 'summary1',
-    details: 'details1',
-    authors: 'author1, author2',
-    proposalForumURL: 'forum1.com',
-    voteOptionContext: 'context1',
-  },
   total_weight: '10',
   policies: [
     {
@@ -385,17 +378,10 @@ export const mockGroup: ExtendedGroupType = {
 export const mockGroup2: ExtendedGroupType = {
   id: 2n,
   admin: 'admin2',
-  metadata: 'metadata2',
+  metadata:
+    '{"title": "title2", "summary": "summary2", "details": "details2", "authors": ["author2, author3"], "voteOptionContext": "context2"}',
   version: 1n,
   created_at: new Date(),
-  ipfsMetadata: {
-    title: 'title2',
-    summary: 'summary2',
-    details: 'details2',
-    authors: 'author2, author3',
-    proposalForumURL: 'forum2.com',
-    voteOptionContext: 'context2',
-  },
   total_weight: '10',
   policies: [
     {

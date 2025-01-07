@@ -1,7 +1,6 @@
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { FormData } from '@/helpers/formReducer';
 import { useFeeEstimation } from '@/hooks/useFeeEstimation';
-import { uploadJsonToIPFS } from '@/hooks/useIpfs';
 import { useTx } from '@/hooks/useTx';
 import { cosmos } from '@liftedinit/manifestjs';
 import { ThresholdDecisionPolicy } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
@@ -34,11 +33,6 @@ export default function ConfirmationForm({
   const { tx, isSigning, setIsSigning } = useTx('manifest');
   const { estimateFee } = useFeeEstimation('manifest');
 
-  const uploadMetaDataToIPFS = async () => {
-    const CID = await uploadJsonToIPFS(jsonString);
-    return CID;
-  };
-
   const minExecutionPeriod: Duration = {
     seconds: BigInt(0),
     nanos: 0,
@@ -61,7 +55,6 @@ export default function ConfirmationForm({
   const handleConfirm = async () => {
     setIsSigning(true);
     try {
-      const CID = await uploadMetaDataToIPFS();
       const msg = createGroupWithPolicy({
         admin: address ?? '',
         members: formData.members.map(member => ({
@@ -70,7 +63,7 @@ export default function ConfirmationForm({
           metadata: member.name,
           added_at: new Date(),
         })),
-        groupMetadata: CID,
+        groupMetadata: jsonString,
         groupPolicyMetadata: '',
         groupPolicyAsAdmin: true,
         decisionPolicy: {

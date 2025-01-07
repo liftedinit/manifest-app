@@ -35,10 +35,8 @@ const GroupSchema = Yup.object().shape({
             )
           )
           .min(1, 'At least one author is required')
-      : Yup.string().test(
-          'single-author-validation',
-          'Invalid author name or address',
-          function (value) {
+      : Yup.string()
+          .test('single-author-validation', 'Invalid author name or address', function (value) {
             if (value?.startsWith('manifest')) {
               return isValidManifestAddress(value);
             }
@@ -46,8 +44,8 @@ const GroupSchema = Yup.object().shape({
               .max(50, 'Author name must not exceed 50 characters')
               .noProfanity('Profanity is not allowed')
               .isValidSync(value);
-          }
-        )
+          })
+          .min(1, 'At least one author is required')
   ),
   description: Yup.string()
     .required('Description is required')

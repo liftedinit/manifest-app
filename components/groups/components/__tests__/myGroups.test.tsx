@@ -1,6 +1,6 @@
-import { describe, test, afterEach, expect, jest, mock, beforeEach } from 'bun:test';
+import { describe, test, afterEach, expect, jest, mock } from 'bun:test';
 import React from 'react';
-import { screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
+import { screen, fireEvent, cleanup } from '@testing-library/react';
 import { YourGroups } from '@/components/groups/components/myGroups';
 import matchers from '@testing-library/jest-dom/matchers';
 import { renderWithChainProvider } from '@/tests/render';
@@ -48,7 +48,8 @@ const mockProps = {
     groups: [
       {
         id: '1',
-        ipfsMetadata: { title: 'title1' },
+        metadata:
+          '{"title":"title1","authors":"author1","summary":"summary1","details":"details1"}',
         policies: [{ address: 'policy1', decision_policy: { threshold: '1' } }],
         admin: 'admin1',
         members: [{ member: { address: 'member1' } }],
@@ -66,7 +67,6 @@ const mockPropsWithManyGroups = {
       .fill(null)
       .map((_, index) => ({
         id: `${index + 1}`,
-        ipfsMetadata: { title: `Group ${index + 1}` },
         policies: [{ address: `policy${index + 1}`, decision_policy: { threshold: '1' } }],
         admin: `admin${index + 1}`,
         members: [{ member: { address: `member${index + 1}` } }],
@@ -77,7 +77,7 @@ const mockPropsWithManyGroups = {
   isLoading: false,
 };
 
-describe('YourGroups Component', () => {
+describe('Groups Component', () => {
   afterEach(() => {
     mock.restore();
     cleanup();
@@ -172,7 +172,7 @@ describe('YourGroups Component', () => {
       renderWithChainProvider(<YourGroups {...mockPropsWithManyGroups} />);
 
       // On desktop (non-mobile), should show 8 items per page
-      const groupRows = screen.getAllByRole('button', { name: /Select Group \d+ group/i });
+      const groupRows = screen.getAllByRole('button', { name: /Select .+? group/i });
       expect(groupRows).toHaveLength(8);
     });
   });

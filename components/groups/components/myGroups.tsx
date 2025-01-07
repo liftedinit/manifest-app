@@ -97,13 +97,21 @@ export function YourGroups({
   const skeletonTxCount = pageSize.skeleton;
 
   const [selectedGroup, setSelectedGroup] = useState<ExtendedGroupType | null>(null);
+  const [selectedGroupName, setSelectedGroupName] = useState<string>('Untitled Group');
 
   const router = useRouter();
   const { address } = useChain('manifest');
 
-  const filteredGroups = groups.groups.filter(group =>
-    (group.ipfsMetadata?.title || 'Untitled Group').toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredGroups = groups.groups.filter(group => {
+    try {
+      const metadata = group.metadata ? JSON.parse(group.metadata) : null;
+      const groupTitle = metadata?.title || 'Untitled Group';
+      return groupTitle.toLowerCase().includes(searchTerm.toLowerCase());
+    } catch (e) {
+      console.warn('Failed to parse group metadata:', e);
+      return 'Untitled Group'.toLowerCase().includes(searchTerm.toLowerCase());
+    }
+  });
 
   const totalPages = Math.ceil(filteredGroups.length / pageSize.groupInfo);
   const paginatedGroups = filteredGroups.slice(
@@ -125,6 +133,16 @@ export function YourGroups({
         g => g.policies && g.policies.length > 0 && g.policies[0]?.address === policyAddress
       );
       if (group) {
+        let groupName = 'Untitled Group';
+        try {
+          const metadata = group.metadata ? JSON.parse(group.metadata) : null;
+          groupName = metadata?.title ?? 'Untitled Group';
+        } catch (e) {
+          // If JSON parsing fails, fall back to default name
+          console.warn('Failed to parse group metadata:', e);
+        }
+
+        setSelectedGroupName(groupName);
         setSelectedGroup(group);
       }
     }
@@ -138,6 +156,15 @@ export function YourGroups({
   }, [selectedGroup]);
 
   const handleSelectGroup = (group: ExtendedGroupType) => {
+    let groupName = 'Untitled Group';
+    try {
+      const metadata = group.metadata ? JSON.parse(group.metadata) : null;
+      groupName = metadata?.title ?? 'Untitled Group';
+    } catch (e) {
+      // If JSON parsing fails, fall back to default name
+      console.warn('Failed to parse group metadata:', e);
+    }
+    setSelectedGroupName(groupName);
     setSelectedGroup(group);
     router.push(`/groups?policyAddress=${group.policies[0]?.address}`, undefined, {
       shallow: true,
@@ -145,6 +172,7 @@ export function YourGroups({
   };
 
   const handleBack = () => {
+    setSelectedGroupName('Untitled Group');
     setSelectedGroup(null);
     router.push('/groups', undefined, { shallow: true });
   };
@@ -458,7 +486,7 @@ export function YourGroups({
         {selectedGroup && (
           <GroupControls
             policyAddress={selectedGroup.policies[0]?.address ?? ''}
-            groupName={selectedGroup.ipfsMetadata?.title ?? 'Untitled Group'}
+            groupName={selectedGroupName}
             onBack={handleBack}
             policyThreshold={
               (selectedGroup.policies[0]?.decision_policy as ThresholdDecisionPolicySDKType)
@@ -546,8 +574,13 @@ function GroupRow({
   setActiveInfoModalId: (id: string | null) => void;
 }) {
   const policyAddress = (group.policies && group.policies[0]?.address) || '';
-  const groupName = group.ipfsMetadata?.title || 'Untitled Group';
-
+  let groupName = 'Untitled Group';
+  try {
+    const metadata = group.metadata ? JSON.parse(group.metadata) : null;
+    groupName = metadata?.title || 'Untitled Group';
+  } catch (e) {
+    console.warn('Failed to parse group metadata:', e);
+  }
   const filterActiveProposals = (proposals: ProposalSDKType[]) => {
     return proposals?.filter(
       proposal =>
