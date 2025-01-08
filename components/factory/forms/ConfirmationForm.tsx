@@ -65,7 +65,7 @@ export default function ConfirmationForm({
                     {
                       denom: fullDenom,
                       exponent: 0,
-                      aliases: [symbol],
+                      aliases: [formData.display],
                     },
                     {
                       denom: formData.display,
