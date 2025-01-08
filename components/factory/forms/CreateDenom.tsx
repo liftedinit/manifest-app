@@ -45,7 +45,19 @@ export default function CreateDenom({
               await DenomSchema.validate(values, { abortEarly: false });
               nextStep();
             } catch (err) {
-              console.error('Validation failed:', err);
+              if (err instanceof Yup.ValidationError) {
+                const errors = err.inner.reduce(
+                  (acc: Record<string, string>, error) => ({
+                    ...acc,
+                    [error.path as string]: error.message,
+                  }),
+                  {}
+                );
+                setErrors(errors);
+              } else {
+                console.error('Unexpected error:', err);
+                setErrors({ subdenom: 'An unexpected error occurred' });
+              }
             } finally {
               setSubmitting(false);
             }
