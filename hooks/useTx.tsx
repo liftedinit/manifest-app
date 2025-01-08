@@ -23,6 +23,15 @@ export interface TxOptions {
   simulate?: boolean;
 }
 
+export interface ToastMessage {
+  type: string;
+  title: string;
+  description?: string;
+  link?: string;
+  explorerLink?: string;
+  bgColor?: string;
+}
+
 const extractSimulationErrorMessage = (errorMessage: string): string => {
   // This regex looks for the specific error message
   const match = errorMessage.match(/message index: \d+: (.+?)(?=\s*\[|$)/);
@@ -110,7 +119,8 @@ export const useTx = (chainName: string) => {
             type: 'alert-success',
             title: 'Proposal Submitted',
             description: `Proposal submitted successfully`,
-            link: `/groups?policyAddress=${msgs[0].value.groupPolicyAddress}&proposalId=${proposalId}`,
+            link: `/groups?policyAddress=${msgs[0].value.groupPolicyAddress}&tab=proposals&proposalId=${proposalId}`,
+            explorerLink: `${explorerUrl}/transaction/${res?.transactionHash}`,
             bgColor: '#2ecc71',
           });
         } else {
