@@ -958,3 +958,27 @@ export const useGitHubReleases = () => {
     refetchReleases: releasesQuery.refetch,
   };
 };
+
+export const useBlockHeight = () => {
+  const { lcdQueryClient } = useLcdQueryClient();
+
+  const fetchBlockHeight = async () => {
+    const response = await lcdQueryClient?.cosmos.base.node.v1beta1.status();
+    return response?.height;
+  };
+
+  const blockHeightQuery = useQuery({
+    queryKey: ['blockHeight'],
+    queryFn: fetchBlockHeight,
+    enabled: !!lcdQueryClient,
+    staleTime: 0,
+    refetchInterval: 6000,
+  });
+
+  return {
+    blockHeight: blockHeightQuery.data,
+    isBlockHeightLoading: blockHeightQuery.isLoading,
+    isBlockHeightError: blockHeightQuery.isError,
+    refetchBlockHeight: blockHeightQuery.refetch,
+  };
+};

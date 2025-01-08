@@ -26,7 +26,9 @@ export const BaseInput: React.FC<BaseInputProps & React.InputHTMLAttributes<HTML
       <div className="flex justify-between items-center">
         {label && (
           <label className="label" htmlFor={id}>
-            <span className="label-text text-[#00000099] dark:text-[#FFFFFF99]">{label}</span>
+            <span className="label-text text-[#00000099] dark:text-[#FFFFFF99] select-text">
+              {label}
+            </span>
           </label>
         )}
         {helperText && (

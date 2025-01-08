@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { cosmos } from '@liftedinit/manifestjs';
-import { useTx, useFeeEstimation, useGitHubReleases, GitHubRelease } from '@/hooks';
+import { useTx, useFeeEstimation, useGitHubReleases, GitHubRelease, useBlockHeight } from '@/hooks';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgSoftwareUpgrade } from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
 import { Formik, Form } from 'formik';
@@ -27,18 +27,19 @@ interface UpgradeInfo {
 
 const parseReleaseBody = (body: string): UpgradeInfo | null => {
   try {
-    const nameMatch = body.match(/\*\*Upgrade Handler Name\*\*:\s*`([^`]+)`/);
-    const upgradeableMatch = body.match(/\*\*Upgradeable\*\*:\s*`([^`]+)`/);
-    const commitHashMatch = body.match(/\*\*Commit Hash\*\*:\s*`([^`]+)`/);
+    const nameMatch = body.match(/- \*\*Upgrade Handler Name\*\*: (.*?)(?:\r?\n|$)/);
+    const upgradeableMatch = body.match(/- \*\*Upgradeable\*\*: (.*?)(?:\r?\n|$)/);
+    const commitHashMatch = body.match(/- \*\*Commit Hash\*\*: (.*?)(?:\r?\n|$)/);
 
     if (!nameMatch || !upgradeableMatch || !commitHashMatch) {
+      console.warn('Failed matches:', { nameMatch, upgradeableMatch, commitHashMatch });
       return null;
     }
 
     return {
-      name: nameMatch[1],
-      upgradeable: upgradeableMatch[1].toLowerCase() === 'true',
-      commitHash: commitHashMatch[1],
+      name: nameMatch[1].trim(),
+      upgradeable: upgradeableMatch[1].trim().toLowerCase() === 'true',
+      commitHash: commitHashMatch[1].trim(),
     };
   } catch (error) {
     console.error('Error parsing release body:', error);
@@ -47,12 +48,33 @@ const parseReleaseBody = (body: string): UpgradeInfo | null => {
 };
 
 const UpgradeSchema = Yup.object().shape({
-  height: Yup.number().required('Height is required').integer('Must be a valid number'),
+  height: Yup.number()
+    .typeError('Height must be a number')
+    .required('Height is required')
+    .integer('Must be a valid number')
+    .test(
+      'min-height',
+      'Height must be at least 1000 blocks above current height',
+      function (inputHeight) {
+        const proposedHeight = Number(inputHeight);
+        const chainHeight = Number(this.options.context?.chainData?.currentHeight || 0);
+
+        if (Number.isNaN(proposedHeight) || Number.isNaN(chainHeight)) {
+          return false;
+        }
+
+        const minimumAllowedHeight = chainHeight + 1000;
+
+        return proposedHeight >= minimumAllowedHeight;
+      }
+    ),
 });
 
 export function UpgradeModal({ isOpen, onClose, admin, address, refetchPlan }: BaseModalProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const { releases, isReleasesLoading } = useGitHubReleases();
+
+  const { blockHeight } = useBlockHeight();
 
   // Filter releases that are upgradeable
   const upgradeableReleases = useMemo(() => {
@@ -85,14 +107,41 @@ export function UpgradeModal({ isOpen, onClose, admin, address, refetchPlan }: B
   const { tx, isSigning, setIsSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
 
-  const handleUpgrade = async (values: { name: string; height: string; info: string }) => {
+  const handleUpgrade = async (values: {
+    name: string;
+    height: string;
+    info: string;
+    selectedVersion: (GitHubRelease & { upgradeInfo?: UpgradeInfo | null }) | null;
+  }) => {
     setIsSigning(true);
+
+    const selectedRelease = values.selectedVersion;
+    const binaryLinks: { [key: string]: string } = {};
+
+    // Map assets to their platform-specific links
+    selectedRelease?.assets?.forEach(asset => {
+      if (asset.name.includes('linux-amd64')) {
+        binaryLinks['linux/amd64'] = asset.browser_download_url;
+      } else if (asset.name.includes('linux-arm64')) {
+        binaryLinks['linux/arm64'] = asset.browser_download_url;
+      } else if (asset.name.includes('darwin-amd64')) {
+        binaryLinks['darwin/amd64'] = asset.browser_download_url;
+      } else if (asset.name.includes('darwin-arm64')) {
+        binaryLinks['darwin/arm64'] = asset.browser_download_url;
+      }
+    });
+
+    const infoObject = {
+      commitHash: values.selectedVersion?.upgradeInfo?.commitHash || '',
+      binaries: binaryLinks,
+    };
+
     const msgUpgrade = softwareUpgrade({
       plan: {
         name: values.name,
         height: BigInt(values.height),
         time: new Date(0),
-        info: values.info,
+        info: JSON.stringify(infoObject),
       },
       authority: admin,
     });
@@ -129,7 +178,14 @@ export function UpgradeModal({ isOpen, onClose, admin, address, refetchPlan }: B
     info: '',
     selectedVersion: null as (GitHubRelease & { upgradeInfo?: UpgradeInfo | null }) | null,
   };
-
+  const validationContext = useMemo(
+    () => ({
+      chainData: {
+        currentHeight: Number(blockHeight),
+      },
+    }),
+    [blockHeight]
+  );
   const modalContent = (
     <dialog
       className={`modal ${isOpen ? 'modal-open' : ''}`}
@@ -153,11 +209,22 @@ export function UpgradeModal({ isOpen, onClose, admin, address, refetchPlan }: B
       <Formik
         initialValues={initialValues}
         validationSchema={UpgradeSchema}
+        validate={values => {
+          return UpgradeSchema.validate(values, { context: validationContext })
+            .then(() => ({}))
+            .catch(err => {
+              return err.errors.reduce((acc: { [key: string]: string }, curr: string) => {
+                acc[err.path] = curr;
+                return acc;
+              }, {});
+            });
+        }}
         onSubmit={values => {
           handleUpgrade({
             name: values.selectedVersion?.upgradeInfo?.name || '',
             height: values.height,
             info: values.selectedVersion?.upgradeInfo?.commitHash || '',
+            selectedVersion: values.selectedVersion,
           });
         }}
         validateOnChange={true}
@@ -266,11 +333,13 @@ export function UpgradeModal({ isOpen, onClose, admin, address, refetchPlan }: B
                   </div>
                 </div>
                 <TextInput
-                  label="HEIGHT"
+                  label={`HEIGHT (Current: ${blockHeight})`}
                   name="height"
+                  type="number"
                   value={values.height}
                   onChange={handleChange}
                   placeholder="Block height for upgrade"
+                  min="0"
                 />
                 <TextInput
                   label="NAME"
