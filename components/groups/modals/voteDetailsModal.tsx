@@ -435,13 +435,16 @@ function VoteDetailsModal({
     const isClosed = proposal?.status === ('PROPOSAL_STATUS_CLOSED' as unknown as ProposalStatus);
     const isProposer = proposal?.proposers?.includes(address ?? '');
 
-    if (isAccepted && isNotRun) {
+    if ((isAccepted && isNotRun) || isFailure) {
       return { action: 'execute', label: 'Execute' };
     } else if (isNotRun && proposalClosed && !isRejected) {
       return { action: 'execute', label: 'Execute' };
     } else if (!isClosed && !proposalClosed && !userHasVoted) {
       return { action: 'vote', label: 'Vote' };
-    } else if (isRejected || isFailure || userHasVoted || (isProposer && !isNotRun)) {
+    } else if (
+      (!isAccepted && isProposer) ||
+      ((isRejected || userHasVoted) && !isAccepted && !isNotRun)
+    ) {
       return { action: 'remove', label: 'Remove' };
     }
     return { action: null, label: null };
