@@ -113,16 +113,24 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
               <div className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap">
                 {toastMessage.description}
               </div>
-              {toastMessage.link && (
-                <Link
-                  href={toastMessage.link}
-                  className="text-primary hover:text-primary/60 dark:text-primary  underline mt-[0.1rem] inline-block transition-colors duration-200"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Block explorer link
-                </Link>
-              )}
+              {toastMessage.link &&
+                (toastMessage.link.includes('policyAddress') ? (
+                  <Link
+                    href={toastMessage.link}
+                    className="text-primary hover:text-primary/60 dark:text-primary  underline mt-[0.1rem] inline-block transition-colors duration-200"
+                  >
+                    View Proposal
+                  </Link>
+                ) : (
+                  <Link
+                    href={toastMessage.link}
+                    className="text-primary hover:text-primary/60 dark:text-primary  underline mt-[0.1rem] inline-block transition-colors duration-200"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Block explorer link
+                  </Link>
+                ))}
             </div>
             {toastMessage.type === 'alert-error' && (
               <button
