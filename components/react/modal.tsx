@@ -297,6 +297,17 @@ export const TailwindModal: React.FC<
         return;
       }
 
+      // Special case for keplr - check immediately
+      if (
+        wallet?.walletInfo.name === 'keplr-extension' &&
+        typeof window !== 'undefined' &&
+        !window.keplr
+      ) {
+        setCurrentView(ModalView.NotExist);
+        setSelectedWallet(wallet);
+        return;
+      }
+
       // Step 2: We do a small setTimeout to check for metamask extension error
       // or if the wallet doesn't exist. This ensures the error message has time
       // to populate in the wallet's state after calling `getWallet()`.
