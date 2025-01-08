@@ -59,12 +59,12 @@ export default function ConfirmationForm({
                     {
                       denom: fullDenom,
                       exponent: 0,
-                      aliases: [symbol],
+                      aliases: [],
                     },
                     {
-                      denom: symbol,
+                      denom: formData.display,
                       exponent: 6,
-                      aliases: [fullDenom],
+                      aliases: [],
                     },
                   ],
                   base: fullDenom,
@@ -72,7 +72,7 @@ export default function ConfirmationForm({
                   name: formData.name,
                   symbol: formData.display,
                   uri: formData.uri,
-                  uriHash: formData.uriHash,
+                  uriHash: '',
                 },
               }).value
             ).finish(),
@@ -123,12 +123,12 @@ export default function ConfirmationForm({
             {
               denom: fullDenom,
               exponent: 0,
-              aliases: [symbol],
+              aliases: [],
             },
             {
-              denom: symbol,
+              denom: formData.display,
               exponent: 6,
-              aliases: [fullDenom],
+              aliases: [],
             },
           ],
           base: fullDenom,
@@ -136,7 +136,7 @@ export default function ConfirmationForm({
           name: formData.name,
           symbol: formData.display,
           uri: formData.uri,
-          uriHash: formData.uriHash,
+          uriHash: '',
         },
       });
 

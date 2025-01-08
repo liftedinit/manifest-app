@@ -124,6 +124,7 @@ export default function CreateDenom({
                 <button
                   className="w-[calc(50%-12px)] btn px-5 py-2.5 sm:py-3.5 btn-gradient text-white disabled:text-black"
                   onClick={() => handleSubmit()}
+                  type="submit"
                   disabled={!isValid || isSubmitting || isValidating}
                 >
                   Next: Token Metadata
