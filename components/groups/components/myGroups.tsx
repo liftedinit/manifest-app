@@ -114,12 +114,7 @@ export function YourGroups({
   });
 
   const totalPages = Math.ceil(filteredGroups.length / pageSize.groupInfo);
-  const paginatedGroups = filteredGroups.slice(
-    (currentPage - 1) * pageSize.groupInfo,
-    currentPage * pageSize.groupInfo
-  );
 
-  const totalPagesGroupEntries = Math.ceil(filteredGroups.length / pageSize.groupEntries);
   const paginatedGroupEntries = filteredGroups.slice(
     (currentPage - 1) * pageSize.groupEntries,
     currentPage * pageSize.groupEntries

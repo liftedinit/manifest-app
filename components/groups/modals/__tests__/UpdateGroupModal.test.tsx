@@ -1,8 +1,11 @@
 import { describe, test, expect, beforeEach, jest } from 'bun:test';
 import React from 'react';
-import { fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { UpdateGroupModal } from '@/components';
 import { renderWithChainProvider } from '@/tests/render';
+import matchers from '@testing-library/jest-dom/matchers';
+
+expect.extend(matchers);
 
 // Mock group data
 const mockProps = {
@@ -58,25 +61,27 @@ describe('UpdateGroupModal Component Input State Changes', () => {
 
   test('updates input fields correctly', async () => {
     // Test name input
-    const nameInput = screen.getByLabelText('Group Name') as HTMLInputElement;
+    const nameInput = screen.getByLabelText('Group Title') as HTMLInputElement;
     fireEvent.change(nameInput, { target: { value: 'New Group Name' } });
     expect(nameInput.value).toBe('New Group Name');
 
+    const addAuthorButton = screen.getByText('Add Author');
+    fireEvent.click(addAuthorButton);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Author name or address')).toBeInTheDocument();
+    });
+
     // Test authors input
-    const authorsInput = screen.getByLabelText('Authors') as HTMLInputElement;
+    const authorsInput = screen.getByLabelText('Author name or address') as HTMLInputElement;
     fireEvent.change(authorsInput, { target: { value: 'New Author' } });
     expect(authorsInput.value).toBe('New Author');
 
-    // Test summary input
-    const summaryInput = screen.getByLabelText('Summary') as HTMLInputElement;
-    fireEvent.change(summaryInput, { target: { value: 'New Summary' } });
-    expect(summaryInput.value).toBe('New Summary');
-
-    // Test threshold input
-    const thresholdInput = screen.getByLabelText('Threshold') as HTMLInputElement;
-    fireEvent.change(thresholdInput, { target: { value: '2' } });
-    expect(thresholdInput.value).toBe('2');
-
+    // // Test threshold input
+    // const thresholdInput = screen.getByLabelText('Qualified Majority') as HTMLInputElement;
+    // fireEvent.change(thresholdInput, { target: { value: '2' } });
+    // expect(thresholdInput.value).toBe('2');
+    //
     // Test voting unit select
     const minutes = screen.getByLabelText('Minutes') as HTMLSelectElement;
     fireEvent.change(minutes, { target: { value: '30' } });

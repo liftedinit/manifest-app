@@ -89,6 +89,6 @@ describe('GroupInfo', () => {
     fireEvent.click(updateButton);
     const modal = document.getElementById(`update-group-modal`) as HTMLDialogElement;
     expect(modal).toBeInTheDocument();
-    expect(screen.getByText('Update Group')).toBeInTheDocument();
+    expect(screen.getByLabelText('update-group-btn')).toBeInTheDocument();
   });
 });
