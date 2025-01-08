@@ -243,12 +243,8 @@ function NoAssetsFound() {
             No Assets Found
           </h1>
           <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl">
-            You do not have any assets yet. Create a new asset in the factory page or request MFX
-            from the faucet!
+            You do not have any assets yet.
           </p>
-          <Link href="" passHref>
-            <button className="btn btn-gradient">MFX faucet</button>
-          </Link>
         </div>
         <div className="hidden lg:mt-0 lg:ml-24 lg:col-span-5 lg:flex">
           <BankIcon className="h-60 w-60 text-primary" />
