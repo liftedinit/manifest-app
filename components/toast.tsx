@@ -115,12 +115,22 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
               </div>
               {toastMessage.link &&
                 (toastMessage.link.includes('policyAddress') ? (
-                  <Link
-                    href={toastMessage.link}
-                    className="text-primary hover:text-primary/60 dark:text-primary  underline mt-[0.1rem] inline-block transition-colors duration-200"
-                  >
-                    View Proposal
-                  </Link>
+                  <div className="flex flex-row items-center gap-2 justify-between">
+                    <Link
+                      href={toastMessage.link}
+                      className="text-primary hover:text-primary/60 dark:text-primary  underline mt-[0.1rem] inline-block transition-colors duration-200"
+                    >
+                      View Proposal
+                    </Link>
+                    <Link
+                      href={toastMessage.link}
+                      className="text-primary hover:text-primary/60 dark:text-primary  underline mt-[0.1rem] inline-block transition-colors duration-200"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Block explorer link
+                    </Link>
+                  </div>
                 ) : (
                   <Link
                     href={toastMessage.link}
