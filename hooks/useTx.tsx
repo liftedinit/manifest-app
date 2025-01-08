@@ -94,7 +94,7 @@ export const useTx = (chainName: string) => {
       const res: DeliverTxResponse = await client.broadcastTx(
         Uint8Array.from(TxRaw.encode(signed).finish())
       );
-      console.log(res);
+
       if (isDeliverTxSuccess(res)) {
         if (options.onSuccess) options.onSuccess();
         setIsSigning(false);
