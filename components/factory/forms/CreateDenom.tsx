@@ -27,7 +27,7 @@ export default function CreateDenom({
       .simulateDenomCreation(async () => {
         setIsSimulating(true);
         try {
-          return await simulateDenomCreation(formData.subdenom);
+          return await simulateDenomCreation(`u${formData.subdenom}`);
         } finally {
           setIsSimulating(false);
         }
@@ -40,11 +40,20 @@ export default function CreateDenom({
         <Formik
           initialValues={formData}
           validationSchema={DenomSchema}
-          onSubmit={nextStep}
-          validateOnChange={true}
-          validateOnBlur={true}
+          onSubmit={async (values, { setSubmitting, setErrors }) => {
+            try {
+              await DenomSchema.validate(values, { abortEarly: false });
+              nextStep();
+            } catch (err) {
+              console.error('Validation failed:', err);
+            } finally {
+              setSubmitting(false);
+            }
+          }}
+          validateOnChange={false}
+          validateOnBlur={false}
         >
-          {({ setFieldValue, isValid, isSubmitting, isValidating, handleSubmit }) => (
+          {({ setFieldValue, isValid, isSubmitting, isValidating, handleSubmit, setErrors }) => (
             <>
               <div className="flex items-center mx-auto w-full dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-6 sm:p-8 rounded-2xl shadow-lg">
                 <div className="w-full">
@@ -65,6 +74,7 @@ export default function CreateDenom({
                           value: e.target.value,
                         });
                         setFieldValue('subdenom', e.target.value);
+                        setErrors({});
                       }}
                       rightElement={
                         isSimulating && (
