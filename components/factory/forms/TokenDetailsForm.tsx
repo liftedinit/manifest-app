@@ -43,17 +43,17 @@ export default function TokenDetails({
   const effectiveAddress =
     formData.isGroup && formData.groupPolicyAddress ? formData.groupPolicyAddress : address;
 
-  const fullDenom = `factory/${effectiveAddress}/${formData.subdenom}`;
-
+  const fullDenom = `factory/${effectiveAddress}/u${formData.subdenom}`;
+  console.log(formData);
   // Automatically set denom units
   React.useEffect(() => {
     const denomUnits = [
       { denom: fullDenom, exponent: 0, aliases: [] },
-      { denom: formData.subdenom.slice(1), exponent: 6, aliases: [] },
+      { denom: formData.display, exponent: 6, aliases: [] },
     ];
     updateField('denomUnits', denomUnits);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formData.subdenom, address]);
+  }, [formData.subdenom, formData.display, address]);
 
   return (
     <section>
@@ -78,7 +78,7 @@ export default function TokenDetails({
                         label="Subdenom"
                         name="subdenom"
                         disabled={true}
-                        value={formData.subdenom}
+                        value={`u${formData.subdenom}`}
                         aria-label="Token subdenom"
                       />
                       <TextInput

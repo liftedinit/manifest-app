@@ -29,13 +29,19 @@ export default function ConfirmationForm({
   const effectiveAddress =
     formData.isGroup && formData.groupPolicyAddress ? formData.groupPolicyAddress : address;
 
-  const fullDenom = `factory/${effectiveAddress}/${formData.subdenom}`;
+  const getDenomInfo = (subdenom: string) => {
+    const prefixedSubdenom = 'u' + subdenom;
+    const symbol = (subdenom.startsWith('u') ? subdenom.slice(1) : subdenom).toUpperCase();
+    const fullDenom = `factory/${effectiveAddress}/${prefixedSubdenom}`;
+    return { prefixedSubdenom, symbol, fullDenom };
+  };
+
+  const { prefixedSubdenom, symbol, fullDenom } = getDenomInfo(formData.subdenom);
 
   const handleConfirm = async () => {
     setIsSigning(true);
 
     const createAsGroup = async () => {
-      const symbol = formData.subdenom.slice(1).toUpperCase();
       const msg = submitProposal({
         groupPolicyAddress: formData.groupPolicyAddress || '',
         messages: [
@@ -44,7 +50,7 @@ export default function ConfirmationForm({
             value: MsgCreateDenom.encode(
               createDenom({
                 sender: formData.groupPolicyAddress || '',
-                subdenom: formData.subdenom,
+                subdenom: prefixedSubdenom,
               }).value
             ).finish(),
           }),
@@ -59,10 +65,10 @@ export default function ConfirmationForm({
                     {
                       denom: fullDenom,
                       exponent: 0,
-                      aliases: [symbol],
+                      aliases: [formData.display],
                     },
                     {
-                      denom: symbol,
+                      denom: formData.display,
                       exponent: 6,
                       aliases: [fullDenom],
                     },
@@ -99,7 +105,7 @@ export default function ConfirmationForm({
       // First, create the denom
       const createDenomMsg = createDenom({
         sender: address,
-        subdenom: formData.subdenom,
+        subdenom: prefixedSubdenom,
       });
 
       const createDenomFee = await estimateFee(address, [createDenomMsg]);
@@ -113,7 +119,6 @@ export default function ConfirmationForm({
         return;
       }
 
-      const symbol = formData.subdenom.slice(1).toUpperCase();
       // If createDenom is successful, proceed with setDenomMetadata
       const setMetadataMsg = setDenomMetadata({
         sender: address,
@@ -126,7 +131,7 @@ export default function ConfirmationForm({
               aliases: [symbol],
             },
             {
-              denom: symbol,
+              denom: formData.display,
               exponent: 6,
               aliases: [fullDenom],
             },

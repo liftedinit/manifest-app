@@ -21,14 +21,13 @@ export default function CreateDenom({
   const DenomSchema = Yup.object().shape({
     subdenom: Yup.string()
       .required('Subdenom is required')
-      .matches(/^[u][a-zA-Z0-9]+$/, 'Subdenom must start with the letter u')
       .min(4, 'Subdenom must be at least 4 characters')
       .max(44, 'Subdenom must not exceed 44 characters')
       .noProfanity('Profanity is not allowed')
       .simulateDenomCreation(async () => {
         setIsSimulating(true);
         try {
-          return await simulateDenomCreation(formData.subdenom);
+          return await simulateDenomCreation(`u${formData.subdenom}`);
         } finally {
           setIsSimulating(false);
         }
@@ -41,11 +40,32 @@ export default function CreateDenom({
         <Formik
           initialValues={formData}
           validationSchema={DenomSchema}
-          onSubmit={nextStep}
-          validateOnChange={true}
-          validateOnBlur={true}
+          onSubmit={async (values, { setSubmitting, setErrors }) => {
+            try {
+              await DenomSchema.validate(values, { abortEarly: false });
+              nextStep();
+            } catch (err) {
+              if (err instanceof Yup.ValidationError) {
+                const errors = err.inner.reduce(
+                  (acc: Record<string, string>, error) => ({
+                    ...acc,
+                    [error.path as string]: error.message,
+                  }),
+                  {}
+                );
+                setErrors(errors);
+              } else {
+                console.error('Unexpected error:', err);
+                setErrors({ subdenom: 'An unexpected error occurred' });
+              }
+            } finally {
+              setSubmitting(false);
+            }
+          }}
+          validateOnChange={false}
+          validateOnBlur={false}
         >
-          {({ setFieldValue, isValid, isSubmitting, isValidating, handleSubmit }) => (
+          {({ setFieldValue, isValid, isSubmitting, isValidating, handleSubmit, setErrors }) => (
             <>
               <div className="flex items-center mx-auto w-full dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-6 sm:p-8 rounded-2xl shadow-lg">
                 <div className="w-full">
@@ -57,8 +77,7 @@ export default function CreateDenom({
                     <TextInput
                       label="Token Sub Denom"
                       name="subdenom"
-                      placeholder="utoken"
-                      helperText="Use a subdenom starting with a prefix (e.g., 'utoken')"
+                      placeholder="token"
                       value={formData.subdenom}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                         dispatch({
@@ -67,6 +86,7 @@ export default function CreateDenom({
                           value: e.target.value,
                         });
                         setFieldValue('subdenom', e.target.value);
+                        setErrors({});
                       }}
                       rightElement={
                         isSimulating && (
@@ -126,6 +146,7 @@ export default function CreateDenom({
                 <button
                   className="w-[calc(50%-12px)] btn px-5 py-2.5 sm:py-3.5 btn-gradient text-white disabled:text-black"
                   onClick={() => handleSubmit()}
+                  type="submit"
                   disabled={!isValid || isSubmitting || isValidating}
                 >
                   Next: Token Metadata
