@@ -60,7 +60,7 @@ export function UpdateGroupModal({
   const [name, setName] = useState(maybeTitle);
   const [authors, setAuthors] = useState(maybeAuthors ? [maybeAuthors] : []);
   const [description, setDescription] = useState(maybeDetails);
-  const [threshold, setThreshold] = useState(maybeThreshold);
+  const [threshold, setThreshold] = useState(maybeThreshold !== '' ? maybeThreshold : '1');
   const [votingPeriod, setVotingPeriod] = useState({
     days: 0,
     hours: 0,
@@ -432,6 +432,7 @@ export function UpdateGroupModal({
                 </button>
                 <button
                   type="submit"
+                  aria-label={'update-group-btn'}
                   className="btn btn-md w-[calc(50%-8px)] btn-gradient text-white"
                   disabled={isSigning || !isValid || !hasAnyChanges(values)}
                 >
@@ -479,7 +480,7 @@ function GroupPolicyFormFields({
   }>();
 
   return (
-    <Form className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4">
       <div>
         <label className="block text-sm mb-1 font-medium dark:text-[#FFFFFF99]">
           Voting Period
@@ -511,6 +512,7 @@ function GroupPolicyFormFields({
           Qualified Majority
         </label>
         <NumberInput
+          aria-label={'Qualified Majority'}
           name="votingThreshold"
           placeholder="e.g., 1"
           value={values.votingThreshold}
@@ -522,7 +524,7 @@ function GroupPolicyFormFields({
           min={1}
         />
       </div>
-    </Form>
+    </div>
   );
 }
 
@@ -548,7 +550,7 @@ function GroupDetailsFormFields({
   }>();
 
   return (
-    <Form className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4">
       <TextInput
         label="Group Title"
         name="name"
@@ -626,6 +628,6 @@ function GroupDetailsFormFields({
           <PlusIcon className="mr-2" /> Add Author
         </button>
       </div>
-    </Form>
+    </div>
   );
 }
