@@ -12,7 +12,7 @@ export const useSimulateDenomCreation = () => {
 
   const simulateDenomCreation = async (subdenom: string): Promise<boolean> => {
     if (!address) {
-      console.log('Simulation failed: No address available');
+      console.error('Simulation failed: No address available');
       return false;
     }
 
@@ -25,11 +25,10 @@ export const useSimulateDenomCreation = () => {
     });
 
     try {
-      console.log(`Simulating denom creation for subdenom: ${subdenom}`);
       const result = await tx([msg], { simulate: true, returnError: true });
 
       if (result === undefined) {
-        console.log('Simulation result is undefined');
+        console.error('Simulation result is undefined');
         return false;
       }
 
@@ -38,7 +37,6 @@ export const useSimulateDenomCreation = () => {
         return false;
       }
 
-      console.log('Simulation successful');
       return true;
     } catch (error) {
       console.error('Unexpected error during simulation:', error);

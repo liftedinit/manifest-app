@@ -112,7 +112,7 @@ export function YourGroups({
       return 'Untitled Group'.toLowerCase().includes(searchTerm.toLowerCase());
     }
   });
-  console.log(groups);
+
   const totalPages = Math.ceil(filteredGroups.length / pageSize.groupInfo);
 
   const paginatedGroupEntries = filteredGroups.slice(
