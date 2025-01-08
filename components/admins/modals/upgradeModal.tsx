@@ -59,7 +59,7 @@ const UpgradeSchema = Yup.object().shape({
         const proposedHeight = Number(inputHeight);
         const chainHeight = Number(this.options.context?.chainData?.currentHeight || 0);
 
-        if (isNaN(proposedHeight) || isNaN(chainHeight)) {
+        if (Number.isNaN(proposedHeight) || Number.isNaN(chainHeight)) {
           return false;
         }
 
