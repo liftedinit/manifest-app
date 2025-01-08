@@ -1,12 +1,10 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import TxInfoModal from '../modals/txInfo';
-import { shiftDigits, truncateString } from '@/utils';
+import { shiftDigits } from '@/utils';
 import { BurnIcon, DenomImage, formatDenom, MintIcon } from '@/components';
 import { HistoryTxType, useTokenFactoryDenomsMetadata } from '@/hooks';
 import { ReceiveIcon, SendIcon } from '@/components/icons';
-
-import useIsMobile from '@/hooks/useIsMobile';
 
 interface Transaction {
   tx_type: HistoryTxType;

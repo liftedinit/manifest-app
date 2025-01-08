@@ -784,6 +784,11 @@ const transformTransactions = (tx: any, address: string) => {
   let messages: TransactionGroup[] = [];
   let memo = tx.data.tx.body.memo ? { memo: tx.data.tx.body.memo } : {};
 
+  // Skip the transaction if it's not successful
+  if (tx.data.txResponse.code && tx.data.txResponse.code !== 0) {
+    return messages;
+  }
+
   for (const message of tx.data.tx.body.messages) {
     if (message['@type'] === '/cosmos.group.v1.MsgSubmitProposal') {
       for (const nestedMessage of message.messages) {
@@ -863,7 +868,6 @@ export const useGetFilteredTxAndSuccessfulProposals = (
       const transactions = dataResponse.data
         .flatMap((tx: any) => transformTransactions(tx, address))
         .filter((tx: any) => tx !== null)
-        // Add secondary JS sort
         .sort((a: any, b: any) => {
           // Sort by timestamp descending (newest first)
           const dateComparison =
