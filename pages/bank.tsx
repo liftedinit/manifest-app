@@ -206,24 +206,21 @@ export default function Bank() {
                         searchTerm={searchTerm}
                       />
                     ))}
-                  {activeTab === 'history' &&
-                    (sendTxs.length === 0 ? (
-                      <NoActivityFound />
-                    ) : (
-                      <HistoryBox
-                        currentPage={currentPage}
-                        setCurrentPage={setCurrentPage}
-                        address={address ?? ''}
-                        isLoading={isLoading}
-                        sendTxs={sendTxs}
-                        totalPages={totalPages}
-                        txLoading={txLoading}
-                        isError={isError}
-                        refetch={refetchHistory}
-                        skeletonGroupCount={skeletonGroupCount}
-                        skeletonTxCount={skeletonTxCount}
-                      />
-                    ))}
+                  {activeTab === 'history' && (
+                    <HistoryBox
+                      currentPage={currentPage}
+                      setCurrentPage={setCurrentPage}
+                      address={address ?? ''}
+                      isLoading={isLoading}
+                      sendTxs={sendTxs}
+                      totalPages={totalPages}
+                      txLoading={txLoading}
+                      isError={isError}
+                      refetch={refetchHistory}
+                      skeletonGroupCount={skeletonGroupCount}
+                      skeletonTxCount={skeletonTxCount}
+                    />
+                  )}
                 </div>
               </div>
             </div>
