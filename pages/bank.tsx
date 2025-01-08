@@ -16,6 +16,7 @@ import { MFX_TOKEN_DATA } from '@/utils/constants';
 import env from '@/config/env';
 import { SEO } from '@/components';
 import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
+import Link from 'next/link';
 
 interface PageSizeConfig {
   tokenList: number;
@@ -149,16 +150,18 @@ export default function Bank() {
                     >
                       Bank
                     </h1>
-                    <div className="relative w-full sm:w-[224px]">
-                      <input
-                        type="text"
-                        placeholder="Search for an asset ..."
-                        className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
-                        value={searchTerm}
-                        onChange={e => setSearchTerm(e.target.value)}
-                      />
-                      <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                    </div>
+                    {combinedBalances.length > 0 && (
+                      <div className="relative w-full sm:w-[224px]">
+                        <input
+                          type="text"
+                          placeholder="Search for an asset ..."
+                          className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+                          value={searchTerm}
+                          onChange={e => setSearchTerm(e.target.value)}
+                        />
+                        <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div
@@ -189,32 +192,38 @@ export default function Bank() {
                 </div>
 
                 <div className="flex flex-col w-full mt-4">
-                  {activeTab === 'assets' && (
-                    <TokenList
-                      refetchBalances={refetchBalances || resolveRefetch}
-                      isLoading={isLoading}
-                      balances={combinedBalances}
-                      refetchHistory={refetchHistory}
-                      address={address ?? ''}
-                      pageSize={tokenListPageSize}
-                      searchTerm={searchTerm}
-                    />
-                  )}
-                  {activeTab === 'history' && (
-                    <HistoryBox
-                      currentPage={currentPage}
-                      setCurrentPage={setCurrentPage}
-                      address={address ?? ''}
-                      isLoading={isLoading}
-                      sendTxs={sendTxs}
-                      totalPages={totalPages}
-                      txLoading={txLoading}
-                      isError={isError}
-                      refetch={refetchHistory}
-                      skeletonGroupCount={skeletonGroupCount}
-                      skeletonTxCount={skeletonTxCount}
-                    />
-                  )}
+                  {activeTab === 'assets' &&
+                    (combinedBalances.length === 0 ? (
+                      <NoAssetsFound />
+                    ) : (
+                      <TokenList
+                        refetchBalances={refetchBalances || resolveRefetch}
+                        isLoading={isLoading}
+                        balances={combinedBalances}
+                        refetchHistory={refetchHistory}
+                        address={address ?? ''}
+                        pageSize={tokenListPageSize}
+                        searchTerm={searchTerm}
+                      />
+                    ))}
+                  {activeTab === 'history' &&
+                    (sendTxs.length === 0 ? (
+                      <NoActivityFound />
+                    ) : (
+                      <HistoryBox
+                        currentPage={currentPage}
+                        setCurrentPage={setCurrentPage}
+                        address={address ?? ''}
+                        isLoading={isLoading}
+                        sendTxs={sendTxs}
+                        totalPages={totalPages}
+                        txLoading={txLoading}
+                        isError={isError}
+                        refetch={refetchHistory}
+                        skeletonGroupCount={skeletonGroupCount}
+                        skeletonTxCount={skeletonTxCount}
+                      />
+                    ))}
                 </div>
               </div>
             </div>
@@ -222,5 +231,46 @@ export default function Bank() {
         </div>
       </div>
     </div>
+  );
+}
+
+function NoAssetsFound() {
+  return (
+    <section className="transition-opacity duration-300 h-auto mt-12 ease-in-out animate-fadeIn w-full flex items-center justify-center">
+      <div className="grid max-w-4xl bg-base-300 p-12 rounded-md w-full mx-auto gap-8 lg:grid-cols-12">
+        <div className="mr-auto place-self-center lg:col-span-7">
+          <h1 className="max-w-2xl mb-4 text-2xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white text-black">
+            No Assets Found
+          </h1>
+          <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl">
+            You do not have any assets yet.
+          </p>
+        </div>
+        <div className="hidden lg:mt-0 lg:ml-24 lg:col-span-5 lg:flex">
+          <BankIcon className="h-60 w-60 text-primary" />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function NoActivityFound() {
+  return (
+    <section className="transition-opacity duration-300 h-auto mt-12 ease-in-out animate-fadeIn w-full flex items-center justify-center">
+      <div className="grid max-w-4xl bg-base-300 p-12 rounded-md w-full mx-auto gap-8 lg:grid-cols-12">
+        <div className="mr-auto place-self-center lg:col-span-7">
+          <h1 className="max-w-2xl mb-4 text-2xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white text-black">
+            No Activity Found
+          </h1>
+          <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl">
+            You do not have any activity yet. Submit a transaction and revisit this page to view
+            your history!
+          </p>
+        </div>
+        <div className="hidden lg:mt-0 lg:ml-24 lg:col-span-5 lg:flex">
+          <BankIcon className="h-60 w-60 text-primary" />
+        </div>
+      </div>
+    </section>
   );
 }
