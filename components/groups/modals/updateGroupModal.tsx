@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Formik, Form } from 'formik';
+import { Formik, Form, useFormikContext } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { TextInput, TextArea, NumberInput } from '@/components/react/inputs';
 
@@ -12,6 +12,11 @@ import { cosmos } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import env from '@/config/env';
 import { createPortal } from 'react-dom';
+
+import { isValidManifestAddress } from '@/utils/string';
+import { TrashIcon, PlusIcon } from '@/components/icons';
+import { MdContacts } from 'react-icons/md';
+import { TailwindModal } from '@/components/react/modal';
 
 export function UpdateGroupModal({
   group,
@@ -40,7 +45,6 @@ export function UpdateGroupModal({
 
   const maybeTitle = maybeMetadata?.title ?? '';
   const maybeAuthors = maybeMetadata?.authors ?? '';
-  const maybeSummary = maybeMetadata?.summary ?? '';
 
   const maybeDetails = maybeMetadata?.details ?? '';
   const maybePolicies = group?.policies?.[0];
@@ -54,9 +58,7 @@ export function UpdateGroupModal({
     cosmos.group.v1.MessageComposer.withTypeUrl;
 
   const [name, setName] = useState(maybeTitle);
-  const [authors, setAuthors] = useState(maybeAuthors);
-  const [summary, setSummary] = useState(maybeSummary);
-
+  const [authors, setAuthors] = useState(maybeAuthors ? [maybeAuthors] : []);
   const [description, setDescription] = useState(maybeDetails);
   const [threshold, setThreshold] = useState(maybeThreshold);
   const [votingPeriod, setVotingPeriod] = useState({
@@ -65,6 +67,9 @@ export function UpdateGroupModal({
     minutes: 0,
     seconds: 0,
   });
+
+  const [isContactsOpen, setIsContactsOpen] = useState(false);
+  const [activeAuthorIndex, setActiveAuthorIndex] = useState<number | null>(null);
 
   // Initialize voting period state from existing data if available
   useEffect(() => {
@@ -101,15 +106,12 @@ export function UpdateGroupModal({
     // Update Group Metadata
     if (
       hasStateChanged(name, maybeTitle) ||
-      hasStateChanged(authors, maybeAuthors) ||
-      hasStateChanged(summary, maybeSummary) ||
+      hasStateChanged(authors.join(','), maybeAuthors) ||
       hasStateChanged(description, maybeDetails)
     ) {
       const newMetadata = JSON.stringify({
         title: name,
-        authors: authors,
-        summary: summary,
-
+        authors: authors.join(','),
         details: description,
       });
       const msgGroupMetadata = updateGroupMetadata({
@@ -224,39 +226,28 @@ export function UpdateGroupModal({
     .shape({
       name: Yup.string()
         .max(50, 'Name must be at most 50 characters')
-        .noProfanity('Profanity is not allowed')
-        .when(['threshold', 'votingPeriod'], {
-          is: (threshold: number, votingPeriod: any) => {
-            // Convert both values to numbers for comparison
-            const hasThresholdChange = Number(threshold) !== Number(maybeThreshold);
-            const totalSeconds =
-              (Number(votingPeriod?.days) || 0) * 86400 +
-              (Number(votingPeriod?.hours) || 0) * 3600 +
-              (Number(votingPeriod?.minutes) || 0) * 60 +
-              (Number(votingPeriod?.seconds) || 0);
-            const originalSeconds = Number(maybeVotingPeriod?.seconds) || 0;
-            const hasVotingPeriodChange = totalSeconds !== originalSeconds;
-
-            return hasThresholdChange || hasVotingPeriodChange;
-          },
-          then: schema => schema.optional(),
-          otherwise: schema =>
-            schema.when(['authors', 'summary', 'description'], {
-              is: (authors: string, summary: string, description: string) =>
-                !authors && !summary && !description,
-              then: schema => schema.required('At least one metadata field is required'),
-              otherwise: schema => schema.optional(),
-            }),
-        }),
-      authors: Yup.string()
-        .noProfanity('Profanity is not allowed')
-        .max(50, 'Authors must not exceed 50 characters')
-        .optional(),
+        .noProfanity('Profanity is not allowed'),
+      authors: Yup.array()
+        .of(
+          Yup.string().test(
+            'author-validation',
+            'Invalid author name or address',
+            function (value) {
+              if (value?.startsWith('manifest')) {
+                return isValidManifestAddress(value);
+              }
+              return Yup.string()
+                .max(50, 'Author name must not exceed 50 characters')
+                .noProfanity('Profanity is not allowed')
+                .isValidSync(value);
+            }
+          )
+        )
+        .min(1, 'At least one author is required'),
       description: Yup.string()
-        .noProfanity('Profanity is not allowed')
         .min(20, 'Description must be at least 20 characters')
-        .max(100, 'Description must not exceed 100 characters')
-        .optional(),
+        .max(1000, 'Description must not exceed 1000 characters')
+        .noProfanity('Profanity is not allowed'),
       threshold: Yup.number().min(1, 'Threshold must be at least 1').optional(),
       votingPeriod: Yup.object()
         .shape({
@@ -329,209 +320,312 @@ export function UpdateGroupModal({
     <dialog
       id="update-group-modal"
       className={`modal ${showUpdateModal ? 'modal-open' : ''}`}
-      aria-modal="true"
       role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
       style={{
         position: 'fixed',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        zIndex: 10000,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 9999,
         backgroundColor: 'transparent',
         padding: 0,
         margin: 0,
-        width: '100vw',
         height: '100vh',
+        width: '100vw',
         display: showUpdateModal ? 'flex' : 'none',
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
-      <Formik
-        initialValues={{
-          name: name,
-          authors: authors,
-          summary: summary,
-
-          description: description,
-          threshold: threshold,
-          votingPeriod: votingPeriod,
-        }}
-        validationSchema={validationSchema}
-        onSubmit={handleConfirm}
-        enableReinitialize
+      <div
+        className="modal-box max-w-2xl bg-secondary rounded-[24px]"
+        onClick={e => e.stopPropagation()}
       >
-        {({ setFieldValue, values, isValid, dirty, errors, touched }) => (
-          <>
-            <div
-              className="flex flex-col items-center justify-center w-full h-full"
-              onClick={e => e.stopPropagation()}
-            >
-              <div className="modal-box dark:bg-[#1D192D] bg-[#FFFFFF] rounded-[24px] max-w-4xl p-6 dark:text-white text-black relative">
-                <button
-                  onClick={() => setShowUpdateModal(false)}
-                  className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-                >
-                  ✕
-                </button>
-                <h3 className="text-2xl font-semibold mb-4">Update Group</h3>
+        <form method="dialog">
+          <button
+            onClick={() => setShowUpdateModal(false)}
+            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+          >
+            ✕
+          </button>
+        </form>
+        <Formik
+          initialValues={{
+            name,
+            authors,
+            description,
+            threshold,
+            votingPeriod,
+          }}
+          validationSchema={validationSchema}
+          onSubmit={handleConfirm}
+          enableReinitialize
+        >
+          {({ values, isValid }) => (
+            <Form className="flex flex-col gap-4">
+              <div className="grid grid-cols-1 gap-4">
+                <GroupDetailsFormFields
+                  dispatch={({ field, value }) => {
+                    switch (field) {
+                      case 'title':
+                        setName(value);
+                        break;
+                      case 'authors':
+                        setAuthors(value);
+                        break;
+                      case 'description':
+                        setDescription(value);
+                        break;
+                    }
+                  }}
+                  address={address}
+                  isContactsOpen={isContactsOpen}
+                  setIsContactsOpen={setIsContactsOpen}
+                  activeAuthorIndex={activeAuthorIndex}
+                  setActiveAuthorIndex={setActiveAuthorIndex}
+                />
 
-                <Form className="flex flex-col gap-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <TextInput
-                      label="Group Name"
-                      name="name"
-                      placeholder="Group Name"
-                      value={values.name}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        setName(e.target.value);
-                        setFieldValue('name', e.target.value);
-                      }}
-                      maxLength={24}
-                    />
-                    <TextInput
-                      label="Authors"
-                      name="authors"
-                      placeholder="Authors"
-                      value={values.authors}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        setAuthors(e.target.value);
-                        setFieldValue('authors', e.target.value);
-                      }}
-                    />
-                    <TextInput
-                      label="Summary"
-                      name="summary"
-                      placeholder="Summary"
-                      value={values.summary}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        setSummary(e.target.value);
-                        setFieldValue('summary', e.target.value);
-                      }}
-                    />
-
-                    <TextArea
-                      label="Description"
-                      name="description"
-                      placeholder="Description"
-                      value={values.description}
-                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                        setDescription(e.target.value);
-                        setFieldValue('description', e.target.value);
-                      }}
-                      className="w-full md:col-span-2"
-                    />
-                    <NumberInput
-                      label="Threshold"
-                      name="threshold"
-                      placeholder="Threshold"
-                      value={values.threshold}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        const value = Math.max(1, parseInt(e.target.value) || 1);
+                <GroupPolicyFormFields
+                  dispatch={({
+                    field,
+                    value,
+                  }: {
+                    field: 'votingPeriod' | 'votingThreshold';
+                    value: any;
+                  }) => {
+                    switch (field) {
+                      case 'votingPeriod':
+                        setVotingPeriod(value);
+                        break;
+                      case 'votingThreshold':
                         setThreshold(value.toString());
-                        setFieldValue('threshold', value);
-                      }}
-                      min={1}
-                    />
-                    <div className="md:col-span-2">
-                      <label className="block text-sm mb-1 font-medium text-[#00000099] dark:text-[#FFFFFF99]">
-                        Voting Period
-                      </label>
-                      <div className="grid grid-cols-4 gap-2">
-                        <NumberInput
-                          name="votingPeriod.days"
-                          placeholder="Days"
-                          label="Days"
-                          value={values.votingPeriod.days}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                            const value = Math.max(0, parseInt(e.target.value) || 0);
-                            setVotingPeriod(prev => ({ ...prev, days: value }));
-                            setFieldValue('votingPeriod.days', value);
-                          }}
-                          min={0}
-                        />
-                        <NumberInput
-                          name="votingPeriod.hours"
-                          placeholder="Hours"
-                          label="Hours"
-                          value={values.votingPeriod.hours}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                            const value = Math.max(0, parseInt(e.target.value) || 0);
-                            setVotingPeriod(prev => ({ ...prev, hours: value }));
-                            setFieldValue('votingPeriod.hours', value);
-                          }}
-                          min={0}
-                        />
-                        <NumberInput
-                          name="votingPeriod.minutes"
-                          placeholder="Minutes"
-                          label="Minutes"
-                          value={values.votingPeriod.minutes}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                            const value = Math.max(0, parseInt(e.target.value) || 0);
-                            setVotingPeriod(prev => ({ ...prev, minutes: value }));
-                            setFieldValue('votingPeriod.minutes', value);
-                          }}
-                          min={0}
-                        />
-                        <NumberInput
-                          name="votingPeriod.seconds"
-                          placeholder="Seconds"
-                          label="Seconds"
-                          value={values.votingPeriod.seconds}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                            const value = Math.max(0, parseInt(e.target.value) || 0);
-                            setVotingPeriod(prev => ({ ...prev, seconds: value }));
-                            setFieldValue('votingPeriod.seconds', value);
-                          }}
-                          min={0}
-                        />
-                      </div>
-                      {/* Display validation error below the voting period inputs */}
-                      {errors.votingPeriod && typeof errors.votingPeriod === 'string' && (
-                        <div className="text-red-500 text-sm mt-1">{errors.votingPeriod}</div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="mt-4 gap-6 flex justify-center w-full">
-                    <button
-                      type="button"
-                      className="btn w-[calc(50%-8px)] btn-md focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
-                      onClick={() =>
-                        (document.getElementById('update-group-modal') as HTMLDialogElement).close()
-                      }
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="btn btn-md w-[calc(50%-8px)] btn-gradient  text-white"
-                      onClick={() => handleConfirm(values)}
-                      disabled={isSigning || !isValid || !hasAnyChanges(values)}
-                    >
-                      {isSigning ? 'Signing...' : 'Update'}
-                    </button>
-                  </div>
-                </Form>
+                        break;
+                    }
+                  }}
+                />
               </div>
-              {/* Action buttons */}
-            </div>
-            <div
-              className="fixed inset-0 bg-black bg-opacity-50"
-              style={{ zIndex: -1 }}
-              onClick={() => setShowUpdateModal(false)}
-              aria-hidden="true"
-            />
-          </>
-        )}
-      </Formik>
+
+              <TailwindModal
+                isOpen={isContactsOpen}
+                setOpen={setIsContactsOpen}
+                showContacts={true}
+                currentAddress={address}
+                onSelect={(selectedAddress: string) => {
+                  if (activeAuthorIndex !== null) {
+                    const newAuthors = [...authors];
+                    newAuthors[activeAuthorIndex] = selectedAddress;
+                    setAuthors(newAuthors);
+                  }
+                }}
+              />
+
+              <div className="mt-4 gap-6 flex justify-center w-full">
+                <button
+                  type="button"
+                  className="btn w-[calc(50%-8px)] btn-md focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
+                  onClick={() => setShowUpdateModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-md w-[calc(50%-8px)] btn-gradient text-white"
+                  disabled={isSigning || !isValid || !hasAnyChanges(values)}
+                >
+                  {isSigning ? 'Signing...' : 'Update'}
+                </button>
+              </div>
+            </Form>
+          )}
+        </Formik>
+      </div>
+      <form
+        method="dialog"
+        className="modal-backdrop"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: -1,
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        }}
+        onClick={() => setShowUpdateModal(false)}
+      >
+        <button>close</button>
+      </form>
     </dialog>
   );
 
-  // Only render if we're in the browser and modal is shown
   if (typeof document !== 'undefined' && showUpdateModal) {
     return createPortal(modalContent, document.body);
   }
 
   return null;
+}
+
+function GroupPolicyFormFields({
+  dispatch,
+}: {
+  dispatch: ({ field, value }: { field: 'votingPeriod' | 'votingThreshold'; value: any }) => void;
+}) {
+  const { values, setFieldValue } = useFormikContext<{
+    votingPeriod: { days: number; hours: number; minutes: number; seconds: number };
+    votingThreshold: number | string;
+  }>();
+
+  return (
+    <Form className="flex flex-col gap-4">
+      <div>
+        <label className="block text-sm mb-1 font-medium dark:text-[#FFFFFF99]">
+          Voting Period
+        </label>
+        <div className="grid grid-cols-4 gap-2">
+          {['days', 'hours', 'minutes', 'seconds'].map(unit => (
+            <NumberInput
+              key={unit}
+              name={`votingPeriod.${unit}`}
+              placeholder={unit.charAt(0).toUpperCase() + unit.slice(1)}
+              label={unit.charAt(0).toUpperCase() + unit.slice(1)}
+              value={values.votingPeriod[unit as keyof typeof values.votingPeriod]}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                const val = Math.max(0, parseInt(e.target.value) || 0);
+                setFieldValue(`votingPeriod.${unit}`, val);
+                dispatch({
+                  field: 'votingPeriod',
+                  value: { ...values.votingPeriod, [unit]: val },
+                });
+              }}
+              min={0}
+            />
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label className="block mb-1 text-sm font-medium dark:text-[#FFFFFF99]">
+          Qualified Majority
+        </label>
+        <NumberInput
+          name="votingThreshold"
+          placeholder="e.g., 1"
+          value={values.votingThreshold}
+          onChange={e => {
+            const val = Math.max(1, parseInt(e.target.value) || 1);
+            setFieldValue('votingThreshold', val);
+            dispatch({ field: 'votingThreshold', value: val });
+          }}
+          min={1}
+        />
+      </div>
+    </Form>
+  );
+}
+
+function GroupDetailsFormFields({
+  dispatch,
+  address,
+  isContactsOpen,
+  setIsContactsOpen,
+  activeAuthorIndex,
+  setActiveAuthorIndex,
+}: {
+  dispatch: ({ field, value }: { field: 'title' | 'authors' | 'description'; value: any }) => void;
+  address: string;
+  isContactsOpen: boolean;
+  setIsContactsOpen: (open: boolean) => void;
+  activeAuthorIndex: number | null;
+  setActiveAuthorIndex: (index: number | null) => void;
+}) {
+  const { values, setFieldValue } = useFormikContext<{
+    name: string;
+    authors: string[];
+    description: string;
+  }>();
+
+  return (
+    <Form className="flex flex-col gap-4">
+      <TextInput
+        label="Group Title"
+        name="name"
+        placeholder="Title"
+        value={values.name}
+        onChange={e => {
+          setFieldValue('name', e.target.value);
+          dispatch({ field: 'title', value: e.target.value });
+        }}
+      />
+
+      <TextArea
+        label="Description"
+        name="description"
+        placeholder="Description"
+        value={values.description}
+        onChange={e => {
+          setFieldValue('description', e.target.value);
+          dispatch({ field: 'description', value: e.target.value });
+        }}
+      />
+
+      <div className="form-control w-full">
+        {values.authors.map((author, index) => (
+          <div key={index} className="flex mb-2">
+            <TextInput
+              label={index === 0 ? 'Author name or address' : ''}
+              name={`authors.${index}`}
+              value={author}
+              onChange={e => {
+                const newAuthors = [...values.authors];
+                newAuthors[index] = e.target.value;
+                setFieldValue('authors', newAuthors);
+                dispatch({ field: 'authors', value: newAuthors });
+              }}
+              rightElement={
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveAuthorIndex(index);
+                      setIsContactsOpen(true);
+                    }}
+                    className="btn btn-primary btn-sm text-white"
+                  >
+                    <MdContacts className="w-5 h-5" />
+                  </button>
+                  {values.authors.length > 1 && index !== 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newAuthors = values.authors.filter((_, i) => i !== index);
+                        setFieldValue('authors', newAuthors);
+                        dispatch({ field: 'authors', value: newAuthors });
+                      }}
+                      className="btn btn-error btn-sm text-white"
+                    >
+                      <TrashIcon className="w-5 h-5" />
+                    </button>
+                  )}
+                </div>
+              }
+            />
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={() => {
+            const newAuthors = [...values.authors, ''];
+            setFieldValue('authors', newAuthors);
+            dispatch({ field: 'authors', value: newAuthors });
+          }}
+          className="btn btn-gradient text-white w-full mt-2"
+        >
+          <PlusIcon className="mr-2" /> Add Author
+        </button>
+      </div>
+    </Form>
+  );
 }
