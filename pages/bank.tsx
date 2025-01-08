@@ -80,6 +80,7 @@ export default function Bank() {
     isLoading: txLoading,
     isError,
     refetch: refetchHistory,
+    totalCount,
   } = useGetFilteredTxAndSuccessfulProposals(
     env.indexerUrl,
     address ?? '',
@@ -206,7 +207,7 @@ export default function Bank() {
                       />
                     ))}
                   {activeTab === 'history' &&
-                    (sendTxs.length === 0 && !txLoading ? (
+                    (totalCount === 0 && !txLoading ? (
                       <NoActivityFound />
                     ) : (
                       <HistoryBox
@@ -214,7 +215,7 @@ export default function Bank() {
                         setCurrentPage={setCurrentPage}
                         address={address ?? ''}
                         isLoading={isLoading}
-                        sendTxs={sendTxs}
+                        sendTxs={sendTxs || []}
                         totalPages={totalPages}
                         txLoading={txLoading}
                         isError={isError}
