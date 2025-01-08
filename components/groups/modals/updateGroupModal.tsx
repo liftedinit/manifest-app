@@ -364,7 +364,7 @@ export function UpdateGroupModal({
           onSubmit={handleConfirm}
           enableReinitialize
         >
-          {({ values, isValid }) => (
+          {({ values, isValid, touched }) => (
             <Form className="flex flex-col gap-4">
               <div className="grid grid-cols-1 gap-4">
                 <GroupDetailsFormFields
@@ -434,9 +434,9 @@ export function UpdateGroupModal({
                   type="submit"
                   aria-label={'update-group-btn'}
                   className="btn btn-md w-[calc(50%-8px)] btn-gradient text-white"
-                  disabled={isSigning || !isValid || !hasAnyChanges(values)}
+                  disabled={isSigning || !isValid || !hasAnyChanges(values) || !touched}
                 >
-                  {isSigning ? 'Signing...' : 'Update'}
+                  {isSigning ? <span className="loading loading-dots loading-md"></span> : 'Update'}
                 </button>
               </div>
             </Form>

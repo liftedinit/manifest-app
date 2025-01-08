@@ -372,7 +372,11 @@ export function MemberManagementModal({
                       onClick={() => submitFormRef.current?.()}
                       disabled={isSigning || !isValid || !touched}
                     >
-                      {isSigning ? 'Signing...' : 'Save'}
+                      {isSigning ? (
+                        <span className="loading loading-dots loading-md"></span>
+                      ) : (
+                        'Save'
+                      )}
                     </button>
                   </div>
                 </Form>

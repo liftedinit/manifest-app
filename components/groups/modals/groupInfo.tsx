@@ -224,7 +224,7 @@ export function GroupInfo({
               onClick={handleLeave}
               disabled={isSigning}
             >
-              {isSigning ? <span className="animate-pulse">Leaving</span> : 'Leave'}
+              {isSigning ? <span className="loading loading-dots loading-md"></span> : 'Leave'}
             </button>
 
             <button
