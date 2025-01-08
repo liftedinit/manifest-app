@@ -61,7 +61,6 @@ export function MemberManagementModal({
           .noProfanity('Profanity is not allowed')
           .required('Required')
           .max(25, 'Maximum 25 characters'),
-        weight: Yup.number().required('Weight is required').min(0, 'Weight must be at least 0'),
       })
     ),
   });
@@ -75,53 +74,64 @@ export function MemberManagementModal({
     }))
   );
 
-  useEffect(() => {
-    setMembers(
-      initialMembers.map(member => ({
-        ...member,
-        isNew: false,
-        markedForDeletion: false,
-        weight: member.weight || '1',
-      }))
-    );
-  }, [initialMembers]);
-
   const handleMemberToggleDeletion = (index: number) => {
-    setMembers(
-      members
-        .map((member, idx) =>
-          idx === index
-            ? member.isNew
-              ? undefined
-              : { ...member, markedForDeletion: !member.markedForDeletion }
-            : member
-        )
-        .filter(Boolean) as ExtendedMember[]
-    );
+    const formValues = formikRef.current?.values?.members || [];
+
+    setMembers(prevMembers => {
+      const newMembers = [...prevMembers];
+      const member = newMembers[index];
+
+      if (member.isNew) {
+        // Remove just this new member
+        newMembers.splice(index, 1);
+      } else {
+        // Toggle deletion for existing member
+        newMembers[index] = {
+          ...member,
+          markedForDeletion: !member.markedForDeletion,
+        };
+      }
+
+      // Preserve form values for all members
+      return newMembers.map((m, idx) => ({
+        ...m,
+        metadata: formValues[idx]?.metadata || m.metadata,
+        address: formValues[idx]?.address || m.address,
+      }));
+    });
   };
 
   const handleAddMember = () => {
-    setMembers([
-      ...members,
-      {
+    const formValues = formikRef.current?.values?.members || [];
+
+    setMembers(prevMembers => {
+      const newMember: ExtendedMember = {
         address: '',
         metadata: '',
         weight: '1',
         isNew: true,
+        added_at: new Date(),
         markedForDeletion: false,
-      } as ExtendedMember,
-    ]);
+      };
+
+      const newMembers = [...prevMembers, newMember];
+
+      // Preserve form values for all existing members
+      return newMembers.map((m, idx) => ({
+        ...m,
+        metadata: formValues[idx]?.metadata || m.metadata,
+        address: formValues[idx]?.address || m.address,
+      }));
+    });
   };
 
   const buildMessages = (formMembers: ExtendedMember[]) => {
     const messages: Any[] = [];
     const { updateGroupMembers } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
+    // Filter out new members with empty fields
     const memberUpdates = formMembers
-      .filter(member => {
-        const hasRequiredFields = member.address && member.metadata;
-        return hasRequiredFields || member.markedForDeletion || !member.isNew;
-      })
+      .filter(member => !member.isNew || (member.address && member.metadata))
       .map(member => ({
         address: member.address,
         metadata: member.metadata,
@@ -133,6 +143,7 @@ export function MemberManagementModal({
       groupId: BigInt(groupId),
       memberUpdates,
     });
+
     messages.push(
       Any.fromPartial({
         typeUrl: cosmos.group.v1.MsgUpdateGroupMembers.typeUrl,
@@ -183,6 +194,7 @@ export function MemberManagementModal({
   };
 
   const submitFormRef = useRef<(() => void) | null>(null);
+  const formikRef = useRef<any>(null);
 
   const modalContent = (
     <dialog
@@ -225,13 +237,15 @@ export function MemberManagementModal({
         </div>
 
         <Formik
+          innerRef={formikRef}
           initialValues={{ members }}
           validationSchema={validationSchema}
           onSubmit={handleConfirm}
-          enableReinitialize
+          enableReinitialize={true}
         >
           {({ values, isValid, setFieldValue, handleSubmit, touched }) => {
             submitFormRef.current = handleSubmit;
+
             return (
               <>
                 <div className="z-[9999]">
