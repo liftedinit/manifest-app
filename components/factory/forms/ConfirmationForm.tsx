@@ -30,7 +30,7 @@ export default function ConfirmationForm({
     formData.isGroup && formData.groupPolicyAddress ? formData.groupPolicyAddress : address;
 
   const getDenomInfo = (subdenom: string) => {
-    const prefixedSubdenom = subdenom.startsWith('u') ? subdenom : 'u' + subdenom;
+    const prefixedSubdenom = 'u' + subdenom;
     const symbol = (subdenom.startsWith('u') ? subdenom.slice(1) : subdenom).toUpperCase();
     const fullDenom = `factory/${effectiveAddress}/${prefixedSubdenom}`;
     return { prefixedSubdenom, symbol, fullDenom };
