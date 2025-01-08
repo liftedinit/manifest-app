@@ -46,6 +46,7 @@ type GroupControlsProps = {
   refetchBalances: () => void;
   refetchHistory: () => void;
   refetchDenoms: () => void;
+  refetchGroupInfo: () => void;
   pageSize: number;
   skeletonGroupCount: number;
   skeletonTxCount: number;
@@ -72,6 +73,7 @@ export default function GroupControls({
   refetchBalances,
   refetchHistory,
   refetchDenoms,
+  refetchGroupInfo,
   pageSize,
   skeletonGroupCount,
   skeletonTxCount,
@@ -665,6 +667,8 @@ export default function GroupControls({
           refetchVotes={refetchVotes}
           refetchTally={refetchTally}
           refetchProposals={refetchProposals}
+          refetchGroupInfo={refetchGroupInfo}
+          refetchDenoms={refetchDenoms}
           group={group}
         />
       )}

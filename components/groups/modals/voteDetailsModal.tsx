@@ -58,6 +58,8 @@ interface VoteDetailsModalProps {
   refetchVotes: () => void;
   refetchTally: () => void;
   refetchProposals: () => void;
+  refetchGroupInfo: () => void;
+  refetchDenoms: () => void;
 }
 
 function VoteDetailsModal({
@@ -71,7 +73,8 @@ function VoteDetailsModal({
   refetchVotes,
   refetchTally,
   refetchProposals,
-  group,
+  refetchGroupInfo,
+  refetchDenoms,
 }: VoteDetailsModalProps) {
   const voteMap = useMemo(
     () =>
@@ -237,6 +240,8 @@ function VoteDetailsModal({
           refetchTally();
           refetchVotes();
           refetchProposals();
+          refetchGroupInfo();
+          refetchDenoms();
         },
       });
       setIsSigning(false);
@@ -257,6 +262,8 @@ function VoteDetailsModal({
           refetchTally();
           refetchVotes();
           refetchProposals();
+          refetchGroupInfo();
+          refetchDenoms();
         },
       });
       setIsSigning(false);
@@ -814,6 +821,8 @@ function VoteDetailsModal({
                 refetchVotes();
                 refetchTally();
                 refetchProposals();
+                refetchGroupInfo();
+                refetchDenoms();
               }}
             />
           </div>
