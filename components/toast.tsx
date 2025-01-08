@@ -121,6 +121,11 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
                   {toastMessage.link && (
                     <Link
                       href={toastMessage.link}
+                      aria-label={
+                        toastMessage.link.includes('policyAddress')
+                          ? 'View proposal details'
+                          : 'View in block explorer'
+                      }
                       className="text-primary hover:text-primary/60 dark:text-primary underline mt-[0.1rem] inline-block transition-colors duration-200"
                       {...(!toastMessage.link.includes('policyAddress') && {
                         target: '_blank',
@@ -148,6 +153,7 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
                   {toastMessage.explorerLink && (
                     <Link
                       href={toastMessage.explorerLink}
+                      aria-label={'View in block explorer'}
                       className="text-primary hover:text-primary/60 dark:text-primary underline mt-[0.1rem] inline-block transition-colors duration-200"
                       target="_blank"
                       rel="noopener noreferrer"
