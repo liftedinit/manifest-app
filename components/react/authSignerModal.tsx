@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { SignData } from '@cosmos-kit/web3auth';
 import { TxBody, AuthInfo } from '@liftedinit/manifestjs/dist/codegen/cosmos/tx/v1beta1/tx';
 import { decodePubkey } from '@cosmjs/proto-signing';
@@ -6,10 +6,94 @@ import { useWallet, useChain } from '@cosmos-kit/react';
 import { getRealLogo } from '@/utils';
 import { useTheme } from '@/contexts';
 import env from '@/config/env';
+import { ArrowRightIcon } from '../icons';
+import { objectSyntax } from '../messageSyntax';
+import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
+import {
+  MsgCreateGroupWithPolicy,
+  MsgSubmitProposal,
+  MsgUpdateGroupMembers,
+  MsgUpdateGroupPolicyMetadata,
+  MsgUpdateGroupPolicyDecisionPolicy,
+  MsgUpdateGroupMetadata,
+} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
+import {
+  MsgCancelUpgrade,
+  MsgSoftwareUpgrade,
+} from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
+import { MsgSetPower } from '@liftedinit/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
+import {
+  MsgPayout,
+  MsgBurnHeldBalance,
+} from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
+import {
+  MsgSetDenomMetadata,
+  MsgCreateDenom,
+} from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
 
 type DisplayDataToSignProps = {
   data: SignData;
   address: string;
+};
+
+// Message decoder registry
+const messageDecoders: Record<string, (value: Uint8Array) => any> = {
+  '/cosmos.bank.v1beta1.MsgSend': (value: Uint8Array) => {
+    const decoded = MsgSend.decode(value);
+    return { ...decoded };
+  },
+  '/cosmos.group.v1.MsgCreateGroupWithPolicy': (value: Uint8Array) => {
+    const decoded = MsgCreateGroupWithPolicy.decode(value);
+    return { ...decoded };
+  },
+  '/cosmos.group.v1.MsgSubmitProposal': (value: Uint8Array) => {
+    const decoded = MsgSubmitProposal.decode(value);
+    return { ...decoded };
+  },
+  '/cosmos.group.v1.MsgUpdateGroupMetadata': (value: Uint8Array) => {
+    const decoded = MsgUpdateGroupMetadata.decode(value);
+    return { ...decoded };
+  },
+  '/cosmos.group.v1.MsgUpdateGroupPolicyMetadata': (value: Uint8Array) => {
+    const decoded = MsgUpdateGroupPolicyMetadata.decode(value);
+    return { ...decoded };
+  },
+  '/cosmos.group.v1.MsgUpdateGroupPolicyDecisionPolicy': (value: Uint8Array) => {
+    const decoded = MsgUpdateGroupPolicyDecisionPolicy.decode(value);
+    return { ...decoded };
+  },
+  '/cosmos.group.v1.MsgUpdateGroupMembers': (value: Uint8Array) => {
+    const decoded = MsgUpdateGroupMembers.decode(value);
+    return { ...decoded };
+  },
+  '/cosmos.upgrade.v1beta1.MsgCancelUpgrade': (value: Uint8Array) => {
+    const decoded = MsgCancelUpgrade.decode(value);
+    return { ...decoded };
+  },
+  '/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade': (value: Uint8Array) => {
+    const decoded = MsgSoftwareUpgrade.decode(value);
+    return { ...decoded };
+  },
+  '/strangelove_ventures.poa.v1.MsgSetPower': (value: Uint8Array) => {
+    const decoded = MsgSetPower.decode(value);
+    return { ...decoded };
+  },
+  '/liftedinit.manifest.v1.MsgPayout': (value: Uint8Array) => {
+    const decoded = MsgPayout.decode(value);
+    return { ...decoded };
+  },
+  '/liftedinit.manifest.v1.MsgBurnHeldBalance': (value: Uint8Array) => {
+    const decoded = MsgBurnHeldBalance.decode(value);
+    return { ...decoded };
+  },
+  '/osmosis.tokenfactory.v1beta1.MsgSetDenomMetadata': (value: Uint8Array) => {
+    const decoded = MsgSetDenomMetadata.decode(value);
+    return { ...decoded };
+  },
+  '/osmosis.tokenfactory.v1beta1.MsgCreateDenom': (value: Uint8Array) => {
+    const decoded = MsgCreateDenom.decode(value);
+    return { ...decoded };
+  },
 };
 
 const DisplayDataToSign = ({
@@ -18,19 +102,53 @@ const DisplayDataToSign = ({
   className,
   addressClassName,
   txInfoClassName,
+  theme,
 }: DisplayDataToSignProps & {
   className?: string;
   addressClassName?: string;
   txInfoClassName?: string;
+  theme?: string;
 }) => {
+  const [isAddressExpanded, setIsAddressExpanded] = useState(false);
+  const [isTxInfoExpanded, setIsTxInfoExpanded] = useState(false);
+
   const decodeBodyBytes = (bodyBytes: Uint8Array) => {
     try {
       const decodedBody = TxBody.decode(bodyBytes);
       return {
-        messages: decodedBody.messages.map(msg => ({
-          typeUrl: msg.typeUrl,
-          value: Buffer.from(msg.value).toString('base64'),
-        })),
+        messages: decodedBody.messages.map(msg => {
+          const base64Value = Buffer.from(msg.value).toString('base64');
+
+          try {
+            // Check if we have a specific decoder for this message type
+            if (messageDecoders[msg.typeUrl]) {
+              return {
+                typeUrl: msg.typeUrl,
+                value: messageDecoders[msg.typeUrl](msg.value),
+              };
+            }
+
+            // Fallback to generic base64 decoding
+            const decodedValue = Buffer.from(base64Value, 'base64').toString('utf8');
+            try {
+              return {
+                typeUrl: msg.typeUrl,
+                value: JSON.parse(decodedValue),
+              };
+            } catch {
+              return {
+                typeUrl: msg.typeUrl,
+                value: decodedValue,
+              };
+            }
+          } catch (error) {
+            console.error(`Failed to decode message of type ${msg.typeUrl}:`, error);
+            return {
+              typeUrl: msg.typeUrl,
+              value: base64Value,
+            };
+          }
+        }),
         memo: decodedBody.memo,
         timeoutHeight: decodedBody.timeoutHeight.toString(),
         extensionOptions: decodedBody.extensionOptions,
@@ -64,7 +182,7 @@ const DisplayDataToSign = ({
     }
   };
 
-  const formatValue = (value: any): string => {
+  const formatValue = (value: any, theme: string) => {
     if (value instanceof Uint8Array) {
       return Buffer.from(value).toString('base64');
     }
@@ -75,16 +193,17 @@ const DisplayDataToSign = ({
           bodyBytes: decodeBodyBytes(value.bodyBytes),
           authInfoBytes: decodeAuthInfoBytes(value.authInfoBytes),
         };
-        return JSON.stringify(
-          decodedValue,
-          (_, v) => (typeof v === 'bigint' ? v.toString() : v),
-          2
+        return objectSyntax(
+          JSON.parse(
+            JSON.stringify(decodedValue, (_, v) => (typeof v === 'bigint' ? v.toString() : v))
+          ),
+          theme
         );
       }
-      return JSON.stringify(value, (_, v) => (typeof v === 'bigint' ? v.toString() : v), 2);
-    }
-    if (typeof value === 'bigint') {
-      return value.toString();
+      return objectSyntax(
+        JSON.parse(JSON.stringify(value, (_, v) => (typeof v === 'bigint' ? v.toString() : v))),
+        theme
+      );
     }
     return String(value);
   };
@@ -92,12 +211,38 @@ const DisplayDataToSign = ({
   return (
     <div className={className}>
       <div className="flex flex-col gap-2">
-        <span className="text-sm font-medium">Address</span>
-        <pre className={addressClassName}>{address}</pre>
+        <button
+          onClick={() => setIsAddressExpanded(!isAddressExpanded)}
+          className="flex items-center gap-2 text-sm font-medium"
+        >
+          <div className="flex items-center gap-2 flex-row justify-between">
+            <span>Address</span>
+            {isAddressExpanded ? (
+              <ArrowRightIcon size={12} style={{ transform: 'rotate(90deg)' }} />
+            ) : (
+              <ArrowRightIcon size={12} style={{ transform: 'rotate(180deg)' }} />
+            )}
+          </div>
+        </button>
+        {isAddressExpanded && <pre className={addressClassName}>{address}</pre>}
       </div>
       <div className="flex flex-col gap-2">
-        <span className="text-sm font-medium">Tx Info</span>
-        <pre className={txInfoClassName}>{formatValue(data.value)}</pre>
+        <button
+          onClick={() => setIsTxInfoExpanded(!isTxInfoExpanded)}
+          className="flex items-center gap-2 text-sm font-medium"
+        >
+          <div className="flex items-center gap-2 flex-row justify-between">
+            <span>Tx Info</span>
+            {isTxInfoExpanded ? (
+              <ArrowRightIcon size={12} style={{ transform: 'rotate(90deg)' }} />
+            ) : (
+              <ArrowRightIcon size={12} style={{ transform: 'rotate(180deg)' }} />
+            )}
+          </div>
+        </button>
+        {isTxInfoExpanded && (
+          <div className={txInfoClassName}>{formatValue(data.value, theme ?? 'light')}</div>
+        )}
       </div>
     </div>
   );
@@ -153,6 +298,7 @@ const SignModal = ({
         <DisplayDataToSign
           data={data}
           address={address ?? ''}
+          theme={theme}
           className="space-y-4"
           addressClassName="p-3 rounded-md text-sm overflow-auto h-12 dark:bg-[#E0E0FF0A] bg-[#E0E0FF0A] dark:border-[#FFFFFF33] border-[#00000033] border"
           txInfoClassName="p-3 rounded-md text-sm overflow-auto h-[32rem] dark:bg-[#E0E0FF0A] bg-[#E0E0FF0A] dark:border-[#FFFFFF33] border-[#00000033] border"

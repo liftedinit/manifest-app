@@ -31,3 +31,23 @@ export function messageSyntax(fieldsToShow: string[], message: MessageType, them
     </SyntaxHighlighter>
   );
 }
+
+export function objectSyntax(object: Record<string, any>, theme: string) {
+  const prettyPrintJSON = (obj: Record<string, any>): string => {
+    return JSON.stringify(obj, null, 2);
+  };
+
+  return (
+    <SyntaxHighlighter
+      language="json"
+      style={theme === 'dark' ? oneDark : oneLight}
+      customStyle={{
+        backgroundColor: 'transparent',
+        padding: '1rem',
+        borderRadius: '0.5rem',
+      }}
+    >
+      {prettyPrintJSON(object)}
+    </SyntaxHighlighter>
+  );
+}
