@@ -33,12 +33,19 @@ export default function SendBox({
   admin?: string;
 }) {
   const [activeTab, setActiveTab] = useState<'send' | 'cross-chain'>('send');
-  const [selectedChain, setSelectedChain] = useState('');
+  const [selectedFromChain, setSelectedFromChain] = useState('');
+  const [selectedToChain, setSelectedToChain] = useState('');
   const ibcChains: IbcChain[] = [
+    {
+      id: 'manifest',
+      name: 'Manifest',
+      icon: '/logo.svg',
+      prefix: 'manifest',
+    },
     {
       id: 'osmosis',
       name: 'Osmosis',
-      icon: 'https://osmosis.zone/assets/icons/osmo-logo-icon.svg',
+      icon: '/osmosis.svg',
       prefix: 'osmo',
     },
   ];
@@ -79,16 +86,17 @@ export default function SendBox({
               <IbcSendForm
                 isIbcTransfer={true}
                 ibcChains={ibcChains}
-                selectedChain={selectedChain}
-                setSelectedChain={setSelectedChain}
+                selectedFromChain={selectedFromChain}
+                setSelectedFromChain={setSelectedFromChain}
+                selectedToChain={selectedToChain}
+                setSelectedToChain={setSelectedToChain}
                 address={address}
-                destinationChain={selectedChain}
+                destinationChain={selectedToChain}
                 balances={balances}
                 isBalancesLoading={isBalancesLoading}
                 refetchBalances={refetchBalances}
                 refetchHistory={refetchHistory}
                 selectedDenom={selectedDenom}
-                isGroup={isGroup}
               />
             ) : (
               <SendForm

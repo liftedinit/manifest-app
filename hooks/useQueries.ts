@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { QueryGroupsByMemberResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
 
-import { useLcdQueryClient } from './useLcdQueryClient';
+import { useLcdQueryClient, useOsmosisLcdQueryClient } from './useLcdQueryClient';
 import { usePoaLcdQueryClient } from './usePoaLcdQueryClient';
 import { getLogoUrls } from '@/utils';
 
@@ -647,6 +647,34 @@ export const useTokenBalances = (address: string) => {
 
   const balancesQuery = useQuery({
     queryKey: ['balances', address],
+    queryFn: fetchBalances,
+    enabled: !!lcdQueryClient && !!address,
+    staleTime: Infinity,
+  });
+
+  return {
+    balances: balancesQuery.data?.balances,
+    isBalancesLoading: balancesQuery.isLoading,
+    isBalancesError: balancesQuery.isError,
+    refetchBalances: balancesQuery.refetch,
+  };
+};
+
+export const useTokenBalancesOsmosis = (address: string) => {
+  const { lcdQueryClient } = useOsmosisLcdQueryClient();
+
+  const fetchBalances = async () => {
+    if (!lcdQueryClient) {
+      throw new Error('LCD Client not ready');
+    }
+    return await lcdQueryClient.cosmos.bank.v1beta1.allBalances({
+      address,
+      resolveDenom: false,
+    });
+  };
+
+  const balancesQuery = useQuery({
+    queryKey: ['osmosisBalances', address],
     queryFn: fetchBalances,
     enabled: !!lcdQueryClient && !!address,
     staleTime: Infinity,

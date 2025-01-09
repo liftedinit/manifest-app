@@ -1,7 +1,14 @@
 import React, { useState, useMemo } from 'react';
-import { useFeeEstimation, useTx } from '@/hooks';
+import { useFeeEstimation, useTokenBalancesOsmosis, useTx } from '@/hooks';
 import { ibc } from '@liftedinit/manifestjs';
-import { getIbcInfo, parseNumberToBigInt, shiftDigits, truncateString } from '@/utils';
+import {
+  getIbcInfo,
+  parseNumberToBigInt,
+  shiftDigits,
+  truncateString,
+  formatTokenDisplayName,
+  getIbcDenom,
+} from '@/utils';
 import { PiCaretDownBold } from 'react-icons/pi';
 import { MdContacts } from 'react-icons/md';
 import { CombinedBalanceInfo } from '@/utils/types';
@@ -15,6 +22,7 @@ import { SearchIcon } from '@/components/icons';
 
 import { TailwindModal } from '@/components/react/modal';
 import env from '@/config/env';
+import { useChain } from '@cosmos-kit/react';
 
 //TODO: use formatTokenDisplayName instead of repeating format
 export default function IbcSendForm({
@@ -26,10 +34,11 @@ export default function IbcSendForm({
   refetchHistory,
   isIbcTransfer,
   ibcChains,
-  selectedChain,
-  setSelectedChain,
+  selectedFromChain,
+  setSelectedFromChain,
+  selectedToChain,
+  setSelectedToChain,
   selectedDenom,
-  isGroup,
 }: Readonly<{
   address: string;
   destinationChain: string;
@@ -39,10 +48,11 @@ export default function IbcSendForm({
   refetchHistory: () => void;
   isIbcTransfer: boolean;
   ibcChains: IbcChain[];
-  selectedChain: string;
-  setSelectedChain: (selectedChain: string) => void;
+  selectedFromChain: string;
+  setSelectedFromChain: (selectedChain: string) => void;
+  selectedToChain: string;
+  setSelectedToChain: (selectedChain: string) => void;
   selectedDenom?: string;
-  isGroup?: boolean;
 }>) {
   const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -51,6 +61,10 @@ export default function IbcSendForm({
   const { estimateFee } = useFeeEstimation(env.chain);
   const { transfer } = ibc.applications.transfer.v1.MessageComposer.withTypeUrl;
   const [isContactsOpen, setIsContactsOpen] = useState(false);
+
+  const { address: osmosisAddress } = useChain('osmosistestnet');
+  const { balances: osmosisBalances, isBalancesLoading: isOsmosisBalancesLoading } =
+    useTokenBalancesOsmosis(osmosisAddress ?? '');
 
   // Adjusted filter logic to handle undefined metadata
   const filteredBalances = useMemo(
@@ -115,7 +129,7 @@ export default function IbcSendForm({
       const { source_port, source_channel } = getIbcInfo(env.chain, destinationChain ?? '');
 
       const token = {
-        denom: values.selectedToken.coreDenom,
+        denom: getIbcDenom(selectedToChain, values.selectedToken.coreDenom) ?? '',
         amount: amountInBaseUnits,
       };
 
@@ -171,10 +185,11 @@ export default function IbcSendForm({
         {({ isValid, dirty, setFieldValue, values, errors }) => (
           <Form className="space-y-6 flex flex-col items-center max-w-md mx-auto">
             <div className="w-full space-y-4">
+              {/* From Chain (Manifest) */}
               <div className={`dropdown dropdown-end w-full ${isIbcTransfer ? 'block' : 'hidden'}`}>
                 <div className="flex flex-col gap-1 justify-center items-start">
                   <span className="label-text text-sm font-medium text-[#00000099] dark:text-[#FFFFFF99]">
-                    Chain
+                    From Chain
                   </span>
                   <label
                     tabIndex={0}
@@ -187,17 +202,17 @@ export default function IbcSendForm({
                     className="btn   btn-md btn-dropdown w-full justify-between border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A]"
                   >
                     <span className="flex items-center">
-                      {selectedChain && (
+                      {selectedFromChain && (
                         <Image
-                          src={ibcChains.find(chain => chain.id === selectedChain)?.icon || ''}
-                          alt={ibcChains.find(chain => chain.id === selectedChain)?.name || ''}
+                          src={ibcChains.find(chain => chain.id === selectedFromChain)?.icon || ''}
+                          alt={ibcChains.find(chain => chain.id === selectedFromChain)?.name || ''}
                           width={24}
                           height={24}
                           className="mr-2"
                         />
                       )}
-                      <span className={selectedChain ? 'ml-2' : ''}>
-                        {ibcChains.find(chain => chain.id === selectedChain)?.name ??
+                      <span className={selectedFromChain ? 'ml-2' : ''}>
+                        {ibcChains.find(chain => chain.id === selectedFromChain)?.name ??
                           'Select Chain'}
                       </span>
                     </span>
@@ -211,10 +226,13 @@ export default function IbcSendForm({
                   className="dropdown-content z-[100] menu p-2 shadow bg-base-300 rounded-lg w-full mt-1 dark:text-[#FFFFFF] text-[#161616]"
                 >
                   {ibcChains.map(chain => (
-                    <li key={chain.id} role="option" aria-selected={selectedChain === chain.id}>
+                    <li key={chain.id} role="option" aria-selected={selectedFromChain === chain.id}>
                       <a
                         onClick={e => {
-                          setSelectedChain(chain.id);
+                          if (chain.id === selectedFromChain) {
+                            return;
+                          }
+                          setSelectedFromChain(chain.id);
                           // Get the dropdown element and remove focus
                           const dropdown = (e.target as HTMLElement).closest('.dropdown');
                           if (dropdown) {
@@ -226,7 +244,10 @@ export default function IbcSendForm({
                         onKeyDown={e => {
                           if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
-                            setSelectedChain(chain.id);
+                            if (chain.id === selectedFromChain) {
+                              return;
+                            }
+                            setSelectedFromChain(chain.id);
                             // Get the dropdown element and remove focus
                             const dropdown = (e.target as HTMLElement).closest('.dropdown');
                             if (dropdown) {
@@ -237,7 +258,104 @@ export default function IbcSendForm({
                           }
                         }}
                         tabIndex={0}
-                        className="flex items-center"
+                        className={`flex items-center ${
+                          chain.id === selectedFromChain ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                        style={
+                          chain.id === selectedFromChain ? { pointerEvents: 'none' } : undefined
+                        }
+                        aria-label={chain.name}
+                      >
+                        <Image
+                          src={chain.icon}
+                          alt={chain.name}
+                          width={24}
+                          height={24}
+                          className="mr-2"
+                        />
+                        {chain.name}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              {/* To Chain (Osmosis) */}
+              <div className={`dropdown dropdown-end w-full ${isIbcTransfer ? 'block' : 'hidden'}`}>
+                <div className="flex flex-col gap-1 justify-center items-start">
+                  <span className="label-text text-sm font-medium text-[#00000099] dark:text-[#FFFFFF99]">
+                    To Chain
+                  </span>
+                  <label
+                    tabIndex={0}
+                    aria-label="chain-selector"
+                    role="combobox"
+                    aria-expanded="false"
+                    aria-controls="chain-dropdown"
+                    aria-haspopup="listbox"
+                    style={{ borderRadius: '12px' }}
+                    className="btn   btn-md btn-dropdown w-full justify-between border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A]"
+                  >
+                    <span className="flex items-center">
+                      {selectedToChain && (
+                        <Image
+                          src={ibcChains.find(chain => chain.id === selectedToChain)?.icon || ''}
+                          alt={ibcChains.find(chain => chain.id === selectedToChain)?.name || ''}
+                          width={24}
+                          height={24}
+                          className="mr-2"
+                        />
+                      )}
+                      <span className={selectedToChain ? 'ml-2' : ''}>
+                        {ibcChains.find(chain => chain.id === selectedToChain)?.name ??
+                          'Select Chain'}
+                      </span>
+                    </span>
+                    <PiCaretDownBold />
+                  </label>
+                </div>
+
+                <ul
+                  tabIndex={0}
+                  role="listbox"
+                  className="dropdown-content z-[100] menu p-2 shadow bg-base-300 rounded-lg w-full mt-1 dark:text-[#FFFFFF] text-[#161616]"
+                >
+                  {ibcChains.map(chain => (
+                    <li key={chain.id} role="option" aria-selected={selectedToChain === chain.id}>
+                      <a
+                        onClick={e => {
+                          if (chain.id === selectedToChain) {
+                            return;
+                          }
+                          setSelectedToChain(chain.id);
+                          // Get the dropdown element and remove focus
+                          const dropdown = (e.target as HTMLElement).closest('.dropdown');
+                          if (dropdown) {
+                            (dropdown as HTMLElement).removeAttribute('open');
+                            (dropdown.querySelector('label') as HTMLElement)?.focus();
+                            (dropdown.querySelector('label') as HTMLElement)?.blur();
+                          }
+                        }}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            if (chain.id === selectedToChain) {
+                              return;
+                            }
+                            setSelectedToChain(chain.id);
+                            // Get the dropdown element and remove focus
+                            const dropdown = (e.target as HTMLElement).closest('.dropdown');
+                            if (dropdown) {
+                              (dropdown as HTMLElement).removeAttribute('open');
+                              (dropdown.querySelector('label') as HTMLElement)?.focus();
+                              (dropdown.querySelector('label') as HTMLElement)?.blur();
+                            }
+                          }
+                        }}
+                        tabIndex={0}
+                        className={`flex items-center ${
+                          chain.id === selectedToChain ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                        style={chain.id === selectedToChain ? { pointerEvents: 'none' } : undefined}
                         aria-label={chain.name}
                       >
                         <Image

@@ -9,6 +9,7 @@ const env = {
   chainTier: process.env.NEXT_PUBLIC_CHAIN_TIER ?? '',
   apiUrl: process.env.NEXT_PUBLIC_API_URL ?? '',
   indexerUrl: process.env.NEXT_PUBLIC_INDEXER_URL ?? '',
+  osmosisTestnetApiUrl: process.env.NEXT_PUBLIC_OSMOSIS_TESTNET_API_URL ?? '',
 };
 
 export default env;

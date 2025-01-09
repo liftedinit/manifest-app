@@ -27,6 +27,7 @@ interface PageSizeConfig {
 export default function Bank() {
   const { address, isWalletConnected } = useChain(env.chain);
   const { balances, isBalancesLoading, refetchBalances } = useTokenBalances(address ?? '');
+
   const {
     balances: resolvedBalances,
     isBalancesLoading: resolvedLoading,
