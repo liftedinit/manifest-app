@@ -25,6 +25,7 @@ import { HistoryBox, TransactionGroup } from '@/components';
 import { TokenList } from '@/components';
 import { CombinedBalanceInfo, ExtendedMetadataSDKType } from '@/utils';
 import DenomList from '@/components/factory/components/DenomList';
+import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
 
 type GroupControlsProps = {
   policyAddress: string;
@@ -45,10 +46,12 @@ type GroupControlsProps = {
   refetchBalances: () => void;
   refetchHistory: () => void;
   refetchDenoms: () => void;
+  refetchGroupInfo: () => void;
   pageSize: number;
   skeletonGroupCount: number;
   skeletonTxCount: number;
   group: ExtendedGroupType;
+  proposalPageSize?: number;
 };
 
 export default function GroupControls({
@@ -70,10 +73,12 @@ export default function GroupControls({
   refetchBalances,
   refetchHistory,
   refetchDenoms,
+  refetchGroupInfo,
   pageSize,
   skeletonGroupCount,
   skeletonTxCount,
   group,
+  proposalPageSize = 10,
 }: GroupControlsProps) {
   const { proposals, isProposalsLoading, isProposalsError, refetchProposals } =
     useProposalsByPolicyAccount(policyAddress);
@@ -265,6 +270,49 @@ export default function GroupControls({
     }
   };
 
+  const [proposalCurrentPage, setProposalCurrentPage] = useState(1);
+
+  // Add responsive page size configuration
+  const sizeLookup = [
+    {
+      height: 700,
+      width: Infinity,
+      sizes: { proposals: 6 },
+    },
+    {
+      height: 800,
+      width: Infinity,
+      sizes: { proposals: 8 },
+    },
+    {
+      height: 1000,
+      width: 800,
+      sizes: { proposals: 7 },
+    },
+    {
+      height: 1000,
+      width: Infinity,
+      sizes: { proposals: 10 },
+    },
+    {
+      height: 1300,
+      width: Infinity,
+      sizes: { proposals: 12 },
+    },
+  ];
+
+  const defaultSizes = { proposals: proposalPageSize };
+  const proposalPageSizes = useResponsivePageSize(sizeLookup, defaultSizes);
+
+  // Calculate total pages for proposals
+  const totalProposalPages = Math.ceil(filteredProposals.length / proposalPageSizes.proposals);
+
+  // Get current page proposals
+  const currentProposals = filteredProposals.slice(
+    (proposalCurrentPage - 1) * proposalPageSizes.proposals,
+    proposalCurrentPage * proposalPageSizes.proposals
+  );
+
   return (
     <div className="">
       <div className="flex w-full h-full md:flex-row flex-col md:gap-8">
@@ -392,7 +440,7 @@ export default function GroupControls({
                   </tr>
                 </thead>
                 <tbody className="space-y-4">
-                  {filteredProposals.map(proposal => {
+                  {currentProposals.map(proposal => {
                     const endTime = new Date(proposal?.voting_period_end);
                     const now = new Date();
                     const msPerMinute = 1000 * 60;
@@ -479,6 +527,65 @@ export default function GroupControls({
                 No proposal was found.
               </div>
             ))}
+          {totalProposalPages > 1 && (
+            <div className="flex items-center justify-end gap-2 mt-4">
+              <button
+                onClick={() => setProposalCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={proposalCurrentPage === 1}
+                aria-label="Previous page"
+                className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                ‹
+              </button>
+
+              {[...Array(totalProposalPages)].map((_, index) => {
+                const pageNum = index + 1;
+                if (
+                  pageNum === 1 ||
+                  pageNum === totalProposalPages ||
+                  (pageNum >= proposalCurrentPage - 1 && pageNum <= proposalCurrentPage + 1)
+                ) {
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => setProposalCurrentPage(pageNum)}
+                      aria-label={`Page ${pageNum}`}
+                      aria-current={proposalCurrentPage === pageNum ? 'page' : undefined}
+                      className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors  
+                        ${
+                          proposalCurrentPage === pageNum
+                            ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A] text-black dark:text-white'
+                            : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white'
+                        }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                } else if (
+                  pageNum === proposalCurrentPage - 2 ||
+                  pageNum === proposalCurrentPage + 2
+                ) {
+                  return (
+                    <span key={pageNum} className="text-black dark:text-white">
+                      ...
+                    </span>
+                  );
+                }
+                return null;
+              })}
+
+              <button
+                onClick={() =>
+                  setProposalCurrentPage(prev => Math.min(totalProposalPages, prev + 1))
+                }
+                disabled={proposalCurrentPage === totalProposalPages}
+                aria-label="Next page"
+                className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                ›
+              </button>
+            </div>
+          )}
         </div>
 
         <div
@@ -560,6 +667,8 @@ export default function GroupControls({
           refetchVotes={refetchVotes}
           refetchTally={refetchTally}
           refetchProposals={refetchProposals}
+          refetchGroupInfo={refetchGroupInfo}
+          refetchDenoms={refetchDenoms}
           group={group}
         />
       )}

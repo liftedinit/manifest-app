@@ -3,12 +3,14 @@ import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import Confetti from 'react-confetti';
 import { CloseIcon, CopyIcon, BroadcastingIcon } from './icons';
+import { useRouter } from 'next/router';
 
 export interface ToastMessage {
   type: string;
   title: string;
   description?: string;
   link?: string;
+  explorerLink?: string;
   bgColor?: string;
 }
 
@@ -22,6 +24,7 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
   const [prevMessage, setPrevMessage] = useState<ToastMessage | null>(null);
 
   const toastRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (toastMessage) {
@@ -113,15 +116,52 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
               <div className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap">
                 {toastMessage.description}
               </div>
-              {toastMessage.link && (
-                <Link
-                  href={toastMessage.link}
-                  className="text-primary hover:text-primary/60 dark:text-primary  underline mt-[0.1rem] inline-block transition-colors duration-200"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Block explorer link
-                </Link>
+              {(toastMessage.link || toastMessage.explorerLink) && (
+                <div className="flex flex-row items-center gap-2 justify-between">
+                  {toastMessage.link && (
+                    <Link
+                      href={toastMessage.link}
+                      aria-label={
+                        toastMessage.link.includes('policyAddress')
+                          ? 'View proposal details'
+                          : 'View in block explorer'
+                      }
+                      className="text-primary hover:text-primary/60 dark:text-primary underline mt-[0.1rem] inline-block transition-colors duration-200"
+                      {...(!toastMessage.link.includes('policyAddress') && {
+                        target: '_blank',
+                        rel: 'noopener noreferrer',
+                      })}
+                      onClick={e => {
+                        if (toastMessage.link?.includes('policyAddress')) {
+                          e.preventDefault();
+                          const url = new URL(toastMessage.link, window.location.origin);
+                          const policyAddress = url.searchParams.get('policyAddress');
+                          const proposalId = url.searchParams.get('proposalId');
+                          if (policyAddress && proposalId) {
+                            router.push(
+                              `/groups?policyAddress=${policyAddress}&tab=proposals&proposalId=${proposalId}`
+                            );
+                          }
+                        }
+                      }}
+                    >
+                      {toastMessage.link.includes('policyAddress')
+                        ? 'View Proposal'
+                        : 'Block explorer link'}
+                    </Link>
+                  )}
+                  {toastMessage.explorerLink && (
+                    <Link
+                      href={toastMessage.explorerLink}
+                      aria-label={'View in block explorer'}
+                      className="text-primary hover:text-primary/60 dark:text-primary underline mt-[0.1rem] inline-block transition-colors duration-200"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Block explorer link
+                    </Link>
+                  )}
+                </div>
               )}
             </div>
             {toastMessage.type === 'alert-error' && (

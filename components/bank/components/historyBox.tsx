@@ -258,7 +258,7 @@ export function HistoryBox({
                       </div>
                     </div>
                   </div>
-                  <div className="text-right flex flex-col items-end sm:block hidden">
+                  <div className="text-right flex-col items-end sm:flex hidden">
                     <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99] mb-1">
                       {formatDateShort(tx.formatted_date)}
                     </p>

@@ -23,6 +23,15 @@ export interface TxOptions {
   simulate?: boolean;
 }
 
+export interface ToastMessage {
+  type: string;
+  title: string;
+  description?: string;
+  link?: string;
+  explorerLink?: string;
+  bgColor?: string;
+}
+
 const extractSimulationErrorMessage = (errorMessage: string): string => {
   // This regex looks for the specific error message
   const match = errorMessage.match(/message index: \d+: (.+?)(?=\s*\[|$)/);
@@ -94,16 +103,35 @@ export const useTx = (chainName: string) => {
       const res: DeliverTxResponse = await client.broadcastTx(
         Uint8Array.from(TxRaw.encode(signed).finish())
       );
+
       if (isDeliverTxSuccess(res)) {
         if (options.onSuccess) options.onSuccess();
         setIsSigning(false);
-        setToastMessage({
-          type: 'alert-success',
-          title: 'Transaction Successful',
-          description: `Transaction completed successfully`,
-          link: `${explorerUrl}/transaction/${res?.transactionHash}`,
-          bgColor: '#2ecc71',
-        });
+        if (msgs.filter(msg => msg.typeUrl === '/cosmos.group.v1.MsgSubmitProposal').length > 0) {
+          const submitProposalEvent = res.events.find(
+            event => event.type === 'cosmos.group.v1.EventSubmitProposal'
+          );
+          const proposalId = submitProposalEvent?.attributes
+            .find(attr => attr.key === 'proposal_id')
+            ?.value.replace(/"/g, '');
+
+          setToastMessage({
+            type: 'alert-success',
+            title: 'Proposal Submitted',
+            description: `Proposal submitted successfully`,
+            link: `/groups?policyAddress=${msgs[0].value.groupPolicyAddress}&tab=proposals&proposalId=${proposalId}`,
+            explorerLink: `${explorerUrl}/transaction/${res?.transactionHash}`,
+            bgColor: '#2ecc71',
+          });
+        } else {
+          setToastMessage({
+            type: 'alert-success',
+            title: 'Transaction Successful',
+            description: `Transaction completed successfully`,
+            link: `${explorerUrl}/transaction/${res?.transactionHash}`,
+            bgColor: '#2ecc71',
+          });
+        }
         return options.returnError ? { error: null } : undefined;
       } else {
         setIsSigning(false);

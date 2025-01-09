@@ -80,6 +80,7 @@ export default function Bank() {
     isLoading: txLoading,
     isError,
     refetch: refetchHistory,
+    totalCount,
   } = useGetFilteredTxAndSuccessfulProposals(
     env.indexerUrl,
     address ?? '',
@@ -150,18 +151,17 @@ export default function Bank() {
                     >
                       Bank
                     </h1>
-                    {combinedBalances.length > 0 && (
-                      <div className="relative w-full sm:w-[224px]">
-                        <input
-                          type="text"
-                          placeholder="Search for an asset ..."
-                          className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
-                          value={searchTerm}
-                          onChange={e => setSearchTerm(e.target.value)}
-                        />
-                        <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                      </div>
-                    )}
+
+                    <div className="relative w-full sm:w-[224px]">
+                      <input
+                        type="text"
+                        placeholder="Search for an asset ..."
+                        className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+                        value={searchTerm}
+                        onChange={e => setSearchTerm(e.target.value)}
+                      />
+                      <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                    </div>
                   </div>
                 </div>
                 <div
@@ -193,7 +193,7 @@ export default function Bank() {
 
                 <div className="flex flex-col w-full mt-4">
                   {activeTab === 'assets' &&
-                    (combinedBalances.length === 0 ? (
+                    (combinedBalances.length === 0 && !isLoading ? (
                       <NoAssetsFound />
                     ) : (
                       <TokenList
@@ -207,7 +207,7 @@ export default function Bank() {
                       />
                     ))}
                   {activeTab === 'history' &&
-                    (sendTxs.length === 0 ? (
+                    (totalCount === 0 && !txLoading ? (
                       <NoActivityFound />
                     ) : (
                       <HistoryBox
@@ -215,7 +215,7 @@ export default function Bank() {
                         setCurrentPage={setCurrentPage}
                         address={address ?? ''}
                         isLoading={isLoading}
-                        sendTxs={sendTxs}
+                        sendTxs={sendTxs || []}
                         totalPages={totalPages}
                         txLoading={txLoading}
                         isError={isError}
