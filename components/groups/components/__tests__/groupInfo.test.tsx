@@ -14,6 +14,15 @@ mock.module('@/hooks/useQueries', () => ({
   useBalance: m,
 }));
 
+// Mock next/router
+const n = jest.fn();
+mock.module('next/router', () => ({
+  useRouter: n.mockReturnValue({
+    query: {},
+    push: jest.fn(),
+  }),
+}));
+
 const defaultProps = {
   group: mockGroup,
   address: 'test_address',

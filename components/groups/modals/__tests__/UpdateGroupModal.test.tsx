@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach, jest } from 'bun:test';
+import { describe, test, expect, beforeEach, jest, mock } from 'bun:test';
 import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { UpdateGroupModal } from '@/components';
@@ -6,6 +6,15 @@ import { renderWithChainProvider } from '@/tests/render';
 import matchers from '@testing-library/jest-dom/matchers';
 
 expect.extend(matchers);
+
+// Mock next/router
+const m = jest.fn();
+mock.module('next/router', () => ({
+  useRouter: m.mockReturnValue({
+    query: {},
+    push: jest.fn(),
+  }),
+}));
 
 // Mock group data
 const mockProps = {
