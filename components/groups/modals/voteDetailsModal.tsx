@@ -58,6 +58,8 @@ interface VoteDetailsModalProps {
   refetchVotes: () => void;
   refetchTally: () => void;
   refetchProposals: () => void;
+  refetchGroupInfo: () => void;
+  refetchDenoms: () => void;
 }
 
 function VoteDetailsModal({
@@ -71,7 +73,8 @@ function VoteDetailsModal({
   refetchVotes,
   refetchTally,
   refetchProposals,
-  group,
+  refetchGroupInfo,
+  refetchDenoms,
 }: VoteDetailsModalProps) {
   const voteMap = useMemo(
     () =>
@@ -237,6 +240,8 @@ function VoteDetailsModal({
           refetchTally();
           refetchVotes();
           refetchProposals();
+          refetchGroupInfo();
+          refetchDenoms();
         },
       });
       setIsSigning(false);
@@ -257,6 +262,8 @@ function VoteDetailsModal({
           refetchTally();
           refetchVotes();
           refetchProposals();
+          refetchGroupInfo();
+          refetchDenoms();
         },
       });
       setIsSigning(false);
@@ -489,7 +496,7 @@ function VoteDetailsModal({
         left: 0,
         right: 0,
         bottom: 0,
-        zIndex: 9999,
+        zIndex: 1000,
         backgroundColor: 'transparent',
         padding: 0,
         margin: 0,
@@ -504,6 +511,7 @@ function VoteDetailsModal({
         <div
           className="modal-box relative max-w-4xl min-h-96 max-h-[80vh] overflow-y-auto md:overflow-y-hidden flex flex-col md:flex-row md:ml-20 -mt-12 rounded-[24px] shadow-lg bg-secondary transition-all duration-300"
           onClick={e => e.stopPropagation()}
+          style={{ zIndex: 1002 }}
         >
           <form method="dialog" onSubmit={onClose}>
             <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A] z-50">
@@ -786,7 +794,7 @@ function VoteDetailsModal({
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  zIndex: -1,
+                  zIndex: 1001,
                   backgroundColor: 'rgba(0, 0, 0, 0.3)',
                 }}
                 onClick={e => {
@@ -813,6 +821,8 @@ function VoteDetailsModal({
                 refetchVotes();
                 refetchTally();
                 refetchProposals();
+                refetchGroupInfo();
+                refetchDenoms();
               }}
             />
           </div>
@@ -827,7 +837,7 @@ function VoteDetailsModal({
           left: 0,
           right: 0,
           bottom: 0,
-          zIndex: -1,
+          zIndex: 1001,
           backgroundColor: 'rgba(0, 0, 0, 0.3)',
         }}
         onClick={e => {
@@ -836,15 +846,7 @@ function VoteDetailsModal({
           onClose();
         }}
       >
-        <button
-          onClick={e => {
-            e.preventDefault();
-            setShowVoteModal(false);
-            onClose();
-          }}
-        >
-          close
-        </button>
+        <button>close</button>
       </form>
     </dialog>
   );

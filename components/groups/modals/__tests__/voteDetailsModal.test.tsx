@@ -8,6 +8,15 @@ import { mockMembers, mockProposals, mockTally, mockVotes } from '@/tests/mock';
 
 expect.extend(matchers);
 
+// Mock next/router
+const m = jest.fn();
+mock.module('next/router', () => ({
+  useRouter: m.mockReturnValue({
+    query: {},
+    push: jest.fn(),
+  }),
+}));
+
 mock.module('react-apexcharts', () => ({
   default: jest.fn(),
 }));

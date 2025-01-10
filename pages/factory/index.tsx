@@ -116,52 +116,50 @@ export default function Factory() {
               description="Use the button below to connect your wallet and start creating new tokens."
               icon={<FactoryIcon className="h-60 w-60 text-primary" />}
             />
+          ) : combinedData.length === 0 && !isLoading ? (
+            <NoAssetsFound />
           ) : (
             <div className="relative w-full h-full overflow-hidden scrollbar-hide p-1">
-              {combinedData.length > 0 ? (
-                <div className="h-full flex flex-col ">
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
-                      <h1
-                        className="text-secondary-content"
-                        style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
-                      >
-                        Tokens
-                      </h1>
-                      <div className="relative w-full sm:w-[224px]">
-                        <input
-                          type="text"
-                          placeholder="Search for a token ..."
-                          className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
-                          value={searchTerm}
-                          onChange={e => setSearchTerm(e.target.value)}
-                        />
-                        <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                      </div>
+              <div className="h-full flex flex-col ">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
+                    <h1
+                      className="text-secondary-content"
+                      style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
+                    >
+                      Tokens
+                    </h1>
+                    <div className="relative w-full sm:w-[224px]">
+                      <input
+                        type="text"
+                        placeholder="Search for a token ..."
+                        className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+                        value={searchTerm}
+                        onChange={e => setSearchTerm(e.target.value)}
+                      />
+                      <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                     </div>
                   </div>
-
-                  <div className="flex flex-col w-full mt-4">
-                    {isError ? (
-                      <div className="text-center my-auto text-error">
-                        Error loading tokens. Please try again.
-                      </div>
-                    ) : (
-                      <DenomList
-                        denoms={combinedData}
-                        isLoading={isLoading}
-                        refetchDenoms={refetchData}
-                        pageSize={denomListPageSize}
-                        address={address ?? ''}
-                        admin={address ?? ''}
-                        searchTerm={searchTerm}
-                      />
-                    )}
-                  </div>
                 </div>
-              ) : (
-                <NoAssetsFound />
-              )}
+
+                <div className="flex flex-col w-full mt-4">
+                  {isError ? (
+                    <div className="text-center my-auto text-error">
+                      Error loading tokens. Please try again.
+                    </div>
+                  ) : (
+                    <DenomList
+                      denoms={combinedData}
+                      isLoading={isLoading}
+                      refetchDenoms={refetchData}
+                      pageSize={denomListPageSize}
+                      address={address ?? ''}
+                      admin={address ?? ''}
+                      searchTerm={searchTerm}
+                    />
+                  )}
+                </div>
+              </div>
             </div>
           )}
         </div>

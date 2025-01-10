@@ -501,6 +501,7 @@ export function YourGroups({
             refetchBalances={resolveRefetch}
             refetchHistory={refetchHistory}
             refetchDenoms={refetchData}
+            refetchGroupInfo={refetch}
             pageSize={pageSizeGroupInfo}
             skeletonGroupCount={skeletonGroupCount}
             skeletonTxCount={skeletonTxCount}
