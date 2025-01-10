@@ -107,14 +107,9 @@ export function TokenList(props: Readonly<TokenListProps>) {
                   <div className="  flex items-center justify-center">
                     <DenomImage denom={balance.metadata} />
                   </div>
-                  <div>
-                    <p className="font-semibold text-[#161616] dark:text-white">
-                      {truncateString(balance.metadata?.display ?? '', 12)}
-                    </p>
-                    <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99]">
-                      {balance.metadata?.denom_units[0]?.denom.split('/').pop()}
-                    </p>
-                  </div>
+                  <p className="font-semibold text-[#161616] dark:text-white">
+                    {truncateString(balance.metadata?.display ?? '', 12).toUpperCase()}
+                  </p>
                 </div>
                 <div className="text-center hidden sm:block md:block lg:hidden xl:block">
                   <p className="font-semibold text-[#161616] dark:text-white">
