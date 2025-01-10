@@ -157,7 +157,7 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
   // combine the web3auth wallets with the other wallets
   const combinedWallets = [
     ...web3AuthWallets,
-    ...wallets.for('keplr', 'cosmostation', 'leap', 'station', 'ledger'),
+    ...wallets.for('keplr', 'cosmostation', 'leap', 'ledger'),
     ...cosmosExtensionWallets,
   ];
 
