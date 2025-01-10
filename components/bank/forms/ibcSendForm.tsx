@@ -193,10 +193,11 @@ export default function IbcSendForm({
         sender: selectedFromChain === 'osmosistestnet' ? (osmosisAddress ?? '') : (address ?? ''),
         receiver: values.recipient ?? '',
         token,
-        //@ts-ignore
-        timeoutHeight: undefined,
-        //@ts-ignore
-        timeoutTimestamp: timeoutInNanos,
+        timeoutHeight: {
+          revisionNumber: BigInt(0),
+          revisionHeight: BigInt(0),
+        },
+        timeoutTimestamp: BigInt(timeoutInNanos),
       });
 
       const fee = await estimateFee(
