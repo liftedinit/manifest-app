@@ -179,7 +179,7 @@ function NoAssetsFound() {
           <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl">
             You do not have any factory assets yet. Create a new asset in the factory page!
           </p>
-          <Link href="/groups/create" passHref>
+          <Link href="/factory/create" passHref>
             <button className="btn btn-gradient">Create New Token</button>
           </Link>
         </div>
