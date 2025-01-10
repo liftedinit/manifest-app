@@ -21,6 +21,7 @@ import { HistoryBox, TransactionGroup } from '@/components';
 import { TokenList } from '@/components';
 import { CombinedBalanceInfo, ExtendedMetadataSDKType } from '@/utils';
 import DenomList from '@/components/factory/components/DenomList';
+import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
 import env from '@/config/env';
 
 type GroupControlsProps = {

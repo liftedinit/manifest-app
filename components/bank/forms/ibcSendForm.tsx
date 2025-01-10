@@ -25,13 +25,13 @@ import Yup from '@/utils/yupExtensions';
 import { TextInput } from '@/components/react/inputs';
 import { IbcChain } from '@/components';
 import Image from 'next/image';
-import { SearchIcon } from '@/components/icons';
+import { SearchIcon, TransferIcon } from '@/components/icons';
 
 import { TailwindModal } from '@/components/react/modal';
 import env from '@/config/env';
 import { useChain } from '@cosmos-kit/react';
 
-//TODO: use formatTokenDisplayName instead of repeating format
+//TODO: switch to main-net names
 export default function IbcSendForm({
   address,
   destinationChain,
@@ -64,14 +64,16 @@ export default function IbcSendForm({
   const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [feeWarning, setFeeWarning] = useState('');
-  const { tx } = useTx(selectedFromChain === 'osmosistestnet' ? 'osmosistestnet' : env.chain);
+  const { tx } = useTx(
+    selectedFromChain === env.osmosisTestnetChain ? env.osmosisTestnetChain : env.chain
+  );
   const { estimateFee } = useFeeEstimation(
-    selectedFromChain === 'osmosistestnet' ? 'osmosistestnet' : env.chain
+    selectedFromChain === env.osmosisTestnetChain ? env.osmosisTestnetChain : env.chain
   );
   const { transfer } = ibc.applications.transfer.v1.MessageComposer.withTypeUrl;
   const [isContactsOpen, setIsContactsOpen] = useState(false);
 
-  const { address: osmosisAddress } = useChain('osmosistestnet');
+  const { address: osmosisAddress } = useChain(env.osmosisTestnetChain);
   const { balances: osmosisBalances, isBalancesLoading: isOsmosisBalancesLoading } =
     useTokenBalancesOsmosis(osmosisAddress ?? '');
   const {
@@ -108,7 +110,7 @@ export default function IbcSendForm({
   // Update the filtered balances logic to use the appropriate balance source
   const filteredBalances = useMemo(() => {
     const sourceBalances =
-      selectedFromChain === 'osmosistestnet' ? combinedOsmosisBalances : balances;
+      selectedFromChain === env.osmosisTestnetChain ? combinedOsmosisBalances : balances;
 
     return sourceBalances?.filter(token => {
       const displayName = token.metadata?.display ?? token.denom;
@@ -119,7 +121,7 @@ export default function IbcSendForm({
   // Update initialSelectedToken to consider the chain
   const initialSelectedToken = useMemo(() => {
     const sourceBalances =
-      selectedFromChain === 'osmosistestnet' ? combinedOsmosisBalances : balances;
+      selectedFromChain === env.osmosisTestnetChain ? combinedOsmosisBalances : balances;
 
     return (
       sourceBalances?.find(token => token.coreDenom === selectedDenom) ||
@@ -130,7 +132,9 @@ export default function IbcSendForm({
 
   // Update the loading check
   if (
-    (selectedFromChain === 'osmosistestnet' ? isOsmosisBalancesLoading : isBalancesLoading) ||
+    (selectedFromChain === env.osmosisTestnetChain
+      ? isOsmosisBalancesLoading
+      : isBalancesLoading) ||
     !initialSelectedToken
   ) {
     return null;
@@ -190,7 +194,8 @@ export default function IbcSendForm({
       const msg = transfer({
         sourcePort: source_port,
         sourceChannel: source_channel,
-        sender: selectedFromChain === 'osmosistestnet' ? (osmosisAddress ?? '') : (address ?? ''),
+        sender:
+          selectedFromChain === env.osmosisTestnetChain ? (osmosisAddress ?? '') : (address ?? ''),
         receiver: values.recipient ?? '',
         token,
         timeoutHeight: {
@@ -201,7 +206,7 @@ export default function IbcSendForm({
       });
 
       const fee = await estimateFee(
-        selectedFromChain === 'osmosistestnet' ? (osmosisAddress ?? '') : (address ?? ''),
+        selectedFromChain === env.osmosisTestnetChain ? (osmosisAddress ?? '') : (address ?? ''),
         [msg]
       );
 
@@ -240,65 +245,61 @@ export default function IbcSendForm({
         {({ isValid, dirty, setFieldValue, values, errors }) => (
           <Form className="space-y-6 flex flex-col items-center max-w-md mx-auto">
             <div className="w-full space-y-4">
-              {/* From Chain (Manifest) */}
-              <div className={`dropdown dropdown-end w-full ${isIbcTransfer ? 'block' : 'hidden'}`}>
-                <div className="flex flex-col gap-1 justify-center items-start">
-                  <span className="label-text text-sm font-medium text-[#00000099] dark:text-[#FFFFFF99]">
-                    From Chain
-                  </span>
-                  <label
-                    tabIndex={0}
-                    aria-label="chain-selector"
-                    role="combobox"
-                    aria-expanded="false"
-                    aria-controls="chain-dropdown"
-                    aria-haspopup="listbox"
-                    style={{ borderRadius: '12px' }}
-                    className="btn   btn-md btn-dropdown w-full justify-between border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A]"
-                  >
-                    <span className="flex items-center">
-                      {selectedFromChain && (
-                        <Image
-                          src={ibcChains.find(chain => chain.id === selectedFromChain)?.icon || ''}
-                          alt={ibcChains.find(chain => chain.id === selectedFromChain)?.name || ''}
-                          width={24}
-                          height={24}
-                          className="mr-2"
-                        />
-                      )}
-                      <span className={selectedFromChain ? 'ml-2' : ''}>
-                        {ibcChains.find(chain => chain.id === selectedFromChain)?.name ??
-                          'Select Chain'}
-                      </span>
-                    </span>
-                    <PiCaretDownBold />
-                  </label>
-                </div>
-
-                <ul
-                  tabIndex={0}
-                  role="listbox"
-                  className="dropdown-content z-[100] menu p-2 shadow bg-base-300 rounded-lg w-full mt-1 dark:text-[#FFFFFF] text-[#161616]"
+              <div className=" relative w-full flex flex-col space-y-4">
+                {/* From Chain (Manifest) */}
+                <div
+                  className={`dropdown dropdown-end w-full ${isIbcTransfer ? 'block' : 'hidden'}`}
                 >
-                  {ibcChains.map(chain => (
-                    <li key={chain.id} role="option" aria-selected={selectedFromChain === chain.id}>
-                      <a
-                        onClick={e => {
-                          if (chain.id === selectedFromChain) {
-                            return;
-                          }
-                          setSelectedFromChain(chain.id);
-                          // Get the dropdown element and remove focus
-                          const dropdown = (e.target as HTMLElement).closest('.dropdown');
-                          if (dropdown) {
-                            (dropdown as HTMLElement).removeAttribute('open');
-                            (dropdown.querySelector('label') as HTMLElement)?.focus();
-                            (dropdown.querySelector('label') as HTMLElement)?.blur();
-                          }
-                        }}
-                        onKeyDown={e => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
+                  <div className="flex flex-col gap-1 justify-center items-start">
+                    <span className="label-text text-sm font-medium text-[#00000099] dark:text-[#FFFFFF99]">
+                      From Chain
+                    </span>
+                    <label
+                      tabIndex={0}
+                      aria-label="chain-selector"
+                      role="combobox"
+                      aria-expanded="false"
+                      aria-controls="chain-dropdown"
+                      aria-haspopup="listbox"
+                      style={{ borderRadius: '12px' }}
+                      className="btn   btn-md btn-dropdown w-full justify-between border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A]"
+                    >
+                      <span className="flex items-center">
+                        {selectedFromChain && (
+                          <Image
+                            src={
+                              ibcChains.find(chain => chain.id === selectedFromChain)?.icon || ''
+                            }
+                            alt={
+                              ibcChains.find(chain => chain.id === selectedFromChain)?.name || ''
+                            }
+                            width={24}
+                            height={24}
+                            className="mr-2"
+                          />
+                        )}
+                        <span className={selectedFromChain ? 'ml-2' : ''}>
+                          {ibcChains.find(chain => chain.id === selectedFromChain)?.name ??
+                            'Select Chain'}
+                        </span>
+                      </span>
+                      <PiCaretDownBold />
+                    </label>
+                  </div>
+
+                  <ul
+                    tabIndex={0}
+                    role="listbox"
+                    className="dropdown-content z-[100] menu p-2 shadow bg-base-300 rounded-lg w-full mt-1 dark:text-[#FFFFFF] text-[#161616]"
+                  >
+                    {ibcChains.map(chain => (
+                      <li
+                        key={chain.id}
+                        role="option"
+                        aria-selected={selectedFromChain === chain.id}
+                      >
+                        <a
+                          onClick={e => {
                             if (chain.id === selectedFromChain) {
                               return;
                             }
@@ -310,89 +311,104 @@ export default function IbcSendForm({
                               (dropdown.querySelector('label') as HTMLElement)?.focus();
                               (dropdown.querySelector('label') as HTMLElement)?.blur();
                             }
+                          }}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              if (chain.id === selectedFromChain) {
+                                return;
+                              }
+                              setSelectedFromChain(chain.id);
+                              // Get the dropdown element and remove focus
+                              const dropdown = (e.target as HTMLElement).closest('.dropdown');
+                              if (dropdown) {
+                                (dropdown as HTMLElement).removeAttribute('open');
+                                (dropdown.querySelector('label') as HTMLElement)?.focus();
+                                (dropdown.querySelector('label') as HTMLElement)?.blur();
+                              }
+                            }
+                          }}
+                          tabIndex={0}
+                          className={`flex items-center ${
+                            chain.id === selectedFromChain ? 'opacity-50 cursor-not-allowed' : ''
+                          }`}
+                          style={
+                            chain.id === selectedFromChain ? { pointerEvents: 'none' } : undefined
                           }
-                        }}
-                        tabIndex={0}
-                        className={`flex items-center ${
-                          chain.id === selectedFromChain ? 'opacity-50 cursor-not-allowed' : ''
-                        }`}
-                        style={
-                          chain.id === selectedFromChain ? { pointerEvents: 'none' } : undefined
-                        }
-                        aria-label={chain.name}
-                      >
-                        <Image
-                          src={chain.icon}
-                          alt={chain.name}
-                          width={24}
-                          height={24}
-                          className="mr-2"
-                        />
-                        {chain.name}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              {/* To Chain (Osmosis) */}
-              <div className={`dropdown dropdown-end w-full ${isIbcTransfer ? 'block' : 'hidden'}`}>
-                <div className="flex flex-col gap-1 justify-center items-start">
-                  <span className="label-text text-sm font-medium text-[#00000099] dark:text-[#FFFFFF99]">
-                    To Chain
-                  </span>
-                  <label
-                    tabIndex={0}
-                    aria-label="chain-selector"
-                    role="combobox"
-                    aria-expanded="false"
-                    aria-controls="chain-dropdown"
-                    aria-haspopup="listbox"
-                    style={{ borderRadius: '12px' }}
-                    className="btn   btn-md btn-dropdown w-full justify-between border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A]"
-                  >
-                    <span className="flex items-center">
-                      {selectedToChain && (
-                        <Image
-                          src={ibcChains.find(chain => chain.id === selectedToChain)?.icon || ''}
-                          alt={ibcChains.find(chain => chain.id === selectedToChain)?.name || ''}
-                          width={24}
-                          height={24}
-                          className="mr-2"
-                        />
-                      )}
-                      <span className={selectedToChain ? 'ml-2' : ''}>
-                        {ibcChains.find(chain => chain.id === selectedToChain)?.name ??
-                          'Select Chain'}
-                      </span>
-                    </span>
-                    <PiCaretDownBold />
-                  </label>
+                          aria-label={chain.name}
+                        >
+                          <Image
+                            src={chain.icon}
+                            alt={chain.name}
+                            width={24}
+                            height={24}
+                            className="mr-2"
+                          />
+                          {chain.name}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-
-                <ul
-                  tabIndex={0}
-                  role="listbox"
-                  className="dropdown-content z-[100] menu p-2 shadow bg-base-300 rounded-lg w-full mt-1 dark:text-[#FFFFFF] text-[#161616]"
+                {/* Switch Button */}
+                <div
+                  onClick={e => {
+                    e.preventDefault();
+                    setSelectedFromChain(selectedToChain);
+                    setSelectedToChain(selectedFromChain);
+                  }}
+                  className="absolute top-[calc(50%-16px)] right-0 w-full flex justify-center items-center cursor-pointer z-10"
                 >
-                  {ibcChains.map(chain => (
-                    <li key={chain.id} role="option" aria-selected={selectedToChain === chain.id}>
-                      <a
-                        onClick={e => {
-                          if (chain.id === selectedToChain) {
-                            return;
-                          }
-                          setSelectedToChain(chain.id);
-                          // Get the dropdown element and remove focus
-                          const dropdown = (e.target as HTMLElement).closest('.dropdown');
-                          if (dropdown) {
-                            (dropdown as HTMLElement).removeAttribute('open');
-                            (dropdown.querySelector('label') as HTMLElement)?.focus();
-                            (dropdown.querySelector('label') as HTMLElement)?.blur();
-                          }
-                        }}
-                        onKeyDown={e => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
+                  <button className="group btn btn-xs btn-primary flex items-center justify-center hover:bg-primary-focus transition-colors">
+                    <TransferIcon className=" group-hover:rotate-180 transition-transform duration-200 cursor-pointer" />
+                  </button>
+                </div>
+                {/* To Chain (Osmosis) */}
+                <div
+                  className={`dropdown dropdown-end w-full ${isIbcTransfer ? 'block' : 'hidden'}`}
+                >
+                  <div className="flex flex-col gap-1 justify-center items-start">
+                    <span className="label-text text-sm font-medium text-[#00000099] dark:text-[#FFFFFF99]">
+                      To Chain
+                    </span>
+                    <label
+                      tabIndex={0}
+                      aria-label="chain-selector"
+                      role="combobox"
+                      aria-expanded="false"
+                      aria-controls="chain-dropdown"
+                      aria-haspopup="listbox"
+                      style={{ borderRadius: '12px' }}
+                      className="btn   btn-md btn-dropdown w-full justify-between border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A]"
+                    >
+                      <span className="flex items-center">
+                        {selectedToChain && (
+                          <Image
+                            src={ibcChains.find(chain => chain.id === selectedToChain)?.icon || ''}
+                            alt={ibcChains.find(chain => chain.id === selectedToChain)?.name || ''}
+                            width={24}
+                            height={24}
+                            className="mr-2"
+                          />
+                        )}
+                        <span className={selectedToChain ? 'ml-2' : ''}>
+                          {ibcChains.find(chain => chain.id === selectedToChain)?.name ??
+                            'Select Chain'}
+                        </span>
+                      </span>
+                      <PiCaretDownBold />
+                    </label>
+                  </div>
+
+                  <ul
+                    tabIndex={0}
+                    role="listbox"
+                    className="dropdown-content z-[100] menu p-2 shadow bg-base-300 rounded-lg w-full mt-1 dark:text-[#FFFFFF] text-[#161616]"
+                  >
+                    {ibcChains.map(chain => (
+                      <li key={chain.id} role="option" aria-selected={selectedToChain === chain.id}>
+                        <a
+                          onClick={e => {
                             if (chain.id === selectedToChain) {
                               return;
                             }
@@ -404,29 +420,46 @@ export default function IbcSendForm({
                               (dropdown.querySelector('label') as HTMLElement)?.focus();
                               (dropdown.querySelector('label') as HTMLElement)?.blur();
                             }
+                          }}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              if (chain.id === selectedToChain) {
+                                return;
+                              }
+                              setSelectedToChain(chain.id);
+                              // Get the dropdown element and remove focus
+                              const dropdown = (e.target as HTMLElement).closest('.dropdown');
+                              if (dropdown) {
+                                (dropdown as HTMLElement).removeAttribute('open');
+                                (dropdown.querySelector('label') as HTMLElement)?.focus();
+                                (dropdown.querySelector('label') as HTMLElement)?.blur();
+                              }
+                            }
+                          }}
+                          tabIndex={0}
+                          className={`flex items-center ${
+                            chain.id === selectedToChain ? 'opacity-50 cursor-not-allowed' : ''
+                          }`}
+                          style={
+                            chain.id === selectedToChain ? { pointerEvents: 'none' } : undefined
                           }
-                        }}
-                        tabIndex={0}
-                        className={`flex items-center ${
-                          chain.id === selectedToChain ? 'opacity-50 cursor-not-allowed' : ''
-                        }`}
-                        style={chain.id === selectedToChain ? { pointerEvents: 'none' } : undefined}
-                        aria-label={chain.name}
-                      >
-                        <Image
-                          src={chain.icon}
-                          alt={chain.name}
-                          width={24}
-                          height={24}
-                          className="mr-2"
-                        />
-                        {chain.name}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
+                          aria-label={chain.name}
+                        >
+                          <Image
+                            src={chain.icon}
+                            alt={chain.name}
+                            width={24}
+                            height={24}
+                            className="mr-2"
+                          />
+                          {chain.name}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
-
               <div className="w-full">
                 <label className="label">
                   <span className="label-text text-md font-medium text-[#00000099] dark:text-[#FFFFFF99]">

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import SendForm from '../forms/sendForm';
 import IbcSendForm from '../forms/ibcSendForm';
-
+import env from '@/config/env';
 import { CombinedBalanceInfo } from '@/utils/types';
 
 export interface IbcChain {
@@ -38,13 +38,13 @@ export default function SendBox({
   const ibcChains = useMemo<IbcChain[]>(
     () => [
       {
-        id: 'manifesttestnet',
+        id: env.chain,
         name: 'Manifest',
         icon: '/logo.svg',
         prefix: 'manifest',
       },
       {
-        id: 'osmosistestnet',
+        id: env.osmosisTestnetChain,
         name: 'Osmosis',
         icon: '/osmosis.svg',
         prefix: 'osmo',

@@ -5,6 +5,7 @@ import { Coin } from '@liftedinit/manifestjs/dist/codegen/cosmos/base/v1beta1/co
 
 import { shiftDigits } from './maths';
 
+//TODO: use chain-registry when the package is updated
 export const truncateDenom = (denom: string) => {
   return denom.slice(0, 10) + '...' + denom.slice(-6);
 };
