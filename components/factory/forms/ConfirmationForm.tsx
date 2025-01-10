@@ -176,7 +176,7 @@ export default function ConfirmationForm({
             <div className="text-md">
               You will be required to sign two messages: the first to create the token on the
               blockchain, and the second to configure the token&#39;s metadata, including its name,
-              symbol, description, and other details.
+              ticker, description, and other details.
             </div>
           )}
           {/* Token Information */}

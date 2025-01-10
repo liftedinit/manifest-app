@@ -52,8 +52,8 @@ export default function Success({
               <p className="text-lg font-medium">{formData.name}</p>
             </div>
             <div>
-              <h3 className="text-md font-light text-gray-400">SYMBOL</h3>
-              <p className="text-lg font-medium">{formData.symbol}</p>
+              <h3 className="text-md font-light text-gray-400">TICKER</h3>
+              <p className="text-lg font-medium">{formData.display}</p>
             </div>
             <div className="col-span-1 md:col-span-2 max-h-28 overflow-y-auto">
               <h3 className="text-md font-light text-gray-400">DESCRIPTION</h3>
