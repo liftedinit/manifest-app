@@ -7,6 +7,7 @@ import {
   useTx,
 } from '@/hooks';
 import { ibc } from '@liftedinit/manifestjs';
+import { MsgTransfer } from '@liftedinit/manifestjs/dist/codegen/ibc/applications/transfer/v1/tx';
 import {
   getIbcInfo,
   parseNumberToBigInt,
@@ -63,8 +64,10 @@ export default function IbcSendForm({
   const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [feeWarning, setFeeWarning] = useState('');
-  const { tx } = useTx(env.chain);
-  const { estimateFee } = useFeeEstimation(env.chain);
+  const { tx } = useTx(selectedFromChain === 'osmosistestnet' ? 'osmosistestnet' : env.chain);
+  const { estimateFee } = useFeeEstimation(
+    selectedFromChain === 'osmosistestnet' ? 'osmosistestnet' : env.chain
+  );
   const { transfer } = ibc.applications.transfer.v1.MessageComposer.withTypeUrl;
   const [isContactsOpen, setIsContactsOpen] = useState(false);
 
@@ -104,7 +107,8 @@ export default function IbcSendForm({
 
   // Update the filtered balances logic to use the appropriate balance source
   const filteredBalances = useMemo(() => {
-    const sourceBalances = selectedFromChain === 'osmosis' ? combinedOsmosisBalances : balances;
+    const sourceBalances =
+      selectedFromChain === 'osmosistestnet' ? combinedOsmosisBalances : balances;
 
     return sourceBalances?.filter(token => {
       const displayName = token.metadata?.display ?? token.denom;
@@ -114,7 +118,8 @@ export default function IbcSendForm({
 
   // Update initialSelectedToken to consider the chain
   const initialSelectedToken = useMemo(() => {
-    const sourceBalances = selectedFromChain === 'osmosis' ? combinedOsmosisBalances : balances;
+    const sourceBalances =
+      selectedFromChain === 'osmosistestnet' ? combinedOsmosisBalances : balances;
 
     return (
       sourceBalances?.find(token => token.coreDenom === selectedDenom) ||
@@ -125,7 +130,7 @@ export default function IbcSendForm({
 
   // Update the loading check
   if (
-    (selectedFromChain === 'osmosis' ? isOsmosisBalancesLoading : isBalancesLoading) ||
+    (selectedFromChain === 'osmosistestnet' ? isOsmosisBalancesLoading : isBalancesLoading) ||
     !initialSelectedToken
   ) {
     return null;
@@ -171,8 +176,8 @@ export default function IbcSendForm({
     try {
       const exponent = values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
       const amountInBaseUnits = parseNumberToBigInt(values.amount, exponent).toString();
-
-      const { source_port, source_channel } = getIbcInfo(env.chain, 'osmosistestnet' ?? '');
+      console.log(selectedFromChain, selectedToChain);
+      const { source_port, source_channel } = getIbcInfo(selectedFromChain, selectedToChain);
 
       const token = {
         denom: values.selectedToken.coreDenom,
@@ -185,7 +190,7 @@ export default function IbcSendForm({
       const msg = transfer({
         sourcePort: source_port,
         sourceChannel: source_channel,
-        sender: address ?? '',
+        sender: selectedFromChain === 'osmosistestnet' ? (osmosisAddress ?? '') : (address ?? ''),
         receiver: values.recipient ?? '',
         token,
         //@ts-ignore
@@ -194,7 +199,10 @@ export default function IbcSendForm({
         timeoutTimestamp: timeoutInNanos,
       });
 
-      const fee = await estimateFee(address, [msg]);
+      const fee = await estimateFee(
+        selectedFromChain === 'osmosistestnet' ? (osmosisAddress ?? '') : (address ?? ''),
+        [msg]
+      );
 
       await tx([msg], {
         memo: values.memo,

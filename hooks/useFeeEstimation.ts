@@ -2,14 +2,10 @@ import { EncodeObject } from '@cosmjs/proto-signing';
 import { GasPrice, calculateFee } from '@cosmjs/stargate';
 import { useChain } from '@cosmos-kit/react';
 
-import { getCoin } from '@/utils';
-
 export const useFeeEstimation = (chainName: string) => {
   const { getSigningStargateClient, chain } = useChain(chainName);
 
   const gasPrice = chain.fees?.fee_tokens[0].average_gas_price || 0.025;
-
-  const coin = getCoin(chainName);
 
   const estimateFee = async (
     address: string,
@@ -29,7 +25,7 @@ export const useFeeEstimation = (chainName: string) => {
 
     const fee = calculateFee(
       Math.round(gasEstimation * (modifier || 1.5)),
-      GasPrice.fromString(gasPrice + 'umfx')
+      GasPrice.fromString(`${gasPrice}${chainName === 'manifesttestnet' ? 'umfx' : 'uosmo'}`)
     );
 
     return fee;

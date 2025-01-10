@@ -186,6 +186,10 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
         rpc: [env.rpcUrl],
         rest: [env.apiUrl],
       },
+      ['osmosistestnet']: {
+        rpc: [env.osmosisTestnetRpcUrl],
+        rest: [env.osmosisTestnetApiUrl],
+      },
     },
   };
 

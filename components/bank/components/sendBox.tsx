@@ -38,13 +38,13 @@ export default function SendBox({
   const ibcChains = useMemo<IbcChain[]>(
     () => [
       {
-        id: 'manifest',
+        id: 'manifesttestnet',
         name: 'Manifest',
         icon: '/logo.svg',
         prefix: 'manifest',
       },
       {
-        id: 'osmosis',
+        id: 'osmosistestnet',
         name: 'Osmosis',
         icon: '/osmosis.svg',
         prefix: 'osmo',
