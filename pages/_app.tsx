@@ -38,6 +38,8 @@ import {
   osmosisProtoRegistry,
   cosmosAminoConverters,
   cosmosProtoRegistry,
+  ibcAminoConverters,
+  ibcProtoRegistry,
 } from '@liftedinit/manifestjs';
 import MobileNav from '@/components/react/mobileNav';
 
@@ -71,11 +73,13 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
         ...osmosisProtoRegistry,
         ...strangeloveVenturesProtoRegistry,
         ...liftedinitProtoRegistry,
+        ...ibcProtoRegistry,
       ]);
       const mergedAminoTypes = new AminoTypes({
         ...cosmosAminoConverters,
         ...liftedinitAminoConverters,
         ...osmosisAminoConverters,
+        ...ibcAminoConverters,
         ...strangeloveVenturesAminoConverters,
       });
       return {

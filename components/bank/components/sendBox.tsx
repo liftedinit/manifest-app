@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import SendForm from '../forms/sendForm';
 import IbcSendForm from '../forms/ibcSendForm';
 
@@ -35,20 +35,23 @@ export default function SendBox({
   const [activeTab, setActiveTab] = useState<'send' | 'cross-chain'>('send');
   const [selectedFromChain, setSelectedFromChain] = useState('');
   const [selectedToChain, setSelectedToChain] = useState('');
-  const ibcChains: IbcChain[] = [
-    {
-      id: 'manifest',
-      name: 'Manifest',
-      icon: '/logo.svg',
-      prefix: 'manifest',
-    },
-    {
-      id: 'osmosis',
-      name: 'Osmosis',
-      icon: '/osmosis.svg',
-      prefix: 'osmo',
-    },
-  ];
+  const ibcChains = useMemo<IbcChain[]>(
+    () => [
+      {
+        id: 'manifest',
+        name: 'Manifest',
+        icon: '/logo.svg',
+        prefix: 'manifest',
+      },
+      {
+        id: 'osmosis',
+        name: 'Osmosis',
+        icon: '/osmosis.svg',
+        prefix: 'osmo',
+      },
+    ],
+    []
+  );
 
   return (
     <div className="rounded-2xl w-full  ">

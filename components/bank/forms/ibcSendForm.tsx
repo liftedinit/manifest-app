@@ -1,13 +1,19 @@
 import React, { useState, useMemo } from 'react';
-import { useFeeEstimation, useTokenBalancesOsmosis, useTx } from '@/hooks';
+import {
+  useFeeEstimation,
+  useOsmosisTokenBalancesResolved,
+  useOsmosisTokenFactoryDenomsMetadata,
+  useTokenBalancesOsmosis,
+  useTx,
+} from '@/hooks';
 import { ibc } from '@liftedinit/manifestjs';
 import {
   getIbcInfo,
   parseNumberToBigInt,
   shiftDigits,
   truncateString,
-  formatTokenDisplayName,
   getIbcDenom,
+  OSMOSIS_TOKEN_DATA,
 } from '@/utils';
 import { PiCaretDownBold } from 'react-icons/pi';
 import { MdContacts } from 'react-icons/md';
@@ -65,24 +71,64 @@ export default function IbcSendForm({
   const { address: osmosisAddress } = useChain('osmosistestnet');
   const { balances: osmosisBalances, isBalancesLoading: isOsmosisBalancesLoading } =
     useTokenBalancesOsmosis(osmosisAddress ?? '');
+  const {
+    balances: resolvedOsmosisBalances,
+    isBalancesLoading: resolvedOsmosisLoading,
+    refetchBalances: resolveOsmosisRefetch,
+  } = useOsmosisTokenBalancesResolved(osmosisAddress ?? '');
 
-  // Adjusted filter logic to handle undefined metadata
-  const filteredBalances = useMemo(
-    () =>
-      balances?.filter(token => {
-        const displayName = token.metadata?.display ?? token.denom;
-        return displayName.toLowerCase().includes(searchTerm.toLowerCase());
-      }),
-    [balances, searchTerm]
-  );
+  const { metadatas: osmosisMetadatas, isMetadatasLoading: isOsmosisMetadatasLoading } =
+    useOsmosisTokenFactoryDenomsMetadata();
 
-  // Set initialSelectedToken to 'mfx' if available
-  const initialSelectedToken =
-    balances?.find(token => token.coreDenom === selectedDenom) || balances?.[0] || null;
+  // Add this combined balances memo for Osmosis tokens
+  const combinedOsmosisBalances = useMemo(() => {
+    if (!osmosisBalances || !resolvedOsmosisBalances || !osmosisMetadatas) {
+      return [];
+    }
 
-  // Return null or a loading component if balances are not loaded
-  if (isBalancesLoading || !initialSelectedToken) {
-    return null; // Or render a loading indicator
+    const combined = osmosisBalances.map((coreBalance): CombinedBalanceInfo => {
+      const resolvedBalance = resolvedOsmosisBalances.find(
+        rb => rb.denom === coreBalance.denom || rb.denom === coreBalance.denom.split('/').pop()
+      );
+
+      return {
+        denom: resolvedBalance?.denom || coreBalance.denom,
+        coreDenom: coreBalance.denom,
+        amount: coreBalance.amount,
+        metadata: OSMOSIS_TOKEN_DATA,
+      };
+    });
+
+    return combined;
+  }, [osmosisBalances, resolvedOsmosisBalances, osmosisMetadatas]);
+
+  // Update the filtered balances logic to use the appropriate balance source
+  const filteredBalances = useMemo(() => {
+    const sourceBalances = selectedFromChain === 'osmosis' ? combinedOsmosisBalances : balances;
+
+    return sourceBalances?.filter(token => {
+      const displayName = token.metadata?.display ?? token.denom;
+      return displayName.toLowerCase().includes(searchTerm.toLowerCase());
+    });
+  }, [balances, combinedOsmosisBalances, searchTerm, selectedFromChain]);
+
+  // Update initialSelectedToken to consider the chain
+  const initialSelectedToken = useMemo(() => {
+    const sourceBalances = selectedFromChain === 'osmosis' ? combinedOsmosisBalances : balances;
+
+    return (
+      sourceBalances?.find(token => token.coreDenom === selectedDenom) ||
+      sourceBalances?.[0] ||
+      null
+    );
+  }, [balances, combinedOsmosisBalances, selectedDenom, selectedFromChain]);
+
+  // Update the loading check
+  if (
+    (selectedFromChain === 'osmosis' ? isOsmosisBalancesLoading : isBalancesLoading) ||
+    !initialSelectedToken
+  ) {
+    return null;
   }
 
   const validationSchema = Yup.object().shape({
@@ -126,10 +172,10 @@ export default function IbcSendForm({
       const exponent = values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
       const amountInBaseUnits = parseNumberToBigInt(values.amount, exponent).toString();
 
-      const { source_port, source_channel } = getIbcInfo(env.chain, destinationChain ?? '');
+      const { source_port, source_channel } = getIbcInfo(env.chain, 'osmosistestnet' ?? '');
 
       const token = {
-        denom: getIbcDenom(selectedToChain, values.selectedToken.coreDenom) ?? '',
+        denom: values.selectedToken.coreDenom,
         amount: amountInBaseUnits,
       };
 

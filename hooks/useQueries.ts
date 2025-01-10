@@ -632,6 +632,32 @@ export const useTokenFactoryDenomsMetadata = () => {
   };
 };
 
+export const useOsmosisTokenFactoryDenomsMetadata = () => {
+  const { lcdQueryClient } = useOsmosisLcdQueryClient();
+
+  const fetchDenoms = async () => {
+    if (!lcdQueryClient) {
+      throw new Error('LCD Client not ready');
+    }
+
+    return await lcdQueryClient.cosmos.bank.v1beta1.denomsMetadata({});
+  };
+
+  const denomsQuery = useQuery({
+    queryKey: ['osmosisAllMetadatas'],
+    queryFn: fetchDenoms,
+    enabled: !!lcdQueryClient,
+    staleTime: Infinity,
+  });
+
+  return {
+    metadatas: denomsQuery.data,
+    isMetadatasLoading: denomsQuery.isLoading,
+    isMetadatasError: denomsQuery.isError,
+    refetchMetadatas: denomsQuery.refetch,
+  };
+};
+
 export const useTokenBalances = (address: string) => {
   const { lcdQueryClient } = useLcdQueryClient();
 
@@ -703,6 +729,34 @@ export const useTokenBalancesResolved = (address: string) => {
 
   const balancesQuery = useQuery({
     queryKey: ['balances-resolved', address],
+    queryFn: fetchBalances,
+    enabled: !!lcdQueryClient && !!address,
+    staleTime: Infinity,
+  });
+
+  return {
+    balances: balancesQuery.data?.balances,
+    isBalancesLoading: balancesQuery.isLoading,
+    isBalancesError: balancesQuery.isError,
+    refetchBalances: balancesQuery.refetch,
+  };
+};
+
+export const useOsmosisTokenBalancesResolved = (address: string) => {
+  const { lcdQueryClient } = useOsmosisLcdQueryClient();
+
+  const fetchBalances = async () => {
+    if (!lcdQueryClient) {
+      throw new Error('LCD Client not ready');
+    }
+    return await lcdQueryClient.cosmos.bank.v1beta1.allBalances({
+      address,
+      resolveDenom: true,
+    });
+  };
+
+  const balancesQuery = useQuery({
+    queryKey: ['osmosisBalances-resolved', address],
     queryFn: fetchBalances,
     enabled: !!lcdQueryClient && !!address,
     staleTime: Infinity,
