@@ -24,7 +24,7 @@ describe('ConfirmationForm Component', () => {
 
   test('renders form with correct details', () => {
     renderWithProps();
-    expect(screen.getByText('Symbol')).toBeInTheDocument();
+    expect(screen.getByText('Ticker')).toBeInTheDocument();
     expect(screen.getByText(mockTokenFormData.symbol)).toBeInTheDocument();
 
     expect(screen.getByText('Description')).toBeInTheDocument();
