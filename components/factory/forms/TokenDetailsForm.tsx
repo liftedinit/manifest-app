@@ -44,7 +44,7 @@ export default function TokenDetails({
     formData.isGroup && formData.groupPolicyAddress ? formData.groupPolicyAddress : address;
 
   const fullDenom = `factory/${effectiveAddress}/u${formData.subdenom}`;
-  console.log(formData);
+
   // Automatically set denom units
   React.useEffect(() => {
     const denomUnits = [

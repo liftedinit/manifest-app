@@ -44,11 +44,14 @@ import {
 import MobileNav from '@/components/react/mobileNav';
 
 import { OPENLOGIN_NETWORK_TYPE } from '@toruslabs/openlogin-utils';
+import { AssetList } from '@chain-registry/types';
 
 type ManifestAppProps = AppProps & {
   Component: AppProps['Component'];
   pageProps: AppProps['pageProps'];
 };
+
+// TODO: remove asset list injections when chain registry is updated
 
 function ManifestApp({ Component, pageProps }: ManifestAppProps) {
   const [isDrawerVisible, setIsDrawerVisible] = useState(() => {
@@ -201,6 +204,7 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
           <ChainProvider
             chains={[manifestChain, osmosisChain]}
             assetLists={[manifestAssets, osmosisAssets]}
+            defaultChain={manifestChain}
             // @ts-ignore
             wallets={combinedWallets}
             logLevel="NONE"

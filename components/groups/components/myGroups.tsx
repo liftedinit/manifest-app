@@ -11,6 +11,7 @@ import {
 import ProfileAvatar from '@/utils/identicon';
 import {
   CombinedBalanceInfo,
+  denomToAsset,
   ExtendedMetadataSDKType,
   MFX_TOKEN_DATA,
   truncateString,
@@ -259,6 +260,32 @@ export function YourGroups({
           rb => rb.denom === coreBalance.denom || rb.denom === coreBalance.denom.split('/').pop()
         );
         const metadata = metadatas.metadatas.find(m => m.base === coreBalance.denom);
+
+        if (coreBalance.denom.startsWith('ibc/')) {
+          const assetInfo = denomToAsset(env.chain, coreBalance.denom);
+
+          const baseDenom = assetInfo?.traces?.[1]?.counterparty?.base_denom;
+
+          return {
+            denom: baseDenom ?? '', // normalized denom (e.g., 'umfx')
+            coreDenom: coreBalance.denom, // full IBC trace
+            amount: coreBalance.amount,
+            metadata: {
+              description: assetInfo?.description ?? '',
+              denom_units:
+                assetInfo?.denom_units?.map(unit => ({
+                  ...unit,
+                  aliases: unit.aliases || [],
+                })) ?? [],
+              base: assetInfo?.base ?? '',
+              display: assetInfo?.display ?? '',
+              name: assetInfo?.name ?? '',
+              symbol: assetInfo?.symbol ?? '',
+              uri: assetInfo?.logo_URIs?.svg ?? assetInfo?.logo_URIs?.png ?? '',
+              uri_hash: assetInfo?.logo_URIs?.svg ?? assetInfo?.logo_URIs?.png ?? '',
+            },
+          };
+        }
 
         return {
           denom: resolvedBalance?.denom || coreBalance.denom,

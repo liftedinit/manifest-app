@@ -11,7 +11,7 @@ export default function Groups() {
   const { address, isWalletConnected } = useChain(env.chain);
   const { groupByMemberData, isGroupByMemberLoading, isGroupByMemberError, refetchGroupByMember } =
     useGroupsByMember(address ?? '');
-  console.log('groupByMemberData', groupByMemberData);
+
   const groupPolicyAddresses =
     groupByMemberData?.groups?.map(group => group.policies[0].address) ?? [];
 

@@ -21,6 +21,10 @@ export default function SendBox({
   isGroup,
   admin,
   refetchProposals,
+  osmosisBalances,
+  isOsmosisBalancesLoading,
+  refetchOsmosisBalances,
+  resolveOsmosisRefetch,
 }: {
   address: string;
   balances: CombinedBalanceInfo[];
@@ -31,6 +35,10 @@ export default function SendBox({
   selectedDenom?: string;
   isGroup?: boolean;
   admin?: string;
+  osmosisBalances: CombinedBalanceInfo[];
+  isOsmosisBalancesLoading: boolean;
+  refetchOsmosisBalances: () => void;
+  resolveOsmosisRefetch: () => void;
 }) {
   const [activeTab, setActiveTab] = useState<'send' | 'cross-chain'>('send');
   const [selectedFromChain, setSelectedFromChain] = useState('');
@@ -100,6 +108,13 @@ export default function SendBox({
                 refetchBalances={refetchBalances}
                 refetchHistory={refetchHistory}
                 selectedDenom={selectedDenom}
+                osmosisBalances={osmosisBalances}
+                isGroup={isGroup}
+                admin={admin}
+                refetchProposals={refetchProposals}
+                isOsmosisBalancesLoading={isOsmosisBalancesLoading}
+                refetchOsmosisBalances={refetchOsmosisBalances}
+                resolveOsmosisRefetch={resolveOsmosisRefetch}
               />
             ) : (
               <SendForm

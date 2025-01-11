@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   useFeeEstimation,
   useOsmosisTokenBalancesResolved,
@@ -6,7 +6,7 @@ import {
   useTokenBalancesOsmosis,
   useTx,
 } from '@/hooks';
-import { ibc } from '@liftedinit/manifestjs';
+import { cosmos, ibc } from '@liftedinit/manifestjs';
 import { MsgTransfer } from '@liftedinit/manifestjs/dist/codegen/ibc/applications/transfer/v1/tx';
 import {
   getIbcInfo,
@@ -15,6 +15,7 @@ import {
   truncateString,
   getIbcDenom,
   OSMOSIS_TOKEN_DATA,
+  denomToAsset,
 } from '@/utils';
 import { PiCaretDownBold } from 'react-icons/pi';
 import { MdContacts } from 'react-icons/md';
@@ -30,6 +31,8 @@ import { SearchIcon, TransferIcon } from '@/components/icons';
 import { TailwindModal } from '@/components/react/modal';
 import env from '@/config/env';
 import { useChain } from '@cosmos-kit/react';
+import { useSearchParams } from 'next/navigation';
+import { Any } from 'cosmjs-types/google/protobuf/any';
 
 //TODO: switch to main-net names
 export default function IbcSendForm({
@@ -46,6 +49,13 @@ export default function IbcSendForm({
   selectedToChain,
   setSelectedToChain,
   selectedDenom,
+  isGroup,
+  osmosisBalances,
+  isOsmosisBalancesLoading,
+  refetchOsmosisBalances,
+  resolveOsmosisRefetch,
+  refetchProposals,
+  admin,
 }: Readonly<{
   address: string;
   destinationChain: string;
@@ -55,12 +65,20 @@ export default function IbcSendForm({
   refetchHistory: () => void;
   isIbcTransfer: boolean;
   ibcChains: IbcChain[];
+  isGroup?: boolean;
   selectedFromChain: string;
   setSelectedFromChain: (selectedChain: string) => void;
   selectedToChain: string;
   setSelectedToChain: (selectedChain: string) => void;
   selectedDenom?: string;
+  osmosisBalances: CombinedBalanceInfo[];
+  isOsmosisBalancesLoading: boolean;
+  refetchOsmosisBalances: () => void;
+  resolveOsmosisRefetch: () => void;
+  refetchProposals?: () => void;
+  admin?: string;
 }>) {
+  const { address: osmosisAddress } = useChain(env.osmosisTestnetChain);
   const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [feeWarning, setFeeWarning] = useState('');
@@ -72,63 +90,40 @@ export default function IbcSendForm({
   );
   const { transfer } = ibc.applications.transfer.v1.MessageComposer.withTypeUrl;
   const [isContactsOpen, setIsContactsOpen] = useState(false);
-
-  const { address: osmosisAddress } = useChain(env.osmosisTestnetChain);
-  const { balances: osmosisBalances, isBalancesLoading: isOsmosisBalancesLoading } =
-    useTokenBalancesOsmosis(osmosisAddress ?? '');
-  const {
-    balances: resolvedOsmosisBalances,
-    isBalancesLoading: resolvedOsmosisLoading,
-    refetchBalances: resolveOsmosisRefetch,
-  } = useOsmosisTokenBalancesResolved(osmosisAddress ?? '');
-
-  const { metadatas: osmosisMetadatas, isMetadatasLoading: isOsmosisMetadatasLoading } =
-    useOsmosisTokenFactoryDenomsMetadata();
+  const [isIconRotated, setIsIconRotated] = useState(false);
+  const searchParams = useSearchParams();
+  const policyAddress = searchParams.get('policyAddress');
+  const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
+  useEffect(() => {
+    if (policyAddress) {
+      setSelectedFromChain(env.chain);
+    }
+  }, [policyAddress, setSelectedFromChain]);
 
   // Add this combined balances memo for Osmosis tokens
-  const combinedOsmosisBalances = useMemo(() => {
-    if (!osmosisBalances || !resolvedOsmosisBalances || !osmosisMetadatas) {
-      return [];
-    }
 
-    const combined = osmosisBalances.map((coreBalance): CombinedBalanceInfo => {
-      const resolvedBalance = resolvedOsmosisBalances.find(
-        rb => rb.denom === coreBalance.denom || rb.denom === coreBalance.denom.split('/').pop()
-      );
-
-      return {
-        denom: resolvedBalance?.denom || coreBalance.denom,
-        coreDenom: coreBalance.denom,
-        amount: coreBalance.amount,
-        metadata: OSMOSIS_TOKEN_DATA,
-      };
-    });
-
-    return combined;
-  }, [osmosisBalances, resolvedOsmosisBalances, osmosisMetadatas]);
-
-  // Update the filtered balances logic to use the appropriate balance source
+  // Update the filtered balances logic to use passed props instead of hooks
   const filteredBalances = useMemo(() => {
     const sourceBalances =
-      selectedFromChain === env.osmosisTestnetChain ? combinedOsmosisBalances : balances;
+      selectedFromChain === env.osmosisTestnetChain ? osmosisBalances : balances;
 
     return sourceBalances?.filter(token => {
       const displayName = token.metadata?.display ?? token.denom;
       return displayName.toLowerCase().includes(searchTerm.toLowerCase());
     });
-  }, [balances, combinedOsmosisBalances, searchTerm, selectedFromChain]);
+  }, [balances, osmosisBalances, searchTerm, selectedFromChain]);
 
   // Update initialSelectedToken to consider the chain
   const initialSelectedToken = useMemo(() => {
     const sourceBalances =
-      selectedFromChain === env.osmosisTestnetChain ? combinedOsmosisBalances : balances;
+      selectedFromChain === env.osmosisTestnetChain ? osmosisBalances : balances;
 
     return (
       sourceBalances?.find(token => token.coreDenom === selectedDenom) ||
       sourceBalances?.[0] ||
       null
     );
-  }, [balances, combinedOsmosisBalances, selectedDenom, selectedFromChain]);
+  }, [balances, osmosisBalances, selectedDenom, selectedFromChain]);
 
   // Update the loading check
   if (
@@ -153,14 +148,23 @@ export default function IbcSendForm({
         const balance = parseFloat(selectedToken.amount) / Math.pow(10, exponent);
         return value <= balance;
       })
-      .test('leave-for-fees', 'Insufficient balance for fees', function (value) {
+      .test('leave-for-fees', '', function (value) {
         const { selectedToken } = this.parent;
         if (!selectedToken || !value || selectedToken.denom !== 'umfx') return true;
 
         const exponent = selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
         const balance = parseFloat(selectedToken.amount) / Math.pow(10, exponent);
 
-        return value <= balance - 0.09;
+        const MIN_FEE_BUFFER = 0.09;
+        const hasInsufficientBuffer = value > balance - MIN_FEE_BUFFER;
+
+        if (hasInsufficientBuffer) {
+          setFeeWarning('Remember to leave tokens for fees!');
+        } else {
+          setFeeWarning('');
+        }
+
+        return !hasInsufficientBuffer;
       }),
     selectedToken: Yup.object().required('Please select a token'),
     memo: Yup.string().max(255, 'Memo must be less than 255 characters'),
@@ -180,7 +184,7 @@ export default function IbcSendForm({
     try {
       const exponent = values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
       const amountInBaseUnits = parseNumberToBigInt(values.amount, exponent).toString();
-      console.log(selectedFromChain, selectedToChain);
+
       const { source_port, source_channel } = getIbcInfo(selectedFromChain, selectedToChain);
 
       const token = {
@@ -191,11 +195,14 @@ export default function IbcSendForm({
       const stamp = Date.now();
       const timeoutInNanos = (stamp + 1.2e6) * 1e6;
 
-      const msg = transfer({
+      const transferMsg = transfer({
         sourcePort: source_port,
         sourceChannel: source_channel,
-        sender:
-          selectedFromChain === env.osmosisTestnetChain ? (osmosisAddress ?? '') : (address ?? ''),
+        sender: admin
+          ? admin
+          : selectedFromChain === env.osmosisTestnetChain
+            ? (osmosisAddress ?? '')
+            : (address ?? ''),
         receiver: values.recipient ?? '',
         token,
         timeoutHeight: {
@@ -204,6 +211,23 @@ export default function IbcSendForm({
         },
         timeoutTimestamp: BigInt(timeoutInNanos),
       });
+
+      const msg = isGroup
+        ? submitProposal({
+            groupPolicyAddress: admin!,
+            messages: [
+              Any.fromPartial({
+                typeUrl: MsgTransfer.typeUrl,
+                value: MsgTransfer.encode(transferMsg.value).finish(),
+              }),
+            ],
+            metadata: '',
+            proposers: [address],
+            title: `IBC Transfer`,
+            summary: `This proposal will send ${values.amount} ${values.selectedToken.metadata?.display} to ${values.recipient} via IBC transfer`,
+            exec: 0,
+          })
+        : transferMsg;
 
       const fee = await estimateFee(
         selectedFromChain === env.osmosisTestnetChain ? (osmosisAddress ?? '') : (address ?? ''),
@@ -216,6 +240,9 @@ export default function IbcSendForm({
         onSuccess: () => {
           refetchBalances();
           refetchHistory();
+          refetchOsmosisBalances();
+          resolveOsmosisRefetch();
+          refetchProposals?.();
         },
       });
     } catch (error) {
@@ -246,121 +273,161 @@ export default function IbcSendForm({
           <Form className="space-y-6 flex flex-col items-center max-w-md mx-auto">
             <div className="w-full space-y-4">
               <div className=" relative w-full flex flex-col space-y-4">
-                {/* From Chain (Manifest) */}
-                <div
-                  className={`dropdown dropdown-end w-full ${isIbcTransfer ? 'block' : 'hidden'}`}
-                >
-                  <div className="flex flex-col gap-1 justify-center items-start">
-                    <span className="label-text text-sm font-medium text-[#00000099] dark:text-[#FFFFFF99]">
-                      From Chain
-                    </span>
-                    <label
-                      tabIndex={0}
-                      aria-label="chain-selector"
-                      role="combobox"
-                      aria-expanded="false"
-                      aria-controls="chain-dropdown"
-                      aria-haspopup="listbox"
-                      style={{ borderRadius: '12px' }}
-                      className="btn   btn-md btn-dropdown w-full justify-between border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A]"
-                    >
-                      <span className="flex items-center">
-                        {selectedFromChain && (
-                          <Image
-                            src={
-                              ibcChains.find(chain => chain.id === selectedFromChain)?.icon || ''
-                            }
-                            alt={
-                              ibcChains.find(chain => chain.id === selectedFromChain)?.name || ''
-                            }
-                            width={24}
-                            height={24}
-                            className="mr-2"
-                          />
-                        )}
-                        <span className={selectedFromChain ? 'ml-2' : ''}>
-                          {ibcChains.find(chain => chain.id === selectedFromChain)?.name ??
-                            'Select Chain'}
-                        </span>
+                {/* From Chain */}
+                <div className={`w-full ${isIbcTransfer ? 'block' : 'hidden'}`}>
+                  {isGroup ? (
+                    // Static display for groups
+                    <div className="flex flex-col gap-1 justify-center items-start">
+                      <span className="label-text text-sm font-medium text-[#00000099] dark:text-[#FFFFFF99]">
+                        From Chain
                       </span>
-                      <PiCaretDownBold />
-                    </label>
-                  </div>
-
-                  <ul
-                    tabIndex={0}
-                    role="listbox"
-                    className="dropdown-content z-[100] menu p-2 shadow bg-base-300 rounded-lg w-full mt-1 dark:text-[#FFFFFF] text-[#161616]"
-                  >
-                    {ibcChains.map(chain => (
-                      <li
-                        key={chain.id}
-                        role="option"
-                        aria-selected={selectedFromChain === chain.id}
+                      <div
+                        style={{ borderRadius: '12px' }}
+                        className="btn btn-md w-full justify-between border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] cursor-default"
                       >
-                        <a
-                          onClick={e => {
-                            if (chain.id === selectedFromChain) {
-                              return;
-                            }
-                            setSelectedFromChain(chain.id);
-                            // Get the dropdown element and remove focus
-                            const dropdown = (e.target as HTMLElement).closest('.dropdown');
-                            if (dropdown) {
-                              (dropdown as HTMLElement).removeAttribute('open');
-                              (dropdown.querySelector('label') as HTMLElement)?.focus();
-                              (dropdown.querySelector('label') as HTMLElement)?.blur();
-                            }
-                          }}
-                          onKeyDown={e => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                              e.preventDefault();
-                              if (chain.id === selectedFromChain) {
-                                return;
-                              }
-                              setSelectedFromChain(chain.id);
-                              // Get the dropdown element and remove focus
-                              const dropdown = (e.target as HTMLElement).closest('.dropdown');
-                              if (dropdown) {
-                                (dropdown as HTMLElement).removeAttribute('open');
-                                (dropdown.querySelector('label') as HTMLElement)?.focus();
-                                (dropdown.querySelector('label') as HTMLElement)?.blur();
-                              }
-                            }
-                          }}
-                          tabIndex={0}
-                          className={`flex items-center ${
-                            chain.id === selectedFromChain ? 'opacity-50 cursor-not-allowed' : ''
-                          }`}
-                          style={
-                            chain.id === selectedFromChain ? { pointerEvents: 'none' } : undefined
-                          }
-                          aria-label={chain.name}
-                        >
+                        <span className="flex items-center">
                           <Image
-                            src={chain.icon}
-                            alt={chain.name}
+                            src={ibcChains.find(chain => chain.id === env.chain)?.icon || ''}
+                            alt={ibcChains.find(chain => chain.id === env.chain)?.name || ''}
                             width={24}
                             height={24}
                             className="mr-2"
                           />
-                          {chain.name}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
+                          <span className="ml-2">
+                            {ibcChains.find(chain => chain.id === env.chain)?.name}
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    // Dropdown for non-group transfers
+                    <div className="dropdown dropdown-end w-full">
+                      <div className="flex flex-col gap-1 justify-center items-start">
+                        <span className="label-text text-sm font-medium text-[#00000099] dark:text-[#FFFFFF99]">
+                          From Chain
+                        </span>
+                        <label
+                          tabIndex={0}
+                          aria-label="from-chain-selector"
+                          role="combobox"
+                          aria-expanded="false"
+                          aria-controls="from-chain-dropdown"
+                          aria-haspopup="listbox"
+                          style={{ borderRadius: '12px' }}
+                          className="btn btn-md btn-dropdown w-full justify-between border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A]"
+                        >
+                          <span className="flex items-center">
+                            {selectedFromChain && (
+                              <Image
+                                src={
+                                  ibcChains.find(chain => chain.id === selectedFromChain)?.icon ||
+                                  ''
+                                }
+                                alt={
+                                  ibcChains.find(chain => chain.id === selectedFromChain)?.name ||
+                                  ''
+                                }
+                                width={24}
+                                height={24}
+                                className="mr-2"
+                              />
+                            )}
+                            <span className={selectedFromChain ? 'ml-2' : ''}>
+                              {ibcChains.find(chain => chain.id === selectedFromChain)?.name ??
+                                'Select Chain'}
+                            </span>
+                          </span>
+                          <PiCaretDownBold />
+                        </label>
+                      </div>
+
+                      <ul
+                        tabIndex={0}
+                        role="listbox"
+                        className="dropdown-content z-[100] menu p-2 shadow bg-base-300 rounded-lg w-full mt-1 dark:text-[#FFFFFF] text-[#161616]"
+                      >
+                        {ibcChains.map(chain => (
+                          <li
+                            key={chain.id}
+                            role="option"
+                            aria-selected={selectedFromChain === chain.id}
+                          >
+                            <a
+                              onClick={e => {
+                                if (chain.id === selectedFromChain) {
+                                  return;
+                                }
+                                setSelectedFromChain(chain.id);
+                                // Get the dropdown element and remove focus
+                                const dropdown = (e.target as HTMLElement).closest('.dropdown');
+                                if (dropdown) {
+                                  (dropdown as HTMLElement).removeAttribute('open');
+                                  (dropdown.querySelector('label') as HTMLElement)?.focus();
+                                  (dropdown.querySelector('label') as HTMLElement)?.blur();
+                                }
+                              }}
+                              onKeyDown={e => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault();
+                                  if (chain.id === selectedFromChain) {
+                                    return;
+                                  }
+                                  setSelectedFromChain(chain.id);
+                                  // Get the dropdown element and remove focus
+                                  const dropdown = (e.target as HTMLElement).closest('.dropdown');
+                                  if (dropdown) {
+                                    (dropdown as HTMLElement).removeAttribute('open');
+                                    (dropdown.querySelector('label') as HTMLElement)?.focus();
+                                    (dropdown.querySelector('label') as HTMLElement)?.blur();
+                                  }
+                                }
+                              }}
+                              tabIndex={0}
+                              className={`flex items-center ${
+                                chain.id === selectedFromChain
+                                  ? 'opacity-50 cursor-not-allowed'
+                                  : ''
+                              }`}
+                              style={
+                                chain.id === selectedFromChain
+                                  ? { pointerEvents: 'none' }
+                                  : undefined
+                              }
+                              aria-label={chain.name}
+                            >
+                              <Image
+                                src={chain.icon}
+                                alt={chain.name}
+                                width={24}
+                                height={24}
+                                className="mr-2"
+                              />
+                              {chain.name}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
                 {/* Switch Button */}
                 <div
                   onClick={e => {
                     e.preventDefault();
+                    setIsIconRotated(!isIconRotated);
                     setSelectedFromChain(selectedToChain);
                     setSelectedToChain(selectedFromChain);
                   }}
-                  className="absolute top-[calc(50%-16px)] right-0 w-full flex justify-center items-center cursor-pointer z-10"
+                  className={`absolute top-[calc(50%-16px)] right-0 w-full  justify-center items-center cursor-pointer z-10 ${
+                    isGroup === true ? 'hidden' : 'flex'
+                  }`}
                 >
                   <button className="group btn btn-xs btn-primary flex items-center justify-center hover:bg-primary-focus transition-colors">
-                    <TransferIcon className=" group-hover:rotate-180 transition-transform duration-200 cursor-pointer" />
+                    <TransferIcon
+                      className={`transition-transform duration-200 cursor-pointer ${
+                        isIconRotated ? 'rotate-180' : ''
+                      }`}
+                    />
                   </button>
                 </div>
                 {/* To Chain (Osmosis) */}
@@ -505,7 +572,9 @@ export default function IbcSendForm({
 
                           return tokenDisplayName.startsWith('factory')
                             ? tokenDisplayName.split('/').pop()?.toUpperCase()
-                            : truncateString(tokenDisplayName, 10).toUpperCase();
+                            : tokenDisplayName.startsWith('u')
+                              ? tokenDisplayName.slice(1).toUpperCase()
+                              : truncateString(tokenDisplayName, 10).toUpperCase();
                         })()}
                         <PiCaretDownBold className="ml-1" />
                       </label>
@@ -553,7 +622,9 @@ export default function IbcSendForm({
 
                                     return tokenDisplayName.startsWith('factory')
                                       ? tokenDisplayName.split('/').pop()?.toUpperCase()
-                                      : truncateString(tokenDisplayName, 10).toUpperCase();
+                                      : tokenDisplayName.startsWith('u')
+                                        ? tokenDisplayName.slice(1).toUpperCase()
+                                        : truncateString(tokenDisplayName, 10).toUpperCase();
                                   })()}
                                 </span>
                               </a>
@@ -589,7 +660,9 @@ export default function IbcSendForm({
 
                         return tokenDisplayName.startsWith('factory')
                           ? tokenDisplayName.split('/').pop()?.toUpperCase()
-                          : truncateString(tokenDisplayName, 10).toUpperCase();
+                          : tokenDisplayName.startsWith('u')
+                            ? tokenDisplayName.slice(1).toUpperCase()
+                            : truncateString(tokenDisplayName, 10).toUpperCase();
                       })()}
                     </span>
                     <button

@@ -16,6 +16,10 @@ interface TokenListProps {
   admin?: string;
   refetchProposals?: () => void;
   searchTerm?: string;
+  osmosisBalances?: CombinedBalanceInfo[] | undefined;
+  isOsmosisBalancesLoading?: boolean;
+  refetchOsmosisBalances?: () => void;
+  resolveOsmosisRefetch?: () => void;
 }
 
 export function TokenList(props: Readonly<TokenListProps>) {
@@ -30,6 +34,10 @@ export function TokenList(props: Readonly<TokenListProps>) {
     admin,
     refetchProposals,
     searchTerm = '',
+    osmosisBalances,
+    isOsmosisBalancesLoading,
+    refetchOsmosisBalances,
+    resolveOsmosisRefetch,
   } = props;
   const [selectedDenom, setSelectedDenom] = useState<any>(null);
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
@@ -112,7 +120,9 @@ export function TokenList(props: Readonly<TokenListProps>) {
                       {truncateString(balance.metadata?.display ?? '', 12)}
                     </p>
                     <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99]">
-                      {balance.metadata?.denom_units[0]?.denom.split('/').pop()}
+                      {balance.metadata?.denom_units[0]?.denom.startsWith('ibc')
+                        ? balance.metadata?.denom_units[0]?.aliases[0]
+                        : balance.metadata?.denom_units[0]?.denom.split('/').pop()}
                     </p>
                   </div>
                 </div>
@@ -238,6 +248,10 @@ export function TokenList(props: Readonly<TokenListProps>) {
         isGroup={isGroup}
         admin={admin}
         refetchProposals={refetchProposals}
+        osmosisBalances={osmosisBalances ?? []}
+        isOsmosisBalancesLoading={isOsmosisBalancesLoading ?? false}
+        refetchOsmosisBalances={refetchOsmosisBalances ?? (() => {})}
+        resolveOsmosisRefetch={resolveOsmosisRefetch ?? (() => {})}
       />
     </div>
   );

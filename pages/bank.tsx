@@ -3,7 +3,10 @@ import { TokenList } from '@/components/bank/components/tokenList';
 import {
   useGetFilteredTxAndSuccessfulProposals,
   useIsMobile,
+  useOsmosisTokenBalancesResolved,
+  useOsmosisTokenFactoryDenomsMetadata,
   useTokenBalances,
+  useTokenBalancesOsmosis,
   useTokenBalancesResolved,
   useTokenFactoryDenomsMetadata,
 } from '@/hooks';
@@ -12,11 +15,12 @@ import { useChain } from '@cosmos-kit/react';
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { BankIcon } from '@/components/icons';
 import { CombinedBalanceInfo } from '@/utils/types';
-import { MFX_TOKEN_DATA } from '@/utils/constants';
+import { MFX_TOKEN_DATA, OSMOSIS_TOKEN_DATA } from '@/utils/constants';
 import env from '@/config/env';
 import { SEO } from '@/components';
 import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
 import Link from 'next/link';
+import { denomToAsset } from '@/utils';
 
 interface PageSizeConfig {
   tokenList: number;
@@ -27,7 +31,6 @@ interface PageSizeConfig {
 export default function Bank() {
   const { address, isWalletConnected } = useChain(env.chain);
   const { balances, isBalancesLoading, refetchBalances } = useTokenBalances(address ?? '');
-
   const {
     balances: resolvedBalances,
     isBalancesLoading: resolvedLoading,
@@ -81,7 +84,6 @@ export default function Bank() {
     isLoading: txLoading,
     isError,
     refetch: refetchHistory,
-    totalCount,
   } = useGetFilteredTxAndSuccessfulProposals(
     env.indexerUrl,
     address ?? '',
@@ -115,6 +117,32 @@ export default function Bank() {
         );
         const metadata = metadatas.metadatas.find(m => m.base === coreBalance.denom);
 
+        if (coreBalance.denom.startsWith('ibc/')) {
+          const assetInfo = denomToAsset(env.chain, coreBalance.denom);
+
+          const baseDenom = assetInfo?.traces?.[1]?.counterparty?.base_denom;
+
+          return {
+            denom: baseDenom ?? '', // normalized denom (e.g., 'umfx')
+            coreDenom: coreBalance.denom, // full IBC trace
+            amount: coreBalance.amount,
+            metadata: {
+              description: assetInfo?.description ?? '',
+              denom_units:
+                assetInfo?.denom_units?.map(unit => ({
+                  ...unit,
+                  aliases: unit.aliases || [],
+                })) ?? [],
+              base: assetInfo?.base ?? '',
+              display: assetInfo?.display ?? '',
+              name: assetInfo?.name ?? '',
+              symbol: assetInfo?.symbol ?? '',
+              uri: assetInfo?.logo_URIs?.svg ?? assetInfo?.logo_URIs?.png ?? '',
+              uri_hash: assetInfo?.logo_URIs?.svg ?? assetInfo?.logo_URIs?.png ?? '',
+            },
+          };
+        }
+
         return {
           denom: resolvedBalance?.denom || coreBalance.denom,
           coreDenom: coreBalance.denom,
@@ -126,6 +154,80 @@ export default function Bank() {
     // Combine 'mfx' with other balances
     return mfxCombinedBalance ? [mfxCombinedBalance, ...otherBalances] : otherBalances;
   }, [balances, resolvedBalances, metadatas]);
+
+  const { address: osmosisAddress } = useChain(env.osmosisTestnetChain);
+  const {
+    balances: osmosisBalances,
+    isBalancesLoading: isOsmosisBalancesLoading,
+    refetchBalances: refetchOsmosisBalances,
+  } = useTokenBalancesOsmosis(osmosisAddress ?? '');
+  const {
+    balances: resolvedOsmosisBalances,
+    isBalancesLoading: resolvedOsmosisLoading,
+    refetchBalances: resolveOsmosisRefetch,
+  } = useOsmosisTokenBalancesResolved(osmosisAddress ?? '');
+
+  const {
+    metadatas: osmosisMetadatas,
+    isMetadatasLoading: isOsmosisMetadatasLoading,
+    refetchMetadatas: refetchOsmosisMetadatas,
+  } = useOsmosisTokenFactoryDenomsMetadata();
+
+  const combinedOsmosisBalances = useMemo(() => {
+    if (!osmosisBalances || !resolvedOsmosisBalances || !osmosisMetadatas) {
+      return [];
+    }
+
+    const combined = osmosisBalances.map((coreBalance): CombinedBalanceInfo => {
+      // Handle OSMO token specifically
+      if (coreBalance.denom === 'uosmo') {
+        return {
+          denom: 'uosmo',
+          coreDenom: coreBalance.denom,
+          amount: coreBalance.amount,
+          metadata: OSMOSIS_TOKEN_DATA,
+        };
+      }
+
+      // Handle IBC tokens
+      if (coreBalance.denom.startsWith('ibc/')) {
+        const assetInfo = denomToAsset(env.osmosisTestnetChain, coreBalance.denom);
+
+        const baseDenom = assetInfo?.traces?.[1]?.counterparty?.base_denom;
+
+        return {
+          denom: baseDenom ?? '', // normalized denom (e.g., 'umfx')
+          coreDenom: coreBalance.denom, // full IBC trace
+          amount: coreBalance.amount,
+          metadata: {
+            description: assetInfo?.description ?? '',
+            denom_units:
+              assetInfo?.denom_units?.map(unit => ({
+                ...unit,
+                aliases: unit.aliases || [],
+              })) ?? [],
+            base: assetInfo?.base ?? '',
+            display: assetInfo?.display ?? '',
+            name: assetInfo?.name ?? '',
+            symbol: assetInfo?.symbol ?? '',
+            uri: assetInfo?.logo_URIs?.svg ?? assetInfo?.logo_URIs?.png ?? '',
+            uri_hash: assetInfo?.logo_URIs?.svg ?? assetInfo?.logo_URIs?.png ?? '',
+          },
+        };
+      }
+
+      // Handle all other tokens
+      const metadata = osmosisMetadatas.metadatas?.find(m => m.base === coreBalance.denom);
+      return {
+        denom: coreBalance.denom,
+        coreDenom: coreBalance.denom,
+        amount: coreBalance.amount,
+        metadata: metadata || null,
+      };
+    });
+
+    return combined;
+  }, [osmosisBalances, resolvedOsmosisBalances, osmosisMetadatas]);
 
   const isLoading = isBalancesLoading || resolvedLoading || isMetadatasLoading;
   const [searchTerm, setSearchTerm] = useState('');
@@ -152,17 +254,18 @@ export default function Bank() {
                     >
                       Bank
                     </h1>
-
-                    <div className="relative w-full sm:w-[224px]">
-                      <input
-                        type="text"
-                        placeholder="Search for an asset ..."
-                        className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
-                        value={searchTerm}
-                        onChange={e => setSearchTerm(e.target.value)}
-                      />
-                      <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                    </div>
+                    {combinedBalances.length > 0 && (
+                      <div className="relative w-full sm:w-[224px]">
+                        <input
+                          type="text"
+                          placeholder="Search for an asset ..."
+                          className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+                          value={searchTerm}
+                          onChange={e => setSearchTerm(e.target.value)}
+                        />
+                        <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div
@@ -194,11 +297,15 @@ export default function Bank() {
 
                 <div className="flex flex-col w-full mt-4">
                   {activeTab === 'assets' &&
-                    (combinedBalances.length === 0 && !isLoading ? (
+                    (combinedBalances.length === 0 ? (
                       <NoAssetsFound />
                     ) : (
                       <TokenList
                         refetchBalances={refetchBalances || resolveRefetch}
+                        refetchOsmosisBalances={refetchOsmosisBalances}
+                        resolveOsmosisRefetch={resolveOsmosisRefetch}
+                        isOsmosisBalancesLoading={isOsmosisBalancesLoading}
+                        osmosisBalances={combinedOsmosisBalances ?? []}
                         isLoading={isLoading}
                         balances={combinedBalances}
                         refetchHistory={refetchHistory}
@@ -208,7 +315,7 @@ export default function Bank() {
                       />
                     ))}
                   {activeTab === 'history' &&
-                    (totalCount === 0 && !txLoading ? (
+                    (sendTxs.length === 0 ? (
                       <NoActivityFound />
                     ) : (
                       <HistoryBox
@@ -216,7 +323,7 @@ export default function Bank() {
                         setCurrentPage={setCurrentPage}
                         address={address ?? ''}
                         isLoading={isLoading}
-                        sendTxs={sendTxs || []}
+                        sendTxs={sendTxs}
                         totalPages={totalPages}
                         txLoading={txLoading}
                         isError={isError}

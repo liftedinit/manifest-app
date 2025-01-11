@@ -4,7 +4,7 @@ import { QueryGroupsByMemberResponseSDKType } from '@liftedinit/manifestjs/dist/
 
 import { useLcdQueryClient, useOsmosisLcdQueryClient } from './useLcdQueryClient';
 import { usePoaLcdQueryClient } from './usePoaLcdQueryClient';
-import { getLogoUrls } from '@/utils';
+import { getLogoUrls, normalizeIBCDenom } from '@/utils';
 
 import { useManifestLcdQueryClient } from './useManifestLcdQueryClient';
 
