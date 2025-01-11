@@ -138,9 +138,7 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
             </p>
             <div className="bg-base-100 dark:bg-base-200 rounded-full py-2 px-4 text-center mb-4 flex items-center flex-row justify-between w-full ">
               <p className="text-xs  truncate flex-grow">
-                {address
-                  ? `${address.slice(0, 12)}...${address.slice(-6)}`
-                  : 'Address not available'}
+                {address ? `${address.slice(0, 24)}...` : 'Address not available'}
               </p>
               <button
                 onClick={() => {
