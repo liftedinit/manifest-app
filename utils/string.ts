@@ -1,11 +1,7 @@
 import { CombinedBalanceInfo } from './types';
 
-export function truncateString(str: string, num: number) {
-  if (str.length > num) {
-    return str.slice(0, 24) + '...';
-  } else {
-    return str;
-  }
+export function truncateString(str: string, num?: number) {
+  return str.slice(0, str.startsWith('manifest' || 'osmo') ? 24 : num) + '...';
 }
 
 export function secondsToHumanReadable(seconds: number): string {
