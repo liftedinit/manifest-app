@@ -4,6 +4,7 @@ import { cosmos } from '@liftedinit/manifestjs';
 import { useChain } from '@cosmos-kit/react';
 import React, { useState } from 'react';
 import { CloseIcon } from '@/components/icons';
+import env from '@/config/env';
 function VotingPopup({
   proposalId,
   refetch,
@@ -13,9 +14,9 @@ function VotingPopup({
   refetch: () => void;
   setIsSigning: (isSigning: boolean) => void;
 }) {
-  const { estimateFee } = useFeeEstimation('manifest');
-  const { tx } = useTx('manifest');
-  const { address } = useChain('manifest');
+  const { estimateFee } = useFeeEstimation(env.chain);
+  const { tx } = useTx(env.chain);
+  const { address } = useChain(env.chain);
   const [error, setError] = useState<string | null>(null);
 
   const { vote } = cosmos.group.v1.MessageComposer.withTypeUrl;
