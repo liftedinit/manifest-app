@@ -56,6 +56,7 @@ export default function IbcSendForm({
   resolveOsmosisRefetch,
   refetchProposals,
   admin,
+  availableToChains,
 }: Readonly<{
   address: string;
   destinationChain: string;
@@ -77,6 +78,7 @@ export default function IbcSendForm({
   resolveOsmosisRefetch: () => void;
   refetchProposals?: () => void;
   admin?: string;
+  availableToChains: IbcChain[];
 }>) {
   const { address: osmosisAddress } = useChain(env.osmosisTestnetChain);
   const [isSending, setIsSending] = useState(false);
@@ -91,14 +93,13 @@ export default function IbcSendForm({
   const { transfer } = ibc.applications.transfer.v1.MessageComposer.withTypeUrl;
   const [isContactsOpen, setIsContactsOpen] = useState(false);
   const [isIconRotated, setIsIconRotated] = useState(false);
-  const searchParams = useSearchParams();
-  const policyAddress = searchParams.get('policyAddress');
+
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
   useEffect(() => {
-    if (policyAddress) {
+    if (isGroup) {
       setSelectedFromChain(env.chain);
     }
-  }, [policyAddress, setSelectedFromChain]);
+  }, [isGroup, setSelectedFromChain]);
 
   // Add this combined balances memo for Osmosis tokens
 
@@ -472,7 +473,7 @@ export default function IbcSendForm({
                     role="listbox"
                     className="dropdown-content z-[100] menu p-2 shadow bg-base-300 rounded-lg w-full mt-1 dark:text-[#FFFFFF] text-[#161616]"
                   >
-                    {ibcChains.map(chain => (
+                    {availableToChains.map(chain => (
                       <li key={chain.id} role="option" aria-selected={selectedToChain === chain.id}>
                         <a
                           onClick={e => {

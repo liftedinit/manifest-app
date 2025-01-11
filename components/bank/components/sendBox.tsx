@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import SendForm from '../forms/sendForm';
 import IbcSendForm from '../forms/ibcSendForm';
 import env from '@/config/env';
@@ -61,6 +61,18 @@ export default function SendBox({
     []
   );
 
+  useEffect(() => {
+    if (selectedFromChain && selectedToChain && selectedFromChain === selectedToChain) {
+      // If chains match, switch the destination chain to the other available chain
+      const otherChain = ibcChains.find(chain => chain.id !== selectedFromChain)?.id || '';
+      setSelectedToChain(otherChain);
+    }
+  }, [selectedFromChain, selectedToChain, ibcChains]);
+
+  const getAvailableToChains = useMemo(() => {
+    return ibcChains.filter(chain => chain.id !== selectedFromChain);
+  }, [ibcChains, selectedFromChain]);
+
   return (
     <div className="rounded-2xl w-full  ">
       <div className="flex mb-4 md:mb-6 w-full h-[3.5rem] rounded-xl p-1 bg-[#0000000A] dark:bg-[#FFFFFF0F]">
@@ -115,6 +127,7 @@ export default function SendBox({
                 isOsmosisBalancesLoading={isOsmosisBalancesLoading}
                 refetchOsmosisBalances={refetchOsmosisBalances}
                 resolveOsmosisRefetch={resolveOsmosisRefetch}
+                availableToChains={getAvailableToChains}
               />
             ) : (
               <SendForm
