@@ -473,7 +473,7 @@ export default function IbcSendForm({
                     role="listbox"
                     className="dropdown-content z-[100] menu p-2 shadow bg-base-300 rounded-lg w-full mt-1 dark:text-[#FFFFFF] text-[#161616]"
                   >
-                    {availableToChains.map(chain => (
+                    {availableToChains?.map(chain => (
                       <li key={chain.id} role="option" aria-selected={selectedToChain === chain.id}>
                         <a
                           onClick={e => {
