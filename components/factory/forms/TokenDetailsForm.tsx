@@ -31,6 +31,7 @@ export default function TokenDetails({
       .noProfanity(),
     name: Yup.string().required('Name is required').noProfanity(),
     uri: Yup.string()
+      .optional()
       .url('Must be a valid URL')
       .matches(/^https:\/\//i, 'URL must use HTTPS protocol')
       .matches(/\.(jpg|jpeg|png|gif)$/i, 'URL must point to an image file'),
@@ -70,17 +71,11 @@ export default function TokenDetails({
               <div className="flex items-center mx-auto w-full dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-6 sm:p-8 rounded-2xl shadow-lg">
                 <div className="w-full">
                   <h1 className="mb-4 text-xl font-extrabold tracking-tight sm:mb-6 leading-tight border-b-[0.5px] dark:text-[#FFFFFF99] dark:border-[#FFFFFF99] border-b-[black] pb-4">
-                    Token Metadata
+                    Token Metadata for{' '}
+                    <span className={'text-gray-500'}>${formData.subdenom.toUpperCase()}</span>
                   </h1>
                   <Form className="min-h-[330px] flex flex-col gap-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <TextInput
-                        label="Subdenom"
-                        name="subdenom"
-                        disabled={true}
-                        value={`u${formData.subdenom}`}
-                        aria-label="Token subdenom"
-                      />
                       <TextInput
                         label="Name"
                         name="name"
@@ -90,9 +85,8 @@ export default function TokenDetails({
                           handleChange(e);
                         }}
                         aria-label="Token name"
+                        placeholder={'Enter the token name, e.g., "My token"'}
                       />
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <TextInput
                         label="Ticker"
                         name="display"
@@ -104,11 +98,15 @@ export default function TokenDetails({
                           handleChange(e);
                         }}
                         aria-label="Token ticker"
+                        placeholder={'Enter the token ticker, e.g., "MTK"'}
                       />
+                    </div>
+                    <div className="grid grid-cols-1 gap-4">
                       <TextInput
                         label="Logo URL"
                         name="uri"
                         value={formData.uri}
+                        placeholder={'Enter the logo URL (optional)'}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                           updateField('uri', e.target.value);
                           handleChange(e);
@@ -125,6 +123,7 @@ export default function TokenDetails({
                         handleChange(e);
                       }}
                       aria-label="Token description"
+                      placeholder={'Enter the token description'}
                     />
                   </Form>
                 </div>

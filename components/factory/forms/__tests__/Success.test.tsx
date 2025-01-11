@@ -30,8 +30,8 @@ describe('Success Component', () => {
     renderWithChainProvider(<Success {...mockProps} />);
     expect(screen.getByText('NAME')).toBeInTheDocument();
     expect(screen.getByText(mockTokenFormData.name)).toBeInTheDocument();
-    expect(screen.getByText('SYMBOL')).toBeInTheDocument();
-    expect(screen.getByText(mockTokenFormData.symbol)).toBeInTheDocument();
+    expect(screen.getByText('TICKER')).toBeInTheDocument();
+    expect(screen.getByText(mockTokenFormData.display)).toBeInTheDocument();
     expect(screen.getByText('DESCRIPTION')).toBeInTheDocument();
     expect(screen.getByText(mockTokenFormData.description)).toBeInTheDocument();
   });

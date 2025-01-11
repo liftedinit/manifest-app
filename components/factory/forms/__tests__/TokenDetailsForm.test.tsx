@@ -21,7 +21,6 @@ describe('TokenDetailsForm Component', () => {
 
   test('renders form with correct details', () => {
     renderWithChainProvider(<TokenDetailsForm {...mockProps} />);
-    expect(screen.getByLabelText('Subdenom')).toBeInTheDocument();
     expect(screen.getByLabelText('Ticker')).toBeInTheDocument();
     expect(screen.getByLabelText('Name')).toBeInTheDocument();
     expect(screen.getByLabelText('Description')).toBeInTheDocument();
@@ -50,9 +49,6 @@ describe('TokenDetailsForm Component', () => {
         value: 'New Name',
       });
     });
-
-    const subdenomInput = screen.getByLabelText('Subdenom');
-    expect(subdenomInput).toBeDisabled();
 
     const descriptionInput = screen.getByLabelText('Description');
     fireEvent.change(descriptionInput, { target: { value: 'New Description' } });

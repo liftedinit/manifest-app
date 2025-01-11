@@ -71,7 +71,14 @@ describe('TokenList', () => {
         pageSize={1}
       />
     );
-    expect(screen.getByText('utoken1')).toBeInTheDocument();
+    const token1Row = screen.getByLabelText('utoken1');
+    expect(token1Row).toBeInTheDocument();
+
+    const ticker = within(token1Row).getAllByText('TOKEN 1');
+    expect(ticker).toHaveLength(2);
+
+    const balance = within(token1Row).getByText('0.001');
+    expect(balance).toBeInTheDocument();
   });
 
   test('displays loading skeleton when isLoading is true', () => {
@@ -114,8 +121,10 @@ describe('TokenList', () => {
         searchTerm={'Token 1'}
       />
     );
-    expect(screen.getByText('Token 1')).toBeInTheDocument();
-    expect(screen.queryByText('Token 2')).not.toBeInTheDocument();
+    const token1Row = screen.getByLabelText('utoken1');
+    const token2Row = screen.queryByLabelText('utoken2');
+    expect(token1Row).toBeInTheDocument();
+    expect(token2Row).not.toBeInTheDocument();
   });
 
   test('opens modal with correct denomination information', async () => {
@@ -154,20 +163,5 @@ describe('TokenList', () => {
     );
     expect(screen.getByText('0.001')).toBeInTheDocument();
     expect(screen.getByText('0.002')).toBeInTheDocument();
-  });
-
-  test('displays correct base denomination for each token', () => {
-    renderWithChainProvider(
-      <TokenList
-        balances={mockBalances}
-        isLoading={false}
-        refetchBalances={jest.fn()}
-        refetchHistory={jest.fn()}
-        address={''}
-        pageSize={2}
-      />
-    );
-    expect(screen.getByText('utoken1')).toBeInTheDocument();
-    expect(screen.getByText('utoken2')).toBeInTheDocument();
   });
 });
