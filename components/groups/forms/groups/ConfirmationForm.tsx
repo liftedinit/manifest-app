@@ -6,7 +6,7 @@ import { cosmos } from '@liftedinit/manifestjs';
 import { ThresholdDecisionPolicy } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { Duration } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/duration';
 import { secondsToHumanReadable } from '@/utils/string';
-
+import env from '@/config/env';
 export default function ConfirmationForm({
   nextStep,
   prevStep,
@@ -30,8 +30,8 @@ export default function ConfirmationForm({
   // Convert the object to a JSON string
   const jsonString = JSON.stringify(groupMetadata);
 
-  const { tx, isSigning, setIsSigning } = useTx('manifest');
-  const { estimateFee } = useFeeEstimation('manifest');
+  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { estimateFee } = useFeeEstimation(env.chain);
 
   const minExecutionPeriod: Duration = {
     seconds: BigInt(0),

@@ -100,7 +100,7 @@ export function YourGroups({
   const [selectedGroupName, setSelectedGroupName] = useState<string>('Untitled Group');
 
   const router = useRouter();
-  const { address } = useChain('manifest');
+  const { address } = useChain(env.chain);
 
   const filteredGroups = groups.groups.filter(group => {
     try {
