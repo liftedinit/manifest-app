@@ -117,7 +117,7 @@ export function TokenList(props: Readonly<TokenListProps>) {
                   </div>
                   <div>
                     <p className="font-semibold text-[#161616] dark:text-white">
-                      {truncateString(balance.metadata?.display ?? '', 12)}
+                      {truncateString(balance.metadata?.display ?? '', 12).toUpperCase()}
                     </p>
                     <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99]">
                       {balance.metadata?.denom_units[0]?.denom.startsWith('ibc')
