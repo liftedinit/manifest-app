@@ -46,7 +46,8 @@ export const useTx = (chainName: string) => {
   const { address, getSigningStargateClient, estimateFee } = useChain(chainName);
   const { setToastMessage } = useToast();
   const [isSigning, setIsSigning] = useState(false);
-  const explorerUrl = env.explorerUrl;
+  const explorerUrl =
+    chainName === env.osmosisTestnetChain ? env.osmosisTestnetExplorerUrl : env.explorerUrl;
 
   const tx = async (msgs: Msg[], options: TxOptions) => {
     if (!address) {
@@ -107,6 +108,7 @@ export const useTx = (chainName: string) => {
       if (isDeliverTxSuccess(res)) {
         if (options.onSuccess) options.onSuccess();
         setIsSigning(false);
+
         if (msgs.filter(msg => msg.typeUrl === '/cosmos.group.v1.MsgSubmitProposal').length > 0) {
           const submitProposalEvent = res.events.find(
             event => event.type === 'cosmos.group.v1.EventSubmitProposal'

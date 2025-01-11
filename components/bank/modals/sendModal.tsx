@@ -17,6 +17,10 @@ interface SendModalProps {
   isGroup?: boolean;
   admin?: string;
   refetchProposals?: () => void;
+  osmosisBalances: CombinedBalanceInfo[];
+  isOsmosisBalancesLoading: boolean;
+  refetchOsmosisBalances: () => void;
+  resolveOsmosisRefetch: () => void;
 }
 
 export default function SendModal({
@@ -32,6 +36,10 @@ export default function SendModal({
   isGroup,
   admin,
   refetchProposals,
+  osmosisBalances,
+  isOsmosisBalancesLoading,
+  refetchOsmosisBalances,
+  resolveOsmosisRefetch,
 }: SendModalProps) {
   const handleClose = () => {
     if (setOpen) {
@@ -98,6 +106,10 @@ export default function SendModal({
           isGroup={isGroup}
           admin={admin}
           refetchProposals={refetchProposals}
+          osmosisBalances={osmosisBalances}
+          isOsmosisBalancesLoading={isOsmosisBalancesLoading}
+          refetchOsmosisBalances={refetchOsmosisBalances}
+          resolveOsmosisRefetch={resolveOsmosisRefetch}
         />
       </div>
       <form

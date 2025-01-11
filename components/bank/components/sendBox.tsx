@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import SendForm from '../forms/sendForm';
 import IbcSendForm from '../forms/ibcSendForm';
-
+import env from '@/config/env';
 import { CombinedBalanceInfo } from '@/utils/types';
 
 export interface IbcChain {
@@ -21,6 +21,10 @@ export default function SendBox({
   isGroup,
   admin,
   refetchProposals,
+  osmosisBalances,
+  isOsmosisBalancesLoading,
+  refetchOsmosisBalances,
+  resolveOsmosisRefetch,
 }: {
   address: string;
   balances: CombinedBalanceInfo[];
@@ -31,17 +35,43 @@ export default function SendBox({
   selectedDenom?: string;
   isGroup?: boolean;
   admin?: string;
+  osmosisBalances: CombinedBalanceInfo[];
+  isOsmosisBalancesLoading: boolean;
+  refetchOsmosisBalances: () => void;
+  resolveOsmosisRefetch: () => void;
 }) {
   const [activeTab, setActiveTab] = useState<'send' | 'cross-chain'>('send');
-  const [selectedChain, setSelectedChain] = useState('');
-  const ibcChains: IbcChain[] = [
-    {
-      id: 'osmosis',
-      name: 'Osmosis',
-      icon: 'https://osmosis.zone/assets/icons/osmo-logo-icon.svg',
-      prefix: 'osmo',
-    },
-  ];
+  const [selectedFromChain, setSelectedFromChain] = useState('');
+  const [selectedToChain, setSelectedToChain] = useState('');
+  const ibcChains = useMemo<IbcChain[]>(
+    () => [
+      {
+        id: env.chain,
+        name: 'Manifest',
+        icon: '/logo.svg',
+        prefix: 'manifest',
+      },
+      {
+        id: env.osmosisTestnetChain,
+        name: 'Osmosis',
+        icon: '/osmosis.svg',
+        prefix: 'osmo',
+      },
+    ],
+    []
+  );
+
+  useEffect(() => {
+    if (selectedFromChain && selectedToChain && selectedFromChain === selectedToChain) {
+      // If chains match, switch the destination chain to the other available chain
+      const otherChain = ibcChains.find(chain => chain.id !== selectedFromChain)?.id || '';
+      setSelectedToChain(otherChain);
+    }
+  }, [selectedFromChain, selectedToChain, ibcChains]);
+
+  const getAvailableToChains = useMemo(() => {
+    return ibcChains.filter(chain => chain.id !== selectedFromChain);
+  }, [ibcChains, selectedFromChain]);
 
   return (
     <div className="rounded-2xl w-full  ">
@@ -79,16 +109,25 @@ export default function SendBox({
               <IbcSendForm
                 isIbcTransfer={true}
                 ibcChains={ibcChains}
-                selectedChain={selectedChain}
-                setSelectedChain={setSelectedChain}
+                selectedFromChain={selectedFromChain}
+                setSelectedFromChain={setSelectedFromChain}
+                selectedToChain={selectedToChain}
+                setSelectedToChain={setSelectedToChain}
                 address={address}
-                destinationChain={selectedChain}
+                destinationChain={selectedToChain}
                 balances={balances}
                 isBalancesLoading={isBalancesLoading}
                 refetchBalances={refetchBalances}
                 refetchHistory={refetchHistory}
                 selectedDenom={selectedDenom}
+                osmosisBalances={osmosisBalances}
                 isGroup={isGroup}
+                admin={admin}
+                refetchProposals={refetchProposals}
+                isOsmosisBalancesLoading={isOsmosisBalancesLoading}
+                refetchOsmosisBalances={refetchOsmosisBalances}
+                resolveOsmosisRefetch={resolveOsmosisRefetch}
+                availableToChains={getAvailableToChains}
               />
             ) : (
               <SendForm

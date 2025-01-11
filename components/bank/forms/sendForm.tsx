@@ -225,7 +225,9 @@ export default function SendForm({
 
                           return tokenDisplayName.startsWith('factory')
                             ? tokenDisplayName.split('/').pop()?.toUpperCase()
-                            : truncateString(tokenDisplayName, 10).toUpperCase();
+                            : tokenDisplayName.startsWith('u')
+                              ? tokenDisplayName.slice(1).toUpperCase()
+                              : truncateString(tokenDisplayName, 10).toUpperCase();
                         })()}
                         <PiCaretDownBold className="ml-1" />
                       </label>

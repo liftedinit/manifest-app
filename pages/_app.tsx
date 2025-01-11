@@ -9,7 +9,14 @@ import { createPortal } from 'react-dom';
 import { makeWeb3AuthWallets, SignData } from '@cosmos-kit/web3auth';
 import { useEffect, useMemo, useState } from 'react';
 import SignModal from '@/components/react/authSignerModal';
-import { manifestAssets, manifestChain } from '@/config';
+import {
+  assets as manifestAssets,
+  chain as manifestChain,
+} from 'chain-registry/testnet/manifesttestnet';
+import {
+  assets as osmosisAssets,
+  chain as osmosisChain,
+} from 'chain-registry/testnet/osmosistestnet';
 import { SignerOptions, wallets } from 'cosmos-kit';
 
 import { wallets as cosmosExtensionWallets } from '@cosmos-kit/cosmos-extension-metamask';
@@ -31,15 +38,20 @@ import {
   osmosisProtoRegistry,
   cosmosAminoConverters,
   cosmosProtoRegistry,
+  ibcAminoConverters,
+  ibcProtoRegistry,
 } from '@liftedinit/manifestjs';
 import MobileNav from '@/components/react/mobileNav';
 
 import { OPENLOGIN_NETWORK_TYPE } from '@toruslabs/openlogin-utils';
+import { AssetList } from '@chain-registry/types';
 
 type ManifestAppProps = AppProps & {
   Component: AppProps['Component'];
   pageProps: AppProps['pageProps'];
 };
+
+// TODO: remove asset list injections when chain registry is updated
 
 function ManifestApp({ Component, pageProps }: ManifestAppProps) {
   const [isDrawerVisible, setIsDrawerVisible] = useState(() => {
@@ -64,11 +76,13 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
         ...osmosisProtoRegistry,
         ...strangeloveVenturesProtoRegistry,
         ...liftedinitProtoRegistry,
+        ...ibcProtoRegistry,
       ]);
       const mergedAminoTypes = new AminoTypes({
         ...cosmosAminoConverters,
         ...liftedinitAminoConverters,
         ...osmosisAminoConverters,
+        ...ibcAminoConverters,
         ...strangeloveVenturesAminoConverters,
       });
       return {
@@ -175,6 +189,10 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
         rpc: [env.rpcUrl],
         rest: [env.apiUrl],
       },
+      ['osmosistestnet']: {
+        rpc: [env.osmosisTestnetRpcUrl],
+        rest: [env.osmosisTestnetApiUrl],
+      },
     },
   };
 
@@ -184,8 +202,9 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
         <ReactQueryDevtools />
         {
           <ChainProvider
-            chains={[manifestChain]}
-            assetLists={[manifestAssets]}
+            chains={[manifestChain, osmosisChain]}
+            assetLists={[manifestAssets, osmosisAssets]}
+            defaultChain={manifestChain}
             // @ts-ignore
             wallets={combinedWallets}
             logLevel="NONE"

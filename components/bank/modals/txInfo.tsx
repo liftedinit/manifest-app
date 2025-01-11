@@ -2,7 +2,7 @@ import React from 'react';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { formatDenom, TransactionGroup } from '@/components';
 import { FaExternalLinkAlt } from 'react-icons/fa';
-import { shiftDigits } from '@/utils';
+import { denomToAsset, shiftDigits } from '@/utils';
 import env from '@/config/env';
 
 interface TxInfoModalProps {
@@ -75,14 +75,26 @@ export default function TxInfoModal({ tx, modalId }: TxInfoModalProps) {
                 VALUE
               </p>
               <div className="bg-[#FFFFFF66] dark:bg-[#FFFFFF1A] rounded-[16px] p-4">
-                {tx?.data?.amount.map((amt, index) => (
-                  <p key={index} className="text-[#161616] dark:text-white">
-                    {Number(shiftDigits(amt.amount, -6)).toLocaleString(undefined, {
-                      maximumFractionDigits: 6,
-                    })}{' '}
-                    {formatDenom(amt.denom)}
-                  </p>
-                ))}
+                {tx?.data?.amount.map((amt, index) => {
+                  const amount = Number(shiftDigits(amt.amount, -6));
+                  let displayDenom = formatDenom(amt.denom);
+
+                  if (amt.denom.startsWith('ibc/')) {
+                    const assetInfo = denomToAsset(env.chain, amt.denom);
+                    if (assetInfo?.traces?.[0]?.counterparty?.base_denom) {
+                      displayDenom = assetInfo.traces[0].counterparty.base_denom.slice(1);
+                    }
+                  }
+
+                  return (
+                    <p key={index} className="text-[#161616] dark:text-white">
+                      {Number(amount).toLocaleString(undefined, {
+                        maximumFractionDigits: 6,
+                      })}{' '}
+                      {displayDenom.toUpperCase()}
+                    </p>
+                  );
+                })}
               </div>
             </div>
           </div>

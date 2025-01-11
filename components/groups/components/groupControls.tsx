@@ -4,7 +4,6 @@ import {
   useTallyCount,
   useVotesByProposal,
   useMultipleTallyCounts,
-  ExtendedQueryGroupsByMemberResponseSDKType,
   ExtendedGroupType,
 } from '@/hooks/useQueries';
 import { ProposalSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
@@ -15,10 +14,7 @@ import { useRouter } from 'next/router';
 import VoteDetailsModal from '@/components/groups/modals/voteDetailsModal';
 import { useGroupsByMember } from '@/hooks/useQueries';
 import { useChain } from '@cosmos-kit/react';
-import {
-  MemberSDKType,
-  GroupInfoSDKType,
-} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { MemberSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { ArrowRightIcon } from '@/components/icons';
 import ProfileAvatar from '@/utils/identicon';
 import { HistoryBox, TransactionGroup } from '@/components';
@@ -26,6 +22,7 @@ import { TokenList } from '@/components';
 import { CombinedBalanceInfo, ExtendedMetadataSDKType } from '@/utils';
 import DenomList from '@/components/factory/components/DenomList';
 import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
+import env from '@/config/env';
 
 type GroupControlsProps = {
   policyAddress: string;
@@ -231,7 +228,7 @@ export default function GroupControls({
       .trim();
   }
 
-  const { address } = useChain('manifest');
+  const { address } = useChain(env.chain);
   const { groupByMemberData } = useGroupsByMember(address ?? '');
 
   useEffect(() => {

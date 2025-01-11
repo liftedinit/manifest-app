@@ -39,3 +39,5 @@ next-env.d.ts
 .idea/
 
 certificates
+
+/scripts/demons.json

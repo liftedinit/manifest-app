@@ -1,12 +1,13 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import TxInfoModal from '../modals/txInfo';
-import { shiftDigits, truncateString } from '@/utils';
+import { denomToAsset, shiftDigits, truncateString } from '@/utils';
 import { BurnIcon, DenomImage, formatDenom, MintIcon } from '@/components';
 import { HistoryTxType, useTokenFactoryDenomsMetadata } from '@/hooks';
 import { ReceiveIcon, SendIcon } from '@/components/icons';
 
 import useIsMobile from '@/hooks/useIsMobile';
+import env from '@/config/env';
 
 interface Transaction {
   tx_type: HistoryTxType;
@@ -216,7 +217,26 @@ export function HistoryBox({
                     </div>
 
                     {tx.data.amount.map((amt, index) => {
-                      const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
+                      const assetInfo = denomToAsset(env.chain, amt.denom);
+                      let metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
+
+                      if (amt.denom.startsWith('ibc/')) {
+                        metadata = {
+                          description: assetInfo?.description ?? '',
+                          denom_units:
+                            assetInfo?.denom_units?.map(unit => ({
+                              ...unit,
+                              aliases: unit.aliases || [],
+                            })) ?? [],
+                          base: assetInfo?.base ?? '',
+                          display: assetInfo?.display ?? '',
+                          name: assetInfo?.name ?? '',
+                          symbol: assetInfo?.symbol ?? '',
+                          uri: assetInfo?.logo_URIs?.svg ?? assetInfo?.logo_URIs?.png ?? '',
+                          uri_hash: assetInfo?.logo_URIs?.svg ?? assetInfo?.logo_URIs?.png ?? '',
+                        };
+                      }
+
                       return <DenomImage key={index} denom={metadata} />;
                     })}
 
@@ -228,8 +248,16 @@ export function HistoryBox({
                         <p className="font-semibold text-[#161616] dark:text-white">
                           {tx.data.amount.map((amt, index) => {
                             const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
-                            const display = metadata?.display ?? metadata?.symbol ?? '';
-                            return metadata?.display.startsWith('factory')
+                            let display = metadata?.display ?? metadata?.symbol ?? '';
+
+                            if (amt.denom.startsWith('ibc/')) {
+                              const assetInfo = denomToAsset(env.chain, amt.denom);
+                              if (assetInfo?.traces?.[0]?.counterparty?.base_denom) {
+                                display = assetInfo.traces[0].counterparty.base_denom.slice(1);
+                              }
+                            }
+
+                            return metadata?.display?.startsWith('factory')
                               ? metadata?.display?.split('/').pop()?.toUpperCase()
                               : display.length > 4
                                 ? display.slice(0, 4).toUpperCase() + '...'
@@ -269,7 +297,16 @@ export function HistoryBox({
                           const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
                           const exponent = Number(metadata?.denom_units[1]?.exponent) || 6;
                           const amount = Number(shiftDigits(amt.amount, -exponent));
-                          return `${formatLargeNumber(amount)} ${formatDenom(amt.denom)}`;
+                          let baseDenom = formatDenom(amt.denom);
+
+                          if (amt.denom.startsWith('ibc/')) {
+                            const assetInfo = denomToAsset(env.chain, amt.denom);
+                            if (assetInfo?.traces?.[0]?.counterparty?.base_denom) {
+                              baseDenom = assetInfo.traces[0].counterparty.base_denom.slice(1);
+                            }
+                          }
+
+                          return `${formatLargeNumber(amount)} ${baseDenom.toUpperCase()}`;
                         })
                         .join(', ')}
                     </p>

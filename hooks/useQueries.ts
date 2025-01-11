@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { QueryGroupsByMemberResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
 
-import { useLcdQueryClient } from './useLcdQueryClient';
+import { useLcdQueryClient, useOsmosisLcdQueryClient } from './useLcdQueryClient';
 import { usePoaLcdQueryClient } from './usePoaLcdQueryClient';
-import { getLogoUrls } from '@/utils';
+import { getLogoUrls, normalizeIBCDenom } from '@/utils';
 
 import { useManifestLcdQueryClient } from './useManifestLcdQueryClient';
 
@@ -632,6 +632,32 @@ export const useTokenFactoryDenomsMetadata = () => {
   };
 };
 
+export const useOsmosisTokenFactoryDenomsMetadata = () => {
+  const { lcdQueryClient } = useOsmosisLcdQueryClient();
+
+  const fetchDenoms = async () => {
+    if (!lcdQueryClient) {
+      throw new Error('LCD Client not ready');
+    }
+
+    return await lcdQueryClient.cosmos.bank.v1beta1.denomsMetadata({});
+  };
+
+  const denomsQuery = useQuery({
+    queryKey: ['osmosisAllMetadatas'],
+    queryFn: fetchDenoms,
+    enabled: !!lcdQueryClient,
+    staleTime: Infinity,
+  });
+
+  return {
+    metadatas: denomsQuery.data,
+    isMetadatasLoading: denomsQuery.isLoading,
+    isMetadatasError: denomsQuery.isError,
+    refetchMetadatas: denomsQuery.refetch,
+  };
+};
+
 export const useTokenBalances = (address: string) => {
   const { lcdQueryClient } = useLcdQueryClient();
 
@@ -660,6 +686,34 @@ export const useTokenBalances = (address: string) => {
   };
 };
 
+export const useTokenBalancesOsmosis = (address: string) => {
+  const { lcdQueryClient } = useOsmosisLcdQueryClient();
+
+  const fetchBalances = async () => {
+    if (!lcdQueryClient) {
+      throw new Error('LCD Client not ready');
+    }
+    return await lcdQueryClient.cosmos.bank.v1beta1.allBalances({
+      address,
+      resolveDenom: false,
+    });
+  };
+
+  const balancesQuery = useQuery({
+    queryKey: ['osmosisBalances', address],
+    queryFn: fetchBalances,
+    enabled: !!lcdQueryClient && !!address,
+    staleTime: Infinity,
+  });
+
+  return {
+    balances: balancesQuery.data?.balances,
+    isBalancesLoading: balancesQuery.isLoading,
+    isBalancesError: balancesQuery.isError,
+    refetchBalances: balancesQuery.refetch,
+  };
+};
+
 export const useTokenBalancesResolved = (address: string) => {
   const { lcdQueryClient } = useLcdQueryClient();
 
@@ -675,6 +729,34 @@ export const useTokenBalancesResolved = (address: string) => {
 
   const balancesQuery = useQuery({
     queryKey: ['balances-resolved', address],
+    queryFn: fetchBalances,
+    enabled: !!lcdQueryClient && !!address,
+    staleTime: Infinity,
+  });
+
+  return {
+    balances: balancesQuery.data?.balances,
+    isBalancesLoading: balancesQuery.isLoading,
+    isBalancesError: balancesQuery.isError,
+    refetchBalances: balancesQuery.refetch,
+  };
+};
+
+export const useOsmosisTokenBalancesResolved = (address: string) => {
+  const { lcdQueryClient } = useOsmosisLcdQueryClient();
+
+  const fetchBalances = async () => {
+    if (!lcdQueryClient) {
+      throw new Error('LCD Client not ready');
+    }
+    return await lcdQueryClient.cosmos.bank.v1beta1.allBalances({
+      address,
+      resolveDenom: true,
+    });
+  };
+
+  const balancesQuery = useQuery({
+    queryKey: ['osmosisBalances-resolved', address],
     queryFn: fetchBalances,
     enabled: !!lcdQueryClient && !!address,
     staleTime: Infinity,
