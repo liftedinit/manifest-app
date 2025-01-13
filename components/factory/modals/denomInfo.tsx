@@ -122,16 +122,6 @@ function InfoItem({
         {isAddress ? (
           <div className="flex items-center">
             <TruncatedAddressWithCopy address={value} slice={17} />
-            <a
-              href={`${explorerUrl}/account/${value}`}
-              target="_blank"
-              aria-label={`View ${value} on block explorer (opens in new tab)`}
-              rel="noopener noreferrer"
-              className="ml-2 text-primary hover:text-primary/50"
-            >
-              <FaExternalLinkAlt aria-hidden="true" />
-              <span className="sr-only">External link</span>
-            </a>
           </div>
         ) : (
           <p className="text-[#161616] dark:text-white" title={value}>
