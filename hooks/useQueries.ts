@@ -4,7 +4,7 @@ import { QueryGroupsByMemberResponseSDKType } from '@liftedinit/manifestjs/dist/
 
 import { useLcdQueryClient } from './useLcdQueryClient';
 import { usePoaLcdQueryClient } from './usePoaLcdQueryClient';
-import { getLogoUrls } from '@/utils';
+import { getLogoUrls, transformTransactions } from '@/utils';
 
 import { useManifestLcdQueryClient } from './useManifestLcdQueryClient';
 
@@ -13,7 +13,6 @@ import {
   GroupMemberSDKType,
   GroupPolicyInfoSDKType,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
-import { TransactionGroup } from '@/components';
 import { Octokit } from 'octokit';
 
 import { useOsmosisRpcQueryClient } from '@/hooks/useOsmosisRpcQueryClient';
@@ -686,139 +685,6 @@ export const useTokenBalancesResolved = (address: string) => {
     isBalancesError: balancesQuery.isError,
     refetchBalances: balancesQuery.refetch,
   };
-};
-
-interface TransactionAmount {
-  amount: string;
-  denom: string;
-}
-export enum HistoryTxType {
-  SEND,
-  MINT,
-  BURN,
-  PAYOUT,
-  BURN_HELD_BALANCE,
-}
-
-const _formatMessage = (
-  message: any,
-  address: string
-): {
-  data: {
-    tx_type: HistoryTxType;
-    from_address: string;
-    to_address: string;
-    amount: { amount: string; denom: string }[];
-  };
-}[] => {
-  switch (message['@type']) {
-    case `/cosmos.bank.v1beta1.MsgSend`:
-      return [
-        {
-          data: {
-            tx_type: HistoryTxType.SEND,
-            from_address: message.fromAddress,
-            to_address: message.toAddress,
-            amount: message.amount.map((amt: TransactionAmount) => ({
-              amount: amt.amount,
-              denom: amt.denom,
-            })),
-          },
-        },
-      ];
-    case `/osmosis.tokenfactory.v1beta1.MsgMint`:
-      return [
-        {
-          data: {
-            tx_type: HistoryTxType.MINT,
-            from_address: message.sender,
-            to_address: message.mintToAddress,
-            amount: [message.amount],
-          },
-        },
-      ];
-    case `/osmosis.tokenfactory.v1beta1.MsgBurn`:
-      return [
-        {
-          data: {
-            tx_type: HistoryTxType.BURN,
-            from_address: message.sender,
-            to_address: message.burnFromAddress,
-            amount: [message.amount],
-          },
-        },
-      ];
-    case `/liftedinit.manifest.v1.MsgPayout`:
-      return message.payoutPairs
-        .map((pair: { coin: TransactionAmount; address: string }) => {
-          if (message.authority === address || pair.address === address) {
-            return {
-              data: {
-                tx_type: HistoryTxType.PAYOUT,
-                from_address: message.authority,
-                to_address: pair.address,
-                amount: [{ amount: pair.coin.amount, denom: pair.coin.denom }],
-              },
-            };
-          }
-          return null;
-        })
-        .filter((msg: any) => msg !== null);
-    case `/lifted.init.manifest.v1.MsgBurnHeldBalance`:
-      return [
-        {
-          data: {
-            tx_type: HistoryTxType.BURN_HELD_BALANCE,
-            from_address: message.authority,
-            to_address: message.authority,
-            amount: message.burnCoins,
-          },
-        },
-      ];
-    default:
-      return [];
-  }
-};
-
-const transformTransactions = (tx: any, address: string) => {
-  let messages: TransactionGroup[] = [];
-  let memo = tx.data.tx.body.memo ? { memo: tx.data.tx.body.memo } : {};
-
-  for (const message of tx.data.tx.body.messages) {
-    if (message['@type'] === '/cosmos.group.v1.MsgSubmitProposal') {
-      for (const nestedMessage of message.messages) {
-        // Skip the message if it doesn't contain the address
-        // At least one of the nested messages should contain the address
-        if (!JSON.stringify(nestedMessage).includes(address)) {
-          continue;
-        }
-
-        const formattedMessages = _formatMessage(nestedMessage, address);
-        for (const formattedMessage of formattedMessages) {
-          messages.push({
-            tx_hash: tx.id,
-            block_number: parseInt(tx.data.txResponse.height),
-            formatted_date: tx.data.txResponse.timestamp,
-            ...memo,
-            ...formattedMessage,
-          });
-        }
-      }
-    }
-
-    const formattedMessages = _formatMessage(message, address);
-    for (const formattedMessage of formattedMessages) {
-      messages.push({
-        tx_hash: tx.id,
-        block_number: parseInt(tx.data.txResponse.height),
-        formatted_date: tx.data.txResponse.timestamp,
-        ...memo,
-        ...formattedMessage,
-      });
-    }
-  }
-
-  return messages;
 };
 
 // Helper function to transform API response to match the component's expected format

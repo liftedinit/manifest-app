@@ -1,26 +1,18 @@
-import React, { useMemo, useState, useEffect } from 'react';
-import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
-import TxInfoModal from '../modals/txInfo';
-import { shiftDigits, truncateString } from '@/utils';
-import { BurnIcon, DenomImage, formatDenom, MintIcon } from '@/components';
-import { HistoryTxType, useTokenFactoryDenomsMetadata } from '@/hooks';
-import { ReceiveIcon, SendIcon } from '@/components/icons';
-
-import useIsMobile from '@/hooks/useIsMobile';
-
-interface Transaction {
-  tx_type: HistoryTxType;
-  from_address: string;
-  to_address: string;
-  amount: Array<{ amount: string; denom: string }>;
-}
+import React, { useState } from "react";
+import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
+import TxInfoModal from "../modals/txInfo";
+import { HistoryTxType, ParsedTransactionData, shiftDigits, TransactionAmount } from "@/utils";
+import { BurnIcon, DenomImage, FactoryIcon, GroupsIcon, MintIcon, QuestionIcon, TransferIcon, formatDenom } from "@/components";
+import { useTokenFactoryDenomsMetadata } from "@/hooks";
+import { ReceiveIcon, SendIcon } from "@/components/icons";
 
 export interface TransactionGroup {
   tx_hash: string;
   block_number: number;
   formatted_date: string;
+  fee?: TransactionAmount;
   memo?: string;
-  data: Transaction;
+  data: ParsedTransactionData;
 }
 
 function formatLargeNumber(num: number): string {
@@ -87,68 +79,124 @@ export function HistoryBox({
   }
 
   function getTransactionIcon(tx: TransactionGroup, address: string) {
-    if (tx.data.tx_type === HistoryTxType.SEND) {
-      return tx.data.from_address === address ? <SendIcon /> : <ReceiveIcon />;
-    } else if (tx.data.tx_type === HistoryTxType.MINT || tx.data.tx_type === HistoryTxType.PAYOUT) {
-      return (
-        <MintIcon
-          className={`w-6 h-6 p-1 border-[#00FFAA] border-opacity-[0.12] border-[1.5px] bg-[#00FFAA] bg-opacity-[0.06] rounded-sm text-green-500`}
-        />
-      );
-    } else if (
-      tx.data.tx_type === HistoryTxType.BURN ||
-      tx.data.tx_type === HistoryTxType.BURN_HELD_BALANCE
-    ) {
-      return (
-        <BurnIcon className="w-6 h-6 p-1 border-[#F54562] border-[1.5px] border-opacity-[0.12] bg-[#f54562] bg-opacity-[0.06] rounded-sm text-red-500" />
-      );
+    const common = 'w-6 h-6 p-1 border-[1.5px] border-opacity-[0.12] bg-opacity-[0.06] rounded-sm';
+
+    switch (tx.data.tx_type) {
+      case HistoryTxType.SEND:
+      case HistoryTxType.IBC_TRANSFER:
+        return tx.data.from_address === address ? <SendIcon /> : <ReceiveIcon />;
+      case HistoryTxType.MINT:
+      case HistoryTxType.PAYOUT:
+        return <MintIcon className={`border-[#00FFAA] bg-[#00FFAA] text-green-500 ${common}`} />;
+      case HistoryTxType.BURN:
+      case HistoryTxType.BURN_HELD_BALANCE:
+        return <BurnIcon className={`border-[#F54562] bg-[#f54562] text-red-500 ${common}`} />;
+      case HistoryTxType.CHANGE_ADMIN:
+        return (
+          <TransferIcon
+            className={`border-secondary-content bg-secondary-content text-secondary-content ${common}`}
+          />
+        );
+      case HistoryTxType.CREATE_GROUP_WITH_POLICY:
+      case HistoryTxType.EXEC_PROPOSAL:
+      case HistoryTxType.SUBMIT_PROPOSAL:
+      case HistoryTxType.VOTE_PROPOSAL:
+      case HistoryTxType.WITHDRAW_PROPOSAL:
+      case HistoryTxType.UPDATE_GROUP_METADATA:
+      case HistoryTxType.UPDATE_GROUP_POLICY_METADATA:
+      case HistoryTxType.LEAVE_GROUP:
+      case HistoryTxType.UPDATE_GROUP_MEMBERS:
+        return (
+          <GroupsIcon
+            className={`border-secondary-content bg-secondary-content text-secondary-content ${common}`}
+          />
+        );
+      case HistoryTxType.CREATE_DENOM:
+      case HistoryTxType.SET_DENOM_METADATA:
+        return (
+          <FactoryIcon
+            className={`border-secondary-content bg-secondary-content text-secondary-content ${common}`}
+          />
+        );
+      default:
+        return <QuestionIcon className={`border-[#F54562] bg-[#f54562] text-red-500 ${common}`} />;
     }
-    return null;
   }
 
   // Get the history message based on the transaction type
   function getTransactionMessage(tx: TransactionGroup, address: string) {
-    if (tx.data.tx_type === HistoryTxType.SEND) {
-      return tx.data.from_address === address ? 'Sent' : 'Received';
-    } else if (tx.data.tx_type === HistoryTxType.MINT || tx.data.tx_type === HistoryTxType.PAYOUT) {
-      return 'Minted';
-    } else if (
-      tx.data.tx_type === HistoryTxType.BURN ||
-      tx.data.tx_type === HistoryTxType.BURN_HELD_BALANCE
-    ) {
-      return 'Burned';
+    switch (tx.data.tx_type) {
+      case HistoryTxType.SEND:
+        return tx.data.from_address === address ? 'Sent' : 'Received';
+      case HistoryTxType.IBC_TRANSFER:
+        return 'IBC Transfer';
+      case HistoryTxType.MINT:
+      case HistoryTxType.PAYOUT:
+        return 'Minted';
+      case HistoryTxType.BURN:
+      case HistoryTxType.BURN_HELD_BALANCE:
+        return 'Burned';
+      case HistoryTxType.CHANGE_ADMIN:
+        return 'Changed Token Admin';
+      case HistoryTxType.CREATE_GROUP_WITH_POLICY:
+        return 'Created Group';
+      case HistoryTxType.SET_DENOM_METADATA:
+        return 'Set Denom Metadata';
+      case HistoryTxType.CREATE_DENOM:
+        return 'Created Denom';
+      case HistoryTxType.EXEC_PROPOSAL:
+        return `Executed Proposal #${tx.data.metadata?.proposal_id}`;
+      case HistoryTxType.SUBMIT_PROPOSAL:
+        return `Submitted Proposal #${tx.data.metadata?.proposal_id}`;
+      case HistoryTxType.VOTE_PROPOSAL:
+        return `Voted on Proposal #${tx.data.metadata?.proposal_id}`;
+      case HistoryTxType.WITHDRAW_PROPOSAL:
+        return `Withdrew Proposal #${tx.data.metadata?.proposal_id}`;
+      case HistoryTxType.UPDATE_GROUP_POLICY_METADATA:
+        return `Updated Group Policy Metadata`;
+      case HistoryTxType.UPDATE_GROUP_METADATA:
+        return `Updated Group #${tx.data.metadata?.group_id} Metadata`;
+      case HistoryTxType.LEAVE_GROUP:
+        return `Left Group #${tx.data.metadata?.group_id}`;
+        case HistoryTxType.UPDATE_GROUP_MEMBERS:
+        return `Updated Group #${tx.data.metadata?.group_id} Members`;
+      default:
+        return 'Unknown transaction';
     }
-    return 'Unsupported';
   }
 
   // Get the transaction direction based on the transaction type
   function getTransactionPlusMinus(tx: TransactionGroup, address: string) {
-    if (tx.data.tx_type === HistoryTxType.SEND) {
-      return tx.data.from_address === address ? '-' : '+';
-    } else if (tx.data.tx_type === HistoryTxType.MINT || tx.data.tx_type === HistoryTxType.PAYOUT) {
-      return '+';
-    } else if (
-      tx.data.tx_type === HistoryTxType.BURN ||
-      tx.data.tx_type === HistoryTxType.BURN_HELD_BALANCE
-    ) {
-      return '-';
+    switch (tx.data.tx_type) {
+      case HistoryTxType.SEND:
+      case HistoryTxType.IBC_TRANSFER:
+        return tx.data.from_address === address ? '-' : '+';
+      case HistoryTxType.MINT:
+      case HistoryTxType.PAYOUT:
+        return '+';
+      case HistoryTxType.BURN:
+      case HistoryTxType.BURN_HELD_BALANCE:
+        return '-';
+      default:
+        return '';
     }
-    return '!!';
   }
 
   // Get the transaction color based on the transaction type and direction
   function getTransactionColor(tx: TransactionGroup, address: string) {
-    if (tx.data.tx_type === HistoryTxType.SEND) {
-      return tx.data.from_address === address ? 'text-red-500' : 'text-green-500';
-    } else if (tx.data.tx_type === HistoryTxType.MINT || tx.data.tx_type === HistoryTxType.PAYOUT) {
-      return 'text-green-500';
-    } else if (
-      tx.data.tx_type === HistoryTxType.BURN ||
-      tx.data.tx_type === HistoryTxType.BURN_HELD_BALANCE
-    ) {
-      return 'text-red-500';
+    switch (tx.data.tx_type) {
+      case HistoryTxType.SEND:
+      case HistoryTxType.IBC_TRANSFER:
+        return tx.data.from_address === address ? 'text-red-500' : 'text-green-500';
+      case HistoryTxType.MINT:
+      case HistoryTxType.PAYOUT:
+        return 'text-green-500';
+      case HistoryTxType.BURN:
+      case HistoryTxType.BURN_HELD_BALANCE:
+        return 'text-red-500';
+      default:
+        return null;
     }
-    return null;
   }
 
   return (
@@ -215,7 +263,7 @@ export function HistoryBox({
                       {getTransactionIcon(tx, address)}
                     </div>
 
-                    {tx.data.amount.map((amt, index) => {
+                    {tx.data.amount?.map((amt, index) => {
                       const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
                       return <DenomImage key={index} denom={metadata} />;
                     })}
@@ -226,7 +274,7 @@ export function HistoryBox({
                           {getTransactionMessage(tx, address)}
                         </p>
                         <p className="font-semibold text-[#161616] dark:text-white">
-                          {tx.data.amount.map((amt, index) => {
+                          {tx.data.amount?.map((amt, index) => {
                             const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
                             const display = metadata?.display ?? metadata?.symbol ?? '';
                             return metadata?.display.startsWith('factory')
@@ -264,7 +312,7 @@ export function HistoryBox({
                     </p>
                     <p className={`font-semibold ${getTransactionColor(tx, address)} `}>
                       {getTransactionPlusMinus(tx, address)}
-                      {tx.data.amount
+                      {tx.data.amount?
                         .map(amt => {
                           const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
                           const exponent = Number(metadata?.denom_units[1]?.exponent) || 6;

@@ -64,27 +64,45 @@ export default function TxInfoModal({ tx, modalId }: TxInfoModalProps) {
               value={tx?.data?.from_address}
               isAddress={true}
             />
-            <InfoItem
-              label="TO"
-              explorerUrl={env.explorerUrl}
-              value={tx?.data?.to_address}
-              isAddress={true}
-            />
-            <div>
-              <p className="text-sm font-semibold text-[#00000099] dark:text-[#FFFFFF99] mb-2">
-                VALUE
-              </p>
-              <div className="bg-[#FFFFFF66] dark:bg-[#FFFFFF1A] rounded-[16px] p-4">
-                {tx?.data?.amount.map((amt, index) => (
-                  <p key={index} className="text-[#161616] dark:text-white">
-                    {Number(shiftDigits(amt.amount, -6)).toLocaleString(undefined, {
-                      maximumFractionDigits: 6,
-                    })}{' '}
-                    {formatDenom(amt.denom)}
-                  </p>
+            {tx?.data?.to_address && (
+              <InfoItem
+                label="TO"
+                explorerUrl={env.explorerUrl}
+                value={tx?.data?.to_address}
+                isAddress={true}
+              />
+            )}
+            {tx?.data?.amount && (
+              <div>
+                <p className="text-sm font-semibold text-[#00000099] dark:text-[#FFFFFF99] mb-2">
+                  AMOUNT
+                </p>
+                <div className="bg-[#FFFFFF66] dark:bg-[#FFFFFF1A] rounded-[16px] p-4">
+                  {tx?.data?.amount.map((amt, index) => (
+                    <p key={index} className="text-[#161616] dark:text-white">
+                      {Number(shiftDigits(amt.amount, -6)).toLocaleString(undefined, {
+                        maximumFractionDigits: 6,
+                      })}{' '}
+                      {formatDenom(amt.denom)}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            )}
+            {tx?.data?.metadata && (
+              <div>
+                {Object.entries(tx?.data?.metadata).map(([key, value], index) => (
+                  <div key={index}>
+                    <p className="text-sm font-semibold text-[#00000099] dark:text-[#FFFFFF99] mb-2">
+                      {key.toUpperCase()}
+                    </p>
+                    <div className="bg-[#FFFFFF66] dark:bg-[#FFFFFF1A] rounded-[16px] p-4">
+                      <p className="text-[#161616] dark:text-white">{value}</p>
+                    </div>
+                  </div>
                 ))}
               </div>
-            </div>
+            )}
           </div>
         </div>
         {tx.memo && (

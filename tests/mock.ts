@@ -5,7 +5,7 @@ import {
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
 import { ExtendedValidatorSDKType, TransactionGroup } from '@/components';
 import { CombinedBalanceInfo } from '@/utils/types';
-import { ExtendedGroupType, HistoryTxType } from '@/hooks';
+import { ExtendedGroupType } from '@/hooks';
 import {
   MemberSDKType,
   ProposalExecutorResult,
@@ -18,6 +18,7 @@ import { FormData, ProposalFormData } from '@/helpers';
 import { cosmos } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
+import { HistoryTxType } from '@/utils';
 
 export const manifestAddr1 = 'manifest1hj5fveer5cjtn4wd6wstzugjfdxzl0xp8ws9ct';
 export const manifestAddr2 = 'manifest1efd63aw40lxf3n4mhf7dzhjkr453axurm6rp3z';
