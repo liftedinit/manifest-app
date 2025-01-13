@@ -100,7 +100,7 @@ export function YourGroups({
   const [selectedGroupName, setSelectedGroupName] = useState<string>('Untitled Group');
 
   const router = useRouter();
-  const { address } = useChain('manifest');
+  const { address } = useChain(env.chain);
 
   const filteredGroups = groups.groups.filter(group => {
     try {
@@ -635,7 +635,7 @@ function GroupRow({
       </td>
       <td className="bg-secondary group-hover:bg-base-300 hidden lg:table-cell w-1/6">
         <div onClick={e => e.stopPropagation()}>
-          <TruncatedAddressWithCopy address={policyAddress} slice={12} />
+          <TruncatedAddressWithCopy address={policyAddress} slice={24} />
         </div>
       </td>
       <td className="bg-secondary group-hover:bg-base-300 rounded-r-[12px] sm:rounded-l-none w-1/6">

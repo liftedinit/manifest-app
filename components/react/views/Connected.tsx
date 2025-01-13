@@ -5,7 +5,7 @@ import { useState } from 'react';
 import ProfileAvatar from '@/utils/identicon';
 import { useBalance } from '@/hooks/useQueries';
 import { CopyIcon } from '@/components/icons';
-import { getRealLogo, shiftDigits, truncateString } from '@/utils';
+import { getRealLogo, shiftDigits, truncateAddress } from '@/utils';
 import Image from 'next/image';
 import { MdContacts } from 'react-icons/md';
 import { Contacts } from './Contacts';
@@ -83,7 +83,7 @@ export const Connected = ({
             <p className="text-lg font-semibold">{username || 'Anonymous'}</p>
             <div className="flex items-center">
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                {truncateString(address || '', 12)}
+                {truncateAddress(address || '')}
               </p>
               <button
                 onClick={copyAddress}

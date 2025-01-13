@@ -23,9 +23,9 @@ describe('Success Component', () => {
       screen.getByText('Your transaction was successfully signed and broadcasted.')
     ).toBeInTheDocument();
     expect(screen.getByText('Group Information')).toBeInTheDocument();
-    expect(screen.getByText('manifest1autho...author')).toBeInTheDocument();
-    expect(screen.getByText('manifest1efd63...m6rp3z')).toBeInTheDocument();
-    expect(screen.getByText('manifest1hj5fv...8ws9ct')).toBeInTheDocument();
+    expect(screen.getByText('manifest1autho...')).toBeInTheDocument();
+    expect(screen.getByText('manifest1efd63...')).toBeInTheDocument();
+    expect(screen.getByText('manifest1hj5fv...')).toBeInTheDocument();
     const normalizer = getDefaultNormalizer({ collapseWhitespace: true, trim: true });
     expect(screen.getByText('2 / 2', { normalizer })).toBeInTheDocument();
   });
