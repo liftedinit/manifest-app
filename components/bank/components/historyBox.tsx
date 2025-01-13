@@ -296,7 +296,7 @@ export function HistoryBox({
                                 ? tx.data.to_address
                                 : tx.data.from_address
                             }
-                            slice={6}
+                            slice={24}
                           />
                         ) : (
                           <div className="text-[#00000099] dark:text-[#FFFFFF99]">

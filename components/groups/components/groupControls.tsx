@@ -26,6 +26,7 @@ import { TokenList } from '@/components';
 import { CombinedBalanceInfo, ExtendedMetadataSDKType } from '@/utils';
 import DenomList from '@/components/factory/components/DenomList';
 import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
+import env from '@/config/env';
 
 type GroupControlsProps = {
   policyAddress: string;
@@ -231,7 +232,7 @@ export default function GroupControls({
       .trim();
   }
 
-  const { address } = useChain('manifest');
+  const { address } = useChain(env.chain);
   const { groupByMemberData } = useGroupsByMember(address ?? '');
 
   useEffect(() => {
