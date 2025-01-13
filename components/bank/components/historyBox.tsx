@@ -1,10 +1,19 @@
-import React, { useState } from "react";
-import { TruncatedAddressWithCopy } from "@/components/react/addressCopy";
-import TxInfoModal from "../modals/txInfo";
-import { HistoryTxType, ParsedTransactionData, shiftDigits, TransactionAmount } from "@/utils";
-import { BurnIcon, DenomImage, FactoryIcon, GroupsIcon, MintIcon, QuestionIcon, TransferIcon, formatDenom } from "@/components";
-import { useTokenFactoryDenomsMetadata } from "@/hooks";
-import { ReceiveIcon, SendIcon } from "@/components/icons";
+import React, { useState } from 'react';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import TxInfoModal from '../modals/txInfo';
+import { HistoryTxType, ParsedTransactionData, shiftDigits, TransactionAmount } from '@/utils';
+import {
+  BurnIcon,
+  DenomImage,
+  FactoryIcon,
+  GroupsIcon,
+  MintIcon,
+  QuestionIcon,
+  TransferIcon,
+  formatDenom,
+} from '@/components';
+import { useTokenFactoryDenomsMetadata } from '@/hooks';
+import { ReceiveIcon, SendIcon } from '@/components/icons';
 
 export interface TransactionGroup {
   tx_hash: string;
@@ -158,7 +167,7 @@ export function HistoryBox({
         return `Updated Group #${tx.data.metadata?.group_id} Metadata`;
       case HistoryTxType.LEAVE_GROUP:
         return `Left Group #${tx.data.metadata?.group_id}`;
-        case HistoryTxType.UPDATE_GROUP_MEMBERS:
+      case HistoryTxType.UPDATE_GROUP_MEMBERS:
         return `Updated Group #${tx.data.metadata?.group_id} Members`;
       default:
         return 'Unknown Transaction';
@@ -293,7 +302,7 @@ export function HistoryBox({
                           <TruncatedAddressWithCopy
                             address={
                               tx.data.from_address === address
-                                ? tx.data.to_address
+                                ? (tx.data.to_address ?? '')
                                 : tx.data.from_address
                             }
                             slice={24}
@@ -312,8 +321,8 @@ export function HistoryBox({
                     </p>
                     <p className={`font-semibold ${getTransactionColor(tx, address)} `}>
                       {getTransactionPlusMinus(tx, address)}
-                      {tx.data.amount?
-                        .map(amt => {
+                      {tx.data.amount
+                        ?.map((amt: { denom: string; amount: string | number }) => {
                           const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
                           const exponent = Number(metadata?.denom_units[1]?.exponent) || 6;
                           const amount = Number(shiftDigits(amt.amount, -exponent));

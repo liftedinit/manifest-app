@@ -319,7 +319,7 @@ const messageParserRegistry: Record<
   '/osmosis.tokenfactory.v1beta1.MsgCreateDenom': (msg, _address) => parseCreateDenom(msg),
   // Manifest
   '/liftedinit.manifest.v1.MsgPayout': (msg, address) => parseMsgPayout(msg, address),
-  '/lifted.init.manifest.v1.MsgBurnHeldBalance': (msg, _address) => parseMsgBurnHeldBalance(msg),
+  '/liftedinit.manifest.v1.MsgBurnHeldBalance': (msg, _address) => parseMsgBurnHeldBalance(msg),
   // Group
   '/cosmos.group.v1.MsgCreateGroupWithPolicy': (msg, _address) => parseCreateGroupWithPolicy(msg),
   '/cosmos.group.v1.MsgExec': (msg, _address) => parseExecGroupProposal(msg),
