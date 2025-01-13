@@ -9,7 +9,8 @@ describe('containsProfanity', () => {
 
   test('should return false if the string does not contain profanity', () => {
     expect(containsProfanity('hello world')).toBe(false);
+    expect(containsProfanity('banal')).toBe(false);
     expect(containsProfanity('fork')).toBe(false);
-    expect(containsProfanity('bass')).toBe(false);
+    expect(containsProfanity('brass')).toBe(false);
   });
 });
