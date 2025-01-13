@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
-import { formatDenom, TransactionGroup } from '@/components';
+import { formatDenom, objectSyntax, TransactionGroup } from '@/components';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { shiftDigits } from '@/utils';
 import env from '@/config/env';
+import { useTheme } from '@/contexts';
 
 interface TxInfoModalProps {
   tx: TransactionGroup;
@@ -12,6 +13,7 @@ interface TxInfoModalProps {
 }
 
 export default function TxInfoModal({ tx, modalId }: TxInfoModalProps) {
+  const { theme } = useTheme();
   function formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleString('en-US', {
@@ -89,22 +91,16 @@ export default function TxInfoModal({ tx, modalId }: TxInfoModalProps) {
                 </div>
               </div>
             )}
-            {tx?.data?.metadata && (
-              <div>
-                {Object.entries(tx?.data?.metadata).map(([key, value], index) => (
-                  <div key={index}>
-                    <p className="text-sm font-semibold text-[#00000099] dark:text-[#FFFFFF99] mb-2">
-                      {key.toUpperCase()}
-                    </p>
-                    <div className="bg-[#FFFFFF66] dark:bg-[#FFFFFF1A] rounded-[16px] p-4">
-                      <p className="text-[#161616] dark:text-white">{value}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         </div>
+        {tx?.data?.metadata && (
+          <div>
+            <h4 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">Metadata</h4>
+            {Object.entries(tx?.data?.metadata).map(([key, value], index) => (
+              <MetadataItem key={index} label={key} content={value} theme={theme} />
+            ))}
+          </div>
+        )}
         {tx.memo && (
           <div>
             <InfoItem label="MEMO" explorerUrl={env.explorerUrl} value={tx.memo} />
@@ -118,17 +114,53 @@ export default function TxInfoModal({ tx, modalId }: TxInfoModalProps) {
   );
 }
 
+function MetadataItem({
+  label,
+  content,
+  theme,
+}: Readonly<{
+  label: string;
+  content: string;
+  theme: string;
+}>) {
+  function isJsonString(str: string): boolean {
+    try {
+      const parsed = JSON.parse(str);
+      return parsed !== null && (typeof parsed === 'object' || Array.isArray(parsed));
+    } catch (e) {
+      return false;
+    }
+  }
+
+  const isJson = useMemo(() => isJsonString(content), [content]);
+
+  return (
+    <div className="mb-6">
+      <p className="text-sm font-semibold text-[#00000099] dark:text-[#FFFFFF99] mb-2">
+        {label.toUpperCase().replace(/_/g, ' ')}
+      </p>
+      {isJson ? (
+        objectSyntax(JSON.parse(content), theme)
+      ) : (
+        <div className="bg-[#FFFFFF66] dark:bg-[#FFFFFF1A] rounded-[16px] p-4">
+          <p className="text-[#161616] dark:text-white">{content}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function InfoItem({
   label,
   value,
   explorerUrl,
   isAddress = false,
-}: {
+}: Readonly<{
   label: string;
   value: string;
   explorerUrl: string;
   isAddress?: boolean;
-}) {
+}>) {
   return (
     <div className="mb-4">
       <p className="text-sm font-semibold text-[#00000099] dark:text-[#FFFFFF99] mb-2">{label}</p>

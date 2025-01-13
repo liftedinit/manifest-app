@@ -161,7 +161,7 @@ export function HistoryBox({
         case HistoryTxType.UPDATE_GROUP_MEMBERS:
         return `Updated Group #${tx.data.metadata?.group_id} Members`;
       default:
-        return 'Unknown transaction';
+        return 'Unknown Transaction';
     }
   }
 
