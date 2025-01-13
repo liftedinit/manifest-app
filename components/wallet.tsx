@@ -6,7 +6,7 @@ import { useChain } from '@cosmos-kit/react';
 import { WalletStatus } from 'cosmos-kit';
 import { MdWallet } from 'react-icons/md';
 import env from '@/config/env';
-import { truncateString } from '@/utils';
+import { truncateAddress, truncateString } from '@/utils';
 
 const buttons = {
   Disconnected: {
@@ -131,15 +131,11 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
               className="font-medium text-xl text-center mb-2 truncate"
               title={username || 'Connected user'}
             >
-              {username
-                ? username.length > 20
-                  ? `${username.slice(0, 20)}...`
-                  : username
-                : 'Connected User'}
+              {username ? truncateString(username, 20) : 'Connected User'}
             </p>
             <div className="bg-base-100 dark:bg-base-200 rounded-full py-2 px-4 text-center mb-4 flex items-center flex-row justify-between w-full ">
               <p className="text-xs  truncate flex-grow">
-                {address ? truncateString(address) : 'Address not available'}
+                {address ? truncateAddress(address) : 'Address not available'}
               </p>
               <button
                 onClick={() => {

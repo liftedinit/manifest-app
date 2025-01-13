@@ -28,7 +28,7 @@ export default function ConfirmationForm({
   };
 
   // Convert the object to a JSON string
-  let jsonString;
+  let jsonString: string;
   try {
     jsonString = JSON.stringify(groupMetadata);
   } catch (error) {
