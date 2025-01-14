@@ -117,7 +117,7 @@ export default function IbcSendForm({
   // Update the filtered balances logic to use passed props instead of hooks
   const filteredBalances = useMemo(() => {
     const sourceBalances =
-      selectedFromChain === env.osmosisTestnetChain ? osmosisBalances : balances;
+      selectedFromChain === env.osmosisChain ? osmosisBalances : balances;
 
     return sourceBalances?.filter(token => {
       const displayName = token.metadata?.display ?? token.denom;
