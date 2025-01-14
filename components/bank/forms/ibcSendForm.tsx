@@ -128,7 +128,7 @@ export default function IbcSendForm({
   // Update initialSelectedToken to consider the chain
   const initialSelectedToken = useMemo(() => {
     const sourceBalances =
-      selectedFromChain === env.osmosisTestnetChain ? osmosisBalances : balances;
+      selectedFromChain === env.osmosisChain ? osmosisBalances : balances;
 
     return (
       sourceBalances?.find(token => token.coreDenom === selectedDenom) ||
