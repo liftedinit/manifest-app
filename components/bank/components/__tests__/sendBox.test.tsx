@@ -1,7 +1,7 @@
 import { test, expect, afterEach, describe, mock, jest } from 'bun:test';
 import React from 'react';
 import matchers from '@testing-library/jest-dom/matchers';
-import { screen, cleanup, waitFor, fireEvent } from '@testing-library/react';
+import { screen, cleanup, waitFor, fireEvent, within } from '@testing-library/react';
 import SendBox from '@/components/bank/components/sendBox';
 import { mockBalances } from '@/tests/mock';
 import { renderWithChainProvider } from '@/tests/render';
@@ -15,6 +15,14 @@ mock.module('next/router', () => ({
     query: {},
     push: jest.fn(),
   }),
+}));
+
+// Add this mock before your tests
+mock.module('next/image', () => ({
+  default: (props: any) => {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img {...props} alt={props.alt || ''} />;
+  },
 }));
 
 const renderWithProps = (props = {}) => {
@@ -40,42 +48,56 @@ describe('SendBox', () => {
 
   test('toggles between Send and Cross-Chain Transfer', async () => {
     renderWithProps();
-    expect(screen.getByText('Amount')).toBeInTheDocument();
+    // Check initial send form
+    expect(screen.getByPlaceholderText('0.00')).toBeInTheDocument();
+    expect(screen.queryByLabelText('to-chain-selector')).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByText('Cross-Chain Transfer'));
-    await waitFor(() => expect(screen.getByText('Chain')).toBeInTheDocument());
+    // Switch to cross-chain transfer
+    fireEvent.click(screen.getByLabelText('cross-chain-transfer-tab'));
+
+    // Verify cross-chain elements are present
+    await waitFor(() => {
+      expect(screen.getByLabelText('from-chain-selector')).toBeInTheDocument();
+      expect(screen.getByLabelText('to-chain-selector')).toBeInTheDocument();
+    });
   });
 
-  test('displays chain selection dropdown when in Cross-Chain Transfer mode', async () => {
+  test('displays chain selection dropdowns in Cross-Chain Transfer mode', async () => {
     renderWithProps();
-    fireEvent.click(screen.getByText('Cross-Chain Transfer'));
-    await waitFor(() => expect(screen.getByText('Chain')).toBeInTheDocument());
+    fireEvent.click(screen.getByLabelText('cross-chain-transfer-tab'));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('from-chain-selector')).toBeInTheDocument();
+      expect(screen.getByLabelText('to-chain-selector')).toBeInTheDocument();
+    });
   });
 
-  test('selects a chain in Cross-Chain Transfer mode', async () => {
+  test('selects chains in Cross-Chain Transfer mode', async () => {
     renderWithProps();
-    const crossChainBtn = screen.getByLabelText('cross-chain-transfer-tab');
-    fireEvent.click(crossChainBtn);
+    fireEvent.click(screen.getByLabelText('cross-chain-transfer-tab'));
 
+    // Select destination chain
     await waitFor(() => {
-      const chainSelector = screen.getByLabelText('chain-selector');
-      expect(chainSelector).toBeTruthy();
+      const toChainSelector = screen.getByLabelText('to-chain-selector');
+      expect(toChainSelector).toBeInTheDocument();
+      fireEvent.click(toChainSelector);
     });
 
-    const chainSelector = screen.getByLabelText('chain-selector');
-    fireEvent.click(chainSelector);
-
+    // Select Osmosis as destination
     await waitFor(() => {
-      const osmosisOption = screen.getByText('Osmosis');
-      expect(osmosisOption).toBeTruthy();
+      const toChainDropdown = screen.getByLabelText('to-chain-selector').closest('.dropdown');
+      expect(toChainDropdown).toBeInTheDocument();
+
+      // Find and click the Osmosis option within the dropdown
+      const osmosisOption = within(toChainDropdown!).getByText('Osmosis');
+      fireEvent.click(osmosisOption);
     });
 
-    const osmosisOption = screen.getByText('Osmosis');
-    fireEvent.click(osmosisOption);
-
+    // Verify selection using text content instead of complex matchers
     await waitFor(() => {
-      const updatedChainSelector = screen.getByLabelText('chain-selector');
-      expect(updatedChainSelector.textContent).toContain('Osmosis');
+      const selectedChain = screen.getByLabelText('to-chain-selector');
+      const chainText = selectedChain.textContent;
+      expect(chainText?.includes('Osmosis')).toBe(true);
     });
   });
 });

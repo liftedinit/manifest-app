@@ -194,6 +194,27 @@ export const defaultChain: Chain = {
   },
 };
 
+export const osmosisChain: Chain = {
+  chain_name: 'osmosistestnet',
+  chain_id: 'osmo-test-5',
+  status: 'live',
+  network_type: 'testnet',
+  pretty_name: 'Osmosis Testnet',
+  bech32_prefix: 'osmo',
+  slip44: 118,
+  fees: {
+    fee_tokens: [
+      {
+        denom: 'uosmo',
+        fixed_min_gas_price: 0.001,
+        low_gas_price: 0.001,
+        average_gas_price: 0.001,
+        high_gas_price: 0.001,
+      },
+    ],
+  },
+};
+
 export const mockTransactions: TransactionGroup[] = [
   // Send
   {

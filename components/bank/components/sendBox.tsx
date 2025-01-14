@@ -48,13 +48,13 @@ export default function SendBox({
       {
         id: env.chain,
         name: 'Manifest',
-        icon: '/logo.svg',
+        icon: 'logo.svg',
         prefix: 'manifest',
       },
       {
         id: env.osmosisChain,
         name: 'Osmosis',
-        icon: '/osmosis.svg',
+        icon: 'osmosis.svg',
         prefix: 'osmo',
       },
     ],

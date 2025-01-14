@@ -19,7 +19,7 @@ mock.module('next/router', () => ({
 function renderWithProps(props = {}) {
   const defaultProps = {
     address: 'manifest1address',
-    destinationChain: 'osmosis',
+    destinationChain: 'osmosistestnet',
     balances: mockBalances,
     isBalancesLoading: false,
     refetchBalances: jest.fn(),
@@ -27,13 +27,13 @@ function renderWithProps(props = {}) {
     setIsIbcTransfer: jest.fn(),
     ibcChains: [
       {
-        id: 'osmosis',
+        id: 'osmosistestnet',
         name: 'Osmosis',
         icon: 'https://osmosis.zone/assets/icons/osmo-logo-icon.svg',
         prefix: 'osmo',
       },
     ],
-    selectedChain: 'osmosis',
+    selectedChain: 'osmosistestnet',
     setSelectedChain: jest.fn(),
   };
 
@@ -45,9 +45,10 @@ describe('IbcSendForm Component', () => {
 
   test('renders form with correct details', () => {
     renderWithProps();
+    expect(screen.getByText('From Chain')).toBeInTheDocument();
+    expect(screen.getByText('To Chain')).toBeInTheDocument();
     expect(screen.getByText('Amount')).toBeInTheDocument();
     expect(screen.getByText('Send To')).toBeInTheDocument();
-    expect(screen.getByText('Chain')).toBeInTheDocument();
   });
 
   test('empty balances', async () => {
@@ -73,9 +74,9 @@ describe('IbcSendForm Component', () => {
 
   test('updates chain selector correctly', () => {
     renderWithProps();
-    const chainSelector = screen.getByLabelText('chain-selector');
+    const chainSelector = screen.getByRole('combobox', { name: 'to-chain-selector' });
     fireEvent.click(chainSelector);
-    expect(chainSelector).toHaveTextContent('Osmosis');
+    expect(screen.getByText('Osmosis')).toBeInTheDocument();
   });
 
   test('updates amount input correctly', () => {

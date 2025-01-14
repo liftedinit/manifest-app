@@ -446,13 +446,13 @@ export default function IbcSendForm({
                     </span>
                     <label
                       tabIndex={0}
-                      aria-label="chain-selector"
+                      aria-label="to-chain-selector"
                       role="combobox"
                       aria-expanded="false"
                       aria-controls="chain-dropdown"
                       aria-haspopup="listbox"
                       style={{ borderRadius: '12px' }}
-                      className="btn   btn-md btn-dropdown w-full justify-between border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A]"
+                      className="btn btn-md btn-dropdown w-full justify-between border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A]"
                     >
                       <span className="flex items-center">
                         {selectedToChain && (
