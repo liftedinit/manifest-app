@@ -7,7 +7,7 @@ import { MintIcon, BurnIcon, TransferIcon } from '@/components/icons';
 import { DenomInfoModal } from '@/components/factory/modals/denomInfo';
 import MintModal from '@/components/factory/modals/MintModal';
 import BurnModal from '@/components/factory/modals/BurnModal';
-import { UpdateDenomMetadataModal } from '@/components/factory/modals/updateDenomMetadata';
+import UpdateDenomMetadataModal from '@/components/factory/modals/updateDenomMetadata';
 import { PiInfo } from 'react-icons/pi';
 import useIsMobile from '@/hooks/useIsMobile';
 import TransferModal from '@/components/factory/modals/TransferModal';
@@ -126,21 +126,9 @@ export default function DenomList({
     });
   };
 
-  const handleUpdateModal = (denom: ExtendedMetadataSDKType, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleUpdateModal = (denom: ExtendedMetadataSDKType) => {
     setSelectedDenom(denom);
-    setModalType('update');
     setOpenUpdateDenomMetadataModal(true);
-    router.push(
-      isGroup
-        ? `/groups?policyAddress=${admin}&tab=tokens`
-        : `/factory?denom=${denom.base}&action=update`,
-      undefined,
-      {
-        shallow: true,
-      }
-    );
   };
 
   const handleTransferModal = (denom: ExtendedMetadataSDKType, e: React.MouseEvent) => {
@@ -280,7 +268,7 @@ export default function DenomList({
                           setModalType('burn');
                         }}
                         onTransfer={e => handleTransferModal(denom, e)}
-                        onUpdate={e => handleUpdateModal(denom, e)}
+                        onUpdate={e => handleUpdateModal(denom)}
                       />
                     ))}
               </tbody>
@@ -417,21 +405,12 @@ export default function DenomList({
         isGroup={isGroup}
       />
       <UpdateDenomMetadataModal
-        modalId="update-denom-metadata-modal"
+        isOpen={openUpdateDenomMetadataModal}
+        onClose={handleUpdateModalClose}
         denom={selectedDenom}
         address={address}
-        onSuccess={() => {
-          refetch();
-          handleUpdateModalClose();
-        }}
-        openUpdateDenomMetadataModal={openUpdateDenomMetadataModal}
-        setOpenUpdateDenomMetadataModal={open => {
-          if (!open) {
-            handleUpdateModalClose();
-          } else {
-            setOpenUpdateDenomMetadataModal(true);
-          }
-        }}
+        modalId="update-denom-metadata-modal"
+        onSuccess={refetchDenoms}
         admin={admin}
         isGroup={isGroup}
       />
