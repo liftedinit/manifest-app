@@ -56,11 +56,35 @@ export default function DenomList({
     currentPage * pageSize
   );
 
+  const getBaseUrl = () => {
+    if (isGroup) {
+      return `/groups?policyAddress=${admin}&tab=tokens`;
+    }
+    return '/factory';
+  };
+
+  const updateUrlWithModal = (action: string, denomBase?: string) => {
+    const baseUrl = getBaseUrl();
+    const query: Record<string, string> = isGroup ? { policyAddress: admin, tab: 'tokens' } : {};
+
+    if (action) query.action = action;
+    if (denomBase) query.denom = denomBase;
+
+    router.push(
+      {
+        pathname: isGroup ? '/groups' : '/factory',
+        query,
+      },
+      undefined,
+      { shallow: true }
+    );
+  };
+
   const handleDenomSelect = (denom: ExtendedMetadataSDKType) => {
     if (!modalType) {
       setSelectedDenom(denom);
       setModalType('info');
-      // router.push(`/factory?denom=${denom.base}&action=info`, undefined, { shallow: true });
+      updateUrlWithModal('info', denom.base);
     }
   };
 
@@ -111,9 +135,7 @@ export default function DenomList({
     setModalType(null);
     setOpenUpdateDenomMetadataModal(false);
     setOpenTransferDenomModal(false);
-    router.push(isGroup ? `/groups?policyAddress=${admin}&tab=tokens` : '/factory', undefined, {
-      shallow: true,
-    });
+    updateUrlWithModal('');
   };
 
   const handleUpdateModalClose = () => {
@@ -121,14 +143,13 @@ export default function DenomList({
     setOpenUpdateDenomMetadataModal(false);
     setOpenTransferDenomModal(false);
     setModalType(null);
-    router.push(isGroup ? `/groups?policyAddress=${admin}&tab=tokens` : '/factory', undefined, {
-      shallow: true,
-    });
+    updateUrlWithModal('');
   };
 
   const handleUpdateModal = (denom: ExtendedMetadataSDKType) => {
     setSelectedDenom(denom);
     setOpenUpdateDenomMetadataModal(true);
+    updateUrlWithModal('update', denom.base);
   };
 
   const handleTransferModal = (denom: ExtendedMetadataSDKType, e: React.MouseEvent) => {
@@ -137,6 +158,7 @@ export default function DenomList({
     setSelectedDenom(denom);
     setModalType('transfer');
     setOpenTransferDenomModal(true);
+    updateUrlWithModal('transfer', denom.base);
   };
 
   const handleModalClose = () => {
@@ -151,6 +173,26 @@ export default function DenomList({
       undefined,
       { shallow: true }
     );
+  };
+
+  const handleMint = (denom: ExtendedMetadataSDKType, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedDenom(denom);
+    setModalType('mint');
+    updateUrlWithModal('mint', denom.base);
+  };
+
+  const handleBurn = (denom: ExtendedMetadataSDKType, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedDenom(denom);
+    setModalType('burn');
+    updateUrlWithModal('burn', denom.base);
+  };
+
+  const handleUpdate = (denom: ExtendedMetadataSDKType) => {
+    setSelectedDenom(denom);
+    setOpenUpdateDenomMetadataModal(true);
+    updateUrlWithModal('update', denom.base);
   };
 
   return (
@@ -238,18 +280,10 @@ export default function DenomList({
                         key={denom.base}
                         denom={denom}
                         onSelectDenom={() => handleDenomSelect(denom)}
-                        onMint={e => {
-                          e.stopPropagation();
-                          setSelectedDenom(denom);
-                          setModalType('mint');
-                        }}
-                        onBurn={e => {
-                          e.stopPropagation();
-                          setSelectedDenom(denom);
-                          setModalType('burn');
-                        }}
+                        onMint={e => handleMint(denom, e)}
+                        onBurn={e => handleBurn(denom, e)}
                         onTransfer={e => handleTransferModal(denom, e)}
-                        onUpdate={e => handleUpdateModal(denom)}
+                        onUpdate={() => handleUpdate(denom)}
                       />
                     ))}
               </tbody>
@@ -423,7 +457,7 @@ function TokenRow({
   onMint: (e: React.MouseEvent) => void;
   onBurn: (e: React.MouseEvent) => void;
   onTransfer: (e: React.MouseEvent) => void;
-  onUpdate: (e: React.MouseEvent) => void;
+  onUpdate: () => void;
 }) {
   // Add safety checks for the values
   const exponent = denom?.denom_units?.[1]?.exponent ?? 0;
@@ -492,11 +526,7 @@ function TokenRow({
           <button
             disabled={denom.base.includes('umfx')}
             className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
-            onClick={e => {
-              e.preventDefault();
-              e.stopPropagation();
-              onUpdate(e);
-            }}
+            onClick={onUpdate}
           >
             <PiInfo className="w-7 h-7 text-current" />
           </button>

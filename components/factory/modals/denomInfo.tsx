@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
-import { FaExternalLinkAlt } from 'react-icons/fa';
+
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import env from '@/config/env';
 
