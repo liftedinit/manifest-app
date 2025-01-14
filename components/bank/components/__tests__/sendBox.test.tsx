@@ -26,7 +26,7 @@ mock.module('next/image', () => ({
 }));
 
 // Add this mock at the top of your test file
-mock.module('../forms/ibcSendForm', () => ({
+mock.module('@/components/bank/forms/ibcSendForm', () => ({
   default: (props: any) => {
     return (
       <div data-testid="ibc-send-form">
@@ -81,26 +81,19 @@ describe('SendBox', () => {
     fireEvent.click(screen.getByLabelText('cross-chain-transfer-tab'));
 
     // Verify cross-chain elements are present
-    await waitFor(
-      () => {
-        expect(screen.getByLabelText('from-chain-selector')).toBeInTheDocument();
-        expect(screen.getByLabelText('to-chain-selector')).toBeInTheDocument();
-      },
-      { timeout: 2000 }
-    );
+    await waitFor(() => {
+      expect(screen.getByLabelText('from-chain-selector')).toBeInTheDocument();
+      expect(screen.getByLabelText('to-chain-selector')).toBeInTheDocument();
+    });
   });
 
-  test(
-    'displays chain selection dropdowns in Cross-Chain Transfer mode',
-    async () => {
-      renderWithProps();
-      fireEvent.click(screen.getByLabelText('cross-chain-transfer-tab'));
+  test('displays chain selection dropdowns in Cross-Chain Transfer mode', async () => {
+    renderWithProps();
+    fireEvent.click(screen.getByLabelText('cross-chain-transfer-tab'));
 
-      await waitFor(() => {
-        expect(screen.getByLabelText('from-chain-selector')).toBeInTheDocument();
-        expect(screen.getByLabelText('to-chain-selector')).toBeInTheDocument();
-      });
-    },
-    { timeout: 2000 }
-  );
+    await waitFor(() => {
+      expect(screen.getByLabelText('from-chain-selector')).toBeInTheDocument();
+      expect(screen.getByLabelText('to-chain-selector')).toBeInTheDocument();
+    });
+  });
 });
