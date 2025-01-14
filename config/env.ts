@@ -12,8 +12,8 @@ const env = {
   chainTier: process.env.NEXT_PUBLIC_CHAIN_TIER ?? '',
   apiUrl: process.env.NEXT_PUBLIC_API_URL ?? '',
   indexerUrl: process.env.NEXT_PUBLIC_INDEXER_URL ?? '',
-  osmosisTestnetApiUrl: process.env.NEXT_PUBLIC_OSMOSIS_TESTNET_API_URL ?? '',
-  osmosisTestnetRpcUrl: process.env.NEXT_PUBLIC_OSMOSIS_TESTNET_RPC_URL ?? '',
+  osmosisApiUrl: process.env.NEXT_PUBLIC_OSMOSIS_API_URL ?? '',
+  osmosisRpcUrl: process.env.NEXT_PUBLIC_OSMOSIS_RPC_URL ?? '',
 };
 
 export default env;
