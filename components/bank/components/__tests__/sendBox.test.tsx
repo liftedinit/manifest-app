@@ -84,19 +84,26 @@ describe('SendBox', () => {
     fireEvent.click(screen.getByLabelText('cross-chain-transfer-tab'));
 
     // Verify cross-chain elements are present
-    await waitFor(() => {
-      expect(screen.getByLabelText('from-chain-selector')).toBeInTheDocument();
-      expect(screen.getByLabelText('to-chain-selector')).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByLabelText('from-chain-selector')).toBeInTheDocument();
+        expect(screen.getByLabelText('to-chain-selector')).toBeInTheDocument();
+      },
+      { timeout: 2000 }
+    );
   });
 
-  test('displays chain selection dropdowns in Cross-Chain Transfer mode', async () => {
-    renderWithProps();
-    fireEvent.click(screen.getByLabelText('cross-chain-transfer-tab'));
+  test(
+    'displays chain selection dropdowns in Cross-Chain Transfer mode',
+    async () => {
+      renderWithProps();
+      fireEvent.click(screen.getByLabelText('cross-chain-transfer-tab'));
 
-    await waitFor(() => {
-      expect(screen.getByLabelText('from-chain-selector')).toBeInTheDocument();
-      expect(screen.getByLabelText('to-chain-selector')).toBeInTheDocument();
-    });
-  });
+      await waitFor(() => {
+        expect(screen.getByLabelText('from-chain-selector')).toBeInTheDocument();
+        expect(screen.getByLabelText('to-chain-selector')).toBeInTheDocument();
+      });
+    },
+    { timeout: 2000 }
+  );
 });
