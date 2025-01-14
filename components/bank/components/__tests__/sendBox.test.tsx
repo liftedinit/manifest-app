@@ -28,9 +28,6 @@ mock.module('next/image', () => ({
 // Add this mock at the top of your test file
 mock.module('../forms/ibcSendForm', () => ({
   default: (props: any) => {
-    if (props.isBalancesLoading) {
-      return <div>Loading...</div>;
-    }
     return (
       <div data-testid="ibc-send-form">
         <div className="dropdown">
