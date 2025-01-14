@@ -155,7 +155,7 @@ export default function Bank() {
     return mfxCombinedBalance ? [mfxCombinedBalance, ...otherBalances] : otherBalances;
   }, [balances, resolvedBalances, metadatas]);
 
-  const { address: osmosisAddress } = useChain(env.osmosisTestnetChain);
+  const { address: osmosisAddress } = useChain(env.osmosisChain);
   const {
     balances: osmosisBalances,
     isBalancesLoading: isOsmosisBalancesLoading,
