@@ -95,9 +95,7 @@ export default function IbcSendForm({
   const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [feeWarning, setFeeWarning] = useState('');
-  const { tx } = useTx(
-    selectedFromChain === env.osmosisChain ? env.osmosisChain : env.chain
-  );
+  const { tx } = useTx(selectedFromChain === env.osmosisChain ? env.osmosisChain : env.chain);
   const { estimateFee } = useFeeEstimation(
     selectedFromChain === env.osmosisChain ? env.osmosisChain : env.chain
   );
@@ -116,8 +114,7 @@ export default function IbcSendForm({
 
   // Update the filtered balances logic to use passed props instead of hooks
   const filteredBalances = useMemo(() => {
-    const sourceBalances =
-      selectedFromChain === env.osmosisChain ? osmosisBalances : balances;
+    const sourceBalances = selectedFromChain === env.osmosisChain ? osmosisBalances : balances;
 
     return sourceBalances?.filter(token => {
       const displayName = token.metadata?.display ?? token.denom;
@@ -127,8 +124,7 @@ export default function IbcSendForm({
 
   // Update initialSelectedToken to consider the chain
   const initialSelectedToken = useMemo(() => {
-    const sourceBalances =
-      selectedFromChain === env.osmosisChain ? osmosisBalances : balances;
+    const sourceBalances = selectedFromChain === env.osmosisChain ? osmosisBalances : balances;
 
     return (
       sourceBalances?.find(token => token.coreDenom === selectedDenom) ||
@@ -139,9 +135,7 @@ export default function IbcSendForm({
 
   // Update the loading check
   if (
-    (selectedFromChain === env.osmosisChain
-      ? isOsmosisBalancesLoading
-      : isBalancesLoading) ||
+    (selectedFromChain === env.osmosisChain ? isOsmosisBalancesLoading : isBalancesLoading) ||
     !initialSelectedToken
   ) {
     return null;

@@ -191,7 +191,7 @@ export default function Bank() {
 
       // Handle IBC tokens
       if (coreBalance.denom.startsWith('ibc/')) {
-        const assetInfo = denomToAsset(env.osmosisTestnetChain, coreBalance.denom);
+        const assetInfo = denomToAsset(env.osmosisChain, coreBalance.denom);
 
         const baseDenom = assetInfo?.traces?.[1]?.counterparty?.base_denom;
 

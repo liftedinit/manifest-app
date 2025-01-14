@@ -1,6 +1,9 @@
+// This script is used to transfer 1/6th of all IBC tokens (factory tokens included) from Manifest to Osmosis
+// you can run this script by providing a mnemonic as an environment variable: `WALLET_MNEMONIC="..." bun run ibc-transfer`
+
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 import { SigningStargateClient } from '@cosmjs/stargate';
-import { cosmos, ibc } from '@liftedinit/manifestjs';
+
 import { MsgTransfer } from '@liftedinit/manifestjs/dist/codegen/ibc/applications/transfer/v1/tx';
 import axios from 'axios';
 import * as fs from 'fs';
