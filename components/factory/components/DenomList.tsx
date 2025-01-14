@@ -137,38 +137,37 @@ export default function DenomList({
     setSelectedDenom(denom);
     setModalType('transfer');
     setOpenTransferDenomModal(true);
+  };
+
+  const handleModalOpen = (type: typeof modalType, denom: ExtendedMetadataSDKType) => {
+    setSelectedDenom(denom);
+    setModalType(type);
+    // Update URL with modal type
     router.push(
-      isGroup
-        ? `/groups?policyAddress=${admin}&tab=tokens`
-        : `/factory?denom=${denom.base}&action=transfer`,
+      {
+        pathname: isGroup ? '/groups' : '/factory',
+        query: {
+          ...(isGroup && { policyAddress: admin, tab: 'tokens' }),
+          action: type,
+          denom: denom.base,
+        },
+      },
       undefined,
       { shallow: true }
     );
   };
 
-  const handleSwitchToMultiMint = () => {
-    setModalType('multimint');
+  const handleModalClose = () => {
+    setSelectedDenom(null);
+    setModalType(null);
+    // Remove modal type from URL
     router.push(
-      isGroup
-        ? `/groups?policyAddress=${admin}&tab=tokens`
-        : `/factory?denom=${selectedDenom?.base}&action=multimint`,
-      undefined,
       {
-        shallow: true,
-      }
-    );
-  };
-
-  const handleSwitchToMultiBurn = () => {
-    setModalType('multiburn');
-    router.push(
-      isGroup
-        ? `/groups?policyAddress=${admin}&tab=tokens`
-        : `/factory?denom=${selectedDenom?.base}&action=multiburn`,
+        pathname: isGroup ? '/groups' : '/factory',
+        query: isGroup ? { policyAddress: admin, tab: 'tokens' } : undefined,
+      },
       undefined,
-      {
-        shallow: true,
-      }
+      { shallow: true }
     );
   };
 
@@ -389,7 +388,6 @@ export default function DenomList({
         totalSupply={selectedDenom?.totalSupply ?? '0'}
         isOpen={modalType === 'mint'}
         onClose={handleCloseModal}
-        onSwitchToMultiMint={handleSwitchToMultiMint}
         isGroup={isGroup}
       />
       <BurnModal
@@ -401,7 +399,6 @@ export default function DenomList({
         totalSupply={selectedDenom?.totalSupply ?? '0'}
         isOpen={modalType === 'burn'}
         onClose={handleCloseModal}
-        onSwitchToMultiBurn={handleSwitchToMultiBurn}
         isGroup={isGroup}
       />
       <UpdateDenomMetadataModal
@@ -415,25 +412,17 @@ export default function DenomList({
         isGroup={isGroup}
       />
       <TransferModal
-        modalId="transfer-denom-modal"
-        openTransferDenomModal={openTransferDenomModal}
-        setOpenTransferDenomModal={open => {
-          if (!open) {
-            handleCloseModal();
-          } else {
-            setOpenTransferDenomModal(true);
-          }
-        }}
-        onSuccess={() => {
-          refetch();
-          handleUpdateModalClose();
-        }}
         denom={selectedDenom}
         address={address}
+        modalId="transfer-denom-modal"
         isOpen={modalType === 'transfer'}
-        onClose={handleCloseModal}
-        isGroup={isGroup}
+        onClose={handleModalClose}
+        onSuccess={() => {
+          refetch();
+          handleModalClose();
+        }}
         admin={admin}
+        isGroup={isGroup}
       />
     </div>
   );

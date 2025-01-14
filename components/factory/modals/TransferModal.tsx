@@ -16,8 +16,6 @@ const TokenOwnershipSchema = Yup.object().shape({
 });
 
 export default function TransferModal({
-  openTransferDenomModal,
-  setOpenTransferDenomModal,
   denom,
   address,
   modalId,
@@ -27,8 +25,6 @@ export default function TransferModal({
   admin,
   isGroup,
 }: {
-  openTransferDenomModal: boolean;
-  setOpenTransferDenomModal: (open: boolean) => void;
   denom: ExtendedMetadataSDKType | null;
   address: string;
   modalId: string;
@@ -51,11 +47,12 @@ export default function TransferModal({
   const { setToastMessage } = useToast();
 
   const handleCloseModal = (formikReset?: () => void) => {
-    setOpenTransferDenomModal(false);
     formikReset?.();
+    onClose();
   };
 
   const { denomAuthority, isDenomAuthorityLoading } = useDenomAuthorityMetadata(denom?.base ?? '');
+
   const formData = {
     denom: denom?.base ?? '',
     currentAdmin: denomAuthority,
@@ -131,7 +128,7 @@ export default function TransferModal({
   const modalContent = (
     <dialog
       id={modalId}
-      className={`modal ${openTransferDenomModal ? 'modal-open' : ''}`}
+      className={`modal ${isOpen ? 'modal-open' : ''}`}
       style={{
         position: 'fixed',
         top: 0,
@@ -144,7 +141,7 @@ export default function TransferModal({
         margin: 0,
         height: '100vh',
         width: '100vw',
-        display: openTransferDenomModal ? 'flex' : 'none',
+        display: isOpen ? 'flex' : 'none',
         alignItems: 'center',
         justifyContent: 'center',
       }}

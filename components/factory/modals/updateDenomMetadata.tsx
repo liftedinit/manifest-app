@@ -78,9 +78,9 @@ export default function UpdateDenomMetadataModal({
     ],
     uri: denom?.uri || '',
     uriHash: denom?.uri_hash || '',
-    subdenom: baseDenom,
+    subdenom: baseDenom || '',
     exponent: '6',
-    label: fullDenom,
+    label: fullDenom || '',
   };
   const { tx, isSigning, setIsSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
@@ -154,8 +154,6 @@ export default function UpdateDenomMetadataModal({
       setIsSigning(false);
     }
   };
-
-  console.log({ denom });
 
   const modalContent = (
     <dialog
