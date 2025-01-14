@@ -27,9 +27,9 @@ const getIbcInfo = (fromChain: string, toChain: string) => {
 
 // Configuration
 const MANIFEST_RPC = env.rpcUrl;
-const OSMOSIS_RPC = env.osmosisTestnetRpcUrl;
+const OSMOSIS_RPC = env.osmosisRpcUrl;
 const SOURCE_CHAIN = env.chain;
-const TARGET_CHAIN = env.osmosisTestnetChain;
+const TARGET_CHAIN = env.osmosisChain;
 
 // Helper function to format token info for asset list
 function formatTokenForAssetList(ibcDenom: string, denomTrace: any, originalDenom: string) {
