@@ -27,6 +27,12 @@ function renderWithProps(props = {}) {
     setIsIbcTransfer: jest.fn(),
     ibcChains: [
       {
+        id: 'manifest',
+        name: 'Manifest',
+        icon: 'https://osmosis.zone/assets/icons/osmo-logo-icon.svg',
+        prefix: 'manifest',
+      },
+      {
         id: 'osmosistestnet',
         name: 'Osmosis',
         icon: 'https://osmosis.zone/assets/icons/osmo-logo-icon.svg',
@@ -35,6 +41,7 @@ function renderWithProps(props = {}) {
     ],
     selectedChain: 'osmosistestnet',
     setSelectedChain: jest.fn(),
+    setSelectedFromChain: jest.fn(),
   };
 
   return renderWithChainProvider(<IbcSendForm {...defaultProps} {...props} />);
@@ -106,5 +113,52 @@ describe('IbcSendForm Component', () => {
     fireEvent.click(dropdownItems[dropdownItems.length - 1]);
     const sendButton = screen.getByRole('button', { name: 'send-btn' });
     expect(sendButton).not.toBeDisabled();
+  });
+
+  test('handles chain selection correctly', async () => {
+    renderWithProps();
+
+    // Test from-chain selection
+    const fromChainSelector = screen.getByLabelText('from-chain-selector');
+    expect(fromChainSelector).toBeInTheDocument();
+    fireEvent.click(fromChainSelector);
+
+    // Find and click Manifest option
+    const manifestOption = screen.getByText('Manifest');
+    fireEvent.click(manifestOption);
+
+    // Instead of checking the content directly, check for the presence of elements
+    const manifestIcon = screen.getAllByAltText('Manifest')[0];
+    expect(manifestIcon).toBeInTheDocument();
+
+    // Test to-chain selection
+    const toChainSelector = screen.getByLabelText('to-chain-selector');
+    expect(toChainSelector).toBeInTheDocument();
+    fireEvent.click(toChainSelector);
+
+    // Find and click Osmosis option
+    const osmosisOption = screen.getByText('Osmosis');
+    fireEvent.click(osmosisOption);
+
+    // Check for Osmosis icon instead of content
+    const osmosisIcon = screen.getAllByAltText('Osmosis')[0];
+    expect(osmosisIcon).toBeInTheDocument();
+  });
+
+  test('prevents selecting same chain for source and destination', async () => {
+    renderWithProps();
+
+    // Select Manifest as source chain
+    const fromChainSelector = screen.getByLabelText('from-chain-selector');
+    fireEvent.click(fromChainSelector);
+    fireEvent.click(screen.getByText('Manifest'));
+
+    // Verify Manifest is not available in destination chain options
+    const toChainSelector = screen.getByLabelText('to-chain-selector');
+    fireEvent.click(toChainSelector);
+
+    // The dropdown for destination chain should not show Manifest
+    const manifestOptions = screen.getAllByText('Manifest');
+    expect(manifestOptions.length).toBe(1); // Only the source chain should show Manifest
   });
 });
