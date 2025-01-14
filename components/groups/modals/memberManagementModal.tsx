@@ -11,6 +11,7 @@ import { CopyIcon, TrashIcon } from '@/components/icons';
 import { MdContacts } from 'react-icons/md';
 import { TailwindModal } from '@/components/react/modal';
 import env from '@/config/env';
+import { truncateAddress } from '@/utils';
 
 interface ExtendedMember extends MemberSDKType {
   isNew: boolean;
@@ -321,6 +322,7 @@ export function MemberManagementModal({
                                   }`}
                                   placeholder="manifest1..."
                                   disabled={!member.isNew || member.markedForDeletion}
+                                  value={truncateAddress(field.value)}
                                 />
                                 {member.isNew && !member.markedForDeletion && (
                                   <button

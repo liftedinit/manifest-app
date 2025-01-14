@@ -28,8 +28,13 @@ export default function ConfirmationForm({
   };
 
   // Convert the object to a JSON string
-  const jsonString = JSON.stringify(groupMetadata);
-
+  let jsonString: string;
+  try {
+    jsonString = JSON.stringify(groupMetadata);
+  } catch (error) {
+    console.error('Failed to serialize group metadata:', error);
+    throw new Error('Invalid group metadata format');
+  }
   const { tx, isSigning, setIsSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
 

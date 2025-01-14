@@ -1,11 +1,15 @@
 import { CombinedBalanceInfo } from './types';
 
-export function truncateString(str: string, num: number) {
-  if (str.length > num) {
-    return str.slice(0, num) + '...' + str.slice(-6);
-  } else {
-    return str;
-  }
+export function truncateString(str: string, prefixLen: number = 6, suffixLen: number = 6): string {
+  if (str.length <= prefixLen + suffixLen) return str;
+
+  return str.slice(0, prefixLen) + '...' + str.slice(-suffixLen);
+}
+
+export function truncateAddress(address: string, num: number = 24) {
+  if (address.length <= num) return address;
+
+  return address.slice(0, num) + '...';
 }
 
 export function secondsToHumanReadable(seconds: number): string {

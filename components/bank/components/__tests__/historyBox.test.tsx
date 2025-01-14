@@ -1,4 +1,4 @@
-import { test, expect, afterEach, describe, mock } from 'bun:test';
+import { test, expect, afterEach, describe, mock, jest } from 'bun:test';
 import { screen, cleanup, fireEvent } from '@testing-library/react';
 import { HistoryBox } from '../historyBox';
 import { renderWithChainProvider } from '@/tests/render';
@@ -6,6 +6,15 @@ import { mockTransactions } from '@/tests/mock';
 import matchers from '@testing-library/jest-dom/matchers';
 
 expect.extend(matchers);
+
+// Mock next/router
+const m = jest.fn();
+mock.module('next/router', () => ({
+  useRouter: m.mockReturnValue({
+    query: {},
+    push: jest.fn(),
+  }),
+}));
 
 // Mock the hooks
 mock.module('@/hooks', () => ({
