@@ -752,7 +752,7 @@ function VoteDetailsModal({
                 )}
             </div>
             <dialog id="messages_modal" className="modal">
-              <div className="modal-box max-w-4xl ml-20 bg-secondary">
+              <div className="modal-box max-w-4xl ml-20 bg-secondary z-[1003]">
                 <form method="dialog">
                   <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
                     ✕
@@ -794,24 +794,20 @@ function VoteDetailsModal({
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  zIndex: 1001,
+                  zIndex: 1002,
                   backgroundColor: 'rgba(0, 0, 0, 0.3)',
                 }}
                 onClick={e => {
-                  e.preventDefault();
-                  setShowVoteModal(false);
-                  onClose();
+                  e.stopPropagation();
+                  const messagesModal = document.getElementById(
+                    'messages_modal'
+                  ) as HTMLDialogElement;
+                  if (messagesModal) {
+                    messagesModal.close();
+                  }
                 }}
               >
-                <button
-                  onClick={e => {
-                    e.preventDefault();
-                    setShowVoteModal(false);
-                    onClose();
-                  }}
-                >
-                  close
-                </button>
+                <button>close</button>
               </form>
             </dialog>
             <VotingPopup
