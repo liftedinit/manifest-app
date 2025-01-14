@@ -9,9 +9,9 @@ import * as path from 'path';
 // Environment Configuration
 const env = {
   rpcUrl: 'https://nodes.liftedinit.tech/manifest/testnet/rpc',
-  osmosisTestnetRpcUrl: 'https://rpc.osmotest5.osmosis.zone',
+  osmosisRpcUrl: 'https://rpc.osmotest5.osmosis.zone',
   chain: 'manifest-testnet',
-  osmosisTestnetChain: 'osmo-test-5',
+  osmosisChain: 'osmo-test-5',
 };
 
 // IBC Configuration
