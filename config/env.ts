@@ -8,7 +8,7 @@ const env = {
   walletConnectKey: process.env.NEXT_PUBLIC_WALLETCONNECT_KEY ?? '',
   web3AuthNetwork: process.env.NEXT_PUBLIC_WEB3AUTH_NETWORK ?? '',
   chain: process.env.NEXT_PUBLIC_CHAIN ?? '',
-  osmosisTestnetChain: process.env.NEXT_PUBLIC_OSMOSIS_TESTNET_CHAIN ?? '',
+  osmosisChain: process.env.NEXT_PUBLIC_OSMOSIS_CHAIN ?? '',
   chainTier: process.env.NEXT_PUBLIC_CHAIN_TIER ?? '',
   apiUrl: process.env.NEXT_PUBLIC_API_URL ?? '',
   indexerUrl: process.env.NEXT_PUBLIC_INDEXER_URL ?? '',
