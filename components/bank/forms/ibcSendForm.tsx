@@ -96,10 +96,10 @@ export default function IbcSendForm({
   const [searchTerm, setSearchTerm] = useState('');
   const [feeWarning, setFeeWarning] = useState('');
   const { tx } = useTx(
-    selectedFromChain === env.osmosisTestnetChain ? env.osmosisTestnetChain : env.chain
+    selectedFromChain === env.osmosisChain ? env.osmosisChain : env.chain
   );
   const { estimateFee } = useFeeEstimation(
-    selectedFromChain === env.osmosisTestnetChain ? env.osmosisTestnetChain : env.chain
+    selectedFromChain === env.osmosisChain ? env.osmosisChain : env.chain
   );
   const { transfer } = ibc.applications.transfer.v1.MessageComposer.withTypeUrl;
   const [isContactsOpen, setIsContactsOpen] = useState(false);
