@@ -49,10 +49,10 @@ where
 - `NEXT_PUBLIC_API_URL` is the chain API URL
 - `NEXT_PUBLIC_EXPLORER_URL` is the block explorer URL
 - `NEXT_PUBLIC_INDEXER_URL` is the YACI indexer URL
-- `NEXT_PUBLIC_OSMOSIS_TESTNET_CHAIN_ID` is the osmosis testnet chain ID
-- `NEXT_PUBLIC_OSMOSIS_TESTNET_RPC_URL` is the osmosis testnet RPC URL
-- `NEXT_PUBLIC_OSMOSIS_TESTNET_API_URL` is the osmosis testnet API URL
-- `NEXT_PUBLIC_OSMOSIS_TESTNET_EXPLORER_URL` is the osmosis testnet block explorer URL
+- `NEXT_PUBLIC_OSMOSIS_CHAIN_ID` is the osmosis chain ID
+- `NEXT_PUBLIC_OSMOSIS_RPC_URL` is the osmosis RPC URL
+- `NEXT_PUBLIC_OSMOSIS_API_URL` is the osmosis API URL
+- `NEXT_PUBLIC_OSMOSIS_EXPLORER_URL` is the osmosis block explorer URL
 
 ### Development
 
