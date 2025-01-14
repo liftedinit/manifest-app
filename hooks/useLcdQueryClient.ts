@@ -25,9 +25,9 @@ export const useOsmosisLcdQueryClient = () => {
     queryKey: ['lcdQueryClientOsmosis', env.osmosisApiUrl],
     queryFn: () =>
       createLcdQueryClient({
-        restEndpoint: env.osmosisTestnetApiUrl,
+        restEndpoint: env.osmosisApiUrl,
       }),
-    enabled: !!env.osmosisTestnetApiUrl,
+    enabled: !!env.osmosisApiUrl,
     staleTime: Infinity,
   });
 
