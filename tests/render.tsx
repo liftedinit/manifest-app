@@ -2,12 +2,12 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import { ChainProvider } from '@cosmos-kit/react';
 import { ToastProvider } from '@/contexts';
-import { defaultAssetLists, defaultChain, osmosisChain } from '@/tests/mock';
+import { defaultAssetLists, defaultChain, osmosisChain, osmosisAssetList } from '@/tests/mock';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const defaultOptions = {
   chains: [defaultChain, osmosisChain],
-  assetLists: defaultAssetLists,
+  assetLists: [...defaultAssetLists, ...osmosisAssetList],
   wallets: [],
 };
 

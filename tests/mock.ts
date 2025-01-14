@@ -173,6 +173,21 @@ export const defaultAssetLists = [
   },
 ];
 
+export const osmosisAssetList = [
+  {
+    chain_name: 'osmosistestnet',
+    assets: [
+      {
+        name: 'Osmosis Testnet Token',
+        display: 'uosmo',
+        base: 'uosmo',
+        symbol: 'uosmo',
+        denom_units: [{ denom: 'uosmo', exponent: 0, aliases: ['uosmo'] }],
+      },
+    ],
+  },
+];
+
 export const defaultChain: Chain = {
   chain_name: 'manifest',
   chain_id: 'manifest-1',
