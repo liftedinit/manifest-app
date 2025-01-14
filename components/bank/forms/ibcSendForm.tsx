@@ -242,7 +242,7 @@ export default function IbcSendForm({
         : transferMsg;
 
       const fee = await estimateFee(
-        selectedFromChain === env.osmosisTestnetChain ? (osmosisAddress ?? '') : (address ?? ''),
+        selectedFromChain === env.osmosisChain ? (osmosisAddress ?? '') : (address ?? ''),
         [msg]
       );
 
