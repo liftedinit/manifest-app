@@ -52,7 +52,7 @@ export default function SendBox({
         prefix: 'manifest',
       },
       {
-        id: env.osmosisTestnetChain,
+        id: env.osmosisChain,
         name: 'Osmosis',
         icon: '/osmosis.svg',
         prefix: 'osmo',
