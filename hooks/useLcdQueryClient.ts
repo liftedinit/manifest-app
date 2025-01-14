@@ -22,7 +22,7 @@ export const useLcdQueryClient = () => {
 
 export const useOsmosisLcdQueryClient = () => {
   const lcdQueryClient = useQuery({
-    queryKey: ['lcdQueryClientOsmosis', env.osmosisTestnetApiUrl],
+    queryKey: ['lcdQueryClientOsmosis', env.osmosisApiUrl],
     queryFn: () =>
       createLcdQueryClient({
         restEndpoint: env.osmosisTestnetApiUrl,
