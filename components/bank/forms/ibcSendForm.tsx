@@ -212,7 +212,7 @@ export default function IbcSendForm({
         sourceChannel: source_channel,
         sender: admin
           ? admin
-          : selectedFromChain === env.osmosisTestnetChain
+          : selectedFromChain === env.osmosisChain
             ? (osmosisAddress ?? '')
             : (address ?? ''),
         receiver: values.recipient ?? '',
