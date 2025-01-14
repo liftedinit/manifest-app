@@ -54,8 +54,8 @@ export default function TransferModal({
   const { denomAuthority, isDenomAuthorityLoading } = useDenomAuthorityMetadata(denom?.base ?? '');
 
   const formData = {
-    denom: denom?.base ?? '',
-    currentAdmin: denomAuthority,
+    subdenom: denom?.base || '',
+    currentAdmin: denomAuthority?.admin || '',
     newAdmin: '',
   };
 
@@ -152,6 +152,7 @@ export default function TransferModal({
         onSubmit={(values, { resetForm }) => handleTransfer(values, resetForm)}
         validateOnChange={true}
         validateOnBlur={true}
+        enableReinitialize={true}
       >
         {({ isValid, dirty, values, handleChange, handleSubmit, resetForm }) => (
           <div className="modal-box max-w-4xl mx-auto p-6 bg-[#F4F4FF] dark:bg-[#1D192D] rounded-[24px] shadow-lg relative">
@@ -182,19 +183,26 @@ export default function TransferModal({
                   <TextInput
                     label="SUBDENOM"
                     name="subdenom"
-                    value={denom?.base}
-                    title={denom?.base}
+                    value={values.subdenom}
+                    onChange={handleChange}
                     disabled={true}
                     helperText="This field cannot be modified"
                   />
                   <TextInput
                     name="currentAdmin"
                     label="Current Admin"
-                    value={denomAuthority?.admin ?? 'No admin available'}
+                    value={values.currentAdmin}
+                    onChange={handleChange}
                     disabled={true}
                     helperText="This field cannot be modified"
                   />
-                  <TextInput name="newAdmin" label="New Admin" onChange={handleChange} />
+                  <TextInput
+                    name="newAdmin"
+                    label="New Admin"
+                    value={values.newAdmin}
+                    onChange={handleChange}
+                    placeholder="Enter new admin address"
+                  />
                 </Form>
                 <div className="mt-4 flex flex-row justify-center gap-2 w-full">
                   <button
