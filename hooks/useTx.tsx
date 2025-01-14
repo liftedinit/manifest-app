@@ -47,7 +47,7 @@ export const useTx = (chainName: string) => {
   const { setToastMessage } = useToast();
   const [isSigning, setIsSigning] = useState(false);
   const explorerUrl =
-    chainName === env.osmosisTestnetChain ? env.osmosisTestnetExplorerUrl : env.explorerUrl;
+    chainName === env.osmosisChain ? env.osmosisExplorerUrl : env.explorerUrl;
 
   const tx = async (msgs: Msg[], options: TxOptions) => {
     if (!address) {
