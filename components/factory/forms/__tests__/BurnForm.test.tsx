@@ -47,11 +47,6 @@ describe('BurnForm Component', () => {
     expect(screen.getByText('CIRCULATING SUPPLY')).toBeInTheDocument();
   });
 
-  test('renders multi burn when token is mfx', () => {
-    renderWithProps({ denom: mockMfxDenom });
-    expect(screen.getByLabelText('multi-burn-button')).toBeInTheDocument();
-  });
-
   test('renders not affiliated message when not admin and token is mfx', () => {
     renderWithProps({ isAdmin: false, denom: mockMfxDenom });
     expect(

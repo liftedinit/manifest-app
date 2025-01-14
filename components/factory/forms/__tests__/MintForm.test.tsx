@@ -86,9 +86,4 @@ describe('MintForm Component', () => {
       expect(mintButton).toBeEnabled();
     });
   });
-
-  test('renders multi mint button when token is mfx', () => {
-    renderWithProps({ denom: mockMfxDenom });
-    expect(screen.getByLabelText('multi-mint-button')).toBeInTheDocument();
-  });
 });

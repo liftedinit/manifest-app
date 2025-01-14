@@ -22,7 +22,6 @@ export default function MintForm({
   totalSupply,
   isGroup,
   admin,
-  onMultiMintClick,
 }: Readonly<{
   isAdmin: boolean;
   denom: ExtendedMetadataSDKType;
@@ -32,10 +31,9 @@ export default function MintForm({
   totalSupply: string;
   isGroup?: boolean;
   admin?: string;
-  onMultiMintClick: () => void;
 }>) {
   const [amount, setAmount] = useState('');
-  const [recipient, setRecipient] = useState(address);
+  const [recipient, setRecipient] = useState(address || '');
   const [isContactsOpen, setIsContactsOpen] = useState(false);
 
   const { tx, isSigning, setIsSigning } = useTx(env.chain);
@@ -160,10 +158,10 @@ export default function MintForm({
                           label="AMOUNT"
                           name="amount"
                           placeholder="Enter amount"
-                          value={amount}
+                          value={amount || ''}
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                            setAmount(e.target.value);
-                            setFieldValue('amount', e.target.value);
+                            setAmount(e.target.value || '');
+                            setFieldValue('amount', e.target.value || '');
                           }}
                           className={`input input-bordered w-full ${
                             touched.amount && errors.amount ? 'input-error' : ''
@@ -184,10 +182,10 @@ export default function MintForm({
                           label="RECIPIENT"
                           name="recipient"
                           placeholder="Recipient address"
-                          value={recipient}
+                          value={recipient || ''}
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                            setRecipient(e.target.value);
-                            setFieldValue('recipient', e.target.value);
+                            setRecipient(e.target.value || '');
+                            setFieldValue('recipient', e.target.value || '');
                           }}
                           className={`input input-bordered w-full transition-none ${
                             touched.recipient && errors.recipient ? 'input-error' : ''
@@ -250,17 +248,6 @@ export default function MintForm({
           </>
         )}
       </div>
-      {isMFX && (
-        <button
-          type="button"
-          onClick={onMultiMintClick}
-          className="btn btn-gradient btn-md flex-grow w-full text-white mt-6"
-          aria-label="multi-mint-button"
-          disabled={!isAdmin}
-        >
-          Multi Mint
-        </button>
-      )}
     </div>
   );
 }
