@@ -3,6 +3,7 @@ const env = {
   rpcUrl: process.env.NEXT_PUBLIC_RPC_URL ?? '',
   explorerUrl: process.env.NEXT_PUBLIC_EXPLORER_URL ?? '',
   osmosisTestnetExplorerUrl: process.env.NEXT_PUBLIC_OSMOSIS_TESTNET_EXPLORER_URL ?? '',
+  osmosisTestnetChainId: process.env.NEXT_PUBLIC_OSMOSIS_TESTNET_CHAIN_ID ?? '',
   web3AuthClientId: process.env.NEXT_PUBLIC_WEB3AUTH_CLIENT_ID ?? '',
   walletConnectKey: process.env.NEXT_PUBLIC_WALLETCONNECT_KEY ?? '',
   web3AuthNetwork: process.env.NEXT_PUBLIC_WEB3AUTH_NETWORK ?? '',
