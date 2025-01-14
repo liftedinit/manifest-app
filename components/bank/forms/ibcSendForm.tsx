@@ -139,7 +139,7 @@ export default function IbcSendForm({
 
   // Update the loading check
   if (
-    (selectedFromChain === env.osmosisTestnetChain
+    (selectedFromChain === env.osmosisChain
       ? isOsmosisBalancesLoading
       : isBalancesLoading) ||
     !initialSelectedToken
