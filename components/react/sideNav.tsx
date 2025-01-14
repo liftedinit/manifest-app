@@ -19,6 +19,9 @@ import {
 import { MdContacts } from 'react-icons/md';
 import { getRealLogo } from '@/utils';
 import env from '@/config/env';
+import { useGroupsByAdmin } from '@/hooks';
+import { usePoaGetAdmin } from '@/hooks';
+import { useChain } from '@cosmos-kit/react';
 
 interface SideNavProps {
   isDrawerVisible: boolean;
@@ -28,6 +31,17 @@ interface SideNavProps {
 export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavProps) {
   const { toggleTheme, theme } = useTheme();
   const [isContactsOpen, setContactsOpen] = useState(false);
+  const { address } = useChain(env.chain);
+
+  const { poaAdmin } = usePoaGetAdmin();
+
+  const { groupByAdmin } = useGroupsByAdmin(
+    poaAdmin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'
+  );
+
+  const group = groupByAdmin?.groups?.[0];
+
+  const isMember = group?.members?.some(member => member?.member?.address === address);
 
   const toggleDrawer = () => setDrawerVisible(!isDrawerVisible);
   const version = packageInfo.version;
@@ -72,7 +86,8 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
       <ul className="flex flex-col items-center flex-grow mt-8">
         <NavItem Icon={BankIcon} href="/bank" />
         <NavItem Icon={GroupsIcon} href="/groups" />
-        <NavItem Icon={AdminsIcon} href="/admins" />
+        {isMember && <NavItem Icon={AdminsIcon} href="/admins" />}
+
         <NavItem Icon={FactoryIcon} href="/factory" />
       </ul>
       <div className="mt-auto flex flex-col items-center space-y-6 dark:bg-[#FFFFFF0F] bg-[#0000000A] rounded-lg p-4 w-[75%]">
@@ -144,7 +159,7 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
       <ul className="flex-grow mt-8 p-1">
         <NavDrawer Icon={BankIcon} href="/bank" label="Bank" />
         <NavDrawer Icon={GroupsIcon} href="/groups" label="Groups" />
-        <NavDrawer Icon={AdminsIcon} href="/admins" label="Admins" />
+        {isMember && <NavDrawer Icon={AdminsIcon} href="/admins" label="Admins" />}
         <NavDrawer Icon={FactoryIcon} href="/factory" label="Factory" />
       </ul>
       <div className="mt-auto">

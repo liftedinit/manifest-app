@@ -15,10 +15,25 @@ import {
 import { WalletSection } from '../wallet';
 import { RiMenuUnfoldFill } from 'react-icons/ri';
 import { useState } from 'react';
-import { MdOutlineNetworkPing, MdContacts } from 'react-icons/md';
+import { MdContacts } from 'react-icons/md';
 import env from '@/config/env';
+import { useChain } from '@cosmos-kit/react';
+import { usePoaGetAdmin } from '@/hooks';
+import { useGroupsByAdmin } from '@/hooks';
 
 export default function MobileNav() {
+  const { address } = useChain(env.chain);
+
+  const { poaAdmin } = usePoaGetAdmin();
+
+  const { groupByAdmin } = useGroupsByAdmin(
+    poaAdmin ?? 'manifest1afk9zr2hn2jsac63h4hm60vl9z3e5u69gndzf7c99cqge3vzwjzsfmy9qj'
+  );
+
+  const group = groupByAdmin?.groups?.[0];
+
+  const isMember = group?.members?.some(member => member?.member?.address === address);
+
   const closeDrawer = () => {
     const drawer = document.getElementById('my-drawer') as HTMLInputElement;
     if (drawer) drawer.checked = false;
@@ -88,7 +103,7 @@ export default function MobileNav() {
             <div className="divider divider-horizon"></div>
             <NavItem Icon={BankIcon} href="/bank" />
             <NavItem Icon={GroupsIcon} href="/groups" />
-            <NavItem Icon={AdminsIcon} href="/admins" />
+            {isMember && <NavItem Icon={AdminsIcon} href="/admins" />}
             <NavItem Icon={FactoryIcon} href="/factory" />
 
             <div className="divider divider-horizon"></div>
