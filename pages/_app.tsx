@@ -190,8 +190,8 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
         rest: [env.apiUrl],
       },
       ['osmosistestnet']: {
-        rpc: [env.osmosisTestnetRpcUrl],
-        rest: [env.osmosisTestnetApiUrl],
+        rpc: [env.osmosisRpcUrl],
+        rest: [env.osmosisApiUrl],
       },
     },
   };
