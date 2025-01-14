@@ -221,20 +221,34 @@ export function HistoryBox({
                       let metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
 
                       if (amt.denom.startsWith('ibc/')) {
-                        metadata = {
-                          description: assetInfo?.description ?? '',
-                          denom_units:
-                            assetInfo?.denom_units?.map(unit => ({
-                              ...unit,
-                              aliases: unit.aliases || [],
-                            })) ?? [],
-                          base: assetInfo?.base ?? '',
-                          display: assetInfo?.display ?? '',
-                          name: assetInfo?.name ?? '',
-                          symbol: assetInfo?.symbol ?? '',
-                          uri: assetInfo?.logo_URIs?.svg ?? assetInfo?.logo_URIs?.png ?? '',
-                          uri_hash: assetInfo?.logo_URIs?.svg ?? assetInfo?.logo_URIs?.png ?? '',
-                        };
+                        if (assetInfo) {
+                          metadata = {
+                            description: assetInfo?.description ?? '',
+                            denom_units:
+                              assetInfo?.denom_units?.map(unit => ({
+                                ...unit,
+                                aliases: unit.aliases || [],
+                              })) ?? [],
+                            base: assetInfo?.base ?? '',
+                            display: assetInfo?.display ?? '',
+                            name: assetInfo?.name ?? '',
+                            symbol: assetInfo?.symbol ?? '',
+                            uri: assetInfo?.logo_URIs?.svg ?? assetInfo?.logo_URIs?.png ?? '',
+                            uri_hash: assetInfo?.logo_URIs?.svg ?? assetInfo?.logo_URIs?.png ?? '',
+                          };
+                        } else {
+                          //  assetInfo is undefined
+                          metadata = {
+                            description: '',
+                            denom_units: [],
+                            base: '',
+                            display: '',
+                            name: '',
+                            symbol: '',
+                            uri: '',
+                            uri_hash: '',
+                          };
+                        }
                       }
 
                       return <DenomImage key={index} denom={metadata} />;
@@ -252,8 +266,10 @@ export function HistoryBox({
 
                             if (amt.denom.startsWith('ibc/')) {
                               const assetInfo = denomToAsset(env.chain, amt.denom);
-                              if (assetInfo?.traces?.[0]?.counterparty?.base_denom) {
-                                display = assetInfo.traces[0].counterparty.base_denom.slice(1);
+                              if (assetInfo?.traces && assetInfo.traces.length > 0) {
+                                if (assetInfo.traces[0].counterparty?.base_denom) {
+                                  display = assetInfo.traces[0].counterparty.base_denom.slice(1);
+                                }
                               }
                             }
 
@@ -301,8 +317,10 @@ export function HistoryBox({
 
                           if (amt.denom.startsWith('ibc/')) {
                             const assetInfo = denomToAsset(env.chain, amt.denom);
-                            if (assetInfo?.traces?.[0]?.counterparty?.base_denom) {
-                              baseDenom = assetInfo.traces[0].counterparty.base_denom.slice(1);
+                            if (assetInfo?.traces && assetInfo.traces.length > 0) {
+                              if (assetInfo.traces[0].counterparty?.base_denom) {
+                                baseDenom = assetInfo.traces[0].counterparty.base_denom.slice(1);
+                              }
                             }
                           }
 

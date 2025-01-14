@@ -81,6 +81,17 @@ export default function IbcSendForm({
   availableToChains: IbcChain[];
 }>) {
   const { address: osmosisAddress } = useChain(env.osmosisTestnetChain);
+
+  const formatTokenDisplayName = (displayName: string) => {
+    if (displayName.startsWith('factory')) {
+      return displayName.split('/').pop()?.toUpperCase();
+    }
+    if (displayName.startsWith('u')) {
+      return displayName.slice(1).toUpperCase();
+    }
+    return truncateString(displayName, 10).toUpperCase();
+  };
+
   const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [feeWarning, setFeeWarning] = useState('');
@@ -571,11 +582,7 @@ export default function IbcSendForm({
                             values.selectedToken?.denom ??
                             'Select';
 
-                          return tokenDisplayName.startsWith('factory')
-                            ? tokenDisplayName.split('/').pop()?.toUpperCase()
-                            : tokenDisplayName.startsWith('u')
-                              ? tokenDisplayName.slice(1).toUpperCase()
-                              : truncateString(tokenDisplayName, 10).toUpperCase();
+                          return formatTokenDisplayName(tokenDisplayName);
                         })()}
                         <PiCaretDownBold className="ml-1" />
                       </label>

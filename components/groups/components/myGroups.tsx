@@ -264,7 +264,10 @@ export function YourGroups({
         if (coreBalance.denom.startsWith('ibc/')) {
           const assetInfo = denomToAsset(env.chain, coreBalance.denom);
 
-          const baseDenom = assetInfo?.traces?.[1]?.counterparty?.base_denom;
+          let baseDenom = '';
+          if (assetInfo?.traces && assetInfo.traces.length > 1) {
+            baseDenom = assetInfo.traces[1]?.counterparty?.base_denom ?? '';
+          }
 
           return {
             denom: baseDenom ?? '', // normalized denom (e.g., 'umfx')
