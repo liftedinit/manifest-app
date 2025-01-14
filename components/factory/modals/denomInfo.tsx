@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
@@ -29,20 +30,32 @@ export const DenomInfoModal: React.FC<{
     setOpenDenomInfoModal(false);
   };
 
-  return (
+  const modalContent = (
     <dialog
       id={modalId}
       className={`modal ${openDenomInfoModal ? 'modal-open' : ''}`}
-      aria-labelledby="denom-info-title"
-      aria-modal="true"
-      onClose={handleClose}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 9999,
+        backgroundColor: 'transparent',
+        padding: 0,
+        margin: 0,
+        height: '100vh',
+        width: '100vw',
+        display: openDenomInfoModal ? 'flex' : 'none',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
     >
       <div className="modal-box max-w-4xl mx-auto rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg">
-        <form method="dialog">
+        <form method="dialog" onSubmit={handleClose}>
           <button
+            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]"
             aria-label="Close modal"
-            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-            onClick={handleClose}
           >
             ✕
           </button>
@@ -95,11 +108,31 @@ export const DenomInfoModal: React.FC<{
           />
         </div>
       </div>
-      <form method="dialog" className="modal-backdrop">
-        <button onClick={handleClose}>close</button>
+      <form
+        method="dialog"
+        className="modal-backdrop"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: -1,
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        }}
+        onSubmit={handleClose}
+      >
+        <button>close</button>
       </form>
     </dialog>
   );
+
+  // Only render if we're in the browser
+  if (typeof document !== 'undefined') {
+    return createPortal(modalContent, document.body);
+  }
+
+  return null;
 };
 
 function InfoItem({

@@ -139,24 +139,6 @@ export default function DenomList({
     setOpenTransferDenomModal(true);
   };
 
-  const handleModalOpen = (type: typeof modalType, denom: ExtendedMetadataSDKType) => {
-    setSelectedDenom(denom);
-    setModalType(type);
-    // Update URL with modal type
-    router.push(
-      {
-        pathname: isGroup ? '/groups' : '/factory',
-        query: {
-          ...(isGroup && { policyAddress: admin, tab: 'tokens' }),
-          action: type,
-          denom: denom.base,
-        },
-      },
-      undefined,
-      { shallow: true }
-    );
-  };
-
   const handleModalClose = () => {
     setSelectedDenom(null);
     setModalType(null);
