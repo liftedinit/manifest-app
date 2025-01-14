@@ -46,8 +46,7 @@ export const useTx = (chainName: string) => {
   const { address, getSigningStargateClient, estimateFee } = useChain(chainName);
   const { setToastMessage } = useToast();
   const [isSigning, setIsSigning] = useState(false);
-  const explorerUrl =
-    chainName === env.osmosisChain ? env.osmosisExplorerUrl : env.explorerUrl;
+  const explorerUrl = chainName === env.osmosisChain ? env.osmosisExplorerUrl : env.explorerUrl;
 
   const tx = async (msgs: Msg[], options: TxOptions) => {
     if (!address) {
