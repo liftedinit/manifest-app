@@ -80,7 +80,7 @@ export default function IbcSendForm({
   admin?: string;
   availableToChains: IbcChain[];
 }>) {
-  const { address: osmosisAddress } = useChain(env.osmosisTestnetChain);
+  const { address: osmosisAddress } = useChain(env.osmosisChain);
 
   const formatTokenDisplayName = (displayName: string) => {
     if (displayName.startsWith('factory')) {
