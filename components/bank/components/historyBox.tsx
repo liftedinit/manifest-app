@@ -3,17 +3,20 @@ import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import TxInfoModal from '../modals/txInfo';
 import { HistoryTxType, ParsedTransactionData, shiftDigits, TransactionAmount } from '@/utils';
 import {
+  AdminsIcon,
+  ArrowUpIcon,
   BurnIcon,
   DenomImage,
   FactoryIcon,
+  formatDenom,
   GroupsIcon,
   MintIcon,
   QuestionIcon,
   TransferIcon,
-  formatDenom,
 } from '@/components';
 import { useTokenFactoryDenomsMetadata } from '@/hooks';
 import { ReceiveIcon, SendIcon } from '@/components/icons';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 
 export interface TransactionGroup {
   tx_hash: string;
@@ -31,6 +34,10 @@ function formatLargeNumber(num: number): string {
   const billion = 1e9;
   const million = 1e6;
 
+  if (num < million) {
+    return num.toString();
+  }
+
   if (num >= quintillion) {
     return `${(num / quintillion).toFixed(2)}QT`;
   } else if (num >= quadrillion) {
@@ -42,7 +49,7 @@ function formatLargeNumber(num: number): string {
   } else if (num >= million) {
     return `${(num / million).toFixed(2)}M`;
   }
-  return num.toLocaleString();
+  return num.toFixed(6);
 }
 
 export function HistoryBox({
@@ -58,7 +65,7 @@ export function HistoryBox({
   skeletonGroupCount,
   skeletonTxCount,
   isGroup,
-}: {
+}: Readonly<{
   isLoading: boolean;
   address: string;
   currentPage: number;
@@ -71,7 +78,7 @@ export function HistoryBox({
   skeletonGroupCount: number;
   skeletonTxCount: number;
   isGroup?: boolean;
-}) {
+}>) {
   const [selectedTx, setSelectedTx] = useState<TransactionGroup | null>(null);
 
   const isLoading = initialLoading || txLoading;
@@ -89,6 +96,10 @@ export function HistoryBox({
 
   function getTransactionIcon(tx: TransactionGroup, address: string) {
     const common = 'w-6 h-6 p-1 border-[1.5px] border-opacity-[0.12] bg-opacity-[0.06] rounded-sm';
+
+    if (tx.data.metadata?.error) {
+      return <XMarkIcon className={`border-[#F54562] bg-[#f54562] text-red-500 ${common}`} />;
+    }
 
     switch (tx.data.tx_type) {
       case HistoryTxType.SEND:
@@ -115,6 +126,7 @@ export function HistoryBox({
       case HistoryTxType.UPDATE_GROUP_POLICY_METADATA:
       case HistoryTxType.LEAVE_GROUP:
       case HistoryTxType.UPDATE_GROUP_MEMBERS:
+      case HistoryTxType.UPDATE_GROUP_POLICY_DECISION_POLICY:
         return (
           <GroupsIcon
             className={`border-secondary-content bg-secondary-content text-secondary-content ${common}`}
@@ -127,6 +139,18 @@ export function HistoryBox({
             className={`border-secondary-content bg-secondary-content text-secondary-content ${common}`}
           />
         );
+      case HistoryTxType.SOFTWARE_UPGRADE:
+        return (
+          <ArrowUpIcon
+            className={`border-secondary-content bg-secondary-content text-secondary-content ${common}`}
+          />
+        );
+      case HistoryTxType.POA_SET_POWER:
+        return (
+          <AdminsIcon
+            className={`border-secondary-content bg-secondary-content text-secondary-content ${common}`}
+          />
+        );
       default:
         return <QuestionIcon className={`border-[#F54562] bg-[#f54562] text-red-500 ${common}`} />;
     }
@@ -134,44 +158,75 @@ export function HistoryBox({
 
   // Get the history message based on the transaction type
   function getTransactionMessage(tx: TransactionGroup, address: string) {
+    let prefix = tx.data.metadata?.error ? 'ERROR - ' : '';
+    let message: string;
+
     switch (tx.data.tx_type) {
       case HistoryTxType.SEND:
-        return tx.data.from_address === address ? 'Sent' : 'Received';
+        message = tx.data.from_address === address ? 'Sent' : 'Received';
+        break;
       case HistoryTxType.IBC_TRANSFER:
-        return 'IBC Transfer';
+        message = 'IBC Transfer';
+        break;
       case HistoryTxType.MINT:
       case HistoryTxType.PAYOUT:
-        return 'Minted';
+        message = 'Minted';
+        break;
       case HistoryTxType.BURN:
       case HistoryTxType.BURN_HELD_BALANCE:
-        return 'Burned';
+        message = 'Burned';
+        break;
       case HistoryTxType.CHANGE_ADMIN:
-        return 'Changed Token Admin';
+        message = 'Changed Token Admin';
+        break;
       case HistoryTxType.CREATE_GROUP_WITH_POLICY:
-        return 'Created Group';
+        message = 'Created Group';
+        break;
       case HistoryTxType.SET_DENOM_METADATA:
-        return 'Set Denom Metadata';
+        message = 'Set Denom Metadata';
+        break;
       case HistoryTxType.CREATE_DENOM:
-        return 'Created Denom';
+        message = 'Created Denom';
+        break;
       case HistoryTxType.EXEC_PROPOSAL:
-        return `Executed Proposal #${tx.data.metadata?.proposal_id}`;
+        message = `Executed Proposal #${tx.data.metadata?.proposal_id}`;
+        break;
       case HistoryTxType.SUBMIT_PROPOSAL:
-        return `Submitted Proposal #${tx.data.metadata?.proposal_id}`;
+        message = `Submitted Proposal #${tx.data.metadata?.proposal_id}`;
+        break;
       case HistoryTxType.VOTE_PROPOSAL:
-        return `Voted on Proposal #${tx.data.metadata?.proposal_id}`;
+        message = `Voted on Proposal #${tx.data.metadata?.proposal_id}`;
+        break;
       case HistoryTxType.WITHDRAW_PROPOSAL:
-        return `Withdrew Proposal #${tx.data.metadata?.proposal_id}`;
+        message = `Withdrew Proposal #${tx.data.metadata?.proposal_id}`;
+        break;
       case HistoryTxType.UPDATE_GROUP_POLICY_METADATA:
-        return `Updated Group Policy Metadata`;
+        message = `Updated Group Policy Metadata`;
+        break;
+      case HistoryTxType.UPDATE_GROUP_POLICY_DECISION_POLICY:
+        message = `Updated Group Policy Decision Policy`;
+        break;
       case HistoryTxType.UPDATE_GROUP_METADATA:
-        return `Updated Group #${tx.data.metadata?.group_id} Metadata`;
+        message = `Updated Group #${tx.data.metadata?.group_id} Metadata`;
+        break;
       case HistoryTxType.LEAVE_GROUP:
-        return `Left Group #${tx.data.metadata?.group_id}`;
+        message = `Left Group #${tx.data.metadata?.group_id}`;
+        break;
       case HistoryTxType.UPDATE_GROUP_MEMBERS:
-        return `Updated Group #${tx.data.metadata?.group_id} Members`;
+        message = `Updated Group #${tx.data.metadata?.group_id} Members`;
+        break;
+      case HistoryTxType.SOFTWARE_UPGRADE:
+        message = `Chain Software Upgrade`;
+        break;
+      case HistoryTxType.POA_SET_POWER:
+        message = `Set Validator Power`;
+        break;
       default:
-        return 'Unknown Transaction';
+        message = 'Unknown Transaction';
+        break;
     }
+
+    return prefix + message;
   }
 
   // Get the transaction direction based on the transaction type
@@ -261,7 +316,9 @@ export function HistoryBox({
               {sendTxs?.slice(0, skeletonTxCount).map((tx, index) => (
                 <div
                   key={`${tx.tx_hash}-${index}`}
-                  className="flex items-center justify-between p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px] cursor-pointer hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] transition-colors mb-2"
+                  className={`flex items-center justify-between p-4 
+                    ${tx.data.metadata?.error ? 'bg-[#E5393522] dark:bg-[#E5393533] hover:bg-[#E5393544] dark:hover:bg-[#E5393555]' : 'bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A]'}
+                    rounded-[16px] cursor-pointer transition-colors mb-2`}
                   onClick={() => {
                     setSelectedTx(tx);
                     (document?.getElementById(`tx_modal_info`) as HTMLDialogElement)?.showModal();
@@ -319,17 +376,26 @@ export function HistoryBox({
                     <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99] mb-1">
                       {formatDateShort(tx.formatted_date)}
                     </p>
-                    <p className={`font-semibold ${getTransactionColor(tx, address)} `}>
-                      {getTransactionPlusMinus(tx, address)}
-                      {tx.data.amount
-                        ?.map((amt: { denom: string; amount: string | number }) => {
-                          const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
-                          const exponent = Number(metadata?.denom_units[1]?.exponent) || 6;
-                          const amount = Number(shiftDigits(amt.amount, -exponent));
-                          return `${formatLargeNumber(amount)} ${formatDenom(amt.denom)}`;
-                        })
-                        .join(', ')}
-                    </p>
+                    {!tx.data.metadata?.error && (
+                      <p className={`font-semibold ${getTransactionColor(tx, address)} `}>
+                        {getTransactionPlusMinus(tx, address)}
+                        {tx.data.amount
+                          ?.map((amt: { denom: string; amount: string | number }) => {
+                            const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
+                            const exponent = Number(metadata?.denom_units[1]?.exponent) || 6;
+                            const amount = Number(shiftDigits(amt.amount, -exponent));
+                            return `${formatLargeNumber(amount)} ${formatDenom(amt.denom)}`;
+                          })
+                          .join(', ')}
+                      </p>
+                    )}
+                    <div className="text-red-500 text-xs">
+                      Fee:{' -'}
+                      {tx.fee &&
+                        formatLargeNumber(Number(shiftDigits(tx.fee.amount, -6))) +
+                          ' ' +
+                          formatDenom(tx.fee.denom)}
+                    </div>
                   </div>
                 </div>
               ))}

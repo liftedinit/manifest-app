@@ -33,7 +33,14 @@ export enum HistoryTxType {
   CREATE_GROUP_WITH_POLICY,
   UPDATE_GROUP_METADATA,
   UPDATE_GROUP_POLICY_METADATA,
+  UPDATE_GROUP_POLICY_DECISION_POLICY,
   UPDATE_GROUP_MEMBERS,
+
+  // UPGRADE
+  SOFTWARE_UPGRADE,
+
+  // POA
+  POA_SET_POWER,
 }
 
 export interface ParsedTransactionData {
@@ -206,7 +213,7 @@ function parseSubmitGroupProposal(message: any, address: string): ParsedTransact
   return [
     {
       tx_type: HistoryTxType.SUBMIT_PROPOSAL,
-      from_address: address,
+      from_address: message.proposers[0],
       metadata: {
         title: message.title,
         description: message.summary,
@@ -267,6 +274,18 @@ function parseUpdateGroupPolicyMetadata(message: any): ParsedTransactionData[] {
   ];
 }
 
+function parseUpdateGroupPolicyDecisionPolicy(message: any): ParsedTransactionData[] {
+  return [
+    {
+      tx_type: HistoryTxType.UPDATE_GROUP_POLICY_DECISION_POLICY,
+      from_address: message.admin,
+      metadata: {
+        threshold: message.decisionPolicy.threshold,
+      },
+    },
+  ];
+}
+
 function parseLeaveGroup(message: any): ParsedTransactionData[] {
   return [
     {
@@ -286,6 +305,34 @@ function parseUpdateGroupMembers(message: any): ParsedTransactionData[] {
       from_address: message.admin,
       metadata: {
         group_id: message.groupId,
+      },
+    },
+  ];
+}
+
+// Upgrade
+function parseSoftwareUpgrade(message: any): ParsedTransactionData[] {
+  return [
+    {
+      tx_type: HistoryTxType.SOFTWARE_UPGRADE,
+      from_address: message.authority,
+      metadata: {
+        plan_name: message.plan.name,
+        plan_height: message.plan.height,
+      },
+    },
+  ];
+}
+
+// POA
+function parsePoaSetPower(message: any): ParsedTransactionData[] {
+  return [
+    {
+      tx_type: HistoryTxType.POA_SET_POWER,
+      from_address: message.sender,
+      metadata: {
+        power: message.power,
+        validator_address: message.validatorAddress,
       },
     },
   ];
@@ -331,6 +378,12 @@ const messageParserRegistry: Record<
     parseUpdateGroupPolicyMetadata(msg),
   '/cosmos.group.v1.MsgLeaveGroup': (msg, _address) => parseLeaveGroup(msg),
   '/cosmos.group.v1.MsgUpdateGroupMembers': (msg, _address) => parseUpdateGroupMembers(msg),
+  '/cosmos.group.v1.MsgUpdateGroupPolicyDecisionPolicy': (msg, _address) =>
+    parseUpdateGroupPolicyDecisionPolicy(msg),
+  // Upgrade
+  '/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade': (msg, _address) => parseSoftwareUpgrade(msg),
+  // POA
+  '/strangelove_ventures.poa.v1.MsgSetPower': (msg, _address) => parsePoaSetPower(msg),
 };
 
 export const _formatMessage = (message: any, address: string): ParsedTransactionData[] => {
@@ -351,9 +404,11 @@ export const transformTransactions = (tx: any, address: string) => {
 
   for (const message of tx.data.tx.body.messages) {
     let proposalId = undefined;
+    let executed = undefined;
 
     // Handle special grouping logic (e.g., group proposals)
     if (message['@type'] === '/cosmos.group.v1.MsgSubmitProposal') {
+      executed = tx.data.executed ? 'YES' : 'NO';
       // Get the proposal ID
       const event = tx.data.txResponse.events.find(
         (event: { type: string }) => event.type === 'cosmos.group.v1.EventSubmitProposal'
@@ -362,28 +417,6 @@ export const transformTransactions = (tx: any, address: string) => {
         const attr = event.attributes.find((attr: { key: string }) => attr.key === 'proposal_id');
         if (attr) {
           proposalId = attr.value.replace(/"/g, ''); // Remove quotes
-        }
-      }
-      for (const nestedMessage of message.messages) {
-        // If none of the nested message content includes the address, skip it
-        if (!JSON.stringify(nestedMessage).includes(address)) {
-          continue;
-        }
-
-        const formattedMessages = _formatMessage(nestedMessage, address);
-        for (const fm of formattedMessages) {
-          // Add proposalId to metadata
-          fm.metadata = {
-            ...fm.metadata,
-            proposal_id: proposalId,
-          };
-          messages.push({
-            tx_hash: tx.id,
-            block_number: parseInt(tx.data.txResponse.height),
-            formatted_date: tx.data.txResponse.timestamp,
-            ...memo,
-            data: fm,
-          });
         }
       }
     }
@@ -397,12 +430,24 @@ export const transformTransactions = (tx: any, address: string) => {
           proposal_id: proposalId,
         };
       }
+      if (executed) {
+        fm.metadata = {
+          ...fm.metadata,
+          executed: executed,
+        };
+      }
+      if (tx.data.txResponse.code && tx.data.txResponse.code !== 0) {
+        fm.metadata = {
+          ...fm.metadata,
+          error: atob(tx.data.txResponse.rawLog),
+        };
+      }
       messages.push({
         tx_hash: tx.id,
         block_number: parseInt(tx.data.txResponse.height),
         formatted_date: tx.data.txResponse.timestamp,
         ...memo,
-        ...fee,
+        fee: fee,
         data: fm,
       });
     }
