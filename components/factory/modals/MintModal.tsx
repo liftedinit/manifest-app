@@ -14,7 +14,7 @@ export default function MintModal({
   totalSupply,
   isOpen,
   onClose,
-  onSwitchToMultiMint,
+
   admin,
   isGroup,
 }: {
@@ -25,7 +25,7 @@ export default function MintModal({
   totalSupply: string;
   isOpen: boolean;
   onClose: () => void;
-  onSwitchToMultiMint: () => void;
+
   admin: string;
   isGroup?: boolean;
 }) {
@@ -40,8 +40,6 @@ export default function MintModal({
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen]);
 
-  const [isMultiMintOpen, setIsMultiMintOpen] = useState(false);
-
   const { groupByAdmin, isGroupByAdminLoading } = useGroupsByAdmin(admin);
   if (!denom) return null;
 
@@ -51,14 +49,6 @@ export default function MintModal({
 
   const safeBalance = balance || '0';
   const safeTotalSupply = totalSupply || '0';
-
-  const handleMultiMintOpen = () => {
-    onSwitchToMultiMint();
-  };
-
-  const handleMultiMintClose = () => {
-    setIsMultiMintOpen(false);
-  };
 
   const modalContent = (
     <dialog
@@ -111,7 +101,6 @@ export default function MintModal({
               denom={denom}
               isGroup={isGroup}
               admin={admin}
-              onMultiMintClick={handleMultiMintOpen}
             />
           )}
         </div>

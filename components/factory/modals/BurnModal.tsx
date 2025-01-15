@@ -13,7 +13,7 @@ export default function BurnModal({
   totalSupply,
   isOpen,
   onClose,
-  onSwitchToMultiBurn,
+
   isGroup,
 }: {
   denom: ExtendedMetadataSDKType | null;
@@ -24,7 +24,7 @@ export default function BurnModal({
   totalSupply: string;
   isOpen: boolean;
   onClose: () => void;
-  onSwitchToMultiBurn: () => void;
+
   isGroup?: boolean;
 }) {
   useEffect(() => {
@@ -96,7 +96,6 @@ export default function BurnModal({
               refetch={refetch}
               address={address}
               denom={denom}
-              onMultiBurnClick={onSwitchToMultiBurn}
               isGroup={isGroup}
             />
           )}

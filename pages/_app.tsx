@@ -33,8 +33,7 @@ import {
   cosmosProtoRegistry,
 } from '@liftedinit/manifestjs';
 import MobileNav from '@/components/react/mobileNav';
-
-import { OPENLOGIN_NETWORK_TYPE } from '@toruslabs/openlogin-utils';
+import { WEB3AUTH_NETWORK_TYPE } from '@web3auth/auth';
 
 type ManifestAppProps = AppProps & {
   Component: AppProps['Component'];
@@ -138,7 +137,7 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
 
         client: {
           clientId: env.web3AuthClientId,
-          web3AuthNetwork: env.web3AuthNetwork as OPENLOGIN_NETWORK_TYPE, // Safe to cast since we validate the env vars in config/env.ts
+          web3AuthNetwork: env.web3AuthNetwork as WEB3AUTH_NETWORK_TYPE, // Safe to cast since we validate the env vars in config/env.ts
         },
         promptSign: async (_, signData) =>
           new Promise(resolve =>
