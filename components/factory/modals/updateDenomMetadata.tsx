@@ -11,6 +11,7 @@ import env from '@/config/env';
 import { createPortal } from 'react-dom';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgSetDenomMetadata } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+import { useProposalsByPolicyAccount } from '@/hooks/useQueries';
 
 const TokenDetailsSchema = (context: { subdenom: string }) =>
   Yup.object().shape({
@@ -52,6 +53,7 @@ export default function UpdateDenomMetadataModal({
   admin: string;
   isGroup?: boolean;
 }) {
+  const { refetchProposals } = useProposalsByPolicyAccount(admin);
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
@@ -144,6 +146,9 @@ export default function UpdateDenomMetadataModal({
       await tx([msg], {
         fee,
         onSuccess: () => {
+          if (isGroup) {
+            refetchProposals();
+          }
           onSuccess();
           onClose();
         },
