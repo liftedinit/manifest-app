@@ -1,22 +1,57 @@
 import React, { useState } from 'react';
-import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import TxInfoModal from '../modals/txInfo';
-import { HistoryTxType, ParsedTransactionData, shiftDigits, TransactionAmount } from '@/utils';
+import { formatVote, shiftDigits, TransactionAmount, TxMessage } from '@/utils';
 import {
   AdminsIcon,
   ArrowUpIcon,
   BurnIcon,
-  DenomImage,
   FactoryIcon,
+  formatAmount,
   formatDenom,
   GroupsIcon,
   MintIcon,
   QuestionIcon,
   TransferIcon,
+  ReceiveIcon,
+  SendIcon,
 } from '@/components';
 import { useTokenFactoryDenomsMetadata } from '@/hooks';
-import { ReceiveIcon, SendIcon } from '@/components/icons';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
+import { MsgTransfer } from '@liftedinit/manifestjs/dist/codegen/ibc/applications/transfer/v1/tx';
+import {
+  MsgBurn,
+  MsgChangeAdmin,
+  MsgCreateDenom,
+  MsgMint,
+  MsgSetDenomMetadata,
+} from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+import {
+  MsgBurnHeldBalance,
+  MsgPayout,
+} from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
+import {
+  MsgCreateGroupWithPolicy,
+  MsgExec,
+  MsgSubmitProposal,
+  MsgUpdateGroupMembers,
+  MsgUpdateGroupMetadata,
+  MsgUpdateGroupPolicyDecisionPolicy,
+  MsgUpdateGroupPolicyMetadata,
+  MsgVote,
+  MsgLeaveGroup,
+  MsgWithdrawProposal,
+} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
+import {
+  MsgCancelUpgrade,
+  MsgSoftwareUpgrade,
+} from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
+import {
+  MsgRemovePending,
+  MsgRemoveValidator,
+  MsgSetPower,
+  MsgCreateValidator,
+} from '@liftedinit/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
+import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 
 export interface TransactionGroup {
   tx_hash: string;
@@ -24,8 +59,309 @@ export interface TransactionGroup {
   formatted_date: string;
   fee?: TransactionAmount;
   memo?: string;
-  data: ParsedTransactionData;
 }
+
+function createSenderReceiverHandler({
+  iconSender,
+  iconReceiver,
+  colorSender,
+  colorReceiver,
+  signSender,
+  signReceiver,
+  successSender,
+  failSender,
+  successReceiver,
+  failReceiver,
+}: {
+  iconSender: any;
+  iconReceiver?: any;
+  colorSender: string;
+  colorReceiver?: string;
+  signSender?: string | ((tx: TxMessage, metadata?: MetadataSDKType[]) => string);
+  signReceiver?: string | ((tx: TxMessage, metadata?: MetadataSDKType[]) => string);
+  successSender: string | ((tx: TxMessage, address: string) => string);
+  failSender: string | ((tx: TxMessage, address: string) => string);
+  successReceiver: string | ((tx: TxMessage, address: string) => string);
+  failReceiver?: string | ((tx: TxMessage, address: string) => string);
+}) {
+  return (tx: TxMessage, address: string, metadata?: MetadataSDKType[]) => {
+    const isSender = tx.sender === address;
+    const hasError = !!tx.error;
+
+    iconSender = iconSender ?? QuestionIcon;
+    iconReceiver = iconReceiver ?? iconSender ?? QuestionIcon;
+    colorSender = colorSender ?? 'text-gray-500';
+    colorReceiver = colorReceiver ?? colorSender ?? 'text-gray-500';
+
+    const resolveMessage = (msg: string | ((tx: TxMessage, address: string) => string)) =>
+      typeof msg === 'function' ? msg(tx, address) : msg;
+
+    const resolveSign = (
+      sign: string | ((tx: TxMessage, metadata?: MetadataSDKType[]) => string)
+    ) => (typeof sign === 'function' ? sign(tx, metadata) : sign);
+
+    const successSenderMsg = resolveMessage(successSender);
+    const failSenderMsg = resolveMessage(failSender);
+    const successReceiverMsg = resolveMessage(successReceiver);
+    const failReceiverMsg = resolveMessage(failReceiver ?? 'Anomaly detected');
+
+    const signSenderMsg = resolveSign(signSender ?? '');
+    const signReceiverMsg = resolveSign(signReceiver ?? '');
+
+    return {
+      icon: isSender ? iconSender : iconReceiver,
+      color: isSender ? colorSender : colorReceiver,
+      sign: isSender ? signSenderMsg : signReceiverMsg,
+      message: hasError
+        ? isSender
+          ? failSenderMsg
+          : failReceiverMsg
+        : isSender
+          ? successSenderMsg
+          : successReceiverMsg,
+    };
+  };
+}
+
+const defaultHandler = {
+  icon: QuestionIcon,
+  color: 'text-gray-500',
+  sign: '',
+  message: 'Unknown transaction type',
+};
+
+const transactionRenderData = {
+  [MsgSend.typeUrl]: createSenderReceiverHandler({
+    iconSender: SendIcon,
+    iconReceiver: ReceiveIcon,
+    colorSender: 'text-red-500',
+    colorReceiver: 'text-green-500',
+    signSender: (tx, metadata) =>
+      `-${formatLargeNumber(formatAmount(tx.metadata.amount[0].amount, tx.metadata.amount[0].denom, metadata))} ${formatDenom(tx.metadata.amount[0].denom)}`,
+    signReceiver: (tx, metadata) =>
+      `+${formatLargeNumber(formatAmount(tx.metadata.amount[0].amount, tx.metadata.amount[0].denom, metadata))} ${formatDenom(tx.metadata.amount[0].denom)}`,
+    successSender: tx =>
+      `You sent ${formatDenom(tx.metadata.amount[0].denom)} to ${tx.metadata.toAddress}`,
+    failSender: tx =>
+      `You failed to send ${formatDenom(tx.metadata.amount[0].denom)} to ${tx.metadata.toAddress}`,
+    successReceiver: tx =>
+      `You received ${formatDenom(tx.metadata.amount[0].denom)} from ${tx.sender}`,
+  }),
+  [MsgTransfer.typeUrl]: createSenderReceiverHandler({
+    iconSender: TransferIcon,
+    colorSender: 'text-red-500',
+    colorReceiver: 'text-green-500',
+    signSender: (tx, metadata) =>
+      `-${formatLargeNumber(formatAmount(tx.metadata.token.amount, tx.metadata.token.denom, metadata))} ${formatDenom(tx.metadata.token.denom)}`,
+    signReceiver: (tx, metadata) =>
+      `+${formatLargeNumber(formatAmount(tx.metadata.token.amount, tx.metadata.token.denom, metadata))} ${formatDenom(tx.metadata.token.denom)}`,
+    successSender: tx =>
+      `You sent ${formatDenom(tx.metadata.token.denom)} to ${tx.metadata.receiver} via IBC`,
+    failSender: tx =>
+      `You failed to send ${formatDenom(tx.metadata.token.denom)} to ${tx.metadata.receiver} via IBC`,
+    successReceiver: tx =>
+      `You received ${formatDenom(tx.metadata.token.denom)} from ${tx.sender} via IBC`,
+  }),
+  [MsgMint.typeUrl]: createSenderReceiverHandler({
+    iconSender: MintIcon,
+    colorSender: 'text-gray-500',
+    signSender: (tx, metadata) =>
+      `${formatLargeNumber(formatAmount(tx.metadata.amount.amount, tx.metadata.amount.denom, metadata))} ${formatDenom(tx.metadata.amount.denom)}`,
+    signReceiver: (tx, metadata) =>
+      `+${formatLargeNumber(formatAmount(tx.metadata.amount.amount, tx.metadata.amount.denom, metadata))} ${formatDenom(tx.metadata.amount.denom)}`,
+    successSender: tx =>
+      `You minted ${formatDenom(tx.metadata.amount.denom) ?? ''} to ${tx.metadata.mintToAddress}`.trim(),
+    failSender: tx =>
+      `You failed to mint ${formatDenom(tx.metadata.amount.denom) ?? ''} to ${tx.metadata.mintToAddress}`.trim(),
+    successReceiver: tx => `You were minted ${formatDenom(tx.metadata.amount.denom) ?? ''}`.trim(),
+  }),
+  // TODO
+  [MsgPayout.typeUrl]: createSenderReceiverHandler({
+    iconSender: MintIcon,
+    colorSender: 'text-green-500',
+    signSender: '+',
+    successSender: 'You minted',
+    failSender: 'You failed to mint',
+    successReceiver: 'You were minted',
+  }),
+  [MsgBurn.typeUrl]: createSenderReceiverHandler({
+    iconSender: BurnIcon,
+    colorSender: 'text-gray-500',
+    signSender: (tx, metadata) =>
+      `${formatLargeNumber(formatAmount(tx.metadata.amount.amount, tx.metadata.amount.denom, metadata))} ${formatDenom(tx.metadata.amount.denom)}`,
+    signReceiver: (tx, metadata) =>
+      `-${formatLargeNumber(formatAmount(tx.metadata.amount.amount, tx.metadata.amount.denom, metadata))} ${formatDenom(tx.metadata.amount.denom)}`,
+    successSender: tx =>
+      `You burned ${formatDenom(tx.metadata.amount.denom)} from ${tx.metadata.burnFromAddress}`,
+    failSender: tx =>
+      `You failed to burn ${formatDenom(tx.metadata.amount.denom)} from ${tx.metadata.burnFromAddress}`,
+    successReceiver: tx =>
+      `You were burned ${formatDenom(tx.metadata.amount.denom)} by ${tx.sender}`,
+  }),
+  // TODO
+  [MsgBurnHeldBalance.typeUrl]: createSenderReceiverHandler({
+    iconSender: BurnIcon,
+    colorSender: 'text-gray-500',
+    signSender: '-',
+    successSender: tx => 'You burned held balance',
+    failSender: 'You failed to burn',
+    // Notice: successReceiver is "Anomaly detected" instead of "You were burned"
+    successReceiver: 'Anomaly detected',
+  }),
+  [MsgChangeAdmin.typeUrl]: createSenderReceiverHandler({
+    iconSender: TransferIcon,
+    colorSender: 'text-secondary-content',
+    successSender: tx =>
+      `You changed the administrator of the ${formatDenom(tx.metadata.denom)} token to ${tx.metadata.newAdmin}`.trim(),
+    failSender: tx =>
+      `You failed to change the administrator of the ${formatDenom(tx.metadata.denom)} token to ${tx.metadata.newAdmin}`.trim(),
+    successReceiver: tx =>
+      `You were set administrator of the ${formatDenom(tx.metadata.denom)} token by ${tx.sender}`.trim(),
+  }),
+  [MsgCreateGroupWithPolicy.typeUrl]: createSenderReceiverHandler({
+    iconSender: GroupsIcon,
+    colorSender: 'text-secondary-content',
+    successSender: 'You created a new group',
+    failSender: 'You failed to create a new group',
+    successReceiver: 'A new group mentioning you was created',
+  }),
+  [MsgExec.typeUrl]: createSenderReceiverHandler({
+    iconSender: GroupsIcon,
+    colorSender: 'text-secondary-content',
+    successSender: tx => `You executed proposal #${tx.proposal_ids}`.trim(), // TODO Link to proposal
+    failSender: tx => `You failed to execute proposal #${tx.proposal_ids}`.trim(), // TODO Link to proposal
+    successReceiver: tx => `Proposal #${tx.proposal_ids} was executed by ${tx.sender}`.trim(), // TODO Link to proposal
+  }),
+  [MsgSubmitProposal.typeUrl]: createSenderReceiverHandler({
+    iconSender: GroupsIcon,
+    colorSender: 'text-secondary-content',
+    successSender: tx => `You submitted proposal #${tx.proposal_ids}`.trim(), // TODO Link to proposal
+    failSender: tx => 'You failed to submit a proposal',
+    successReceiver: tx => `Proposal #${tx.proposal_ids} was submitted by ${tx.sender}`.trim(), // TODO Link to proposal
+  }),
+  [MsgVote.typeUrl]: createSenderReceiverHandler({
+    iconSender: GroupsIcon,
+    colorSender: 'text-secondary-content',
+    successSender: tx =>
+      `You voted ${formatVote(tx.metadata.option)} on proposal #${tx.proposal_ids}`.trim(), // TODO Link to proposal
+    failSender: tx => `You failed to vote on proposal #${tx.proposal_ids}`.trim(), // TODO Link to proposal
+    successReceiver: tx => `Proposal #${tx.proposal_ids} was voted on by ${tx.sender}`.trim(),
+  }),
+  [MsgWithdrawProposal.typeUrl]: createSenderReceiverHandler({
+    iconSender: GroupsIcon,
+    colorSender: 'text-secondary-content',
+    successSender: tx => `You withdrew proposal #${tx.proposal_ids}`.trim(), // TODO Link to proposal
+    failSender: tx => `You failed to withdraw proposal #${tx.proposal_ids}`.trim(), // TODO Link to proposal
+    successReceiver: tx => `Proposal #${tx.proposal_ids} was withdrawn by ${tx.sender}`.trim(), // TODO Link to proposal
+  }),
+  [MsgUpdateGroupMetadata.typeUrl]: createSenderReceiverHandler({
+    iconSender: GroupsIcon,
+    colorSender: 'text-secondary-content',
+    successSender: tx => `You updated the metadata of group ${tx.sender}`, // TODO: Policy addr?
+    failSender: tx => `You failed to update the metadata of group ${tx.sender}`,
+    successReceiver: tx => `Group ${tx.sender} had its metadata updated`,
+  }),
+  [MsgUpdateGroupPolicyMetadata.typeUrl]: createSenderReceiverHandler({
+    iconSender: GroupsIcon,
+    colorSender: 'text-secondary-content',
+    successSender: tx =>
+      `You updated the policy metadata of group ${tx.metadata.groupPolicyAddress}`,
+    failSender: tx =>
+      `You failed to update policy metadata of group ${tx.metadata.groupPolicyAddress}`,
+    successReceiver: tx =>
+      `Group ${tx.metadata.groupPolicyAddress} had its policy metadata updated`,
+  }),
+  [MsgUpdateGroupPolicyDecisionPolicy.typeUrl]: createSenderReceiverHandler({
+    iconSender: GroupsIcon,
+    colorSender: 'text-secondary-content',
+    successSender: tx =>
+      `You updated the decision policy of group ${tx.metadata.groupPolicyAddress}`,
+    failSender: tx =>
+      `You failed to update the decision policy of group ${tx.metadata.groupPolicyAddress}`,
+    successReceiver: tx =>
+      `Group ${tx.metadata.groupPolicyAddress} had its decision policy updated`,
+  }),
+  [MsgLeaveGroup.typeUrl]: createSenderReceiverHandler({
+    iconSender: GroupsIcon,
+    colorSender: 'text-secondary-content',
+    successSender: 'You left a group', // TODO: Group info?
+    failSender: 'You failed to leave a group',
+    successReceiver: 'Group had a member leave',
+  }),
+  [MsgUpdateGroupMembers.typeUrl]: createSenderReceiverHandler({
+    iconSender: GroupsIcon,
+    colorSender: 'text-secondary-content',
+    successSender: 'You updated group members',
+    failSender: 'You failed to update group members',
+    successReceiver: 'A group mentioning you had its members updated',
+  }),
+  [MsgCreateDenom.typeUrl]: createSenderReceiverHandler({
+    iconSender: FactoryIcon,
+    colorSender: 'text-secondary-content',
+    successSender: tx =>
+      `You created the ${formatDenom(`factory/${tx.sender}/${tx.metadata.subdenom}`)} denomination`,
+    failSender: tx =>
+      `You failed to create the ${formatDenom(`factory/${tx.sender}/${tx.metadata.subdenom}`)} denomination`,
+    successReceiver: tx =>
+      `The ${formatDenom(`factory/${tx.sender}/${tx.metadata.subdenom}`)} denomination was created`,
+  }),
+  [MsgSetDenomMetadata.typeUrl]: createSenderReceiverHandler({
+    iconSender: FactoryIcon,
+    colorSender: 'text-secondary-content',
+    successSender: tx => `You set the metadata of denomination ${formatDenom(tx.metadata.base)}`,
+    failSender: tx => `You failed the metadata of denomination ${formatDenom(tx.metadata.base)}`,
+    successReceiver: tx => `The ${formatDenom(tx.metadata.base)} denomination had its metadata set`,
+  }),
+  [MsgSoftwareUpgrade.typeUrl]: createSenderReceiverHandler({
+    iconSender: ArrowUpIcon,
+    colorSender: 'text-secondary-content',
+    successSender: tx =>
+      `A chain upgrade to ${tx.metadata.plan.name} is scheduled for block ${tx.metadata.plan.height}`,
+    failSender: tx => `You failed to schedule a chain software upgrade to ${tx.metadata.plan.name}`,
+    // The "receiver" scenario doesn't strictly apply if there's only a single actor,
+    // so successReceiver is effectively the same message:
+    successReceiver: tx =>
+      `A chain upgrade to ${tx.metadata.plan.name} is scheduled for block ${tx.metadata.plan.height}`,
+  }),
+  [MsgCancelUpgrade.typeUrl]: createSenderReceiverHandler({
+    iconSender: ArrowUpIcon,
+    colorSender: 'text-secondary-content',
+    successSender: 'You successfully cancelled the chain upgrade',
+    failSender: 'You failed to cancel chain software upgrade',
+    successReceiver: tx => `The chain software upgrade was cancelled by ${tx.sender}`,
+  }),
+  [MsgSetPower.typeUrl]: createSenderReceiverHandler({
+    iconSender: AdminsIcon,
+    colorSender: 'text-secondary-content',
+    successSender: tx =>
+      `You set the validator ${tx.metadata.validatorAddress} power to ${tx.metadata.power}`,
+    failSender: tx =>
+      `You failed to set the validator ${tx.metadata.validatorAddress} power to ${tx.metadata.power}`,
+    successReceiver: tx =>
+      `Validator ${tx.metadata.validatorAddress} had its power set to ${tx.metadata.power}`,
+  }),
+  [MsgRemovePending.typeUrl]: createSenderReceiverHandler({
+    iconSender: AdminsIcon,
+    colorSender: 'text-secondary-content',
+    successSender: tx => `You removed pending validator ${tx.metadata.validatorAddress}`,
+    failSender: tx => `You failed to remove pending validator ${tx.metadata.validatorAddress}`,
+    successReceiver: tx => `Validator ${tx.metadata.validatorAddress} was removed from pending`,
+  }),
+  [MsgRemoveValidator.typeUrl]: createSenderReceiverHandler({
+    iconSender: AdminsIcon,
+    colorSender: 'text-secondary-content',
+    successSender: tx => `You removed validator ${tx.metadata.validatorAddress}`,
+    failSender: tx => 'You failed to remove validator ${tx.metadata.validatorAddress}',
+    successReceiver: tx => `Validator ${tx.metadata.validatorAddress} was removed`,
+  }),
+  [MsgCreateValidator.typeUrl]: createSenderReceiverHandler({
+    iconSender: AdminsIcon,
+    colorSender: 'text-secondary-content',
+    successSender: tx => `You created validator ${tx.metadata.validatorAddress}`,
+    failSender: tx => `You failed to create validator ${tx.metadata.validatorAddress}`,
+    successReceiver: tx => `Validator ${tx.metadata.validatorAddress} was created`,
+  }),
+};
 
 function formatLargeNumber(num: number): string {
   const quintillion = 1e18;
@@ -70,7 +406,7 @@ export function HistoryBox({
   address: string;
   currentPage: number;
   setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
-  sendTxs: TransactionGroup[];
+  sendTxs: TxMessage[];
   totalPages: number;
   txLoading: boolean;
   isError: boolean;
@@ -79,7 +415,7 @@ export function HistoryBox({
   skeletonTxCount: number;
   isGroup?: boolean;
 }>) {
-  const [selectedTx, setSelectedTx] = useState<TransactionGroup | null>(null);
+  const [selectedTx, setSelectedTx] = useState<TxMessage | null>(null);
 
   const isLoading = initialLoading || txLoading;
 
@@ -94,173 +430,22 @@ export function HistoryBox({
     });
   }
 
-  function getTransactionIcon(tx: TransactionGroup, address: string) {
-    const common = 'w-6 h-6 p-1 border-[1.5px] border-opacity-[0.12] bg-opacity-[0.06] rounded-sm';
-
-    if (tx.data.metadata?.error) {
-      return <XMarkIcon className={`border-[#F54562] bg-[#f54562] text-red-500 ${common}`} />;
-    }
-
-    switch (tx.data.tx_type) {
-      case HistoryTxType.SEND:
-      case HistoryTxType.IBC_TRANSFER:
-        return tx.data.from_address === address ? <SendIcon /> : <ReceiveIcon />;
-      case HistoryTxType.MINT:
-      case HistoryTxType.PAYOUT:
-        return <MintIcon className={`border-[#00FFAA] bg-[#00FFAA] text-green-500 ${common}`} />;
-      case HistoryTxType.BURN:
-      case HistoryTxType.BURN_HELD_BALANCE:
-        return <BurnIcon className={`border-[#F54562] bg-[#f54562] text-red-500 ${common}`} />;
-      case HistoryTxType.CHANGE_ADMIN:
-        return (
-          <TransferIcon
-            className={`border-secondary-content bg-secondary-content text-secondary-content ${common}`}
-          />
-        );
-      case HistoryTxType.CREATE_GROUP_WITH_POLICY:
-      case HistoryTxType.EXEC_PROPOSAL:
-      case HistoryTxType.SUBMIT_PROPOSAL:
-      case HistoryTxType.VOTE_PROPOSAL:
-      case HistoryTxType.WITHDRAW_PROPOSAL:
-      case HistoryTxType.UPDATE_GROUP_METADATA:
-      case HistoryTxType.UPDATE_GROUP_POLICY_METADATA:
-      case HistoryTxType.LEAVE_GROUP:
-      case HistoryTxType.UPDATE_GROUP_MEMBERS:
-      case HistoryTxType.UPDATE_GROUP_POLICY_DECISION_POLICY:
-        return (
-          <GroupsIcon
-            className={`border-secondary-content bg-secondary-content text-secondary-content ${common}`}
-          />
-        );
-      case HistoryTxType.CREATE_DENOM:
-      case HistoryTxType.SET_DENOM_METADATA:
-        return (
-          <FactoryIcon
-            className={`border-secondary-content bg-secondary-content text-secondary-content ${common}`}
-          />
-        );
-      case HistoryTxType.SOFTWARE_UPGRADE:
-        return (
-          <ArrowUpIcon
-            className={`border-secondary-content bg-secondary-content text-secondary-content ${common}`}
-          />
-        );
-      case HistoryTxType.POA_SET_POWER:
-        return (
-          <AdminsIcon
-            className={`border-secondary-content bg-secondary-content text-secondary-content ${common}`}
-          />
-        );
-      default:
-        return <QuestionIcon className={`border-[#F54562] bg-[#f54562] text-red-500 ${common}`} />;
-    }
+  function getTransactionIcon(tx: TxMessage, address: string) {
+    const IconComponent =
+      transactionRenderData[tx.type]?.(tx, address)?.icon ?? defaultHandler.icon;
+    return <IconComponent />;
   }
 
-  // Get the history message based on the transaction type
-  function getTransactionMessage(tx: TransactionGroup, address: string) {
-    let prefix = tx.data.metadata?.error ? 'ERROR - ' : '';
-    let message: string;
-
-    switch (tx.data.tx_type) {
-      case HistoryTxType.SEND:
-        message = tx.data.from_address === address ? 'Sent' : 'Received';
-        break;
-      case HistoryTxType.IBC_TRANSFER:
-        message = 'IBC Transfer';
-        break;
-      case HistoryTxType.MINT:
-      case HistoryTxType.PAYOUT:
-        message = 'Minted';
-        break;
-      case HistoryTxType.BURN:
-      case HistoryTxType.BURN_HELD_BALANCE:
-        message = 'Burned';
-        break;
-      case HistoryTxType.CHANGE_ADMIN:
-        message = 'Changed Token Admin';
-        break;
-      case HistoryTxType.CREATE_GROUP_WITH_POLICY:
-        message = 'Created Group';
-        break;
-      case HistoryTxType.SET_DENOM_METADATA:
-        message = 'Set Denom Metadata';
-        break;
-      case HistoryTxType.CREATE_DENOM:
-        message = 'Created Denom';
-        break;
-      case HistoryTxType.EXEC_PROPOSAL:
-        message = `Executed Proposal #${tx.data.metadata?.proposal_id}`;
-        break;
-      case HistoryTxType.SUBMIT_PROPOSAL:
-        message = `Submitted Proposal #${tx.data.metadata?.proposal_id}`;
-        break;
-      case HistoryTxType.VOTE_PROPOSAL:
-        message = `Voted on Proposal #${tx.data.metadata?.proposal_id}`;
-        break;
-      case HistoryTxType.WITHDRAW_PROPOSAL:
-        message = `Withdrew Proposal #${tx.data.metadata?.proposal_id}`;
-        break;
-      case HistoryTxType.UPDATE_GROUP_POLICY_METADATA:
-        message = `Updated Group Policy Metadata`;
-        break;
-      case HistoryTxType.UPDATE_GROUP_POLICY_DECISION_POLICY:
-        message = `Updated Group Policy Decision Policy`;
-        break;
-      case HistoryTxType.UPDATE_GROUP_METADATA:
-        message = `Updated Group #${tx.data.metadata?.group_id} Metadata`;
-        break;
-      case HistoryTxType.LEAVE_GROUP:
-        message = `Left Group #${tx.data.metadata?.group_id}`;
-        break;
-      case HistoryTxType.UPDATE_GROUP_MEMBERS:
-        message = `Updated Group #${tx.data.metadata?.group_id} Members`;
-        break;
-      case HistoryTxType.SOFTWARE_UPGRADE:
-        message = `Chain Software Upgrade`;
-        break;
-      case HistoryTxType.POA_SET_POWER:
-        message = `Set Validator Power`;
-        break;
-      default:
-        message = 'Unknown Transaction';
-        break;
-    }
-
-    return prefix + message;
+  function getTransactionMessage(tx: TxMessage, address: string) {
+    return transactionRenderData[tx.type]?.(tx, address)?.message ?? defaultHandler.message;
   }
 
-  // Get the transaction direction based on the transaction type
-  function getTransactionPlusMinus(tx: TransactionGroup, address: string) {
-    switch (tx.data.tx_type) {
-      case HistoryTxType.SEND:
-      case HistoryTxType.IBC_TRANSFER:
-        return tx.data.from_address === address ? '-' : '+';
-      case HistoryTxType.MINT:
-      case HistoryTxType.PAYOUT:
-        return '+';
-      case HistoryTxType.BURN:
-      case HistoryTxType.BURN_HELD_BALANCE:
-        return '-';
-      default:
-        return '';
-    }
+  function getTransactionColor(tx: TxMessage, address: string) {
+    return transactionRenderData[tx.type]?.(tx, address)?.color ?? defaultHandler.color;
   }
 
-  // Get the transaction color based on the transaction type and direction
-  function getTransactionColor(tx: TransactionGroup, address: string) {
-    switch (tx.data.tx_type) {
-      case HistoryTxType.SEND:
-      case HistoryTxType.IBC_TRANSFER:
-        return tx.data.from_address === address ? 'text-red-500' : 'text-green-500';
-      case HistoryTxType.MINT:
-      case HistoryTxType.PAYOUT:
-        return 'text-green-500';
-      case HistoryTxType.BURN:
-      case HistoryTxType.BURN_HELD_BALANCE:
-        return 'text-red-500';
-      default:
-        return null;
-    }
+  function getTransactionPlusMinus(tx: TxMessage, address: string, metadata?: MetadataSDKType[]) {
+    return transactionRenderData[tx.type]?.(tx, address, metadata)?.sign ?? defaultHandler.sign;
   }
 
   return (
@@ -315,9 +500,9 @@ export function HistoryBox({
             <div className="h-full overflow-y-auto">
               {sendTxs?.slice(0, skeletonTxCount).map((tx, index) => (
                 <div
-                  key={`${tx.tx_hash}-${index}`}
+                  key={`${tx.id}-${index}`}
                   className={`flex items-center justify-between p-4 
-                    ${tx.data.metadata?.error ? 'bg-[#E5393522] dark:bg-[#E5393533] hover:bg-[#E5393544] dark:hover:bg-[#E5393555]' : 'bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A]'}
+                    ${tx.error ? 'bg-[#E5393522] dark:bg-[#E5393533] hover:bg-[#E5393544] dark:hover:bg-[#E5393555]' : 'bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A]'}
                     rounded-[16px] cursor-pointer transition-colors mb-2`}
                   onClick={() => {
                     setSelectedTx(tx);
@@ -329,72 +514,34 @@ export function HistoryBox({
                       {getTransactionIcon(tx, address)}
                     </div>
 
-                    {tx.data.amount?.map((amt, index) => {
-                      const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
-                      return <DenomImage key={index} denom={metadata} />;
-                    })}
-
                     <div>
                       <div className="flex flex-row items-center gap-2">
                         <p className="font-semibold text-[#161616] dark:text-white">
                           {getTransactionMessage(tx, address)}
                         </p>
-                        <p className="font-semibold text-[#161616] dark:text-white">
-                          {tx.data.amount?.map((amt, index) => {
-                            const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
-                            const display = metadata?.display ?? metadata?.symbol ?? '';
-                            return metadata?.display.startsWith('factory')
-                              ? metadata?.display?.split('/').pop()?.toUpperCase()
-                              : display.length > 4
-                                ? display.slice(0, 4).toUpperCase() + '...'
-                                : display.toUpperCase();
-                          })}
-                        </p>
+                        <p className="font-semibold text-[#161616] dark:text-white"></p>
                       </div>
                       <div
                         className="address-copy xs:block hidden"
                         onClick={e => e.stopPropagation()}
-                      >
-                        {tx.data.from_address.startsWith('manifest1') ? (
-                          <TruncatedAddressWithCopy
-                            address={
-                              tx.data.from_address === address
-                                ? (tx.data.to_address ?? '')
-                                : tx.data.from_address
-                            }
-                            slice={24}
-                          />
-                        ) : (
-                          <div className="text-[#00000099] dark:text-[#FFFFFF99]">
-                            {tx.data.from_address}
-                          </div>
-                        )}
-                      </div>
+                      ></div>
                     </div>
                   </div>
                   <div className="text-right flex-col items-end sm:flex hidden">
                     <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99] mb-1">
-                      {formatDateShort(tx.formatted_date)}
+                      {formatDateShort(tx.timestamp)}
                     </p>
-                    {!tx.data.metadata?.error && (
+                    {!tx.error && (
                       <p className={`font-semibold ${getTransactionColor(tx, address)} `}>
-                        {getTransactionPlusMinus(tx, address)}
-                        {tx.data.amount
-                          ?.map((amt: { denom: string; amount: string | number }) => {
-                            const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
-                            const exponent = Number(metadata?.denom_units[1]?.exponent) || 6;
-                            const amount = Number(shiftDigits(amt.amount, -exponent));
-                            return `${formatLargeNumber(amount)} ${formatDenom(amt.denom)}`;
-                          })
-                          .join(', ')}
+                        {getTransactionPlusMinus(tx, address, metadatas?.metadatas)}
                       </p>
                     )}
                     <div className="text-red-500 text-xs">
                       Fee:{' -'}
                       {tx.fee &&
-                        formatLargeNumber(Number(shiftDigits(tx.fee.amount, -6))) +
+                        formatLargeNumber(Number(shiftDigits(tx.fee.amount?.[0]?.amount, -6))) +
                           ' ' +
-                          formatDenom(tx.fee.denom)}
+                          formatDenom(tx.fee.amount?.[0]?.denom)}
                     </div>
                   </div>
                 </div>
@@ -460,7 +607,7 @@ export function HistoryBox({
         </div>
       )}
 
-      <TxInfoModal modalId={`tx_modal_info`} tx={selectedTx ?? ({} as TransactionGroup)} />
+      <TxInfoModal modalId={`tx_modal_info`} tx={selectedTx ?? ({} as TxMessage)} />
     </div>
   );
 }

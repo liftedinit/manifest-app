@@ -2,13 +2,12 @@ import React, { useMemo } from 'react';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { formatDenom, objectSyntax, TransactionGroup } from '@/components';
 import { FaExternalLinkAlt } from 'react-icons/fa';
-import { shiftDigits } from '@/utils';
+import { shiftDigits, TxMessage } from '@/utils';
 import env from '@/config/env';
 import { useTheme } from '@/contexts';
 
 interface TxInfoModalProps {
-  tx: TransactionGroup;
-
+  tx: TxMessage;
   modalId: string;
 }
 
@@ -45,58 +44,29 @@ export default function TxInfoModal({ tx, modalId }: TxInfoModalProps) {
             <InfoItem
               label="TRANSACTION HASH"
               explorerUrl={env.explorerUrl}
-              value={tx?.tx_hash}
+              value={tx?.id}
               isAddress={true}
             />
-            <InfoItem
-              label="BLOCK"
-              explorerUrl={env.explorerUrl}
-              value={tx?.block_number?.toString()}
-            />
+            <InfoItem label="BLOCK" explorerUrl={env.explorerUrl} value={tx?.height?.toString()} />
             <InfoItem
               label="TIMESTAMP"
               explorerUrl={env.explorerUrl}
-              value={formatDate(tx?.formatted_date)}
+              value={formatDate(tx?.timestamp)}
             />
           </div>
           <div>
             <InfoItem
               label="FROM"
               explorerUrl={env.explorerUrl}
-              value={tx?.data?.from_address}
+              value={tx?.sender}
               isAddress={true}
             />
-            {tx?.data?.to_address && (
-              <InfoItem
-                label="TO"
-                explorerUrl={env.explorerUrl}
-                value={tx?.data?.to_address}
-                isAddress={true}
-              />
-            )}
-            {tx?.data?.amount && (
-              <div>
-                <p className="text-sm font-semibold text-[#00000099] dark:text-[#FFFFFF99] mb-2">
-                  AMOUNT
-                </p>
-                <div className="bg-[#FFFFFF66] dark:bg-[#FFFFFF1A] rounded-[16px] p-4">
-                  {tx?.data?.amount.map((amt, index) => (
-                    <p key={index} className="text-[#161616] dark:text-white">
-                      {Number(shiftDigits(amt.amount, -6)).toLocaleString(undefined, {
-                        maximumFractionDigits: 6,
-                      })}{' '}
-                      {formatDenom(amt.denom)}
-                    </p>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
-        {tx?.data?.metadata && (
+        {tx?.metadata && (
           <div>
             <h4 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">Metadata</h4>
-            {Object.entries(tx?.data?.metadata).map(([key, value], index) => (
+            {Object.entries(tx?.metadata).map(([key, value], index) => (
               <MetadataItem key={index} label={key} content={value} theme={theme} />
             ))}
           </div>
@@ -120,7 +90,7 @@ function MetadataItem({
   theme,
 }: Readonly<{
   label: string;
-  content: string;
+  content: any;
   theme: string;
 }>) {
   function isJsonString(str: string): boolean {

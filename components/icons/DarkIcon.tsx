@@ -1,7 +1,7 @@
 import React from 'react';
 import { SVGProps } from 'react';
 
-export const DarkIcon: React.FC<SVGProps<SVGSVGElement>> = props => (
+const DarkIcon: React.FC<SVGProps<SVGSVGElement>> = props => (
   <svg
     width="24"
     height="24"
@@ -19,3 +19,5 @@ export const DarkIcon: React.FC<SVGProps<SVGSVGElement>> = props => (
     />
   </svg>
 );
+
+export default DarkIcon;

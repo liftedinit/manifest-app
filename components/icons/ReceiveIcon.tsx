@@ -1,7 +1,7 @@
 import React from 'react';
 import { SVGProps } from 'react';
 
-export const ReceiveIcon: React.FC<SVGProps<SVGSVGElement>> = props => (
+const ReceiveIcon: React.FC<SVGProps<SVGSVGElement>> = props => (
   <svg
     width="24"
     height="24"
@@ -18,3 +18,5 @@ export const ReceiveIcon: React.FC<SVGProps<SVGSVGElement>> = props => (
     />
   </svg>
 );
+
+export default ReceiveIcon;

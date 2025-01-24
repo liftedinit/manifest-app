@@ -1,7 +1,7 @@
 import React from 'react';
 import { SVGProps } from 'react';
 
-export const QRIcon: React.FC<SVGProps<SVGSVGElement>> = props => (
+const QRIcon: React.FC<SVGProps<SVGSVGElement>> = props => (
   <svg
     width="24"
     height="24"
@@ -24,3 +24,5 @@ export const QRIcon: React.FC<SVGProps<SVGSVGElement>> = props => (
     />
   </svg>
 );
+
+export default QRIcon;

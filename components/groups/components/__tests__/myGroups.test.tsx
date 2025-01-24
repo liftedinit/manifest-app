@@ -29,7 +29,7 @@ mock.module('@/hooks/useQueries', () => ({
     isBalanceLoading: false,
     isBalanceError: false,
   }),
-  useGetFilteredTxAndSuccessfulProposals: jest.fn().mockReturnValue({
+  useGetMessagesFromAddress: jest.fn().mockReturnValue({
     sendTxs: [],
     totalPages: 1,
     isLoading: false,

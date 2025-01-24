@@ -1,7 +1,7 @@
 import React from 'react';
 import { SVGProps } from 'react';
 
-export const BroadcastingIcon: React.FC<SVGProps<SVGSVGElement>> = props => (
+const BroadcastingIcon: React.FC<SVGProps<SVGSVGElement>> = props => (
   <svg
     width="22"
     height="18"
@@ -32,3 +32,5 @@ export const BroadcastingIcon: React.FC<SVGProps<SVGSVGElement>> = props => (
     />
   </svg>
 );
+
+export default BroadcastingIcon;
