@@ -58,6 +58,7 @@
     "daisyui": "^4.12.10",
     "dayjs": "^1.11.13",
     "decimal.js": "^10.4.3",
+    "dompurify": "^3.2.3",
     "file-saver": "^2.0.5",
     "formik": "^2.4.6",
     "identicon.js": "^2.3.3",

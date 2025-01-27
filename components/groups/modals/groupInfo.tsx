@@ -228,7 +228,7 @@ export function GroupInfo({
             </button>
 
             <button
-              aria-label={'update-btn'}
+              aria-label={'upgrade-btn'}
               className="btn btn-gradient text-white rounded-[12px] h-[52px] w-[140px]"
               onClick={() => setShowUpdateModal(true)}
             >

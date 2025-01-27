@@ -70,3 +70,28 @@ export const calculateIsUnsafe = (
 
   return changePercentage > 30n;
 };
+
+export function formatLargeNumber(num: number): string {
+  const quintillion = 1e18;
+  const quadrillion = 1e15;
+  const trillion = 1e12;
+  const billion = 1e9;
+  const million = 1e6;
+
+  if (num < million) {
+    return num.toString();
+  }
+
+  if (num >= quintillion) {
+    return `${(num / quintillion).toFixed(2)}QT`;
+  } else if (num >= quadrillion) {
+    return `${(num / quadrillion).toFixed(2)}Q`;
+  } else if (num >= trillion) {
+    return `${(num / trillion).toFixed(2)}T`;
+  } else if (num >= billion) {
+    return `${(num / billion).toFixed(2)}B`;
+  } else if (num >= million) {
+    return `${(num / million).toFixed(2)}M`;
+  }
+  return num.toFixed(6);
+}

@@ -1,7 +1,7 @@
 import React from 'react';
 import { SVGProps } from 'react';
 
-const GroupsIcon: React.FC<SVGProps<SVGSVGElement>> = props => (
+export const GroupsIcon: React.FC<SVGProps<SVGSVGElement>> = props => (
   <svg
     width="24"
     height="24"
@@ -32,5 +32,3 @@ const GroupsIcon: React.FC<SVGProps<SVGSVGElement>> = props => (
     />
   </svg>
 );
-
-export default GroupsIcon;

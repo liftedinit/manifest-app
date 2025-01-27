@@ -1,7 +1,7 @@
 import React from 'react';
 import { SVGProps } from 'react';
 
-const SendTxIcon: React.FC<SVGProps<SVGSVGElement>> = props => (
+export const SendTxIcon: React.FC<SVGProps<SVGSVGElement>> = props => (
   <svg
     stroke="currentColor"
     fill="currentColor"
@@ -17,5 +17,3 @@ const SendTxIcon: React.FC<SVGProps<SVGSVGElement>> = props => (
     <path d="M48 270.9l118.9 44.6L181.7 464 256 360l104 104L464 48 48 270.9zm294.9 126L260 313.4 374.9 152 193.6 289.8 124.9 265l291-156.2-73 288.1z"></path>
   </svg>
 );
-
-export default SendTxIcon;

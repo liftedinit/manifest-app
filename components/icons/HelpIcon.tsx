@@ -1,7 +1,7 @@
 import React from 'react';
 import { SVGProps } from 'react';
 
-const HelpIcon: React.FC<SVGProps<SVGSVGElement>> = props => (
+export const HelpIcon: React.FC<SVGProps<SVGSVGElement>> = props => (
   <svg
     width="24"
     height="24"
@@ -29,5 +29,3 @@ const HelpIcon: React.FC<SVGProps<SVGSVGElement>> = props => (
     </defs>
   </svg>
 );
-
-export default HelpIcon;

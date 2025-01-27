@@ -1,5 +1,5 @@
 import { test, expect, afterEach, describe, mock, jest } from 'bun:test';
-import { screen, cleanup, fireEvent } from '@testing-library/react';
+import { screen, cleanup, fireEvent, within } from '@testing-library/react';
 import { HistoryBox } from '../historyBox';
 import { renderWithChainProvider } from '@/tests/render';
 import { mockTransactions } from '@/tests/mock';
@@ -52,7 +52,7 @@ describe('HistoryBox', () => {
     );
   });
 
-  test('displays transactions', () => {
+  test('displays transactions as `address1`', () => {
     renderWithChainProvider(
       <HistoryBox
         isLoading={false}
@@ -62,10 +62,28 @@ describe('HistoryBox', () => {
         totalPages={2}
       />
     );
-    expect(screen.getByText('You sent TOKEN to address2')).toBeInTheDocument();
-    expect(screen.getByText('You received TOKEN from address2')).toBeInTheDocument();
-    expect(screen.getByText('You minted TOKEN to address2')).toBeInTheDocument();
-    expect(screen.getByText('You were burned TOKEN by address2')).toBeInTheDocument();
+    expect(screen.getByText(/You sent/i)).toBeInTheDocument();
+    expect(screen.getByText(/You received/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/You were burned/i)).toHaveLength(2);
+    expect(screen.getAllByText(/You minted/i)).toHaveLength(2);
+    expect(screen.getAllByText(/You were minted/i)).toHaveLength(4);
+  });
+
+  test('displays transactions as `address2`', () => {
+    renderWithChainProvider(
+      <HistoryBox
+        isLoading={false}
+        address="address2"
+        currentPage={1}
+        sendTxs={mockTransactions}
+        totalPages={2}
+      />
+    );
+    expect(screen.getByText(/You sent/i)).toBeInTheDocument();
+    expect(screen.getByText(/You received/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/You burned/i)).toHaveLength(2);
+    expect(screen.getAllByText(/You were minted/i)).toHaveLength(2);
+    expect(screen.getAllByText(/You minted/i)).toHaveLength(4);
   });
 
   test('opens modal when clicking on a transaction', () => {
@@ -79,9 +97,7 @@ describe('HistoryBox', () => {
       />
     );
 
-    const transactionElement = screen
-      .getByText('You sent TOKEN to address2')
-      .closest('div[role="button"]');
+    const transactionElement = screen.getByText(/You sent/i).closest('div[role="button"]');
 
     if (transactionElement) {
       fireEvent.click(transactionElement);
@@ -99,16 +115,16 @@ describe('HistoryBox', () => {
         totalPages={2}
       />
     );
-    expect(screen.queryByText('-1.00QT TOKEN')).toBeInTheDocument(); // Send
-    expect(screen.queryByText('+2.00Q TOKEN')).toBeInTheDocument(); // Receive
-    // expect(screen.queryByText('+3.00T TOKEN')).toBeInTheDocument(); // Mint
-    // expect(screen.queryByText('-1.20B TOKEN')).toBeInTheDocument(); // Burn
-    // expect(screen.queryByText('+5.00M TOKEN')).toBeInTheDocument(); // Payout
-    // expect(screen.queryByText('-2.1 TOKEN')).toBeInTheDocument(); // Burn held balance
-    // expect(screen.queryByText('+2.3 TOKEN')).toBeInTheDocument(); // Payout
-    // expect(screen.queryByText('+2.4 TOKEN')).toBeInTheDocument(); // Payout
-    // expect(screen.queryByText('+2.5 TOKEN')).toBeInTheDocument(); // Payout
-    // expect(screen.queryByText('+2.6 TOKEN')).toBeInTheDocument(); // Payout
+    expect(screen.queryByText('1.00QT TOKEN')).toBeInTheDocument(); // Send
+    expect(screen.queryByText('2.00Q TOKEN')).toBeInTheDocument(); // Receive
+    expect(screen.queryByText('3.00T TOKEN')).toBeInTheDocument(); // Mint
+    expect(screen.queryByText('1.20B TOKEN')).toBeInTheDocument(); // Burn
+    expect(screen.queryByText('5.00M TOKEN')).toBeInTheDocument(); // Payout
+    expect(screen.queryByText('2.1 TOKEN')).toBeInTheDocument(); // Burn held balance
+    expect(screen.queryByText('2.3 TOKEN')).toBeInTheDocument(); // Payout
+    expect(screen.queryByText('2.4 TOKEN')).toBeInTheDocument(); // Payout
+    expect(screen.queryByText('2.5 TOKEN')).toBeInTheDocument(); // Payout
+    expect(screen.queryByText('2.6 TOKEN')).toBeInTheDocument(); // Payout
   });
 
   test('displays loading state', () => {

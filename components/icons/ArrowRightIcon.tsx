@@ -5,7 +5,7 @@ interface ArrowRightIconProps extends SVGProps<SVGSVGElement> {
   size?: number;
 }
 
-const ArrowRightIcon: React.FC<ArrowRightIconProps> = ({ size, ...props }) => (
+export const ArrowRightIcon: React.FC<ArrowRightIconProps> = ({ size, ...props }) => (
   <svg
     width={size || 24}
     height={size || 24}
@@ -24,5 +24,3 @@ const ArrowRightIcon: React.FC<ArrowRightIconProps> = ({ size, ...props }) => (
     />
   </svg>
 );
-
-export default ArrowRightIcon;

@@ -25,6 +25,14 @@ export default function TxInfoModal({ tx, modalId }: TxInfoModalProps) {
     });
   }
 
+  function isBase64(str: string): boolean {
+    try {
+      return btoa(atob(str)) === str;
+    } catch (err) {
+      return false;
+    }
+  }
+
   return (
     <dialog aria-label="tx_info_modal" id={modalId} className={`modal z-[999]`}>
       <div
@@ -48,32 +56,41 @@ export default function TxInfoModal({ tx, modalId }: TxInfoModalProps) {
               isAddress={true}
             />
             <InfoItem label="BLOCK" explorerUrl={env.explorerUrl} value={tx?.height?.toString()} />
+          </div>
+          <div>
+            <InfoItem
+              label="SENDER"
+              explorerUrl={env.explorerUrl}
+              value={tx?.sender}
+              isAddress={true}
+            />
             <InfoItem
               label="TIMESTAMP"
               explorerUrl={env.explorerUrl}
               value={formatDate(tx?.timestamp)}
             />
           </div>
-          <div>
-            <InfoItem
-              label="FROM"
-              explorerUrl={env.explorerUrl}
-              value={tx?.sender}
-              isAddress={true}
-            />
-          </div>
         </div>
-        {tx?.metadata && (
-          <div>
-            <h4 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">Metadata</h4>
-            {Object.entries(tx?.metadata).map(([key, value], index) => (
-              <MetadataItem key={index} label={key} content={value} theme={theme} />
-            ))}
-          </div>
-        )}
+        {/*{tx?.metadata && (*/}
+        {/*  <div>*/}
+        {/*    <h4 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">Metadata</h4>*/}
+        {/*    {Object.entries(tx?.metadata).map(([key, value], index) => (*/}
+        {/*      <MetadataItem key={index} label={key} content={value} theme={theme} />*/}
+        {/*    ))}*/}
+        {/*  </div>*/}
+        {/*)}*/}
         {tx.memo && (
           <div>
             <InfoItem label="MEMO" explorerUrl={env.explorerUrl} value={tx.memo} />
+          </div>
+        )}
+        {tx.error && (
+          <div>
+            <InfoItem
+              label="ERROR"
+              explorerUrl={env.explorerUrl}
+              value={isBase64(tx.error) ? atob(tx.error) : tx.error}
+            />
           </div>
         )}
       </div>
@@ -111,6 +128,10 @@ function MetadataItem({
       </p>
       {isJson ? (
         objectSyntax(JSON.parse(content), theme)
+      ) : typeof content === 'object' ? (
+        <div className="bg-[#FFFFFF66] dark:bg-[#FFFFFF1A] rounded-[16px] p-4">
+          <pre className="text-[#161616] dark:text-white">{JSON.stringify(content, null, 2)}</pre>
+        </div>
       ) : (
         <div className="bg-[#FFFFFF66] dark:bg-[#FFFFFF1A] rounded-[16px] p-4">
           <p className="text-[#161616] dark:text-white">{content}</p>
