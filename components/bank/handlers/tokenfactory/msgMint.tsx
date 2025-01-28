@@ -1,6 +1,8 @@
 import { FactoryIcon } from '@/components/icons/FactoryIcon';
 import { formatAmount, formatDenom, formatLargeNumber } from '@/utils';
 import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { MsgMint } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
 
 export const MsgMintHandler = createSenderReceiverHandler({
   iconSender: FactoryIcon,
@@ -28,3 +30,5 @@ export const MsgMintHandler = createSenderReceiverHandler({
     return `You were minted <span class="text-green-500">${amount} ${denom}</span> from ${tx.sender}`;
   },
 });
+
+registerHandler(MsgMint.typeUrl, MsgMintHandler);

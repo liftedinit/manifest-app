@@ -1,7 +1,8 @@
-import { TxMessage } from '@/utils';
+import React from 'react';
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import DOMPurify from 'dompurify';
 import { QuestionIcon } from '@/components/icons/QuestionIcon';
+import { TxMessage } from '../types';
 
 // The HTML message returned by this handler builder is sanitized.
 export function createSenderReceiverHandler({
@@ -12,8 +13,8 @@ export function createSenderReceiverHandler({
   successReceiver,
   failReceiver,
 }: {
-  iconSender: any;
-  iconReceiver?: any;
+  iconSender: React.ComponentType;
+  iconReceiver?: React.ComponentType;
   successSender:
     | string
     | ((tx: TxMessage, address: string, metadata?: MetadataSDKType[]) => string);

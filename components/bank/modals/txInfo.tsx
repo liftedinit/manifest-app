@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
-import { objectSyntax, TransactionGroup } from '@/components';
+import { objectSyntax } from '@/components';
 import { FaExternalLinkAlt } from 'react-icons/fa';
-import { formatDenom, shiftDigits, TxMessage } from '@/utils';
 import env from '@/config/env';
 import { useTheme } from '@/contexts';
+import { TxMessage } from '@/components/bank/types';
 
 interface TxInfoModalProps {
   tx: TxMessage;

@@ -4,7 +4,7 @@ import { QueryGroupsByMemberResponseSDKType } from '@liftedinit/manifestjs/dist/
 
 import { useLcdQueryClient } from './useLcdQueryClient';
 import { usePoaLcdQueryClient } from './usePoaLcdQueryClient';
-import { getLogoUrls, TxMessage } from '@/utils';
+import { getLogoUrls } from '@/utils';
 
 import { useManifestLcdQueryClient } from './useManifestLcdQueryClient';
 
@@ -16,6 +16,7 @@ import {
 import { Octokit } from 'octokit';
 
 import { useOsmosisRpcQueryClient } from '@/hooks/useOsmosisRpcQueryClient';
+import { TxMessage } from '@/components/bank/types';
 
 export type ExtendedGroupType = QueryGroupsByMemberResponseSDKType['groups'][0] & {
   policies: GroupPolicyInfoSDKType[];

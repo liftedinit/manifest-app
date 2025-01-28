@@ -1,71 +1,10 @@
 import React, { useState } from 'react';
-import { shiftDigits, formatLargeNumber, TransactionAmount, TxMessage, formatDenom } from '@/utils';
+import { TransactionAmount, TxMessage } from '../types';
+import { shiftDigits, formatLargeNumber, formatDenom } from '@/utils';
+import { getHandler } from '@/components/bank/handlers/handlerRegistry';
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
-import { QuestionIcon } from '@/components/icons/QuestionIcon';
 import { useTokenFactoryDenomsMetadata } from '@/hooks';
 import TxInfoModal from '../modals/txInfo';
-import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
-import { MsgTransfer } from '@liftedinit/manifestjs/dist/codegen/ibc/applications/transfer/v1/tx';
-import {
-  MsgBurn,
-  MsgChangeAdmin,
-  MsgCreateDenom,
-  MsgMint,
-  MsgSetDenomMetadata,
-} from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
-import {
-  MsgBurnHeldBalance,
-  MsgPayout,
-} from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
-import {
-  MsgCreateGroupWithPolicy,
-  MsgExec,
-  MsgLeaveGroup,
-  MsgSubmitProposal,
-  MsgUpdateGroupMembers,
-  MsgUpdateGroupMetadata,
-  MsgUpdateGroupPolicyDecisionPolicy,
-  MsgUpdateGroupPolicyMetadata,
-  MsgVote,
-  MsgWithdrawProposal,
-} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
-import {
-  MsgCancelUpgrade,
-  MsgSoftwareUpgrade,
-} from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
-import {
-  MsgCreateValidator,
-  MsgRemovePending,
-  MsgRemoveValidator,
-  MsgSetPower,
-} from '@liftedinit/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
-import {
-  MsgBurnHandler,
-  MsgBurnHeldBalanceHandler,
-  MsgChangeAdminHandler,
-  MsgCreateDenomHandler,
-  MsgCreateGroupWithPolicyHandler,
-  MsgExecHandler,
-  MsgLeaveGroupHandler,
-  MsgMintHandler,
-  MsgPayoutHandler,
-  MsgSendHandler,
-  MsgSetDenomMetadataHandler,
-  MsgSetPowerHandler,
-  MsgSoftwareUpgradeHandler,
-  MsgTransferHandler,
-  MsgUpdateGroupMembersHandler,
-  MsgUpdateGroupMetadataHandler,
-  MsgUpdateGroupPolicyDecisionPolicyHandler,
-  MsgUpdateGroupPolicyMetadataHandler,
-  MsgVoteHandler,
-  MsgWithdrawProposalHandler,
-  MsgSubmitProposalHandler,
-  MsgRemoveValidatorHandler,
-  MsgRemovePendingValidatorHandler,
-  MsgCancelUpgradeHandler,
-  MsgCreateValidatorHandler,
-} from '@/components/bank/handlers';
 
 export interface TransactionGroup {
   tx_hash: string;
@@ -74,39 +13,6 @@ export interface TransactionGroup {
   fee?: TransactionAmount;
   memo?: string;
 }
-
-const defaultHandler = {
-  icon: QuestionIcon,
-  message: 'Unknown transaction type',
-};
-
-const transactionRenderData = {
-  [MsgSend.typeUrl]: MsgSendHandler,
-  [MsgTransfer.typeUrl]: MsgTransferHandler,
-  [MsgMint.typeUrl]: MsgMintHandler,
-  [MsgPayout.typeUrl]: MsgPayoutHandler,
-  [MsgBurn.typeUrl]: MsgBurnHandler,
-  [MsgBurnHeldBalance.typeUrl]: MsgBurnHeldBalanceHandler,
-  [MsgChangeAdmin.typeUrl]: MsgChangeAdminHandler,
-  [MsgCreateGroupWithPolicy.typeUrl]: MsgCreateGroupWithPolicyHandler,
-  [MsgExec.typeUrl]: MsgExecHandler,
-  [MsgSubmitProposal.typeUrl]: MsgSubmitProposalHandler,
-  [MsgVote.typeUrl]: MsgVoteHandler,
-  [MsgWithdrawProposal.typeUrl]: MsgWithdrawProposalHandler,
-  [MsgUpdateGroupMetadata.typeUrl]: MsgUpdateGroupMetadataHandler,
-  [MsgUpdateGroupPolicyMetadata.typeUrl]: MsgUpdateGroupPolicyMetadataHandler,
-  [MsgUpdateGroupPolicyDecisionPolicy.typeUrl]: MsgUpdateGroupPolicyDecisionPolicyHandler,
-  [MsgLeaveGroup.typeUrl]: MsgLeaveGroupHandler,
-  [MsgUpdateGroupMembers.typeUrl]: MsgUpdateGroupMembersHandler,
-  [MsgCreateDenom.typeUrl]: MsgCreateDenomHandler,
-  [MsgSetDenomMetadata.typeUrl]: MsgSetDenomMetadataHandler,
-  [MsgSoftwareUpgrade.typeUrl]: MsgSoftwareUpgradeHandler,
-  [MsgCancelUpgrade.typeUrl]: MsgCancelUpgradeHandler,
-  [MsgSetPower.typeUrl]: MsgSetPowerHandler,
-  [MsgRemovePending.typeUrl]: MsgRemovePendingValidatorHandler,
-  [MsgRemoveValidator.typeUrl]: MsgRemoveValidatorHandler,
-  [MsgCreateValidator.typeUrl]: MsgCreateValidatorHandler,
-};
 
 export function HistoryBox({
   isLoading: initialLoading,
@@ -150,15 +56,14 @@ export function HistoryBox({
   }
 
   function getTransactionIcon(tx: TxMessage, address: string) {
-    const IconComponent =
-      transactionRenderData[tx.type]?.(tx, address)?.icon ?? defaultHandler.icon;
+    const handler = getHandler(tx.type);
+    const { icon: IconComponent } = handler(tx, address);
     return <IconComponent />;
   }
 
   function getTransactionMessage(tx: TxMessage, address: string, metadata?: MetadataSDKType[]) {
-    return (
-      transactionRenderData[tx.type]?.(tx, address, metadata)?.message ?? defaultHandler.message
-    );
+    const handler = getHandler(tx.type);
+    return handler(tx, address, metadata).message;
   }
 
   return (

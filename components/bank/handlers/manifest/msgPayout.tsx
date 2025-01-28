@@ -1,6 +1,8 @@
 import { MintIcon } from '@/components/icons/MintIcon';
 import { formatAmount, formatDenom, formatLargeNumber } from '@/utils';
 import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { MsgPayout } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
 
 export const MsgPayoutHandler = createSenderReceiverHandler({
   iconSender: MintIcon,
@@ -32,3 +34,5 @@ export const MsgPayoutHandler = createSenderReceiverHandler({
       : `you were minted <span class="text-green-500">${amount} ${denom}</span> by ${tx.sender}`;
   },
 });
+
+registerHandler(MsgPayout.typeUrl, MsgPayoutHandler);

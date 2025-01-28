@@ -1,6 +1,8 @@
 import { FactoryIcon } from '@/components/icons/FactoryIcon';
 import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 import { formatDenom } from '@/utils';
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { MsgCreateDenom } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
 
 export const MsgCreateDenomHandler = createSenderReceiverHandler({
   iconSender: FactoryIcon,
@@ -11,3 +13,5 @@ export const MsgCreateDenomHandler = createSenderReceiverHandler({
   successReceiver: tx =>
     `The ${formatDenom(`factory/${tx.sender}/${tx.metadata?.subdenom}`)} denomination was created`,
 });
+
+registerHandler(MsgCreateDenom.typeUrl, MsgCreateDenomHandler);

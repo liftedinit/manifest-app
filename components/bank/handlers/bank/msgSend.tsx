@@ -1,6 +1,8 @@
 import { BankIcon } from '@/components/icons/BankIcon';
 import { formatAmount, formatDenom, formatLargeNumber } from '@/utils';
 import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
 
 export const MsgSendHandler = createSenderReceiverHandler({
   iconSender: BankIcon,
@@ -31,3 +33,5 @@ export const MsgSendHandler = createSenderReceiverHandler({
     return `You received <span class="text-green-500">${amount} ${denom}</span> from ${fromAddress}`;
   },
 });
+
+registerHandler(MsgSend.typeUrl, MsgSendHandler);

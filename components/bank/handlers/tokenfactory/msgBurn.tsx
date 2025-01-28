@@ -1,6 +1,8 @@
 import { FactoryIcon } from '@/components/icons/FactoryIcon';
 import { formatAmount, formatDenom, formatLargeNumber } from '@/utils';
 import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { MsgBurn } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
 
 export const MsgBurnHandler = createSenderReceiverHandler({
   iconSender: FactoryIcon,
@@ -28,3 +30,5 @@ export const MsgBurnHandler = createSenderReceiverHandler({
     return `You were burned <span class="text-red-500">${amount} ${denom}</span> by ${tx.sender}`;
   },
 });
+
+registerHandler(MsgBurn.typeUrl, MsgBurnHandler);

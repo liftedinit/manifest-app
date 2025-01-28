@@ -1,5 +1,7 @@
 import { GroupsIcon } from '@/components/icons/GroupsIcon';
 import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { MsgSubmitProposal } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
 
 export const MsgSubmitProposalHandler = createSenderReceiverHandler({
   iconSender: GroupsIcon,
@@ -7,3 +9,5 @@ export const MsgSubmitProposalHandler = createSenderReceiverHandler({
   failSender: tx => 'You failed to submit a proposal',
   successReceiver: tx => `Proposal #${tx.proposal_ids} was submitted by ${tx.sender}`.trim(), // TODO Link to proposal
 });
+
+registerHandler(MsgSubmitProposal.typeUrl, MsgSubmitProposalHandler);

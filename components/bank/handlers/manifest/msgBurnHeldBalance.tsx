@@ -1,6 +1,8 @@
 import { BurnIcon } from '@/components/icons/BurnIcon';
 import { formatAmount, formatDenom, formatLargeNumber } from '@/utils';
 import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { MsgBurnHeldBalance } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
 
 export const MsgBurnHeldBalanceHandler = createSenderReceiverHandler({
   iconSender: BurnIcon,
@@ -33,3 +35,5 @@ export const MsgBurnHeldBalanceHandler = createSenderReceiverHandler({
       : `You were burned <span class="text-red-500">${amount} ${denom}</span> by ${tx.sender}`;
   },
 });
+
+registerHandler(MsgBurnHeldBalance.typeUrl, MsgBurnHeldBalanceHandler);

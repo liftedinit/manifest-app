@@ -1,6 +1,8 @@
 import { TransferIcon } from '@/components/icons/TransferIcon';
 import { formatAmount, formatDenom, formatLargeNumber } from '@/utils';
 import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { MsgTransfer } from '@liftedinit/manifestjs/dist/codegen/ibc/applications/transfer/v1/tx';
 
 export const MsgTransferHandler = createSenderReceiverHandler({
   iconSender: TransferIcon,
@@ -29,3 +31,5 @@ export const MsgTransferHandler = createSenderReceiverHandler({
     return `You received <span class="text-green-500">${amount} ${denom}</span> from ${sender} via IBC`;
   },
 });
+
+registerHandler(MsgTransfer.typeUrl, MsgTransferHandler);

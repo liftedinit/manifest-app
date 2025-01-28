@@ -1,5 +1,7 @@
 import { AdminsIcon } from '@/components/icons/AdminsIcon';
 import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { MsgSetPower } from '@liftedinit/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
 
 export const MsgSetPowerHandler = createSenderReceiverHandler({
   iconSender: AdminsIcon,
@@ -10,3 +12,5 @@ export const MsgSetPowerHandler = createSenderReceiverHandler({
   successReceiver: tx =>
     `Validator ${tx.metadata?.validatorAddress} had its power set to ${tx.metadata?.power}`,
 });
+
+registerHandler(MsgSetPower.typeUrl, MsgSetPowerHandler);
