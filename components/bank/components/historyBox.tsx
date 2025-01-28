@@ -162,7 +162,7 @@ export function HistoryBox({
   }
 
   return (
-    <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
+    <div className="w-full mx-auto rounded-[24px] h-full flex flex-col px-2 sm:px-4">
       {isLoading ? (
         <div className="flex-1 overflow-hidden h-full">
           <div aria-label="skeleton" className="space-y-2">
@@ -185,7 +185,7 @@ export function HistoryBox({
                           <div className="skeleton h-5 w-32 mt-1"></div>
                         </div>
                       </div>
-                      <div className="skeleton h-4 w-24 sm:block hidden"></div>
+                      <div className="skeleton h-4 w-24 hidden sm:block"></div>
                     </div>
                   ))}
                 </div>
@@ -210,39 +210,40 @@ export function HistoryBox({
               </p>
             </div>
           ) : (
-            <div className="h-full overflow-y-auto">
+            <div className="h-full overflow-y-auto space-y-2 mt-2">
               {sendTxs?.slice(0, skeletonTxCount).map((tx, index) => (
                 <div
                   key={`${tx.id}-${index}`}
-                  className={`flex items-center justify-between p-4 
-                    ${tx.error ? 'bg-[#E5393522] dark:bg-[#E5393533] hover:bg-[#E5393544] dark:hover:bg-[#E5393555]' : 'bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A]'}
-                    rounded-[16px] cursor-pointer transition-colors mb-2`}
+                  className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 
+                    ${
+                      tx.error
+                        ? 'bg-[#E5393522] dark:bg-[#E5393533] hover:bg-[#E5393544] dark:hover:bg-[#E5393555]'
+                        : 'bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A]'
+                    }
+                    rounded-[16px] cursor-pointer transition-colors`}
                   onClick={() => {
                     setSelectedTx(tx);
-                    (document?.getElementById(`tx_modal_info`) as HTMLDialogElement)?.showModal();
+                    (document?.getElementById('tx_modal_info') as HTMLDialogElement)?.showModal();
                   }}
                 >
-                  <div className="flex items-center space-x-3">
+                  <div className="flex flex-row items-center space-x-3 mb-2 sm:mb-0">
                     <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center text-[#161616] dark:text-white">
                       {getTransactionIcon(tx, address)}
                     </div>
-                    <div className="flex flex-col items-left">
-                      <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99] mb-1">
+                    <div>
+                      <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99]">
                         {formatDateShort(tx.timestamp)}
                       </p>
-                      <div className="flex flex-row items-center gap-2">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mt-1">
                         <span className="font-semibold text-[#161616] dark:text-white">
-                          {
-                            <div
-                              dangerouslySetInnerHTML={{
-                                __html: getTransactionMessage(tx, address, metadatas?.metadatas),
-                              }}
-                            />
-                          }
+                          <div
+                            dangerouslySetInnerHTML={{
+                              __html: getTransactionMessage(tx, address, metadatas?.metadatas),
+                            }}
+                          />
                         </span>
-                        <p className="font-semibold text-[#161616] dark:text-white"></p>
                       </div>
-                      <div className="text-gray-500 text-xs">
+                      <div className="text-gray-500 text-xs mt-1">
                         Incl.:{' '}
                         {tx.fee &&
                           formatLargeNumber(Number(shiftDigits(tx.fee.amount?.[0]?.amount, -6))) +
@@ -252,6 +253,11 @@ export function HistoryBox({
                       </div>
                     </div>
                   </div>
+                  {/* Example of placing date/ID on the right side on larger screens:
+                      <div className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 mt-2 sm:mt-0">
+                        Tx ID: {tx.id}
+                      </div>
+                  */}
                 </div>
               ))}
             </div>
@@ -260,7 +266,7 @@ export function HistoryBox({
       )}
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-end gap-2 mt-2">
+        <div className="flex flex-wrap sm:flex-nowrap items-center justify-center sm:justify-end gap-2 mt-4">
           <button
             onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
             disabled={currentPage === 1 || isLoading}
@@ -285,11 +291,11 @@ export function HistoryBox({
                   aria-label={`Page ${pageNum}`}
                   aria-current={currentPage === pageNum ? 'page' : undefined}
                   className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors  
-                      ${
-                        currentPage === pageNum
-                          ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A] text-black dark:text-white'
-                          : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white'
-                      }`}
+                    ${
+                      currentPage === pageNum
+                        ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A] text-black dark:text-white'
+                        : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white'
+                    }`}
                 >
                   {pageNum}
                 </button>
@@ -315,7 +321,7 @@ export function HistoryBox({
         </div>
       )}
 
-      <TxInfoModal modalId={`tx_modal_info`} tx={selectedTx ?? ({} as TxMessage)} />
+      <TxInfoModal modalId="tx_modal_info" tx={selectedTx ?? ({} as TxMessage)} />
     </div>
   );
 }
