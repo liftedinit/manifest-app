@@ -11,7 +11,7 @@ export const MsgSendHandler = createSenderReceiverHandler({
       formatAmount(tx.metadata?.amount?.[0]?.amount, tx.metadata?.amount?.[0]?.denom, metadata)
     );
     const denom = formatDenom(tx.metadata?.amount?.[0]?.denom);
-    const toAddress = tx.metadata?.toAddress;
+    const toAddress = tx.metadata?.toAddress ?? 'an unknown address';
     return `You sent <span class="text-red-500">${amount} ${denom}</span> to ${toAddress}`;
   },
   failSender: (tx, _, metadata) => {
@@ -19,7 +19,7 @@ export const MsgSendHandler = createSenderReceiverHandler({
       formatAmount(tx.metadata?.amount?.[0]?.amount, tx.metadata?.amount?.[0]?.denom, metadata)
     );
     const denom = formatDenom(tx.metadata?.amount?.[0]?.denom);
-    const toAddress = tx.metadata?.toAddress;
+    const toAddress = tx.metadata?.toAddress ?? 'an unknown address';
 
     return `You failed to send <span class="text-red-500">${amount} ${denom}</span> to ${toAddress}`;
   },
@@ -28,7 +28,7 @@ export const MsgSendHandler = createSenderReceiverHandler({
       formatAmount(tx.metadata?.amount?.[0]?.amount, tx.metadata?.amount?.[0]?.denom, metadata)
     );
     const denom = formatDenom(tx.metadata?.amount?.[0]?.denom);
-    const fromAddress = tx.sender;
+    const fromAddress = tx.sender ?? 'an unknown address';
 
     return `You received <span class="text-green-500">${amount} ${denom}</span> from ${fromAddress}`;
   },

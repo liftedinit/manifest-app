@@ -2,6 +2,9 @@ import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank
 import { shiftDigits } from '@/utils/maths';
 
 export function formatLargeNumber(num: number): string {
+  if (!Number.isFinite(num)) return 'Invalid number';
+  if (num === 0) return '0';
+
   const quintillion = 1e18;
   const quadrillion = 1e15;
   const trillion = 1e12;

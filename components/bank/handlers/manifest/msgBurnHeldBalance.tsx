@@ -9,8 +9,8 @@ export const MsgBurnHeldBalanceHandler = createSenderReceiverHandler({
   successSender: (tx, _, metadata) => {
     const amount = formatLargeNumber(
       formatAmount(
-        tx.metadata?.burnCoins?.[0]?.amount,
-        tx.metadata?.burnCoins?.[0]?.denom,
+        tx.metadata?.burnCoins?.[0]?.amount ?? '0',
+        tx.metadata?.burnCoins?.[0]?.denom ?? 'unknown',
         metadata
       )
     );
@@ -24,8 +24,8 @@ export const MsgBurnHeldBalanceHandler = createSenderReceiverHandler({
   successReceiver: (tx, _, metadata) => {
     const amount = formatLargeNumber(
       formatAmount(
-        tx.metadata?.burnCoins?.[0]?.amount,
-        tx.metadata?.burnCoins?.[0]?.denom,
+        tx.metadata?.burnCoins?.[0]?.amount ?? '0',
+        tx.metadata?.burnCoins?.[0]?.denom ?? 'unknown',
         metadata
       )
     );

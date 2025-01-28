@@ -13,7 +13,7 @@ export const MsgSubmitProposalHandler = createSenderReceiverHandler({
       : `You submitted proposal #${proposalId}`;
   }, // TODO Link to proposal
   failSender: tx => 'You failed to submit a proposal',
-  successReceiver: tx => `Proposal #${tx.proposal_ids} was submitted by ${tx.sender}`.trim(), // TODO Link to proposal
+  successReceiver: tx => `Proposal #${tx.proposal_ids} was submitted by ${tx.sender}`, // TODO Link to proposal
 });
 
 registerHandler(MsgSubmitProposal.typeUrl, MsgSubmitProposalHandler);
