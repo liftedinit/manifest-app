@@ -5,9 +5,9 @@ import { MsgUpdateGroupMetadata } from '@liftedinit/manifestjs/dist/codegen/cosm
 
 export const MsgUpdateGroupMetadataHandler = createSenderReceiverHandler({
   iconSender: GroupsIcon,
-  successSender: tx => `You updated the metadata of group ${tx.sender}`, // TODO: Policy addr?
-  failSender: tx => `You failed to update the metadata of group ${tx.sender}`,
-  successReceiver: tx => `Group ${tx.sender} had its metadata updated`,
+  successSender: tx => `You updated the metadata of group #${tx.metadata?.groupId}`,
+  failSender: tx => `You failed to update the metadata of group #${tx.metadata?.groupId}`,
+  successReceiver: tx => `Group #${tx.metadata?.groupId} had its metadata updated`,
 });
 
 registerHandler(MsgUpdateGroupMetadata.typeUrl, MsgUpdateGroupMetadataHandler);
