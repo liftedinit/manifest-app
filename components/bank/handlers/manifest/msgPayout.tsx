@@ -31,7 +31,7 @@ export const MsgPayoutHandler = createSenderReceiverHandler({
     const denom = formatDenom(tx.metadata?.payoutPairs?.[0]?.coin?.denom);
     return tx.metadata?.payoutPairs?.length > 1
       ? `You were minted tokens by ${tx.sender}`
-      : `you were minted <span class="text-green-500">${amount} ${denom}</span> by ${tx.sender}`;
+      : `You were minted <span class="text-green-500">${amount} ${denom}</span> by ${tx.sender}`;
   },
 });
 
