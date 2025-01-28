@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
-import { formatDenom, objectSyntax, TransactionGroup } from '@/components';
+import { objectSyntax, TransactionGroup } from '@/components';
 import { FaExternalLinkAlt } from 'react-icons/fa';
-import { shiftDigits, TxMessage } from '@/utils';
+import { formatDenom, shiftDigits, TxMessage } from '@/utils';
 import env from '@/config/env';
 import { useTheme } from '@/contexts';
 

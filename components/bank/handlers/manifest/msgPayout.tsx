@@ -1,6 +1,5 @@
-import { formatAmount, formatDenom } from '@/components';
 import { MintIcon } from '@/components/icons/MintIcon';
-import { formatLargeNumber } from '@/utils';
+import { formatAmount, formatDenom, formatLargeNumber } from '@/utils';
 import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 
 export const MsgPayoutHandler = createSenderReceiverHandler({

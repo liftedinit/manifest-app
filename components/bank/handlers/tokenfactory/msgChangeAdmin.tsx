@@ -1,6 +1,6 @@
-import { formatDenom } from '@/components';
 import { TransferIcon } from '@/components/icons/TransferIcon';
 import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
+import { formatDenom } from '@/utils';
 
 export const MsgChangeAdminHandler = createSenderReceiverHandler({
   iconSender: TransferIcon,

@@ -1,6 +1,5 @@
-import { formatAmount, formatDenom } from '@/components';
 import { TransferIcon } from '@/components/icons/TransferIcon';
-import { formatLargeNumber } from '@/utils';
+import { formatAmount, formatDenom, formatLargeNumber } from '@/utils';
 import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 
 export const MsgTransferHandler = createSenderReceiverHandler({

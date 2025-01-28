@@ -1,8 +1,8 @@
 import { test, expect, afterEach, describe, mock, jest } from 'bun:test';
-import { screen, cleanup, fireEvent, within } from '@testing-library/react';
-import { HistoryBox } from '../historyBox';
+import { screen, cleanup, fireEvent } from '@testing-library/react';
 import { renderWithChainProvider } from '@/tests/render';
 import { mockTransactions } from '@/tests/mock';
+import { HistoryBox } from '../historyBox';
 import matchers from '@testing-library/jest-dom/matchers';
 
 expect.extend(matchers);

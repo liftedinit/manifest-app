@@ -1,6 +1,5 @@
-import { formatAmount, formatDenom } from '@/components';
 import { BankIcon } from '@/components/icons/BankIcon';
-import { formatLargeNumber } from '@/utils';
+import { formatAmount, formatDenom, formatLargeNumber } from '@/utils';
 import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 
 export const MsgSendHandler = createSenderReceiverHandler({

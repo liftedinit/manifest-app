@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import TxInfoModal from '../modals/txInfo';
-import { formatDenom } from '@/components';
-import { shiftDigits, formatLargeNumber, TransactionAmount, TxMessage } from '@/utils';
+import { shiftDigits, formatLargeNumber, TransactionAmount, TxMessage, formatDenom } from '@/utils';
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { QuestionIcon } from '@/components/icons/QuestionIcon';
 import { useTokenFactoryDenomsMetadata } from '@/hooks';
+import TxInfoModal from '../modals/txInfo';
 import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
 import { MsgTransfer } from '@liftedinit/manifestjs/dist/codegen/ibc/applications/transfer/v1/tx';
 import {

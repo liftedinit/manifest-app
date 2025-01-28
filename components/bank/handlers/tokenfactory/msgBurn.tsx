@@ -1,6 +1,5 @@
-import { formatAmount, formatDenom } from '@/components';
 import { FactoryIcon } from '@/components/icons/FactoryIcon';
-import { formatLargeNumber } from '@/utils';
+import { formatAmount, formatDenom, formatLargeNumber } from '@/utils';
 import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 
 export const MsgBurnHandler = createSenderReceiverHandler({

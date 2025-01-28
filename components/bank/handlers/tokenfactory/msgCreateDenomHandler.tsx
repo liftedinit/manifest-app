@@ -1,6 +1,6 @@
-import { formatDenom } from '@/components';
 import { FactoryIcon } from '@/components/icons/FactoryIcon';
 import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
+import { formatDenom } from '@/utils';
 
 export const MsgCreateDenomHandler = createSenderReceiverHandler({
   iconSender: FactoryIcon,
