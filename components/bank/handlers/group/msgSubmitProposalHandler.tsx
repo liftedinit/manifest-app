@@ -2,6 +2,7 @@ import { GroupsIcon } from '@/components/icons/GroupsIcon';
 import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
 import { MsgSubmitProposal } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 
 export const MsgSubmitProposalHandler = createSenderReceiverHandler({
   iconSender: GroupsIcon,
@@ -9,16 +10,23 @@ export const MsgSubmitProposalHandler = createSenderReceiverHandler({
     const groupAddress = tx.metadata?.groupPolicyAddress;
     const proposalId = tx.proposal_ids;
     return (
-      <>
-        You submitted proposal #{proposalId} {groupAddress && <span>to {groupAddress}</span>}
-      </>
+      <span className="flex gap-1">
+        You submitted proposal #{proposalId}{' '}
+        {groupAddress && (
+          <>
+            to
+            <TruncatedAddressWithCopy address={groupAddress} slice={24} />
+          </>
+        )}
+      </span>
     );
   }, // TODO Link to proposal
   failSender: 'You failed to submit a proposal',
   successReceiver: tx => (
-    <>
-      Proposal #{tx.proposal_ids} was submitted by {tx.sender}
-    </>
+    <span className="flex gap-1">
+      Proposal #{tx.proposal_ids} was submitted by{' '}
+      <TruncatedAddressWithCopy address={tx.sender} slice={24} />
+    </span>
   ), // TODO Link to proposal
 });
 

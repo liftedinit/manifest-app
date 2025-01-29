@@ -3,6 +3,7 @@ import { formatVote } from '@/utils';
 import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
 import { MsgVote } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 
 export const MsgVoteHandler = createSenderReceiverHandler({
   iconSender: GroupsIcon,
@@ -13,9 +14,10 @@ export const MsgVoteHandler = createSenderReceiverHandler({
   ), // TODO Link to proposal
   failSender: tx => <>You failed to vote on proposal #{tx.proposal_ids}</>, // TODO Link to proposal
   successReceiver: tx => (
-    <>
-      Proposal #{tx.proposal_ids} was voted on by {tx.sender}
-    </>
+    <span className="flex gap-1">
+      Proposal #{tx.proposal_ids} was voted on by{' '}
+      <TruncatedAddressWithCopy address={tx.sender} slice={24} />
+    </span>
   ),
 });
 
