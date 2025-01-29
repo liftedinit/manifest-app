@@ -3,29 +3,40 @@ import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
 import { MsgSetPower } from '@liftedinit/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import { format } from 'react-string-format';
 
+const createMessage = (template: string, validatorAddress: string, power: number) => {
+  const message = format(
+    template,
+    validatorAddress ? (
+      <TruncatedAddressWithCopy address={validatorAddress} slice={24} />
+    ) : (
+      'unknown'
+    ),
+    power
+  );
+  return <span className="flex gap-1">{message}</span>;
+};
 export const MsgSetPowerHandler = createSenderReceiverHandler({
   iconSender: AdminsIcon,
-  successSender: tx => (
-    <span className="flex gap-1">
-      You set the validator{' '}
-      <TruncatedAddressWithCopy address={tx.metadata?.validatorAddress} slice={24} /> power to{' '}
-      {tx.metadata?.power}
-    </span>
-  ),
-  failSender: tx => (
-    <span className="flex gap-1">
-      You failed to set the validator{' '}
-      <TruncatedAddressWithCopy address={tx.metadata?.validatorAddress} slice={24} /> power to{' '}
-      {tx.metadata?.power}
-    </span>
-  ),
-  successReceiver: tx => (
-    <span className="flex gap-1">
-      Validator <TruncatedAddressWithCopy address={tx.metadata?.validatorAddress} slice={24} /> had
-      its power set to {tx.metadata?.power}
-    </span>
-  ),
+  successSender: tx =>
+    createMessage(
+      'You set the validator {0} power to {1}',
+      tx.metadata?.validatorAddress,
+      tx.metadata?.power
+    ),
+  failSender: tx =>
+    createMessage(
+      'You failed to set the validator {0} power to {1}',
+      tx.metadata?.validatorAddress,
+      tx.metadata?.power
+    ),
+  successReceiver: tx =>
+    createMessage(
+      'Validator {0} had its power set to {1}',
+      tx.metadata?.validatorAddress,
+      tx.metadata?.power
+    ),
 });
 
 registerHandler(MsgSetPower.typeUrl, MsgSetPowerHandler);

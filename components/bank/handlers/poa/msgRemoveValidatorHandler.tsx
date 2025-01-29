@@ -2,28 +2,20 @@ import { AdminsIcon } from '@/components/icons/AdminsIcon';
 import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
 import { MsgRemoveValidator } from '@liftedinit/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
-import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import { createValidatorMessage } from '@/components';
 
 export const MsgRemoveValidatorHandler = createSenderReceiverHandler({
   iconSender: AdminsIcon,
-  successSender: tx => (
-    <span className="flex gap-1">
-      You removed validator{' '}
-      <TruncatedAddressWithCopy address={tx.metadata?.validatorAddress} slice={24} />{' '}
-    </span>
-  ),
-  failSender: tx => (
-    <span className="flex gap-1">
-      You failed to remove validator{' '}
-      <TruncatedAddressWithCopy address={tx.metadata?.validatorAddress} slice={24} />{' '}
-    </span>
-  ),
-  successReceiver: tx => (
-    <span className="flex gap-1">
-      Validator <TruncatedAddressWithCopy address={tx.metadata?.validatorAddress} slice={24} /> was
-      removed
-    </span>
-  ),
+  successSender: tx =>
+    createValidatorMessage('You removed validator {0}', tx.metadata?.validatorAddress),
+  failSender: tx =>
+    createValidatorMessage('You failed to remove validator {0}', tx.metadata?.validatorAddress),
+  successReceiver: tx =>
+    createValidatorMessage(
+      'Validator {0} was removed by {1}',
+      tx.metadata?.validatorAddress,
+      tx.sender
+    ),
 });
 
 registerHandler(MsgRemoveValidator.typeUrl, MsgRemoveValidatorHandler);

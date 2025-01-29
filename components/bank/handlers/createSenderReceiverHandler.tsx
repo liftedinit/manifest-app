@@ -3,7 +3,6 @@ import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank
 import { QuestionIcon } from '@/components/icons/QuestionIcon';
 import { TxMessage } from '../types';
 
-// The HTML message returned by this handler builder is sanitized.
 export function createSenderReceiverHandler({
   iconSender,
   iconReceiver,

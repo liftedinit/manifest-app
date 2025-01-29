@@ -4,69 +4,37 @@ import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
 import { MsgMint } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import { createTokenMessage } from '@/components';
 
 export const MsgMintHandler = createSenderReceiverHandler({
   iconSender: FactoryIcon,
-  successSender: (tx, _, metadata) => {
-    const amount = formatLargeNumber(
-      formatAmount(tx.metadata?.amount?.amount, tx.metadata?.amount?.denom, metadata)
-    );
-    const denom = formatDenom(tx.metadata?.amount?.denom);
-    const mintToAddress = tx.metadata?.mintToAddress ? (
-      <TruncatedAddressWithCopy address={tx.metadata.mintToAddress} slice={24} />
-    ) : (
-      'an unknown address'
-    );
-    return (
-      <span className="flex gap-1">
-        You minted{' '}
-        <span className="text-green-500">
-          {amount} {denom}
-        </span>{' '}
-        to {mintToAddress}
-      </span>
-    );
-  },
-  failSender: (tx, _, metadata) => {
-    const amount = formatLargeNumber(
-      formatAmount(tx.metadata?.amount?.amount, tx.metadata?.amount?.denom, metadata)
-    );
-    const denom = formatDenom(tx.metadata?.amount?.denom);
-    const mintToAddress = tx.metadata?.mintToAddress ? (
-      <TruncatedAddressWithCopy address={tx.metadata.mintToAddress} slice={24} />
-    ) : (
-      'an unknown address'
-    );
-    return (
-      <span className="flex gap-1">
-        You failed to mint{' '}
-        <span className="text-red-500">
-          {amount} {denom}
-        </span>{' '}
-        to {mintToAddress}
-      </span>
-    );
-  },
-  successReceiver: (tx, _, metadata) => {
-    const amount = formatLargeNumber(
-      formatAmount(tx.metadata?.amount?.amount, tx.metadata?.amount?.denom, metadata)
-    );
-    const denom = formatDenom(tx.metadata?.amount?.denom);
-    const sender = tx.sender ? (
-      <TruncatedAddressWithCopy address={tx.sender} slice={24} />
-    ) : (
-      'an unknown address'
-    );
-    return (
-      <span className="flex gap-1">
-        You were minted{' '}
-        <span className="text-green-500">
-          {amount} {denom}
-        </span>{' '}
-        from {sender}
-      </span>
-    );
-  },
+  successSender: (tx, _, metadata) =>
+    createTokenMessage(
+      'You minted {0} to {1}',
+      tx.metadata?.amount?.amount,
+      tx.metadata?.amount?.denom,
+      tx.metadata?.mintToAddress,
+      'green',
+      metadata
+    ),
+  failSender: (tx, _, metadata) =>
+    createTokenMessage(
+      'You failed to mint {0} to {1}',
+      tx.metadata?.amount?.amount,
+      tx.metadata?.amount?.denom,
+      tx.metadata?.mintToAddress,
+      'red',
+      metadata
+    ),
+  successReceiver: (tx, _, metadata) =>
+    createTokenMessage(
+      'You were minted {0} from {1}',
+      tx.metadata?.amount?.amount,
+      tx.metadata?.amount?.denom,
+      tx.sender,
+      'green',
+      metadata
+    ),
 });
 
 registerHandler(MsgMint.typeUrl, MsgMintHandler);
