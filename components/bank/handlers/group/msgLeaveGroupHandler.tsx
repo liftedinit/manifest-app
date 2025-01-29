@@ -5,9 +5,9 @@ import { MsgLeaveGroup } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/
 
 export const MsgLeaveGroupHandler = createSenderReceiverHandler({
   iconSender: GroupsIcon,
-  successSender: 'You left a group',
-  failSender: 'You failed to leave a group',
-  successReceiver: 'Group had a member leave',
+  successSender: tx => `You left group #${tx.metadata?.groupId}`,
+  failSender: tx => `You failed to leave group #${tx.metadata?.groupId}`,
+  successReceiver: tx => `Group #${tx.metadata?.groupId} had a member leave`,
 });
 
 registerHandler(MsgLeaveGroup.typeUrl, MsgLeaveGroupHandler);
