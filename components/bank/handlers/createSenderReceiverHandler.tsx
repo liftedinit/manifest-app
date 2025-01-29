@@ -1,6 +1,5 @@
 import React from 'react';
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
-import DOMPurify from 'dompurify';
 import { QuestionIcon } from '@/components/icons/QuestionIcon';
 import { TxMessage } from '../types';
 
@@ -17,15 +16,15 @@ export function createSenderReceiverHandler({
   iconReceiver?: React.ComponentType;
   successSender:
     | string
-    | ((tx: TxMessage, address: string, metadata?: MetadataSDKType[]) => string);
-  failSender: string | ((tx: TxMessage, address: string, metadata?: MetadataSDKType[]) => string);
+    | ((tx: TxMessage, address: string, metadata?: MetadataSDKType[]) => React.ReactNode);
+  failSender:
+    | string
+    | ((tx: TxMessage, address: string, metadata?: MetadataSDKType[]) => React.ReactNode);
   successReceiver:
     | string
-    | ((tx: TxMessage, address: string, metadata?: MetadataSDKType[]) => string);
-  failReceiver?: string | ((tx: TxMessage, address: string) => string);
+    | ((tx: TxMessage, address: string, metadata?: MetadataSDKType[]) => React.ReactNode);
+  failReceiver?: string | ((tx: TxMessage, address: string) => React.ReactNode);
 }) {
-  const sanitizeMessage = (msg: string) => DOMPurify.sanitize(msg);
-
   return (tx: TxMessage, address: string, metadata?: MetadataSDKType[]) => {
     const isSender = tx.sender === address;
     const hasError = !!tx.error;
@@ -34,13 +33,15 @@ export function createSenderReceiverHandler({
     iconReceiver = iconReceiver ?? iconSender ?? QuestionIcon;
 
     const resolveMessage = (
-      msg: string | ((tx: TxMessage, address: string, metadata?: MetadataSDKType[]) => string)
+      msg:
+        | React.ReactNode
+        | ((tx: TxMessage, address: string, metadata?: MetadataSDKType[]) => React.ReactNode)
     ) => (typeof msg === 'function' ? msg(tx, address, metadata) : msg);
 
-    const successSenderMsg = sanitizeMessage(resolveMessage(successSender));
-    const failSenderMsg = sanitizeMessage(resolveMessage(failSender));
-    const successReceiverMsg = sanitizeMessage(resolveMessage(successReceiver));
-    const failReceiverMsg = sanitizeMessage(resolveMessage(failReceiver ?? 'Anomaly detected'));
+    const successSenderMsg = resolveMessage(successSender);
+    const failSenderMsg = resolveMessage(failSender);
+    const successReceiverMsg = resolveMessage(successReceiver);
+    const failReceiverMsg = resolveMessage(failReceiver ?? 'Anomaly detected');
 
     return {
       icon: isSender ? iconSender : iconReceiver,

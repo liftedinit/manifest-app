@@ -5,9 +5,9 @@ import { MsgUpdateGroupMembers } from '@liftedinit/manifestjs/dist/codegen/cosmo
 
 export const MsgUpdateGroupMembersHandler = createSenderReceiverHandler({
   iconSender: GroupsIcon,
-  successSender: tx => `You updated the members of group #${tx.metadata?.groupId}`,
+  successSender: tx => <>You updated the members of group #{tx.metadata?.groupId}</>,
   failSender: 'You failed to update group members',
-  successReceiver: tx => `Group #${tx.metadata?.groupId} had its members updated`,
+  successReceiver: tx => <>Group #{tx.metadata?.groupId} had its members updated</>,
 });
 
 registerHandler(MsgUpdateGroupMembers.typeUrl, MsgUpdateGroupMembersHandler);

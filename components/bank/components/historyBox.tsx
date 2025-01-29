@@ -141,11 +141,7 @@ export function HistoryBox({
                       </p>
                       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mt-1">
                         <span className="font-semibold text-[#161616] dark:text-white">
-                          <div
-                            dangerouslySetInnerHTML={{
-                              __html: getTransactionMessage(tx, address, metadatas?.metadatas),
-                            }}
-                          />
+                          {getTransactionMessage(tx, address, metadatas?.metadatas)}
                         </span>
                       </div>
                       {tx.message_index < 10000 ? (

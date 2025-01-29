@@ -6,12 +6,24 @@ import { MsgChangeAdmin } from '@liftedinit/manifestjs/dist/codegen/osmosis/toke
 
 export const MsgChangeAdminHandler = createSenderReceiverHandler({
   iconSender: TransferIcon,
-  successSender: tx =>
-    `You changed the administrator of the ${formatDenom(tx.metadata?.denom)} token to ${tx.metadata?.newAdmin ?? 'an unknown address'}`,
-  failSender: tx =>
-    `You failed to change the administrator of the ${formatDenom(tx.metadata?.denom)} token to ${tx.metadata?.newAdmin ?? 'an unknown address'}`,
-  successReceiver: tx =>
-    `You were set administrator of the ${formatDenom(tx.metadata?.denom)} token by ${tx.sender ?? 'an unknown address'}`,
+  successSender: tx => (
+    <>
+      You changed the administrator of the {formatDenom(tx.metadata?.denom)} token to{' '}
+      {tx.metadata?.newAdmin ?? 'an unknown address'}
+    </>
+  ),
+  failSender: tx => (
+    <>
+      You failed to change the administrator of the {formatDenom(tx.metadata?.denom)} token to{' '}
+      {tx.metadata?.newAdmin ?? 'an unknown address'}
+    </>
+  ),
+  successReceiver: tx => (
+    <>
+      You were set administrator of the {formatDenom(tx.metadata?.denom)} token by{' '}
+      {tx.sender ?? 'an unknown address'}
+    </>
+  ),
 });
 
 registerHandler(MsgChangeAdmin.typeUrl, MsgChangeAdminHandler);

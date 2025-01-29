@@ -9,7 +9,7 @@ export type Handler = (
   metadata?: MetadataSDKType[]
 ) => {
   icon: React.ComponentType;
-  message: string;
+  message: React.ReactNode;
 };
 
 const handlerRegistry: { [key: string]: Handler } = {};

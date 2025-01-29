@@ -8,12 +8,18 @@ export const MsgSubmitProposalHandler = createSenderReceiverHandler({
   successSender: tx => {
     const groupAddress = tx.metadata?.groupPolicyAddress;
     const proposalId = tx.proposal_ids;
-    return groupAddress
-      ? `You submitted proposal #${proposalId} to ${groupAddress}`
-      : `You submitted proposal #${proposalId}`;
+    return (
+      <>
+        You submitted proposal #{proposalId} {groupAddress && <span>to {groupAddress}</span>}
+      </>
+    );
   }, // TODO Link to proposal
-  failSender: tx => 'You failed to submit a proposal',
-  successReceiver: tx => `Proposal #${tx.proposal_ids} was submitted by ${tx.sender}`, // TODO Link to proposal
+  failSender: 'You failed to submit a proposal',
+  successReceiver: tx => (
+    <>
+      Proposal #{tx.proposal_ids} was submitted by {tx.sender}
+    </>
+  ), // TODO Link to proposal
 });
 
 registerHandler(MsgSubmitProposal.typeUrl, MsgSubmitProposalHandler);

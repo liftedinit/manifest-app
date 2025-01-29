@@ -5,9 +5,9 @@ import { MsgRemoveValidator } from '@liftedinit/manifestjs/dist/codegen/strangel
 
 export const MsgRemoveValidatorHandler = createSenderReceiverHandler({
   iconSender: AdminsIcon,
-  successSender: tx => `You removed validator ${tx.metadata?.validatorAddress}`,
-  failSender: tx => `You failed to remove validator ${tx.metadata?.validatorAddress}`,
-  successReceiver: tx => `Validator ${tx.metadata?.validatorAddress} was removed`,
+  successSender: tx => <>You removed validator {tx.metadata?.validatorAddress}</>,
+  failSender: tx => <>You failed to remove validator {tx.metadata?.validatorAddress}</>,
+  successReceiver: tx => <>Validator {tx.metadata?.validatorAddress} was removed</>,
 });
 
 registerHandler(MsgRemoveValidator.typeUrl, MsgRemoveValidatorHandler);

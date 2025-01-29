@@ -5,9 +5,9 @@ import { MsgRemovePending } from '@liftedinit/manifestjs/dist/codegen/strangelov
 
 export const MsgRemovePendingValidatorHandler = createSenderReceiverHandler({
   iconSender: AdminsIcon,
-  successSender: tx => `You removed pending validator ${tx.metadata?.validatorAddress}`,
-  failSender: tx => `You failed to remove pending validator ${tx.metadata?.validatorAddress}`,
-  successReceiver: tx => `Validator ${tx.metadata?.validatorAddress} was removed from pending`,
+  successSender: tx => <>You removed pending validator {tx.metadata?.validatorAddress}</>,
+  failSender: tx => <>You failed to remove pending validator {tx.metadata?.validatorAddress}</>,
+  successReceiver: tx => <>Validator {tx.metadata?.validatorAddress} was removed from pending</>,
 });
 
 registerHandler(MsgRemovePending.typeUrl, MsgRemovePendingValidatorHandler);

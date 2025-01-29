@@ -12,7 +12,15 @@ export const MsgTransferHandler = createSenderReceiverHandler({
     );
     const denom = formatDenom(tx.metadata?.token?.denom);
     const receiver = tx.metadata?.receiver;
-    return `You sent <span class="text-red-500">${amount} ${denom}</span> to ${receiver} via IBC`;
+    return (
+      <>
+        You sent{' '}
+        <span className="text-red-500">
+          {amount} {denom}
+        </span>{' '}
+        to {receiver} via IBC
+      </>
+    );
   },
   failSender: (tx, _, metadata) => {
     const amount = formatLargeNumber(
@@ -20,7 +28,15 @@ export const MsgTransferHandler = createSenderReceiverHandler({
     );
     const denom = formatDenom(tx.metadata?.token?.denom);
     const receiver = tx.metadata?.receiver;
-    return `You failed to send <span class="text-red-500">${amount} ${denom}</span> to ${receiver} via IBC`;
+    return (
+      <>
+        You failed to send{' '}
+        <span className="text-red-500">
+          {amount} {denom}
+        </span>{' '}
+        to {receiver} via IBC
+      </>
+    );
   },
   successReceiver: (tx, _, metadata) => {
     const amount = formatLargeNumber(
@@ -28,7 +44,15 @@ export const MsgTransferHandler = createSenderReceiverHandler({
     );
     const denom = formatDenom(tx.metadata?.token?.denom);
     const sender = tx.sender;
-    return `You received <span class="text-green-500">${amount} ${denom}</span> from ${sender} via IBC`;
+    return (
+      <>
+        You received{' '}
+        <span className="text-green-500">
+          {amount} {denom}
+        </span>{' '}
+        from {sender} via IBC
+      </>
+    );
   },
 });
 

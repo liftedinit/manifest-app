@@ -16,9 +16,17 @@ export const MsgBurnHeldBalanceHandler = createSenderReceiverHandler({
     );
     const denom = formatDenom(tx.metadata?.burnCoins?.[0]?.denom);
     const from = tx.sender;
-    return tx.metadata?.burnCoins?.length > 1
-      ? `You burned tokens from ${tx.metadata?.burnCoins?.length} addresses`
-      : `You burned <span class="text-red-500">${amount} ${denom}</span> from ${from}`;
+    return tx.metadata?.burnCoins?.length > 1 ? (
+      <>You burned tokens from {tx.metadata?.burnCoins?.length} addresses</>
+    ) : (
+      <>
+        You burned{' '}
+        <span className="text-red-500">
+          {amount} {denom}
+        </span>{' '}
+        from {from}
+      </>
+    );
   },
   failSender: 'You failed to burn tokens',
   successReceiver: (tx, _, metadata) => {
@@ -30,9 +38,17 @@ export const MsgBurnHeldBalanceHandler = createSenderReceiverHandler({
       )
     );
     const denom = formatDenom(tx.metadata?.burnCoins?.[0]?.denom);
-    return tx.metadata?.burnCoins?.length > 1
-      ? `You were burned tokens by ${tx.sender}`
-      : `You were burned <span class="text-red-500">${amount} ${denom}</span> by ${tx.sender}`;
+    return tx.metadata?.burnCoins?.length > 1 ? (
+      <>You were burned tokens by {tx.sender}</>
+    ) : (
+      <>
+        You were burned{' '}
+        <span className="text-red-500">
+          {amount} {denom}
+        </span>{' '}
+        by {tx.sender}
+      </>
+    );
   },
 });
 

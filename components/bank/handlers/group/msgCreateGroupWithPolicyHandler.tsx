@@ -9,15 +9,13 @@ export const MsgCreateGroupWithPolicyHandler = createSenderReceiverHandler({
   successSender: tx => {
     const metadata = tx.metadata?.groupMetadata;
     const title = getGroupTitle(metadata);
-    return title ? `You created a new group named "${title}"` : 'You created a new group';
+    return <>You created a new group {title && <span>named \&#34;{title}\&#34;</span>}</>;
   },
   failSender: 'You failed to create a new group',
   successReceiver: tx => {
     const metadata = tx.metadata?.groupMetadata;
     const title = getGroupTitle(metadata);
-    return title
-      ? `You were mentioned in a new group named "${title}"`
-      : 'You were mentioned in a new group';
+    return <>You were mentioned in a new group {title && <span>named &#34;{title}&#34;</span>}</>;
   },
 });
 
