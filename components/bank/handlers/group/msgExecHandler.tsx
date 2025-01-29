@@ -8,7 +8,7 @@ import { format } from 'react-string-format';
 const createMessage = (template: string, id: string, sender?: string) => {
   const message = format(
     template,
-    id,
+    id ?? 'unknown',
     sender ? <TruncatedAddressWithCopy address={sender} slice={24} /> : 'an unknown address'
   );
   return <span className="flex gap-1">{message}</span>;

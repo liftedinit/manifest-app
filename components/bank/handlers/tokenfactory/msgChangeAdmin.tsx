@@ -10,7 +10,7 @@ const createMessage = (template: string, newAdmin: string, denom: string) => {
   const message = format(
     template,
     newAdmin ? <TruncatedAddressWithCopy address={newAdmin} slice={24} /> : 'unknown',
-    formatDenom(denom)
+    denom ? formatDenom(denom) : 'unknown'
   );
   return <span className="flex gap-1">{message}</span>;
 };
