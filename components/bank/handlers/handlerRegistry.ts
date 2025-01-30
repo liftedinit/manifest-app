@@ -2,6 +2,7 @@ import React from 'react';
 import { QuestionIcon } from '@/components/icons';
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { TxMessage } from '../types';
+import { DefaultHandler } from '@/components/bank/handlers/defaultHandler';
 
 export type Handler = (
   tx: TxMessage,
@@ -19,5 +20,5 @@ export function registerHandler(typeUrl: string, handler: Handler) {
 }
 
 export function getHandler(typeUrl: string): Handler {
-  return handlerRegistry[typeUrl] || { icon: QuestionIcon, message: 'Unknown transaction type' };
+  return handlerRegistry[typeUrl] || DefaultHandler;
 }
