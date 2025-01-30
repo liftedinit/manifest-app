@@ -1,2 +1,2 @@
-export * from './msgPayout';
-export * from './msgBurnHeldBalance';
+export * from './msgPayoutHandler';
+export * from './msgBurnHeldBalanceHandler';

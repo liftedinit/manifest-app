@@ -1,1 +1,1 @@
-export * from './msgTransfer';
+export * from './msgTransferHandler';
