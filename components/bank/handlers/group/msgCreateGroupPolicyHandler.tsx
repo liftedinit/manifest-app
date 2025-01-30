@@ -15,21 +15,21 @@ export const MsgCreateGroupPolicyHandler = createSenderReceiverHandler({
   iconSender: GroupsIcon,
   successSender: tx => {
     return createMessage(
-      'You created a {0} policy for group #{1}',
+      'You created a {0} decision policy for group #{1}',
       tx.metadata?.decisionPolicy?.['@type'],
       tx.metadata?.groupId
     );
   },
   failSender: tx => {
     return createMessage(
-      'You failed to create a {0} policy for group #{1}',
+      'You failed to create a {0} decision policy for group #{1}',
       tx.metadata?.policy,
       tx.metadata?.groupId
     );
   },
   successReceiver: tx => {
     return createMessage(
-      'A {0} group policy was created for group #{1}',
+      'A {0} decision policy was created for group #{1}',
       tx.metadata?.policy,
       tx.metadata?.groupId
     );
