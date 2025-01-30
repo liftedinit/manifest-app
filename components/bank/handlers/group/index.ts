@@ -8,3 +8,7 @@ export * from './msgUpdateGroupPolicyMetadataHandler';
 export * from './msgUpdateGroupPolicyDecisionPolicyHandler';
 export * from './msgLeaveGroupHandler';
 export * from './msgUpdateGroupMembersHandler';
+export * from './msgCreateGroupHandler';
+export * from './msgCreateGroupPolicyHandler';
+export * from './msgUpdateGroupAdminHandler';
+export * from './msgUpdateGroupPolicyAdminHandler';
