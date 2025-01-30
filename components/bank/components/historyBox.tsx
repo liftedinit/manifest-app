@@ -145,14 +145,18 @@ export function HistoryBox({
                         </span>
                       </div>
                       {tx.message_index < 10000 ? (
-                        <div className="text-gray-500 text-xs mt-1">
-                          Incl.:{' '}
-                          {tx.fee &&
-                            formatLargeNumber(Number(shiftDigits(tx.fee.amount?.[0]?.amount, -6))) +
-                              ' ' +
-                              formatDenom(tx.fee.amount?.[0]?.denom)}{' '}
-                          fee
-                        </div>
+                        tx.sender === address ? (
+                          <div className="text-gray-500 text-xs mt-1">
+                            Incl.:{' '}
+                            {tx.fee &&
+                              formatLargeNumber(
+                                Number(shiftDigits(tx.fee.amount?.[0]?.amount, -6))
+                              ) +
+                                ' ' +
+                                formatDenom(tx.fee.amount?.[0]?.denom)}{' '}
+                            fee
+                          </div>
+                        ) : null
                       ) : (
                         <div className="text-gray-500 text-xs mt-1">
                           Fee incl. in proposal #{tx.proposal_ids} execution
