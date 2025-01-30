@@ -23,14 +23,14 @@ export const MsgCreateGroupPolicyHandler = createSenderReceiverHandler({
   failSender: tx => {
     return createMessage(
       'You failed to create a {0} decision policy for group #{1}',
-      tx.metadata?.policy,
+      tx.metadata?.decisionPolicy?.['@type'],
       tx.metadata?.groupId
     );
   },
   successReceiver: tx => {
     return createMessage(
       'A {0} decision policy was created for group #{1}',
-      tx.metadata?.policy,
+      tx.metadata?.decisionPolicy?.['@type'],
       tx.metadata?.groupId
     );
   },
