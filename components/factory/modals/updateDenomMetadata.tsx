@@ -15,13 +15,7 @@ import { useProposalsByPolicyAccount } from '@/hooks/useQueries';
 
 const TokenDetailsSchema = (context: { subdenom: string }) =>
   Yup.object().shape({
-    display: Yup.string()
-      .required('Display is required')
-      .noProfanity()
-      .test('display-contains-subdenom', 'Display must contain subdenom', function (value) {
-        const subdenom = context.subdenom;
-        return !subdenom || value.toLowerCase().includes(subdenom.slice(1).toLowerCase());
-      }),
+    display: Yup.string().required('Display is required').noProfanity(),
     name: Yup.string().required('Name is required').noProfanity(),
     description: Yup.string()
       .required('Description is required')
