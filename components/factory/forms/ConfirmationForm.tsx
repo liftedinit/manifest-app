@@ -108,17 +108,6 @@ export default function ConfirmationForm({
         subdenom: prefixedSubdenom,
       });
 
-      const createDenomFee = await estimateFee(address, [createDenomMsg]);
-      const createDenomResult = await tx([createDenomMsg], {
-        fee: createDenomFee,
-        returnError: true,
-      });
-
-      if (createDenomResult && createDenomResult.error) {
-        console.error('Error creating denom:', createDenomResult.error);
-        return;
-      }
-
       // If createDenom is successful, proceed with setDenomMetadata
       const setMetadataMsg = setDenomMetadata({
         sender: address,
@@ -145,8 +134,8 @@ export default function ConfirmationForm({
         },
       });
 
-      const setMetadataFee = await estimateFee(address, [setMetadataMsg]);
-      await tx([setMetadataMsg], {
+      const setMetadataFee = await estimateFee(address, [createDenomMsg, setMetadataMsg]);
+      await tx([createDenomMsg, setMetadataMsg], {
         fee: setMetadataFee,
         onSuccess: () => {
           nextStep();
