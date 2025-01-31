@@ -44,7 +44,8 @@ import {
 import MobileNav from '@/components/react/mobileNav';
 
 import { OPENLOGIN_NETWORK_TYPE } from '@toruslabs/openlogin-utils';
-import { AssetList } from '@chain-registry/types';
+
+import { SkipProvider } from '@/contexts/skipGoContext';
 
 type ManifestAppProps = AppProps & {
   Component: AppProps['Component'];
@@ -225,43 +226,45 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
             // @ts-ignore
             walletModal={TailwindModal}
           >
-            <ThemeProvider>
-              <ContactsModalProvider>
-                <div className="flex min-h-screen bg-background-color relative">
-                  <div className="hidden md:block">
-                    <SideNav
-                      isDrawerVisible={isDrawerVisible}
-                      setDrawerVisible={setIsDrawerVisible}
-                    />
-                  </div>
-
-                  <div
-                    className={`flex-1 transition-all duration-300 ease-in-out 
-                    ml-0 lg:ml-36 ${isDrawerVisible ? 'lg:ml-[17rem]' : ''} relative z-0`}
-                  >
-                    <div className="lg:hidden pt-12">
-                      <MobileNav />
+            <SkipProvider>
+              <ThemeProvider>
+                <ContactsModalProvider>
+                  <div className="flex min-h-screen bg-background-color relative">
+                    <div className="hidden md:block">
+                      <SideNav
+                        isDrawerVisible={isDrawerVisible}
+                        setDrawerVisible={setIsDrawerVisible}
+                      />
                     </div>
-                    <main className="p-6 relative z-10">
-                      <Component {...pageProps} />
-                    </main>
-                  </div>
-                </div>
 
-                {/* Web3auth signing modal */}
-                {isBrowser &&
-                  createPortal(
-                    <SignModal
-                      visible={web3AuthPrompt !== undefined}
-                      onClose={() => web3AuthPrompt?.resolve(false)}
-                      data={web3AuthPrompt?.signData ?? ({} as SignData)}
-                      approve={() => web3AuthPrompt?.resolve(true)}
-                      reject={() => web3AuthPrompt?.resolve(false)}
-                    />,
-                    document.body
-                  )}
-              </ContactsModalProvider>
-            </ThemeProvider>
+                    <div
+                      className={`flex-1 transition-all duration-300 ease-in-out 
+                      ml-0 lg:ml-36 ${isDrawerVisible ? 'lg:ml-[17rem]' : ''} relative z-0`}
+                    >
+                      <div className="lg:hidden pt-12">
+                        <MobileNav />
+                      </div>
+                      <main className="p-6 relative z-10">
+                        <Component {...pageProps} />
+                      </main>
+                    </div>
+                  </div>
+
+                  {/* Web3auth signing modal */}
+                  {isBrowser &&
+                    createPortal(
+                      <SignModal
+                        visible={web3AuthPrompt !== undefined}
+                        onClose={() => web3AuthPrompt?.resolve(false)}
+                        data={web3AuthPrompt?.signData ?? ({} as SignData)}
+                        approve={() => web3AuthPrompt?.resolve(true)}
+                        reject={() => web3AuthPrompt?.resolve(false)}
+                      />,
+                      document.body
+                    )}
+                </ContactsModalProvider>
+              </ThemeProvider>
+            </SkipProvider>
           </ChainProvider>
         }
       </QueryClientProvider>

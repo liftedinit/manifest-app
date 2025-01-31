@@ -33,6 +33,7 @@ import env from '@/config/env';
 import { useChain } from '@cosmos-kit/react';
 import { useSearchParams } from 'next/navigation';
 import { Any } from 'cosmjs-types/google/protobuf/any';
+import { useSkipClient } from '@/contexts/skipGoContext';
 
 //TODO: switch to main-net names
 export default function IbcSendForm({
@@ -99,6 +100,7 @@ export default function IbcSendForm({
   const { estimateFee } = useFeeEstimation(
     selectedFromChain === env.osmosisChain ? env.osmosisChain : env.chain
   );
+  const skipClient = useSkipClient();
   const { transfer } = ibc.applications.transfer.v1.MessageComposer.withTypeUrl;
   const [isContactsOpen, setIsContactsOpen] = useState(false);
   const [isIconRotated, setIsIconRotated] = useState(false);
@@ -193,6 +195,9 @@ export default function IbcSendForm({
 
       const { source_port, source_channel } = getIbcInfo(selectedFromChain, selectedToChain);
 
+      const testnetChains = await skipClient.chains({});
+
+      console.log(testnetChains);
       const token = {
         denom: values.selectedToken.coreDenom,
         amount: amountInBaseUnits,
