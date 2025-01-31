@@ -39,9 +39,9 @@ export const MsgMultiSendHandler = createSenderReceiverHandler({
   iconSender: BankIcon,
   successSender: (tx, _, metadata) => {
     return createMessage(
-      'You sent {0} to {1} addresses',
-      tx.metadata?.inputs?.[0]?.coins?.amount,
-      tx.metadata?.inputs?.[0]?.coins?.denom,
+      'You sent {0} equally divided between {1} addresses',
+      tx.metadata?.inputs?.[0]?.coins?.[0]?.amount,
+      tx.metadata?.inputs?.[0]?.coins?.[0]?.denom,
       tx.metadata?.outputs?.length,
       'red',
       metadata
@@ -49,9 +49,9 @@ export const MsgMultiSendHandler = createSenderReceiverHandler({
   },
   failSender: (tx, _, metadata) => {
     return createMessage(
-      'You failed to send {0} to {1} addresses',
-      tx.metadata?.inputs?.[0]?.coins?.amount,
-      tx.metadata?.inputs?.[0]?.coins?.denom,
+      'You failed to send {0} equally divided between {1} addresses',
+      tx.metadata?.inputs?.[0]?.coins?.[0]?.amount,
+      tx.metadata?.inputs?.[0]?.coins?.[0]?.denom,
       tx.metadata?.outputs?.length,
       'red',
       metadata
@@ -60,11 +60,12 @@ export const MsgMultiSendHandler = createSenderReceiverHandler({
   successReceiver: (tx, _, metadata) => {
     return createMessage(
       'You received {2} tokens from {3}',
-      tx.metadata?.inputs?.[0]?.coins?.amount,
-      tx.metadata?.inputs?.[0]?.coins?.denom,
+      tx.metadata?.inputs?.[0]?.coins?.[0]?.amount,
+      tx.metadata?.inputs?.[0]?.coins?.[0]?.denom,
       tx.metadata?.outputs?.length,
       'green',
-      metadata
+      metadata,
+      tx.sender
     );
   },
 });
