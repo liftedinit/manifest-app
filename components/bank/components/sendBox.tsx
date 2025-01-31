@@ -87,17 +87,19 @@ export default function SendBox({
         >
           Send
         </button>
-        <button
-          aria-label="cross-chain-transfer-tab"
-          className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl transition-colors ${
-            activeTab === 'cross-chain'
-              ? 'dark:bg-[#FFFFFF1F] bg-[#FFFFFF] text-[#161616] dark:text-white'
-              : 'text-[#808080]'
-          }`}
-          onClick={() => setActiveTab('cross-chain')}
-        >
-          Cross-Chain Transfer
-        </button>
+        {env.chainTier === 'testnet' && (
+          <button
+            aria-label="cross-chain-transfer-tab"
+            className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl transition-colors ${
+              activeTab === 'cross-chain'
+                ? 'dark:bg-[#FFFFFF1F] bg-[#FFFFFF] text-[#161616] dark:text-white'
+                : 'text-[#808080]'
+            }`}
+            onClick={() => setActiveTab('cross-chain')}
+          >
+            Cross-Chain Transfer
+          </button>
+        )}
       </div>
 
       <div className="">
@@ -105,7 +107,7 @@ export default function SendBox({
           <div className="skeleton h-[300px] w-full"></div>
         ) : (
           <>
-            {activeTab === 'cross-chain' ? (
+            {activeTab === 'cross-chain' && env.chainTier === 'testnet' ? (
               <IbcSendForm
                 isIbcTransfer={true}
                 ibcChains={ibcChains}
