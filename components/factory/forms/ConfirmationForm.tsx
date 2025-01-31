@@ -161,13 +161,6 @@ export default function ConfirmationForm({
         </div>
 
         <div className="space-y-6">
-          {!formData.isGroup && (
-            <div className="text-md">
-              You will be required to sign two messages: the first to create the token on the
-              blockchain, and the second to configure the token&#39;s metadata, including its name,
-              ticker, description, and other details.
-            </div>
-          )}
           {/* Token Information */}
           <div>
             <h2 className="text-xl font-semibold mb-4 ">Token Information</h2>
