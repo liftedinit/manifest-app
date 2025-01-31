@@ -1,47 +1,17 @@
-import React, { useMemo, useState, useEffect } from 'react';
-import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import React, { useState } from 'react';
+import { TransactionAmount, TxMessage } from '../types';
+import { shiftDigits, formatLargeNumber, formatDenom } from '@/utils';
+import { getHandler } from '@/components/bank/handlers/handlerRegistry';
+import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { useTokenFactoryDenomsMetadata } from '@/hooks';
 import TxInfoModal from '../modals/txInfo';
-import { shiftDigits, truncateString } from '@/utils';
-import { BurnIcon, DenomImage, formatDenom, MintIcon } from '@/components';
-import { HistoryTxType, useTokenFactoryDenomsMetadata } from '@/hooks';
-import { ReceiveIcon, SendIcon } from '@/components/icons';
-
-import useIsMobile from '@/hooks/useIsMobile';
-
-interface Transaction {
-  tx_type: HistoryTxType;
-  from_address: string;
-  to_address: string;
-  amount: Array<{ amount: string; denom: string }>;
-}
 
 export interface TransactionGroup {
   tx_hash: string;
   block_number: number;
   formatted_date: string;
+  fee?: TransactionAmount;
   memo?: string;
-  data: Transaction;
-}
-
-function formatLargeNumber(num: number): string {
-  const quintillion = 1e18;
-  const quadrillion = 1e15;
-  const trillion = 1e12;
-  const billion = 1e9;
-  const million = 1e6;
-
-  if (num >= quintillion) {
-    return `${(num / quintillion).toFixed(2)}QT`;
-  } else if (num >= quadrillion) {
-    return `${(num / quadrillion).toFixed(2)}Q`;
-  } else if (num >= trillion) {
-    return `${(num / trillion).toFixed(2)}T`;
-  } else if (num >= billion) {
-    return `${(num / billion).toFixed(2)}B`;
-  } else if (num >= million) {
-    return `${(num / million).toFixed(2)}M`;
-  }
-  return num.toLocaleString();
 }
 
 export function HistoryBox({
@@ -57,12 +27,12 @@ export function HistoryBox({
   skeletonGroupCount,
   skeletonTxCount,
   isGroup,
-}: {
+}: Readonly<{
   isLoading: boolean;
   address: string;
   currentPage: number;
   setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
-  sendTxs: TransactionGroup[];
+  sendTxs: TxMessage[];
   totalPages: number;
   txLoading: boolean;
   isError: boolean;
@@ -70,12 +40,11 @@ export function HistoryBox({
   skeletonGroupCount: number;
   skeletonTxCount: number;
   isGroup?: boolean;
-}) {
-  const [selectedTx, setSelectedTx] = useState<TransactionGroup | null>(null);
+}>) {
+  const [selectedTx, setSelectedTx] = useState<TxMessage | null>(null);
+  const { metadatas, isMetadatasLoading } = useTokenFactoryDenomsMetadata();
 
-  const isLoading = initialLoading || txLoading;
-
-  const { metadatas } = useTokenFactoryDenomsMetadata();
+  const isLoading = initialLoading || txLoading || isMetadatasLoading;
 
   function formatDateShort(dateString: string): string {
     const date = new Date(dateString);
@@ -86,73 +55,19 @@ export function HistoryBox({
     });
   }
 
-  function getTransactionIcon(tx: TransactionGroup, address: string) {
-    if (tx.data.tx_type === HistoryTxType.SEND) {
-      return tx.data.from_address === address ? <SendIcon /> : <ReceiveIcon />;
-    } else if (tx.data.tx_type === HistoryTxType.MINT || tx.data.tx_type === HistoryTxType.PAYOUT) {
-      return (
-        <MintIcon
-          className={`w-6 h-6 p-1 border-[#00FFAA] border-opacity-[0.12] border-[1.5px] bg-[#00FFAA] bg-opacity-[0.06] rounded-sm text-green-500`}
-        />
-      );
-    } else if (
-      tx.data.tx_type === HistoryTxType.BURN ||
-      tx.data.tx_type === HistoryTxType.BURN_HELD_BALANCE
-    ) {
-      return (
-        <BurnIcon className="w-6 h-6 p-1 border-[#F54562] border-[1.5px] border-opacity-[0.12] bg-[#f54562] bg-opacity-[0.06] rounded-sm text-red-500" />
-      );
-    }
-    return null;
+  function getTransactionIcon(tx: TxMessage, address: string) {
+    const handler = getHandler(tx.type);
+    const { icon: IconComponent } = handler(tx, address);
+    return <IconComponent />;
   }
 
-  // Get the history message based on the transaction type
-  function getTransactionMessage(tx: TransactionGroup, address: string) {
-    if (tx.data.tx_type === HistoryTxType.SEND) {
-      return tx.data.from_address === address ? 'Sent' : 'Received';
-    } else if (tx.data.tx_type === HistoryTxType.MINT || tx.data.tx_type === HistoryTxType.PAYOUT) {
-      return 'Minted';
-    } else if (
-      tx.data.tx_type === HistoryTxType.BURN ||
-      tx.data.tx_type === HistoryTxType.BURN_HELD_BALANCE
-    ) {
-      return 'Burned';
-    }
-    return 'Unsupported';
-  }
-
-  // Get the transaction direction based on the transaction type
-  function getTransactionPlusMinus(tx: TransactionGroup, address: string) {
-    if (tx.data.tx_type === HistoryTxType.SEND) {
-      return tx.data.from_address === address ? '-' : '+';
-    } else if (tx.data.tx_type === HistoryTxType.MINT || tx.data.tx_type === HistoryTxType.PAYOUT) {
-      return '+';
-    } else if (
-      tx.data.tx_type === HistoryTxType.BURN ||
-      tx.data.tx_type === HistoryTxType.BURN_HELD_BALANCE
-    ) {
-      return '-';
-    }
-    return '!!';
-  }
-
-  // Get the transaction color based on the transaction type and direction
-  function getTransactionColor(tx: TransactionGroup, address: string) {
-    if (tx.data.tx_type === HistoryTxType.SEND) {
-      return tx.data.from_address === address ? 'text-red-500' : 'text-green-500';
-    } else if (tx.data.tx_type === HistoryTxType.MINT || tx.data.tx_type === HistoryTxType.PAYOUT) {
-      return 'text-green-500';
-    } else if (
-      tx.data.tx_type === HistoryTxType.BURN ||
-      tx.data.tx_type === HistoryTxType.BURN_HELD_BALANCE
-    ) {
-      return 'text-red-500';
-    }
-    return null;
+  function getTransactionMessage(tx: TxMessage, address: string, metadata?: MetadataSDKType[]) {
+    const handler = getHandler(tx.type);
+    return handler(tx, address, metadata).message;
   }
 
   return (
-    <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
+    <div className="w-full mx-auto rounded-[24px] h-full flex flex-col px-2 sm:px-4">
       {isLoading ? (
         <div className="flex-1 overflow-hidden h-full">
           <div aria-label="skeleton" className="space-y-2">
@@ -175,7 +90,7 @@ export function HistoryBox({
                           <div className="skeleton h-5 w-32 mt-1"></div>
                         </div>
                       </div>
-                      <div className="skeleton h-4 w-24 sm:block hidden"></div>
+                      <div className="skeleton h-4 w-24 hidden sm:block"></div>
                     </div>
                   ))}
                 </div>
@@ -200,80 +115,60 @@ export function HistoryBox({
               </p>
             </div>
           ) : (
-            <div className="h-full overflow-y-auto">
+            <div className="h-full overflow-y-auto space-y-2 mt-2">
               {sendTxs?.slice(0, skeletonTxCount).map((tx, index) => (
                 <div
-                  key={`${tx.tx_hash}-${index}`}
-                  className="flex items-center justify-between p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px] cursor-pointer hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] transition-colors mb-2"
+                  key={`${tx.id}-${index}`}
+                  className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 
+                    ${
+                      tx.error
+                        ? 'bg-[#E5393522] dark:bg-[#E5393533] hover:bg-[#E5393544] dark:hover:bg-[#E5393555]'
+                        : 'bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A]'
+                    }
+                    rounded-[16px] cursor-pointer transition-colors`}
                   onClick={() => {
                     setSelectedTx(tx);
-                    (document?.getElementById(`tx_modal_info`) as HTMLDialogElement)?.showModal();
+                    (document?.getElementById('tx_modal_info') as HTMLDialogElement)?.showModal();
                   }}
                 >
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center">
+                  <div className="flex flex-row items-center space-x-3 mb-2 sm:mb-0">
+                    <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center text-[#161616] dark:text-white">
                       {getTransactionIcon(tx, address)}
                     </div>
-
-                    {tx.data.amount.map((amt, index) => {
-                      const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
-                      return <DenomImage key={index} denom={metadata} />;
-                    })}
-
                     <div>
-                      <div className="flex flex-row items-center gap-2">
-                        <p className="font-semibold text-[#161616] dark:text-white">
-                          {getTransactionMessage(tx, address)}
-                        </p>
-                        <p className="font-semibold text-[#161616] dark:text-white">
-                          {tx.data.amount.map((amt, index) => {
-                            const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
-                            const display = metadata?.display ?? metadata?.symbol ?? '';
-                            return metadata?.display.startsWith('factory')
-                              ? metadata?.display?.split('/').pop()?.toUpperCase()
-                              : display.length > 4
-                                ? display.slice(0, 4).toUpperCase() + '...'
-                                : display.toUpperCase();
-                          })}
-                        </p>
+                      <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99]">
+                        {formatDateShort(tx.timestamp)}
+                      </p>
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mt-1">
+                        <span className="font-semibold text-[#161616] dark:text-white">
+                          {getTransactionMessage(tx, address, metadatas?.metadatas)}
+                        </span>
                       </div>
-                      <div
-                        className="address-copy xs:block hidden"
-                        onClick={e => e.stopPropagation()}
-                      >
-                        {tx.data.from_address.startsWith('manifest1') ? (
-                          <TruncatedAddressWithCopy
-                            address={
-                              tx.data.from_address === address
-                                ? tx.data.to_address
-                                : tx.data.from_address
-                            }
-                            slice={24}
-                          />
-                        ) : (
-                          <div className="text-[#00000099] dark:text-[#FFFFFF99]">
-                            {tx.data.from_address}
+                      {tx.message_index < 10000 ? (
+                        tx.sender === address ? (
+                          <div className="text-gray-500 text-xs mt-1">
+                            Incl.:{' '}
+                            {tx.fee &&
+                              formatLargeNumber(
+                                Number(shiftDigits(tx.fee.amount?.[0]?.amount, -6))
+                              ) +
+                                ' ' +
+                                formatDenom(tx.fee.amount?.[0]?.denom)}{' '}
+                            fee
                           </div>
-                        )}
-                      </div>
+                        ) : null
+                      ) : (
+                        <div className="text-gray-500 text-xs mt-1">
+                          Fee incl. in proposal #{tx.proposal_ids} execution
+                        </div>
+                      )}
                     </div>
                   </div>
-                  <div className="text-right flex-col items-end sm:flex hidden">
-                    <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99] mb-1">
-                      {formatDateShort(tx.formatted_date)}
-                    </p>
-                    <p className={`font-semibold ${getTransactionColor(tx, address)} `}>
-                      {getTransactionPlusMinus(tx, address)}
-                      {tx.data.amount
-                        .map(amt => {
-                          const metadata = metadatas?.metadatas.find(m => m.base === amt.denom);
-                          const exponent = Number(metadata?.denom_units[1]?.exponent) || 6;
-                          const amount = Number(shiftDigits(amt.amount, -exponent));
-                          return `${formatLargeNumber(amount)} ${formatDenom(amt.denom)}`;
-                        })
-                        .join(', ')}
-                    </p>
-                  </div>
+                  {/* Example of placing date/ID on the right side on larger screens:
+                      <div className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 mt-2 sm:mt-0">
+                        Tx ID: {tx.id}
+                      </div>
+                  */}
                 </div>
               ))}
             </div>
@@ -282,7 +177,7 @@ export function HistoryBox({
       )}
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-end gap-2 mt-2">
+        <div className="flex flex-wrap sm:flex-nowrap items-center justify-center sm:justify-end gap-2 mt-4">
           <button
             onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
             disabled={currentPage === 1 || isLoading}
@@ -307,11 +202,11 @@ export function HistoryBox({
                   aria-label={`Page ${pageNum}`}
                   aria-current={currentPage === pageNum ? 'page' : undefined}
                   className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors  
-                      ${
-                        currentPage === pageNum
-                          ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A] text-black dark:text-white'
-                          : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white'
-                      }`}
+                    ${
+                      currentPage === pageNum
+                        ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A] text-black dark:text-white'
+                        : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white'
+                    }`}
                 >
                   {pageNum}
                 </button>
@@ -337,7 +232,7 @@ export function HistoryBox({
         </div>
       )}
 
-      <TxInfoModal modalId={`tx_modal_info`} tx={selectedTx ?? ({} as TransactionGroup)} />
+      <TxInfoModal modalId="tx_modal_info" tx={selectedTx ?? ({} as TxMessage)} />
     </div>
   );
 }

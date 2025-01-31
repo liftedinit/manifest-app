@@ -1,7 +1,7 @@
 import {
   ExtendedGroupType,
   ExtendedQueryGroupsByMemberResponseSDKType,
-  useGetFilteredTxAndSuccessfulProposals,
+  useGetMessagesFromAddress,
   useTokenBalances,
   useTokenBalancesResolved,
   useTokenFactoryDenomsFromAdmin,
@@ -191,7 +191,7 @@ export function YourGroups({
     isLoading: txLoading,
     isError,
     refetch: refetchHistory,
-  } = useGetFilteredTxAndSuccessfulProposals(
+  } = useGetMessagesFromAddress(
     env.indexerUrl,
     selectedGroup?.policies[0]?.address ?? '',
     currentPageGroupInfo,
