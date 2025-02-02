@@ -221,13 +221,6 @@ export default function IbcSendForm({
 
       const ibcDenom = getIbcDenom(selectedToChain.id, values.selectedToken.coreDenom);
 
-      console.log({
-        fromChain: selectedFromChain,
-        toChain: selectedToChain,
-        sourceDenom: values.selectedToken.coreDenom,
-        ibcDenom,
-      });
-
       const route = await skipClient.route({
         sourceAssetDenom: values.selectedToken.coreDenom,
         sourceAssetChainID: selectedFromChain.chainID,
@@ -235,8 +228,6 @@ export default function IbcSendForm({
         destAssetDenom: ibcDenom ?? '',
         amountIn: amountInBaseUnits,
       });
-
-      console.log('route', route);
 
       const addressList = route.requiredChainAddresses.map(chainID => ({
         address:
@@ -248,9 +239,6 @@ export default function IbcSendForm({
           Object.values(chains).find(chain => chain.chain.chain_id === chainID)?.address ?? '',
         chainID: chainID,
       }));
-      console.log(userAddresses);
-
-      // Log the validation result
 
       const messages = await skipClient.messages({
         sourceAssetDenom: values.selectedToken.coreDenom,
@@ -296,15 +284,13 @@ export default function IbcSendForm({
         },
       });
 
-      console.log('skipClient.messages', messages);
-
       // const transferMsg = transfer({
       //   sourcePort: source_port,
       //   sourceChannel: source_channel,
       //   sender: admin
       //     ? admin
-      //     : selectedFromChain === env.osmosisChain
-      //       ? (osmosisAddress ?? '')
+      //     : selectedFromChain.id === env.osmosisChain
+      //       ? (chains?.osmosistestnet?.address ?? '')
       //       : (address ?? ''),
       //   receiver: values.recipient ?? '',
       //   token,
@@ -315,23 +301,27 @@ export default function IbcSendForm({
       //   timeoutTimestamp: BigInt(timeoutInNanos),
       // });
 
-      // const msg = submitProposal({
-      //   groupPolicyAddress: admin!,
-      //   messages: [
-      //     Any.fromPartial({
-      //       typeUrl: MsgTransfer.typeUrl,
-      //       value: MsgTransfer.encode(transferMsg.value).finish(),
-      //     }),
-      //   ],
-      //   metadata: '',
-      //   proposers: [address],
-      //   title: `IBC Transfer`,
-      //   summary: `This proposal will send ${values.amount} ${values.selectedToken.metadata?.display} to ${values.recipient} via IBC transfer`,
-      //   exec: 0,
-      // });
+      // const msg = isGroup
+      //   ? submitProposal({
+      //       groupPolicyAddress: admin!,
+      //       messages: [
+      //         Any.fromPartial({
+      //           typeUrl: MsgTransfer.typeUrl,
+      //           value: MsgTransfer.encode(transferMsg.value).finish(),
+      //         }),
+      //       ],
+      //       metadata: '',
+      //       proposers: [address],
+      //       title: `IBC Transfer`,
+      //       summary: `This proposal will send ${values.amount} ${values.selectedToken.metadata?.display} to ${values.recipient} via IBC transfer`,
+      //       exec: 0,
+      //     })
+      //   : transferMsg;
 
       // const fee = await estimateFee(
-      //   selectedFromChain === env.osmosisChain ? (osmosisAddress ?? '') : (address ?? ''),
+      //   selectedFromChain.id === env.osmosisChain
+      //     ? (chains.osmosistestnet.address ?? '')
+      //     : (address ?? ''),
       //   [msg]
       // );
 
