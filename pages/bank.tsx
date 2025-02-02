@@ -30,10 +30,11 @@ interface PageSizeConfig {
 
 export default function Bank() {
   const chains = useChains([env.chain, env.osmosisChain]);
-  const isWalletConnected = Object.values(chains).every(chain => chain.isWalletConnected);
-  if (!isWalletConnected) {
-    Object.values(chains).forEach(chain => chain.connect());
-  }
+
+  const isWalletConnected = useMemo(
+    () => Object.values(chains).every(chain => chain.isWalletConnected),
+    [chains]
+  );
 
   const { balances, isBalancesLoading, refetchBalances } = useTokenBalances(
     chains.manifesttestnet.address ?? ''

@@ -113,6 +113,7 @@ export default function SendModal({
           isOsmosisBalancesLoading={isOsmosisBalancesLoading}
           refetchOsmosisBalances={refetchOsmosisBalances}
           resolveOsmosisRefetch={resolveOsmosisRefetch}
+          chains={chains}
         />
       </div>
       <form

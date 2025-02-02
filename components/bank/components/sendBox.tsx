@@ -10,6 +10,7 @@ export interface IbcChain {
   name: string;
   icon: string;
   prefix: string;
+  chainID: string;
 }
 
 export default function SendBox({

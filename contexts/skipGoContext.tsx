@@ -1,9 +1,9 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 import { SkipClient } from '@skip-go/client';
 
 // Create the context
 interface SkipContextType {
-  skipClient: SkipClient;
+  createClient: (options: any) => SkipClient;
 }
 
 const SkipContext = createContext<SkipContextType | undefined>(undefined);
@@ -14,16 +14,30 @@ interface SkipProviderProps {
 }
 
 export function SkipProvider({ children }: SkipProviderProps) {
-  const skipClient = new SkipClient({});
+  const createClient = useMemo(() => {
+    return (options: any) => new SkipClient(options);
+  }, []);
 
-  return <SkipContext.Provider value={{ skipClient }}>{children}</SkipContext.Provider>;
+  return <SkipContext.Provider value={{ createClient }}>{children}</SkipContext.Provider>;
 }
 
-// Create a custom hook to use the Skip client
-export function useSkipClient() {
+// Update the hook to accept getCosmosSigner
+interface UseSkipClientOptions {
+  getCosmosSigner: () => Promise<any>;
+}
+
+export function useSkipClient(options: UseSkipClientOptions) {
   const context = useContext(SkipContext);
   if (context === undefined) {
     throw new Error('useSkipClient must be used within a SkipProvider');
   }
-  return context.skipClient;
+
+  // Create a new client with the provided options
+  const skipClient = useMemo(() => {
+    return context.createClient({
+      getCosmosSigner: options.getCosmosSigner,
+    });
+  }, [context.createClient, options.getCosmosSigner]);
+
+  return skipClient;
 }

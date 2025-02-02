@@ -34,7 +34,7 @@ import { useChains } from '@cosmos-kit/react';
 import { useSearchParams } from 'next/navigation';
 import { Any } from 'cosmjs-types/google/protobuf/any';
 import { useSkipClient } from '@/contexts/skipGoContext';
-import { SkipClient } from '@skip-go/client';
+
 import { IbcChain } from '@/components';
 import { ChainContext } from '@cosmos-kit/core';
 
@@ -108,7 +108,13 @@ export default function IbcSendForm({
   const [isContactsOpen, setIsContactsOpen] = useState(false);
   const [isIconRotated, setIsIconRotated] = useState(false);
 
-  const skipClient = new SkipClient({});
+  const getCosmosSigner = async () => {
+    const signer = chains[selectedFromChain.name].getOfflineSignerAmino();
+    return signer;
+  };
+  const skipClient = useSkipClient({
+    getCosmosSigner: getCosmosSigner,
+  });
 
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
   useEffect(() => {
@@ -121,7 +127,7 @@ export default function IbcSendForm({
 
   // Update the filtered balances logic to use passed props instead of hooks
   const filteredBalances = useMemo(() => {
-    const sourceBalances = selectedFromChain.name === env.osmosisChain ? osmosisBalances : balances;
+    const sourceBalances = selectedFromChain.id === env.osmosisChain ? osmosisBalances : balances;
 
     return sourceBalances?.filter(token => {
       const displayName = token.metadata?.display ?? token.denom;
@@ -131,7 +137,7 @@ export default function IbcSendForm({
 
   // Update initialSelectedToken to consider the chain
   const initialSelectedToken = useMemo(() => {
-    const sourceBalances = selectedFromChain.name === env.osmosisChain ? osmosisBalances : balances;
+    const sourceBalances = selectedFromChain.id === env.osmosisChain ? osmosisBalances : balances;
 
     return (
       sourceBalances?.find(token => token.coreDenom === selectedDenom) ||
@@ -142,7 +148,7 @@ export default function IbcSendForm({
 
   // Update the loading check
   if (
-    (selectedFromChain.name === env.osmosisChain ? isOsmosisBalancesLoading : isBalancesLoading) ||
+    (selectedFromChain.id === env.osmosisChain ? isOsmosisBalancesLoading : isBalancesLoading) ||
     !initialSelectedToken
   ) {
     return null;
@@ -213,7 +219,7 @@ export default function IbcSendForm({
       const stamp = Date.now();
       const timeoutInNanos = (stamp + 1.2e6) * 1e6;
 
-      const ibcDenom = getIbcDenom(selectedToChain.name, values.selectedToken.coreDenom);
+      const ibcDenom = getIbcDenom(selectedToChain.id, values.selectedToken.coreDenom);
 
       console.log({
         fromChain: selectedFromChain,
@@ -223,30 +229,37 @@ export default function IbcSendForm({
       });
 
       const route = await skipClient.route({
-        amountIn: amountInBaseUnits,
         sourceAssetDenom: values.selectedToken.coreDenom,
-        sourceAssetChainID: 'manifest-ledger-testnet',
-        destAssetDenom: ibcDenom ?? values.selectedToken.coreDenom,
-        destAssetChainID: 'osmo-test-5',
-        cumulativeAffiliateFeeBPS: '0',
+        sourceAssetChainID: selectedFromChain.chainID,
+        destAssetChainID: selectedToChain.chainID,
+        destAssetDenom: ibcDenom ?? '',
+        amountIn: amountInBaseUnits,
       });
+
+      console.log('route', route);
+
+      const addressList = route.requiredChainAddresses.map(chainID => ({
+        address:
+          Object.values(chains).find(chain => chain.chain.chain_id === chainID)?.address ?? '',
+      }));
 
       const userAddresses = route.requiredChainAddresses.map(chainID => ({
         address:
           Object.values(chains).find(chain => chain.chain.chain_id === chainID)?.address ?? '',
+        chainID: chainID,
       }));
       console.log(userAddresses);
 
       // Log the validation result
 
-      await skipClient.messages({
+      const messages = await skipClient.messages({
         sourceAssetDenom: values.selectedToken.coreDenom,
-        sourceAssetChainID: selectedFromChain.id,
+        sourceAssetChainID: selectedFromChain.chainID,
         destAssetDenom: ibcDenom ?? values.selectedToken.coreDenom,
-        destAssetChainID: selectedToChain.id,
+        destAssetChainID: selectedToChain.chainID,
         amountIn: amountInBaseUnits,
         amountOut: route.estimatedAmountOut ?? '',
-        addressList: userAddresses.map(user => user.address),
+        addressList: addressList.map(user => user.address),
         operations: route.operations,
         estimatedAmountOut: route.estimatedAmountOut ?? '',
         slippageTolerancePercent: '1',
@@ -256,7 +269,34 @@ export default function IbcSendForm({
         enableGasWarnings: false,
       });
 
-      console.log('skipClient.messages', skipClient.messages);
+      await skipClient.executeRoute({
+        route,
+        userAddresses,
+        simulate: true,
+        // Executes after all of the operations triggered by a user's signature complete.
+        // For multi-tx routes that require multiple user signatures, this will be called once for each tx in sequence
+        onTransactionCompleted: async (chainID, txHash, status) => {
+          console.log(`Route completed with tx hash: ${txHash} & status: ${status.state}`);
+        },
+        // called after the transaction that the user signs gets broadcast on chain
+        onTransactionBroadcast: async ({ txHash, chainID }) => {
+          console.log(`Transaction broadcasted with tx hash: ${txHash}`);
+        },
+        // called after the transaction that the user signs is successfully registered for tracking
+        onTransactionTracked: async ({ txHash, chainID }) => {
+          console.log(`Transaction tracked with tx hash: ${txHash}`);
+        },
+        // called after the user signs a transaction
+        onTransactionSigned: async ({ chainID }) => {
+          console.log(`Transaction signed with chain ID: ${chainID}`);
+        },
+        // validate gas balance on each chain
+        onValidateGasBalance: async ({ chainID, txIndex, status }) => {
+          console.log(`Validating gas balance for chain ${chainID}...`);
+        },
+      });
+
+      console.log('skipClient.messages', messages);
 
       // const transferMsg = transfer({
       //   sourcePort: source_port,
@@ -822,4 +862,7 @@ export default function IbcSendForm({
       </Formik>
     </div>
   );
+}
+function useSkip(getCosmosSigner: () => Promise<import('@cosmjs/amino').OfflineAminoSigner>) {
+  throw new Error('Function not implemented.');
 }
