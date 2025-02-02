@@ -137,6 +137,7 @@ export default function SendBox({
                 refetchOsmosisBalances={refetchOsmosisBalances}
                 resolveOsmosisRefetch={resolveOsmosisRefetch}
                 availableToChains={getAvailableToChains}
+                chains={chains}
               />
             ) : (
               <SendForm
