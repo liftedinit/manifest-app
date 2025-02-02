@@ -3,6 +3,7 @@ import SendForm from '../forms/sendForm';
 import IbcSendForm from '../forms/ibcSendForm';
 import env from '@/config/env';
 import { CombinedBalanceInfo } from '@/utils/types';
+import { ChainContext } from '@cosmos-kit/core';
 
 export interface IbcChain {
   id: string;
@@ -25,6 +26,7 @@ export default function SendBox({
   isOsmosisBalancesLoading,
   refetchOsmosisBalances,
   resolveOsmosisRefetch,
+  chains,
 }: {
   address: string;
   balances: CombinedBalanceInfo[];
@@ -39,10 +41,8 @@ export default function SendBox({
   isOsmosisBalancesLoading: boolean;
   refetchOsmosisBalances: () => void;
   resolveOsmosisRefetch: () => void;
+  chains: Record<string, ChainContext>;
 }) {
-  const [activeTab, setActiveTab] = useState<'send' | 'cross-chain'>('send');
-  const [selectedFromChain, setSelectedFromChain] = useState('');
-  const [selectedToChain, setSelectedToChain] = useState('');
   const ibcChains = useMemo<IbcChain[]>(
     () => [
       {
@@ -50,27 +50,34 @@ export default function SendBox({
         name: 'Manifest',
         icon: 'logo.svg',
         prefix: 'manifest',
+        chainID: env.chainId,
       },
       {
         id: env.osmosisChain,
         name: 'Osmosis',
         icon: 'osmosis.svg',
         prefix: 'osmo',
+        chainID: env.osmosisChainId,
       },
     ],
     []
   );
+  const [activeTab, setActiveTab] = useState<'send' | 'cross-chain'>('send');
+  const [selectedFromChain, setSelectedFromChain] = useState<IbcChain>(ibcChains[0]);
+  const [selectedToChain, setSelectedToChain] = useState<IbcChain>(ibcChains[1]);
 
   useEffect(() => {
-    if (selectedFromChain && selectedToChain && selectedFromChain === selectedToChain) {
+    if (selectedFromChain && selectedToChain && selectedFromChain.id === selectedToChain.id) {
       // If chains match, switch the destination chain to the other available chain
-      const otherChain = ibcChains.find(chain => chain.id !== selectedFromChain)?.id || '';
-      setSelectedToChain(otherChain);
+      const otherChain = ibcChains.find(chain => chain.id !== selectedFromChain.id);
+      if (otherChain) {
+        setSelectedToChain(otherChain);
+      }
     }
   }, [selectedFromChain, selectedToChain, ibcChains]);
 
   const getAvailableToChains = useMemo(() => {
-    return ibcChains.filter(chain => chain.id !== selectedFromChain);
+    return ibcChains.filter(chain => chain.id !== selectedFromChain.id);
   }, [ibcChains, selectedFromChain]);
 
   return (

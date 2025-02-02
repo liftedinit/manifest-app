@@ -10,7 +10,7 @@ import {
   useTokenBalancesResolved,
   useTokenFactoryDenomsMetadata,
 } from '@/hooks';
-import { useChain } from '@cosmos-kit/react';
+import { useChain, useChains } from '@cosmos-kit/react';
 
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { BankIcon } from '@/components/icons';
@@ -29,13 +29,20 @@ interface PageSizeConfig {
 }
 
 export default function Bank() {
-  const { address, isWalletConnected } = useChain(env.chain);
-  const { balances, isBalancesLoading, refetchBalances } = useTokenBalances(address ?? '');
+  const chains = useChains([env.chain, env.osmosisChain]);
+  const isWalletConnected = Object.values(chains).every(chain => chain.isWalletConnected);
+  if (!isWalletConnected) {
+    Object.values(chains).forEach(chain => chain.connect());
+  }
+
+  const { balances, isBalancesLoading, refetchBalances } = useTokenBalances(
+    chains.manifesttestnet.address ?? ''
+  );
   const {
     balances: resolvedBalances,
     isBalancesLoading: resolvedLoading,
     refetchBalances: resolveRefetch,
-  } = useTokenBalancesResolved(address ?? '');
+  } = useTokenBalancesResolved(chains.manifesttestnet.address ?? '');
 
   const { metadatas, isMetadatasLoading } = useTokenFactoryDenomsMetadata();
   const [currentPage, setCurrentPage] = useState(1);
@@ -86,7 +93,7 @@ export default function Bank() {
     refetch: refetchHistory,
   } = useGetFilteredTxAndSuccessfulProposals(
     env.indexerUrl,
-    address ?? '',
+    chains.manifesttestnet.address ?? '',
     currentPage,
     historyPageSize
   );
@@ -155,17 +162,16 @@ export default function Bank() {
     return mfxCombinedBalance ? [mfxCombinedBalance, ...otherBalances] : otherBalances;
   }, [balances, resolvedBalances, metadatas]);
 
-  const { address: osmosisAddress } = useChain(env.osmosisChain);
   const {
     balances: osmosisBalances,
     isBalancesLoading: isOsmosisBalancesLoading,
     refetchBalances: refetchOsmosisBalances,
-  } = useTokenBalancesOsmosis(osmosisAddress ?? '');
+  } = useTokenBalancesOsmosis(chains.osmosistestnet.address ?? '');
   const {
     balances: resolvedOsmosisBalances,
     isBalancesLoading: resolvedOsmosisLoading,
     refetchBalances: resolveOsmosisRefetch,
-  } = useOsmosisTokenBalancesResolved(osmosisAddress ?? '');
+  } = useOsmosisTokenBalancesResolved(chains.osmosistestnet.address ?? '');
 
   const {
     metadatas: osmosisMetadatas,
@@ -308,9 +314,10 @@ export default function Bank() {
                         isLoading={isLoading}
                         balances={combinedBalances}
                         refetchHistory={refetchHistory}
-                        address={address ?? ''}
+                        address={chains.manifesttestnet.address ?? ''}
                         pageSize={tokenListPageSize}
                         searchTerm={searchTerm}
+                        chains={chains}
                       />
                     ))}
                   {activeTab === 'history' &&
@@ -320,7 +327,7 @@ export default function Bank() {
                       <HistoryBox
                         currentPage={currentPage}
                         setCurrentPage={setCurrentPage}
-                        address={address ?? ''}
+                        address={chains.manifesttestnet.address ?? ''}
                         isLoading={isLoading}
                         sendTxs={sendTxs}
                         totalPages={totalPages}

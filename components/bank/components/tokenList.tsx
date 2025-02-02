@@ -4,6 +4,7 @@ import { shiftDigits, truncateString } from '@/utils';
 import { CombinedBalanceInfo } from '@/utils/types';
 import { SendTxIcon, QuestionIcon } from '@/components/icons';
 import SendModal from '@/components/bank/modals/sendModal';
+import { ChainContext } from '@cosmos-kit/core';
 
 interface TokenListProps {
   balances: CombinedBalanceInfo[] | undefined;
@@ -20,6 +21,7 @@ interface TokenListProps {
   isOsmosisBalancesLoading?: boolean;
   refetchOsmosisBalances?: () => void;
   resolveOsmosisRefetch?: () => void;
+  chains: Record<string, ChainContext>;
 }
 
 export function TokenList(props: Readonly<TokenListProps>) {
@@ -38,6 +40,7 @@ export function TokenList(props: Readonly<TokenListProps>) {
     isOsmosisBalancesLoading,
     refetchOsmosisBalances,
     resolveOsmosisRefetch,
+    chains,
   } = props;
   const [selectedDenom, setSelectedDenom] = useState<any>(null);
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
@@ -252,6 +255,7 @@ export function TokenList(props: Readonly<TokenListProps>) {
         isOsmosisBalancesLoading={isOsmosisBalancesLoading ?? false}
         refetchOsmosisBalances={refetchOsmosisBalances ?? (() => {})}
         resolveOsmosisRefetch={resolveOsmosisRefetch ?? (() => {})}
+        chains={chains}
       />
     </div>
   );

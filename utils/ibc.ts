@@ -5,6 +5,7 @@ import { Coin } from '@liftedinit/manifestjs/dist/codegen/cosmos/base/v1beta1/co
 import { shiftDigits } from './maths';
 import { assets as manifestAssets } from 'chain-registry/testnet/manifesttestnet';
 import { assets as osmosisAssets } from 'chain-registry/testnet/osmosistestnet';
+import { ChainContext } from '@cosmos-kit/core';
 
 //TODO: use chain-registry when the package is updated
 
@@ -237,8 +238,13 @@ export const getIbcInfo = (fromChainName: string, toChainName: string) => {
 };
 
 export const getIbcDenom = (chainName: string, denom: string) => {
-  const asset = denomToAsset(chainName, denom);
-  return asset?.base;
+  const allAssets = getAllAssets(chainName);
+
+  // Find the asset that has this denom as its counterparty base_denom
+  const ibcAsset = allAssets.find(asset => asset.traces?.[0]?.counterparty?.base_denom === denom);
+
+  // Return the IBC hash (base) if found
+  return ibcAsset?.base;
 };
 
 export const normalizeIBCDenom = (chainName: string, denom: string) => {
