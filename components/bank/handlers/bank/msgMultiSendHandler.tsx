@@ -10,7 +10,7 @@ import {
   MetadataSDKType,
   Output,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
-import { formatAmount, formatDenom, formatLargeNumber, truncateString } from '@/utils';
+import { formatAmount, formatDenom, formatLargeNumber } from '@/utils';
 import React from 'react';
 
 const createSendMessage = (
