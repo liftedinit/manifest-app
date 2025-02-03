@@ -82,10 +82,12 @@ export function ValidatorDetailsModal({
 
   const handleUpdate = async (values: { power: string }) => {
     setIsSigning(true);
+    // The minimum power is 1_000_000
+    const realPower = BigInt(values.power) * BigInt(10 ** 6);
     const msgSetPower = setPower({
       sender: admin ?? '',
       validatorAddress: validator.operator_address,
-      power: BigInt(values.power),
+      power: realPower,
       unsafe: isUnsafe,
     });
 
