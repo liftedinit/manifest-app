@@ -80,7 +80,9 @@ export const Connected = ({
         <div className="flex items-center ">
           <ProfileAvatar walletAddress={address ?? ''} size={60} />
           <div className="ml-4">
-            <p className="text-lg font-semibold">{username || 'Anonymous'}</p>
+            <p className="text-lg font-semibold">
+              {name == 'Ledger' ? 'Ledger HSM' : username || 'Anonymous'}
+            </p>
             <div className="flex items-center">
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 {truncateAddress(address || '')}
