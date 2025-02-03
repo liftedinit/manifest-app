@@ -229,6 +229,8 @@ export default function IbcSendForm({
         amountIn: amountInBaseUnits,
       });
 
+      console.log('route', route);
+
       const addressList = route.requiredChainAddresses.map(chainID => ({
         address:
           Object.values(chains).find(chain => chain.chain.chain_id === chainID)?.address ?? '',
@@ -239,6 +241,8 @@ export default function IbcSendForm({
           Object.values(chains).find(chain => chain.chain.chain_id === chainID)?.address ?? '',
         chainID: chainID,
       }));
+
+      console.log(userAddresses);
 
       const messages = await skipClient.messages({
         sourceAssetDenom: values.selectedToken.coreDenom,
