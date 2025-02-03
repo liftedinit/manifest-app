@@ -10,6 +10,13 @@ import Image from 'next/image';
 import { MdContacts } from 'react-icons/md';
 import { Contacts } from './Contacts';
 
+/**
+ * Special list of names for accounts based on the name of the service.
+ */
+enum specialUsernames {
+  LEDGER = 'Ledger HSM',
+}
+
 export const Connected = ({
   onClose,
   logo,
@@ -81,7 +88,7 @@ export const Connected = ({
           <ProfileAvatar walletAddress={address ?? ''} size={60} />
           <div className="ml-4">
             <p className="text-lg font-semibold">
-              {name == 'Ledger' ? 'Ledger HSM' : username || 'Anonymous'}
+              {specialUsernames[name.toUpperCase()] || username || 'Anonymous'}
             </p>
             <div className="flex items-center">
               <p className="text-sm text-gray-500 dark:text-gray-400">
