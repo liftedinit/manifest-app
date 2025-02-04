@@ -109,9 +109,10 @@ export default function IbcSendForm({
   const [isIconRotated, setIsIconRotated] = useState(false);
 
   const getCosmosSigner = async () => {
-    const signer = chains[selectedFromChain.name].getOfflineSignerAmino();
+    const signer = chains[selectedFromChain.id].getOfflineSignerAmino();
     return signer;
   };
+
   const skipClient = useSkipClient({
     getCosmosSigner: getCosmosSigner,
   });

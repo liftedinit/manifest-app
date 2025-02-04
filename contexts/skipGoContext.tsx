@@ -1,9 +1,11 @@
 import React, { createContext, useContext, useMemo } from 'react';
-import { SkipClient } from '@skip-go/client';
+import { SkipClient, SkipClientOptions } from '@skip-go/client';
+import { OfflineDirectSigner } from '@cosmjs/proto-signing';
+import { OfflineAminoSigner } from '@cosmjs/amino';
 
 // Create the context
 interface SkipContextType {
-  createClient: (options: any) => SkipClient;
+  createClient: (options: SkipClientOptions) => SkipClient;
 }
 
 const SkipContext = createContext<SkipContextType | undefined>(undefined);
@@ -15,7 +17,7 @@ interface SkipProviderProps {
 
 export function SkipProvider({ children }: SkipProviderProps) {
   const createClient = useMemo(() => {
-    return (options: any) => new SkipClient(options);
+    return (options: SkipClientOptions) => new SkipClient(options);
   }, []);
 
   return <SkipContext.Provider value={{ createClient }}>{children}</SkipContext.Provider>;
@@ -23,7 +25,9 @@ export function SkipProvider({ children }: SkipProviderProps) {
 
 // Update the hook to accept getCosmosSigner
 interface UseSkipClientOptions {
-  getCosmosSigner: () => Promise<any>;
+  getCosmosSigner: () => Promise<
+    OfflineAminoSigner | OfflineDirectSigner | (OfflineAminoSigner & OfflineDirectSigner)
+  >;
 }
 
 export function useSkipClient(options: UseSkipClientOptions) {
