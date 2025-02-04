@@ -1,7 +1,7 @@
 import { WalletNotConnected, HistoryBox, SearchIcon } from '@/components';
 import { TokenList } from '@/components/bank/components/tokenList';
 import {
-  useGetFilteredTxAndSuccessfulProposals,
+  useGetMessagesFromAddress,
   useIsMobile,
   useTokenBalances,
   useTokenBalancesResolved,
@@ -81,12 +81,7 @@ export default function Bank() {
     isError,
     refetch: refetchHistory,
     totalCount,
-  } = useGetFilteredTxAndSuccessfulProposals(
-    env.indexerUrl,
-    address ?? '',
-    currentPage,
-    historyPageSize
-  );
+  } = useGetMessagesFromAddress(env.indexerUrl, address ?? '', currentPage, historyPageSize);
 
   const combinedBalances = useMemo(() => {
     if (!balances || !resolvedBalances || !metadatas) return [];

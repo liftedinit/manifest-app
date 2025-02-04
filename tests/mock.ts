@@ -5,7 +5,7 @@ import {
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
 import { ExtendedValidatorSDKType, TransactionGroup } from '@/components';
 import { CombinedBalanceInfo } from '@/utils/types';
-import { ExtendedGroupType, HistoryTxType } from '@/hooks';
+import { ExtendedGroupType } from '@/hooks';
 import {
   MemberSDKType,
   ProposalExecutorResult,
@@ -18,6 +18,15 @@ import { FormData, ProposalFormData } from '@/helpers';
 import { cosmos } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
+import {
+  MsgBurn,
+  MsgMint,
+} from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+import {
+  MsgBurnHeldBalance,
+  MsgPayout,
+} from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
+import { TxMessage } from '@/components/bank/types';
 
 export const manifestAddr1 = 'manifest1hj5fveer5cjtn4wd6wstzugjfdxzl0xp8ws9ct';
 export const manifestAddr2 = 'manifest1efd63aw40lxf3n4mhf7dzhjkr453axurm6rp3z';
@@ -194,143 +203,170 @@ export const defaultChain: Chain = {
   },
 };
 
-export const mockTransactions: TransactionGroup[] = [
-  // Send
+export const mockTransactions: TxMessage[] = [
   {
-    tx_hash: 'hash1',
-    block_number: 1,
-    formatted_date: '2023-05-01T12:00:00Z',
-    data: {
-      tx_type: HistoryTxType.SEND,
-      from_address: 'address1',
-      to_address: 'address2',
+    id: '1',
+    message_index: 1,
+    type: MsgSend.typeUrl,
+    sender: 'address1',
+    mentions: ['mention1'],
+    metadata: {
       amount: [{ amount: '1000000000000000000000000', denom: 'utoken' }],
+      toAddress: 'address2',
     },
+    fee: { amount: [{ amount: '1', denom: 'denom1' }], gas: '1' },
+    memo: 'memo1',
+    height: 1,
+    timestamp: 'timestamp1',
+    error: '',
+    proposal_ids: ['proposal1'],
   },
-  // Receive
   {
-    tx_hash: 'hash2',
-    block_number: 2,
-    formatted_date: '2023-05-02T12:00:00Z',
-    data: {
-      tx_type: HistoryTxType.SEND,
-      from_address: 'address2',
-      to_address: 'address1',
+    id: '2',
+    message_index: 2,
+    type: MsgSend.typeUrl,
+    sender: 'address2',
+    mentions: [],
+    metadata: {
       amount: [{ amount: '2000000000000000000000', denom: 'utoken' }],
+      toAddress: 'address1',
     },
+    fee: { amount: [{ amount: '2', denom: 'utoken' }], gas: '1' },
+    memo: '',
+    height: 2,
+    timestamp: '2023-05-02T12:00:00Z',
+    error: '',
+    proposal_ids: [],
   },
-  // Minted
   {
-    tx_hash: 'hash3',
-    block_number: 3,
-    formatted_date: '2023-05-03T12:00:00Z',
-    data: {
-      tx_type: HistoryTxType.MINT,
-      from_address: 'address1',
-      to_address: 'address2',
-      amount: [{ amount: '3000000000000000000', denom: 'utoken' }],
+    id: '3',
+    message_index: 3,
+    type: MsgMint.typeUrl,
+    sender: 'address1',
+    mentions: [],
+    metadata: {
+      amount: { amount: '3000000000000000000', denom: 'utoken' },
+      mintToAddress: 'address2',
     },
+    fee: { amount: [{ amount: '3', denom: 'utoken' }], gas: '1' },
+    memo: '',
+    height: 3,
+    timestamp: '2023-05-03T12:00:00Z',
+    error: '',
+    proposal_ids: [],
   },
-  // Burned
   {
-    tx_hash: 'hash4',
-    block_number: 4,
-    formatted_date: '2023-05-04T12:00:00Z',
-    data: {
-      tx_type: HistoryTxType.BURN,
-      from_address: 'address2',
-      to_address: 'address1',
-      amount: [{ amount: '1200000000000000', denom: 'utoken' }],
+    id: '4',
+    message_index: 4,
+    type: MsgBurn.typeUrl,
+    sender: 'address2',
+    mentions: ['address1', 'address2'],
+    metadata: {
+      amount: { amount: '1200000000000000', denom: 'utoken' },
+      burnFromAddress: 'address1',
     },
+    fee: { amount: [{ amount: '4', denom: 'utoken' }], gas: '1' },
+    memo: '',
+    height: 4,
+    timestamp: '2023-05-04T12:00:00Z',
+    error: '',
+    proposal_ids: [],
   },
-  // Minted
   {
-    tx_hash: 'hash5',
-    block_number: 5,
-    formatted_date: '2023-05-05T12:00:00Z',
-    data: {
-      tx_type: HistoryTxType.PAYOUT,
-      from_address: 'address1',
-      to_address: 'address2',
-      amount: [{ amount: '5000000000000', denom: 'utoken' }],
+    id: '5',
+    message_index: 5,
+    type: MsgPayout.typeUrl,
+    sender: 'address1',
+    mentions: [],
+    metadata: {
+      payoutPairs: [{ coin: { amount: '5000000000000', denom: 'utoken' }, address: 'address2' }],
     },
+    fee: { amount: [{ amount: '5', denom: 'utoken' }], gas: '1' },
+    memo: '',
+    height: 5,
+    timestamp: '2023-05-05T12:00:00Z',
+    error: '',
+    proposal_ids: [],
   },
-  // Burned
   {
-    tx_hash: 'hash6',
-    block_number: 6,
-    formatted_date: '2023-05-06T12:00:00Z',
-    data: {
-      tx_type: HistoryTxType.BURN_HELD_BALANCE,
-      from_address: 'address2',
-      to_address: 'address1',
-      amount: [{ amount: '2100000', denom: 'utoken' }],
-    },
+    id: '6',
+    message_index: 6,
+    type: MsgBurnHeldBalance.typeUrl,
+    sender: 'address2',
+    mentions: [],
+    metadata: { burnCoins: [{ amount: '2100000', denom: 'utoken' }] },
+    fee: { amount: [{ amount: '6', denom: 'utoken' }], gas: '1' },
+    memo: '',
+    height: 6,
+    timestamp: '2023-05-06T12:00:00Z',
+    error: '',
+    proposal_ids: [],
   },
-  // Minted
   {
-    tx_hash: 'hash7',
-    block_number: 7,
-    formatted_date: '2023-05-07T12:00:00Z',
-    data: {
-      tx_type: HistoryTxType.PAYOUT,
-      from_address: 'address2',
-      to_address: 'address1',
-      amount: [{ amount: '2300000', denom: 'utoken' }],
+    id: '7',
+    message_index: 7,
+    type: MsgPayout.typeUrl,
+    sender: 'address2',
+    mentions: [],
+    metadata: {
+      payoutPairs: [{ coin: { amount: '2300000', denom: 'utoken' }, address: 'address1' }],
     },
+    fee: { amount: [{ amount: '7', denom: 'utoken' }], gas: '1' },
+    memo: '',
+    height: 7,
+    timestamp: '2023-05-07T12:00:00Z',
+    error: '',
+    proposal_ids: [],
   },
-  // Minted
   {
-    tx_hash: 'hash8',
-    block_number: 8,
-    formatted_date: '2023-05-08T12:00:00Z',
-    data: {
-      tx_type: HistoryTxType.PAYOUT,
-      from_address: 'address2',
-      to_address: 'address1',
-      amount: [{ amount: '2400000', denom: 'utoken' }],
+    id: '8',
+    message_index: 8,
+    type: MsgPayout.typeUrl,
+    sender: 'address2',
+    mentions: [],
+    metadata: {
+      payoutPairs: [{ coin: { amount: '2400000', denom: 'utoken' }, address: 'address1' }],
     },
+    fee: { amount: [{ amount: '8', denom: 'utoken' }], gas: '1' },
+    memo: '',
+    height: 8,
+    timestamp: '2023-05-08T12:00:00Z',
+    error: '',
+    proposal_ids: [],
   },
-  // Minted
   {
-    tx_hash: 'hash9',
-    block_number: 9,
-    formatted_date: '2023-05-09T12:00:00Z',
-    data: {
-      tx_type: HistoryTxType.PAYOUT,
-      from_address: 'address2',
-      to_address: 'address1',
-      amount: [{ amount: '2500000', denom: 'utoken' }],
+    id: '9',
+    message_index: 9,
+    type: MsgPayout.typeUrl,
+    sender: 'address2',
+    mentions: [],
+    metadata: {
+      payoutPairs: [{ coin: { amount: '2500000', denom: 'utoken' }, address: 'address1' }],
     },
+    fee: { amount: [{ amount: '9', denom: 'utoken' }], gas: '1' },
+    memo: '',
+    height: 9,
+    timestamp: '2023-05-09T12:00:00Z',
+    error: '',
+    proposal_ids: [],
   },
-  // Minted
   {
-    tx_hash: 'hash10',
-    block_number: 10,
-    formatted_date: '2023-05-10T12:00:00Z',
-    data: {
-      tx_type: HistoryTxType.PAYOUT,
-      from_address: 'address2',
-      to_address: 'address1',
-      amount: [{ amount: '2600000', denom: 'utoken' }],
+    id: '10',
+    message_index: 10,
+    type: MsgPayout.typeUrl,
+    sender: 'address2',
+    mentions: [],
+    metadata: {
+      payoutPairs: [{ coin: { amount: '2600000', denom: 'utoken' }, address: 'address1' }],
     },
+    fee: { amount: [{ amount: '1', denom: 'utoken' }], gas: '1' },
+    memo: '',
+    height: 10,
+    timestamp: '2023-05-10T12:00:00Z',
+    error: '',
+    proposal_ids: [],
   },
 ];
-
-export const mockStakingParams: ParamsSDKType = {
-  unbonding_time: { seconds: 86400n, nanos: 0 },
-  max_validators: 100,
-  bond_denom: 'upoa',
-  min_commission_rate: '0.05',
-  max_entries: 7,
-  historical_entries: 200,
-};
-
-// TODO: Not compatible with alpha.12 as poaParams is not defined in the current version
-export const mockPoaParams = {
-  admins: ['admin1'],
-  allow_validator_self_exit: true,
-};
 
 export const mockGroup: ExtendedGroupType = {
   id: 1n,

@@ -432,7 +432,7 @@ export function UpdateGroupModal({
                 </button>
                 <button
                   type="submit"
-                  aria-label={'update-group-btn'}
+                  aria-label={'upgrade-group-btn'}
                   className="btn btn-md w-[calc(50%-8px)] btn-gradient text-white"
                   disabled={isSigning || !isValid || !hasAnyChanges(values) || !touched}
                 >
