@@ -32,12 +32,12 @@ mock.module('@/components/bank/forms/ibcSendForm', () => ({
       <div data-testid="ibc-send-form">
         <div className="dropdown">
           <label tabIndex={0} aria-label="from-chain-selector" className="btn">
-            {props.selectedFromChain || 'Select Chain'}
+            {props.selectedFromChain?.name || 'Select Chain'}
           </label>
         </div>
         <div className="dropdown">
           <label tabIndex={0} aria-label="to-chain-selector" className="btn">
-            {props.selectedToChain || 'Select Chain'}
+            {props.selectedToChain?.name || 'Select Chain'}
           </label>
         </div>
       </div>
