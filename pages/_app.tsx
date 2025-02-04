@@ -134,7 +134,7 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
             logo: '/sms',
           },
         ],
-
+        mfaLevel: 'optional',
         client: {
           clientId: env.web3AuthClientId,
           web3AuthNetwork: env.web3AuthNetwork as WEB3AUTH_NETWORK_TYPE, // Safe to cast since we validate the env vars in config/env.ts
