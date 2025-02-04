@@ -11,11 +11,12 @@ const createMessage = (template: string, base: string) => {
 };
 export const MsgSetDenomMetadataHandler = createSenderReceiverHandler({
   iconSender: FactoryIcon,
-  successSender: tx => createMessage('You set the metadata of denomination {0}', tx.metadata?.base),
+  successSender: tx =>
+    createMessage('You set the metadata of denomination {0}', tx.metadata?.metadata.base),
   failSender: tx =>
-    createMessage('You failed to set the metadata of denomination {0}', tx.metadata?.base),
+    createMessage('You failed to set the metadata of denomination {0}', tx.metadata?.metadata.base),
   successReceiver: tx =>
-    createMessage('The {0} denomination had its metadata set', tx.metadata?.base),
+    createMessage('The {0} denomination had its metadata set', tx.metadata?.metadata.base),
 });
 
 registerHandler(MsgSetDenomMetadata.typeUrl, MsgSetDenomMetadataHandler);
