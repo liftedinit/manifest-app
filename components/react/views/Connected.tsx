@@ -4,7 +4,7 @@ import { ChevronLeftIcon } from '@heroicons/react/20/solid';
 import { useState } from 'react';
 import ProfileAvatar from '@/utils/identicon';
 import { useBalance } from '@/hooks/useQueries';
-import { Username } from '@/components/Username';
+import { Username } from '@/components/username';
 import { CopyIcon } from '@/components/icons';
 import { getRealLogo, shiftDigits, truncateAddress } from '@/utils';
 import Image from 'next/image';

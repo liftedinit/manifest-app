@@ -18,7 +18,10 @@ export const Username = ({
   username?: string;
   walletName?: string;
 }) => {
-  let name = specialUsernames[walletName?.toUpperCase()] ?? (username || 'Anonymous');
+  let name = username || 'Anonymous';
+  if (walletName !== undefined) {
+    name = specialUsernames[walletName.toUpperCase()] ?? (username || 'Anonymous');
+  }
   if (truncated) {
     name = truncateString(name);
   }

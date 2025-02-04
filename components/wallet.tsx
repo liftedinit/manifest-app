@@ -6,7 +6,7 @@ import { useChain } from '@cosmos-kit/react';
 import { WalletStatus } from 'cosmos-kit';
 import { MdWallet } from 'react-icons/md';
 import env from '@/config/env';
-import { Username } from './Username';
+import { Username } from './username';
 import { truncateAddress, truncateString } from '@/utils';
 
 const buttons = {
