@@ -1,17 +1,19 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
-import { formatDenom, TransactionGroup } from '@/components';
+import { objectSyntax } from '@/components';
 import { FaExternalLinkAlt } from 'react-icons/fa';
-import { denomToAsset, shiftDigits } from '@/utils';
 import env from '@/config/env';
+import { useTheme } from '@/contexts';
+import { TxMessage } from '@/components/bank/types';
+import { isJsonString } from '@/utils/json';
 
 interface TxInfoModalProps {
-  tx: TransactionGroup;
-
+  tx: TxMessage;
   modalId: string;
 }
 
 export default function TxInfoModal({ tx, modalId }: TxInfoModalProps) {
+  const { theme } = useTheme();
   function formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleString('en-US', {
@@ -22,6 +24,14 @@ export default function TxInfoModal({ tx, modalId }: TxInfoModalProps) {
       minute: '2-digit',
       second: '2-digit',
     });
+  }
+
+  function isBase64(str: string): boolean {
+    try {
+      return btoa(atob(str)) === str;
+    } catch (err) {
+      return false;
+    }
   }
 
   return (
@@ -43,65 +53,45 @@ export default function TxInfoModal({ tx, modalId }: TxInfoModalProps) {
             <InfoItem
               label="TRANSACTION HASH"
               explorerUrl={env.explorerUrl}
-              value={tx?.tx_hash}
+              value={tx?.id}
               isAddress={true}
             />
+            <InfoItem label="BLOCK" explorerUrl={env.explorerUrl} value={tx?.height?.toString()} />
+          </div>
+          <div>
             <InfoItem
-              label="BLOCK"
+              label="SENDER"
               explorerUrl={env.explorerUrl}
-              value={tx?.block_number?.toString()}
+              value={tx?.sender}
+              isAddress={true}
             />
             <InfoItem
               label="TIMESTAMP"
               explorerUrl={env.explorerUrl}
-              value={formatDate(tx?.formatted_date)}
+              value={formatDate(tx?.timestamp)}
             />
-          </div>
-          <div>
-            <InfoItem
-              label="FROM"
-              explorerUrl={env.explorerUrl}
-              value={tx?.data?.from_address}
-              isAddress={true}
-            />
-            <InfoItem
-              label="TO"
-              explorerUrl={env.explorerUrl}
-              value={tx?.data?.to_address}
-              isAddress={true}
-            />
-            <div>
-              <p className="text-sm font-semibold text-[#00000099] dark:text-[#FFFFFF99] mb-2">
-                VALUE
-              </p>
-              <div className="bg-[#FFFFFF66] dark:bg-[#FFFFFF1A] rounded-[16px] p-4">
-                {tx?.data?.amount.map((amt, index) => {
-                  const amount = Number(shiftDigits(amt.amount, -6));
-                  let displayDenom = formatDenom(amt.denom);
-
-                  if (amt.denom.startsWith('ibc/')) {
-                    const assetInfo = denomToAsset(env.chain, amt.denom);
-                    if (assetInfo?.traces?.[0]?.counterparty?.base_denom) {
-                      displayDenom = assetInfo.traces[0].counterparty.base_denom.slice(1);
-                    }
-                  }
-
-                  return (
-                    <p key={index} className="text-[#161616] dark:text-white">
-                      {Number(amount).toLocaleString(undefined, {
-                        maximumFractionDigits: 6,
-                      })}{' '}
-                      {displayDenom.toUpperCase()}
-                    </p>
-                  );
-                })}
-              </div>
-            </div>
           </div>
         </div>
+        {/*{tx?.metadata && (*/}
+        {/*  <div>*/}
+        {/*    <h4 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">Metadata</h4>*/}
+        {/*    {Object.entries(tx?.metadata).map(([key, value], index) => (*/}
+        {/*      <MetadataItem key={index} label={key} content={value} theme={theme} />*/}
+        {/*    ))}*/}
+        {/*  </div>*/}
+        {/*)}*/}
         {tx.memo && (
           <div>
             <InfoItem label="MEMO" explorerUrl={env.explorerUrl} value={tx.memo} />
+          </div>
+        )}
+        {tx.error && (
+          <div>
+            <InfoItem
+              label="ERROR"
+              explorerUrl={env.explorerUrl}
+              value={isBase64(tx.error) ? atob(tx.error) : tx.error}
+            />
           </div>
         )}
       </div>
@@ -112,17 +102,48 @@ export default function TxInfoModal({ tx, modalId }: TxInfoModalProps) {
   );
 }
 
+function MetadataItem({
+  label,
+  content,
+  theme,
+}: Readonly<{
+  label: string;
+  content: any;
+  theme: string;
+}>) {
+  const isJson = useMemo(() => isJsonString(content), [content]);
+
+  return (
+    <div className="mb-6">
+      <p className="text-sm font-semibold text-[#00000099] dark:text-[#FFFFFF99] mb-2">
+        {label.toUpperCase().replace(/_/g, ' ')}
+      </p>
+      {isJson ? (
+        objectSyntax(JSON.parse(content), theme)
+      ) : typeof content === 'object' ? (
+        <div className="bg-[#FFFFFF66] dark:bg-[#FFFFFF1A] rounded-[16px] p-4">
+          <pre className="text-[#161616] dark:text-white">{JSON.stringify(content, null, 2)}</pre>
+        </div>
+      ) : (
+        <div className="bg-[#FFFFFF66] dark:bg-[#FFFFFF1A] rounded-[16px] p-4">
+          <p className="text-[#161616] dark:text-white">{content}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function InfoItem({
   label,
   value,
   explorerUrl,
   isAddress = false,
-}: {
+}: Readonly<{
   label: string;
   value: string;
   explorerUrl: string;
   isAddress?: boolean;
-}) {
+}>) {
   return (
     <div className="mb-4">
       <p className="text-sm font-semibold text-[#00000099] dark:text-[#FFFFFF99] mb-2">{label}</p>

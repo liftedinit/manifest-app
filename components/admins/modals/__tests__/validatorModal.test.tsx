@@ -48,7 +48,7 @@ describe('ValidatorDetailsModal Component', () => {
     });
   });
 
-  test('enables update button when input is valid', async () => {
+  test('enables upgrade button when input is valid', async () => {
     renderWithProps();
     const input = screen.getByPlaceholderText('1000');
     fireEvent.change(input, { target: { value: '2000' } });
@@ -58,7 +58,7 @@ describe('ValidatorDetailsModal Component', () => {
     });
   });
 
-  test('disables update button when input is invalid', async () => {
+  test('disables upgrade button when input is invalid', async () => {
     renderWithProps();
     const input = screen.getByPlaceholderText('1000');
     fireEvent.change(input, { target: { value: '-1' } });
@@ -82,7 +82,7 @@ describe('ValidatorDetailsModal Component', () => {
     });
   });
 
-  test('shows warning message for unsafe power update', async () => {
+  test('shows warning message for unsafe power upgrade', async () => {
     renderWithProps();
     const input = screen.getByPlaceholderText('1000');
     fireEvent.change(input, { target: { value: '9000' } });

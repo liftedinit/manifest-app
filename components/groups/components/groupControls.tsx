@@ -17,12 +17,13 @@ import { useChain } from '@cosmos-kit/react';
 import { MemberSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { ArrowRightIcon } from '@/components/icons';
 import ProfileAvatar from '@/utils/identicon';
-import { HistoryBox, TransactionGroup } from '@/components';
+import { HistoryBox } from '@/components';
 import { TokenList } from '@/components';
 import { CombinedBalanceInfo, ExtendedMetadataSDKType } from '@/utils';
 import DenomList from '@/components/factory/components/DenomList';
 import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
 import env from '@/config/env';
+import { TxMessage } from '@/components/bank/types';
 
 type GroupControlsProps = {
   policyAddress: string;
@@ -32,7 +33,7 @@ type GroupControlsProps = {
   isLoading: boolean;
   currentPage: number;
   setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
-  sendTxs: TransactionGroup[];
+  sendTxs: TxMessage[];
   totalPages: number;
   txLoading: boolean;
   isError: boolean;

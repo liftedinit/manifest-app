@@ -92,12 +92,12 @@ describe('GroupInfo', () => {
     expect(screen.getByText('No threshold available')).toBeInTheDocument();
   });
 
-  test('triggers update modal on button click', () => {
+  test('triggers upgrade modal on button click', () => {
     renderWithProps();
-    const updateButton = screen.getByLabelText('update-btn');
+    const updateButton = screen.getByLabelText('upgrade-btn');
     fireEvent.click(updateButton);
     const modal = document.getElementById(`update-group-modal`) as HTMLDialogElement;
     expect(modal).toBeInTheDocument();
-    expect(screen.getByLabelText('update-group-btn')).toBeInTheDocument();
+    expect(screen.getByLabelText('upgrade-group-btn')).toBeInTheDocument();
   });
 });

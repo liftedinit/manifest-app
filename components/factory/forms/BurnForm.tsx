@@ -28,7 +28,7 @@ interface BurnFormProps {
   refetch: () => void;
   balance: string;
   totalSupply: string;
-  onMultiBurnClick: () => void;
+
   isGroup?: boolean;
 }
 
@@ -40,13 +40,12 @@ export default function BurnForm({
   refetch,
   balance,
   totalSupply,
-  onMultiBurnClick,
+
   isGroup,
 }: Readonly<BurnFormProps>) {
   const [amount, setAmount] = useState('');
-  const [recipient, setRecipient] = useState(address);
+  const [recipient, setRecipient] = useState(address || '');
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [burnPairs, setBurnPairs] = useState<BurnPair[]>([{ address: '', amount: '' }]);
 
   const [isContactsOpen, setIsContactsOpen] = useState(false);
@@ -82,21 +81,6 @@ export default function BurnForm({
       }),
     recipient: Yup.string().required('Recipient address is required').manifestAddress(),
   });
-
-  // Format balance safely
-  function formatAmount(amount: string | null | undefined): string {
-    if (amount == null) {
-      return '-';
-    }
-    try {
-      return Number(shiftDigits(amount, -exponent)).toLocaleString(undefined, {
-        maximumFractionDigits: exponent,
-      });
-    } catch (error) {
-      console.warn('Error formatting amount:', error);
-      return 'x';
-    }
-  }
 
   const handleBurn = async () => {
     if (!amount || Number.isNaN(Number(amount))) {
@@ -212,7 +196,7 @@ export default function BurnForm({
         fee,
         onSuccess: () => {
           setBurnPairs([{ address: '', amount: '' }]);
-          setIsModalOpen(false);
+
           refetch();
         },
       });
@@ -283,10 +267,10 @@ export default function BurnForm({
                           label="AMOUNT"
                           name="amount"
                           placeholder="Enter amount"
-                          value={amount}
+                          value={amount || ''}
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                            setAmount(e.target.value);
-                            setFieldValue('amount', e.target.value);
+                            setAmount(e.target.value || '');
+                            setFieldValue('amount', e.target.value || '');
                           }}
                           className={`input input-bordered w-full ${
                             touched.amount && errors.amount ? 'input-error' : ''
@@ -307,10 +291,10 @@ export default function BurnForm({
                           label="TARGET"
                           name="recipient"
                           placeholder="Recipient address"
-                          value={recipient}
+                          value={recipient || ''}
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                            setRecipient(e.target.value);
-                            setFieldValue('recipient', e.target.value);
+                            setRecipient(e.target.value || '');
+                            setFieldValue('recipient', e.target.value || '');
                           }}
                           className={`input input-bordered w-full transition-none ${
                             touched.recipient && errors.recipient ? 'input-error' : ''
@@ -371,17 +355,6 @@ export default function BurnForm({
           </>
         )}
       </div>
-      {isMFX && (
-        <button
-          type="button"
-          onClick={onMultiBurnClick}
-          className="btn btn-error btn-md flex-grow w-full text-white mt-6"
-          aria-label="multi-burn-button"
-          disabled={!isAdmin}
-        >
-          Multi Burn
-        </button>
-      )}
     </div>
   );
 }

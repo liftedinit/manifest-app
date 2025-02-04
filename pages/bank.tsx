@@ -1,7 +1,7 @@
 import { WalletNotConnected, HistoryBox, SearchIcon } from '@/components';
 import { TokenList } from '@/components/bank/components/tokenList';
 import {
-  useGetFilteredTxAndSuccessfulProposals,
+  useGetMessagesFromAddress,
   useIsMobile,
   useOsmosisTokenBalancesResolved,
   useOsmosisTokenFactoryDenomsMetadata,
@@ -92,7 +92,8 @@ export default function Bank() {
     isLoading: txLoading,
     isError,
     refetch: refetchHistory,
-  } = useGetFilteredTxAndSuccessfulProposals(
+    totalCount,
+  } = useGetMessagesFromAddress(
     env.indexerUrl,
     chains.manifesttestnet.address ?? '',
     currentPage,

@@ -255,7 +255,7 @@ export const TailwindModal: React.FC<
         })
         .catch(error => {
           console.error('Wallet connection error:', error);
-          // Always keep QRCode view but update its state for these errors
+          // Always keep QRCode view but upgrade its state for these errors
           if (isWalletConnectionError(error?.message)) {
             setQRState(State.Error);
             setQrMessage(error.message);
