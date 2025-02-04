@@ -13,9 +13,9 @@ import { Contacts } from './Contacts';
 /**
  * Special list of names for accounts based on the name of the service.
  */
-enum specialUsernames {
-  LEDGER = 'Ledger HSM',
-}
+const specialUsernames: Record<string, string> = Object.assign(Object.create(null), {
+  LEDGER: 'Ledger HSM',
+});
 
 export const Connected = ({
   onClose,
@@ -88,7 +88,7 @@ export const Connected = ({
           <ProfileAvatar walletAddress={address ?? ''} size={60} />
           <div className="ml-4">
             <p className="text-lg font-semibold">
-              {specialUsernames[name.toUpperCase()] || username || 'Anonymous'}
+              {specialUsernames[name.toUpperCase()] ?? (username || 'Anonymous')}
             </p>
             <div className="flex items-center">
               <p className="text-sm text-gray-500 dark:text-gray-400">
