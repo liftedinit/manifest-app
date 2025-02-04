@@ -6,6 +6,7 @@ import { useChain } from '@cosmos-kit/react';
 import { WalletStatus } from 'cosmos-kit';
 import { MdWallet } from 'react-icons/md';
 import env from '@/config/env';
+import { Username } from './Username';
 import { truncateAddress, truncateString } from '@/utils';
 
 const buttons = {
@@ -36,7 +37,7 @@ interface WalletSectionProps {
 }
 
 export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
-  const { connect, openView, status, username, address } = useChain(chainName);
+  const { connect, openView, status, username, address, wallet } = useChain(chainName);
 
   const [localStatus, setLocalStatus] = useState(status);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
@@ -127,12 +128,12 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
           }}
         >
           <div className="relative z-10 h-full flex flex-col  justify-between">
-            <p
+            <Username
               className="font-medium text-xl text-center mb-2 truncate"
-              title={username || 'Connected user'}
-            >
-              {username ? truncateString(username, 20) : 'Connected User'}
-            </p>
+              username={username}
+              walletName={wallet?.prettyName}
+              truncated
+            />
             <div className="bg-base-100 dark:bg-base-200 rounded-full py-2 px-4 text-center mb-4 flex items-center flex-row justify-between w-full ">
               <p className="text-xs  truncate flex-grow">
                 {address ? truncateAddress(address) : 'Address not available'}
