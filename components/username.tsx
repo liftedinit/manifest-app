@@ -3,9 +3,9 @@ import { truncateString } from '@/utils';
 /**
  * Special list of names for accounts based on the name of the service.
  */
-const specialUsernames: Record<string, string> = Object.assign(Object.create(null), {
-  LEDGER: 'Ledger HSM',
-});
+enum WalletDisplayNames {
+  LEDGER = 'Ledger HSM',
+}
 
 export const Username = ({
   className,
@@ -20,7 +20,8 @@ export const Username = ({
 }) => {
   let name = username || 'Anonymous';
   if (walletName !== undefined) {
-    name = specialUsernames[walletName.toUpperCase()] ?? (username || 'Anonymous');
+    const walletDisplayName = walletName.toUpperCase() as keyof typeof WalletDisplayNames;
+    name = WalletDisplayNames[walletDisplayName] ?? (username || 'Anonymous');
   }
   if (truncated) {
     name = truncateString(name);
