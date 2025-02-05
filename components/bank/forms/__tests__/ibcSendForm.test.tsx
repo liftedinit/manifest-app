@@ -43,9 +43,9 @@ function renderWithProps(props = {}) {
     refetchHistory: jest.fn(),
     isIbcTransfer: true,
     ibcChains: defaultChains,
-    selectedFromChain: defaultChains[0],
+    selectedFromChain: defaultChains[0], // Initialize with Manifest chain
     setSelectedFromChain: jest.fn(),
-    selectedToChain: defaultChains[1],
+    selectedToChain: defaultChains[1], // Initialize with Osmosis chain
     setSelectedToChain: jest.fn(),
     osmosisBalances: [],
     isOsmosisBalancesLoading: false,
@@ -56,43 +56,26 @@ function renderWithProps(props = {}) {
       manifest: {
         address: 'manifest1address',
         getOfflineSignerAmino: jest.fn(),
-        chain: { chain_id: 'manifest-1' },
       },
       osmosistestnet: {
         address: 'osmo1address',
         getOfflineSignerAmino: jest.fn(),
-        chain: { chain_id: 'osmo-test-1' },
       },
     },
   };
 
-  // Wait for a tick to ensure all effects are processed
-  return {
-    ...renderWithChainProvider(<IbcSendForm {...defaultProps} {...props} />),
-    rerender: (newProps = {}) =>
-      renderWithChainProvider(<IbcSendForm {...defaultProps} {...newProps} />),
-  };
+  return renderWithChainProvider(<IbcSendForm {...defaultProps} {...props} />);
 }
 
 describe('IbcSendForm Component', () => {
-  afterEach(() => {
-    cleanup();
-    jest.clearAllMocks();
-  });
+  afterEach(cleanup);
 
-  test.skip('renders form with correct details', async () => {
-    const { container } = renderWithProps();
-
-    // Wait for any async operations to complete
-    await new Promise(resolve => setTimeout(resolve, 0));
-
-    // Debug output to see what's being rendered
-    if (process.env.CI) {
-      console.log('Container HTML:', container.innerHTML);
-    }
-
-    // Basic structure checks
-    expect(container.querySelector('[data-testid="ibc-send-form"]')).toBeInTheDocument();
+  test('renders form with correct details', () => {
+    renderWithProps();
+    expect(screen.getByText('From Chain')).toBeInTheDocument();
+    expect(screen.getByText('To Chain')).toBeInTheDocument();
+    expect(screen.getByText('Amount')).toBeInTheDocument();
+    expect(screen.getByText('Send To')).toBeInTheDocument();
   });
 
   test('empty balances', async () => {
@@ -198,21 +181,34 @@ describe('IbcSendForm Component', () => {
     const fromChainSelector = screen.getByLabelText('from-chain-selector');
     fireEvent.click(fromChainSelector);
 
-    const manifestOptions = screen.getAllByRole('option', { name: 'Manifest' });
+    // Select Manifest in the from chain dropdown
+    const manifestOptions = screen.getAllByRole('option', {
+      name: 'Manifest',
+      hidden: true,
+    });
     const enabledManifestOption = manifestOptions.find(
       option => !option.className.includes('opacity-50')
     );
     fireEvent.click(enabledManifestOption!);
 
-    // Verify Manifest is not available in destination chain options
+    expect(screen.getByLabelText('from-chain-selector')).toHaveTextContent('Manifest');
+
     const toChainSelector = screen.getByLabelText('to-chain-selector');
     fireEvent.click(toChainSelector);
 
-    // Check that there's only one active Manifest option (the source)
-    const activeManifestOptions = screen.getAllByRole('option', { name: 'Manifest' });
-    const activeManifestOption = activeManifestOptions.find(
-      option => !option.className.includes('opacity-50')
-    );
-    expect(activeManifestOption).toBeDefined();
+    // Find all chain options in the to-chain dropdown
+    const toChainOptions = screen.getAllByRole('option', {
+      hidden: true,
+    });
+
+    // Find the Manifest option in the to-chain dropdown
+    const manifestInToChain = toChainOptions.find(option => {
+      const link = option.querySelector('a');
+      return link && link.textContent?.includes('Manifest');
+    });
+
+    // Check that the Manifest option has the disabled styling and attributes
+    expect(manifestInToChain?.querySelector('a')).toHaveStyle({ pointerEvents: 'none' });
+    expect(manifestInToChain?.querySelector('a')).toHaveClass('opacity-50');
   });
 });
