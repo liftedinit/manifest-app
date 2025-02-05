@@ -94,7 +94,7 @@ export const TailwindModal: React.FC<
   const [qrState, setQRState] = useState<State>(State.Init);
   const [qrMessage, setQrMessage] = useState<string>('');
 
-  const chains = useChains([env.chain, env.osmosisChain]);
+  const chains = useChains([env.chain, env.osmosisChain, env.axelarChain]);
 
   const chainStates = useMemo(() => {
     return Object.values(chains).map(chain => ({

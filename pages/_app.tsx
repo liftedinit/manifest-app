@@ -17,6 +17,7 @@ import {
   assets as osmosisAssets,
   chain as osmosisChain,
 } from 'chain-registry/testnet/osmosistestnet';
+import { assets as axelarAssets, chain as axelarChain } from 'chain-registry/testnet/axelartestnet';
 import { SignerOptions, wallets } from 'cosmos-kit';
 
 import { wallets as cosmosExtensionWallets } from '@cosmos-kit/cosmos-extension-metamask';
@@ -202,8 +203,8 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
         <ReactQueryDevtools />
         {
           <ChainProvider
-            chains={[manifestChain, osmosisChain]}
-            assetLists={[manifestAssets, osmosisAssets]}
+            chains={[manifestChain, osmosisChain, axelarChain]}
+            assetLists={[manifestAssets, osmosisAssets, axelarAssets]}
             defaultChain={manifestChain}
             // @ts-ignore
             wallets={combinedWallets}

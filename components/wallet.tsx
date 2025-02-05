@@ -36,7 +36,7 @@ interface WalletSectionProps {
 }
 
 export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
-  const chains = useChains([env.chain, env.osmosisChain]);
+  const chains = useChains([env.chain, env.osmosisChain, env.axelarChain]);
 
   const chainStates = useMemo(() => {
     return Object.values(chains).map(chain => ({

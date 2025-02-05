@@ -30,9 +30,7 @@ import { SearchIcon, TransferIcon } from '@/components/icons';
 
 import { TailwindModal } from '@/components/react/modal';
 import env from '@/config/env';
-import { useChains } from '@cosmos-kit/react';
-import { useSearchParams } from 'next/navigation';
-import { Any } from 'cosmjs-types/google/protobuf/any';
+
 import { useSkipClient } from '@/contexts/skipGoContext';
 
 import { IbcChain } from '@/components';
@@ -207,11 +205,6 @@ export default function IbcSendForm({
 
       const { source_port, source_channel } = getIbcInfo(selectedFromChain.id, selectedToChain.id);
 
-      const skipChains = await skipClient.chains({
-        onlyTestnets: true,
-      });
-      console.log('Available Skip chains:', skipChains);
-
       const token = {
         denom: values.selectedToken.coreDenom,
         amount: amountInBaseUnits,
@@ -231,17 +224,24 @@ export default function IbcSendForm({
       });
 
       console.log('route', route);
-
+      console.log('route.requiredChainAddresses', route.requiredChainAddresses);
       const addressList = route.requiredChainAddresses.map(chainID => ({
         address:
           Object.values(chains).find(chain => chain.chain.chain_id === chainID)?.address ?? '',
       }));
 
-      const userAddresses = route.requiredChainAddresses.map(chainID => ({
-        address:
-          Object.values(chains).find(chain => chain.chain.chain_id === chainID)?.address ?? '',
-        chainID: chainID,
-      }));
+      const userAddresses = route.requiredChainAddresses.map(chainID => {
+        const chainContext = Object.values(chains).find(chain => chain.chain.chain_id === chainID);
+
+        if (!chainContext?.address) {
+          throw new Error(`No address found for chain: ${chainID}`);
+        }
+
+        return {
+          chainID,
+          address: chainContext.address,
+        };
+      });
 
       console.log(userAddresses);
 
@@ -265,7 +265,7 @@ export default function IbcSendForm({
       await skipClient.executeRoute({
         route,
         userAddresses,
-        simulate: true,
+
         // Executes after all of the operations triggered by a user's signature complete.
         // For multi-tx routes that require multiple user signatures, this will be called once for each tx in sequence
         onTransactionCompleted: async (chainID, txHash, status) => {

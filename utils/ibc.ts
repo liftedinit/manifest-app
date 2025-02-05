@@ -3,124 +3,15 @@ import { Asset, AssetList, IBCInfo } from '@chain-registry/types';
 import { Coin } from '@liftedinit/manifestjs/dist/codegen/cosmos/base/v1beta1/coin';
 
 import { shiftDigits } from './maths';
-import { assets as manifestAssets } from 'chain-registry/testnet/manifesttestnet';
-import { assets as osmosisAssets } from 'chain-registry/testnet/osmosistestnet';
-import { ChainContext } from '@cosmos-kit/core';
+import {
+  assets as manifestAssets,
+  ibc as manifestIbc,
+} from 'chain-registry/testnet/manifesttestnet';
+import { assets as osmosisAssets, ibc as osmosisIbc } from 'chain-registry/testnet/osmosistestnet';
+import { assets as axelarAssets, ibc as axelarIbc } from 'chain-registry/testnet/axelartestnet';
 
-//TODO: use chain-registry when the package is updated
+const assets: AssetList[] = [manifestAssets, osmosisAssets, axelarAssets];
 
-const manifestAssetList: AssetList = {
-  chain_name: 'manifesttestnet',
-  assets: [
-    ...manifestAssets.assets,
-    {
-      description: 'Osmosis token on Manifest Ledger Testnet',
-      denom_units: [
-        {
-          denom: 'ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518',
-          exponent: 0,
-          aliases: ['uosmo'],
-        },
-        {
-          denom: 'osmo',
-          exponent: 6,
-        },
-      ],
-      type_asset: 'ics20',
-      base: 'ibc/ED07A3391A112B175915CD8FAF43A2DA8E4790EDE12566649D0C2F97716B8518',
-      name: 'Osmosis',
-      display: 'osmo',
-      symbol: 'OSMO',
-      traces: [
-        {
-          type: 'ibc',
-          counterparty: {
-            chain_name: 'osmosistestnet',
-            base_denom: 'uosmo',
-            channel_id: 'channel-10016',
-          },
-          chain: {
-            channel_id: 'channel-0',
-            path: 'transfer/channel-0/uosmo',
-          },
-        },
-      ],
-      images: [
-        {
-          image_sync: {
-            chain_name: 'osmosistestnet',
-            base_denom: 'uosmo',
-          },
-          svg: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/osmosis/images/osmo.svg',
-          png: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/osmosis/images/osmo.png',
-        },
-      ],
-      logo_URIs: {
-        png: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/osmosis/images/osmo.png',
-        svg: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/osmosis/images/osmo.svg',
-      },
-    },
-  ],
-};
-
-const osmosisAssetList: AssetList = {
-  chain_name: 'osmosistestnet',
-  assets: [
-    ...osmosisAssets.assets,
-    {
-      description: 'Manifest Testnet Token',
-      denom_units: [
-        {
-          denom: 'ibc/8402769A51AEE1CDF35223998D284E937EBF03F4A2CE43EC10BB028BB5AD29C8',
-          exponent: 0,
-          aliases: ['umfx'],
-        },
-        {
-          denom: 'mfx',
-          exponent: 6,
-        },
-      ],
-      type_asset: 'ics20',
-      base: 'ibc/8402769A51AEE1CDF35223998D284E937EBF03F4A2CE43EC10BB028BB5AD29C8',
-      name: 'Manifest Testnet',
-      display: 'mfx',
-      symbol: 'MFX',
-      traces: [
-        {
-          type: 'ibc',
-          counterparty: {
-            chain_name: 'manifesttestnet',
-            base_denom: 'umfx',
-            channel_id: 'channel-0',
-          },
-          chain: {
-            channel_id: 'channel-10016',
-            path: 'transfer/channel-10016/umfx',
-          },
-        },
-      ],
-      logo_URIs: {
-        png: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/testnets/manifesttestnet/images/mfx.png',
-        svg: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/testnets/manifesttestnet/images/mfx.svg',
-      },
-      images: [
-        {
-          image_sync: {
-            chain_name: 'manifesttestnet',
-            base_denom: 'umfx',
-          },
-          png: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/testnets/manifesttestnet/images/mfx.png',
-          svg: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/testnets/manifesttestnet/images/mfx.svg',
-        },
-      ],
-    },
-  ],
-};
-
-const assets = [manifestAssetList, osmosisAssetList];
-const assetLists = [manifestAssetList, osmosisAssetList];
-
-//TODO: use chain-registry when the package is updated
 export const truncateDenom = (denom: string) => {
   return denom.slice(0, 10) + '...' + denom.slice(-6);
 };
@@ -135,7 +26,7 @@ const filterAssets = (chainName: string, assetList: AssetList[]): Asset[] => {
 
 const getAllAssets = (chainName: string) => {
   const nativeAssets = filterAssets(chainName, assets);
-  const ibcAssets = filterAssets(chainName, assetLists);
+  const ibcAssets = filterAssets(chainName, assets);
 
   return [...nativeAssets, ...ibcAssets];
 };
@@ -179,48 +70,17 @@ export const prettyBalance = (chainName: string, balance: Coin) => {
 
 export type PrettyBalance = ReturnType<typeof prettyBalance>;
 
-export const mockIbcData: IBCInfo[] = [
-  {
-    $schema: '../../ibc_data.schema.json',
-    chain_1: {
-      chain_name: 'manifesttestnet',
-      client_id: '07-tendermint-0',
-      connection_id: 'connection-0',
-    },
-    chain_2: {
-      chain_name: 'osmosistestnet',
-      client_id: '07-tendermint-4314',
-      connection_id: 'connection-3774',
-    },
-    channels: [
-      {
-        chain_1: {
-          channel_id: 'channel-0',
-          port_id: 'transfer',
-        },
-        chain_2: {
-          channel_id: 'channel-10016',
-          port_id: 'transfer',
-        },
-        ordering: 'unordered',
-        version: 'ics20-1',
-        tags: {
-          status: 'live',
-        },
-      },
-    ],
-  },
-];
+const ibcData: IBCInfo[] = [...manifestIbc, ...osmosisIbc, ...axelarIbc];
 
 export const getIbcInfo = (fromChainName: string, toChainName: string) => {
   let flipped = false;
 
-  let ibcInfo = mockIbcData.find(
+  let ibcInfo = ibcData.find(
     i => i.chain_1.chain_name === fromChainName && i.chain_2.chain_name === toChainName
   );
 
   if (!ibcInfo) {
-    ibcInfo = mockIbcData.find(
+    ibcInfo = ibcData.find(
       i => i.chain_1.chain_name === toChainName && i.chain_2.chain_name === fromChainName
     );
     flipped = true;

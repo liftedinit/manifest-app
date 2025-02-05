@@ -29,7 +29,7 @@ interface PageSizeConfig {
 }
 
 export default function Bank() {
-  const chains = useChains([env.chain, env.osmosisChain]);
+  const chains = useChains([env.chain, env.osmosisChain, env.axelarChain]);
 
   const isWalletConnected = useMemo(
     () => Object.values(chains).every(chain => chain.isWalletConnected),

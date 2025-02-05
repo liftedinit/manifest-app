@@ -1,5 +1,7 @@
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { shiftDigits } from '@/utils/maths';
+import { denomToAsset } from './ibc';
+import env from '@/config/env';
 
 export function formatLargeNumber(num: number): string {
   if (!Number.isFinite(num)) return 'Invalid number';
@@ -30,9 +32,17 @@ export function formatLargeNumber(num: number): string {
 }
 
 export function formatDenom(denom: string): string {
-  const cleanDenom = denom.replace(/^factory\/[^/]+\//, '');
+  const assetInfo = denomToAsset(env.chain, denom);
 
-  if (cleanDenom.startsWith('u')) {
+  // Fallback to cleaning the denom if no assetInfo
+  const cleanDenom = denom?.replace(/^factory\/[^/]+\//, '');
+
+  // Skip cleaning for IBC denoms as they should be resolved via assetInfo
+  if (cleanDenom.startsWith('ibc/')) {
+    return assetInfo?.display.toUpperCase() ?? '';
+  }
+
+  if (cleanDenom?.startsWith('u')) {
     return cleanDenom.slice(1).toUpperCase();
   }
 
