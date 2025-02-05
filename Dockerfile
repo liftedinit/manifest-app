@@ -1,18 +1,18 @@
 # syntax=docker.io/docker/dockerfile:1
 
-FROM oven/bun:1.1.34-slim AS base
+FROM oven/bun:1.2-slim AS base
 
 # Install dependencies only when needed
 FROM base AS deps
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* bun.lockb ./
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* bun.lock* ./
 RUN \
   if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
   elif [ -f package-lock.json ]; then npm ci; \
   elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
-  elif [ -f bun.lockb ]; then bun install --no-save; \
+  elif [ -f bun.lockb ] || [ -f bun.lock ]; then bun install --no-save; \
   else echo "Lockfile not found." && exit 1; \
   fi
 
@@ -35,7 +35,7 @@ RUN \
   if [ -f yarn.lock ]; then yarn run build; \
   elif [ -f package-lock.json ]; then npm run build; \
   elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run build; \
-  elif [ -f bun.lockb ]; then bun run build; \
+  elif [ -f bun.lockb ] || [ -f bun.lock ]; then bun run build; \
   else echo "Lockfile not found." && exit 1; \
   fi
 

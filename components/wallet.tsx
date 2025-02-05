@@ -6,6 +6,7 @@ import { useChain, useChains } from '@cosmos-kit/react';
 import { WalletStatus } from 'cosmos-kit';
 import { MdWallet } from 'react-icons/md';
 import env from '@/config/env';
+import { Username } from './username';
 import { truncateAddress, truncateString } from '@/utils';
 
 const buttons = {
@@ -45,6 +46,7 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
       status: chain.status,
       username: chain.username,
       address: chain.address,
+      wallet: chain.wallet,
     }));
   }, [chains]);
 
@@ -70,20 +72,14 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
   }, [chainStates]);
 
   const username = useMemo(
-    () =>
-      chainStates
-        .map(chain => chain.username)
-        .filter(Boolean)
-        .join(' / ') || undefined,
+    () => chainStates.find(chain => chain.username)?.username || undefined,
     [chainStates]
   );
 
+  const wallet = useMemo(() => chainStates.find(chain => chain.wallet)?.wallet, [chainStates]);
+
   const address = useMemo(
-    () =>
-      chainStates
-        .map(chain => chain.address)
-        .filter(Boolean)
-        .join(' / ') || undefined,
+    () => chainStates.find(chain => chain.address)?.address || undefined,
     [chainStates]
   );
 
@@ -176,12 +172,12 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
           }}
         >
           <div className="relative z-10 h-full flex flex-col  justify-between">
-            <p
+            <Username
               className="font-medium text-xl text-center mb-2 truncate"
-              title={username || 'Connected user'}
-            >
-              {username ? truncateString(username, 20) : 'Connected User'}
-            </p>
+              username={username}
+              walletName={wallet?.prettyName}
+              truncated
+            />
             <div className="bg-base-100 dark:bg-base-200 rounded-full py-2 px-4 text-center mb-4 flex items-center flex-row justify-between w-full ">
               <p className="text-xs  truncate flex-grow">
                 {address ? truncateAddress(address) : 'Address not available'}

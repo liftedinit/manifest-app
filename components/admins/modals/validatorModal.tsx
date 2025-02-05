@@ -165,11 +165,13 @@ export function ValidatorDetailsModal({
               <div className="flex flex-col justify-start items-start gap-4">
                 <span className="text-sm text-gray-500 dark:text-gray-400">VALIDATOR</span>
                 <div className="flex flex-row justify-start items-center gap-4">
-                  {validator?.logo_url !== '' ? (
+                  {validator?.logo_url && (
                     <img className="h-16 w-16 rounded-full" src={validator.logo_url} alt="" />
-                  ) : (
+                  )}
+                  {!validator?.logo_url && (
                     <ProfileAvatar walletAddress={validator?.operator_address} size={64} />
                   )}
+
                   <span className="text-2xl font-bold text-black dark:text-white">
                     {validator?.description.moniker}
                   </span>

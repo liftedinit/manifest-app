@@ -4,6 +4,7 @@ import { ChevronLeftIcon } from '@heroicons/react/20/solid';
 import { useState } from 'react';
 import ProfileAvatar from '@/utils/identicon';
 import { useBalance } from '@/hooks/useQueries';
+import { Username } from '@/components/username';
 import { CopyIcon } from '@/components/icons';
 import { getRealLogo, shiftDigits, truncateAddress } from '@/utils';
 import Image from 'next/image';
@@ -80,7 +81,7 @@ export const Connected = ({
         <div className="flex items-center ">
           <ProfileAvatar walletAddress={address ?? ''} size={60} />
           <div className="ml-4">
-            <p className="text-lg font-semibold">{username || 'Anonymous'}</p>
+            <Username className="text-lg font-semibold" walletName={name} username={username} />
             <div className="flex items-center">
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 {truncateAddress(address || '')}

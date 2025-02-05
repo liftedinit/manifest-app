@@ -29,7 +29,8 @@
     "@types/react": "18.0.25",
     "@types/react-dom": "18.0.9",
     "**/@chain-registry/types": "0.25.0",
-    "**/@cosmjs/stargate": "npm:@liftedinit/stargate@0.32.4-ll.3"
+    "**/@cosmjs/stargate": "npm:@liftedinit/stargate@0.32.4-ll.3",
+    "@octokit/webhooks": "13.4.3"
   },
   "dependencies": {
     "@chain-registry/assets": "^1.70.93",
@@ -80,6 +81,7 @@
     "react-scroll": "^1.9.0",
     "react-string-format": "^1.2.0",
     "react-syntax-highlighter": "^15.6.1",
+    "sharp": "^0.33.5",
     "tailwind-scrollbar-hide": "^2.0.0",
     "tailwindcss": "^3.4.10",
     "three": "^0.169.0",
