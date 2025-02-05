@@ -181,11 +181,12 @@ describe('IbcSendForm Component', () => {
     const fromChainSelector = screen.getByLabelText('from-chain-selector');
     fireEvent.click(fromChainSelector);
 
-    // Select Manifest in the from chain dropdown
-    const manifestOptions = screen.getAllByRole('option', {
+    // Wait for dropdown content to be visible
+    const manifestOptions = await screen.findAllByRole('option', {
       name: 'Manifest',
-      hidden: true,
+      hidden: true, // Add this to find hidden elements
     });
+
     const enabledManifestOption = manifestOptions.find(
       option => !option.className.includes('opacity-50')
     );
@@ -196,9 +197,9 @@ describe('IbcSendForm Component', () => {
     const toChainSelector = screen.getByLabelText('to-chain-selector');
     fireEvent.click(toChainSelector);
 
-    // Find all chain options in the to-chain dropdown
-    const toChainOptions = screen.getAllByRole('option', {
-      hidden: true,
+    // Wait for dropdown content to be visible
+    const toChainOptions = await screen.findAllByRole('option', {
+      hidden: true, // Add this to find hidden elements
     });
 
     // Find the Manifest option in the to-chain dropdown
