@@ -21,7 +21,7 @@ describe('SignModal', () => {
 
   test('should render', () => {
     const wrapper = renderWithChainProvider(<SignModal visible={true} />);
-    expect(screen.getByText('Tx Info')).toBeInTheDocument();
+    expect(screen.getByText('Approve')).toBeInTheDocument();
     const dialog = document.querySelector('dialog');
     expect(dialog).toBeVisible();
   });
@@ -47,7 +47,7 @@ describe('SignModal', () => {
         reject={() => {
           rejected = true;
         }}
-      />
+      />,
     );
 
     // Click reject.
@@ -82,7 +82,7 @@ describe('SignModal', () => {
         reject={() => {
           rejected = true;
         }}
-      />
+      />,
     );
 
     expect(isOpen).toBe(true);
@@ -109,14 +109,14 @@ describe('SignModal', () => {
         reject={() => {
           rejected = true;
         }}
-      />
+      />,
     );
 
     expect(isOpen).toBe(true);
     const btn = screen.getByText('✕');
     btn.focus();
     document.dispatchEvent(
-      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }),
     );
     expect(isOpen).toBe(false);
     expect(approved).toBe(false);
