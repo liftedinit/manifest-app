@@ -3,16 +3,18 @@ import { formatTokenDisplay } from '@/utils';
 import React from 'react';
 
 export const DenomDisplay = ({
-  denom,
-  metadata,
-  withBackground,
-}: {
-  metadata?: any;
+                               denom,
+                               metadata,
+                               withBackground,
+                             }: {
+  metadata?: {
+    display?: string;
+    base?: string;
+  };
   denom?: string;
-  withBackground?: bool;
+  withBackground?: boolean;
 }) => {
   const name = formatTokenDisplay(denom ?? metadata?.display ?? '?').toUpperCase();
-
   const verified = metadata?.base === 'umfx';
 
   return (
