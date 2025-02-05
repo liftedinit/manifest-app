@@ -27,7 +27,8 @@
     "@types/react": "18.0.25",
     "@types/react-dom": "18.0.9",
     "**/@chain-registry/types": "0.25.0",
-    "**/@cosmjs/stargate": "npm:@liftedinit/stargate@0.32.4-ll.3"
+    "**/@cosmjs/stargate": "npm:@liftedinit/stargate@0.32.4-ll.3",
+    "@octokit/webhooks": "13.4.3"
   },
   "dependencies": {
     "@chain-registry/assets": "^1.70.93",
@@ -53,7 +54,7 @@
     "babel-plugin-glsl": "^1.0.0",
     "chain-registry": "1.69.93",
     "cosmjs-types": "^0.9.0",
-    "cosmos-kit": "^2.23.5",
+    "cosmos-kit": "2.23.9",
     "country-flag-icons": "^1.5.13",
     "daisyui": "^4.12.10",
     "dayjs": "^1.11.13",
