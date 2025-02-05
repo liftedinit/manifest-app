@@ -6,6 +6,7 @@ import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { format } from 'react-string-format';
 
 const createMessage = (template: string, validatorAddress: string, power: number) => {
+  const realPower = power / 1000000;
   const message = format(
     template,
     validatorAddress ? (
@@ -13,7 +14,7 @@ const createMessage = (template: string, validatorAddress: string, power: number
     ) : (
       'unknown'
     ),
-    power
+    realPower
   );
   return <span className="flex gap-1">{message}</span>;
 };

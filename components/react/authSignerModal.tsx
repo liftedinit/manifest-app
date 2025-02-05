@@ -109,7 +109,6 @@ const DisplayDataToSign = ({
   txInfoClassName?: string;
   theme?: string;
 }) => {
-  const [isAddressExpanded, setIsAddressExpanded] = useState(false);
   const [isTxInfoExpanded, setIsTxInfoExpanded] = useState(false);
 
   const decodeBodyBytes = (bodyBytes: Uint8Array) => {
@@ -211,20 +210,11 @@ const DisplayDataToSign = ({
   return (
     <div className={className}>
       <div className="flex flex-col gap-2">
-        <button
-          onClick={() => setIsAddressExpanded(!isAddressExpanded)}
-          className="flex items-center gap-2 text-sm font-medium"
-        >
-          <div className="flex items-center gap-2 flex-row justify-between">
-            <span>Address</span>
-            {isAddressExpanded ? (
-              <ArrowRightIcon size={12} style={{ transform: 'rotate(90deg)' }} />
-            ) : (
-              <ArrowRightIcon size={12} style={{ transform: 'rotate(180deg)' }} />
-            )}
-          </div>
-        </button>
-        {isAddressExpanded && <pre className={addressClassName}>{address}</pre>}
+        <div className="flex items-center gap-2 flex-row justify-between">
+          <span>
+            <span className="font-bold">Sender:</span> {address}
+          </span>
+        </div>
       </div>
       <div className="flex flex-col gap-2">
         <button
@@ -232,7 +222,7 @@ const DisplayDataToSign = ({
           className="flex items-center gap-2 text-sm font-medium"
         >
           <div className="flex items-center gap-2 flex-row justify-between">
-            <span>Tx Info</span>
+            <span>Transaction Details</span>
             {isTxInfoExpanded ? (
               <ArrowRightIcon size={12} style={{ transform: 'rotate(90deg)' }} />
             ) : (
@@ -288,7 +278,7 @@ const SignModal = ({
               alt="Wallet type logo"
               className="w-8 h-8"
             />
-            <h3 className="text-xl font-semibold">{walletName?.toString()} Direct Signer</h3>
+            <h3 className="text-xl font-semibold">Approve transaction?</h3>
           </div>
           <button className="btn btn-sm btn-circle btn-ghost" onClick={onClose}>
             ✕
@@ -306,7 +296,7 @@ const SignModal = ({
 
         <div className="modal-action mt-6 flex justify-between gap-4">
           <button
-            className="btn flex-1 rounded-[12px] focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
+            className="btn btn-error flex-1 rounded-[12px] focus:outline-none "
             onClick={() => {
               reject();
               onClose();
