@@ -108,17 +108,6 @@ export default function ConfirmationForm({
         subdenom: prefixedSubdenom,
       });
 
-      const createDenomFee = await estimateFee(address, [createDenomMsg]);
-      const createDenomResult = await tx([createDenomMsg], {
-        fee: createDenomFee,
-        returnError: true,
-      });
-
-      if (createDenomResult && createDenomResult.error) {
-        console.error('Error creating denom:', createDenomResult.error);
-        return;
-      }
-
       // If createDenom is successful, proceed with setDenomMetadata
       const setMetadataMsg = setDenomMetadata({
         sender: address,
@@ -145,8 +134,8 @@ export default function ConfirmationForm({
         },
       });
 
-      const setMetadataFee = await estimateFee(address, [setMetadataMsg]);
-      await tx([setMetadataMsg], {
+      const setMetadataFee = await estimateFee(address, [createDenomMsg, setMetadataMsg]);
+      await tx([createDenomMsg, setMetadataMsg], {
         fee: setMetadataFee,
         onSuccess: () => {
           nextStep();
@@ -172,13 +161,6 @@ export default function ConfirmationForm({
         </div>
 
         <div className="space-y-6">
-          {!formData.isGroup && (
-            <div className="text-md">
-              You will be required to sign two messages: the first to create the token on the
-              blockchain, and the second to configure the token&#39;s metadata, including its name,
-              ticker, description, and other details.
-            </div>
-          )}
           {/* Token Information */}
           <div>
             <h2 className="text-xl font-semibold mb-4 ">Token Information</h2>

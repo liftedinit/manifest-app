@@ -18,13 +18,7 @@ export default function TokenDetails({
   address: string;
 }>) {
   const TokenDetailsSchema = Yup.object().shape({
-    display: Yup.string()
-      .required('Display is required')
-      .noProfanity()
-      .test('display-contains-subdenom', 'Display must contain subdenom', function (value) {
-        const subdenom = this.parent.subdenom;
-        return !subdenom || value.toLowerCase().includes(subdenom.slice(1).toLowerCase());
-      }),
+    display: Yup.string().required('Display is required').noProfanity(),
     description: Yup.string()
       .required('Description is required')
       .min(10, 'Description must be at least 10 characters long')
