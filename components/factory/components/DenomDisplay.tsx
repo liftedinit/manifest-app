@@ -3,10 +3,10 @@ import { formatTokenDisplay } from '@/utils';
 import React from 'react';
 
 export const DenomDisplay = ({
-                               denom,
-                               metadata,
-                               withBackground,
-                             }: {
+  denom,
+  metadata,
+  withBackground,
+}: {
   metadata?: {
     display?: string;
     base?: string;
