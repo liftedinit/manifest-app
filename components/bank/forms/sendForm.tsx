@@ -8,7 +8,7 @@ import { DenomImage } from '@/components/factory';
 import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { TextInput } from '@/components/react/inputs';
-import { SearchIcon } from '@/components/icons';
+import { SearchIcon, VerifiedIcon } from '@/components/icons';
 import { TailwindModal } from '@/components/react/modal';
 import { MdContacts } from 'react-icons/md';
 import env from '@/config/env';
@@ -227,6 +227,12 @@ export default function SendForm({
                             ? tokenDisplayName.split('/').pop()?.toUpperCase()
                             : truncateString(tokenDisplayName, 10).toUpperCase();
                         })()}
+                        {values.selectedToken?.metadata?.base?.includes('umfx') && (
+                          <VerifiedIcon
+                            style={{ margin: '0 4px' }}
+                            className="inline-block text-primary"
+                          />
+                        )}
                         <PiCaretDownBold className="ml-1" />
                       </label>
                       <ul
@@ -273,6 +279,12 @@ export default function SendForm({
                                         token.metadata?.display ?? '',
                                         10
                                       ).toUpperCase()}
+                                  {token.metadata?.base?.includes('umfx') && (
+                                    <VerifiedIcon
+                                      style={{ margin: '0 4px' }}
+                                      className="inline-block text-primary"
+                                    />
+                                  )}
                                 </span>
                               </a>
                             </li>

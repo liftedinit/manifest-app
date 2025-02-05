@@ -109,12 +109,13 @@ export function TokenList(props: Readonly<TokenListProps>) {
                   </div>
                   <p className="font-semibold text-[#161616] dark:text-white">
                     {truncateString(balance.metadata?.display ?? '', 12).toUpperCase()}
+                    {balance.metadata?.base?.includes('umfx') && (
+                      <VerifiedIcon
+                        style={{ margin: '0 4px' }}
+                        className="inline-block text-primary"
+                      />
+                    )}
                   </p>
-                  {balance.metadata?.base?.includes('umfx') && (
-                    <p>
-                      <VerifiedIcon className="w-5 h-5 text-primary" />
-                    </p>
-                  )}
                 </div>
                 <div className="text-center hidden sm:block md:block lg:hidden xl:block">
                   <p className="font-semibold text-[#161616] dark:text-white">
