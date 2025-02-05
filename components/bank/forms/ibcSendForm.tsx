@@ -5,7 +5,7 @@ import { getIbcInfo, parseNumberToBigInt, shiftDigits, truncateString } from '@/
 import { PiCaretDownBold } from 'react-icons/pi';
 import { MdContacts } from 'react-icons/md';
 import { CombinedBalanceInfo } from '@/utils/types';
-import { DenomImage } from '@/components/factory';
+import { DenomDisplay } from '@/components/factory';
 import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { TextInput } from '@/components/react/inputs';
@@ -284,23 +284,13 @@ export default function IbcSendForm({
                         tabIndex={0}
                         className="btn btn-sm h-full px-3 bg-[#FFFFFF] dark:bg-[#FFFFFF0F] border-none hover:bg-transparent"
                       >
-                        {values.selectedToken?.metadata ? (
-                          <DenomImage
-                            denom={values.selectedToken.metadata}
-                            withBackground={false}
-                          />
-                        ) : null}
-
-                        {(() => {
-                          const tokenDisplayName =
-                            values.selectedToken?.metadata?.display ??
-                            values.selectedToken?.denom ??
-                            'Select';
-
-                          return tokenDisplayName.startsWith('factory')
-                            ? tokenDisplayName.split('/').pop()?.toUpperCase()
-                            : truncateString(tokenDisplayName, 10).toUpperCase();
-                        })()}
+                        <DenomDisplay
+                          withBackground={false}
+                          denom={
+                            values.selectedToken?.metadata?.display ?? values.selectedToken?.denom
+                          }
+                          metadata={values.selectedToken?.metadata}
+                        />
                         <PiCaretDownBold className="ml-1" />
                       </label>
                       <ul
@@ -337,19 +327,11 @@ export default function IbcSendForm({
                               aria-label={token.metadata?.display ?? token.denom}
                             >
                               <a className="flex flex-row items-center gap-2 px-2 py-2">
-                                {token.metadata ? (
-                                  <DenomImage denom={token.metadata} withBackground={false} />
-                                ) : null}
-                                <span className="truncate">
-                                  {(() => {
-                                    const tokenDisplayName =
-                                      token.metadata?.display ?? token.denom ?? 'Select';
-
-                                    return tokenDisplayName.startsWith('factory')
-                                      ? tokenDisplayName.split('/').pop()?.toUpperCase()
-                                      : truncateString(tokenDisplayName, 10).toUpperCase();
-                                  })()}
-                                </span>
+                                <DenomDisplay
+                                  denom={token.metadata?.display ?? token.denom}
+                                  metadata={token.metadata}
+                                  withBackground={false}
+                                />
                               </a>
                             </li>
                           ))

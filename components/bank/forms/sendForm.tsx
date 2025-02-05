@@ -4,7 +4,7 @@ import { cosmos } from '@liftedinit/manifestjs';
 import { PiCaretDownBold } from 'react-icons/pi';
 import { parseNumberToBigInt, shiftDigits, truncateString } from '@/utils';
 import { CombinedBalanceInfo } from '@/utils/types';
-import { DenomImage } from '@/components/factory';
+import { DenomDisplay } from '@/components/factory';
 import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { TextInput } from '@/components/react/inputs';
@@ -210,29 +210,13 @@ export default function SendForm({
                         tabIndex={0}
                         className="btn btn-sm h-full px-3 bg-[#FFFFFF] dark:bg-[#FFFFFF0F] border-none hover:bg-transparent"
                       >
-                        {values.selectedToken?.metadata ? (
-                          <DenomImage
-                            denom={values.selectedToken?.metadata}
-                            withBackground={false}
-                          />
-                        ) : null}
-
-                        {(() => {
-                          const tokenDisplayName =
-                            values.selectedToken?.metadata?.display ??
-                            values.selectedToken?.denom ??
-                            'Select';
-
-                          return tokenDisplayName.startsWith('factory')
-                            ? tokenDisplayName.split('/').pop()?.toUpperCase()
-                            : truncateString(tokenDisplayName, 10).toUpperCase();
-                        })()}
-                        {values.selectedToken?.metadata?.base?.includes('umfx') && (
-                          <VerifiedIcon
-                            style={{ margin: '0 4px' }}
-                            className="inline-block text-primary"
-                          />
-                        )}
+                        <DenomDisplay
+                          withBackground={false}
+                          denom={
+                            values.selectedToken?.metadata?.display ?? values.selectedToken?.denom
+                          }
+                          metadata={values.selectedToken?.metadata}
+                        />
                         <PiCaretDownBold className="ml-1" />
                       </label>
                       <ul
@@ -271,21 +255,7 @@ export default function SendForm({
                               aria-label={token.metadata?.display}
                             >
                               <a className="flex flex-row items-center gap-2 px-2 py-2">
-                                <DenomImage denom={token?.metadata} withBackground={false} />
-                                <span className="truncate">
-                                  {token.metadata?.display.startsWith('factory')
-                                    ? token.metadata?.display.split('/').pop()?.toUpperCase()
-                                    : truncateString(
-                                        token.metadata?.display ?? '',
-                                        10
-                                      ).toUpperCase()}
-                                  {token.metadata?.base?.includes('umfx') && (
-                                    <VerifiedIcon
-                                      style={{ margin: '0 4px' }}
-                                      className="inline-block text-primary"
-                                    />
-                                  )}
-                                </span>
+                                <DenomDisplay withBackground={false} metadata={token?.metadata} />
                               </a>
                             </li>
                           ))

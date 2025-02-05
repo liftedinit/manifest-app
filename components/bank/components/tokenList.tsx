@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { DenomImage, DenomInfoModal } from '@/components/factory';
+import { DenomDisplay, DenomImage, DenomInfoModal } from '@/components/factory';
 import { shiftDigits, truncateString } from '@/utils';
 import { CombinedBalanceInfo } from '@/utils/types';
 import { SendTxIcon, QuestionIcon, VerifiedIcon } from '@/components/icons';
@@ -104,18 +104,7 @@ export function TokenList(props: Readonly<TokenListProps>) {
                 }}
               >
                 <div className="flex flex-row gap-4 items-center justify-start">
-                  <div className="  flex items-center justify-center">
-                    <DenomImage denom={balance.metadata} />
-                  </div>
-                  <p className="font-semibold text-[#161616] dark:text-white">
-                    {truncateString(balance.metadata?.display ?? '', 12).toUpperCase()}
-                    {balance.metadata?.base?.includes('umfx') && (
-                      <VerifiedIcon
-                        style={{ margin: '0 4px' }}
-                        className="inline-block text-primary"
-                      />
-                    )}
-                  </p>
+                  <DenomDisplay metadata={balance.metadata} />
                 </div>
                 <div className="text-center hidden sm:block md:block lg:hidden xl:block">
                   <p className="font-semibold text-[#161616] dark:text-white">

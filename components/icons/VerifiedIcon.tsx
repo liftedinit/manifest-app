@@ -3,12 +3,13 @@ import { SVGProps } from 'react';
 
 export const VerifiedIcon: React.FC<SVGProps<SVGSVGElement>> = props => (
   <svg
-    width="1em"
-    height="1em"
+    width="24"
+    height="24"
     viewBox="0 0 24 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    data-reactroot=""
+    role="img"
+    aria-label="Verified"
     {...props}
   >
     <path
