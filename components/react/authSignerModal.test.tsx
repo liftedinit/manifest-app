@@ -20,11 +20,19 @@ describe('SignModal', () => {
   });
 
   test('should render', () => {
-    const wrapper = renderWithChainProvider(<SignModal />);
+    const wrapper = renderWithChainProvider(<SignModal visible={true} />);
     expect(screen.getByText('Tx Info')).toBeInTheDocument();
+    const dialog = document.querySelector('dialog');
+    expect(dialog).toBeVisible();
   });
 
-  test('should close on clicking buttons with the right events', () => {
+  test('should not be visible initially when visible prop is false', () => {
+    const wrapper = renderWithChainProvider(<SignModal visible={false} />);
+    const dialog = document.querySelector('dialog');
+    expect(dialog).not.toBeVisible();
+  });
+
+  test('should close on clicking buttons', () => {
     let [isOpen, approved, rejected] = [true, false, false];
 
     const wrapper = renderWithChainProvider(
@@ -84,14 +92,13 @@ describe('SignModal', () => {
     expect(rejected).toBe(false);
   });
 
-  // This test is failing as I cannot get the modal to capture the keydown event.
+  // This test is failing as I cannot dispatch an Escape event to a
+  // dialog element to close it.
   test.skip('should close on pressing escape', () => {
     let [isOpen, approved, rejected] = [true, false, false];
 
     const wrapper = renderWithChainProvider(
       <SignModal
-        showVoteModal={jest.fn()}
-        setShowVoteModal={jest.fn()}
         visible={isOpen}
         onClose={() => {
           isOpen = false;
@@ -106,7 +113,11 @@ describe('SignModal', () => {
     );
 
     expect(isOpen).toBe(true);
-    fireEvent.keyDown(document, { key: 'Escape', code: 'Escape' });
+    const btn = screen.getByText('✕');
+    btn.focus();
+    document.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+    );
     expect(isOpen).toBe(false);
     expect(approved).toBe(false);
     expect(rejected).toBe(false);
