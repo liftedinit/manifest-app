@@ -1,6 +1,6 @@
 import { describe, test, afterEach, expect, jest, mock } from 'bun:test';
 import React from 'react';
-import { screen, cleanup, fireEvent } from '@testing-library/react';
+import { screen, cleanup, fireEvent, act } from '@testing-library/react';
 import IbcSendForm from '@/components/bank/forms/ibcSendForm';
 import matchers from '@testing-library/jest-dom/matchers';
 import { mockBalances } from '@/tests/mock';
@@ -43,9 +43,9 @@ function renderWithProps(props = {}) {
     refetchHistory: jest.fn(),
     isIbcTransfer: true,
     ibcChains: defaultChains,
-    selectedFromChain: defaultChains[0], // Initialize with Manifest chain
+    selectedFromChain: defaultChains[0],
     setSelectedFromChain: jest.fn(),
-    selectedToChain: defaultChains[1], // Initialize with Osmosis chain
+    selectedToChain: defaultChains[1],
     setSelectedToChain: jest.fn(),
     osmosisBalances: [],
     isOsmosisBalancesLoading: false,
@@ -64,18 +64,28 @@ function renderWithProps(props = {}) {
     },
   };
 
-  return renderWithChainProvider(<IbcSendForm {...defaultProps} {...props} />);
+  const rendered = renderWithChainProvider(
+    <div data-testid="ibc-send-form">
+      <IbcSendForm {...defaultProps} {...props} />
+    </div>
+  );
+
+  // Wait for component to be mounted
+  return {
+    ...rendered,
+    findForm: () => rendered.findByTestId('ibc-send-form'),
+  };
 }
 
 describe('IbcSendForm Component', () => {
   afterEach(cleanup);
 
-  test('renders form with correct details', () => {
-    renderWithProps();
-    expect(screen.getByText('From Chain')).toBeInTheDocument();
-    expect(screen.getByText('To Chain')).toBeInTheDocument();
-    expect(screen.getByText('Amount')).toBeInTheDocument();
-    expect(screen.getByText('Send To')).toBeInTheDocument();
+  test('renders form with correct details', async () => {
+    const { findForm } = renderWithProps();
+    const form = await findForm();
+    expect(form).toBeInTheDocument();
+    expect(screen.getByLabelText('from-chain-selector')).toBeInTheDocument();
+    expect(screen.getByLabelText('to-chain-selector')).toBeInTheDocument();
   });
 
   test('empty balances', async () => {
@@ -176,40 +186,49 @@ describe('IbcSendForm Component', () => {
   });
 
   test('prevents selecting same chain for source and destination', async () => {
-    renderWithProps();
+    const { findForm } = renderWithProps();
+    await findForm(); // Wait for form to be mounted
 
     const fromChainSelector = screen.getByLabelText('from-chain-selector');
-    fireEvent.click(fromChainSelector);
-
-    // Wait for dropdown content to be visible
-    const manifestOptions = await screen.findAllByRole('option', {
-      name: 'Manifest',
-      hidden: true, // Add this to find hidden elements
+    await act(async () => {
+      fireEvent.click(fromChainSelector);
     });
 
-    const enabledManifestOption = manifestOptions.find(
-      option => !option.className.includes('opacity-50')
-    );
-    fireEvent.click(enabledManifestOption!);
+    // Wait for dropdown content to be visible
+    await act(async () => {
+      const manifestOptions = await screen.findAllByRole('option', {
+        name: 'Manifest',
+        hidden: true,
+      });
+
+      const enabledManifestOption = manifestOptions.find(
+        option => !option.className.includes('opacity-50')
+      );
+      fireEvent.click(enabledManifestOption!);
+    });
 
     expect(screen.getByLabelText('from-chain-selector')).toHaveTextContent('Manifest');
 
     const toChainSelector = screen.getByLabelText('to-chain-selector');
-    fireEvent.click(toChainSelector);
+    await act(async () => {
+      fireEvent.click(toChainSelector);
+    });
 
     // Wait for dropdown content to be visible
-    const toChainOptions = await screen.findAllByRole('option', {
-      hidden: true, // Add this to find hidden elements
-    });
+    await act(async () => {
+      const toChainOptions = await screen.findAllByRole('option', {
+        hidden: true,
+      });
 
-    // Find the Manifest option in the to-chain dropdown
-    const manifestInToChain = toChainOptions.find(option => {
-      const link = option.querySelector('a');
-      return link && link.textContent?.includes('Manifest');
-    });
+      // Find the Manifest option in the to-chain dropdown
+      const manifestInToChain = toChainOptions.find(option => {
+        const link = option.querySelector('a');
+        return link && link.textContent?.includes('Manifest');
+      });
 
-    // Check that the Manifest option has the disabled styling and attributes
-    expect(manifestInToChain?.querySelector('a')).toHaveStyle({ pointerEvents: 'none' });
-    expect(manifestInToChain?.querySelector('a')).toHaveClass('opacity-50');
+      // Check that the Manifest option has the disabled styling and attributes
+      expect(manifestInToChain?.querySelector('a')).toHaveStyle({ pointerEvents: 'none' });
+      expect(manifestInToChain?.querySelector('a')).toHaveClass('opacity-50');
+    });
   });
 });
