@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { DenomImage, DenomInfoModal } from '@/components/factory';
 import { shiftDigits, truncateString } from '@/utils';
 import { CombinedBalanceInfo } from '@/utils/types';
-import { SendTxIcon, QuestionIcon } from '@/components/icons';
+import { SendTxIcon, QuestionIcon, VerifiedIcon } from '@/components/icons';
 import SendModal from '@/components/bank/modals/sendModal';
 
 interface TokenListProps {
@@ -110,6 +110,11 @@ export function TokenList(props: Readonly<TokenListProps>) {
                   <p className="font-semibold text-[#161616] dark:text-white">
                     {truncateString(balance.metadata?.display ?? '', 12).toUpperCase()}
                   </p>
+                  {balance.metadata?.base?.includes('umfx') && (
+                    <p>
+                      <VerifiedIcon className="w-5 h-5 text-primary" />
+                    </p>
+                  )}
                 </div>
                 <div className="text-center hidden sm:block md:block lg:hidden xl:block">
                   <p className="font-semibold text-[#161616] dark:text-white">
