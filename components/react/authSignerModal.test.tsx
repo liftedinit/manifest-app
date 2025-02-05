@@ -47,7 +47,7 @@ describe('SignModal', () => {
         reject={() => {
           rejected = true;
         }}
-      />
+      />,
     );
 
     // Click reject.
@@ -82,7 +82,7 @@ describe('SignModal', () => {
         reject={() => {
           rejected = true;
         }}
-      />
+      />,
     );
 
     expect(isOpen).toBe(true);
@@ -92,8 +92,11 @@ describe('SignModal', () => {
     expect(rejected).toBe(false);
   });
 
-  // This test is failing as I cannot dispatch an Escape event to a
-  // dialog element to close it.
+  // This test is skipped because:
+  // 1. The dialog element's Escape key behavior is handled natively by the browser
+  //    and can't be easily tested in JSDOM (this test is currently failing).
+  // 2. JSDOM (used by Jest) doesn't fully implement dialog behaviors
+  // 3. While we could mock HTMLDialogElement, it wouldn't accurately test the actual browser behavior
   test.skip('should close on pressing escape', () => {
     let [isOpen, approved, rejected] = [true, false, false];
 
@@ -109,14 +112,14 @@ describe('SignModal', () => {
         reject={() => {
           rejected = true;
         }}
-      />
+      />,
     );
 
     expect(isOpen).toBe(true);
     const btn = screen.getByText('✕');
     btn.focus();
     document.dispatchEvent(
-      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }),
     );
     expect(isOpen).toBe(false);
     expect(approved).toBe(false);
