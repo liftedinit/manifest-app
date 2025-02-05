@@ -279,7 +279,7 @@ const SignModal = ({
   const walletIconString = walletIcon?.toString() ?? '';
 
   return (
-    <dialog id="sign-modal" className="modal top-0 right-0">
+    <dialog id="sign-modal" onClose={onClose} className="modal top-0 right-0">
       <div className="modal-box max-w-lg w-full dark:bg-[#1D192D] bg-[#FFFFFF] rounded-lg shadow-xl">
         <div className="flex justify-between items-center pb-4">
           <div className="flex items-center gap-3">
