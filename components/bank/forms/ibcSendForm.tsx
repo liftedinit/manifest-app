@@ -225,12 +225,12 @@ export default function IbcSendForm({
 
       console.log('route', route);
       console.log('route.requiredChainAddresses', route.requiredChainAddresses);
-      const addressList = route.requiredChainAddresses.map(chainID => ({
+      const addressList = route.requiredChainAddresses.map((chainID: string) => ({
         address:
           Object.values(chains).find(chain => chain.chain.chain_id === chainID)?.address ?? '',
       }));
 
-      const userAddresses = route.requiredChainAddresses.map(chainID => {
+      const userAddresses = route.requiredChainAddresses.map((chainID: string) => {
         const chainContext = Object.values(chains).find(chain => chain.chain.chain_id === chainID);
 
         if (!chainContext?.address) {
@@ -252,7 +252,7 @@ export default function IbcSendForm({
         destAssetChainID: selectedToChain.chainID,
         amountIn: amountInBaseUnits,
         amountOut: route.estimatedAmountOut ?? '',
-        addressList: addressList.map(user => user.address),
+        addressList: addressList.map((user: { address: any }) => user.address),
         operations: route.operations,
         estimatedAmountOut: route.estimatedAmountOut ?? '',
         slippageTolerancePercent: '1',
@@ -268,22 +268,27 @@ export default function IbcSendForm({
 
         // Executes after all of the operations triggered by a user's signature complete.
         // For multi-tx routes that require multiple user signatures, this will be called once for each tx in sequence
+        // @ts-ignore
         onTransactionCompleted: async (chainID, txHash, status) => {
           console.log(`Route completed with tx hash: ${txHash} & status: ${status.state}`);
         },
         // called after the transaction that the user signs gets broadcast on chain
+        // @ts-ignore
         onTransactionBroadcast: async ({ txHash, chainID }) => {
           console.log(`Transaction broadcasted with tx hash: ${txHash}`);
         },
         // called after the transaction that the user signs is successfully registered for tracking
+        // @ts-ignore
         onTransactionTracked: async ({ txHash, chainID }) => {
           console.log(`Transaction tracked with tx hash: ${txHash}`);
         },
         // called after the user signs a transaction
+        // @ts-ignore
         onTransactionSigned: async ({ chainID }) => {
           console.log(`Transaction signed with chain ID: ${chainID}`);
         },
         // validate gas balance on each chain
+        // @ts-ignore
         onValidateGasBalance: async ({ chainID, txIndex, status }) => {
           console.log(`Validating gas balance for chain ${chainID}...`);
         },
