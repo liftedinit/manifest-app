@@ -42,7 +42,7 @@ type GroupControlsProps = {
   denomLoading: boolean;
   isDenomError: boolean;
   refetchBalances: () => void;
-  refetchHistory: () => void;
+  refetchHistory: () => Promise<any>;
   refetchDenoms: () => void;
   refetchGroupInfo: () => void;
   pageSize: number;

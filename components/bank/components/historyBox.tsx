@@ -6,8 +6,9 @@ import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank
 import { useTokenFactoryDenomsMetadata } from '@/hooks';
 import TxInfoModal from '../modals/txInfo';
 
-/// Interval to refresh the history box transaction and metadata.
-const HISTORY_BOX_REFRESH_INTERVAL = 3000;
+// Interval to refresh the history box transaction and metadata.
+// This is used as a delay between successful queries.
+const HISTORY_BOX_REFRESH_INTERVAL = 1000;
 
 export interface TransactionGroup {
   tx_hash: string;
@@ -39,7 +40,7 @@ export function HistoryBox({
   totalPages: number;
   txLoading: boolean;
   isError: boolean;
-  refetch: () => Promise<void> | void;
+  refetch: () => Promise<any>;
   skeletonGroupCount: number;
   skeletonTxCount: number;
   isGroup?: boolean;
@@ -72,7 +73,7 @@ export function HistoryBox({
       done = true;
       clearTimeout(timer);
     };
-  }, [metadatas, refetchMetadatas]);
+  }, [refetchMetadatas]);
 
   function formatDateShort(dateString: string): string {
     const date = new Date(dateString);
