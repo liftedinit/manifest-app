@@ -73,7 +73,7 @@ export function HistoryBox({
       done = true;
       clearTimeout(timer);
     };
-  }, [refetchMetadatas]);
+  }, [refetch, refetchMetadatas]);
 
   function formatDateShort(dateString: string): string {
     const date = new Date(dateString);
