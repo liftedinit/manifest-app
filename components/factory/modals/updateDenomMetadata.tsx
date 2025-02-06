@@ -97,11 +97,10 @@ export default function UpdateDenomMetadataModal({
                   sender: admin,
                   metadata: {
                     description: values.description || formData.description,
-                    denomUnits:
-                      [
-                        { denom: fullDenom, exponent: 0, aliases: [symbol] },
-                        { denom: symbol, exponent: 6, aliases: [fullDenom] },
-                      ] || formData.denomUnits,
+                    denomUnits: [
+                      { denom: fullDenom, exponent: 0, aliases: [symbol] },
+                      { denom: symbol, exponent: 6, aliases: [fullDenom] },
+                    ],
                     base: fullDenom,
                     display: symbol,
                     name: values.name || formData.name,
@@ -122,11 +121,10 @@ export default function UpdateDenomMetadataModal({
             sender: address,
             metadata: {
               description: values.description || formData.description,
-              denomUnits:
-                [
-                  { denom: fullDenom, exponent: 0, aliases: [symbol] },
-                  { denom: symbol, exponent: 6, aliases: [fullDenom] },
-                ] || formData.denomUnits,
+              denomUnits: [
+                { denom: fullDenom, exponent: 0, aliases: [symbol] },
+                { denom: symbol, exponent: 6, aliases: [fullDenom] },
+              ],
               base: fullDenom,
               display: symbol,
               name: values.name || formData.name,

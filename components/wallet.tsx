@@ -2,7 +2,7 @@ import React, { MouseEventHandler, useEffect, useMemo, useState, useRef } from '
 
 import { ArrowDownTrayIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { ArrowUpIcon, CopyIcon } from './icons';
-import { useChain } from '@cosmos-kit/react';
+import { useChain, useChains } from '@cosmos-kit/react';
 import { WalletStatus } from 'cosmos-kit';
 import { MdWallet } from 'react-icons/md';
 import env from '@/config/env';
@@ -37,7 +37,51 @@ interface WalletSectionProps {
 }
 
 export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
-  const { connect, openView, status, username, address, wallet } = useChain(chainName);
+  const chains = useChains([env.chain, env.osmosisChain, env.axelarChain]);
+
+  const chainStates = useMemo(() => {
+    return Object.values(chains).map(chain => ({
+      connect: chain.connect,
+      openView: chain.openView,
+      status: chain.status,
+      username: chain.username,
+      address: chain.address,
+      wallet: chain.wallet,
+    }));
+  }, [chains]);
+
+  const connect = async () => {
+    await Promise.all(chainStates.map(chain => chain.connect()));
+  };
+
+  const openView = () => {
+    chainStates[0]?.openView();
+  };
+
+  const status = useMemo(() => {
+    if (chainStates.some(chain => chain.status === WalletStatus.Connecting)) {
+      return WalletStatus.Connecting;
+    }
+    if (chainStates.some(chain => chain.status === WalletStatus.Error)) {
+      return WalletStatus.Error;
+    }
+    if (chainStates.every(chain => chain.status === WalletStatus.Connected)) {
+      return WalletStatus.Connected;
+    }
+    return WalletStatus.Disconnected;
+  }, [chainStates]);
+
+  const username = useMemo(
+    () => chainStates.find(chain => chain.username)?.username || undefined,
+    [chainStates]
+  );
+
+  const wallet = useMemo(() => chainStates.find(chain => chain.wallet)?.wallet, [chainStates]);
+
+  const address = useMemo(
+    () => chainStates.find(chain => chain.address)?.address || undefined,
+    [chainStates]
+  );
 
   const [localStatus, setLocalStatus] = useState(status);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();

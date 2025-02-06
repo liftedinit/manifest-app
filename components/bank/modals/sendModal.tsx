@@ -3,6 +3,7 @@ import SendBox from '../components/sendBox';
 import { CombinedBalanceInfo } from '@/utils/types';
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { ChainContext } from '@cosmos-kit/core';
 
 interface SendModalProps {
   modalId: string;
@@ -17,6 +18,11 @@ interface SendModalProps {
   isGroup?: boolean;
   admin?: string;
   refetchProposals?: () => void;
+  osmosisBalances: CombinedBalanceInfo[];
+  isOsmosisBalancesLoading: boolean;
+  refetchOsmosisBalances: () => void;
+  resolveOsmosisRefetch: () => void;
+  chains: Record<string, ChainContext>;
 }
 
 export default function SendModal({
@@ -32,6 +38,11 @@ export default function SendModal({
   isGroup,
   admin,
   refetchProposals,
+  osmosisBalances,
+  isOsmosisBalancesLoading,
+  refetchOsmosisBalances,
+  resolveOsmosisRefetch,
+  chains,
 }: SendModalProps) {
   const handleClose = () => {
     if (setOpen) {
@@ -98,6 +109,11 @@ export default function SendModal({
           isGroup={isGroup}
           admin={admin}
           refetchProposals={refetchProposals}
+          osmosisBalances={osmosisBalances}
+          isOsmosisBalancesLoading={isOsmosisBalancesLoading}
+          refetchOsmosisBalances={refetchOsmosisBalances}
+          resolveOsmosisRefetch={resolveOsmosisRefetch}
+          chains={chains}
         />
       </div>
       <form
