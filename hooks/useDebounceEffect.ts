@@ -8,7 +8,7 @@ import { DependencyList, useEffect } from 'react';
  * @param dependencies The dependencies to watch for changes
  */
 export const useIntervalDebounceEffect = (
-  callback: () => Promise<void>,
+  callback: () => Promise<unknown>,
   delay: number,
   dependencies?: DependencyList
 ) => {
