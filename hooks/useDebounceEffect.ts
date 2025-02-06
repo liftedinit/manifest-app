@@ -18,7 +18,6 @@ export const useIntervalDebounceEffect = (
 
     async function inner() {
       if (done) return;
-      console.log(2);
 
       try {
         await callback();
@@ -31,11 +30,9 @@ export const useIntervalDebounceEffect = (
       }
     }
 
-    console.log(3, delay);
     latestTimer = setTimeout(inner, delay);
 
     return () => {
-      console.log(4);
       done = true;
       clearTimeout(latestTimer);
     };
