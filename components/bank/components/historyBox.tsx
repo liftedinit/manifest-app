@@ -41,7 +41,7 @@ export function HistoryBox({
   totalPages: number;
   txLoading: boolean;
   isError: boolean;
-  refetch: () => Promise<any>;
+  refetch: () => Promise<unknown>;
   skeletonGroupCount: number;
   skeletonTxCount: number;
   isGroup?: boolean;
