@@ -24,6 +24,7 @@ import DenomList from '@/components/factory/components/DenomList';
 import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
 import env from '@/config/env';
 import { TxMessage } from '@/components/bank/types';
+import { ProposalDetailsModal } from '@/components/groups/modals/proposalDetailsModal';
 
 type GroupControlsProps = {
   policyAddress: string;
@@ -654,10 +655,24 @@ export default function GroupControls({
         </div>
       </div>
       {selectedProposal && (
-        <VoteDetailsModal
+        // <VoteDetailsModal
+        //   tallies={tally ?? ({} as QueryTallyResultResponseSDKType)}
+        //   votes={votes}
+        //   members={members}
+        //   proposal={selectedProposal}
+        //   onClose={handleCloseVoteModal}
+        //   showVoteModal={showVoteModal}
+        //   setShowVoteModal={setShowVoteModal}
+        //   refetchVotes={refetchVotes}
+        //   refetchTally={refetchTally}
+        //   refetchProposals={refetchProposals}
+        //   refetchGroupInfo={refetchGroupInfo}
+        //   refetchDenoms={refetchDenoms}
+        //   group={group}
+        // />
+        <ProposalDetailsModal
           tallies={tally ?? ({} as QueryTallyResultResponseSDKType)}
           votes={votes}
-          members={members}
           proposal={selectedProposal}
           onClose={handleCloseVoteModal}
           showVoteModal={showVoteModal}
