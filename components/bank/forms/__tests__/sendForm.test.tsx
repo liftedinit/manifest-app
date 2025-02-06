@@ -35,7 +35,10 @@ function renderWithProps(props = {}) {
 }
 
 describe('SendForm Component', () => {
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+    mock.restore();
+  });
 
   test('renders form with correct details', () => {
     renderWithProps();

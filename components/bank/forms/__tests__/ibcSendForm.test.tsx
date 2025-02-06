@@ -1,4 +1,4 @@
-import { describe, test, afterEach, expect, jest, mock } from 'bun:test';
+import { describe, test, afterEach, expect, jest, mock, beforeAll } from 'bun:test';
 import React from 'react';
 import { screen, cleanup, fireEvent, act } from '@testing-library/react';
 import IbcSendForm from '@/components/bank/forms/ibcSendForm';
@@ -78,7 +78,10 @@ function renderWithProps(props = {}) {
 }
 
 describe('IbcSendForm Component', () => {
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+    mock.restore();
+  });
 
   test('renders form with correct details', async () => {
     const { findForm } = renderWithProps();

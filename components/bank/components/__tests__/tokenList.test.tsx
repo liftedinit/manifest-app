@@ -58,6 +58,7 @@ expect.extend(matchers);
 describe('TokenList', () => {
   afterEach(() => {
     cleanup();
+    mock.restore();
   });
 
   test('renders correctly', () => {

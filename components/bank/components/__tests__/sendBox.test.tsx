@@ -25,26 +25,6 @@ mock.module('next/image', () => ({
   },
 }));
 
-// Add this mock at the top of your test file
-mock.module('@/components/bank/forms/ibcSendForm', () => ({
-  default: (props: any) => {
-    return (
-      <div data-testid="ibc-send-form">
-        <div className="dropdown">
-          <label tabIndex={0} aria-label="from-chain-selector" className="btn">
-            {props.selectedFromChain?.name || 'Select Chain'}
-          </label>
-        </div>
-        <div className="dropdown">
-          <label tabIndex={0} aria-label="to-chain-selector" className="btn">
-            {props.selectedToChain?.name || 'Select Chain'}
-          </label>
-        </div>
-      </div>
-    );
-  },
-}));
-
 const renderWithProps = (props = {}) => {
   const defaultProps = {
     address: 'test_address',
@@ -63,6 +43,7 @@ const renderWithProps = (props = {}) => {
 describe('SendBox', () => {
   afterEach(() => {
     cleanup();
+    mock.restore();
   });
 
   test('renders correctly', () => {
