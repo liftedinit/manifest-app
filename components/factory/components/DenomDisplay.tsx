@@ -10,7 +10,7 @@ export const DenomDisplay = ({
   metadata?: {
     display?: string;
     base?: string;
-  };
+  } | null;
   denom?: string;
   withBackground?: boolean;
 }) => {
