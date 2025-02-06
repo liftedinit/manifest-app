@@ -22,6 +22,8 @@ export const useIntervalDebounceEffect = (
 
       try {
         await callback();
+      } catch (error) {
+        console.error('Error during refetch:', error);
       } finally {
         if (!done) {
           latestTimer = setTimeout(inner, delay);
