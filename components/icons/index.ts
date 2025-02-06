@@ -25,3 +25,4 @@ export { BurnIcon } from './BurnIcon';
 export { MintIcon } from './MintIcon';
 export { QuestionIcon } from './QuestionIcon';
 export { SendTxIcon } from './SendTxIcon';
+export { VerifiedIcon } from './VerifiedIcon';

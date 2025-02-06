@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { DenomImage } from './DenomImage';
+import { DenomDisplay } from './DenomDisplay';
 import Link from 'next/link';
 import { truncateString, ExtendedMetadataSDKType, shiftDigits, formatTokenDisplay } from '@/utils';
 import { MintIcon, BurnIcon, TransferIcon } from '@/components/icons';
@@ -482,8 +483,7 @@ function TokenRow({
     >
       <td className="bg-secondary group-hover:bg-base-300 rounded-l-[12px] w-1/4">
         <div className="flex items-center space-x-3">
-          <DenomImage denom={denom} />
-          <span className="font-medium sm:block hidden">{formatTokenDisplay(denom.display)}</span>
+          <DenomDisplay metadata={denom} />
         </div>
       </td>
       <td className="bg-secondary group-hover:bg-base-300 w-2/5 xl:table-cell hidden">
