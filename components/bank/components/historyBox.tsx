@@ -5,10 +5,11 @@ import { getHandler } from '@/components/bank/handlers/handlerRegistry';
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { useTokenFactoryDenomsMetadata } from '@/hooks';
 import TxInfoModal from '../modals/txInfo';
+import { useIntervalDebounceEffect } from '@/hooks/useDebounceEffect';
 
 // Interval to refresh the history box transaction and metadata.
 // This is used as a delay between successful queries.
-const HISTORY_BOX_REFRESH_INTERVAL = 1000;
+const HISTORY_BOX_REFRESH_INTERVAL = 2000;
 
 export interface TransactionGroup {
   tx_hash: string;
@@ -50,30 +51,11 @@ export function HistoryBox({
 
   const isLoading = initialLoading || txLoading || isMetadatasLoading;
 
-  useEffect(() => {
-    // Refetch txs and metadata after the last refetch completed. Queries can take longer
-    // than the refresh interval, so we want to make sure we don't have multiple queries
-    // running at the same time.
-    let latestRefetch = Promise.resolve();
-    let done = false;
-    let timer = setTimeout(refetchInner, HISTORY_BOX_REFRESH_INTERVAL);
-
-    function refetchInner() {
-      if (done) return;
-
-      latestRefetch = latestRefetch
-        .then(() => refetch())
-        .then(() => refetchMetadatas())
-        .then(() => {
-          timer = setTimeout(refetchInner, HISTORY_BOX_REFRESH_INTERVAL);
-        });
-    }
-
-    return () => {
-      done = true;
-      clearTimeout(timer);
-    };
-  }, [refetch, refetchMetadatas]);
+  useIntervalDebounceEffect(
+    () => Promise.all([refetch(), refetchMetadatas()]).then(() => {}),
+    HISTORY_BOX_REFRESH_INTERVAL,
+    [refetch, refetchMetadatas]
+  );
 
   function formatDateShort(dateString: string): string {
     const date = new Date(dateString);
