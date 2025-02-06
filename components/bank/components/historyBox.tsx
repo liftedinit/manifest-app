@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { TransactionAmount, TxMessage } from '../types';
 import { shiftDigits, formatLargeNumber, formatDenom } from '@/utils';
 import { getHandler } from '@/components/bank/handlers/handlerRegistry';
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { useTokenFactoryDenomsMetadata } from '@/hooks';
 import TxInfoModal from '../modals/txInfo';
+
+/// Interval to refresh the history box transaction and metadata.
+const HISTORY_BOX_REFRESH_INTERVAL = 3000;
 
 export interface TransactionGroup {
   tx_hash: string;
@@ -36,15 +39,40 @@ export function HistoryBox({
   totalPages: number;
   txLoading: boolean;
   isError: boolean;
-  refetch: () => void;
+  refetch: () => Promise<void> | void;
   skeletonGroupCount: number;
   skeletonTxCount: number;
   isGroup?: boolean;
 }>) {
   const [selectedTx, setSelectedTx] = useState<TxMessage | null>(null);
-  const { metadatas, isMetadatasLoading } = useTokenFactoryDenomsMetadata();
+  const { metadatas, isMetadatasLoading, refetchMetadatas } = useTokenFactoryDenomsMetadata();
 
   const isLoading = initialLoading || txLoading || isMetadatasLoading;
+
+  useEffect(() => {
+    // Refetch txs and metadata after the last refetch completed. Queries can take longer
+    // than the refresh interval, so we want to make sure we don't have multiple queries
+    // running at the same time.
+    let latestRefetch = Promise.resolve();
+    let done = false;
+    let timer = setTimeout(refetchInner, HISTORY_BOX_REFRESH_INTERVAL);
+
+    function refetchInner() {
+      if (done) return;
+
+      latestRefetch = latestRefetch
+        .then(() => refetch())
+        .then(() => refetchMetadatas())
+        .then(() => {
+          timer = setTimeout(refetchInner, HISTORY_BOX_REFRESH_INTERVAL);
+        });
+    }
+
+    return () => {
+      done = true;
+      clearTimeout(timer);
+    };
+  }, [metadatas, refetchMetadatas]);
 
   function formatDateShort(dateString: string): string {
     const date = new Date(dateString);
