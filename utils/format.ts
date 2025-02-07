@@ -1,9 +1,7 @@
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { shiftDigits } from '@/utils/maths';
 import { denomToAsset } from './ibc';
-import { DenomDisplay, DenomVerifiedBadge } from '@/components/factory/components/DenomDisplay';
 import env from '@/config/env';
-import { ReactNode } from 'react';
 
 export function formatLargeNumber(num: number): string {
   if (!Number.isFinite(num)) return 'Invalid number';
@@ -41,7 +39,7 @@ export function formatDenom(denom: string): string {
 
   // Skip cleaning for IBC denoms as they should be resolved via assetInfo
   if (cleanDenom.startsWith('ibc/')) {
-    cleanDenom = assetInfo?.display.toUpperCase() ?? '';
+    cleanDenom = assetInfo?.display.toUpperCase() ?? cleanDenom;
   } else if (cleanDenom.startsWith('u')) {
     cleanDenom = cleanDenom.slice(1).toUpperCase();
   }
