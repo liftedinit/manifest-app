@@ -4,6 +4,7 @@ import IbcSendForm from '../forms/ibcSendForm';
 import env from '@/config/env';
 import { CombinedBalanceInfo } from '@/utils/types';
 import { ChainContext } from '@cosmos-kit/core';
+import React from 'react';
 
 export interface IbcChain {
   id: string;
@@ -13,7 +14,7 @@ export interface IbcChain {
   chainID: string;
 }
 
-export default function SendBox({
+export default React.memo(function SendBox({
   address,
   balances,
   isBalancesLoading,
@@ -23,11 +24,6 @@ export default function SendBox({
   isGroup,
   admin,
   refetchProposals,
-  osmosisBalances,
-  isOsmosisBalancesLoading,
-  refetchOsmosisBalances,
-  resolveOsmosisRefetch,
-  chains,
 }: {
   address: string;
   balances: CombinedBalanceInfo[];
@@ -38,11 +34,6 @@ export default function SendBox({
   selectedDenom?: string;
   isGroup?: boolean;
   admin?: string;
-  osmosisBalances: CombinedBalanceInfo[];
-  isOsmosisBalancesLoading: boolean;
-  refetchOsmosisBalances: () => void;
-  resolveOsmosisRefetch: () => void;
-  chains: Record<string, ChainContext>;
 }) {
   const ibcChains = useMemo<IbcChain[]>(
     () => [
@@ -73,6 +64,8 @@ export default function SendBox({
   const [activeTab, setActiveTab] = useState<'send' | 'cross-chain'>('send');
   const [selectedFromChain, setSelectedFromChain] = useState<IbcChain>(ibcChains[0]);
   const [selectedToChain, setSelectedToChain] = useState<IbcChain>(ibcChains[1]);
+
+  const memoizedBalances = useMemo(() => balances, [balances]);
 
   useEffect(() => {
     if (selectedFromChain && selectedToChain && selectedFromChain.id === selectedToChain.id) {
@@ -132,25 +125,20 @@ export default function SendBox({
                 setSelectedToChain={setSelectedToChain}
                 address={address}
                 destinationChain={selectedToChain}
-                balances={balances}
+                balances={memoizedBalances}
                 isBalancesLoading={isBalancesLoading}
                 refetchBalances={refetchBalances}
                 refetchHistory={refetchHistory}
                 selectedDenom={selectedDenom}
-                osmosisBalances={osmosisBalances}
                 isGroup={isGroup}
                 admin={admin}
                 refetchProposals={refetchProposals}
-                isOsmosisBalancesLoading={isOsmosisBalancesLoading}
-                refetchOsmosisBalances={refetchOsmosisBalances}
-                resolveOsmosisRefetch={resolveOsmosisRefetch}
                 availableToChains={getAvailableToChains}
-                chains={chains}
               />
             ) : (
               <SendForm
                 address={address}
-                balances={balances}
+                balances={memoizedBalances}
                 isBalancesLoading={isBalancesLoading}
                 refetchBalances={refetchBalances}
                 refetchHistory={refetchHistory}
@@ -165,4 +153,4 @@ export default function SendBox({
       </div>
     </div>
   );
-}
+});
