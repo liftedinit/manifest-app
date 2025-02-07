@@ -35,6 +35,7 @@ import { useSkipClient } from '@/contexts/skipGoContext';
 
 import { IbcChain } from '@/components';
 import { ChainContext } from '@cosmos-kit/core';
+import { useChain } from '@cosmos-kit/react';
 
 //TODO: switch to main-net names
 export default function IbcSendForm({
@@ -52,14 +53,10 @@ export default function IbcSendForm({
   setSelectedToChain,
   selectedDenom,
   isGroup,
-  osmosisBalances,
-  isOsmosisBalancesLoading,
-  refetchOsmosisBalances,
-  resolveOsmosisRefetch,
+
   refetchProposals,
   admin,
   availableToChains,
-  chains,
 }: Readonly<{
   address: string;
   destinationChain: IbcChain;
@@ -75,39 +72,23 @@ export default function IbcSendForm({
   selectedToChain: IbcChain;
   setSelectedToChain: (selectedChain: IbcChain) => void;
   selectedDenom?: string;
-  osmosisBalances: CombinedBalanceInfo[];
-  isOsmosisBalancesLoading: boolean;
-  refetchOsmosisBalances: () => void;
-  resolveOsmosisRefetch: () => void;
   refetchProposals?: () => void;
   admin?: string;
   availableToChains: IbcChain[];
-  chains: Record<string, ChainContext>;
 }>) {
-  const formatTokenDisplayName = (displayName: string) => {
-    if (displayName.startsWith('factory')) {
-      return displayName.split('/').pop()?.toUpperCase();
-    }
-    if (displayName.startsWith('u')) {
-      return displayName.slice(1).toUpperCase();
-    }
-    return truncateString(displayName, 10).toUpperCase();
-  };
-
   const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [feeWarning, setFeeWarning] = useState('');
-  const { tx } = useTx(selectedFromChain.name === env.osmosisChain ? env.osmosisChain : env.chain);
-  const { estimateFee } = useFeeEstimation(
-    selectedFromChain.name === env.osmosisChain ? env.osmosisChain : env.chain
-  );
+  const { getOfflineSignerAmino } = useChain(env.chain);
+  const { tx } = useTx(env.chain);
+  const { estimateFee } = useFeeEstimation(env.chain);
 
   const { transfer } = ibc.applications.transfer.v1.MessageComposer.withTypeUrl;
   const [isContactsOpen, setIsContactsOpen] = useState(false);
   const [isIconRotated, setIsIconRotated] = useState(false);
-
+  console.log(balances);
   const getCosmosSigner = async () => {
-    const signer = chains[selectedFromChain.id].getOfflineSignerAmino();
+    const signer = getOfflineSignerAmino();
     return signer;
   };
 
@@ -126,30 +107,19 @@ export default function IbcSendForm({
 
   // Update the filtered balances logic to use passed props instead of hooks
   const filteredBalances = useMemo(() => {
-    const sourceBalances = selectedFromChain.id === env.osmosisChain ? osmosisBalances : balances;
-
-    return sourceBalances?.filter(token => {
+    return balances?.filter(token => {
       const displayName = token.metadata?.display ?? token.denom;
       return displayName.toLowerCase().includes(searchTerm.toLowerCase());
     });
-  }, [balances, osmosisBalances, searchTerm, selectedFromChain]);
+  }, [balances, searchTerm, selectedFromChain]);
 
   // Update initialSelectedToken to consider the chain
   const initialSelectedToken = useMemo(() => {
-    const sourceBalances = selectedFromChain.id === env.osmosisChain ? osmosisBalances : balances;
-
-    return (
-      sourceBalances?.find(token => token.coreDenom === selectedDenom) ||
-      sourceBalances?.[0] ||
-      null
-    );
-  }, [balances, osmosisBalances, selectedDenom, selectedFromChain]);
+    return balances?.find(token => token.coreDenom === selectedDenom) || balances?.[0] || null;
+  }, [balances, selectedDenom, selectedFromChain]);
 
   // Update the loading check
-  if (
-    (selectedFromChain.id === env.osmosisChain ? isOsmosisBalancesLoading : isBalancesLoading) ||
-    !initialSelectedToken
-  ) {
+  if (isBalancesLoading || !initialSelectedToken) {
     return null;
   }
 
@@ -225,25 +195,16 @@ export default function IbcSendForm({
 
       console.log('route', route);
       console.log('route.requiredChainAddresses', route.requiredChainAddresses);
-      const addressList = route.requiredChainAddresses.map((chainID: string) => ({
-        address:
-          Object.values(chains).find(chain => chain.chain.chain_id === chainID)?.address ?? '',
-      }));
-
-      const userAddresses = route.requiredChainAddresses.map((chainID: string) => {
-        const chainContext = Object.values(chains).find(chain => chain.chain.chain_id === chainID);
-
-        if (!chainContext?.address) {
-          throw new Error(`No address found for chain: ${chainID}`);
-        }
-
-        return {
-          chainID,
-          address: chainContext.address,
-        };
-      });
-
-      console.log(userAddresses);
+      const userAddresses = [
+        {
+          chainID: selectedFromChain.chainID,
+          address: address,
+        },
+        {
+          chainID: selectedToChain.chainID,
+          address: values.recipient,
+        },
+      ];
 
       const messages = await skipClient.messages({
         sourceAssetDenom: values.selectedToken.coreDenom,
@@ -252,7 +213,7 @@ export default function IbcSendForm({
         destAssetChainID: selectedToChain.chainID,
         amountIn: amountInBaseUnits,
         amountOut: route.estimatedAmountOut ?? '',
-        addressList: addressList.map((user: { address: any }) => user.address),
+        addressList: userAddresses.map((user: { address: any }) => user.address),
         operations: route.operations,
         estimatedAmountOut: route.estimatedAmountOut ?? '',
         slippageTolerancePercent: '1',
@@ -376,143 +337,31 @@ export default function IbcSendForm({
               <div className=" relative w-full flex flex-col space-y-4">
                 {/* From Chain */}
                 <div className={`w-full ${isIbcTransfer ? 'block' : 'hidden'}`}>
-                  {isGroup ? (
-                    // Static display for groups
-                    <div className="flex flex-col gap-1 justify-center items-start">
-                      <span className="label-text text-sm font-medium text-[#00000099] dark:text-[#FFFFFF99]">
-                        From Chain
+                  <div className="flex flex-col gap-1 justify-center items-start">
+                    <span className="label-text text-sm font-medium text-[#00000099] dark:text-[#FFFFFF99]">
+                      From Chain
+                    </span>
+                    <div
+                      style={{ borderRadius: '12px' }}
+                      className="btn btn-md w-full justify-between border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] cursor-default"
+                    >
+                      <span className="flex items-center">
+                        <Image
+                          src={ibcChains.find(chain => chain.id === env.chain)?.icon || ''}
+                          alt={ibcChains.find(chain => chain.id === env.chain)?.name || ''}
+                          width={24}
+                          height={24}
+                          className="mr-2"
+                        />
+                        <span className="ml-2">
+                          {ibcChains.find(chain => chain.id === env.chain)?.name}
+                        </span>
                       </span>
-                      <div
-                        style={{ borderRadius: '12px' }}
-                        className="btn btn-md w-full justify-between border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] cursor-default"
-                      >
-                        <span className="flex items-center">
-                          <Image
-                            src={ibcChains.find(chain => chain.id === env.chain)?.icon || ''}
-                            alt={ibcChains.find(chain => chain.id === env.chain)?.name || ''}
-                            width={24}
-                            height={24}
-                            className="mr-2"
-                          />
-                          <span className="ml-2">
-                            {ibcChains.find(chain => chain.id === env.chain)?.name}
-                          </span>
-                        </span>
-                      </div>
                     </div>
-                  ) : (
-                    // Dropdown for non-group transfers
-                    <div className="dropdown dropdown-end w-full">
-                      <div className="flex flex-col gap-1 justify-center items-start">
-                        <span className="label-text text-sm font-medium text-[#00000099] dark:text-[#FFFFFF99]">
-                          From Chain
-                        </span>
-                        <label
-                          tabIndex={0}
-                          aria-label="from-chain-selector"
-                          role="combobox"
-                          aria-expanded="false"
-                          aria-controls="from-chain-dropdown"
-                          aria-haspopup="listbox"
-                          style={{ borderRadius: '12px' }}
-                          className="btn btn-md btn-dropdown w-full justify-between border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A]"
-                        >
-                          <span className="flex items-center">
-                            {selectedFromChain && (
-                              <Image
-                                src={
-                                  ibcChains.find(chain => chain.id === selectedFromChain.id)
-                                    ?.icon || ''
-                                }
-                                alt={
-                                  ibcChains.find(chain => chain.id === selectedFromChain.id)
-                                    ?.name || ''
-                                }
-                                width={24}
-                                height={24}
-                                className="mr-2"
-                              />
-                            )}
-                            <span className={selectedFromChain ? 'ml-2' : ''}>
-                              {ibcChains.find(chain => chain.id === selectedFromChain.id)?.name ??
-                                'Select Chain'}
-                            </span>
-                          </span>
-                          <PiCaretDownBold />
-                        </label>
-                      </div>
-
-                      <ul
-                        tabIndex={0}
-                        role="listbox"
-                        className="dropdown-content z-[100] menu p-2 shadow bg-base-300 rounded-lg w-full mt-1 dark:text-[#FFFFFF] text-[#161616]"
-                      >
-                        {ibcChains.map(chain => (
-                          <li
-                            key={chain.id}
-                            role="option"
-                            aria-selected={selectedFromChain.id === chain.id}
-                          >
-                            <a
-                              onClick={e => {
-                                if (chain.id === selectedFromChain.id) {
-                                  return;
-                                }
-                                setSelectedFromChain(chain);
-                                // Get the dropdown element and remove focus
-                                const dropdown = (e.target as HTMLElement).closest('.dropdown');
-                                if (dropdown) {
-                                  (dropdown as HTMLElement).removeAttribute('open');
-                                  (dropdown.querySelector('label') as HTMLElement)?.focus();
-                                  (dropdown.querySelector('label') as HTMLElement)?.blur();
-                                }
-                              }}
-                              onKeyDown={e => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                  e.preventDefault();
-                                  if (chain.id === selectedFromChain.id) {
-                                    return;
-                                  }
-                                  setSelectedFromChain(chain);
-                                  // Get the dropdown element and remove focus
-                                  const dropdown = (e.target as HTMLElement).closest('.dropdown');
-                                  if (dropdown) {
-                                    (dropdown as HTMLElement).removeAttribute('open');
-                                    (dropdown.querySelector('label') as HTMLElement)?.focus();
-                                    (dropdown.querySelector('label') as HTMLElement)?.blur();
-                                  }
-                                }
-                              }}
-                              tabIndex={0}
-                              className={`flex items-center ${
-                                chain.id === selectedFromChain.id
-                                  ? 'opacity-50 cursor-not-allowed'
-                                  : ''
-                              }`}
-                              style={
-                                chain.id === selectedFromChain.id
-                                  ? { pointerEvents: 'none' }
-                                  : undefined
-                              }
-                              aria-label={chain.name}
-                            >
-                              <Image
-                                src={chain.icon}
-                                alt={chain.name}
-                                width={24}
-                                height={24}
-                                className="mr-2"
-                              />
-                              {chain.name}
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                  </div>
                 </div>
                 {/* Switch Button */}
-                <div
+                {/* <div
                   onClick={e => {
                     e.preventDefault();
                     setIsIconRotated(!isIconRotated);
@@ -530,7 +379,7 @@ export default function IbcSendForm({
                       }`}
                     />
                   </button>
-                </div>
+                </div> */}
                 {/* To Chain (Osmosis) */}
                 <div
                   className={`dropdown dropdown-end w-full ${isIbcTransfer ? 'block' : 'hidden'}`}

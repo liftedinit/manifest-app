@@ -17,14 +17,9 @@ interface TokenListProps {
   admin?: string;
   refetchProposals?: () => void;
   searchTerm?: string;
-  osmosisBalances?: CombinedBalanceInfo[] | undefined;
-  isOsmosisBalancesLoading?: boolean;
-  refetchOsmosisBalances?: () => void;
-  resolveOsmosisRefetch?: () => void;
-  chains: Record<string, ChainContext>;
 }
 
-export function TokenList(props: Readonly<TokenListProps>) {
+export const TokenList = React.memo(function TokenList(props: Readonly<TokenListProps>) {
   const {
     balances,
     isLoading,
@@ -36,11 +31,6 @@ export function TokenList(props: Readonly<TokenListProps>) {
     admin,
     refetchProposals,
     searchTerm = '',
-    osmosisBalances,
-    isOsmosisBalancesLoading,
-    refetchOsmosisBalances,
-    resolveOsmosisRefetch,
-    chains,
   } = props;
   const [selectedDenom, setSelectedDenom] = useState<any>(null);
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
@@ -90,6 +80,8 @@ export function TokenList(props: Readonly<TokenListProps>) {
       )),
     [totalPages]
   );
+
+  const memoizedBalances = useMemo(() => props.balances ?? [], [props.balances]);
 
   return (
     <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
@@ -228,7 +220,7 @@ export function TokenList(props: Readonly<TokenListProps>) {
         modalId="send-modal"
         isOpen={isSendModalOpen}
         address={address}
-        balances={balances ?? []}
+        balances={memoizedBalances}
         isBalancesLoading={isLoading}
         refetchBalances={refetchBalances}
         refetchHistory={refetchHistory}
@@ -237,12 +229,7 @@ export function TokenList(props: Readonly<TokenListProps>) {
         isGroup={isGroup}
         admin={admin}
         refetchProposals={refetchProposals}
-        osmosisBalances={osmosisBalances ?? []}
-        isOsmosisBalancesLoading={isOsmosisBalancesLoading ?? false}
-        refetchOsmosisBalances={refetchOsmosisBalances ?? (() => {})}
-        resolveOsmosisRefetch={resolveOsmosisRefetch ?? (() => {})}
-        chains={chains}
       />
     </div>
   );
-}
+});

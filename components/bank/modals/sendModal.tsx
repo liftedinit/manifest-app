@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import SendBox from '../components/sendBox';
 import { CombinedBalanceInfo } from '@/utils/types';
-import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { ChainContext } from '@cosmos-kit/core';
 
@@ -18,14 +17,9 @@ interface SendModalProps {
   isGroup?: boolean;
   admin?: string;
   refetchProposals?: () => void;
-  osmosisBalances: CombinedBalanceInfo[];
-  isOsmosisBalancesLoading: boolean;
-  refetchOsmosisBalances: () => void;
-  resolveOsmosisRefetch: () => void;
-  chains: Record<string, ChainContext>;
 }
 
-export default function SendModal({
+export default React.memo(function SendModal({
   modalId,
   address,
   balances,
@@ -38,11 +32,6 @@ export default function SendModal({
   isGroup,
   admin,
   refetchProposals,
-  osmosisBalances,
-  isOsmosisBalancesLoading,
-  refetchOsmosisBalances,
-  resolveOsmosisRefetch,
-  chains,
 }: SendModalProps) {
   const handleClose = () => {
     if (setOpen) {
@@ -61,6 +50,8 @@ export default function SendModal({
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen]);
+
+  const memoizedBalances = useMemo(() => balances, [balances]);
 
   const modalContent = (
     <dialog
@@ -101,7 +92,7 @@ export default function SendModal({
 
         <SendBox
           address={address}
-          balances={balances}
+          balances={memoizedBalances}
           isBalancesLoading={isBalancesLoading}
           refetchBalances={refetchBalances}
           refetchHistory={refetchHistory}
@@ -109,11 +100,6 @@ export default function SendModal({
           isGroup={isGroup}
           admin={admin}
           refetchProposals={refetchProposals}
-          osmosisBalances={osmosisBalances}
-          isOsmosisBalancesLoading={isOsmosisBalancesLoading}
-          refetchOsmosisBalances={refetchOsmosisBalances}
-          resolveOsmosisRefetch={resolveOsmosisRefetch}
-          chains={chains}
         />
       </div>
       <form
@@ -140,4 +126,4 @@ export default function SendModal({
   }
 
   return null;
-}
+});

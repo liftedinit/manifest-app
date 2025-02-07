@@ -29,21 +29,14 @@ interface PageSizeConfig {
 }
 
 export default function Bank() {
-  const chains = useChains([env.chain, env.osmosisChain, env.axelarChain]);
+  const { isWalletConnected, address } = useChain(env.chain);
 
-  const isWalletConnected = useMemo(
-    () => Object.values(chains).every(chain => chain.isWalletConnected),
-    [chains]
-  );
-
-  const { balances, isBalancesLoading, refetchBalances } = useTokenBalances(
-    chains.manifesttestnet.address ?? ''
-  );
+  const { balances, isBalancesLoading, refetchBalances } = useTokenBalances(address ?? '');
   const {
     balances: resolvedBalances,
     isBalancesLoading: resolvedLoading,
     refetchBalances: resolveRefetch,
-  } = useTokenBalancesResolved(chains.manifesttestnet.address ?? '');
+  } = useTokenBalancesResolved(address ?? '');
 
   const { metadatas, isMetadatasLoading } = useTokenFactoryDenomsMetadata();
   const [currentPage, setCurrentPage] = useState(1);
@@ -93,12 +86,7 @@ export default function Bank() {
     isError,
     refetch: refetchHistory,
     totalCount,
-  } = useGetMessagesFromAddress(
-    env.indexerUrl,
-    chains.manifesttestnet.address ?? '',
-    currentPage,
-    historyPageSize
-  );
+  } = useGetMessagesFromAddress(env.indexerUrl, address ?? '', currentPage, historyPageSize);
 
   const combinedBalances = useMemo(() => {
     if (!balances || !resolvedBalances || !metadatas) return [];
@@ -163,79 +151,6 @@ export default function Bank() {
     // Combine 'mfx' with other balances
     return mfxCombinedBalance ? [mfxCombinedBalance, ...otherBalances] : otherBalances;
   }, [balances, resolvedBalances, metadatas]);
-
-  const {
-    balances: osmosisBalances,
-    isBalancesLoading: isOsmosisBalancesLoading,
-    refetchBalances: refetchOsmosisBalances,
-  } = useTokenBalancesOsmosis(chains.osmosistestnet.address ?? '');
-  const {
-    balances: resolvedOsmosisBalances,
-    isBalancesLoading: resolvedOsmosisLoading,
-    refetchBalances: resolveOsmosisRefetch,
-  } = useOsmosisTokenBalancesResolved(chains.osmosistestnet.address ?? '');
-
-  const {
-    metadatas: osmosisMetadatas,
-    isMetadatasLoading: isOsmosisMetadatasLoading,
-    refetchMetadatas: refetchOsmosisMetadatas,
-  } = useOsmosisTokenFactoryDenomsMetadata();
-
-  const combinedOsmosisBalances = useMemo(() => {
-    if (!osmosisBalances || !resolvedOsmosisBalances || !osmosisMetadatas) {
-      return [];
-    }
-
-    const combined = osmosisBalances.map((coreBalance): CombinedBalanceInfo => {
-      // Handle OSMO token specifically
-      if (coreBalance.denom === 'uosmo') {
-        return {
-          denom: 'uosmo',
-          coreDenom: coreBalance.denom,
-          amount: coreBalance.amount,
-          metadata: OSMOSIS_TOKEN_DATA,
-        };
-      }
-
-      // Handle IBC tokens
-      if (coreBalance.denom.startsWith('ibc/')) {
-        const assetInfo = denomToAsset(env.osmosisChain, coreBalance.denom);
-
-        const baseDenom = assetInfo?.traces?.[1]?.counterparty?.base_denom;
-
-        return {
-          denom: baseDenom ?? '', // normalized denom (e.g., 'umfx')
-          coreDenom: coreBalance.denom, // full IBC trace
-          amount: coreBalance.amount,
-          metadata: {
-            description: assetInfo?.description ?? '',
-            denom_units:
-              assetInfo?.denom_units?.map(unit => ({
-                ...unit,
-                aliases: unit.aliases || [],
-              })) ?? [],
-            base: assetInfo?.base ?? '',
-            display: assetInfo?.display ?? '',
-            name: assetInfo?.name ?? '',
-            symbol: assetInfo?.symbol ?? '',
-            uri: assetInfo?.logo_URIs?.svg ?? assetInfo?.logo_URIs?.png ?? '',
-            uri_hash: assetInfo?.logo_URIs?.svg ?? assetInfo?.logo_URIs?.png ?? '',
-          },
-        };
-      }
-
-      // Handle all other tokens
-      const metadata = osmosisMetadatas.metadatas?.find(m => m.base === coreBalance.denom);
-      return {
-        denom: coreBalance.denom,
-        coreDenom: coreBalance.denom,
-        amount: coreBalance.amount,
-        metadata: metadata || null,
-      };
-    });
-
-    return combined;
-  }, [osmosisBalances, resolvedOsmosisBalances, osmosisMetadatas]);
 
   const isLoading = isBalancesLoading || resolvedLoading || isMetadatasLoading;
   const [searchTerm, setSearchTerm] = useState('');
@@ -309,17 +224,12 @@ export default function Bank() {
                     ) : (
                       <TokenList
                         refetchBalances={refetchBalances || resolveRefetch}
-                        refetchOsmosisBalances={refetchOsmosisBalances}
-                        resolveOsmosisRefetch={resolveOsmosisRefetch}
-                        isOsmosisBalancesLoading={isOsmosisBalancesLoading}
-                        osmosisBalances={combinedOsmosisBalances ?? []}
                         isLoading={isLoading}
                         balances={combinedBalances}
                         refetchHistory={refetchHistory}
-                        address={chains.manifesttestnet.address ?? ''}
+                        address={address ?? ''}
                         pageSize={tokenListPageSize}
                         searchTerm={searchTerm}
-                        chains={chains}
                       />
                     ))}
                   {activeTab === 'history' &&
@@ -329,7 +239,7 @@ export default function Bank() {
                       <HistoryBox
                         currentPage={currentPage}
                         setCurrentPage={setCurrentPage}
-                        address={chains.manifesttestnet.address ?? ''}
+                        address={address ?? ''}
                         isLoading={isLoading}
                         sendTxs={sendTxs}
                         totalPages={totalPages}
