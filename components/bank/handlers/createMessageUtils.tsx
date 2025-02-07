@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  denomToAsset,
-  formatAmount,
-  formatDenom,
-  formatDenomWithBadge,
-  formatLargeNumber,
-} from '@/utils';
+import { formatAmount, formatDenomWithBadge, formatLargeNumber } from '@/utils';
 import { format } from 'react-string-format';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
