@@ -2,6 +2,15 @@ import { DenomImage, VerifiedIcon } from '@/components';
 import { formatTokenDisplay } from '@/utils';
 import React from 'react';
 
+export const DenomVerifiedBadge = ({
+  base,
+  ...props
+}: { base?: string } & { [i: string]: unknown }) => {
+  const verified = base === 'umfx';
+
+  return verified ? <VerifiedIcon {...props} /> : <></>;
+};
+
 export const DenomDisplay = ({
   denom,
   metadata,
@@ -15,7 +24,6 @@ export const DenomDisplay = ({
   withBackground?: boolean;
 }) => {
   const name = formatTokenDisplay(denom ?? metadata?.display ?? '?').toUpperCase();
-  const verified = metadata?.base === 'umfx';
 
   return (
     <>
@@ -24,7 +32,10 @@ export const DenomDisplay = ({
       </div>
       <p className="align-middle font-semibold text-[#161616] dark:text-white">
         {name}
-        {verified && <VerifiedIcon className="w-4 mx-1 inline relative bottom-1 text-primary" />}
+        <DenomVerifiedBadge
+          base={metadata?.base}
+          className="w-4 mx-1 inline relative bottom-1 text-primary"
+        />
       </p>
     </>
   );

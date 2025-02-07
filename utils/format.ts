@@ -35,15 +35,13 @@ export function formatDenom(denom: string): string {
   const assetInfo = denomToAsset(env.chain, denom);
 
   // Fallback to cleaning the denom if no assetInfo
-  const cleanDenom = denom?.replace(/^factory\/[^/]+\//, '');
+  let cleanDenom = denom.replace(/^factory\/[^/]+\//, '');
 
   // Skip cleaning for IBC denoms as they should be resolved via assetInfo
   if (cleanDenom.startsWith('ibc/')) {
-    return assetInfo?.display.toUpperCase() ?? '';
-  }
-
-  if (cleanDenom?.startsWith('u')) {
-    return cleanDenom.slice(1).toUpperCase();
+    cleanDenom = assetInfo?.display.toUpperCase() ?? cleanDenom;
+  } else if (cleanDenom.startsWith('u')) {
+    cleanDenom = cleanDenom.slice(1).toUpperCase();
   }
 
   return cleanDenom;

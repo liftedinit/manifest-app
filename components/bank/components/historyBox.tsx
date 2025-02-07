@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { TransactionAmount, TxMessage } from '../types';
-import { shiftDigits, formatLargeNumber, formatDenom } from '@/utils';
+import { shiftDigits, formatLargeNumber, formatDenom, formatDenomWithBadge } from '@/utils';
 import { getHandler } from '@/components/bank/handlers/handlerRegistry';
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { useTokenFactoryDenomsMetadata } from '@/hooks';
@@ -159,13 +159,14 @@ export function HistoryBox({
                         tx.sender === address ? (
                           <div className="text-gray-500 text-xs mt-1">
                             Incl.:{' '}
-                            {tx.fee &&
-                              formatLargeNumber(
-                                Number(shiftDigits(tx.fee.amount?.[0]?.amount, -6))
-                              ) +
-                                ' ' +
-                                formatDenom(tx.fee.amount?.[0]?.denom)}{' '}
-                            fee
+                            {tx.fee && (
+                              <>
+                                {formatLargeNumber(
+                                  Number(shiftDigits(tx.fee.amount?.[0]?.amount, -6))
+                                )}{' '}
+                                {formatDenomWithBadge(tx.fee.amount?.[0]?.denom, true)} fee
+                              </>
+                            )}
                           </div>
                         ) : null
                       ) : (
