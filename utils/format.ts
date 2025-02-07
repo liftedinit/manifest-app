@@ -33,22 +33,6 @@ export function formatLargeNumber(num: number): string {
   return num.toFixed(6);
 }
 
-/**
- * Format a denom to a display name react node with a verified badge.
- * @param denom The denom to format.
- * @param small Whether to use a smaller badge.
- */
-export function formatDenomWithBadge(denom: string, small?: boolean): ReactNode {
-  const cleanDenom = formatDenom(denom);
-  const classes = `${small ? 'w-3' : 'w-5'} mx-1 inline relative bottom-1 text-primary`;
-
-  return (
-    <>
-      {cleanDenom} <DenomVerifiedBadge base={denom} className={classes} />
-    </>
-  );
-}
-
 export function formatDenom(denom: string): string {
   const assetInfo = denomToAsset(env.chain, denom);
 
