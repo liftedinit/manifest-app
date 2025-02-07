@@ -30,6 +30,7 @@ import {
   MsgSetDenomMetadata,
   MsgCreateDenom,
 } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+import { Dialog } from '@headlessui/react';
 
 type DisplayDataToSignProps = {
   data: SignData;
@@ -257,19 +258,15 @@ const SignModal = ({
   const walletName = wallet.wallet?.prettyName;
   const { theme } = useTheme();
 
-  useEffect(() => {
-    const modal = document.getElementById('sign-modal') as HTMLDialogElement;
-    if (visible) {
-      modal.showModal();
-    } else {
-      modal.close();
-    }
-  }, [visible]);
-
   const walletIconString = walletIcon?.toString() ?? '';
 
   return (
-    <dialog id="sign-modal" onClose={onClose} className="modal top-0 right-0">
+    <Dialog
+      open={visible}
+      id="sign-modal"
+      onClose={onClose}
+      className="modal modal-open top-0 right-0 z-[9999]"
+    >
       <div className="modal-box max-w-lg w-full dark:bg-[#1D192D] bg-[#FFFFFF] rounded-lg shadow-xl">
         <div className="flex justify-between items-center pb-4">
           <div className="flex items-center gap-3">
@@ -318,7 +315,7 @@ const SignModal = ({
       <form method="dialog" className="modal-backdrop">
         <button onClick={onClose}>close</button>
       </form>
-    </dialog>
+    </Dialog>
   );
 };
 
