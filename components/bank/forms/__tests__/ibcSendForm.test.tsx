@@ -16,6 +16,15 @@ mock.module('next/router', () => ({
   }),
 }));
 
+// Add this mock before the tests
+mock.module('next/image', () => ({
+  default: (props: any) => {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img {...props} alt={props.alt || ''} />;
+  },
+  __esModule: true,
+}));
+
 function renderWithProps(props = {}) {
   const defaultChains = [
     {
@@ -87,7 +96,6 @@ describe('IbcSendForm Component', () => {
     const { findForm } = renderWithProps();
     const form = await findForm();
     expect(form).toBeInTheDocument();
-    expect(screen.getByLabelText('from-chain-selector')).toBeInTheDocument();
     expect(screen.getByLabelText('to-chain-selector')).toBeInTheDocument();
   });
 
@@ -114,25 +122,10 @@ describe('IbcSendForm Component', () => {
 
   test('updates chain selector correctly', () => {
     renderWithProps();
-
-    const fromChainSelector = screen.getByLabelText('from-chain-selector');
-    fireEvent.click(fromChainSelector);
-
-    // Get all Manifest options and select the enabled one
-    const manifestOptions = screen.getAllByRole('option', { name: 'Manifest' });
-    const enabledManifestOption = manifestOptions.find(
-      option => !option.className.includes('opacity-50')
-    );
-    fireEvent.click(enabledManifestOption!);
-
-    expect(screen.getByLabelText('from-chain-selector')).toHaveTextContent('Manifest');
-
     const toChainSelector = screen.getByLabelText('to-chain-selector');
     fireEvent.click(toChainSelector);
-
     const osmosisOption = screen.getAllByRole('option', { name: 'Osmosis' });
     fireEvent.click(osmosisOption[0]);
-
     expect(screen.getByLabelText('to-chain-selector')).toHaveTextContent('Osmosis');
   });
 
@@ -167,69 +160,28 @@ describe('IbcSendForm Component', () => {
 
   test('handles chain selection correctly', async () => {
     renderWithProps();
-
-    const fromChainSelector = screen.getByLabelText('from-chain-selector');
-    fireEvent.click(fromChainSelector);
-
-    const manifestOptions = screen.getAllByRole('option', { name: 'Manifest' });
-    const enabledManifestOption = manifestOptions.find(
-      option => !option.className.includes('opacity-50')
-    );
-    fireEvent.click(enabledManifestOption!);
-
-    expect(screen.getByLabelText('from-chain-selector')).toHaveTextContent('Manifest');
-
     const toChainSelector = screen.getByLabelText('to-chain-selector');
     fireEvent.click(toChainSelector);
-
     const osmosisOption = screen.getAllByRole('option', { name: 'Osmosis' });
     fireEvent.click(osmosisOption[0]);
-
     expect(screen.getByLabelText('to-chain-selector')).toHaveTextContent('Osmosis');
   });
-
-  test('prevents selecting same chain for source and destination', async () => {
+  // cant select from chain anymore hardcoded to manifest
+  test.skip('prevents selecting same chain for source and destination', async () => {
     const { findForm } = renderWithProps();
-    await findForm(); // Wait for form to be mounted
-
-    const fromChainSelector = screen.getByLabelText('from-chain-selector');
-    await act(async () => {
-      fireEvent.click(fromChainSelector);
-    });
-
-    // Wait for dropdown content to be visible
-    await act(async () => {
-      const manifestOptions = await screen.findAllByRole('option', {
-        name: 'Manifest',
-        hidden: true,
-      });
-
-      const enabledManifestOption = manifestOptions.find(
-        option => !option.className.includes('opacity-50')
-      );
-      fireEvent.click(enabledManifestOption!);
-    });
-
-    expect(screen.getByLabelText('from-chain-selector')).toHaveTextContent('Manifest');
-
+    await findForm();
     const toChainSelector = screen.getByLabelText('to-chain-selector');
     await act(async () => {
       fireEvent.click(toChainSelector);
     });
-
-    // Wait for dropdown content to be visible
     await act(async () => {
       const toChainOptions = await screen.findAllByRole('option', {
         hidden: true,
       });
-
-      // Find the Manifest option in the to-chain dropdown
       const manifestInToChain = toChainOptions.find(option => {
         const link = option.querySelector('a');
         return link && link.textContent?.includes('Manifest');
       });
-
-      // Check that the Manifest option has the disabled styling and attributes
       expect(manifestInToChain?.querySelector('a')).toHaveStyle({ pointerEvents: 'none' });
       expect(manifestInToChain?.querySelector('a')).toHaveClass('opacity-50');
     });

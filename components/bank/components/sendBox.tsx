@@ -40,14 +40,14 @@ export default React.memo(function SendBox({
       {
         id: env.chain,
         name: 'Manifest',
-        icon: 'logo.svg',
+        icon: '/logo.svg',
         prefix: 'manifest',
         chainID: env.chainId,
       },
       {
         id: env.osmosisChain,
         name: 'Osmosis',
-        icon: 'osmosis.svg',
+        icon: '/osmosis.svg',
         prefix: 'osmo',
         chainID: env.osmosisChainId,
       },
