@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { SignData } from '@cosmos-kit/web3auth';
 import { TxBody, AuthInfo } from '@liftedinit/manifestjs/dist/codegen/cosmos/tx/v1beta1/tx';
 import { decodePubkey } from '@cosmjs/proto-signing';
@@ -247,26 +247,22 @@ const SignModal = ({
   reject,
 }: {
   visible: boolean;
-  onClose: () => void;
+  onClose?: () => void;
   data: SignData;
   approve: () => void;
   reject: () => void;
 }) => {
+  onClose = onClose || (() => {});
+
   const wallet = useWallet();
   const { address } = useChain(env.chain);
   const walletIcon = wallet.wallet?.logo;
-  const walletName = wallet.wallet?.prettyName;
   const { theme } = useTheme();
 
   const walletIconString = walletIcon?.toString() ?? '';
 
   return (
-    <Dialog
-      open={visible}
-      id="sign-modal"
-      onClose={onClose}
-      className="modal modal-open top-0 right-0 z-[9999]"
-    >
+    <Dialog open={visible} onClose={onClose} className="modal modal-open top-0 right-0 z-[9999]">
       <div className="modal-box max-w-lg w-full dark:bg-[#1D192D] bg-[#FFFFFF] rounded-lg shadow-xl">
         <div className="flex justify-between items-center pb-4">
           <div className="flex items-center gap-3">
