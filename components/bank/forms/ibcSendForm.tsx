@@ -1,22 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import {
-  useFeeEstimation,
-  useOsmosisTokenBalancesResolved,
-  useOsmosisTokenFactoryDenomsMetadata,
-  useTokenBalancesOsmosis,
-  useTx,
-} from '@/hooks';
+import { useFeeEstimation, useTx } from '@/hooks';
 import { cosmos, ibc } from '@liftedinit/manifestjs';
 import { MsgTransfer } from '@liftedinit/manifestjs/dist/codegen/ibc/applications/transfer/v1/tx';
-import {
-  getIbcInfo,
-  parseNumberToBigInt,
-  shiftDigits,
-  truncateString,
-  getIbcDenom,
-  OSMOSIS_TOKEN_DATA,
-  denomToAsset,
-} from '@/utils';
+import { getIbcInfo, parseNumberToBigInt, shiftDigits, truncateString, getIbcDenom } from '@/utils';
 import { PiCaretDownBold } from 'react-icons/pi';
 import { MdContacts } from 'react-icons/md';
 import { CombinedBalanceInfo } from '@/utils/types';
@@ -26,7 +12,7 @@ import Yup from '@/utils/yupExtensions';
 import { TextInput } from '@/components/react/inputs';
 
 import Image from 'next/image';
-import { SearchIcon, TransferIcon } from '@/components/icons';
+import { SearchIcon } from '@/components/icons';
 
 import { TailwindModal } from '@/components/react/modal';
 import env from '@/config/env';
@@ -34,10 +20,10 @@ import env from '@/config/env';
 import { useSkipClient } from '@/contexts/skipGoContext';
 
 import { IbcChain } from '@/components';
-import { ChainContext } from '@cosmos-kit/core';
+
 import { useChain } from '@cosmos-kit/react';
 import { useToast } from '@/contexts';
-import { StatusState } from '@skip-go/client';
+
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 
 //TODO: switch to main-net names
@@ -78,39 +64,33 @@ export default function IbcSendForm({
   admin?: string;
   availableToChains: IbcChain[];
 }>) {
+  // State management
   const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [feeWarning, setFeeWarning] = useState('');
-  const explorerUrl =
-    selectedFromChain.id === env.osmosisChain ? env.osmosisExplorerUrl : env.explorerUrl;
+  const [isContactsOpen, setIsContactsOpen] = useState(false);
+
+  // Hooks and context
   const { getOfflineSignerAmino } = useChain(env.chain);
   const { tx } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
   const { setToastMessage } = useToast();
+  const skipClient = useSkipClient({ getCosmosSigner: async () => getOfflineSignerAmino() });
 
+  // Constants
+  const explorerUrl =
+    selectedFromChain.id === env.osmosisChain ? env.osmosisExplorerUrl : env.explorerUrl;
   const { transfer } = ibc.applications.transfer.v1.MessageComposer.withTypeUrl;
-  const [isContactsOpen, setIsContactsOpen] = useState(false);
-  const [isIconRotated, setIsIconRotated] = useState(false);
-
-  const getCosmosSigner = async () => {
-    const signer = getOfflineSignerAmino();
-    return signer;
-  };
-
-  const skipClient = useSkipClient({
-    getCosmosSigner: getCosmosSigner,
-  });
-
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
+
+  // Set initial chain for group transactions
   useEffect(() => {
     if (isGroup) {
       setSelectedFromChain(ibcChains.find(chain => chain.id === env.chain) ?? ibcChains[0]);
     }
   }, [isGroup, setSelectedFromChain]);
 
-  // Add this combined balances memo for Osmosis tokens
-
-  // Update the filtered balances logic to use passed props instead of hooks
+  // Memoized filtered balances based on search term
   const filteredBalances = useMemo(() => {
     return balances?.filter(token => {
       const displayName = token.metadata?.display ?? token.denom;
@@ -118,16 +98,17 @@ export default function IbcSendForm({
     });
   }, [balances, searchTerm, selectedFromChain]);
 
-  // Update initialSelectedToken to consider the chain
+  // Initial token selection logic
   const initialSelectedToken = useMemo(() => {
     return balances?.find(token => token.coreDenom === selectedDenom) || balances?.[0] || null;
   }, [balances, selectedDenom, selectedFromChain]);
 
-  // Update the loading check
+  // Loading state check
   if (isBalancesLoading || !initialSelectedToken) {
     return null;
   }
 
+  // Form validation schema
   const validationSchema = Yup.object().shape({
     recipient: Yup.string()
       .required('Recipient is required')
@@ -177,10 +158,12 @@ export default function IbcSendForm({
     memo: Yup.string().max(255, 'Memo must be less than 255 characters'),
   });
 
+  // Helper function to format amount with proper decimals
   const formatAmount = (amount: number, decimals: number) => {
     return amount.toFixed(decimals).replace(/\.?0+$/, '');
   };
 
+  // Main form submission handler
   const handleSend = async (values: {
     recipient: string;
     amount: string;
@@ -189,21 +172,24 @@ export default function IbcSendForm({
   }) => {
     setIsSending(true);
     try {
+      // Convert amount to base units
       const exponent = values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
       const amountInBaseUnits = parseNumberToBigInt(values.amount, exponent).toString();
 
+      // Get IBC channel info
       const { source_port, source_channel } = getIbcInfo(selectedFromChain.id, selectedToChain.id);
 
+      // Setup token and timeout
       const token = {
         denom: values.selectedToken.coreDenom,
         amount: amountInBaseUnits,
       };
+      const timeoutInNanos = (Date.now() + 1.2e6) * 1e6;
 
-      const stamp = Date.now();
-      const timeoutInNanos = (stamp + 1.2e6) * 1e6;
-
+      // Get IBC denom for destination chain
       const ibcDenom = getIbcDenom(selectedToChain.id, values.selectedToken.coreDenom);
 
+      // Setup skip protocol route
       const route = await skipClient.route({
         sourceAssetDenom: values.selectedToken.coreDenom,
         sourceAssetChainID: selectedFromChain.chainID,
@@ -213,33 +199,11 @@ export default function IbcSendForm({
       });
 
       const userAddresses = [
-        {
-          chainID: selectedFromChain.chainID,
-          address: address,
-        },
-        {
-          chainID: selectedToChain.chainID,
-          address: values.recipient,
-        },
+        { chainID: selectedFromChain.chainID, address },
+        { chainID: selectedToChain.chainID, address: values.recipient },
       ];
 
-      // const messages = await skipClient.messages({
-      //   sourceAssetDenom: values.selectedToken.coreDenom,
-      //   sourceAssetChainID: selectedFromChain.chainID,
-      //   destAssetDenom: ibcDenom ?? values.selectedToken.coreDenom,
-      //   destAssetChainID: selectedToChain.chainID,
-      //   amountIn: amountInBaseUnits,
-      //   amountOut: route.estimatedAmountOut ?? '',
-      //   addressList: userAddresses.map((user: { address: any }) => user.address),
-      //   operations: route.operations,
-      //   estimatedAmountOut: route.estimatedAmountOut ?? '',
-      //   slippageTolerancePercent: '1',
-      //   affiliates: [],
-      //   chainIDsToAffiliates: {},
-      //   postRouteHandler: undefined,
-      //   enableGasWarnings: false,
-      // });
-
+      // Handle regular transfer vs group transfer
       if (!isGroup) {
         try {
           await skipClient.executeRoute({
