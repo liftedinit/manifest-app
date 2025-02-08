@@ -47,7 +47,7 @@
     "@liftedinit/manifestjs": "0.0.1-rc.1",
     "@react-three/drei": "^9.114.0",
     "@react-three/fiber": "^8.17.8",
-    "@skip-go/client": "^0.16.8",
+    "@skip-go/client": "^0.16.9",
     "@tanstack/react-query": "^5.55.0",
     "@tanstack/react-query-devtools": "^5.55.0",
     "@types/file-saver": "^2.0.7",
