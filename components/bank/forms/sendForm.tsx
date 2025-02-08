@@ -157,7 +157,7 @@ export default function SendForm({
   return (
     <div
       style={{ borderRadius: '24px' }}
-      className="text-sm bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] px-6 pb-6 pt-4 w-full h-full"
+      className="text-sm bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] px-6 pb-6 pt-4 w-full h-full animate-fadeIn duration-400"
     >
       <Formik
         initialValues={{

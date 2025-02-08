@@ -36,6 +36,9 @@ import { useSkipClient } from '@/contexts/skipGoContext';
 import { IbcChain } from '@/components';
 import { ChainContext } from '@cosmos-kit/core';
 import { useChain } from '@cosmos-kit/react';
+import { useToast } from '@/contexts';
+import { StatusState } from '@skip-go/client';
+import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 
 //TODO: switch to main-net names
 export default function IbcSendForm({
@@ -79,14 +82,17 @@ export default function IbcSendForm({
   const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [feeWarning, setFeeWarning] = useState('');
+  const explorerUrl =
+    selectedFromChain.id === env.osmosisChain ? env.osmosisExplorerUrl : env.explorerUrl;
   const { getOfflineSignerAmino } = useChain(env.chain);
   const { tx } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
+  const { setToastMessage } = useToast();
 
   const { transfer } = ibc.applications.transfer.v1.MessageComposer.withTypeUrl;
   const [isContactsOpen, setIsContactsOpen] = useState(false);
   const [isIconRotated, setIsIconRotated] = useState(false);
-  console.log(balances);
+
   const getCosmosSigner = async () => {
     const signer = getOfflineSignerAmino();
     return signer;
@@ -124,7 +130,21 @@ export default function IbcSendForm({
   }
 
   const validationSchema = Yup.object().shape({
-    recipient: Yup.string().required('Recipient is required').manifestAddress(),
+    recipient: Yup.string()
+      .required('Recipient is required')
+      .manifestAddress()
+      .test(
+        'recipient-has-prefix',
+        'Recipient prefix must match recipient chain',
+        function (value) {
+          if (!value) return true;
+          return selectedToChain.id === env.osmosisChain
+            ? value.startsWith('osmo')
+            : selectedToChain.id === env.axelarChain
+              ? value.startsWith('axelar')
+              : value.startsWith('manifest');
+        }
+      ),
     amount: Yup.number()
       .required('Amount is required')
       .positive('Amount must be positive')
@@ -193,8 +213,6 @@ export default function IbcSendForm({
         amountIn: amountInBaseUnits,
       });
 
-      console.log('route', route);
-      console.log('route.requiredChainAddresses', route.requiredChainAddresses);
       const userAddresses = [
         {
           chainID: selectedFromChain.chainID,
@@ -206,109 +224,139 @@ export default function IbcSendForm({
         },
       ];
 
-      const messages = await skipClient.messages({
-        sourceAssetDenom: values.selectedToken.coreDenom,
-        sourceAssetChainID: selectedFromChain.chainID,
-        destAssetDenom: ibcDenom ?? values.selectedToken.coreDenom,
-        destAssetChainID: selectedToChain.chainID,
-        amountIn: amountInBaseUnits,
-        amountOut: route.estimatedAmountOut ?? '',
-        addressList: userAddresses.map((user: { address: any }) => user.address),
-        operations: route.operations,
-        estimatedAmountOut: route.estimatedAmountOut ?? '',
-        slippageTolerancePercent: '1',
-        affiliates: [],
-        chainIDsToAffiliates: {},
-        postRouteHandler: undefined,
-        enableGasWarnings: false,
-      });
-
-      await skipClient.executeRoute({
-        route,
-        userAddresses,
-
-        // Executes after all of the operations triggered by a user's signature complete.
-        // For multi-tx routes that require multiple user signatures, this will be called once for each tx in sequence
-        // @ts-ignore
-        onTransactionCompleted: async (chainID, txHash, status) => {
-          console.log(`Route completed with tx hash: ${txHash} & status: ${status.state}`);
-        },
-        // called after the transaction that the user signs gets broadcast on chain
-        // @ts-ignore
-        onTransactionBroadcast: async ({ txHash, chainID }) => {
-          console.log(`Transaction broadcasted with tx hash: ${txHash}`);
-        },
-        // called after the transaction that the user signs is successfully registered for tracking
-        // @ts-ignore
-        onTransactionTracked: async ({ txHash, chainID }) => {
-          console.log(`Transaction tracked with tx hash: ${txHash}`);
-        },
-        // called after the user signs a transaction
-        // @ts-ignore
-        onTransactionSigned: async ({ chainID }) => {
-          console.log(`Transaction signed with chain ID: ${chainID}`);
-        },
-        // validate gas balance on each chain
-        // @ts-ignore
-        onValidateGasBalance: async ({ chainID, txIndex, status }) => {
-          console.log(`Validating gas balance for chain ${chainID}...`);
-        },
-      });
-
-      // const transferMsg = transfer({
-      //   sourcePort: source_port,
-      //   sourceChannel: source_channel,
-      //   sender: admin
-      //     ? admin
-      //     : selectedFromChain.id === env.osmosisChain
-      //       ? (chains?.osmosistestnet?.address ?? '')
-      //       : (address ?? ''),
-      //   receiver: values.recipient ?? '',
-      //   token,
-      //   timeoutHeight: {
-      //     revisionNumber: BigInt(0),
-      //     revisionHeight: BigInt(0),
-      //   },
-      //   timeoutTimestamp: BigInt(timeoutInNanos),
+      // const messages = await skipClient.messages({
+      //   sourceAssetDenom: values.selectedToken.coreDenom,
+      //   sourceAssetChainID: selectedFromChain.chainID,
+      //   destAssetDenom: ibcDenom ?? values.selectedToken.coreDenom,
+      //   destAssetChainID: selectedToChain.chainID,
+      //   amountIn: amountInBaseUnits,
+      //   amountOut: route.estimatedAmountOut ?? '',
+      //   addressList: userAddresses.map((user: { address: any }) => user.address),
+      //   operations: route.operations,
+      //   estimatedAmountOut: route.estimatedAmountOut ?? '',
+      //   slippageTolerancePercent: '1',
+      //   affiliates: [],
+      //   chainIDsToAffiliates: {},
+      //   postRouteHandler: undefined,
+      //   enableGasWarnings: false,
       // });
 
-      // const msg = isGroup
-      //   ? submitProposal({
-      //       groupPolicyAddress: admin!,
-      //       messages: [
-      //         Any.fromPartial({
-      //           typeUrl: MsgTransfer.typeUrl,
-      //           value: MsgTransfer.encode(transferMsg.value).finish(),
-      //         }),
-      //       ],
-      //       metadata: '',
-      //       proposers: [address],
-      //       title: `IBC Transfer`,
-      //       summary: `This proposal will send ${values.amount} ${values.selectedToken.metadata?.display} to ${values.recipient} via IBC transfer`,
-      //       exec: 0,
-      //     })
-      //   : transferMsg;
+      if (!isGroup) {
+        await skipClient.executeRoute({
+          route,
+          userAddresses,
+          onTransactionSigned: async () => {
+            setToastMessage({
+              type: 'alert-info',
+              title: 'IBC Transfer',
+              isIbcTransfer: true,
+              sourceChain: selectedFromChain.name,
+              targetChain: selectedToChain.name,
+              sourceChainIcon: selectedFromChain.icon,
+              targetChainIcon: selectedToChain.icon,
+              status: 'STATE_SUBMITTED',
+              description: `Sending ${values.amount} ${values.selectedToken.metadata?.display} to ${truncateString(values.recipient, 12)}`,
+            });
+          },
+          onTransactionBroadcast: async () => {
+            setToastMessage({
+              type: 'alert-info',
+              title: 'IBC Transfer',
+              isIbcTransfer: true,
+              sourceChain: selectedFromChain.name,
+              targetChain: selectedToChain.name,
+              sourceChainIcon: selectedFromChain.icon,
+              targetChainIcon: selectedToChain.icon,
+              status: 'STATE_PENDING',
+            });
+          },
+          onTransactionTracked: async () => {
+            setToastMessage({
+              type: 'alert-info',
+              title: 'IBC Transfer',
+              isIbcTransfer: true,
+              sourceChain: selectedFromChain.name,
+              targetChain: selectedToChain.name,
+              sourceChainIcon: selectedFromChain.icon,
+              targetChainIcon: selectedToChain.icon,
+              status: 'STATE_RECEIVED',
+            });
+          },
+          onTransactionCompleted: async (chainID, txHash, status) => {
+            setToastMessage({
+              type: status.state === 'STATE_COMPLETED_SUCCESS' ? 'alert-success' : 'alert-error',
+              title: `IBC Transfer ${status.state === 'STATE_COMPLETED_SUCCESS' ? 'Success' : 'Error'}`,
+              isIbcTransfer: true,
+              sourceChain: selectedFromChain.name,
+              explorerLink: `${explorerUrl}/transaction/${txHash}`,
+              targetChain: selectedToChain.name,
+              sourceChainIcon: selectedFromChain.icon,
+              targetChainIcon: selectedToChain.icon,
+              status:
+                status.state === 'STATE_COMPLETED_SUCCESS'
+                  ? 'STATE_COMPLETED_SUCCESS'
+                  : 'STATE_COMPLETED_ERROR',
+              description:
+                status.state === 'STATE_COMPLETED_SUCCESS'
+                  ? `Successfully sent ${values.amount} ${values.selectedToken.metadata?.display} to ${truncateString(values.recipient, 12)}`
+                  : `Failed to send ${values.amount} ${values.selectedToken.metadata?.display}`,
+            });
+          },
+          onValidateGasBalance: async value => {
+            if (value.status === 'error') {
+              setToastMessage({
+                type: 'alert-error',
+                title: 'Gas Error',
+                description: 'Insufficient balance for gas',
+                bgColor: '#e74c3c',
+              });
+            }
+          },
+        });
+      } else {
+        const transferMsg = transfer({
+          sourcePort: source_port,
+          sourceChannel: source_channel,
+          sender: admin ? admin : (address ?? ''),
+          receiver: values.recipient ?? '',
+          token,
+          timeoutHeight: {
+            revisionNumber: BigInt(0),
+            revisionHeight: BigInt(0),
+          },
+          timeoutTimestamp: BigInt(timeoutInNanos),
+        });
 
-      // const fee = await estimateFee(
-      //   selectedFromChain.id === env.osmosisChain
-      //     ? (chains.osmosistestnet.address ?? '')
-      //     : (address ?? ''),
-      //   [msg]
-      // );
+        const msg = submitProposal({
+          groupPolicyAddress: admin!,
+          messages: [
+            Any.fromPartial({
+              typeUrl: MsgTransfer.typeUrl,
+              value: MsgTransfer.encode(transferMsg.value).finish(),
+            }),
+          ],
+          metadata: '',
+          proposers: [address],
+          title: `IBC Transfer`,
+          summary: `This proposal will send ${values.amount} ${values.selectedToken.metadata?.display} to ${values.recipient} via IBC transfer`,
+          exec: 0,
+        });
 
-      // await tx([msg], {
-      //   memo: values.memo,
-      //   fee,
-      //   onSuccess: () => {
-      //     refetchBalances();
-      //     refetchHistory();
-      //     refetchOsmosisBalances();
-      //     resolveOsmosisRefetch();
-      //     refetchProposals?.();
-      //   },
-      // });
+        const fee = await estimateFee(address ?? '', [msg]);
+
+        await tx([msg], {
+          memo: values.memo,
+          fee,
+          onSuccess: () => {
+            refetchBalances();
+            refetchHistory();
+            refetchProposals?.();
+          },
+        });
+      }
     } catch (error) {
       console.error('Error during sending:', error);
+      setIsSending(false);
     } finally {
       setIsSending(false);
     }
@@ -317,7 +365,7 @@ export default function IbcSendForm({
   return (
     <div
       style={{ borderRadius: '24px' }}
-      className="text-sm bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] p-6 w-full h-full"
+      className="text-sm bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] p-6 w-full h-full animate-fadeIn duration-400"
     >
       <Formik
         initialValues={{
@@ -332,7 +380,7 @@ export default function IbcSendForm({
         validateOnBlur={true}
       >
         {({ isValid, dirty, setFieldValue, values, errors }) => (
-          <Form className="space-y-6 flex flex-col items-center max-w-md mx-auto">
+          <Form className="space-y-6  flex flex-col items-center max-w-md mx-auto">
             <div className="w-full space-y-4">
               <div className=" relative w-full flex flex-col space-y-4">
                 {/* From Chain */}
@@ -693,7 +741,4 @@ export default function IbcSendForm({
       </Formik>
     </div>
   );
-}
-function useSkip(getCosmosSigner: () => Promise<import('@cosmjs/amino').OfflineAminoSigner>) {
-  throw new Error('Function not implemented.');
 }

@@ -4,6 +4,8 @@ import Link from 'next/link';
 import Confetti from 'react-confetti';
 import { CloseIcon, CopyIcon, BroadcastingIcon } from './icons';
 import { useRouter } from 'next/router';
+import { IbcTransferProgress } from './ibcTransferProgress';
+import { StatusState } from '@skip-go/client';
 
 export interface ToastMessage {
   type: string;
@@ -12,6 +14,13 @@ export interface ToastMessage {
   link?: string;
   explorerLink?: string;
   bgColor?: string;
+  isIbcTransfer?: boolean;
+  ibcStatus?: 'signing' | 'broadcasting' | 'tracking' | 'completed' | 'failed';
+  sourceChain?: string;
+  targetChain?: string;
+  sourceChainIcon?: string;
+  targetChainIcon?: string;
+  status?: StatusState;
 }
 
 interface ToastProps {
@@ -107,15 +116,35 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
           </button>
           <div className="flex flex-col w-full h-full overflow-hidden">
             <div className="flex flex-row items-center gap-2 mb-2">
-              {toastMessage.type === 'alert-info' && (
-                <BroadcastingIcon className="w-6 h-6" aria-hidden="true" />
+              {((toastMessage.isIbcTransfer &&
+                toastMessage.status !== 'STATE_ABANDONED' &&
+                toastMessage.status !== 'STATE_COMPLETED_SUCCESS' &&
+                toastMessage.status !== 'STATE_COMPLETED_ERROR' &&
+                toastMessage.status !== 'STATE_PENDING_ERROR' &&
+                toastMessage.status !== 'STATE_COMPLETED') ||
+                toastMessage.type === 'alert-info') && (
+                <BroadcastingIcon className="w-6 h-6 text-[#A087FF]" aria-hidden="true" />
               )}
               <h3 className="text-lg font-semibold">{toastMessage.title}</h3>
             </div>
-            <div className="flex-grow overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 pr-2">
-              <div className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap">
-                {toastMessage.description}
+
+            {toastMessage.isIbcTransfer && toastMessage.sourceChain && toastMessage.targetChain && (
+              <div className="w-full px-2 justify-center">
+                <IbcTransferProgress
+                  sourceChain={{
+                    name: toastMessage.sourceChain,
+                    icon: toastMessage.sourceChainIcon!,
+                  }}
+                  targetChain={{
+                    name: toastMessage.targetChain,
+                    icon: toastMessage.targetChainIcon!,
+                  }}
+                  status={toastMessage.status || 'STATE_UNKNOWN'}
+                />
               </div>
+            )}
+
+            <div className="flex-grow overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 pr-2">
               {(toastMessage.link || toastMessage.explorerLink) && (
                 <div className="flex flex-row items-center gap-2 justify-between">
                   {toastMessage.link && (
