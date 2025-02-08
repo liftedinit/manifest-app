@@ -38,10 +38,20 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
   useEffect(() => {
     if (toastMessage) {
       setIsVisible(true);
-      const timer = setTimeout(() => {
-        setIsVisible(false);
-        setTimeout(() => setToastMessage(null), 300);
-      }, 9700);
+      const timer = setTimeout(
+        () => {
+          setIsVisible(false);
+          setTimeout(() => setToastMessage(null), 300);
+        },
+        toastMessage.status === 'STATE_COMPLETED_SUCCESS' ||
+          toastMessage.status === 'STATE_COMPLETED_ERROR' ||
+          toastMessage.status === 'STATE_PENDING_ERROR' ||
+          toastMessage.status === 'STATE_ABANDONED'
+          ? 9700
+          : toastMessage.status
+            ? 100000
+            : 9700
+      );
       return () => clearTimeout(timer);
     }
   }, [toastMessage, setToastMessage]);
@@ -114,7 +124,7 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
           >
             <CloseIcon className="w-3 h-3" aria-hidden="true" />
           </button>
-          <div className="flex flex-col w-full h-full overflow-hidden">
+          <div className="flex flex-col w-full h-full">
             <div className="flex flex-row items-center gap-2 mb-2">
               {((toastMessage.isIbcTransfer &&
                 toastMessage.status !== 'STATE_ABANDONED' &&
@@ -128,8 +138,14 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
               <h3 className="text-lg font-semibold">{toastMessage.title}</h3>
             </div>
 
+            {!toastMessage.isIbcTransfer && (
+              <div className="flex flex-row items-center gap-2 justify-between">
+                <p className="text-sm text-gray-500">{toastMessage.description}</p>
+              </div>
+            )}
+
             {toastMessage.isIbcTransfer && toastMessage.sourceChain && toastMessage.targetChain && (
-              <div className="w-full px-2 justify-center">
+              <div className="flex items-center justify-center w-full px-0">
                 <IbcTransferProgress
                   sourceChain={{
                     name: toastMessage.sourceChain,

@@ -56,7 +56,6 @@ export default function IbcSendForm({
   setSelectedToChain,
   selectedDenom,
   isGroup,
-
   refetchProposals,
   admin,
   availableToChains,
@@ -242,77 +241,86 @@ export default function IbcSendForm({
       // });
 
       if (!isGroup) {
-        await skipClient.executeRoute({
-          route,
-          userAddresses,
-          onTransactionSigned: async () => {
-            setToastMessage({
-              type: 'alert-info',
-              title: 'IBC Transfer',
-              isIbcTransfer: true,
-              sourceChain: selectedFromChain.name,
-              targetChain: selectedToChain.name,
-              sourceChainIcon: selectedFromChain.icon,
-              targetChainIcon: selectedToChain.icon,
-              status: 'STATE_SUBMITTED',
-              description: `Sending ${values.amount} ${values.selectedToken.metadata?.display} to ${truncateString(values.recipient, 12)}`,
-            });
-          },
-          onTransactionBroadcast: async () => {
-            setToastMessage({
-              type: 'alert-info',
-              title: 'IBC Transfer',
-              isIbcTransfer: true,
-              sourceChain: selectedFromChain.name,
-              targetChain: selectedToChain.name,
-              sourceChainIcon: selectedFromChain.icon,
-              targetChainIcon: selectedToChain.icon,
-              status: 'STATE_PENDING',
-            });
-          },
-          onTransactionTracked: async () => {
-            setToastMessage({
-              type: 'alert-info',
-              title: 'IBC Transfer',
-              isIbcTransfer: true,
-              sourceChain: selectedFromChain.name,
-              targetChain: selectedToChain.name,
-              sourceChainIcon: selectedFromChain.icon,
-              targetChainIcon: selectedToChain.icon,
-              status: 'STATE_RECEIVED',
-            });
-          },
-          onTransactionCompleted: async (chainID, txHash, status) => {
-            setToastMessage({
-              type: status.state === 'STATE_COMPLETED_SUCCESS' ? 'alert-success' : 'alert-error',
-              title: `IBC Transfer ${status.state === 'STATE_COMPLETED_SUCCESS' ? 'Success' : 'Error'}`,
-              isIbcTransfer: true,
-              sourceChain: selectedFromChain.name,
-              explorerLink: `${explorerUrl}/transaction/${txHash}`,
-              targetChain: selectedToChain.name,
-              sourceChainIcon: selectedFromChain.icon,
-              targetChainIcon: selectedToChain.icon,
-              status:
-                status.state === 'STATE_COMPLETED_SUCCESS'
-                  ? 'STATE_COMPLETED_SUCCESS'
-                  : 'STATE_COMPLETED_ERROR',
-              description:
-                status.state === 'STATE_COMPLETED_SUCCESS'
-                  ? `Successfully sent ${values.amount} ${values.selectedToken.metadata?.display} to ${truncateString(values.recipient, 12)}`
-                  : `Failed to send ${values.amount} ${values.selectedToken.metadata?.display}`,
-            });
-          },
-          onValidateGasBalance: async value => {
-            if (value.status === 'error') {
+        try {
+          await skipClient.executeRoute({
+            route,
+            userAddresses,
+            onTransactionSigned: async () => {
               setToastMessage({
-                type: 'alert-error',
-                title: 'Gas Error',
-                description: 'Insufficient balance for gas',
-                bgColor: '#e74c3c',
+                type: 'alert-info',
+                title: 'IBC Transfer',
+                isIbcTransfer: true,
+                sourceChain: selectedFromChain.name,
+                targetChain: selectedToChain.name,
+                sourceChainIcon: selectedFromChain.icon,
+                targetChainIcon: selectedToChain.icon,
+                status: 'STATE_SUBMITTED',
+                description: `Sending ${values.amount} ${values.selectedToken.metadata?.display} to ${truncateString(values.recipient, 12)}`,
               });
-            }
-          },
-        });
+            },
+            onTransactionBroadcast: async () => {
+              setToastMessage({
+                type: 'alert-info',
+                title: 'IBC Transfer',
+                isIbcTransfer: true,
+                sourceChain: selectedFromChain.name,
+                targetChain: selectedToChain.name,
+                sourceChainIcon: selectedFromChain.icon,
+                targetChainIcon: selectedToChain.icon,
+                status: 'STATE_PENDING',
+              });
+            },
+            onTransactionTracked: async () => {
+              setToastMessage({
+                type: 'alert-info',
+                title: 'IBC Transfer',
+                isIbcTransfer: true,
+                sourceChain: selectedFromChain.name,
+                targetChain: selectedToChain.name,
+                sourceChainIcon: selectedFromChain.icon,
+                targetChainIcon: selectedToChain.icon,
+                status: 'STATE_RECEIVED',
+              });
+            },
+            onTransactionCompleted: async (chainID, txHash, status) => {
+              setToastMessage({
+                type: status.state === 'STATE_COMPLETED_SUCCESS' ? 'alert-success' : 'alert-error',
+                title: `IBC Transfer ${status.state === 'STATE_COMPLETED_SUCCESS' ? 'Success' : 'Error'}`,
+                isIbcTransfer: true,
+                sourceChain: selectedFromChain.name,
+                explorerLink: `${explorerUrl}/transaction/${txHash}`,
+                targetChain: selectedToChain.name,
+                sourceChainIcon: selectedFromChain.icon,
+                targetChainIcon: selectedToChain.icon,
+                status:
+                  status.state === 'STATE_COMPLETED_SUCCESS'
+                    ? 'STATE_COMPLETED_SUCCESS'
+                    : 'STATE_COMPLETED_ERROR',
+                description:
+                  status.state === 'STATE_COMPLETED_SUCCESS'
+                    ? `Successfully sent ${values.amount} ${values.selectedToken.metadata?.display} to ${truncateString(values.recipient, 12)}`
+                    : `Failed to send ${values.amount} ${values.selectedToken.metadata?.display}`,
+              });
+            },
+            onValidateGasBalance: async value => {
+              if (value.status === 'error') {
+                setToastMessage({
+                  type: 'alert-error',
+                  title: 'Gas Error',
+                  description: 'Insufficient balance for gas',
+                  bgColor: '#e74c3c',
+                });
+              }
+            },
+          });
+        } catch (error) {
+          console.error('Error during sending:', error);
+          setIsSending(false);
+        } finally {
+          refetchBalances();
+          refetchHistory();
+          setIsSending(false);
+        }
       } else {
         const transferMsg = transfer({
           sourcePort: source_port,

@@ -48,21 +48,21 @@ export const IbcTransferProgress: React.FC<IbcTransferProgressProps> = ({
   const targetState = getChainState(false);
 
   return (
-    <div className="flex items-center justify-center w-full space-x-4 ">
+    <div className="flex items-center justify-center w-[22rem] space-x-4">
       {/* Source Chain Icon with Status Indicators */}
-      <div className="relative w-full">
+      <div className="relative">
         {/* Chain Icon Container */}
         <div
-          className={`w-12 h-12  flex items-center justify-center
+          className={`w-12 h-12 flex items-center justify-center
             ${sourceState === 'active' ? 'animate-pulse' : ''} // Pulse animation when active
-            ${sourceState === 'completed' ? 'opacity-100' : sourceState === 'error' ? 'opacity-50' : 'opacity-70'} // Opacity based on state
+            ${sourceState === 'completed' ? 'opacity-100' : sourceState === 'error' ? 'opacity-50' : 'opacity-70'} 
           `}
         >
           <Image
             src={sourceChain.icon}
             alt={sourceChain.name}
-            width={32}
-            height={32}
+            width={29}
+            height={28}
             className=""
           />
         </div>

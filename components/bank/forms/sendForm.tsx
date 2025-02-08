@@ -59,7 +59,17 @@ export default function SendForm({
   }
 
   const validationSchema = Yup.object().shape({
-    recipient: Yup.string().required('Recipient is required').manifestAddress(),
+    recipient: Yup.string()
+      .required('Recipient is required')
+      .manifestAddress()
+      .test(
+        'recipient-has-prefix',
+        'Recipient prefix must match recipient chain',
+        function (value) {
+          if (!value) return true;
+          return value.startsWith('manifest');
+        }
+      ),
     amount: Yup.number()
       .required('Amount is required')
       .positive('Amount must be positive')
