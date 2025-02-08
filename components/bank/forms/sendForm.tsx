@@ -14,7 +14,6 @@ import { MdContacts } from 'react-icons/md';
 import env from '@/config/env';
 import { Any } from 'cosmjs-types/google/protobuf/any';
 import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
-import { Dialog, Portal } from '@headlessui/react';
 
 export default function SendForm({
   address,

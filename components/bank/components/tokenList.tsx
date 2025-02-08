@@ -4,6 +4,7 @@ import { shiftDigits, truncateString } from '@/utils';
 import { CombinedBalanceInfo } from '@/utils/types';
 import { SendTxIcon, QuestionIcon, VerifiedIcon } from '@/components/icons';
 import SendModal from '@/components/bank/modals/sendModal';
+import { ChainContext } from '@cosmos-kit/core';
 
 interface TokenListProps {
   balances: CombinedBalanceInfo[] | undefined;
@@ -16,6 +17,11 @@ interface TokenListProps {
   admin?: string;
   refetchProposals?: () => void;
   searchTerm?: string;
+  osmosisBalances?: CombinedBalanceInfo[] | undefined;
+  isOsmosisBalancesLoading?: boolean;
+  refetchOsmosisBalances?: () => void;
+  resolveOsmosisRefetch?: () => void;
+  chains: Record<string, ChainContext>;
 }
 
 export function TokenList(props: Readonly<TokenListProps>) {
@@ -30,6 +36,11 @@ export function TokenList(props: Readonly<TokenListProps>) {
     admin,
     refetchProposals,
     searchTerm = '',
+    osmosisBalances,
+    isOsmosisBalancesLoading,
+    refetchOsmosisBalances,
+    resolveOsmosisRefetch,
+    chains,
   } = props;
   const [selectedDenom, setSelectedDenom] = useState<any>(null);
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
@@ -100,7 +111,7 @@ export function TokenList(props: Readonly<TokenListProps>) {
                 className="flex flex-row justify-between gap-4 items-center p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px] cursor-pointer hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] transition-colors"
                 onClick={() => {
                   setSelectedDenom(balance?.denom);
-                  (document?.getElementById(`denom-info-modal`) as HTMLDialogElement)?.showModal();
+                  setOpenDenomInfoModal(true);
                 }}
               >
                 <div className="flex flex-row gap-4 items-center justify-start">
@@ -125,9 +136,7 @@ export function TokenList(props: Readonly<TokenListProps>) {
                     onClick={e => {
                       e.stopPropagation();
                       setSelectedDenom(balance?.denom);
-                      (
-                        document?.getElementById(`denom-info-modal`) as HTMLDialogElement
-                      )?.showModal();
+                      setOpenDenomInfoModal(true);
                     }}
                     className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
                   >
@@ -228,6 +237,11 @@ export function TokenList(props: Readonly<TokenListProps>) {
         isGroup={isGroup}
         admin={admin}
         refetchProposals={refetchProposals}
+        osmosisBalances={osmosisBalances ?? []}
+        isOsmosisBalancesLoading={isOsmosisBalancesLoading ?? false}
+        refetchOsmosisBalances={refetchOsmosisBalances ?? (() => {})}
+        resolveOsmosisRefetch={resolveOsmosisRefetch ?? (() => {})}
+        chains={chains}
       />
     </div>
   );

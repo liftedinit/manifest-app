@@ -20,14 +20,14 @@ describe('SignModal', () => {
   });
 
   test('should render', () => {
-    const wrapper = renderWithChainProvider(<SignModal visible={true} data={{} as any} />);
+    const wrapper = renderWithChainProvider(<SignModal visible={true} />);
     expect(screen.getByText('Approve')).toBeInTheDocument();
     const dialog = screen.getByRole('dialog');
     expect(dialog).toBeVisible();
   });
 
   test('should not be visible initially when visible prop is false', () => {
-    const wrapper = renderWithChainProvider(<SignModal visible={false} data={{} as any} />);
+    const wrapper = renderWithChainProvider(<SignModal visible={false} />);
     const dialog = screen.queryAllByRole('dialog');
     expect(dialog.length).toBe(0);
   });

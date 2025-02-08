@@ -14,6 +14,20 @@ export const MFX_TOKEN_DATA: Omit<ExtendedMetadataSDKType, 'balance' | 'totalSup
   uri_hash: '',
 };
 
+export const OSMOSIS_TOKEN_DATA: Omit<ExtendedMetadataSDKType, 'balance' | 'totalSupply'> = {
+  description: 'The native token of the Osmosis Chain',
+  denom_units: [
+    { denom: 'uosmo', exponent: 0, aliases: [] },
+    { denom: 'osmo', exponent: 6, aliases: [] },
+  ],
+  base: 'uosmo',
+  display: 'osmo',
+  name: 'Osmosis',
+  symbol: 'OSMO',
+  uri: '',
+  uri_hash: '',
+};
+
 export const tokenExponents = [
   { exponent: 18, subdenom: 'atto', letter: 'a', description: 'Smallest unit, 10⁻¹⁸' },
   { exponent: 15, subdenom: 'femto', letter: 'f', description: '10⁻¹⁵' },

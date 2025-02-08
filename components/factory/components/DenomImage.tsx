@@ -98,7 +98,7 @@ export const DenomImage = ({
   }
 
   // Check for MFX token first
-  if (denom?.base?.includes('umfx')) {
+  if (denom?.base?.includes('umfx') || denom?.base?.includes('uosmo')) {
     return (
       <div
         className={`w-11 h-11 p-2 rounded-md ${withBackground ? 'dark:bg-[#ffffff0f] bg-[#0000000a]' : ''}`}
@@ -106,7 +106,7 @@ export const DenomImage = ({
         <Image
           width={44}
           height={44}
-          src="/logo.svg"
+          src={denom?.base?.includes('umfx') ? '/logo.svg' : '/osmosis.svg'}
           alt="MFX Token Icon"
           className="w-full h-full "
         />

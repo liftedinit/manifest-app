@@ -3,20 +3,24 @@ import { TokenList } from '@/components/bank/components/tokenList';
 import {
   useGetMessagesFromAddress,
   useIsMobile,
+  useOsmosisTokenBalancesResolved,
+  useOsmosisTokenFactoryDenomsMetadata,
   useTokenBalances,
+  useTokenBalancesOsmosis,
   useTokenBalancesResolved,
   useTokenFactoryDenomsMetadata,
 } from '@/hooks';
-import { useChain } from '@cosmos-kit/react';
+import { useChain, useChains } from '@cosmos-kit/react';
 
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { BankIcon } from '@/components/icons';
 import { CombinedBalanceInfo } from '@/utils/types';
-import { MFX_TOKEN_DATA } from '@/utils/constants';
+import { MFX_TOKEN_DATA, OSMOSIS_TOKEN_DATA } from '@/utils/constants';
 import env from '@/config/env';
 import { SEO } from '@/components';
 import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
 import Link from 'next/link';
+import { denomToAsset } from '@/utils';
 
 interface PageSizeConfig {
   tokenList: number;
@@ -25,13 +29,21 @@ interface PageSizeConfig {
 }
 
 export default function Bank() {
-  const { address, isWalletConnected } = useChain(env.chain);
-  const { balances, isBalancesLoading, refetchBalances } = useTokenBalances(address ?? '');
+  const chains = useChains([env.chain, env.osmosisChain, env.axelarChain]);
+
+  const isWalletConnected = useMemo(
+    () => Object.values(chains).every(chain => chain.isWalletConnected),
+    [chains]
+  );
+
+  const { balances, isBalancesLoading, refetchBalances } = useTokenBalances(
+    chains.manifesttestnet.address ?? ''
+  );
   const {
     balances: resolvedBalances,
     isBalancesLoading: resolvedLoading,
     refetchBalances: resolveRefetch,
-  } = useTokenBalancesResolved(address ?? '');
+  } = useTokenBalancesResolved(chains.manifesttestnet.address ?? '');
 
   const { metadatas, isMetadatasLoading } = useTokenFactoryDenomsMetadata();
   const [currentPage, setCurrentPage] = useState(1);
@@ -81,7 +93,12 @@ export default function Bank() {
     isError,
     refetch: refetchHistory,
     totalCount,
-  } = useGetMessagesFromAddress(env.indexerUrl, address ?? '', currentPage, historyPageSize);
+  } = useGetMessagesFromAddress(
+    env.indexerUrl,
+    chains.manifesttestnet.address ?? '',
+    currentPage,
+    historyPageSize
+  );
 
   const combinedBalances = useMemo(() => {
     if (!balances || !resolvedBalances || !metadatas) return [];
@@ -109,6 +126,32 @@ export default function Bank() {
         );
         const metadata = metadatas.metadatas.find(m => m.base === coreBalance.denom);
 
+        if (coreBalance.denom.startsWith('ibc/')) {
+          const assetInfo = denomToAsset(env.chain, coreBalance.denom);
+
+          const baseDenom = assetInfo?.traces?.[1]?.counterparty?.base_denom;
+
+          return {
+            denom: baseDenom ?? '', // normalized denom (e.g., 'umfx')
+            coreDenom: coreBalance.denom, // full IBC trace
+            amount: coreBalance.amount,
+            metadata: {
+              description: assetInfo?.description ?? '',
+              denom_units:
+                assetInfo?.denom_units?.map(unit => ({
+                  ...unit,
+                  aliases: unit.aliases || [],
+                })) ?? [],
+              base: assetInfo?.base ?? '',
+              display: assetInfo?.display ?? '',
+              name: assetInfo?.name ?? '',
+              symbol: assetInfo?.symbol ?? '',
+              uri: assetInfo?.logo_URIs?.svg ?? assetInfo?.logo_URIs?.png ?? '',
+              uri_hash: assetInfo?.logo_URIs?.svg ?? assetInfo?.logo_URIs?.png ?? '',
+            },
+          };
+        }
+
         return {
           denom: resolvedBalance?.denom || coreBalance.denom,
           coreDenom: coreBalance.denom,
@@ -120,6 +163,79 @@ export default function Bank() {
     // Combine 'mfx' with other balances
     return mfxCombinedBalance ? [mfxCombinedBalance, ...otherBalances] : otherBalances;
   }, [balances, resolvedBalances, metadatas]);
+
+  const {
+    balances: osmosisBalances,
+    isBalancesLoading: isOsmosisBalancesLoading,
+    refetchBalances: refetchOsmosisBalances,
+  } = useTokenBalancesOsmosis(chains.osmosistestnet.address ?? '');
+  const {
+    balances: resolvedOsmosisBalances,
+    isBalancesLoading: resolvedOsmosisLoading,
+    refetchBalances: resolveOsmosisRefetch,
+  } = useOsmosisTokenBalancesResolved(chains.osmosistestnet.address ?? '');
+
+  const {
+    metadatas: osmosisMetadatas,
+    isMetadatasLoading: isOsmosisMetadatasLoading,
+    refetchMetadatas: refetchOsmosisMetadatas,
+  } = useOsmosisTokenFactoryDenomsMetadata();
+
+  const combinedOsmosisBalances = useMemo(() => {
+    if (!osmosisBalances || !resolvedOsmosisBalances || !osmosisMetadatas) {
+      return [];
+    }
+
+    const combined = osmosisBalances.map((coreBalance): CombinedBalanceInfo => {
+      // Handle OSMO token specifically
+      if (coreBalance.denom === 'uosmo') {
+        return {
+          denom: 'uosmo',
+          coreDenom: coreBalance.denom,
+          amount: coreBalance.amount,
+          metadata: OSMOSIS_TOKEN_DATA,
+        };
+      }
+
+      // Handle IBC tokens
+      if (coreBalance.denom.startsWith('ibc/')) {
+        const assetInfo = denomToAsset(env.osmosisChain, coreBalance.denom);
+
+        const baseDenom = assetInfo?.traces?.[1]?.counterparty?.base_denom;
+
+        return {
+          denom: baseDenom ?? '', // normalized denom (e.g., 'umfx')
+          coreDenom: coreBalance.denom, // full IBC trace
+          amount: coreBalance.amount,
+          metadata: {
+            description: assetInfo?.description ?? '',
+            denom_units:
+              assetInfo?.denom_units?.map(unit => ({
+                ...unit,
+                aliases: unit.aliases || [],
+              })) ?? [],
+            base: assetInfo?.base ?? '',
+            display: assetInfo?.display ?? '',
+            name: assetInfo?.name ?? '',
+            symbol: assetInfo?.symbol ?? '',
+            uri: assetInfo?.logo_URIs?.svg ?? assetInfo?.logo_URIs?.png ?? '',
+            uri_hash: assetInfo?.logo_URIs?.svg ?? assetInfo?.logo_URIs?.png ?? '',
+          },
+        };
+      }
+
+      // Handle all other tokens
+      const metadata = osmosisMetadatas.metadatas?.find(m => m.base === coreBalance.denom);
+      return {
+        denom: coreBalance.denom,
+        coreDenom: coreBalance.denom,
+        amount: coreBalance.amount,
+        metadata: metadata || null,
+      };
+    });
+
+    return combined;
+  }, [osmosisBalances, resolvedOsmosisBalances, osmosisMetadatas]);
 
   const isLoading = isBalancesLoading || resolvedLoading || isMetadatasLoading;
   const [searchTerm, setSearchTerm] = useState('');
@@ -193,24 +309,29 @@ export default function Bank() {
                     ) : (
                       <TokenList
                         refetchBalances={refetchBalances || resolveRefetch}
+                        refetchOsmosisBalances={refetchOsmosisBalances}
+                        resolveOsmosisRefetch={resolveOsmosisRefetch}
+                        isOsmosisBalancesLoading={isOsmosisBalancesLoading}
+                        osmosisBalances={combinedOsmosisBalances ?? []}
                         isLoading={isLoading}
                         balances={combinedBalances}
                         refetchHistory={refetchHistory}
-                        address={address ?? ''}
+                        address={chains.manifesttestnet.address ?? ''}
                         pageSize={tokenListPageSize}
                         searchTerm={searchTerm}
+                        chains={chains}
                       />
                     ))}
                   {activeTab === 'history' &&
-                    (totalCount === 0 && !txLoading ? (
+                    (totalPages === 0 ? (
                       <NoActivityFound />
                     ) : (
                       <HistoryBox
                         currentPage={currentPage}
                         setCurrentPage={setCurrentPage}
-                        address={address ?? ''}
+                        address={chains.manifesttestnet.address ?? ''}
                         isLoading={isLoading}
-                        sendTxs={sendTxs || []}
+                        sendTxs={sendTxs}
                         totalPages={totalPages}
                         txLoading={txLoading}
                         isError={isError}

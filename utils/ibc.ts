@@ -1,9 +1,16 @@
-import { asset_lists as assetLists } from '@chain-registry/assets';
-import { Asset, AssetList } from '@chain-registry/types';
-import { assets, ibc } from 'chain-registry';
+import { Asset, AssetList, IBCInfo } from '@chain-registry/types';
+
 import { Coin } from '@liftedinit/manifestjs/dist/codegen/cosmos/base/v1beta1/coin';
 
 import { shiftDigits } from './maths';
+import {
+  assets as manifestAssets,
+  ibc as manifestIbc,
+} from 'chain-registry/testnet/manifesttestnet';
+import { assets as osmosisAssets, ibc as osmosisIbc } from 'chain-registry/testnet/osmosistestnet';
+import { assets as axelarAssets, ibc as axelarIbc } from 'chain-registry/testnet/axelartestnet';
+
+const assets: AssetList[] = [manifestAssets, osmosisAssets, axelarAssets];
 
 export const truncateDenom = (denom: string) => {
   return denom.slice(0, 10) + '...' + denom.slice(-6);
@@ -13,19 +20,35 @@ const filterAssets = (chainName: string, assetList: AssetList[]): Asset[] => {
   return (
     assetList
       .find(({ chain_name }) => chain_name === chainName)
-      ?.assets?.filter(({ type_asset }) => type_asset !== 'ics20') || []
+      ?.assets?.filter(({ type_asset }) => type_asset === 'ics20' || !type_asset) || []
   );
 };
 
 const getAllAssets = (chainName: string) => {
   const nativeAssets = filterAssets(chainName, assets);
-  const ibcAssets = filterAssets(chainName, assetLists);
+  const ibcAssets = filterAssets(chainName, assets);
 
   return [...nativeAssets, ...ibcAssets];
 };
 
 export const denomToAsset = (chainName: string, denom: string) => {
-  return getAllAssets(chainName).find(asset => asset.base === denom);
+  const allAssets = getAllAssets(chainName);
+
+  // Only handle IBC hashes
+  if (denom.startsWith('ibc/')) {
+    // Find the asset that has this IBC hash as its base
+    const asset = allAssets.find(asset => asset.base === denom);
+    if (asset?.traces?.[0]?.counterparty?.base_denom) {
+      // Return the original denom from the counterparty chain
+      return {
+        ...asset,
+        base: asset.traces[0].counterparty.base_denom,
+      };
+    }
+  }
+
+  // Return original asset if not an IBC hash
+  return allAssets.find(asset => asset.base === denom);
 };
 
 export const denomToExponent = (chainName: string, denom: string) => {
@@ -47,15 +70,17 @@ export const prettyBalance = (chainName: string, balance: Coin) => {
 
 export type PrettyBalance = ReturnType<typeof prettyBalance>;
 
+const ibcData: IBCInfo[] = [...manifestIbc, ...osmosisIbc, ...axelarIbc];
+
 export const getIbcInfo = (fromChainName: string, toChainName: string) => {
   let flipped = false;
 
-  let ibcInfo = ibc.find(
+  let ibcInfo = ibcData.find(
     i => i.chain_1.chain_name === fromChainName && i.chain_2.chain_name === toChainName
   );
 
   if (!ibcInfo) {
-    ibcInfo = ibc.find(
+    ibcInfo = ibcData.find(
       i => i.chain_1.chain_name === toChainName && i.chain_2.chain_name === fromChainName
     );
     flipped = true;
@@ -71,3 +96,25 @@ export const getIbcInfo = (fromChainName: string, toChainName: string) => {
 
   return { source_port, source_channel };
 };
+
+export const getIbcDenom = (chainName: string, denom: string) => {
+  const allAssets = getAllAssets(chainName);
+
+  // Find the asset that has this denom as its counterparty base_denom
+  const ibcAsset = allAssets.find(asset => asset.traces?.[0]?.counterparty?.base_denom === denom);
+
+  // Return the IBC hash (base) if found
+  return ibcAsset?.base;
+};
+
+export const normalizeIBCDenom = (chainName: string, denom: string) => {
+  const asset = denomToAsset(chainName, denom);
+  if (asset) {
+    return {
+      denom: asset.base,
+    };
+  }
+  return { denom };
+};
+
+export type ResolvedIBCDenom = ReturnType<typeof normalizeIBCDenom>;

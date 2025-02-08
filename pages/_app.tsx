@@ -9,7 +9,15 @@ import { createPortal } from 'react-dom';
 import { makeWeb3AuthWallets, SignData } from '@cosmos-kit/web3auth';
 import { useEffect, useMemo, useState } from 'react';
 import SignModal from '@/components/react/authSignerModal';
-import { manifestAssets, manifestChain } from '@/config';
+import {
+  assets as manifestAssets,
+  chain as manifestChain,
+} from 'chain-registry/testnet/manifesttestnet';
+import {
+  assets as osmosisAssets,
+  chain as osmosisChain,
+} from 'chain-registry/testnet/osmosistestnet';
+import { assets as axelarAssets, chain as axelarChain } from 'chain-registry/testnet/axelartestnet';
 import { SignerOptions, wallets } from 'cosmos-kit';
 
 import { wallets as cosmosExtensionWallets } from '@cosmos-kit/cosmos-extension-metamask';
@@ -31,14 +39,20 @@ import {
   osmosisProtoRegistry,
   cosmosAminoConverters,
   cosmosProtoRegistry,
+  ibcAminoConverters,
+  ibcProtoRegistry,
 } from '@liftedinit/manifestjs';
 import MobileNav from '@/components/react/mobileNav';
 import { WEB3AUTH_NETWORK_TYPE } from '@web3auth/auth';
+
+import { SkipProvider } from '@/contexts/skipGoContext';
 
 type ManifestAppProps = AppProps & {
   Component: AppProps['Component'];
   pageProps: AppProps['pageProps'];
 };
+
+// TODO: remove asset list injections when chain registry is updated
 
 function ManifestApp({ Component, pageProps }: ManifestAppProps) {
   const [isDrawerVisible, setIsDrawerVisible] = useState(() => {
@@ -63,11 +77,13 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
         ...osmosisProtoRegistry,
         ...strangeloveVenturesProtoRegistry,
         ...liftedinitProtoRegistry,
+        ...ibcProtoRegistry,
       ]);
       const mergedAminoTypes = new AminoTypes({
         ...cosmosAminoConverters,
         ...liftedinitAminoConverters,
         ...osmosisAminoConverters,
+        ...ibcAminoConverters,
         ...strangeloveVenturesAminoConverters,
       });
       return {
@@ -174,6 +190,10 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
         rpc: [env.rpcUrl],
         rest: [env.apiUrl],
       },
+      ['osmosistestnet']: {
+        rpc: [env.osmosisRpcUrl],
+        rest: [env.osmosisApiUrl],
+      },
     },
   };
 
@@ -183,8 +203,9 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
         <ReactQueryDevtools />
         {
           <ChainProvider
-            chains={[manifestChain]}
-            assetLists={[manifestAssets]}
+            chains={[manifestChain, osmosisChain, axelarChain]}
+            assetLists={[manifestAssets, osmosisAssets, axelarAssets]}
+            defaultChain={manifestChain}
             // @ts-ignore
             wallets={combinedWallets}
             logLevel="NONE"
@@ -205,43 +226,45 @@ function ManifestApp({ Component, pageProps }: ManifestAppProps) {
             // @ts-ignore
             walletModal={TailwindModal}
           >
-            <ThemeProvider>
-              <ContactsModalProvider>
-                <div className="flex min-h-screen bg-background-color relative">
-                  <div className="hidden md:block">
-                    <SideNav
-                      isDrawerVisible={isDrawerVisible}
-                      setDrawerVisible={setIsDrawerVisible}
-                    />
-                  </div>
-
-                  <div
-                    className={`flex-1 transition-all duration-300 ease-in-out 
-                    ml-0 lg:ml-36 ${isDrawerVisible ? 'lg:ml-[17rem]' : ''} relative z-0`}
-                  >
-                    <div className="lg:hidden pt-12">
-                      <MobileNav />
+            <SkipProvider>
+              <ThemeProvider>
+                <ContactsModalProvider>
+                  <div className="flex min-h-screen bg-background-color relative">
+                    <div className="hidden md:block">
+                      <SideNav
+                        isDrawerVisible={isDrawerVisible}
+                        setDrawerVisible={setIsDrawerVisible}
+                      />
                     </div>
-                    <main className="p-6 relative z-10">
-                      <Component {...pageProps} />
-                    </main>
-                  </div>
-                </div>
 
-                {/* Web3auth signing modal */}
-                {isBrowser &&
-                  createPortal(
-                    <SignModal
-                      visible={web3AuthPrompt !== undefined}
-                      onClose={() => web3AuthPrompt?.resolve(false)}
-                      data={web3AuthPrompt?.signData ?? ({} as SignData)}
-                      approve={() => web3AuthPrompt?.resolve(true)}
-                      reject={() => web3AuthPrompt?.resolve(false)}
-                    />,
-                    document.body
-                  )}
-              </ContactsModalProvider>
-            </ThemeProvider>
+                    <div
+                      className={`flex-1 transition-all duration-300 ease-in-out 
+                      ml-0 lg:ml-36 ${isDrawerVisible ? 'lg:ml-[17rem]' : ''} relative z-0`}
+                    >
+                      <div className="lg:hidden pt-12">
+                        <MobileNav />
+                      </div>
+                      <main className="p-6 relative z-10">
+                        <Component {...pageProps} />
+                      </main>
+                    </div>
+                  </div>
+
+                  {/* Web3auth signing modal */}
+                  {isBrowser &&
+                    createPortal(
+                      <SignModal
+                        visible={web3AuthPrompt !== undefined}
+                        onClose={() => web3AuthPrompt?.resolve(false)}
+                        data={web3AuthPrompt?.signData ?? ({} as SignData)}
+                        approve={() => web3AuthPrompt?.resolve(true)}
+                        reject={() => web3AuthPrompt?.resolve(false)}
+                      />,
+                      document.body
+                    )}
+                </ContactsModalProvider>
+              </ThemeProvider>
+            </SkipProvider>
           </ChainProvider>
         }
       </QueryClientProvider>

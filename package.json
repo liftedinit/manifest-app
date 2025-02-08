@@ -4,7 +4,7 @@
   "private": false,
   "description": "An application to interact with the Manifest Chain",
   "scripts": {
-    "dev": "next dev -H 0.0.0.0",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -13,7 +13,9 @@
     "update-deps": "bunx npm-check-updates --root --format group -i",
     "test:coverage": "bun test --coverage",
     "test:coverage:lcov": "bun run test:coverage --coverage-reporter=lcov --coverage-dir ./coverage",
-    "coverage:upload": "codecov"
+    "coverage:upload": "codecov",
+    "ibc-transfer": "tsx scripts/ibcTransferAll.ts",
+    "print-tokens": "tsx scripts/printAllTokens.ts"
   },
   "author": "The Lifted Initiative",
   "license": "MIT",
@@ -45,6 +47,7 @@
     "@liftedinit/manifestjs": "0.0.1-rc.1",
     "@react-three/drei": "^9.114.0",
     "@react-three/fiber": "^8.17.8",
+    "@skip-go/client": "^0.16.8",
     "@tanstack/react-query": "^5.55.0",
     "@tanstack/react-query-devtools": "^5.55.0",
     "@types/file-saver": "^2.0.7",
@@ -52,7 +55,7 @@
     "apexcharts": "^3.54.0",
     "autoprefixer": "^10.4.20",
     "babel-plugin-glsl": "^1.0.0",
-    "chain-registry": "1.69.93",
+    "chain-registry": "^1.69.115",
     "cosmjs-types": "^0.9.0",
     "cosmos-kit": "2.23.9",
     "country-flag-icons": "^1.5.13",
@@ -107,7 +110,7 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "prettier": "^3.3.3",
-    "typescript": "4.9.3"
+    "typescript": "5.7.3"
   },
   "files": [
     "."
