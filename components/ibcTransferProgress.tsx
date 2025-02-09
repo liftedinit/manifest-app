@@ -48,31 +48,31 @@ export const IbcTransferProgress: React.FC<IbcTransferProgressProps> = ({
   const targetState = getChainState(false);
 
   return (
-    <div className="flex items-center justify-center w-[22rem] space-x-4">
+    <div className="flex flex-row items-center justify-center w-full gap-4">
       {/* Source Chain Icon with Status Indicators */}
       <div className="relative">
         {/* Chain Icon Container */}
         <div
-          className={`w-12 h-12 flex items-center justify-center
-            ${sourceState === 'active' ? 'animate-pulse' : ''} // Pulse animation when active
+          className={`w-10 h-10 flex items-center justify-center
+            ${sourceState === 'active' ? 'animate-pulse' : ''}
             ${sourceState === 'completed' ? 'opacity-100' : sourceState === 'error' ? 'opacity-50' : 'opacity-70'} 
           `}
         >
           <Image
             src={sourceChain.icon}
             alt={sourceChain.name}
-            width={29}
+            width={28}
             height={28}
             className=""
           />
         </div>
         {/* Spinning border animation when chain is active */}
         {sourceState === 'active' && (
-          <div className="absolute inset-0 w-12 h-12 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+          <div className="absolute inset-0 w-10 h-10 rounded-full border-2 border-primary border-t-transparent animate-spin" />
         )}
         {/* Green checkmark indicator for completed state */}
         {sourceState === 'completed' && (
-          <div className="absolute -right-1 bottom-1 bg-green-500 rounded-full p-1">
+          <div className="absolute right-1 bottom-[1.5px] bg-green-500 rounded-full p-1">
             <svg
               className="w-3 h-3 text-white"
               fill="none"
@@ -111,7 +111,7 @@ export const IbcTransferProgress: React.FC<IbcTransferProgressProps> = ({
       {/* Arrow indicating transfer direction */}
       <div className="flex-shrink-0">
         <svg
-          className={`w-6 h-6 ${
+          className={`w-5 h-5 ${
             // Arrow color changes based on transfer status
             status === 'STATE_COMPLETED_SUCCESS'
               ? 'text-green-500'

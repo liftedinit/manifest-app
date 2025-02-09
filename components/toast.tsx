@@ -100,7 +100,7 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
             borderRadius: '30px',
             position: 'relative',
           }}
-          className={`alert ${toastMessage.type} w-96 relative
+          className={`alert ${toastMessage.type} relative max-w-[384px] w-96 min-w-[384px]
             transition-all duration-300 ease-in-out
             ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}
             ${prevMessage && prevMessage.type !== toastMessage.type ? 'animate-pulse' : ''}
@@ -124,7 +124,7 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
           >
             <CloseIcon className="w-3 h-3" aria-hidden="true" />
           </button>
-          <div className="flex flex-col w-full h-full">
+          <div className="flex flex-col w-full h-full mx-auto">
             <div className="flex flex-row items-center gap-2 mb-2">
               {((toastMessage.isIbcTransfer &&
                 toastMessage.status !== 'STATE_ABANDONED' &&
@@ -145,19 +145,17 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
             )}
 
             {toastMessage.isIbcTransfer && toastMessage.sourceChain && toastMessage.targetChain && (
-              <div className="flex items-center justify-center w-full px-0">
-                <IbcTransferProgress
-                  sourceChain={{
-                    name: toastMessage.sourceChain,
-                    icon: toastMessage.sourceChainIcon!,
-                  }}
-                  targetChain={{
-                    name: toastMessage.targetChain,
-                    icon: toastMessage.targetChainIcon!,
-                  }}
-                  status={toastMessage.status || 'STATE_UNKNOWN'}
-                />
-              </div>
+              <IbcTransferProgress
+                sourceChain={{
+                  name: toastMessage.sourceChain,
+                  icon: toastMessage.sourceChainIcon!,
+                }}
+                targetChain={{
+                  name: toastMessage.targetChain,
+                  icon: toastMessage.targetChainIcon!,
+                }}
+                status={toastMessage.status || 'STATE_UNKNOWN'}
+              />
             )}
 
             <div className="flex-grow overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 pr-2">
