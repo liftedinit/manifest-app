@@ -263,7 +263,7 @@ const SignModal = ({
 
   return (
     <Dialog open={visible} onClose={onClose} className="modal modal-open top-0 right-0 z-[9999]">
-      <div className="modal-box max-w-lg w-full dark:bg-[#1D192D] bg-[#FFFFFF] rounded-lg shadow-xl">
+      <Dialog.Panel className="modal-box max-w-lg w-full dark:bg-[#1D192D] bg-[#FFFFFF] rounded-lg shadow-xl">
         <div className="flex justify-between items-center pb-4">
           <div className="flex items-center gap-3">
             <img
@@ -273,7 +273,14 @@ const SignModal = ({
             />
             <h3 className="text-xl font-semibold">Approve transaction?</h3>
           </div>
-          <button className="btn btn-sm btn-circle btn-ghost" onClick={onClose}>
+          <button
+            id={'close-modal'}
+            className="btn btn-sm btn-circle btn-ghost"
+            onClick={() => {
+              debugger;
+              reject();
+            }}
+          >
             ✕
           </button>
         </div>
@@ -292,7 +299,6 @@ const SignModal = ({
             className="btn btn-error flex-1 rounded-[12px] focus:outline-none "
             onClick={() => {
               reject();
-              onClose();
             }}
           >
             Reject
@@ -301,16 +307,13 @@ const SignModal = ({
             className="btn btn-gradient flex-1 rounded-[12px]"
             onClick={() => {
               approve();
-              onClose();
             }}
           >
             Approve
           </button>
         </div>
-      </div>
-      <form method="dialog" className="modal-backdrop">
-        <button onClick={onClose}>close</button>
-      </form>
+      </Dialog.Panel>
+      <Dialog.Backdrop className="modal-backdrop" />
     </Dialog>
   );
 };

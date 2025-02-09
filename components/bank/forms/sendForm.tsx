@@ -39,7 +39,7 @@ export default function SendForm({
   const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [feeWarning, setFeeWarning] = useState('');
-  const { tx, isSigning } = useTx(env.chain);
+  const { tx } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
   const { send } = cosmos.bank.v1beta1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
@@ -138,7 +138,7 @@ export default function SendForm({
 
       const fee = await estimateFee(address, [msg]);
 
-      await tx([msg], {
+      let txResult = await tx([msg], {
         memo: values.memo,
         fee,
         onSuccess: () => {
@@ -147,6 +147,7 @@ export default function SendForm({
           refetchProposals?.();
         },
       });
+      console.log(txResult);
     } catch (error) {
       console.error('Error during sending:', error);
     } finally {

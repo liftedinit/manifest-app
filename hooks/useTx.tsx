@@ -107,6 +107,7 @@ export const useTx = (chainName: string) => {
       if (isDeliverTxSuccess(res)) {
         if (options.onSuccess) options.onSuccess();
         setIsSigning(false);
+
         if (msgs.filter(msg => msg.typeUrl === '/cosmos.group.v1.MsgSubmitProposal').length > 0) {
           const submitProposalEvent = res.events.find(
             event => event.type === 'cosmos.group.v1.EventSubmitProposal'

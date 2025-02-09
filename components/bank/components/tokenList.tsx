@@ -43,9 +43,18 @@ export function TokenList(props: Readonly<TokenListProps>) {
     chains,
   } = props;
   const [selectedDenom, setSelectedDenom] = useState<any>(null);
-  const [isSendModalOpen, setIsSendModalOpen] = useState(false);
+  const [isSendModalOpen, setIsSendModalOpenHook] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [openDenomInfoModal, setOpenDenomInfoModal] = useState(false);
+
+  function setIsSendModalOpen(isOpen: boolean) {
+    if (isOpen === false) {
+      debugger;
+    }
+
+    console.log('setIsSendModalOpen', isOpen);
+    setIsSendModalOpenHook(isOpen);
+  }
 
   const filteredBalances = useMemo(() => {
     if (!Array.isArray(balances)) return [];
@@ -225,14 +234,13 @@ export function TokenList(props: Readonly<TokenListProps>) {
         setOpenDenomInfoModal={setOpenDenomInfoModal}
       />
       <SendModal
-        modalId="send-modal"
-        isOpen={isSendModalOpen}
         address={address}
         balances={balances ?? []}
         isBalancesLoading={isLoading}
         refetchBalances={refetchBalances}
         refetchHistory={refetchHistory}
         selectedDenom={selectedDenom}
+        isOpen={isSendModalOpen}
         setOpen={setIsSendModalOpen}
         isGroup={isGroup}
         admin={admin}
