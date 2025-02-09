@@ -81,8 +81,6 @@ export const TokenList = React.memo(function TokenList(props: Readonly<TokenList
     [totalPages]
   );
 
-  const memoizedBalances = useMemo(() => props.balances ?? [], [props.balances]);
-
   return (
     <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
       <div className="flex-1 overflow-y-auto">
@@ -220,7 +218,7 @@ export const TokenList = React.memo(function TokenList(props: Readonly<TokenList
         modalId="send-modal"
         isOpen={isSendModalOpen}
         address={address}
-        balances={memoizedBalances}
+        balances={balances ?? ([] as CombinedBalanceInfo[])}
         isBalancesLoading={isLoading}
         refetchBalances={refetchBalances}
         refetchHistory={refetchHistory}

@@ -247,6 +247,10 @@ export default function IbcSendForm({
               });
             },
             onTransactionCompleted: async (chainID, txHash, status) => {
+              if (status.state === 'STATE_COMPLETED_SUCCESS') {
+                await Promise.all([refetchBalances(), refetchHistory()]);
+              }
+
               setToastMessage({
                 type: status.state === 'STATE_COMPLETED_SUCCESS' ? 'alert-success' : 'alert-error',
                 title: `IBC Transfer ${status.state === 'STATE_COMPLETED_SUCCESS' ? 'Success' : 'Error'}`,
@@ -281,8 +285,6 @@ export default function IbcSendForm({
           console.error('Error during sending:', error);
           setIsSending(false);
         } finally {
-          refetchBalances();
-          refetchHistory();
           setIsSending(false);
         }
       } else {

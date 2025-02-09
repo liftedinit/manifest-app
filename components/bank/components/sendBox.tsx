@@ -65,8 +65,6 @@ export default React.memo(function SendBox({
   const [selectedFromChain, setSelectedFromChain] = useState<IbcChain>(ibcChains[0]);
   const [selectedToChain, setSelectedToChain] = useState<IbcChain>(ibcChains[1]);
 
-  const memoizedBalances = useMemo(() => balances, [balances]);
-
   useEffect(() => {
     if (selectedFromChain && selectedToChain && selectedFromChain.id === selectedToChain.id) {
       // If chains match, switch the destination chain to the other available chain
@@ -119,7 +117,7 @@ export default React.memo(function SendBox({
         ) : (
           <div
             className={`transition-all duration-300 ease-in-out ${
-              activeTab === 'cross-chain' ? 'h-[600px]' : 'h-[450px]'
+              activeTab === 'cross-chain' ? 'h-[630px]' : 'h-[450px]'
             }`}
           >
             {activeTab === 'cross-chain' && env.chainTier === 'testnet' ? (
@@ -132,7 +130,7 @@ export default React.memo(function SendBox({
                 setSelectedToChain={setSelectedToChain}
                 address={address}
                 destinationChain={selectedToChain}
-                balances={memoizedBalances}
+                balances={balances}
                 isBalancesLoading={isBalancesLoading}
                 refetchBalances={refetchBalances}
                 refetchHistory={refetchHistory}
@@ -145,7 +143,7 @@ export default React.memo(function SendBox({
             ) : (
               <SendForm
                 address={address}
-                balances={memoizedBalances}
+                balances={balances}
                 isBalancesLoading={isBalancesLoading}
                 refetchBalances={refetchBalances}
                 refetchHistory={refetchHistory}
