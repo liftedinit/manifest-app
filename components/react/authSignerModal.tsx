@@ -274,7 +274,6 @@ const SignModal = ({
             <h3 className="text-xl font-semibold">Approve transaction?</h3>
           </div>
           <button
-            id={'close-modal'}
             className="btn btn-sm btn-circle btn-ghost"
             onClick={() => {
               debugger;
