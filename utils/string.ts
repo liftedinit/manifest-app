@@ -7,6 +7,10 @@ export function truncateString(str: string, prefixLen: number = 6, suffixLen: nu
 }
 
 export function truncateAddress(address: string, num: number = 24) {
+  if (address === null || address === undefined) {
+    console.warn('unable to truncate undefined/null address');
+    return '';
+  }
   if (address.length <= num) return address;
 
   return address.slice(0, num) + '...';
