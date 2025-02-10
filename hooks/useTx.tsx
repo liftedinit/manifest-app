@@ -9,6 +9,7 @@ import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { useToast } from '@/contexts/toastContext';
 import { useState } from 'react';
 import env from '@/config/env';
+import { StatusState } from '@skip-go/client';
 
 interface Msg {
   typeUrl: string;
@@ -30,6 +31,13 @@ export interface ToastMessage {
   link?: string;
   explorerLink?: string;
   bgColor?: string;
+  isIbcTransfer?: boolean;
+  sourceChain?: string;
+  targetChain?: string;
+  sourceChainIcon?: string;
+  targetChainIcon?: string;
+  status?: StatusState;
+  duration?: number;
 }
 
 const extractSimulationErrorMessage = (errorMessage: string): string => {

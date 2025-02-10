@@ -40,8 +40,30 @@ export function useSkipClient(options: UseSkipClientOptions) {
   const skipClient = useMemo(() => {
     return context.createClient({
       getCosmosSigner: options.getCosmosSigner,
+      endpointOptions: {
+        endpoints: {
+          'manifest-ledger-testnet': {
+            rpc: 'https://nodes.liftedinit.tech/manifest/testnet/rpc/',
+            rest: 'https://nodes.liftedinit.tech/manifest/testnet/api/',
+          },
+        },
+        getRpcEndpointForChain: async (chainID: string) => {
+          // You can add logic here to return different RPC endpoints based on chainID
+          if (chainID === 'manifest-ledger-testnet') {
+            return 'https://nodes.liftedinit.tech/manifest/testnet/rpc/';
+          }
+          throw new Error(`No RPC endpoint configured for chain ${chainID}`);
+        },
+        getRestEndpointForChain: async (chainID: string) => {
+          // You can add logic here to return different REST endpoints based on chainID
+          if (chainID === 'manifest-ledger-testnet') {
+            return 'https://nodes.liftedinit.tech/manifest/testnet/api/';
+          }
+          throw new Error(`No REST endpoint configured for chain ${chainID}`);
+        },
+      },
     });
-  }, [context.createClient, options.getCosmosSigner]);
+  }, [context, options.getCosmosSigner]);
 
   return skipClient;
 }
