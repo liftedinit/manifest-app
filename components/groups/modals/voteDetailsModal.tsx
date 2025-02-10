@@ -1,10 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
-import { createPortal } from 'react-dom';
 import { PrismAsyncLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import json from 'react-syntax-highlighter/dist/esm/languages/prism/json';
-import oneDark from 'react-syntax-highlighter/dist/esm/styles/prism/one-dark';
-import oneLight from 'react-syntax-highlighter/dist/esm/styles/prism/one-light';
 
 import {
   MemberSDKType,
@@ -36,6 +33,9 @@ import { TrashIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { ArrowUpIcon, CopyIcon } from '@/components/icons';
 import env from '@/config/env';
 import { messageSyntax } from '@/components';
+import { Dialog } from '@headlessui/react';
+import SignModal from '@/components/react/authSignerModal';
+import { MessagesModal } from '@/components/groups/modals/voting/messagesModal';
 const Chart = dynamic(() => import('react-apexcharts'), {
   ssr: false,
 }) as any;
@@ -61,6 +61,43 @@ interface VoteDetailsModalProps {
   refetchGroupInfo: () => void;
   refetchDenoms: () => void;
 }
+
+export const importantFields: { [key: string]: string[] } = {
+  '/cosmos.bank.v1beta1.MsgSend': ['from_address', 'to_address', 'amount'],
+  '/cosmos.group.v1.MsgCreateGroup': ['admin', 'members', 'metadata'],
+  '/cosmos.group.v1.MsgUpdateGroupMembers': ['admin', 'group_id', 'member_updates'],
+  '/cosmos.group.v1.MsgUpdateGroupAdmin': ['group_id', 'admin', 'new_admin'],
+  '/cosmos.group.v1.MsgUpdateGroupMetadata': ['admin', 'group_id', 'metadata'],
+  '/cosmos.group.v1.MsgCreateGroupPolicy': ['admin', 'group_id', 'metadata', 'decision_policy'],
+  '/cosmos.group.v1.MsgCreateGroupWithPolicy': [
+    'admin',
+    'members',
+    'group_metadata',
+    'group_policy_metadata',
+    'decision_policy',
+  ],
+  '/cosmos.group.v1.MsgSubmitProposal': [
+    'group_policy_address',
+    'proposers',
+    'metadata',
+    'messages',
+  ],
+  '/cosmos.group.v1.MsgVote': ['proposal_id', 'voter', 'option', 'metadata'],
+  '/cosmos.group.v1.MsgExec': ['proposal_id', 'executor'],
+  '/cosmos.group.v1.MsgLeaveGroup': ['address', 'group_id'],
+  '/liftedinit.manifest.v1.MsgPayout': ['authority', 'payout_pairs'],
+  '/liftedinit.manifest.v1.MsgBurnHeldBalance': ['authority', 'burn_coins'],
+  '/cosmos.group.v1.MsgUpdateGroupPolicyDecisionPolicy': ['group_id', 'decision_policy'],
+  '/cosmos.group.v1.MsgUpdateGroupPolicyMetadata': ['group_id', 'metadata'],
+  '/osmosis.tokenfactory.v1beta1.MsgCreateDenom': ['subdenom'],
+  '/osmosis.tokenfactory.v1beta1.MsgSetDenomMetadata': ['metadata'],
+  '/osmosis.tokenfactory.v1beta1.MsgMint': ['mint_to_address', 'amount'],
+  '/osmosis.tokenfactory.v1beta1.MsgBurn': ['burn_from_address', 'amount'],
+  // Add more message types and their important fields here
+};
+
+// Default fields to show if the message type is not in the mapping
+export const defaultFields = ['@type'];
 
 function VoteDetailsModal({
   tallies,
@@ -340,43 +377,6 @@ function VoteDetailsModal({
     ? votes?.find(vote => vote.voter.toLowerCase().trim() === address)?.option
     : null;
 
-  const importantFields: { [key: string]: string[] } = {
-    '/cosmos.bank.v1beta1.MsgSend': ['from_address', 'to_address', 'amount'],
-    '/cosmos.group.v1.MsgCreateGroup': ['admin', 'members', 'metadata'],
-    '/cosmos.group.v1.MsgUpdateGroupMembers': ['admin', 'group_id', 'member_updates'],
-    '/cosmos.group.v1.MsgUpdateGroupAdmin': ['group_id', 'admin', 'new_admin'],
-    '/cosmos.group.v1.MsgUpdateGroupMetadata': ['admin', 'group_id', 'metadata'],
-    '/cosmos.group.v1.MsgCreateGroupPolicy': ['admin', 'group_id', 'metadata', 'decision_policy'],
-    '/cosmos.group.v1.MsgCreateGroupWithPolicy': [
-      'admin',
-      'members',
-      'group_metadata',
-      'group_policy_metadata',
-      'decision_policy',
-    ],
-    '/cosmos.group.v1.MsgSubmitProposal': [
-      'group_policy_address',
-      'proposers',
-      'metadata',
-      'messages',
-    ],
-    '/cosmos.group.v1.MsgVote': ['proposal_id', 'voter', 'option', 'metadata'],
-    '/cosmos.group.v1.MsgExec': ['proposal_id', 'executor'],
-    '/cosmos.group.v1.MsgLeaveGroup': ['address', 'group_id'],
-    '/liftedinit.manifest.v1.MsgPayout': ['authority', 'payout_pairs'],
-    '/liftedinit.manifest.v1.MsgBurnHeldBalance': ['authority', 'burn_coins'],
-    '/cosmos.group.v1.MsgUpdateGroupPolicyDecisionPolicy': ['group_id', 'decision_policy'],
-    '/cosmos.group.v1.MsgUpdateGroupPolicyMetadata': ['group_id', 'metadata'],
-    '/osmosis.tokenfactory.v1beta1.MsgCreateDenom': ['subdenom'],
-    '/osmosis.tokenfactory.v1beta1.MsgSetDenomMetadata': ['metadata'],
-    '/osmosis.tokenfactory.v1beta1.MsgMint': ['mint_to_address', 'amount'],
-    '/osmosis.tokenfactory.v1beta1.MsgBurn': ['burn_from_address', 'amount'],
-    // Add more message types and their important fields here
-  };
-
-  // Default fields to show if the message type is not in the mapping
-  const defaultFields = ['@type'];
-
   const renderMessageField = (key: string, value: any, depth: number = 0): JSX.Element => {
     const truncateText = (text: string, maxLength: number = 30) => {
       if (text.length <= maxLength) return text;
@@ -466,52 +466,26 @@ function VoteDetailsModal({
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleExpandMessages = () => {
-    const messagesModal = document.getElementById('messages_modal') as HTMLDialogElement;
-    if (messagesModal) {
-      messagesModal.showModal();
-    }
-  };
+  const [showMessages, setShowMessages] = useState(false);
 
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && showVoteModal) {
-        e.stopPropagation();
-        setShowVoteModal(false);
-        onClose();
-      }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [showVoteModal, setShowVoteModal, onClose]);
-
-  const modalContent = (
-    <dialog
-      id="vote-details-modal"
-      className={`modal ${showVoteModal ? 'modal-open' : ''}`}
+  return (
+    <Dialog
+      open={showVoteModal}
+      onClose={onClose}
+      className={`modal ${showVoteModal ? 'modal-open' : ''} fixed flex p-0 m-0`}
       style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        zIndex: 1000,
-        backgroundColor: 'transparent',
-        padding: 0,
-        margin: 0,
         height: '100vh',
         width: '100vw',
-        display: showVoteModal ? 'flex' : 'none',
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
-      <div className="flex flex-col items-center justify-center w-full h-full">
+      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+
+      <Dialog.Panel className="flex flex-col items-center justify-center w-full h-full">
         <div
           className="modal-box relative max-w-4xl min-h-96 max-h-[80vh] overflow-y-auto md:overflow-y-hidden flex flex-col md:flex-row md:ml-20 -mt-12 rounded-[24px] shadow-lg bg-secondary transition-all duration-300"
           onClick={e => e.stopPropagation()}
-          style={{ zIndex: 1002 }}
         >
           <form method="dialog" onSubmit={onClose}>
             <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A] z-50">
@@ -574,7 +548,7 @@ function VoteDetailsModal({
               <div className="flex items-center gap-2 mb-2">
                 <p className="text-sm font-light text-gray-500 dark:text-gray-400">MESSAGES</p>
                 <button
-                  onClick={handleExpandMessages}
+                  onClick={() => setShowMessages(true)}
                   className="btn btn-xs btn-ghost btn-circle"
                   title="Expand messages"
                 >
@@ -751,108 +725,33 @@ function VoteDetailsModal({
                   </button>
                 )}
             </div>
-            <dialog id="messages_modal" className="modal">
-              <div className="modal-box max-w-4xl ml-20 bg-secondary z-[1003]">
-                <form method="dialog">
-                  <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-                    ✕
-                  </button>
-                </form>
-                <h3 className="font-bold text-lg mb-4">Proposal Messages</h3>
-                <div className="overflow-y-auto max-h-[60vh]">
-                  {proposal?.messages?.map((message: any, index: number) => {
-                    const messageType = message['@type'];
-                    const fieldsToShow = importantFields[messageType] || defaultFields;
-
-                    return (
-                      <div key={index} className="mb-6 bg-base-300 p-4 rounded-[12px]">
-                        <h3
-                          aria-label="msg"
-                          className="text-lg font-semibold mb-2 text-primary-content"
-                        >
-                          {messageType.split('.').pop().replace('Msg', '')}
-                        </h3>
-                        <div className="font-mono">
-                          <pre
-                            className="whitespace-pre-wrap break-words bg-base-200 p-4 rounded-lg text-sm overflow-x-auto"
-                            aria-label="message-json-modal"
-                          >
-                            {messageSyntax(fieldsToShow, message, theme)}
-                          </pre>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-              <form
-                method="dialog"
-                className="modal-backdrop"
-                style={{
-                  position: 'fixed',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  zIndex: 1002,
-                  backgroundColor: 'rgba(0, 0, 0, 0.3)',
-                }}
-                onClick={e => {
-                  e.stopPropagation();
-                  const messagesModal = document.getElementById(
-                    'messages_modal'
-                  ) as HTMLDialogElement;
-                  if (messagesModal) {
-                    messagesModal.close();
-                  }
-                }}
-              >
-                <button>close</button>
-              </form>
-            </dialog>
-
-            <VotingPopup
-              setIsSigning={setIsSigning}
-              proposalId={proposal?.id ?? 0n}
-              refetch={() => {
-                refetchVotes();
-                refetchTally();
-                refetchProposals();
-                refetchGroupInfo();
-                refetchDenoms();
-              }}
-            />
           </div>
         </div>
-      </div>
-      <form
-        method="dialog"
-        className="modal-backdrop"
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: 1001,
-          backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        }}
-        onClick={e => {
-          e.preventDefault();
-          setShowVoteModal(false);
-          onClose();
-        }}
-      >
-        <button>close</button>
-      </form>
-    </dialog>
+
+        <MessagesModal
+          proposal={proposal}
+          opened={showMessages}
+          onClose={() => setShowMessages(false)}
+        />
+
+        {/*
+        <VotingPopup
+          setIsSigning={setIsSigning}
+          proposalId={proposal?.id ?? 0n}
+          refetch={() => {
+            refetchVotes();
+            refetchTally();
+            refetchProposals();
+            refetchGroupInfo();
+            refetchDenoms();
+          }}
+        />
+        */}
+
+        <SignModal />
+      </Dialog.Panel>
+    </Dialog>
   );
-
-  if (typeof document !== 'undefined' && showVoteModal) {
-    return createPortal(modalContent, document.body);
-  }
-
-  return null;
 }
 
 export default VoteDetailsModal;
