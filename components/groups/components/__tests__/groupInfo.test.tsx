@@ -96,7 +96,7 @@ describe('GroupInfo', () => {
     renderWithProps();
     const updateButton = screen.getByLabelText('upgrade-btn');
     fireEvent.click(updateButton);
-    const modal = document.getElementById(`update-group-modal`) as HTMLDialogElement;
+    const modal = screen.getByRole('dialog') as HTMLDialogElement;
     expect(modal).toBeInTheDocument();
     expect(screen.getByLabelText('upgrade-group-btn')).toBeInTheDocument();
   });

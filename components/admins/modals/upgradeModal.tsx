@@ -10,6 +10,8 @@ import { TextInput } from '@/components/react/inputs';
 import { PiCaretDownBold } from 'react-icons/pi';
 import { SearchIcon } from '@/components/icons';
 import env from '@/config/env';
+import { Dialog } from '@headlessui/react';
+import SignModal from '@/components/react/authSignerModal';
 
 interface BaseModalProps {
   isOpen: boolean;
@@ -71,6 +73,8 @@ const UpgradeSchema = Yup.object().shape({
 });
 
 export function UpgradeModal({ isOpen, onClose, admin, address, refetchPlan }: BaseModalProps) {
+  if (!isOpen) return null;
+
   const [searchTerm, setSearchTerm] = useState('');
   const { releases, isReleasesLoading } = useGitHubReleases();
 
@@ -90,17 +94,6 @@ export function UpgradeModal({ isOpen, onClose, admin, address, refetchPlan }: B
   const filteredReleases = upgradeableReleases.filter(release =>
     release.tag_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [isOpen, onClose]);
 
   const { softwareUpgrade } = cosmos.upgrade.v1beta1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
@@ -186,26 +179,21 @@ export function UpgradeModal({ isOpen, onClose, admin, address, refetchPlan }: B
     }),
     [blockHeight]
   );
-  const modalContent = (
-    <dialog
-      className={`modal ${isOpen ? 'modal-open' : ''}`}
+
+  return (
+    <Dialog
+      className={`modal ${isOpen ? 'modal-open' : ''} fixed flex p-0 m-0`}
+      open
+      onClose={onClose}
       style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        zIndex: 9999,
-        backgroundColor: 'transparent',
-        padding: 0,
-        margin: 0,
         height: '100vh',
         width: '100vw',
-        display: isOpen ? 'flex' : 'none',
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
+      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+
       <Formik
         initialValues={initialValues}
         validationSchema={UpgradeSchema}
@@ -231,7 +219,7 @@ export function UpgradeModal({ isOpen, onClose, admin, address, refetchPlan }: B
         validateOnBlur={true}
       >
         {({ isValid, dirty, values, handleChange, handleSubmit, setFieldValue, resetForm }) => (
-          <div className="modal-box max-w-4xl mx-auto min-h-[30vh] max-h-[70vh] rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg overflow-y-auto">
+          <Dialog.Panel className="modal-box max-w-4xl mx-auto min-h-[30vh] max-h-[70vh] rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg overflow-y-auto">
             <form method="dialog">
               <button
                 type="button"
@@ -378,32 +366,11 @@ export function UpgradeModal({ isOpen, onClose, admin, address, refetchPlan }: B
                 </button>
               </div>
             </Form>
-          </div>
+
+            <SignModal />
+          </Dialog.Panel>
         )}
       </Formik>
-      <form
-        method="dialog"
-        className="modal-backdrop"
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: -1,
-          backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        }}
-        onSubmit={onClose}
-      >
-        <button>close</button>
-      </form>
-    </dialog>
+    </Dialog>
   );
-
-  // Only render if we're in the browser
-  if (typeof document !== 'undefined') {
-    return createPortal(modalContent, document.body);
-  }
-
-  return null;
 }

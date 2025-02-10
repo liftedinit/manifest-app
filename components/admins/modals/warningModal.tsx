@@ -7,6 +7,8 @@ import React, { useEffect } from 'react';
 import { PiWarning } from 'react-icons/pi';
 import env from '@/config/env';
 import { createPortal } from 'react-dom';
+import { Dialog } from '@headlessui/react';
+import SignModal from '@/components/react/authSignerModal';
 
 interface WarningModalProps {
   admin: string;
@@ -27,16 +29,7 @@ export function WarningModal({
   openWarningModal,
   setOpenWarningModal,
 }: Readonly<WarningModalProps>) {
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && openWarningModal) {
-        handleClose();
-      }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [openWarningModal]);
+  if (!openWarningModal) return null;
 
   const { tx, isSigning, setIsSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
@@ -85,101 +78,68 @@ export function WarningModal({
   };
 
   const handleClose = () => {
-    if (setOpenWarningModal) {
-      setOpenWarningModal(false);
-    }
-    (document.getElementById(modalId) as HTMLDialogElement)?.close();
+    setOpenWarningModal(false);
   };
 
-  const modalContent = (
-    <dialog
-      id={modalId}
-      className={`modal ${openWarningModal ? 'modal-open' : ''}`}
+  return (
+    <Dialog
+      className="modal modal-open fixed flex p-0 m-0"
+      open
       onClose={handleClose}
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
       aria-describedby="modal-description"
       style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        zIndex: 9999,
-        backgroundColor: 'transparent',
-        padding: 0,
-        margin: 0,
         height: '100vh',
         width: '100vw',
-        display: openWarningModal ? 'flex' : 'none',
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
-      <form
-        method="dialog"
-        className="modal-box text-black dark:text-white dark:bg-[#1D192D] bg-[#FFFFFF]"
-      >
-        <button
-          className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-          onClick={handleClose}
-        >
-          ✕
-        </button>
-        <div className="p-4">
-          <div className="flex flex-col gap-2 items-center mb-6">
-            <PiWarning className="text-yellow-200 text-6xl" />
-          </div>
-          <p className="text-md text-center font-thin">
-            Are you sure you want to remove the validator{' '}
-          </p>
-          <p className="text-center font-bold text-2xl mt-2">{moniker}</p>
-          <p className="text-md text-center font-thin mt-2">
-            from the {isActive ? 'active set' : 'pending list'}?
-          </p>
-        </div>
+      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
 
-        <div className="modal-action">
+      <Dialog.Panel className="modal-box text-black dark:text-white dark:bg-[#1D192D] bg-[#FFFFFF]">
+        <form method="dialog">
           <button
-            type="button"
-            className="btn btn-error text-white w-1/2 mx-auto -mt-2"
-            onClick={handleAccept}
-            disabled={isSigning}
+            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+            onClick={handleClose}
           >
-            {isSigning ? (
-              <span className="loading loading-dots loading-sm"></span>
-            ) : isActive ? (
-              'Remove From Active Set'
-            ) : (
-              'Remove From Pending List'
-            )}
+            ✕
           </button>
-        </div>
-      </form>
-      <form
-        method="dialog"
-        className="modal-backdrop"
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: -1,
-          backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        }}
-        onSubmit={handleClose}
-      >
-        <button>close</button>
-      </form>
-    </dialog>
+          <div className="p-4">
+            <div className="flex flex-col gap-2 items-center mb-6">
+              <PiWarning className="text-yellow-200 text-6xl" />
+            </div>
+            <p className="text-md text-center font-thin">
+              Are you sure you want to remove the validator{' '}
+            </p>
+            <p className="text-center font-bold text-2xl mt-2">{moniker}</p>
+            <p className="text-md text-center font-thin mt-2">
+              from the {isActive ? 'active set' : 'pending list'}?
+            </p>
+          </div>
+
+          <div className="modal-action">
+            <button
+              type="button"
+              className="btn btn-error text-white w-1/2 mx-auto -mt-2"
+              onClick={handleAccept}
+              disabled={isSigning}
+            >
+              {isSigning ? (
+                <span className="loading loading-dots loading-sm"></span>
+              ) : isActive ? (
+                'Remove From Active Set'
+              ) : (
+                'Remove From Pending List'
+              )}
+            </button>
+          </div>
+        </form>
+
+        <SignModal />
+      </Dialog.Panel>
+    </Dialog>
   );
-
-  // Only render if we're in the browser
-  if (typeof document !== 'undefined') {
-    return createPortal(modalContent, document.body);
-  }
-
-  return null;
 }

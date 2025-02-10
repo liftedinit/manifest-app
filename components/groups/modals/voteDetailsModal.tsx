@@ -810,6 +810,7 @@ function VoteDetailsModal({
                 <button>close</button>
               </form>
             </dialog>
+
             <VotingPopup
               setIsSigning={setIsSigning}
               proposalId={proposal?.id ?? 0n}

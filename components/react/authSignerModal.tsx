@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { SignData } from '@cosmos-kit/web3auth';
 import { TxBody, AuthInfo } from '@liftedinit/manifestjs/dist/codegen/cosmos/tx/v1beta1/tx';
 import { decodePubkey } from '@cosmjs/proto-signing';
@@ -30,7 +30,10 @@ import {
   MsgSetDenomMetadata,
   MsgCreateDenom,
 } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
-import { Dialog } from '@headlessui/react';
+import { Dialog, Portal } from '@headlessui/react';
+import { wallets } from 'cosmos-kit';
+import { wallets as cosmosExtensionWallets } from '@cosmos-kit/cosmos-extension-metamask/cjs/cosmos-metamask-extension';
+import { Web3AuthContext } from '@/contexts/web3AuthContext';
 
 type DisplayDataToSignProps = {
   data: SignData;
@@ -239,20 +242,25 @@ const DisplayDataToSign = ({
   );
 };
 
-const SignModal = ({
-  visible,
-  onClose,
-  data,
-  approve,
-  reject,
-}: {
-  visible: boolean;
-  onClose?: () => void;
-  data: SignData;
-  approve: () => void;
-  reject: () => void;
-}) => {
-  onClose = onClose || (() => {});
+/**
+ * Sign modal component. Use this component to insert the signing modal at the appropriate
+ * location in your app's component tree. This component will automatically show the modal
+ * when a sign request is received.
+ * @constructor
+ */
+const SignModal = ({}: {}) => {
+  const { prompt: web3AuthPrompt } = useContext(Web3AuthContext);
+  const [visible, setVisible] = useState(false);
+  const [data, setData] = useState<SignData | undefined>(undefined);
+
+  useEffect(() => {
+    if (web3AuthPrompt !== undefined) {
+      setVisible(true);
+      setData(web3AuthPrompt.signData);
+    } else {
+      setVisible(false);
+    }
+  }, [web3AuthPrompt]);
 
   const wallet = useWallet();
   const { address } = useChain(env.chain);
@@ -261,8 +269,11 @@ const SignModal = ({
 
   const walletIconString = walletIcon?.toString() ?? '';
 
+  const approve = () => web3AuthPrompt?.resolve(true);
+  const reject = () => web3AuthPrompt?.resolve(false);
+
   return (
-    <Dialog open={visible} onClose={onClose} className="modal modal-open top-0 right-0 z-[9999]">
+    <Dialog open={visible} onClose={reject} className="modal modal-open top-0 right-0 z-[9999]">
       <div className="fixed inset-0 backdrop-blur-sm bg-black/30" aria-hidden="true" />
 
       <Dialog.Panel className="modal-box max-w-lg w-full dark:bg-[#1D192D] bg-[#FFFFFF] rounded-lg shadow-xl">
@@ -281,7 +292,7 @@ const SignModal = ({
         </div>
 
         <DisplayDataToSign
-          data={data}
+          data={data ?? ({} as SignData)}
           address={address ?? ''}
           theme={theme}
           className="space-y-4"

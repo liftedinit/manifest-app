@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import SendBox from '../components/sendBox';
 import { CombinedBalanceInfo } from '@/utils/types';
 import { Dialog, Portal } from '@headlessui/react';
+import SignModal from '@/components/react/authSignerModal';
 
 interface SendModalProps {
   modalId?: string;
@@ -38,16 +39,15 @@ export default React.memo(function SendModal({
     <Dialog
       id={modalId}
       open={isOpen}
-      className={`modal ${isOpen ? 'modal-open' : ''} fixed p-0 m-0`}
+      className={`modal ${isOpen ? 'modal-open' : ''} fixed flex p-0 m-0`}
       onClose={handleClose}
       style={{
         backgroundColor: 'transparent',
-        display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
-      <div className="fixed inset-0 backdrop-blur-sm bg-black/30" aria-hidden="true" />
+      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
 
       <Dialog.Panel
         className="modal-box max-w-xl mx-auto rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg relative"
@@ -73,6 +73,8 @@ export default React.memo(function SendModal({
           admin={admin}
           refetchProposals={refetchProposals}
         />
+
+        <SignModal />
       </Dialog.Panel>
     </Dialog>
   );

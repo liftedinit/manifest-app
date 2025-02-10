@@ -5,6 +5,8 @@ import { useChain } from '@cosmos-kit/react';
 import React, { useState } from 'react';
 import { CloseIcon } from '@/components/icons';
 import env from '@/config/env';
+import { Dialog } from '@headlessui/react';
+
 function VotingPopup({
   proposalId,
   refetch,
