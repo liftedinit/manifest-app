@@ -11,9 +11,8 @@ export function truncateAddress(address: string | null | undefined, num: number 
     console.warn('unable to truncate undefined/null address');
     return '';
   }
-  if (address.length <= num) return address;
 
-  return address.slice(0, num) + '...';
+  return address.length > num ? `${address.slice(0, num)}...` : address;
 }
 
 export function secondsToHumanReadable(seconds: number): string {
