@@ -9,3 +9,4 @@ export * from './icons';
 export * from './divider';
 export * from './seo';
 export * from './messageSyntax';
+export * from './ibcTransferProgress';

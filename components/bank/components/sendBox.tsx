@@ -65,8 +65,6 @@ export default React.memo(function SendBox({
   const [selectedFromChain, setSelectedFromChain] = useState<IbcChain>(ibcChains[0]);
   const [selectedToChain, setSelectedToChain] = useState<IbcChain>(ibcChains[1]);
 
-  const memoizedBalances = useMemo(() => balances, [balances]);
-
   useEffect(() => {
     if (selectedFromChain && selectedToChain && selectedFromChain.id === selectedToChain.id) {
       // If chains match, switch the destination chain to the other available chain
@@ -82,14 +80,19 @@ export default React.memo(function SendBox({
   }, [ibcChains, selectedFromChain]);
 
   return (
-    <div className="rounded-2xl w-full  ">
-      <div className="flex mb-4 md:mb-6 w-full h-[3.5rem] rounded-xl p-1 bg-[#0000000A] dark:bg-[#FFFFFF0F]">
+    <div className="rounded-2xl w-full">
+      <div className="flex mb-4 md:mb-6 w-full h-[3.5rem] rounded-xl p-1 bg-[#0000000A] dark:bg-[#FFFFFF0F] relative">
+        <div
+          className={`absolute transition-all duration-200 ease-in-out h-[calc(100%-8px)] top-1 rounded-xl bg-white dark:bg-[#FFFFFF1F] ${
+            activeTab === 'send'
+              ? 'left-1 w-[calc(50%-4px)]'
+              : 'left-[calc(50%+1px)] w-[calc(50%-4px)]'
+          }`}
+        />
         <button
           aria-label="send-tab"
-          className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl transition-colors ${
-            activeTab === 'send'
-              ? 'dark:bg-[#FFFFFF1F] bg-[#FFFFFF] text-[#161616] dark:text-white'
-              : 'text-[#808080]'
+          className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl transition-colors relative z-10 ${
+            activeTab === 'send' ? 'text-[#161616] dark:text-white' : 'text-[#808080]'
           }`}
           onClick={() => setActiveTab('send')}
         >
@@ -98,10 +101,8 @@ export default React.memo(function SendBox({
         {env.chainTier === 'testnet' && (
           <button
             aria-label="cross-chain-transfer-tab"
-            className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl transition-colors ${
-              activeTab === 'cross-chain'
-                ? 'dark:bg-[#FFFFFF1F] bg-[#FFFFFF] text-[#161616] dark:text-white'
-                : 'text-[#808080]'
+            className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl transition-colors relative z-10 ${
+              activeTab === 'cross-chain' ? 'text-[#161616] dark:text-white' : 'text-[#808080]'
             }`}
             onClick={() => setActiveTab('cross-chain')}
           >
@@ -110,11 +111,15 @@ export default React.memo(function SendBox({
         )}
       </div>
 
-      <div className="">
+      <div className="transition-[height] duration-300 ease-in-out h-auto">
         {isBalancesLoading || !balances ? (
           <div className="skeleton h-[300px] w-full"></div>
         ) : (
-          <>
+          <div
+            className={`transition-all duration-300 ease-in-out ${
+              activeTab === 'cross-chain' ? 'h-[630px]' : 'h-[450px]'
+            }`}
+          >
             {activeTab === 'cross-chain' && env.chainTier === 'testnet' ? (
               <IbcSendForm
                 isIbcTransfer={true}
@@ -125,7 +130,7 @@ export default React.memo(function SendBox({
                 setSelectedToChain={setSelectedToChain}
                 address={address}
                 destinationChain={selectedToChain}
-                balances={memoizedBalances}
+                balances={balances}
                 isBalancesLoading={isBalancesLoading}
                 refetchBalances={refetchBalances}
                 refetchHistory={refetchHistory}
@@ -138,7 +143,7 @@ export default React.memo(function SendBox({
             ) : (
               <SendForm
                 address={address}
-                balances={memoizedBalances}
+                balances={balances}
                 isBalancesLoading={isBalancesLoading}
                 refetchBalances={refetchBalances}
                 refetchHistory={refetchHistory}
@@ -148,7 +153,7 @@ export default React.memo(function SendBox({
                 refetchProposals={refetchProposals}
               />
             )}
-          </>
+          </div>
         )}
       </div>
     </div>
