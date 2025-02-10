@@ -36,8 +36,6 @@ import { Web3AuthClient, Web3AuthWallet } from '@cosmos-kit/web3auth';
 import { useDeviceDetect } from '@/hooks';
 import { State } from '@cosmos-kit/core';
 import { ExpiredError } from '@cosmos-kit/core';
-import env from '@/config/env';
-import { useChains } from '@cosmos-kit/react';
 
 export enum ModalView {
   WalletList,
@@ -94,25 +92,7 @@ export const TailwindModal: React.FC<
   const [qrState, setQRState] = useState<State>(State.Init);
   const [qrMessage, setQrMessage] = useState<string>('');
 
-  const chains = useChains([env.chain, env.osmosisChain, env.axelarChain]);
-
-  const chainStates = useMemo(() => {
-    return Object.values(chains).map(chain => ({
-      connect: chain.connect,
-      openView: chain.openView,
-      status: chain.status,
-      username: chain.username,
-      address: chain.address,
-      disconnect: chain.disconnect,
-    }));
-  }, [chains]);
-
-  const disconnect = async () => {
-    await Promise.all(chainStates.map(chain => chain.disconnect()));
-  };
-
-  const current = chains?.manifesttestnet?.walletRepo?.current;
-
+  const current = walletRepo?.current;
   const currentWalletData = current?.walletInfo;
   const walletStatus = current?.walletStatus || WalletStatus.Disconnected;
   const currentWalletName = current?.walletName;
@@ -464,7 +444,7 @@ export const TailwindModal: React.FC<
           <Connected
             onClose={onCloseModal}
             onReturn={() => setCurrentView(ModalView.WalletList)}
-            disconnect={() => disconnect()}
+            disconnect={() => current?.disconnect()}
             name={currentWalletData?.prettyName!}
             logo={currentWalletData?.logo!.toString() ?? ''}
             username={current?.username}

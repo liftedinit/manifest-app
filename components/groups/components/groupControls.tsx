@@ -604,7 +604,6 @@ export default function GroupControls({
               isGroup={true}
               admin={policyAddress}
               refetchProposals={refetchProposals}
-              chains={chains}
             />
           )}
         </div>

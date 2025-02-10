@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { SignData } from '@cosmos-kit/web3auth';
 import { TxBody, AuthInfo } from '@liftedinit/manifestjs/dist/codegen/cosmos/tx/v1beta1/tx';
 import { decodePubkey } from '@cosmjs/proto-signing';
@@ -263,6 +263,8 @@ const SignModal = ({
 
   return (
     <Dialog open={visible} onClose={onClose} className="modal modal-open top-0 right-0 z-[9999]">
+      <div className="fixed inset-0 backdrop-blur-sm bg-black/30" aria-hidden="true" />
+
       <Dialog.Panel className="modal-box max-w-lg w-full dark:bg-[#1D192D] bg-[#FFFFFF] rounded-lg shadow-xl">
         <div className="flex justify-between items-center pb-4">
           <div className="flex items-center gap-3">
@@ -273,13 +275,7 @@ const SignModal = ({
             />
             <h3 className="text-xl font-semibold">Approve transaction?</h3>
           </div>
-          <button
-            className="btn btn-sm btn-circle btn-ghost"
-            onClick={() => {
-              debugger;
-              reject();
-            }}
-          >
+          <button className="btn btn-sm btn-circle btn-ghost" onClick={reject}>
             ✕
           </button>
         </div>
@@ -296,23 +292,15 @@ const SignModal = ({
         <div className="modal-action mt-6 flex justify-between gap-4">
           <button
             className="btn btn-error flex-1 rounded-[12px] focus:outline-none "
-            onClick={() => {
-              reject();
-            }}
+            onClick={reject}
           >
             Reject
           </button>
-          <button
-            className="btn btn-gradient flex-1 rounded-[12px]"
-            onClick={() => {
-              approve();
-            }}
-          >
+          <button className="btn btn-gradient flex-1 rounded-[12px]" onClick={approve}>
             Approve
           </button>
         </div>
       </Dialog.Panel>
-      <Dialog.Backdrop className="modal-backdrop" />
     </Dialog>
   );
 };
