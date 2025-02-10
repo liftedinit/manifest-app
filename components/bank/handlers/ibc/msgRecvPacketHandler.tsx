@@ -9,6 +9,12 @@ export const MsgRecvPacketHandler = createSenderReceiverHandler({
   successSender: 'N/A',
   failSender: 'N/A',
   successReceiver: (tx, _, metadata) => {
+    const requiredFields = ['amount', 'denom', 'sender', 'receiver']; // FungibleTokenPacketData fields (ICS-20)
+    const hasAllFields = requiredFields.every(field => field in (tx.metadata?.decodedData ?? {}));
+    if (!hasAllFields) {
+      return 'Unsupported IBC packet';
+    }
+
     const denom = tx.metadata?.decodedData?.denom?.replace(/transfer\/channel-\d+\//, '');
     return createTokenMessage(
       'You received {0} from {1} via IBC',
