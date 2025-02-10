@@ -6,8 +6,8 @@ export function truncateString(str: string, prefixLen: number = 6, suffixLen: nu
   return str.slice(0, prefixLen) + '...' + str.slice(-suffixLen);
 }
 
-export function truncateAddress(address: string, num: number = 24) {
-  if (address === null || address === undefined) {
+export function truncateAddress(address: string | null | undefined, num: number = 24) {
+  if (address == null) {
     console.warn('unable to truncate undefined/null address');
     return '';
   }
