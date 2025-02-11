@@ -1,8 +1,8 @@
-import { wallets } from 'cosmos-kit';
+import { wallets as cosmosWallets } from 'cosmos-kit';
 import { wallets as cosmosExtensionWallets } from '@cosmos-kit/cosmos-extension-metamask';
 import { makeWeb3AuthWallets, SignData, Web3AuthWallet } from '@cosmos-kit/web3auth';
 import { WEB3AUTH_NETWORK_TYPE } from '@web3auth/auth';
-import { createContext, useMemo, useState } from 'react';
+import { createContext, ReactNode, useMemo, useState } from 'react';
 import env from '@/config/env';
 import { MainWalletBase } from '@cosmos-kit/core';
 
@@ -11,23 +11,29 @@ export interface Web3AuthContextType {
     signData: SignData;
     resolve: (approved: boolean) => void;
   };
-  wallets: MainWalletBase[];
+  promptId: string | undefined;
+  setPromptId: (id: string | undefined) => void;
+  wallets: (MainWalletBase | Web3AuthWallet)[];
 }
 
 export const Web3AuthContext = createContext<Web3AuthContextType>({
   prompt: undefined,
   wallets: [],
+  promptId: undefined,
+  setPromptId: () => {},
 });
 
-export const Web3AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export const Web3AuthProvider = ({ children }: { children: ReactNode }) => {
   // web3auth helpers for cosmoskit
-  const [web3AuthPrompt, setWeb3AuthPrompt] = useState<
+  const [prompt, setPrompt] = useState<
     | {
         signData: SignData;
         resolve: (approved: boolean) => void;
       }
     | undefined
   >();
+
+  const [promptId, setPromptId] = useState<string | undefined>();
 
   const web3AuthWallets = useMemo(
     () =>
@@ -81,10 +87,10 @@ export const Web3AuthProvider = ({ children }: { children: React.ReactNode }) =>
         },
         promptSign: async (_, signData) =>
           new Promise(resolve =>
-            setWeb3AuthPrompt({
+            setPrompt({
               signData,
               resolve: approved => {
-                setWeb3AuthPrompt(undefined);
+                setPrompt(undefined);
                 resolve(approved);
               },
             })
@@ -93,15 +99,15 @@ export const Web3AuthProvider = ({ children }: { children: React.ReactNode }) =>
     []
   );
 
-  // combine the web3auth wallets with the other wallets
-  const combinedWallets = [
+  // Combine the Web3auth wallets with the other wallets
+  const wallets = [
     ...web3AuthWallets,
-    ...wallets.for('keplr', 'cosmostation', 'leap', 'ledger'),
+    ...cosmosWallets.for('keplr', 'cosmostation', 'leap', 'ledger'),
     ...cosmosExtensionWallets,
   ];
 
   return (
-    <Web3AuthContext.Provider value={{ prompt: web3AuthPrompt, wallets: combinedWallets }}>
+    <Web3AuthContext.Provider value={{ prompt, wallets, promptId, setPromptId }}>
       {children}
     </Web3AuthContext.Provider>
   );

@@ -248,19 +248,19 @@ const DisplayDataToSign = ({
  * when a sign request is received.
  * @constructor
  */
-const SignModal = ({}: {}) => {
-  const { prompt: web3AuthPrompt } = useContext(Web3AuthContext);
+const SignModal = ({ id }: { id?: string }) => {
+  const { prompt, promptId } = useContext(Web3AuthContext);
   const [visible, setVisible] = useState(false);
   const [data, setData] = useState<SignData | undefined>(undefined);
 
   useEffect(() => {
-    if (web3AuthPrompt !== undefined) {
+    if (promptId === id && prompt !== undefined) {
       setVisible(true);
-      setData(web3AuthPrompt.signData);
+      setData(prompt.signData);
     } else {
       setVisible(false);
     }
-  }, [web3AuthPrompt]);
+  }, [id, prompt]);
 
   const wallet = useWallet();
   const { address } = useChain(env.chain);
@@ -269,8 +269,8 @@ const SignModal = ({}: {}) => {
 
   const walletIconString = walletIcon?.toString() ?? '';
 
-  const approve = () => web3AuthPrompt?.resolve(true);
-  const reject = () => web3AuthPrompt?.resolve(false);
+  const approve = () => prompt?.resolve(true);
+  const reject = () => prompt?.resolve(false);
 
   return (
     <Dialog open={visible} onClose={reject} className="modal modal-open top-0 right-0 z-[9999]">

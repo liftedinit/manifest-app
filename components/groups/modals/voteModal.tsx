@@ -14,16 +14,14 @@ function VotingPopup({
   onClose,
   proposal,
   refetch,
-  setIsSigning,
 }: {
   open: boolean;
   onClose: () => void;
   proposal?: ProposalSDKType;
   refetch: () => void;
-  setIsSigning: (isSigning: boolean) => void;
 }) {
   const { estimateFee } = useFeeEstimation(env.chain);
-  const { tx } = useTx(env.chain);
+  const { tx, isSigning, setIsSigning } = useTx(env.chain);
   const { address } = useChain(env.chain);
   const [error, setError] = useState<string | null>(null);
 
@@ -43,14 +41,18 @@ function VotingPopup({
 
     const fee = await estimateFee(address ?? '', [msg]);
     try {
-      await tx([msg], {
-        fee,
-        onSuccess: () => {
-          refetch();
-          closeModal();
-          setIsSigning(false);
+      await tx(
+        [msg],
+        {
+          fee,
+          onSuccess: () => {
+            refetch();
+            closeModal();
+            setIsSigning(false);
+          },
         },
-      });
+        'votingPrompt'
+      );
     } catch (error) {
       console.error('Failed to vote: ', error);
       setError('Failed to cast vote. Please try again.');
@@ -76,18 +78,24 @@ function VotingPopup({
         </h3>
         {error && <div className="alert alert-error mb-4">{error}</div>}
         <div className="grid w-full grid-cols-2 gap-4">
-          <button onClick={() => handleVote(1)} className="btn btn-success">
-            Yes
-          </button>
-          <button onClick={() => handleVote(3)} className="btn btn-error">
-            No
-          </button>
-          <button onClick={() => handleVote(4)} className="btn btn-warning">
-            No With Veto
-          </button>
-          <button onClick={() => handleVote(2)} className="btn btn-info">
-            Abstain
-          </button>
+          {isSigning ? (
+            <div className="loading loading-dots loading-sm" />
+          ) : (
+            <>
+              <button onClick={() => handleVote(1)} className="btn btn-success">
+                Yes
+              </button>
+              <button onClick={() => handleVote(3)} className="btn btn-error">
+                No
+              </button>
+              <button onClick={() => handleVote(4)} className="btn btn-warning">
+                No With Veto
+              </button>
+              <button onClick={() => handleVote(2)} className="btn btn-info">
+                Abstain
+              </button>
+            </>
+          )}
         </div>
         <div className="modal-action ">
           <button
@@ -99,7 +107,7 @@ function VotingPopup({
         </div>
       </Dialog.Panel>
 
-      <SignModal />
+      <SignModal id="votingPrompt" />
     </Dialog>
   );
 }

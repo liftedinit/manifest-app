@@ -289,22 +289,27 @@ function VoteDetailsModal({
     }
   };
 
-  const executeWithdrawl = async () => {
+  const executeWithdrawal = async () => {
     setIsSigning(true);
     try {
       const fee = await estimateFee(address ?? '', [msgWithdraw]);
-      await tx([msgWithdraw], {
-        fee,
-        onSuccess: () => {
-          setIsSigning(false);
-          refetchTally();
-          refetchVotes();
-          refetchProposals();
-          refetchGroupInfo();
-          refetchDenoms();
+      await tx(
+        [msgWithdraw],
+        {
+          fee,
+          onSuccess: () => {
+            setIsSigning(false);
+            refetchTally();
+            refetchVotes();
+            refetchProposals();
+            refetchGroupInfo();
+            refetchDenoms();
+          },
         },
-      });
+        'withdrawalPrompt'
+      );
       setIsSigning(false);
+      onClose();
     } catch (error) {
       setIsSigning(false);
       console.error('Failed to execute proposal: ', error);
@@ -692,7 +697,7 @@ function VoteDetailsModal({
                         setShowVotingPopup(true);
                         break;
                       case 'remove':
-                        executeWithdrawl();
+                        executeWithdrawal();
                         break;
                     }
                   }}
@@ -711,7 +716,7 @@ function VoteDetailsModal({
                   <button
                     disabled={isSigning || !proposal?.proposers?.includes(address ?? '')}
                     className="btn btn-xs text-white btn-error absolute top-3 right-3 rounded-lg"
-                    onClick={executeWithdrawl}
+                    onClick={executeWithdrawal}
                   >
                     {isSigning ? (
                       <div className="loading loading-dots loading-sm" />
@@ -733,7 +738,6 @@ function VoteDetailsModal({
         <VotingPopup
           open={showVotingPopup}
           onClose={() => setShowVotingPopup(false)}
-          setIsSigning={setIsSigning}
           proposal={proposal}
           refetch={() => {
             refetchVotes();
@@ -743,9 +747,9 @@ function VoteDetailsModal({
             refetchDenoms();
           }}
         />
-
-        <SignModal />
       </Dialog.Panel>
+
+      <SignModal id="withdrawalPrompt" />
     </Dialog>
   );
 }

@@ -49,8 +49,6 @@ const MultiMintSchema = Yup.object().shape({
 });
 
 export function MultiMintModal({ isOpen, onClose, admin, address, denom }: MultiMintModalProps) {
-  if (!isOpen) return null;
-
   const [payoutPairs, setPayoutPairs] = useState([{ address: '', amount: '' }]);
   const { tx, isSigning, setIsSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
@@ -117,6 +115,8 @@ export function MultiMintModal({ isOpen, onClose, admin, address, denom }: Multi
       setIsSigning(false);
     }
   };
+
+  if (!isOpen) return null;
 
   return (
     <Dialog
