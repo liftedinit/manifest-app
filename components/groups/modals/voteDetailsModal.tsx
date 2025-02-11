@@ -36,6 +36,7 @@ import { messageSyntax } from '@/components';
 import { Dialog } from '@headlessui/react';
 import SignModal from '@/components/react/authSignerModal';
 import { MessagesModal } from '@/components/groups/modals/voting/messagesModal';
+
 const Chart = dynamic(() => import('react-apexcharts'), {
   ssr: false,
 }) as any;
@@ -421,13 +422,6 @@ function VoteDetailsModal({
     }
   };
 
-  const handleVoteButtonClick = () => {
-    const voteModal = document.getElementById('vote_modal') as HTMLDialogElement;
-    if (voteModal) {
-      voteModal.showModal();
-    }
-  };
-
   const getButtonState = useMemo(() => {
     const isAccepted =
       proposal.status === ('PROPOSAL_STATUS_ACCEPTED' as unknown as ProposalStatus);
@@ -467,12 +461,13 @@ function VoteDetailsModal({
   };
 
   const [showMessages, setShowMessages] = useState(false);
+  const [showVotingPopup, setShowVotingPopup] = useState(false);
 
   return (
     <Dialog
       open={showVoteModal}
       onClose={onClose}
-      className={`modal ${showVoteModal ? 'modal-open' : ''} fixed flex p-0 m-0`}
+      className="modal modal-open fixed flex p-0 m-0"
       style={{
         height: '100vh',
         width: '100vw',
@@ -484,14 +479,15 @@ function VoteDetailsModal({
 
       <Dialog.Panel className="flex flex-col items-center justify-center w-full h-full">
         <div
-          className="modal-box relative max-w-4xl min-h-96 max-h-[80vh] overflow-y-auto md:overflow-y-hidden flex flex-col md:flex-row md:ml-20 -mt-12 rounded-[24px] shadow-lg bg-secondary transition-all duration-300"
+          className="modal-box relative max-w-4xl min-h-96 max-h-[80vh] overflow-y-auto md:overflow-y-hidden flex flex-col md:flex-row -mt-12 rounded-[24px] shadow-lg bg-secondary transition-all duration-300"
           onClick={e => e.stopPropagation()}
         >
-          <form method="dialog" onSubmit={onClose}>
-            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A] z-50">
-              ✕
-            </button>
-          </form>
+          <button
+            onClick={onClose}
+            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]"
+          >
+            ✕
+          </button>
           <div className="flex flex-col flex-grow w-full p-2 space-y-6">
             <div className="flex flex-row justify-between items-center">
               <div className="flex flex-row gap-2 items-center">
@@ -693,7 +689,7 @@ function VoteDetailsModal({
                         executeProposal();
                         break;
                       case 'vote':
-                        handleVoteButtonClick();
+                        setShowVotingPopup(true);
                         break;
                       case 'remove':
                         executeWithdrawl();
@@ -734,10 +730,11 @@ function VoteDetailsModal({
           onClose={() => setShowMessages(false)}
         />
 
-        {/*
         <VotingPopup
+          open={showVotingPopup}
+          onClose={() => setShowVotingPopup(false)}
           setIsSigning={setIsSigning}
-          proposalId={proposal?.id ?? 0n}
+          proposal={proposal}
           refetch={() => {
             refetchVotes();
             refetchTally();
@@ -746,7 +743,6 @@ function VoteDetailsModal({
             refetchDenoms();
           }}
         />
-        */}
 
         <SignModal />
       </Dialog.Panel>

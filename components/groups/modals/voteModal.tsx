@@ -6,13 +6,19 @@ import React, { useState } from 'react';
 import { CloseIcon } from '@/components/icons';
 import env from '@/config/env';
 import { Dialog } from '@headlessui/react';
+import SignModal from '@/components/react/authSignerModal';
+import { ProposalSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 
 function VotingPopup({
-  proposalId,
+  open,
+  onClose,
+  proposal,
   refetch,
   setIsSigning,
 }: {
-  proposalId: bigint;
+  open: boolean;
+  onClose: () => void;
+  proposal?: ProposalSDKType;
   refetch: () => void;
   setIsSigning: (isSigning: boolean) => void;
 }) {
@@ -23,10 +29,12 @@ function VotingPopup({
 
   const { vote } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
+  if (!proposal) return null;
+
   const handleVote = async (option: number) => {
     setIsSigning(true);
     const msg = vote({
-      proposalId: proposalId,
+      proposalId: proposal.id,
       voter: address ?? '',
       option: option,
       metadata: '',
@@ -50,21 +58,21 @@ function VotingPopup({
     }
   };
 
-  const closeModal = () => {
-    setIsSigning(false);
-  };
+  const closeModal = () => onClose();
 
   return (
     <Dialog
-      open
+      open={open}
       onClose={closeModal}
       aria-label="vote-modal"
       id="vote_modal"
-      className="modal modal-bottom sm:modal-middle z-[1000]"
+      className="modal modal-open fixed flex p-0 m-0 top-0 right-0 z-[9999]"
     >
-      <form method="dialog" className="modal-box relative dark:bg-[#1D192D] bg-[#FFFFFF]">
+      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+
+      <Dialog.Panel className="modal-box m-auto relative dark:bg-[#1D192D] bg-[#FFFFFF]">
         <h3 className="font-bold text-lg mb-4">
-          Cast Your Vote for Proposal #{proposalId.toString()}
+          Cast Your Vote for Proposal #{proposal.id.toString()}
         </h3>
         {error && <div className="alert alert-error mb-4">{error}</div>}
         <div className="grid w-full grid-cols-2 gap-4">
@@ -89,10 +97,9 @@ function VotingPopup({
             <CloseIcon className="w-2 h-2" />
           </button>
         </div>
-      </form>
-      <form method="dialog" className="modal-backdrop">
-        <button>close</button>
-      </form>
+      </Dialog.Panel>
+
+      <SignModal />
     </Dialog>
   );
 }

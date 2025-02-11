@@ -18,18 +18,20 @@ export function MessagesModal({
   if (!proposal) return null;
 
   return (
-    <Dialog open={opened} onClose={onClose} className="modal modal-open fixed flex p-0 m-0">
+    <Dialog
+      open={opened}
+      onClose={onClose}
+      className="modal modal-open fixed flex p-0 m-0 top-0 right-0 z-[9999]"
+    >
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
 
       <Dialog.Panel className="modal-box max-w-4xl m-auto" aria-label="proposal-messages-dialog">
-        <form method="dialog">
-          <button
-            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-            onClick={onClose}
-          >
-            ✕
-          </button>
-        </form>
+        <button
+          className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+          onClick={onClose}
+        >
+          ✕
+        </button>
         <h3 className="font-bold text-lg mb-4">Proposal Messages</h3>
         <div className="overflow-y-auto max-h-[60vh]">
           {proposal.messages?.map((message: any, index: number) => {
