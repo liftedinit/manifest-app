@@ -94,13 +94,13 @@ export default function Home() {
                 <main className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
                   <div className="sm:text-center lg:text-left">
                     <h1 className="text-4xl tracking-tight font-extrabold sm:text-5xl md:text-6xl">
-                      <span className="block xl:inline">The AI infrastructure</span>{' '}
-                      <span className="block xl:inline">layer for</span>{' '}
+                      <span className="block xl:inline">Connect to the AI infrastructure</span>{' '}
+                      <span className="block xl:inline">for</span>{' '}
                       <span className="block text-primary xl:inline"> DePIN</span>
                     </h1>
                     <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-                      lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut purus eget
-                      sapien.
+                      Alberto is a secure wallet that gives you access to your assets on the
+                      Manifest blockchain in the Cosmos ecosystem.
                     </p>
                     <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
                       <div className="rounded-md shadow">
@@ -110,7 +110,7 @@ export default function Home() {
                           duration={500}
                           className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-dark md:py-4 md:text-lg md:px-10 cursor-pointer"
                         >
-                          Learn How It Works
+                          Get Started
                         </ScrollLink>
                       </div>
                     </div>
@@ -160,12 +160,12 @@ export default function Home() {
                             className="w-32 h-32 mx-auto mb-2 rounded-full"
                           />
                           <h4 className="text-xl md:text-lg font-semibold mb-2">
-                            Proof of Authority
+                            Proof-of-Authority
                           </h4>
                           <h5 className="text-2xl font-bold mb-4">Pioneering Implementation</h5>
                           <p className="text-gray-400 group-hover:text-black dark:group-hover:text-white">
-                            Alberto is the first to implement the POA module, replacing traditional
-                            Proof of Stake with administrator-controlled validator selection.
+                            Alberto uses a Proof-of-Authority model, replacing Proof-of-Stake with
+                            administrator controlled validator selection.
                           </p>
                         </div>
                       </div>
@@ -188,8 +188,9 @@ export default function Home() {
                           <h4 className="text-xl font-semibold mb-2">Groups Module</h4>
                           <h5 className="text-2xl font-bold mb-4">Flexible DAO-like Structures</h5>
                           <p className="text-gray-400 group-hover:text-black dark:group-hover:text-white">
-                            Create and manage multi-member groups capable of submitting any type of
-                            transaction, enabling DAO-like governance.
+                            Alberto facilitates the creation and management of multi-member groups
+                            capable of submitting any type of transaction, enabling DAO-like
+                            governance.
                           </p>
                         </div>
                       </div>
@@ -212,8 +213,8 @@ export default function Home() {
                           <h4 className="text-xl font-semibold mb-2">Diverse Wallet Support</h4>
                           <h5 className="text-2xl font-bold mb-4">Accessible to All</h5>
                           <p className="text-gray-400 group-hover:text-black dark:group-hover:text-white">
-                            Connect seamlessly with social, hardware, and various other wallet
-                            types, including Keplr and other providers.
+                            Alberto gives you access to your tokens in multiple ways. Connect with
+                            your Cosmos wallets, your Ledger, your social media or by email/SMS.
                           </p>
                         </div>
                       </div>
@@ -238,9 +239,9 @@ export default function Home() {
                       <div className="absolute bottom-0 left-16 sm:left-20 w-10 sm:w-12 h-10 sm:h-12 bg-gray-300 rounded-full"></div>
                     </div>
                     <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">
-                      The first chain to use the
+                      The first chain to use the audited
                       <br />
-                      Proof of Authority module
+                      Proof-of-Authority module
                     </h3>
                     <p className="text-gray-600 dark:text-gray-400 mb-4 sm:mb-6 text-sm sm:text-base">
                       Learn how our implementation of POA module secures the network while enabling
