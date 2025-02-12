@@ -531,6 +531,9 @@ const anyMessage = Any.fromPartial({
   value: MsgSend.encode(msg.value).finish(),
 });
 
+const tomorrow = new Date();
+tomorrow.setDate(tomorrow.getDate() + 1);
+
 export const mockProposals: { [key: string]: ProposalSDKType[] } = {
   test_policy_address: [
     {
@@ -550,7 +553,7 @@ export const mockProposals: { [key: string]: ProposalSDKType[] } = {
         no_count: '0',
         no_with_veto_count: '0',
       },
-      voting_period_end: new Date(),
+      voting_period_end: tomorrow,
       executor_result: ProposalExecutorResult.PROPOSAL_EXECUTOR_RESULT_NOT_RUN,
       messages: [
         {

@@ -549,6 +549,7 @@ function VoteDetailsModal({
                 <button
                   onClick={() => setShowMessages(true)}
                   className="btn btn-xs btn-ghost btn-circle"
+                  data-testid="expand-messages"
                   title="Expand messages"
                 >
                   <ArrowUpIcon className="w-4 h-4" />

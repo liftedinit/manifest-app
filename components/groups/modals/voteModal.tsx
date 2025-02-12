@@ -27,8 +27,6 @@ function VotingPopup({
 
   const { vote } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
-  if (!proposal) return null;
-
   const handleVote = async (option: number) => {
     setIsSigning(true);
     const msg = vote({
@@ -62,12 +60,13 @@ function VotingPopup({
 
   const closeModal = () => onClose();
 
+  if (!proposal) return null;
+
   return (
     <Dialog
       open={open}
       onClose={closeModal}
       aria-label="vote-modal"
-      id="vote_modal"
       className="modal modal-open fixed flex p-0 m-0 top-0 right-0 z-[9999]"
     >
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" />

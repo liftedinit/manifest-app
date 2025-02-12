@@ -24,6 +24,8 @@ mock.module('next/router', () => ({
 }));
 
 const defaultProps = {
+  showInfoModal: true,
+  setShowInfoModal: jest.fn(),
   group: mockGroup,
   address: 'test_address',
   policyAddress: 'test_policy_address',

@@ -36,6 +36,7 @@ describe('VoteDetailsModal', () => {
     votes: mockVotes,
     members: mockMembers,
     proposal: mockProposal,
+    group: {} as any,
     showVoteModal: true,
     setShowVoteModal: jest.fn(),
     onClose: jest.fn(),
@@ -43,6 +44,8 @@ describe('VoteDetailsModal', () => {
     refetchVotes: jest.fn(),
     refetchTally: jest.fn(),
     refetchProposals: jest.fn(),
+    refetchGroupInfo: jest.fn(),
+    refetchDenoms: jest.fn(),
   };
 
   afterEach(() => {
@@ -72,8 +75,11 @@ describe('VoteDetailsModal', () => {
   test('renders messages section with correct data', () => {
     renderWithChainProvider(<VoteDetailsModal {...defaultProps} />);
     expect(screen.getByText('MESSAGES')).toBeInTheDocument();
-    expect(screen.getByLabelText('msg')).toBeInTheDocument();
     expect(screen.getByLabelText('message-json')).toBeInTheDocument();
+
+    // Expand messages
+    fireEvent.click(screen.getByTestId('expand-messages'));
+    expect(screen.getByLabelText('msg')).toBeInTheDocument();
   });
 
   test('conditionally renders execute button when proposal is accepted', () => {
@@ -91,7 +97,9 @@ describe('VoteDetailsModal', () => {
 
   test('conditionally renders vote button when proposal is open and user has not voted', () => {
     renderWithChainProvider(<VoteDetailsModal {...defaultProps} />);
-    expect(screen.getByText('Vote')).toBeInTheDocument();
+    const voteButton = screen.getByLabelText('action-btn');
+    expect(voteButton).toBeInTheDocument();
+    expect(voteButton.innerText).toBe('Vote');
   });
 
   test('does not render vote button when user has already voted', () => {
@@ -103,7 +111,7 @@ describe('VoteDetailsModal', () => {
 
   test('handles vote button click and opens voting modal', async () => {
     renderWithChainProvider(<VoteDetailsModal {...defaultProps} />);
-    const voteButton = screen.getByText('Vote');
+    const voteButton = screen.getByLabelText('action-btn');
     fireEvent.click(voteButton);
     await waitFor(() => expect(screen.getByLabelText('vote-modal')).toBeInTheDocument());
   });

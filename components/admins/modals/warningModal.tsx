@@ -6,7 +6,6 @@ import { useChain } from '@cosmos-kit/react';
 import React, { useEffect } from 'react';
 import { PiWarning } from 'react-icons/pi';
 import env from '@/config/env';
-import { createPortal } from 'react-dom';
 import { Dialog } from '@headlessui/react';
 import { SignModal } from '@/components/react';
 
