@@ -13,13 +13,13 @@ describe('DescriptionModal Component', () => {
   afterEach(cleanup);
 
   test('renders modal with correct details', () => {
-    render(<DescriptionModal open details={details} />);
+    render(<DescriptionModal open onClose={() => {}} details={details} />);
     expect(screen.getByText('Group Description')).toBeInTheDocument();
     expect(screen.getByText(details)).toBeInTheDocument();
   });
 
   test('displays correct title for validator type', () => {
-    render(<DescriptionModal open details={details} type="validator" />);
+    render(<DescriptionModal open onClose={() => {}} details={details} type="validator" />);
     expect(screen.getByText('Validator Description')).toBeInTheDocument();
   });
 
