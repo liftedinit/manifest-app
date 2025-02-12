@@ -1,3 +1,14 @@
+import parse from 'parse-duration';
+
+function parseDuration(duration: string | undefined, defaultValue: number): number {
+  const d = parse(duration ?? '');
+  if (d === null) {
+    return defaultValue;
+  }
+  // Convert to seconds.
+  return d / 1000;
+}
+
 const env = {
   // Wallet
   walletConnectKey: process.env.NEXT_PUBLIC_WALLETCONNECT_KEY ?? '',
@@ -31,6 +42,14 @@ const env = {
   // Axelar RPC URLs
   axelarApiUrl: process.env.NEXT_PUBLIC_AXELAR_API_URL ?? '',
   axelarRpcUrl: process.env.NEXT_PUBLIC_AXELAR_RPC_URL ?? '',
+
+  // Frontend development specific variables.
+
+  /**
+   * Minimum allowed voting period for proposals. This is a number of seconds.
+   * By default, it is set to 30 minutes.
+   */
+  minimumVotingPeriod: parseDuration(process.env.NEXT_PUBLIC_MINIMUM_VOTING_PERIOD, 1800),
 };
 
 export default env;
