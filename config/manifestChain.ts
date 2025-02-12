@@ -2,9 +2,17 @@ import env from './env';
 import { AssetList, Chain, IBCInfo } from '@chain-registry/types';
 
 const buildType = env.chainTier;
-let manifestModule: any;
+let manifestModule: {
+  assets: AssetList;
+  chain: Chain;
+  ibc?: IBCInfo[];
+};
 
 // TODO: Add mainnet manifest when it's available
+if (!buildType) {
+  throw new Error('Chain tier environment variable is not set');
+}
+
 if (buildType === 'qa') {
   manifestModule = require('chain-registry/devnet/manifestdevnet');
 } else {
