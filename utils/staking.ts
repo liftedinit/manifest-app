@@ -1,5 +1,5 @@
 import { Coin, decodeCosmosSdkDecFromProto } from '@cosmjs/stargate';
-import * as bech32 from 'bech32';
+import { bech32 } from 'bech32';
 import BigNumber from 'bignumber.js';
 import * as CryptoJS from 'crypto-js';
 import { QueryDelegationTotalRewardsResponse } from '@liftedinit/manifestjs/dist/codegen/cosmos/distribution/v1beta1/query';
@@ -180,6 +180,7 @@ export const parseAnnualProvisions = (data: QueryAnnualProvisionsResponse) => {
   const res = shiftDigits(decodeUint8Arr(data?.annualProvisions), -18);
   return isGreaterThanZero(res) ? res : null;
 };
+
 function wordArrayToUint8Array(wordArray: CryptoJS.lib.WordArray) {
   const words = wordArray.words;
   const sigBytes = wordArray.sigBytes;

@@ -55,6 +55,7 @@
     "apexcharts": "^3.54.0",
     "autoprefixer": "^10.4.20",
     "babel-plugin-glsl": "^1.0.0",
+    "bech32": "^2.0.0",
     "chain-registry": "^1.69.120",
     "cosmjs-types": "^0.9.0",
     "cosmos-kit": "2.23.9",
