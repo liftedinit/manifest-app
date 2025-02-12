@@ -37,6 +37,7 @@ export function DescriptionModal({
           <button
             className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
             aria-label="x-close"
+            onClick={handleClose}
           >
             ✕
           </button>

@@ -158,7 +158,6 @@ export default function SendForm({
           refetchProposals?.();
         },
       });
-      console.info(txResult);
     } catch (error) {
       console.error('Error during sending:', error);
     } finally {
