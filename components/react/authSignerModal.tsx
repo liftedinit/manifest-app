@@ -269,7 +269,15 @@ export const SignModal = ({ id }: { id?: string }) => {
   const approve = () => prompt.resolve(true);
   const reject = () => prompt.resolve(false);
 
-  return <SignModalInner visible={visible} data={data} reject={reject} approve={approve} />;
+  return (
+    <SignModalInner
+      visible={visible}
+      onClose={reject}
+      data={data}
+      reject={reject}
+      approve={approve}
+    />
+  );
 };
 
 export const SignModalInner = ({
