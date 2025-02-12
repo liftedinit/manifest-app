@@ -30,7 +30,7 @@ if (buildType === 'qa') {
   const { assets, chain, ibc } = manifestModule;
   manifestAssets = assets;
   manifestChain = chain;
-  manifestIbc = ibc;
+  manifestIbc = ibc!;
 }
 
 export { manifestAssets, manifestChain, manifestIbc };
