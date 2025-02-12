@@ -904,7 +904,10 @@ export const useGetMessagesFromAddress = (
         const dateComparison = new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
         if (dateComparison !== 0) return dateComparison;
         // If timestamps are equal, sort by block number descending
-        return b.height - a.height;
+        const blockComparison = b.height - a.height;
+        if (blockComparison !== 0) return blockComparison;
+        // If block numbers are equal, sort by index descending
+        return b.message_index - a.message_index;
       });
 
       return {
