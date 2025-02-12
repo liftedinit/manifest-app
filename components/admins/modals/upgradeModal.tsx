@@ -73,8 +73,6 @@ const UpgradeSchema = Yup.object().shape({
 });
 
 export function UpgradeModal({ isOpen, onClose, admin, address, refetchPlan }: BaseModalProps) {
-  if (!isOpen) return null;
-
   const [searchTerm, setSearchTerm] = useState('');
   const { releases, isReleasesLoading } = useGitHubReleases();
 
@@ -179,6 +177,8 @@ export function UpgradeModal({ isOpen, onClose, admin, address, refetchPlan }: B
     }),
     [blockHeight]
   );
+
+  if (!isOpen) return null;
 
   return (
     <Dialog

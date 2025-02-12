@@ -49,8 +49,6 @@ const MultiBurnSchema = Yup.object().shape({
 });
 
 export function MultiBurnModal({ isOpen, onClose, admin, address, denom }: MultiBurnModalProps) {
-  if (!isOpen) return null;
-
   const [burnPairs, setBurnPairs] = useState([{ address: admin, amount: '' }]);
   const { tx, isSigning, setIsSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
@@ -118,6 +116,8 @@ export function MultiBurnModal({ isOpen, onClose, admin, address, denom }: Multi
       setIsSigning(false);
     }
   };
+
+  if (!isOpen) return null;
 
   return (
     <Dialog

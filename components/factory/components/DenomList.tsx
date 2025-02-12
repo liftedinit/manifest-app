@@ -431,7 +431,6 @@ export default function DenomList({
       <TransferModal
         denom={selectedDenom}
         address={address}
-        modalId="transfer-denom-modal"
         isOpen={modalType === 'transfer'}
         onClose={handleModalClose}
         onSuccess={() => {

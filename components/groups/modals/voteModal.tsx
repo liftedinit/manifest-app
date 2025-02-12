@@ -17,7 +17,7 @@ function VotingPopup({
 }: {
   open: boolean;
   onClose: () => void;
-  proposal?: ProposalSDKType;
+  proposal: ProposalSDKType;
   refetch: () => void;
 }) {
   const { estimateFee } = useFeeEstimation(env.chain);
