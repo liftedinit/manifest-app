@@ -9,9 +9,6 @@ let manifestModule: {
 };
 
 // TODO: Add mainnet manifest when it's available
-if (!buildType) {
-  throw new Error('Chain tier environment variable is not set');
-}
 
 if (buildType === 'qa') {
   manifestModule = require('chain-registry/devnet/manifestdevnet');
