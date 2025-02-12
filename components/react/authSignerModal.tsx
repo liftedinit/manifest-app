@@ -289,30 +289,28 @@ export const SignModalInner = ({
 }: {
   visible: boolean;
   data?: SignData;
-  onClose?: () => void;
+  onClose: () => void;
   reject?: () => void;
   approve?: () => void;
 }) => {
-  const wallet = useWallet();
+  const { wallet } = useWallet();
   const { address } = useChain(env.chain);
-  const walletIcon = wallet.wallet?.logo;
   const { theme } = useTheme();
+  const walletIcon = wallet?.logo;
   const walletIconString = walletIcon?.toString() ?? '';
-
-  const onCloseHandler = onClose ?? (() => {});
 
   function handleReject() {
     reject && reject();
-    onCloseHandler();
+    onClose();
   }
   function handleApprove() {
     approve && approve();
-    onCloseHandler();
+    onClose();
   }
 
   if (!visible) return null;
   return (
-    <Dialog open onClose={onCloseHandler} className="modal modal-open top-0 right-0 z-[9999]">
+    <Dialog open onClose={onClose} className="modal modal-open top-0 right-0 z-[9999]">
       <div className="fixed inset-0 backdrop-blur-sm bg-black/30" aria-hidden="true" />
 
       <Dialog.Panel className="modal-box max-w-lg w-full dark:bg-[#1D192D] bg-[#FFFFFF] rounded-lg shadow-xl">
@@ -325,7 +323,7 @@ export const SignModalInner = ({
             />
             <h3 className="text-xl font-semibold">Approve transaction?</h3>
           </div>
-          <button className="btn btn-sm btn-circle btn-ghost" onClick={onCloseHandler}>
+          <button className="btn btn-sm btn-circle btn-ghost" onClick={onClose}>
             ✕
           </button>
         </div>
