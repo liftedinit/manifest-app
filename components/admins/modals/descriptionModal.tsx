@@ -3,7 +3,7 @@ import { Dialog } from '@headlessui/react';
 
 interface DescriptionModalProps {
   open?: boolean;
-  onClose?: () => void;
+  onClose: () => void;
   details: string;
   type?: 'group' | 'validator';
 }
@@ -16,14 +16,10 @@ export function DescriptionModal({
 }: Readonly<DescriptionModalProps>) {
   if (!open) return null;
 
-  function handleClose() {
-    onClose && onClose();
-  }
-
   return (
     <Dialog
       open={open}
-      onClose={handleClose}
+      onClose={onClose}
       className="modal modal-open mx-auto fixed flex p-0 m-0 top-0 z-[9999]"
       style={{
         alignItems: 'center',
@@ -37,7 +33,7 @@ export function DescriptionModal({
           <button
             className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
             aria-label="x-close"
-            onClick={handleClose}
+            onClick={onClose}
           >
             ✕
           </button>
