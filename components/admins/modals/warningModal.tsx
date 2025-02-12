@@ -8,7 +8,7 @@ import { PiWarning } from 'react-icons/pi';
 import env from '@/config/env';
 import { createPortal } from 'react-dom';
 import { Dialog } from '@headlessui/react';
-import SignModal from '@/components/react/authSignerModal';
+import { SignModal } from '@/components/react';
 
 interface WarningModalProps {
   admin: string;
@@ -29,8 +29,6 @@ export function WarningModal({
   openWarningModal,
   setOpenWarningModal,
 }: Readonly<WarningModalProps>) {
-  if (!openWarningModal) return null;
-
   const { tx, isSigning, setIsSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
   const { address: userAddress } = useChain(env.chain);
@@ -77,14 +75,12 @@ export function WarningModal({
     setIsSigning(false);
   };
 
-  const handleClose = () => {
-    setOpenWarningModal(false);
-  };
+  const handleClose = () => setOpenWarningModal(false);
 
   return (
     <Dialog
       className="modal modal-open fixed flex p-0 m-0"
-      open
+      open={openWarningModal}
       onClose={handleClose}
       role="dialog"
       aria-modal="true"

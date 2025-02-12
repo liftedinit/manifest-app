@@ -1,4 +1,4 @@
-import SignModal from './authSignerModal';
+import { SignModalInner } from './authSignerModal';
 import { test, expect, afterEach, describe, mock, jest } from 'bun:test';
 import React from 'react';
 import matchers from '@testing-library/jest-dom/matchers';
@@ -14,20 +14,20 @@ mock.module('next/router', () => ({
 
 expect.extend(matchers);
 
-describe('SignModal', () => {
+describe('SignModalInner', () => {
   afterEach(() => {
     cleanup();
   });
 
   test('should render', () => {
-    const wrapper = renderWithChainProvider(<SignModal visible={true} />);
+    const wrapper = renderWithChainProvider(<SignModalInner visible={true} />);
     expect(screen.getByText('Approve')).toBeInTheDocument();
     const dialog = screen.getByRole('dialog');
     expect(dialog).toBeVisible();
   });
 
   test('should not be visible initially when visible prop is false', () => {
-    const wrapper = renderWithChainProvider(<SignModal visible={false} />);
+    const wrapper = renderWithChainProvider(<SignModalInner visible={false} />);
     const dialog = screen.queryAllByRole('dialog');
     expect(dialog.length).toBe(0);
   });
@@ -36,7 +36,7 @@ describe('SignModal', () => {
     let [isOpen, approved, rejected] = [true, false, false];
 
     const wrapper = renderWithChainProvider(
-      <SignModal
+      <SignModalInner
         visible={isOpen}
         onClose={() => {
           isOpen = false;
@@ -71,7 +71,7 @@ describe('SignModal', () => {
     let [isOpen, approved, rejected] = [true, false, false];
 
     const wrapper = renderWithChainProvider(
-      <SignModal
+      <SignModalInner
         visible={isOpen}
         onClose={() => {
           isOpen = false;
@@ -101,7 +101,7 @@ describe('SignModal', () => {
     let [isOpen, approved, rejected] = [true, false, false];
 
     const wrapper = renderWithChainProvider(
-      <SignModal
+      <SignModalInner
         visible={isOpen}
         onClose={() => {
           isOpen = false;

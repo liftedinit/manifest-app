@@ -248,7 +248,7 @@ const DisplayDataToSign = ({
  * when a sign request is received.
  * @constructor
  */
-const SignModal = ({ id }: { id?: string }) => {
+export const SignModal = ({ id }: { id?: string }) => {
   const { prompt, promptId } = useContext(Web3AuthContext);
   const [visible, setVisible] = useState(false);
   const [data, setData] = useState<SignData | undefined>(undefined);
@@ -260,20 +260,51 @@ const SignModal = ({ id }: { id?: string }) => {
     } else {
       setVisible(false);
     }
-  }, [id, prompt]);
+  }, [promptId, id, prompt]);
 
+  if (!prompt || !data || !visible) {
+    return null;
+  }
+
+  const approve = () => prompt.resolve(true);
+  const reject = () => prompt.resolve(false);
+
+  return <SignModalInner visible={visible} data={data} reject={reject} approve={approve} />;
+};
+
+export const SignModalInner = ({
+  visible,
+  data,
+  onClose,
+  reject,
+  approve,
+}: {
+  visible: boolean;
+  data?: SignData;
+  onClose?: () => void;
+  reject?: () => void;
+  approve?: () => void;
+}) => {
   const wallet = useWallet();
   const { address } = useChain(env.chain);
   const walletIcon = wallet.wallet?.logo;
   const { theme } = useTheme();
-
   const walletIconString = walletIcon?.toString() ?? '';
 
-  const approve = () => prompt?.resolve(true);
-  const reject = () => prompt?.resolve(false);
+  const onCloseHandler = onClose ?? (() => {});
 
+  function handleReject() {
+    reject && reject();
+    onCloseHandler();
+  }
+  function handleApprove() {
+    approve && approve();
+    onCloseHandler();
+  }
+
+  if (!visible) return null;
   return (
-    <Dialog open={visible} onClose={reject} className="modal modal-open top-0 right-0 z-[9999]">
+    <Dialog open onClose={onCloseHandler} className="modal modal-open top-0 right-0 z-[9999]">
       <div className="fixed inset-0 backdrop-blur-sm bg-black/30" aria-hidden="true" />
 
       <Dialog.Panel className="modal-box max-w-lg w-full dark:bg-[#1D192D] bg-[#FFFFFF] rounded-lg shadow-xl">
@@ -286,7 +317,7 @@ const SignModal = ({ id }: { id?: string }) => {
             />
             <h3 className="text-xl font-semibold">Approve transaction?</h3>
           </div>
-          <button className="btn btn-sm btn-circle btn-ghost" onClick={reject}>
+          <button className="btn btn-sm btn-circle btn-ghost" onClick={onCloseHandler}>
             ✕
           </button>
         </div>
@@ -302,12 +333,12 @@ const SignModal = ({ id }: { id?: string }) => {
 
         <div className="modal-action mt-6 flex justify-between gap-4">
           <button
-            className="btn btn-error flex-1 rounded-[12px] focus:outline-none "
-            onClick={reject}
+            className="btn btn-error flex-1 rounded-[12px] focus:outline-none"
+            onClick={handleReject}
           >
             Reject
           </button>
-          <button className="btn btn-gradient flex-1 rounded-[12px]" onClick={approve}>
+          <button className="btn btn-gradient flex-1 rounded-[12px]" onClick={handleApprove}>
             Approve
           </button>
         </div>
@@ -315,5 +346,3 @@ const SignModal = ({ id }: { id?: string }) => {
     </Dialog>
   );
 };
-
-export default SignModal;

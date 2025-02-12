@@ -6,12 +6,13 @@ import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { TextInput, TextArea } from '@/components/react/inputs';
 import { truncateString, ExtendedMetadataSDKType } from '@/utils';
-import { useEffect } from 'react';
+import React from 'react';
 import env from '@/config/env';
-import { createPortal } from 'react-dom';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgSetDenomMetadata } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
 import { useProposalsByPolicyAccount } from '@/hooks/useQueries';
+import { Dialog } from '@headlessui/react';
+import { SignModal } from '@/components/react';
 
 const TokenDetailsSchema = (context: { subdenom: string }) =>
   Yup.object().shape({
@@ -48,16 +49,6 @@ export default function UpdateDenomMetadataModal({
   isGroup?: boolean;
 }) {
   const { refetchProposals } = useProposalsByPolicyAccount(admin);
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [isOpen, onClose]);
 
   const baseDenom = denom?.base?.split('/').pop() || '';
   const fullDenom = `factory/${address}/${baseDenom}`;
@@ -152,27 +143,22 @@ export default function UpdateDenomMetadataModal({
     }
   };
 
-  const modalContent = (
-    <dialog
-      id={modalId}
-      className={`modal ${isOpen ? 'modal-open' : ''}`}
+  if (!isOpen) return null;
+
+  return (
+    <Dialog
+      open
+      onClose={onClose}
+      className={`modal modal-open fixed flex p-0 m-0`}
       style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        zIndex: 9999,
-        backgroundColor: 'transparent',
-        padding: 0,
-        margin: 0,
         height: '100vh',
         width: '100vw',
-        display: isOpen ? 'flex' : 'none',
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
+      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+
       <Formik
         initialValues={formData}
         validationSchema={() => TokenDetailsSchema({ subdenom: baseDenom })}
@@ -181,7 +167,7 @@ export default function UpdateDenomMetadataModal({
         validateOnBlur={true}
       >
         {({ isValid, dirty, values, handleChange, handleSubmit, resetForm }) => (
-          <div className="modal-box max-w-4xl mx-auto p-6 bg-[#F4F4FF] dark:bg-[#1D192D] rounded-[24px] shadow-lg relative">
+          <Dialog.Panel className="modal-box max-w-4xl mx-auto p-6 bg-[#F4F4FF] dark:bg-[#1D192D] rounded-[24px] shadow-lg relative">
             <form method="dialog">
               <button
                 type="button"
@@ -259,31 +245,11 @@ export default function UpdateDenomMetadataModal({
                 {isSigning ? <span className="loading loading-dots"></span> : 'Update'}
               </button>
             </div>
-          </div>
+
+            <SignModal />
+          </Dialog.Panel>
         )}
       </Formik>
-      <form
-        method="dialog"
-        className="modal-backdrop"
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: -1,
-          backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        }}
-      >
-        <button onClick={() => onClose()}>close</button>
-      </form>
-    </dialog>
+    </Dialog>
   );
-
-  // Only render if we're in the browser
-  if (typeof document !== 'undefined') {
-    return createPortal(modalContent, document.body);
-  }
-
-  return null;
 }

@@ -113,19 +113,19 @@ export const ManifestAppProviders = ({ children }: { children: ReactNode }) => {
   const client = useMemo(() => new QueryClient(), []);
 
   return (
-    <ToastProvider>
-      <QueryClientProvider client={client}>
-        <ReactQueryDevtools />
-        <Web3AuthProvider>
-          <ManifestChainProvider>
-            <SkipProvider>
-              <ThemeProvider>
+    <QueryClientProvider client={client}>
+      <ReactQueryDevtools />
+      <Web3AuthProvider>
+        <ManifestChainProvider>
+          <SkipProvider>
+            <ThemeProvider>
+              <ToastProvider>
                 <ContactsModalProvider>{children}</ContactsModalProvider>
-              </ThemeProvider>
-            </SkipProvider>
-          </ManifestChainProvider>
-        </Web3AuthProvider>
-      </QueryClientProvider>
-    </ToastProvider>
+              </ToastProvider>
+            </ThemeProvider>
+          </SkipProvider>
+        </ManifestChainProvider>
+      </Web3AuthProvider>
+    </QueryClientProvider>
   );
 };

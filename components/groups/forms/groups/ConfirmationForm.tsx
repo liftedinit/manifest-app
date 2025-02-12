@@ -7,7 +7,7 @@ import { ThresholdDecisionPolicy } from '@liftedinit/manifestjs/dist/codegen/cos
 import { Duration } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/duration';
 import { secondsToHumanReadable } from '@/utils/string';
 import env from '@/config/env';
-import SignModal from '@/components/react/authSignerModal';
+import { SignModal } from '@/components/react';
 export default function ConfirmationForm({
   nextStep,
   prevStep,

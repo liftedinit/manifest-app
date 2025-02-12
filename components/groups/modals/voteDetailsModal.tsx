@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { PrismAsyncLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import json from 'react-syntax-highlighter/dist/esm/languages/prism/json';
@@ -8,10 +8,9 @@ import {
   ProposalExecutorResult,
   ProposalSDKType,
   ProposalStatus,
+  proposalStatusFromJSON,
   VoteOption,
   VoteSDKType,
-  GroupInfoSDKType,
-  ThresholdDecisionPolicySDKType,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { QueryTallyResultResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
@@ -23,18 +22,14 @@ import { useTx } from '@/hooks/useTx';
 import { cosmos } from '@liftedinit/manifestjs';
 import { useTheme } from '@/contexts/theme';
 import CountdownTimer from '../components/CountdownTimer';
-import {
-  ExtendedGroupType,
-  ExtendedQueryGroupsByMemberResponseSDKType,
-  useFeeEstimation,
-} from '@/hooks';
+import { ExtendedGroupType, useFeeEstimation } from '@/hooks';
 
-import { TrashIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { CheckIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { ArrowUpIcon, CopyIcon } from '@/components/icons';
 import env from '@/config/env';
 import { messageSyntax } from '@/components';
 import { Dialog } from '@headlessui/react';
-import SignModal from '@/components/react/authSignerModal';
+import { SignModal } from '@/components/react';
 import { MessagesModal } from '@/components/groups/modals/voting/messagesModal';
 
 const Chart = dynamic(() => import('react-apexcharts'), {
@@ -114,6 +109,8 @@ function VoteDetailsModal({
   refetchGroupInfo,
   refetchDenoms,
 }: VoteDetailsModalProps) {
+  const status = proposalStatusFromJSON(proposal.status);
+
   const voteMap = useMemo(
     () =>
       votes?.reduce<VoteMap>((acc, vote) => {
@@ -144,7 +141,7 @@ function VoteDetailsModal({
   };
 
   const votingStatusResultMapping: { [key: string]: string } = {
-    PROPOSAL_STATUS_CLOSED: 'closed',
+    PROPOSAL_STATUS_WITHDRAWN: 'withdrawn',
     PROPOSAL_STATUS_SUBMITTED: 'voting',
     PROPOSAL_STATUS_ABORTED: 'aborted',
     PROPOSAL_STATUS_ACCEPTED: 'accepted',
@@ -370,7 +367,7 @@ function VoteDetailsModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [proposal?.voting_period_end]);
 
-  const proposalClosed =
+  const proposalExpired =
     countdownValues.days +
       countdownValues.hours +
       countdownValues.minutes +
@@ -428,24 +425,25 @@ function VoteDetailsModal({
   };
 
   const getButtonState = useMemo(() => {
-    const isAccepted =
-      proposal.status === ('PROPOSAL_STATUS_ACCEPTED' as unknown as ProposalStatus);
-    const isRejected =
-      proposal.status === ('PROPOSAL_STATUS_REJECTED' as unknown as ProposalStatus);
+    const isWithdrawn = status === ProposalStatus.PROPOSAL_STATUS_WITHDRAWN;
+    const isAborted = status === ProposalStatus.PROPOSAL_STATUS_ABORTED;
+    const isAccepted = status === ProposalStatus.PROPOSAL_STATUS_ACCEPTED;
+    const isRejected = status === ProposalStatus.PROPOSAL_STATUS_REJECTED;
     const isNotRun =
       proposal.executor_result ===
       ('PROPOSAL_EXECUTOR_RESULT_NOT_RUN' as unknown as ProposalExecutorResult);
     const isFailure =
       proposal.executor_result ===
       ('PROPOSAL_EXECUTOR_RESULT_FAILURE' as unknown as ProposalExecutorResult);
-    const isClosed = proposal?.status === ('PROPOSAL_STATUS_CLOSED' as unknown as ProposalStatus);
-    const isProposer = proposal?.proposers?.includes(address ?? '');
+    const isProposer = proposal.proposers?.includes(address ?? '');
 
-    if ((isAccepted && isNotRun) || isFailure) {
+    if (isWithdrawn || isAborted) {
+      return { action: null, label: null };
+    } else if ((isAccepted && isNotRun) || isFailure) {
       return { action: 'execute', label: 'Execute' };
-    } else if (isNotRun && proposalClosed && !isRejected) {
+    } else if (isNotRun && proposalExpired && !isRejected) {
       return { action: 'execute', label: 'Execute' };
-    } else if (!isClosed && !proposalClosed && !userHasVoted) {
+    } else if (!proposalExpired && !userHasVoted) {
       return { action: 'vote', label: 'Vote' };
     } else if (
       (!isAccepted && isProposer) ||
@@ -454,7 +452,7 @@ function VoteDetailsModal({
       return { action: 'remove', label: 'Remove' };
     }
     return { action: null, label: null };
-  }, [proposal, proposalClosed, userHasVoted, address]);
+  }, [proposal, proposalExpired, status, userHasVoted, address]);
 
   const [copied, setCopied] = useState(false);
 
@@ -710,8 +708,8 @@ function VoteDetailsModal({
                 </button>
               )}
               {proposal?.proposers?.includes(address ?? '') &&
-                proposal?.status !== ('PROPOSAL_STATUS_CLOSED' as unknown as ProposalStatus) &&
-                !proposalClosed &&
+                proposal?.status !== ('PROPOSAL_STATUS_WITHDRAWN' as unknown as ProposalStatus) &&
+                !proposalExpired &&
                 userHasVoted === false && (
                   <button
                     disabled={isSigning || !proposal?.proposers?.includes(address ?? '')}

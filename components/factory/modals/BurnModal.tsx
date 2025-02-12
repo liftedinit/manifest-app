@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom';
 import BurnForm from '@/components/factory/forms/BurnForm';
 import { useGroupsByAdmin, usePoaGetAdmin } from '@/hooks';
 import { ExtendedMetadataSDKType, truncateString } from '@/utils';
+import { Dialog } from '@headlessui/react';
+import { SignModal } from '@/components/react';
 
 export default function BurnModal({
   denom,
@@ -13,7 +15,6 @@ export default function BurnModal({
   totalSupply,
   isOpen,
   onClose,
-
   isGroup,
 }: {
   denom: ExtendedMetadataSDKType | null;
@@ -27,17 +28,6 @@ export default function BurnModal({
 
   isGroup?: boolean;
 }) {
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [isOpen]);
-
   const { groupByAdmin, isGroupByAdminLoading } = useGroupsByAdmin(admin);
 
   const members = groupByAdmin?.groups?.[0]?.members;
@@ -47,27 +37,20 @@ export default function BurnModal({
   if (!denom) return null;
 
   const modalContent = (
-    <dialog
-      id={`burn-modal-${denom?.base}`}
-      className={`modal ${isOpen ? 'modal-open' : ''}`}
+    <Dialog
+      open={isOpen}
+      onClose={onClose}
+      className={`modal modal-open fixed flex p-0 m-0`}
       style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        zIndex: 9999,
-        backgroundColor: 'transparent',
-        padding: 0,
-        margin: 0,
         height: '100vh',
         width: '100vw',
-        display: isOpen ? 'flex' : 'none',
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
-      <div className="modal-box max-w-6xl mx-auto rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg">
+      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+
+      <Dialog.Panel className="modal-box max-w-6xl mx-auto rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg">
         <form method="dialog" onSubmit={onClose}>
           <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]">
             ✕
@@ -100,24 +83,10 @@ export default function BurnModal({
             />
           )}
         </div>
-      </div>
-      <form
-        method="dialog"
-        className="modal-backdrop"
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: -1,
-          backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        }}
-        onSubmit={onClose}
-      >
-        <button>close</button>
-      </form>
-    </dialog>
+      </Dialog.Panel>
+
+      <SignModal />
+    </Dialog>
   );
 
   // Only render if we're in the browser

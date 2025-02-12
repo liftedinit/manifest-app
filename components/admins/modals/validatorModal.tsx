@@ -15,7 +15,7 @@ import { calculateIsUnsafe } from '@/utils/maths';
 import { TextInput } from '@/components/react';
 import env from '@/config/env';
 import { Dialog } from '@headlessui/react';
-import SignModal from '@/components/react/authSignerModal';
+import { SignModal } from '@/components/react';
 
 const PowerUpdateSchema = Yup.object().shape({
   power: Yup.number()
@@ -42,8 +42,6 @@ export function ValidatorDetailsModal({
   openValidatorModal: boolean;
   setOpenValidatorModal: (open: boolean) => void;
 }>) {
-  if (!openValidatorModal) return null;
-
   const [description, setDescription] = useState<string | undefined>(undefined);
 
   const [power, setPowerInput] = useState(validator?.consensus_power?.toString() || '');
@@ -105,7 +103,7 @@ export function ValidatorDetailsModal({
 
   return (
     <Dialog
-      open
+      open={openValidatorModal}
       className="modal modal-open fixed flex p-0 m-0"
       onClose={() => setOpenValidatorModal(false)}
       style={{

@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import SendBox from '../components/sendBox';
 import { CombinedBalanceInfo } from '@/utils/types';
 import { Dialog, Portal } from '@headlessui/react';
-import SignModal from '@/components/react/authSignerModal';
+import { SignModal } from '@/components/react';
 
 interface SendModalProps {
   modalId?: string;

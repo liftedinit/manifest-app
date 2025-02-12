@@ -7,7 +7,7 @@ import { MsgCancelUpgrade } from '@liftedinit/manifestjs/dist/codegen/cosmos/upg
 import { PlanSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/upgrade';
 import env from '@/config/env';
 import { Dialog } from '@headlessui/react';
-import SignModal from '@/components/react/authSignerModal';
+import { SignModal } from '@/components/react';
 
 interface BaseModalProps {
   isOpen: boolean;

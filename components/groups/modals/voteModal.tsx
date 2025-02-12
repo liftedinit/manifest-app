@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 import { CloseIcon } from '@/components/icons';
 import env from '@/config/env';
 import { Dialog } from '@headlessui/react';
-import SignModal from '@/components/react/authSignerModal';
+import { SignModal } from '@/components/react';
 import { ProposalSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 
 function VotingPopup({

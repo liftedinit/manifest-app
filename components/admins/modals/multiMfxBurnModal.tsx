@@ -15,7 +15,7 @@ import { parseNumberToBigInt } from '@/utils';
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { TailwindModal } from '@/components/react';
 import env from '@/config/env';
-import SignModal from '@/components/react/authSignerModal';
+import { SignModal } from '@/components/react';
 import { Dialog } from '@headlessui/react';
 
 interface BurnPair {

@@ -11,7 +11,7 @@ import { PiCaretDownBold } from 'react-icons/pi';
 import { SearchIcon } from '@/components/icons';
 import env from '@/config/env';
 import { Dialog } from '@headlessui/react';
-import SignModal from '@/components/react/authSignerModal';
+import { SignModal } from '@/components/react';
 
 interface BaseModalProps {
   isOpen: boolean;

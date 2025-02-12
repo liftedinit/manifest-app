@@ -8,7 +8,7 @@ import {
   MsgCreateDenom,
 } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
 import { Any } from 'cosmjs-types/google/protobuf/any';
-import SignModal from '@/components/react/authSignerModal';
+import { SignModal } from '@/components/react';
 
 export default function ConfirmationForm({
   nextStep,
