@@ -3,11 +3,9 @@ import '@interchain-ui/react/styles';
 import '@fontsource/manrope';
 
 import type { AppProps } from 'next/app';
-import { useEffect, useState } from 'react';
 import SideNav from '../components/react/sideNav';
 import MobileNav from '@/components/react/mobileNav';
 
-import { SkipProvider } from '@/contexts/skipGoContext';
 import { ManifestAppProviders } from '@/contexts/manifestAppProviders';
 import { useLocalStorage } from '@/hooks';
 
