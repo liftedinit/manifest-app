@@ -25,13 +25,7 @@ export const useFeeEstimation = (chainName: string) => {
 
     const fee = calculateFee(
       Math.round(gasEstimation * (modifier || 1.5)),
-      GasPrice.fromString(
-        `${gasPrice}${
-          chainName === 'manifesttestnet' || chainName === 'manifestdevnet'
-            ? 'umfx'
-            : 'uosmo'
-        }`
-      )
+      GasPrice.fromString(`${gasPrice}umfx`)
     );
 
     return fee;
