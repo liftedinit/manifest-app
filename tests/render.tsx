@@ -4,16 +4,13 @@ import { ChainProvider } from '@cosmos-kit/react';
 import { ToastProvider } from '@/contexts';
 
 import {
-  assets as manifestAssets,
-  chain as manifestChain,
-} from 'chain-registry/testnet/manifesttestnet';
-import {
   assets as osmosisAssets,
   chain as osmosisChain,
 } from 'chain-registry/testnet/osmosistestnet';
 import { assets as axelarAssets, chain as axelarChain } from 'chain-registry/testnet/axelartestnet';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SkipProvider } from '@/contexts/skipGoContext';
+import { manifestAssets, manifestChain } from '@/config/manifestChain';
 
 const defaultOptions = {
   chains: [manifestChain, osmosisChain, axelarChain],
