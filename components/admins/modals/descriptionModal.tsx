@@ -15,13 +15,14 @@ export function DescriptionModal({
   type,
 }: Readonly<DescriptionModalProps>) {
   if (!open) return null;
+
   function handleClose() {
     onClose && onClose();
   }
 
   return (
     <Dialog
-      open
+      open={open}
       onClose={handleClose}
       className="modal modal-open mx-auto fixed flex p-0 m-0 top-0 z-[9999]"
       style={{

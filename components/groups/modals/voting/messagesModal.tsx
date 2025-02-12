@@ -1,4 +1,4 @@
-import { CloseIcon, defaultFields, importantFields, messageSyntax } from '@/components';
+import { defaultFields, importantFields, messageSyntax, MessageType } from '@/components';
 import React from 'react';
 import { ProposalSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { useTheme } from '@/contexts';
@@ -34,14 +34,16 @@ export function MessagesModal({
         </button>
         <h3 className="font-bold text-lg mb-4">Proposal Messages</h3>
         <div className="overflow-y-auto max-h-[60vh]">
-          {proposal.messages?.map((message: any, index: number) => {
+          {proposal.messages?.map((item, index) => {
+            // TODO: validate this in the type system, properly (requires work from manifestjs).
+            const message = item as unknown as MessageType;
             const messageType = message['@type'];
             const fieldsToShow = importantFields[messageType] || defaultFields;
 
             return (
               <div key={index} className="mb-6 bg-base-300 p-4 rounded-[12px]">
                 <h3 aria-label="msg" className="text-lg font-semibold mb-2 text-primary-content">
-                  {messageType.split('.').pop().replace('Msg', '')}
+                  {messageType.split('.').pop()?.replace('Msg', '')}
                 </h3>
                 <div className="font-mono">
                   <pre

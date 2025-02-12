@@ -35,10 +35,11 @@ import {
   strangeloveVenturesAminoConverters,
   strangeloveVenturesProtoRegistry,
 } from '@liftedinit/manifestjs';
+import { MainWalletBase } from '@cosmos-kit/core';
 
 const ManifestChainProvider = ({ children }: { children: ReactNode }) => {
   const web3auth = useContext(Web3AuthContext);
-  const combinedWallets = web3auth.wallets;
+  const combinedWallets = web3auth.wallets as MainWalletBase[];
 
   const endpointOptions = {
     isLazy: true,
@@ -73,7 +74,6 @@ const ManifestChainProvider = ({ children }: { children: ReactNode }) => {
       });
       return {
         aminoTypes: mergedAminoTypes,
-        // @ts-ignore
         registry: mergedRegistry,
       };
     },
@@ -84,7 +84,6 @@ const ManifestChainProvider = ({ children }: { children: ReactNode }) => {
       chains={[manifestChain, osmosisChain, axelarChain]}
       assetLists={[manifestAssets, osmosisAssets, axelarAssets]}
       defaultChain={manifestChain}
-      // @ts-ignore
       wallets={combinedWallets}
       logLevel={env.production ? 'NONE' : 'INFO'}
       endpointOptions={endpointOptions}
