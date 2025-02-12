@@ -33,7 +33,7 @@
     "@octokit/webhooks": "13.4.3"
   },
   "dependencies": {
-    "@chain-registry/assets": "^1.70.120",
+    "@chain-registry/assets": "^1.70.122",
     "@cosmjs/cosmwasm-stargate": "0.32.4",
     "@cosmjs/stargate": "npm:@liftedinit/stargate@0.32.4-ll.3",
     "@cosmos-kit/cosmos-extension-metamask": "^0.12.3",
@@ -55,7 +55,8 @@
     "apexcharts": "^3.54.0",
     "autoprefixer": "^10.4.20",
     "babel-plugin-glsl": "^1.0.0",
-    "chain-registry": "^1.69.120",
+    "bech32": "^2.0.0",
+    "chain-registry": "^1.69.122",
     "cosmjs-types": "^0.9.0",
     "cosmos-kit": "2.23.9",
     "country-flag-icons": "^1.5.13",

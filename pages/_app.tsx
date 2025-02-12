@@ -10,10 +10,6 @@ import { makeWeb3AuthWallets, SignData } from '@cosmos-kit/web3auth';
 import { useEffect, useMemo, useState } from 'react';
 import SignModal from '@/components/react/authSignerModal';
 import {
-  assets as manifestAssets,
-  chain as manifestChain,
-} from 'chain-registry/testnet/manifesttestnet';
-import {
   assets as osmosisAssets,
   chain as osmosisChain,
 } from 'chain-registry/testnet/osmosistestnet';
@@ -46,6 +42,7 @@ import MobileNav from '@/components/react/mobileNav';
 import { WEB3AUTH_NETWORK_TYPE } from '@web3auth/auth';
 
 import { SkipProvider } from '@/contexts/skipGoContext';
+import { manifestAssets, manifestChain } from '@/config/manifestChain';
 
 type ManifestAppProps = AppProps & {
   Component: AppProps['Component'];
