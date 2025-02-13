@@ -35,7 +35,6 @@ import { ToastProvider } from '@/contexts/toastContext';
 import { Web3AuthClient, Web3AuthWallet } from '@cosmos-kit/web3auth';
 import { useDeviceDetect } from '@/hooks';
 import { State } from '@cosmos-kit/core';
-import { ExpiredError } from '@cosmos-kit/core';
 
 export enum ModalView {
   WalletList,
@@ -154,7 +153,7 @@ export const TailwindModal: React.FC<
         },
       });
     }
-  }, [currentView, qrWallet]);
+  }, [currentView, qrWallet, setQrMessage, setQRState]);
 
   /**
    * Helper to handle Email or SMS wallet flows.
@@ -384,163 +383,171 @@ export const TailwindModal: React.FC<
    *  - Error, NotExist
    *  - Contacts (an address book / contact list view)
    */
-  const _render = useMemo(() => {
-    switch (currentView) {
-      case ModalView.WalletList:
-        return (
-          <WalletList
-            onClose={onCloseModal}
-            onWalletClicked={onWalletClicked}
-            wallets={walletRepo?.wallets || []}
-          />
-        );
+  const _render = useMemo(
+    () => {
+      switch (currentView) {
+        case ModalView.WalletList:
+          return (
+            <WalletList
+              onClose={onCloseModal}
+              onWalletClicked={onWalletClicked}
+              wallets={walletRepo?.wallets || []}
+            />
+          );
 
-      case ModalView.EmailInput:
-        return (
-          <EmailInput
-            onClose={onCloseModal}
-            onReturn={() => setCurrentView(ModalView.WalletList)}
-            onSubmit={async email => {
-              try {
-                const emailWallet = walletRepo?.wallets.find(
-                  w => w.walletInfo.prettyName === 'Email'
+        case ModalView.EmailInput:
+          return (
+            <EmailInput
+              onClose={onCloseModal}
+              onReturn={() => setCurrentView(ModalView.WalletList)}
+              onSubmit={async email => {
+                try {
+                  const emailWallet = walletRepo?.wallets.find(
+                    w => w.walletInfo.prettyName === 'Email'
+                  ) as Web3AuthWallet | undefined;
+
+                  if (emailWallet?.client instanceof Web3AuthClient) {
+                    // Provide the user's email to the client before connecting
+                    emailWallet.client.setLoginHint(email);
+                    await walletRepo?.connect(emailWallet.walletInfo.name);
+                  } else {
+                    console.error('Email wallet or client not found');
+                  }
+                } catch (error) {
+                  console.error('Email login error:', error);
+                }
+              }}
+            />
+          );
+
+        case ModalView.SMSInput:
+          return (
+            <SMSInput
+              onClose={onCloseModal}
+              onReturn={() => setCurrentView(ModalView.WalletList)}
+              onSubmit={phone => {
+                const smsWallet = walletRepo?.wallets.find(
+                  w => w.walletInfo.prettyName === 'SMS'
                 ) as Web3AuthWallet | undefined;
 
-                if (emailWallet?.client instanceof Web3AuthClient) {
-                  // Provide the user's email to the client before connecting
-                  emailWallet.client.setLoginHint(email);
-                  await walletRepo?.connect(emailWallet.walletInfo.name);
-                } else {
-                  console.error('Email wallet or client not found');
+                if (smsWallet?.client instanceof Web3AuthClient) {
+                  // Provide the user's phone number to the client before connecting
+                  smsWallet.client.setLoginHint(phone);
+                  walletRepo?.connect(smsWallet.walletInfo.name);
                 }
-              } catch (error) {
-                console.error('Email login error:', error);
-              }
-            }}
-          />
-        );
+              }}
+            />
+          );
 
-      case ModalView.SMSInput:
-        return (
-          <SMSInput
-            onClose={onCloseModal}
-            onReturn={() => setCurrentView(ModalView.WalletList)}
-            onSubmit={phone => {
-              const smsWallet = walletRepo?.wallets.find(w => w.walletInfo.prettyName === 'SMS') as
-                | Web3AuthWallet
-                | undefined;
+        case ModalView.Connected:
+          return (
+            <Connected
+              onClose={onCloseModal}
+              onReturn={() => setCurrentView(ModalView.WalletList)}
+              disconnect={() => current?.disconnect()}
+              name={currentWalletData?.prettyName!}
+              logo={currentWalletData?.logo!.toString() ?? ''}
+              username={current?.username}
+              address={current?.address}
+            />
+          );
 
-              if (smsWallet?.client instanceof Web3AuthClient) {
-                // Provide the user's phone number to the client before connecting
-                smsWallet.client.setLoginHint(phone);
-                walletRepo?.connect(smsWallet.walletInfo.name);
-              }
-            }}
-          />
-        );
+        case ModalView.Connecting:
+          // Decide a tailored message if it's a WalletConnect flow
+          let subtitle: string;
+          if (currentWalletData!?.mode === 'wallet-connect') {
+            subtitle = `Approve ${currentWalletData!.prettyName} connection request on your mobile device.`;
+          } else {
+            subtitle = `Open the ${
+              currentWalletData!?.prettyName
+            } browser extension to connect your wallet.`;
+          }
+          return (
+            <Connecting
+              onClose={onCloseModal}
+              onReturn={() => setCurrentView(ModalView.WalletList)}
+              name={currentWalletData?.prettyName!}
+              logo={currentWalletData?.logo!.toString() ?? ''}
+              title="Requesting Connection"
+              subtitle={subtitle}
+            />
+          );
 
-      case ModalView.Connected:
-        return (
-          <Connected
-            onClose={onCloseModal}
-            onReturn={() => setCurrentView(ModalView.WalletList)}
-            disconnect={() => current?.disconnect()}
-            name={currentWalletData?.prettyName!}
-            logo={currentWalletData?.logo!.toString() ?? ''}
-            username={current?.username}
-            address={current?.address}
-          />
-        );
+        case ModalView.QRCode:
+          return (
+            <QRCodeView onClose={onCloseModal} onReturn={onReturnToWalletList} wallet={qrWallet!} />
+          );
 
-      case ModalView.Connecting:
-        // Decide a tailored message if it's a WalletConnect flow
-        let subtitle: string;
-        if (currentWalletData!?.mode === 'wallet-connect') {
-          subtitle = `Approve ${currentWalletData!.prettyName} connection request on your mobile device.`;
-        } else {
-          subtitle = `Open the ${
-            currentWalletData!?.prettyName
-          } browser extension to connect your wallet.`;
-        }
-        return (
-          <Connecting
-            onClose={onCloseModal}
-            onReturn={() => setCurrentView(ModalView.WalletList)}
-            name={currentWalletData?.prettyName!}
-            logo={currentWalletData?.logo!.toString() ?? ''}
-            title="Requesting Connection"
-            subtitle={subtitle}
-          />
-        );
+        case ModalView.Error:
+          return (
+            <Error
+              currentWalletName={currentWalletName ?? ''}
+              onClose={onCloseModal}
+              onReturn={() => setCurrentView(ModalView.WalletList)}
+              logo={currentWalletData?.logo!.toString() ?? ''}
+              onReconnect={() => onWalletClicked(currentWalletData?.name!)}
+            />
+          );
 
-      case ModalView.QRCode:
-        return (
-          <QRCodeView onClose={onCloseModal} onReturn={onReturnToWalletList} wallet={qrWallet!} />
-        );
+        case ModalView.NotExist:
+          return (
+            <NotExist
+              onClose={onCloseModal}
+              onReturn={() => setCurrentView(ModalView.WalletList)}
+              onInstall={() => {
+                const link = selectedWallet?.downloadInfo?.link;
+                if (link) window.open(link, '_blank', 'noopener,noreferrer');
+              }}
+              logo={selectedWallet?.walletInfo.logo?.toString() ?? ''}
+              name={selectedWallet?.walletInfo.prettyName ?? ''}
+            />
+          );
 
-      case ModalView.Error:
-        return (
-          <Error
-            currentWalletName={currentWalletName ?? ''}
-            onClose={onCloseModal}
-            onReturn={() => setCurrentView(ModalView.WalletList)}
-            logo={currentWalletData?.logo!.toString() ?? ''}
-            onReconnect={() => onWalletClicked(currentWalletData?.name!)}
-          />
-        );
+        case ModalView.Contacts:
+          return (
+            <Contacts
+              onClose={onCloseModal}
+              onReturn={walletRepo ? () => setCurrentView(ModalView.WalletList) : undefined}
+              selectionMode={Boolean(onSelect)}
+              onSelect={onSelect}
+              currentAddress={currentAddress}
+              showMessageEditModal={showMessageEditModal}
+            />
+          );
 
-      case ModalView.NotExist:
-        return (
-          <NotExist
-            onClose={onCloseModal}
-            onReturn={() => setCurrentView(ModalView.WalletList)}
-            onInstall={() => {
-              const link = selectedWallet?.downloadInfo?.link;
-              if (link) window.open(link, '_blank', 'noopener,noreferrer');
-            }}
-            logo={selectedWallet?.walletInfo.logo?.toString() ?? ''}
-            name={selectedWallet?.walletInfo.prettyName ?? ''}
-          />
-        );
-
-      case ModalView.Contacts:
-        return (
-          <Contacts
-            onClose={onCloseModal}
-            onReturn={walletRepo ? () => setCurrentView(ModalView.WalletList) : undefined}
-            selectionMode={Boolean(onSelect)}
-            onSelect={onSelect}
-            currentAddress={currentAddress}
-            showMessageEditModal={showMessageEditModal}
-          />
-        );
-
-      default:
-        // A fallback if we are syncing or re-connecting
-        return (
-          <div className="flex flex-col items-center justify-center p-6 gap-3">
-            <p className="text-sm text-gray-600 dark:text-gray-400">Reconnecting your wallet...</p>
-            <div className="loading loading-ring w-8 h-8 text-primary" />
-          </div>
-        );
-    }
-  }, [
-    currentView,
-    onCloseModal,
-    onWalletClicked,
-    walletRepo,
-    currentWalletData,
-    current,
-    onSelect,
-    currentAddress,
-    showMessageEditModal,
-    selectedWallet,
-    qrState,
-    qrMessage,
-    qrWallet,
-    onReturnToWalletList,
-    currentWalletName,
-  ]);
+        default:
+          // A fallback if we are syncing or re-connecting
+          return (
+            <div className="flex flex-col items-center justify-center p-6 gap-3">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Reconnecting your wallet...
+              </p>
+              <div className="loading loading-ring w-8 h-8 text-primary" />
+            </div>
+          );
+      }
+    },
+    // `qrState` and `qrMessage` are used to detect changes in their string content,
+    // so we need to include them in the dependencies array even if they're not used.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      currentView,
+      onCloseModal,
+      onWalletClicked,
+      walletRepo,
+      currentWalletData,
+      current,
+      onSelect,
+      currentAddress,
+      showMessageEditModal,
+      selectedWallet,
+      qrState,
+      qrMessage,
+      qrWallet,
+      onReturnToWalletList,
+      currentWalletName,
+    ]
+  );
 
   /**
    * Render the Modal with transitions. We wrap our entire view in ToastProvider

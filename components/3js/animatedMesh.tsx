@@ -57,7 +57,7 @@ function AnimatedMesh({
 
     geo.setAttribute('faceNormal', new BufferAttribute(faceNormals, 3));
     return geo;
-  }, []);
+  }, [shapeGeo]);
 
   // Create material
   const material = useMemo(() => {
