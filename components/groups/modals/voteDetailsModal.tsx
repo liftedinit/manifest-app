@@ -49,7 +49,6 @@ interface VoteDetailsModalProps {
   proposal: ProposalSDKType;
   showVoteModal: boolean;
   group: ExtendedGroupType;
-  setShowVoteModal: (show: boolean) => void;
   onClose: () => void;
   refetchVotes: () => void;
   refetchTally: () => void;
@@ -101,7 +100,6 @@ function VoteDetailsModal({
   members,
   proposal,
   showVoteModal,
-  setShowVoteModal,
   onClose,
   refetchVotes,
   refetchTally,
@@ -273,12 +271,12 @@ function VoteDetailsModal({
     refetchDenoms();
   }
 
-  const handleVote = async (option: number) => {
+  const handleVote = async (option: VoteOption) => {
     setIsSigning(true);
     const msg = vote({
       proposalId: proposal.id,
       voter: address ?? '',
-      option: option,
+      option,
       metadata: '',
       exec: 0,
     });
@@ -772,7 +770,7 @@ function VoteDetailsModal({
           open={showVotingPopup}
           onClose={vote => {
             if (vote) {
-              handleVote(vote);
+              handleVote(vote as unknown as VoteOption);
             }
             setShowVotingPopup(false);
           }}

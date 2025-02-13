@@ -2,12 +2,14 @@ import { useFeeEstimation } from '@/hooks';
 import { useTx } from '@/hooks/useTx';
 import { cosmos } from '@liftedinit/manifestjs';
 import { useChain } from '@cosmos-kit/react';
-import React, { useState } from 'react';
+import React from 'react';
 import { CloseIcon } from '@/components/icons';
 import env from '@/config/env';
 import { Dialog } from '@headlessui/react';
-import { SignModal } from '@/components/react';
-import { ProposalSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import {
+  ProposalSDKType,
+  VoteOption,
+} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 
 function VotingPopup({
   open,
@@ -15,7 +17,7 @@ function VotingPopup({
   proposal,
 }: {
   open: boolean;
-  onClose: (vote?: number) => void;
+  onClose: (vote?: VoteOption) => void;
   proposal: ProposalSDKType;
 }) {
   const { estimateFee } = useFeeEstimation(env.chain);
@@ -47,16 +49,28 @@ function VotingPopup({
             <div className="loading loading-dots loading-sm" />
           ) : (
             <>
-              <button onClick={() => closeModal(1)} className="btn btn-success">
+              <button
+                onClick={() => closeModal(VoteOption.VOTE_OPTION_YES)}
+                className="btn btn-success"
+              >
                 Yes
               </button>
-              <button onClick={() => closeModal(3)} className="btn btn-error">
+              <button
+                onClick={() => closeModal(VoteOption.VOTE_OPTION_NO)}
+                className="btn btn-error"
+              >
                 No
               </button>
-              <button onClick={() => closeModal(4)} className="btn btn-warning">
+              <button
+                onClick={() => closeModal(VoteOption.VOTE_OPTION_NO_WITH_VETO)}
+                className="btn btn-warning"
+              >
                 No With Veto
               </button>
-              <button onClick={() => closeModal(2)} className="btn btn-info">
+              <button
+                onClick={() => closeModal(VoteOption.VOTE_OPTION_ABSTAIN)}
+                className="btn btn-info"
+              >
                 Abstain
               </button>
             </>

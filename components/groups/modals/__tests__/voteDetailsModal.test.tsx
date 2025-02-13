@@ -38,7 +38,6 @@ describe('VoteDetailsModal', () => {
     proposal: mockProposal,
     group: {} as any,
     showVoteModal: true,
-    setShowVoteModal: jest.fn(),
     onClose: jest.fn(),
     modalId: 'voteDetailsModal',
     refetchVotes: jest.fn(),
