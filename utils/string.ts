@@ -6,10 +6,13 @@ export function truncateString(str: string, prefixLen: number = 6, suffixLen: nu
   return str.slice(0, prefixLen) + '...' + str.slice(-suffixLen);
 }
 
-export function truncateAddress(address: string, num: number = 24) {
-  if (address.length <= num) return address;
+export function truncateAddress(address: string | null | undefined, num: number = 24) {
+  if (address == null) {
+    console.warn('unable to truncate undefined/null address');
+    return '';
+  }
 
-  return address.slice(0, num) + '...';
+  return address.length > num ? `${address.slice(0, num)}...` : address;
 }
 
 export function secondsToHumanReadable(seconds: number): string {
