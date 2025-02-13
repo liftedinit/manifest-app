@@ -1,9 +1,11 @@
 import {
   ProposalExecutorResult,
+  proposalExecutorResultFromJSON,
   ProposalSDKType,
   ProposalStatus,
   proposalStatusFromJSON,
-  proposalExecutorResultFromJSON,
+  VoteOption,
+  voteOptionFromJSON,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 
 export function getProposalStatusLabel(proposal: ProposalSDKType): string {
@@ -13,7 +15,7 @@ export function getProposalStatusLabel(proposal: ProposalSDKType): string {
         case ProposalStatus.PROPOSAL_STATUS_UNSPECIFIED:
           return 'unspecified';
         case ProposalStatus.PROPOSAL_STATUS_SUBMITTED:
-          return 'submitted';
+          return 'voting';
         case ProposalStatus.PROPOSAL_STATUS_ACCEPTED:
           return 'accepted';
         case ProposalStatus.PROPOSAL_STATUS_WITHDRAWN:
@@ -63,5 +65,40 @@ export function getProposalButton(proposal: ProposalSDKType): JSX.Element | unde
     case ProposalExecutorResult.PROPOSAL_EXECUTOR_RESULT_SUCCESS:
     default:
       return undefined;
+  }
+}
+
+export function getVoteOptionLabel(option: VoteOption): string {
+  switch (voteOptionFromJSON(option)) {
+    case VoteOption.VOTE_OPTION_UNSPECIFIED:
+      return 'unspecified';
+    case VoteOption.VOTE_OPTION_YES:
+      return 'yes';
+    case VoteOption.VOTE_OPTION_NO:
+      return 'no';
+    case VoteOption.VOTE_OPTION_ABSTAIN:
+      return 'abstain';
+    case VoteOption.VOTE_OPTION_NO_WITH_VETO:
+      return 'veto';
+    case VoteOption.UNRECOGNIZED:
+    default:
+      return 'unknown';
+  }
+}
+
+export function getVoteOptionBadgeColor(option?: VoteOption): string {
+  switch (voteOptionFromJSON(option)) {
+    case VoteOption.VOTE_OPTION_YES:
+      return 'bg-success';
+    case VoteOption.VOTE_OPTION_NO:
+      return 'bg-error';
+    case VoteOption.VOTE_OPTION_ABSTAIN:
+      return 'bg-info';
+    case VoteOption.VOTE_OPTION_NO_WITH_VETO:
+      return 'bg-warning';
+    case VoteOption.UNRECOGNIZED:
+    case VoteOption.VOTE_OPTION_UNSPECIFIED:
+    default:
+      return 'bg-gray-400';
   }
 }

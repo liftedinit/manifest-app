@@ -4,7 +4,6 @@ import { PrismAsyncLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import json from 'react-syntax-highlighter/dist/esm/languages/prism/json';
 
 import {
-  MemberSDKType,
   ProposalExecutorResult,
   ProposalSDKType,
   ProposalStatus,
@@ -31,10 +30,13 @@ import { messageSyntax } from '@/components';
 import { Dialog } from '@headlessui/react';
 import { SignModal } from '@/components/react';
 import { MessagesModal } from '@/components/groups/modals/voting/messagesModal';
-
-const Chart = dynamic(() => import('react-apexcharts'), {
-  ssr: false,
-}) as any;
+import {
+  getProposalButton,
+  getProposalStatusLabel,
+  getVoteOptionBadgeColor,
+  getVoteOptionLabel,
+} from '@/components/groups/utils';
+import { Tally } from '@/components/groups/modals/tally';
 
 SyntaxHighlighter.registerLanguage('json', json);
 
@@ -45,7 +47,6 @@ interface VoteMap {
 interface VoteDetailsModalProps {
   tallies: QueryTallyResultResponseSDKType;
   votes: VoteSDKType[];
-  members: MemberSDKType[];
   proposal: ProposalSDKType;
   showVoteModal: boolean;
   group: ExtendedGroupType;
@@ -97,7 +98,6 @@ export const defaultFields = ['@type'];
 function VoteDetailsModal({
   tallies,
   votes,
-  members,
   proposal,
   showVoteModal,
   onClose,
@@ -108,8 +108,7 @@ function VoteDetailsModal({
   refetchDenoms,
 }: VoteDetailsModalProps) {
   const status = proposalStatusFromJSON(proposal.status);
-
-  const voteMap = useMemo(
+  useMemo(
     () =>
       votes?.reduce<VoteMap>((acc, vote) => {
         const voterKey = vote?.voter?.toLowerCase().trim();
@@ -118,50 +117,9 @@ function VoteDetailsModal({
       }, {}),
     [votes]
   );
-
   const { address } = useChain(env.chain);
   const { theme } = useTheme();
-
-  const textColor = theme === 'dark' ? '#FFFFFF' : '#161616';
-
-  const normalizedMembers = useMemo(
-    () =>
-      members?.map(member => ({
-        ...member,
-      })),
-    [members]
-  );
-
-  const executorResultMapping: { [key: string]: string } = {
-    PROPOSAL_EXECUTOR_RESULT_NOT_RUN: 'execute',
-    PROPOSAL_EXECUTOR_RESULT_SUCCESS: 'success',
-    PROPOSAL_EXECUTOR_RESULT_FAILURE: 'failed',
-  };
-
-  const votingStatusResultMapping: { [key: string]: string } = {
-    PROPOSAL_STATUS_WITHDRAWN: 'withdrawn',
-    PROPOSAL_STATUS_SUBMITTED: 'voting',
-    PROPOSAL_STATUS_ABORTED: 'aborted',
-    PROPOSAL_STATUS_ACCEPTED: 'accepted',
-    PROPOSAL_STATUS_REJECTED: 'rejected',
-  };
-
-  const voteMapping: { [key: string]: string } = {
-    VOTE_OPTION_YES: 'yes',
-    VOTE_OPTION_NO: 'no',
-    VOTE_OPTION_NO_WITH_VETO: 'veto',
-    VOTE_OPTION_ABSTAIN: 'abstain',
-  };
-
-  const getStatusLabel = (proposal: any) => {
-    if (proposal.executor_result === 'PROPOSAL_EXECUTOR_RESULT_NOT_RUN') {
-      return votingStatusResultMapping[proposal.status] || 'unknown status';
-    }
-
-    return executorResultMapping[proposal.executor_result] || 'unknown status';
-  };
-
-  const [chartData, setChartData] = useState<number[]>([0, 0, 0, 0]);
+  const [, setChartData] = useState<number[]>([0, 0, 0, 0]);
 
   useEffect(() => {
     const yesCount = parseInt(tallies?.tally?.yes_count ?? '0');
@@ -171,81 +129,6 @@ function VoteDetailsModal({
 
     setChartData([yesCount, noCount, vetoCount, abstainCount]);
   }, [tallies, votes]);
-
-  const options: ApexOptions = {
-    chart: {
-      type: 'bar',
-
-      toolbar: {
-        tools: {
-          download: false,
-        },
-      },
-    },
-    legend: {
-      labels: {
-        useSeriesColors: true,
-      },
-      markers: {
-        strokeWidth: 0,
-      },
-    },
-    states: {
-      normal: {
-        filter: { type: 'none', value: 0 },
-      },
-      hover: {
-        filter: { type: 'lighten', value: 0.2 },
-      },
-      active: {
-        filter: { type: 'darken', value: 0.2 },
-        allowMultipleDataPointsSelection: false,
-      },
-    },
-    plotOptions: {
-      bar: {
-        horizontal: false,
-        columnWidth: '55%',
-        distributed: true,
-      },
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    stroke: {
-      show: false,
-    },
-    xaxis: {
-      categories: ['Yes', 'No', 'Veto', 'Abstain'],
-      labels: {
-        style: {
-          colors: textColor,
-        },
-      },
-    },
-    yaxis: {
-      min: 0,
-      tickAmount: votes?.length,
-      forceNiceScale: true,
-      labels: {
-        style: {
-          colors: textColor,
-        },
-      },
-    },
-    fill: {
-      opacity: 1,
-    },
-    series: [
-      {
-        data: chartData,
-      },
-    ],
-    colors: ['#4CAF50', '#E53935', '#FFB300', '#3F51B5'],
-    tooltip: {
-      enabled: false,
-    },
-  };
   const { tx, isSigning, setIsSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
 
@@ -344,24 +227,6 @@ function VoteDetailsModal({
       console.error('Failed to execute proposal: ', error);
     }
   };
-
-  const optionToVote = (option: string) => {
-    switch (option) {
-      case 'VOTE_OPTION_YES':
-        return 'Yes';
-      case 'VOTE_OPTION_NO':
-        return 'No';
-      case 'VOTE_OPTION_NO_WITH_VETO':
-        return 'Veto';
-      case 'VOTE_OPTION_ABSTAIN':
-        return 'Abstain';
-      case undefined:
-        return 'N/A';
-      default:
-        return 'Unknown';
-    }
-  };
-
   const [countdownValues, setCountdownValues] = useState({
     days: 0,
     hours: 0,
@@ -410,7 +275,7 @@ function VoteDetailsModal({
 
   const userVoteOption = userHasVoted
     ? votes?.find(vote => vote.voter.toLowerCase().trim() === address)?.option
-    : null;
+    : undefined;
 
   const renderMessageField = (key: string, value: any, depth: number = 0): JSX.Element => {
     const truncateText = (text: string, maxLength: number = 30) => {
@@ -455,8 +320,7 @@ function VoteDetailsModal({
       );
     }
   };
-
-  const getButtonState = useMemo(() => {
+  useMemo(() => {
     const isWithdrawn = status === ProposalStatus.PROPOSAL_STATUS_WITHDRAWN;
     const isAborted = status === ProposalStatus.PROPOSAL_STATUS_ABORTED;
     const isAccepted = status === ProposalStatus.PROPOSAL_STATUS_ACCEPTED;
@@ -485,7 +349,6 @@ function VoteDetailsModal({
     }
     return { action: null, label: null };
   }, [proposal, proposalExpired, status, userHasVoted, address]);
-
   const [copied, setCopied] = useState(false);
 
   const copyProposalLink = () => {
@@ -514,7 +377,7 @@ function VoteDetailsModal({
 
       <Dialog.Panel className="flex flex-col items-center justify-center w-full h-full">
         <div
-          className="modal-box relative max-w-4xl min-h-96 max-h-[80vh] overflow-y-auto md:overflow-y-hidden flex flex-col md:flex-row -mt-12 rounded-[24px] shadow-lg bg-secondary transition-all duration-300"
+          className="modal-box relative max-w-4xl min-h-96 max-h-[80vh] overflow-y-auto flex flex-col -mt-12 rounded-[24px] shadow-lg bg-secondary transition-all duration-300"
           onClick={e => e.stopPropagation()}
         >
           <button
@@ -523,241 +386,63 @@ function VoteDetailsModal({
           >
             ✕
           </button>
-          <div className="flex flex-col flex-grow w-full p-2 space-y-6">
-            <div className="flex flex-row justify-between items-center">
-              <div className="flex flex-row gap-2 items-center">
-                <p className="text-xl font-bold text-primary-content">
-                  #{proposal?.id?.toString() ?? '0'}
-                </p>
-                <span className="badge badge-lg shadow-lg justify-center badge-primary text-neutral-content rounded-full">
-                  {getStatusLabel(proposal)}
-                </span>
-              </div>
+
+          {/* Header */}
+          <div className="grid grid-cols-3 w-full items-center pb-3 mt-4">
+            <div className="text-left">
+              <h2 className="text-xl font-bold">#{proposal?.id?.toString()}</h2>
+              <span className="badge badge-lg shadow-lg badge-primary text-neutral-content rounded-full px-3 py-1 mt-2">
+                {getProposalStatusLabel(proposal)}
+              </span>
+            </div>
+            <div className="text-center">
+              <CountdownTimer endTime={new Date(proposal.voting_period_end)} />
+            </div>
+            <div className="text-right">
               {userHasVoted && (
-                <div className="flex flex-row gap-2 justify-center items-center">
+                <div className="text-right mt-2">
                   <span className="text-sm text-primary-content">Your vote:</span>
                   <span
-                    className={`badge badge-lg rounded-full ${
-                      userVoteOption?.toString() === 'VOTE_OPTION_YES'
-                        ? 'bg-success'
-                        : userVoteOption?.toString() === 'VOTE_OPTION_NO'
-                          ? 'bg-error'
-                          : userVoteOption?.toString() === 'VOTE_OPTION_NO_WITH_VETO'
-                            ? 'bg-warning'
-                            : userVoteOption?.toString() === 'VOTE_OPTION_ABSTAIN'
-                              ? 'bg-info'
-                              : ''
-                    }`}
+                    className={`badge badge-lg rounded-full ${getVoteOptionBadgeColor(userVoteOption)}`}
                   >
-                    {userVoteOption !== null ? voteMapping[userVoteOption ?? ''] : null}
+                    {userVoteOption ? getVoteOptionLabel(userVoteOption) : null}
                   </span>
                 </div>
               )}
             </div>
-            <div className="flex flex-col justify-start items-start">
-              <p className="text-sm font-light text-gray-500 dark:text-gray-400">TITLE</p>
-              <h1 className="text-2xl font-bold max-w-[20ch] truncate text-primary-content">
-                {proposal?.title}
-              </h1>
-              <span className="text-sm font-light text-gray-500 dark:text-gray-400 mt-2">
-                SUBMITTED
-              </span>
-              <span className="text-sm text-primary-content">
-                {new Date(proposal?.submit_time).toDateString().toLocaleString()}
-              </span>
-            </div>
-            <div className="divider my-"></div>
-            {proposal?.summary && (
-              <div className="w-full">
-                <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2 ">SUMMARY</p>
-                <div className="bg-base-300 rounded-[12px] p-4">
-                  <p className="text-sm text-primary-content">{proposal?.summary}</p>
-                </div>
-              </div>
-            )}
-            <div className="w-full">
-              <div className="flex items-center gap-2 mb-2">
-                <p className="text-sm font-light text-gray-500 dark:text-gray-400">MESSAGES</p>
-                <button
-                  onClick={() => setShowMessages(true)}
-                  className="btn btn-xs btn-ghost btn-circle"
-                  data-testid="expand-messages"
-                  title="Expand messages"
-                >
-                  <ArrowUpIcon className="w-4 h-4" />
-                </button>
-              </div>
-              <div
-                className={`bg-base-300 rounded-[12px] p-4 overflow-y-auto max-w-[22rem] overflow-x-auto ${
-                  proposal.summary ? 'max-h-[10rem]' : 'max-h-[17rem]'
-                }`}
-              >
-                {proposal?.messages?.map((message: any, index: number) => {
-                  const messageType = message['@type'];
-                  const fieldsToShow = importantFields[messageType] || defaultFields;
+          </div>
 
-                  return (
-                    <div key={index} className="mb-4">
-                      <h3 className="text-lg font-semibold mb-2 text-primary-content">
-                        {messageType.split('.').pop().replace('Msg', '')}
-                      </h3>
-                      <div className="font-mono">
-                        <pre
-                          className="whitespace-pre-wrap break-words bg-base-200 rounded-lg text-sm overflow-x-auto"
-                          aria-label="message-json"
-                        >
-                          {messageSyntax(fieldsToShow, message, theme)}
-                        </pre>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-            <div aria-label="voting-countdown-1" className="hidden md:block w-full">
-              <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
-                VOTING COUNTDOWN
-              </p>
-              <CountdownTimer endTime={new Date(proposal?.voting_period_end)} />
-            </div>
-            <div className="flex-row gap-2 items-center hidden md:flex mb-2">
+          {/* Divider */}
+          <hr className="w-full border-gray-700" />
+
+          {/* Proposal Title */}
+          <div className="mt-4">
+            <h2 className="text-lg font-semibold">Title</h2>
+            <p className="text-sm text-gray-300 bg-gray-700 p-3 rounded-lg mt-1 max-h-40 overflow-auto">
+              {proposal.title}
+            </p>
+          </div>
+
+          <div className="mt-4">
+            <div className="flex items-center gap-2 mb-2">
+              <h2 className="text-lg font-semibold">Summary</h2>
               <button
-                onClick={copyProposalLink}
-                className="flex flex-row items-center gap-2 hover:bg-[#FFFFFFCC] dark:hover:bg-[#FFFFFF0F] p-2 rounded-full transition-colors duration-200"
+                className="btn btn-xs btn-ghost btn-circle"
+                title="View Proposal Messages"
+                onClick={() => setShowMessages(true)}
               >
-                {copied ? (
-                  <CheckIcon className="w-4 h-4 text-green-500" />
-                ) : (
-                  <CopyIcon className="w-4 h-4" />
-                )}
-                <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-                  {copied ? 'Copied!' : 'Share this proposal'}
-                </p>
+                <ArrowUpIcon className="w-4 h-4" />
               </button>
             </div>
+            <p className="text-sm text-gray-300 bg-gray-700 p-3 rounded-lg mt-1 max-h-40 overflow-auto">
+              {proposal.summary}
+            </p>
           </div>
-          <div className="divider divider-horizontal"></div>
-          <div className="flex flex-col w-full relative flex-grow items-start justify-start p-6 space-y-6">
-            <div className="w-full">
-              <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">TALLY</p>
-              <div aria-label="chart-tally" className="bg-base-300 rounded-[12px] w-full">
-                <Chart options={options} series={[{ data: chartData }]} type="bar" height={200} />
-              </div>
-            </div>
-            <div className="w-full">
-              <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">MEMBERS</p>
-              <div className="bg-base-300 rounded-[12px] p-4 w-full">
-                <div className="overflow-x-auto w-full min-h-64 max-h-[22.5rem] overflow-y-auto">
-                  <table className="table-auto w-full text-sm">
-                    <thead className="text-xs uppercase bg-neutral">
-                      <tr>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 first:rounded-tl-[12px] text-primary-content"
-                        >
-                          Address
-                        </th>
-                        <th scope="col" className="px-6 py-3 text-primary-content">
-                          Weight
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 last:rounded-tr-[12px] text-primary-content"
-                        >
-                          Vote
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {normalizedMembers?.map((member, index) => {
-                        const memberVote = voteMap[member?.address];
-                        return (
-                          <tr key={index} className="border-b border-gray-500">
-                            <td className="px-6 py-4">
-                              <TruncatedAddressWithCopy slice={8} address={member?.address} />
-                            </td>
-                            <td className="px-6 py-4 text-primary-content">{member?.weight}</td>
-                            <td className="px-6 py-4 text-primary-content">
-                              {optionToVote(memberVote?.toString()) || 'N/A'}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-            <div aria-label="voting-countdown-2" className="md:hidden block w-full">
-              <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
-                VOTING COUNTDOWN
-              </p>
-              <CountdownTimer endTime={new Date(proposal.voting_period_end)} />
-            </div>
-            <div className="flex-row gap-2 items-center flex md:hidden mb-2">
-              <button
-                onClick={copyProposalLink}
-                className="flex flex-row items-center gap-2 hover:bg-[#FFFFFFCC] dark:hover:bg-[#FFFFFF0F] p-2 rounded-full transition-colors duration-200"
-              >
-                {copied ? (
-                  <CheckIcon className="w-4 h-4 text-green-500" />
-                ) : (
-                  <CopyIcon className="w-4 h-4" />
-                )}
-                <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-                  {copied ? 'Copied!' : 'Share this proposal'}
-                </p>
-              </button>
-            </div>
-            <div className="w-full relative">
-              {getButtonState.action && (
-                <button
-                  aria-label="action-btn"
-                  disabled={
-                    isSigning ||
-                    (getButtonState.action === 'remove' &&
-                      !proposal?.proposers?.includes(address ?? ''))
-                  }
-                  className="btn w-full btn-gradient text-white rounded-[12px]"
-                  onClick={() => {
-                    switch (getButtonState.action) {
-                      case 'execute':
-                        executeProposal();
-                        break;
-                      case 'vote':
-                        setShowVotingPopup(true);
-                        break;
-                      case 'remove':
-                        executeWithdrawal();
-                        break;
-                    }
-                  }}
-                >
-                  {isSigning ? (
-                    <div className="loading loading-dots loading-sm" />
-                  ) : (
-                    getButtonState.label
-                  )}
-                </button>
-              )}
-              {proposal?.proposers?.includes(address ?? '') &&
-                proposal?.status !== ('PROPOSAL_STATUS_WITHDRAWN' as unknown as ProposalStatus) &&
-                !proposalExpired &&
-                userHasVoted === false && (
-                  <button
-                    disabled={isSigning || !proposal?.proposers?.includes(address ?? '')}
-                    className="btn btn-xs text-white btn-error absolute top-3 right-3 rounded-lg"
-                    onClick={executeWithdrawal}
-                  >
-                    {isSigning ? (
-                      <div className="loading loading-dots loading-sm" />
-                    ) : (
-                      <TrashIcon className="w-4 h-4" />
-                    )}
-                  </button>
-                )}
-            </div>
+
+          <div className="mt-4">
+            <Tally tallies={tallies} />
           </div>
+          {getProposalButton(proposal) && <div className="mt-6">{getProposalButton(proposal)}</div>}
         </div>
 
         <MessagesModal
