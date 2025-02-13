@@ -2,11 +2,8 @@ import { describe, test, afterEach, expect, jest, mock, beforeAll } from 'bun:te
 import React from 'react';
 import { screen, cleanup, fireEvent, act } from '@testing-library/react';
 import IbcSendForm from '@/components/bank/forms/ibcSendForm';
-import matchers from '@testing-library/jest-dom/matchers';
 import { mockBalances } from '@/tests/mock';
 import { renderWithChainProvider } from '@/tests/render';
-
-expect.extend(matchers);
 
 // Mock next/router
 mock.module('next/router', () => ({

@@ -2,11 +2,8 @@ import { describe, test, afterEach, expect, jest, mock } from 'bun:test';
 import React from 'react';
 import { screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
 import MemberInfoForm from '@/components/groups/forms/groups/MemberInfoForm';
-import matchers from '@testing-library/jest-dom/matchers';
 import { renderWithChainProvider } from '@/tests/render';
 import { mockGroupFormData } from '@/tests/mock';
-
-expect.extend(matchers);
 
 // Mock next/router
 const m = jest.fn();

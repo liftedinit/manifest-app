@@ -2,9 +2,6 @@ import { describe, test, afterEach, expect } from 'bun:test';
 import React from 'react';
 import { render, screen, cleanup } from '@testing-library/react';
 import { DescriptionModal } from '@/components/admins/modals/descriptionModal';
-import matchers from '@testing-library/jest-dom/matchers';
-
-expect.extend(matchers);
 
 describe('DescriptionModal Component', () => {
   const modalId = 'test-modal';

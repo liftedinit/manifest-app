@@ -1,6 +1,5 @@
 import { test, expect, afterEach, describe, mock, jest } from 'bun:test';
 import React from 'react';
-import matchers from '@testing-library/jest-dom/matchers';
 import { fireEvent, screen, cleanup, within, waitFor } from '@testing-library/react';
 import { TokenList } from '@/components/bank/components/tokenList';
 import { CombinedBalanceInfo } from '@/utils/types';
@@ -52,8 +51,6 @@ const mockBalances: CombinedBalanceInfo[] = [
     },
   },
 ];
-
-expect.extend(matchers);
 
 describe('TokenList', () => {
   afterEach(() => {

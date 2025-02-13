@@ -2,11 +2,8 @@ import { afterEach, describe, expect, jest, test } from 'bun:test';
 import React from 'react';
 import { cleanup, fireEvent, screen } from '@testing-library/react';
 import ConfirmationForm from '@/components/factory/forms/ConfirmationForm';
-import matchers from '@testing-library/jest-dom/matchers';
 import { renderWithChainProvider } from '@/tests/render';
 import { mockTokenFormData } from '@/tests/mock';
-
-expect.extend(matchers);
 
 function renderWithProps(props = {}) {
   const mockProps = {

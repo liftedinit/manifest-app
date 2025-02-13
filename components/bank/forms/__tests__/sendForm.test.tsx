@@ -2,11 +2,8 @@ import { describe, test, afterEach, expect, jest, mock } from 'bun:test';
 import React from 'react';
 import { screen, cleanup, fireEvent, within } from '@testing-library/react';
 import SendForm from '@/components/bank/forms/sendForm';
-import matchers from '@testing-library/jest-dom/matchers';
 import { mockBalances } from '@/tests/mock';
 import { renderWithChainProvider } from '@/tests/render';
-
-expect.extend(matchers);
 
 mock.module('next/router', () => ({
   useRouter: jest.fn().mockReturnValue({

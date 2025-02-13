@@ -2,11 +2,8 @@ import { describe, test, afterEach, expect, jest } from 'bun:test';
 import React from 'react';
 import { screen, cleanup, fireEvent, waitFor } from '@testing-library/react';
 import TokenDetailsForm from '@/components/factory/forms/TokenDetailsForm';
-import matchers from '@testing-library/jest-dom/matchers';
 import { renderWithChainProvider } from '@/tests/render';
 import { mockTokenFormData } from '@/tests/mock';
-
-expect.extend(matchers);
 
 const mockProps = {
   nextStep: jest.fn(),

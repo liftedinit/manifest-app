@@ -2,12 +2,9 @@ import { afterEach, describe, expect, jest, test, mock } from 'bun:test';
 import React from 'react';
 import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
 import GroupDetails from '@/components/groups/forms/groups/GroupDetailsForm';
-import matchers from '@testing-library/jest-dom/matchers';
 import { renderWithChainProvider } from '@/tests/render';
 import { manifestAddr1, mockGroupFormData } from '@/tests/mock';
 import { Duration } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/duration';
-
-expect.extend(matchers);
 
 // Mock next/router
 const m = jest.fn();
