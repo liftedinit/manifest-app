@@ -2,10 +2,6 @@ import env from '@/config/env';
 
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import {
-  assets as manifestAssets,
-  chain as manifestChain,
-} from 'chain-registry/testnet/manifesttestnet';
-import {
   assets as osmosisAssets,
   chain as osmosisChain,
 } from 'chain-registry/testnet/osmosistestnet';
@@ -36,6 +32,7 @@ import {
   strangeloveVenturesProtoRegistry,
 } from '@liftedinit/manifestjs';
 import { MainWalletBase } from '@cosmos-kit/core';
+import { manifestAssets, manifestChain } from '@/config/manifestChain';
 
 const ManifestChainProvider = ({ children }: { children: ReactNode }) => {
   const web3auth = useContext(Web3AuthContext);
