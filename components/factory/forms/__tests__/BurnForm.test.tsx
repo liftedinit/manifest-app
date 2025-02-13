@@ -47,7 +47,7 @@ describe('BurnForm Component', () => {
   test('renders not affiliated message when not admin and token is mfx', () => {
     renderWithProps({ isAdmin: false, denom: mockMfxDenom });
     expect(
-      screen.getByText('You must be apart of the admin group to burn MFX.')
+      screen.getByText('You must be a member of the admin group to burn MFX.')
     ).toBeInTheDocument();
   });
 

@@ -215,7 +215,7 @@ export default function BurnForm({
       <div className="rounded-lg">
         {isMFX && !isAdmin ? (
           <div className="w-full p-2 justify-center items-center my-auto leading-tight text-xl flex flex-col font-medium text-pretty">
-            <span>You must be apart of the admin group to burn MFX.</span>
+            <span>You must be a member of the admin group to burn MFX.</span>
           </div>
         ) : (
           <>

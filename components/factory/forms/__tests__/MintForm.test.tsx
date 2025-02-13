@@ -41,6 +41,13 @@ describe('MintForm Component', () => {
     expect(screen.getByText('CIRCULATING SUPPLY')).toBeInTheDocument();
   });
 
+  test('renders not affiliated message when not admin and token is mfx', () => {
+    renderWithProps({ isAdmin: false, denom: mockMfxDenom });
+    expect(
+      screen.getByText('You must be a member of the admin group to mint MFX.')
+    ).toBeInTheDocument();
+  });
+
   test('updates amount input correctly', async () => {
     renderWithProps();
     const amountInput = screen.getByLabelText('AMOUNT');
