@@ -1,9 +1,9 @@
-import { SignModalInner } from './authSignerModal';
+import { PromptSignModalInner, LedgerSignModalInner } from './authSignerModal';
 import { test, expect, afterEach, describe, mock, jest } from 'bun:test';
 import React from 'react';
 import matchers from '@testing-library/jest-dom/matchers';
-import { fireEvent, screen, cleanup, within, waitFor } from '@testing-library/react';
-import { renderWithChainProvider } from '@/tests/render';
+import { fireEvent, screen, cleanup, render } from '@testing-library/react';
+import { renderWithChainProvider, renderWithWeb3AuthProvider } from '@/tests/render';
 
 mock.module('next/router', () => ({
   useRouter: jest.fn().mockReturnValue({
@@ -14,20 +14,24 @@ mock.module('next/router', () => ({
 
 expect.extend(matchers);
 
-describe('SignModalInner', () => {
+describe('PromptSignModalInner', () => {
   afterEach(() => {
     cleanup();
   });
 
   test('should render', () => {
-    const wrapper = renderWithChainProvider(<SignModalInner visible={true} onClose={() => {}} />);
+    const wrapper = renderWithChainProvider(
+      <PromptSignModalInner visible={true} onClose={() => {}} />
+    );
     expect(screen.getByText('Approve')).toBeInTheDocument();
     const dialog = screen.getByRole('dialog');
     expect(dialog).toBeVisible();
   });
 
   test('should not be visible initially when visible prop is false', () => {
-    const wrapper = renderWithChainProvider(<SignModalInner visible={false} onClose={() => {}} />);
+    const wrapper = renderWithChainProvider(
+      <PromptSignModalInner visible={false} onClose={() => {}} />
+    );
     const dialog = screen.queryAllByRole('dialog');
     expect(dialog.length).toBe(0);
   });
@@ -36,7 +40,7 @@ describe('SignModalInner', () => {
     let [isOpen, approved, rejected] = [true, false, false];
 
     const wrapper = renderWithChainProvider(
-      <SignModalInner
+      <PromptSignModalInner
         visible={isOpen}
         onClose={() => {
           isOpen = false;
@@ -71,7 +75,7 @@ describe('SignModalInner', () => {
     let [isOpen, approved, rejected] = [true, false, false];
 
     const wrapper = renderWithChainProvider(
-      <SignModalInner
+      <PromptSignModalInner
         visible={isOpen}
         onClose={() => {
           isOpen = false;
@@ -92,16 +96,11 @@ describe('SignModalInner', () => {
     expect(rejected).toBe(false);
   });
 
-  // This test is skipped because:
-  // 1. The dialog element's Escape key behavior is handled natively by the browser
-  //    and can't be easily tested in JSDOM (this test is currently failing).
-  // 2. JSDOM (used by Jest) doesn't fully implement dialog behaviors
-  // 3. While we could mock HTMLDialogElement, it wouldn't accurately test the actual browser behavior
-  test.skip('should close on pressing escape', () => {
+  test('should close on pressing escape', () => {
     let [isOpen, approved, rejected] = [true, false, false];
 
     const wrapper = renderWithChainProvider(
-      <SignModalInner
+      <PromptSignModalInner
         visible={isOpen}
         onClose={() => {
           isOpen = false;
@@ -116,13 +115,38 @@ describe('SignModalInner', () => {
     );
 
     expect(isOpen).toBe(true);
-    const btn = screen.getByText('✕');
-    btn.focus();
-    document.dispatchEvent(
-      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
-    );
+    fireEvent.keyDown(document, { key: 'Escape', code: 'Escape' });
     expect(isOpen).toBe(false);
     expect(approved).toBe(false);
     expect(rejected).toBe(false);
+  });
+});
+
+describe('LedgerSignModalInner', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  test('should render', () => {
+    const wrapper = render(<LedgerSignModalInner onClose={() => {}} />);
+    expect(screen.getByText('Ledger HSM')).toBeInTheDocument();
+    const dialog = screen.getByRole('dialog');
+    expect(dialog).toBeVisible();
+  });
+
+  test('should NOT close on pressing escape', () => {
+    let isOpen = true;
+    const wrapper = render(<LedgerSignModalInner onClose={() => (isOpen = false)} />);
+
+    const dialog = screen.getByRole('dialog');
+
+    expect(isOpen).toBe(true);
+    fireEvent.keyDown(document, { key: 'Escape', code: 'Escape' });
+
+    // onClose is called.
+    expect(isOpen).toBe(false);
+
+    // It does not cease to be visible.
+    expect(dialog).toBeVisible();
   });
 });

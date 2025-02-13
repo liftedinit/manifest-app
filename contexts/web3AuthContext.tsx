@@ -11,7 +11,7 @@ export interface Web3AuthContextType {
     signData: SignData;
     resolve: (approved: boolean) => void;
   };
-  promptId: string | undefined;
+  promptId?: string;
   setPromptId: (id: string | undefined) => void;
   wallets: (MainWalletBase | Web3AuthWallet)[];
   isSigning: boolean;
