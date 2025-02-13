@@ -7,7 +7,7 @@ import {
 import { useChain } from '@cosmos-kit/react';
 import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { useToast } from '@/contexts/toastContext';
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import env from '@/config/env';
 import { StatusState } from '@skip-go/client';
 import { Web3AuthContext } from '@/contexts/web3AuthContext';
@@ -52,10 +52,9 @@ const extractSimulationErrorMessage = (errorMessage: string): string => {
 };
 
 export const useTx = (chainName: string) => {
-  const { promptId, setPromptId } = useContext(Web3AuthContext);
+  const { setPromptId, isSigning, setIsSigning } = useContext(Web3AuthContext);
   const { address, getSigningStargateClient, estimateFee } = useChain(chainName);
   const { setToastMessage } = useToast();
-  const [isSigning, setIsSigning] = useState(false);
   const explorerUrl = chainName === env.osmosisChain ? env.osmosisExplorerUrl : env.explorerUrl;
 
   const tx = async (msgs: Msg[], options: TxOptions, id?: string) => {
@@ -172,5 +171,5 @@ export const useTx = (chainName: string) => {
     }
   };
 
-  return { tx, isSigning, setIsSigning };
+  return { tx, isSigning };
 };

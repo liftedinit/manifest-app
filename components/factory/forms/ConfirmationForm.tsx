@@ -21,7 +21,7 @@ export default function ConfirmationForm({
   formData: TokenFormData;
   address: string;
 }>) {
-  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
   const { setDenomMetadata, createDenom } =
     osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
@@ -40,8 +40,6 @@ export default function ConfirmationForm({
   const { prefixedSubdenom, symbol, fullDenom } = getDenomInfo(formData.subdenom);
 
   const handleConfirm = async () => {
-    setIsSigning(true);
-
     const createAsGroup = async () => {
       const msg = submitProposal({
         groupPolicyAddress: formData.groupPolicyAddress || '',
@@ -149,8 +147,6 @@ export default function ConfirmationForm({
       formData.isGroup ? await createAsGroup() : await createAsUser();
     } catch (error) {
       console.error('Error during transaction setup:', error);
-    } finally {
-      setIsSigning(false);
     }
   };
 

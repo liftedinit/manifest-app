@@ -39,11 +39,10 @@ export function CancelUpgradeModal({
 }: BaseModalProps) {
   const { cancelUpgrade } = cosmos.upgrade.v1beta1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
-  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
 
   const handleCancelUpgrade = async () => {
-    setIsSigning(true);
     try {
       const msgUpgrade = cancelUpgrade({
         authority: admin,
@@ -68,15 +67,12 @@ export function CancelUpgradeModal({
       await tx([groupProposalMsg], {
         fee,
         onSuccess: () => {
-          setIsSigning(false);
           onClose();
           refetchPlan();
         },
       });
     } catch (error) {
       console.error('Error canceling upgrade:', error);
-    } finally {
-      setIsSigning(false);
     }
   };
 

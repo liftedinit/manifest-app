@@ -46,7 +46,7 @@ export function ValidatorDetailsModal({
 
   const [power, setPowerInput] = useState(validator?.consensus_power?.toString() || '');
 
-  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
   const { address: userAddress } = useChain(env.chain);
 
@@ -66,7 +66,6 @@ export function ValidatorDetailsModal({
   };
 
   const handleUpdate = async (values: { power: string }) => {
-    setIsSigning(true);
     // The minimum power is 1_000_000
     const realPower = BigInt(values.power) * BigInt(10 ** 6);
     const msgSetPower = setPower({
@@ -94,11 +93,8 @@ export function ValidatorDetailsModal({
     const fee = await estimateFee(userAddress ?? '', [groupProposalMsg]);
     await tx([groupProposalMsg], {
       fee,
-      onSuccess: () => {
-        setIsSigning(false);
-      },
+      onSuccess: () => {},
     });
-    setIsSigning(false);
   };
 
   return (

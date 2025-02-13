@@ -95,7 +95,7 @@ export function UpgradeModal({ isOpen, onClose, admin, address, refetchPlan }: B
 
   const { softwareUpgrade } = cosmos.upgrade.v1beta1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
-  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
 
   const handleUpgrade = async (values: {
@@ -104,8 +104,6 @@ export function UpgradeModal({ isOpen, onClose, admin, address, refetchPlan }: B
     info: string;
     selectedVersion: (GitHubRelease & { upgradeInfo?: UpgradeInfo | null }) | null;
   }) => {
-    setIsSigning(true);
-
     const selectedRelease = values.selectedVersion;
     const binaryLinks: { [key: string]: string } = {};
 
@@ -156,11 +154,9 @@ export function UpgradeModal({ isOpen, onClose, admin, address, refetchPlan }: B
     await tx([groupProposalMsg], {
       fee,
       onSuccess: () => {
-        setIsSigning(false);
         refetchPlan();
       },
     });
-    setIsSigning(false);
   };
 
   const initialValues = {

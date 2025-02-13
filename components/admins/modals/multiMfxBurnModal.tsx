@@ -50,7 +50,7 @@ const MultiBurnSchema = Yup.object().shape({
 
 export function MultiBurnModal({ isOpen, onClose, admin, address, denom }: MultiBurnModalProps) {
   const [burnPairs, setBurnPairs] = useState([{ address: admin, amount: '' }]);
-  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
   const { burnHeldBalance } = liftedinit.manifest.v1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
@@ -72,7 +72,6 @@ export function MultiBurnModal({ isOpen, onClose, admin, address, denom }: Multi
   };
 
   const handleMultiBurn = async (values: { burnPairs: BurnPair[] }) => {
-    setIsSigning(true);
     try {
       const messages = values.burnPairs.map(pair =>
         burnHeldBalance({
@@ -112,8 +111,6 @@ export function MultiBurnModal({ isOpen, onClose, admin, address, denom }: Multi
       });
     } catch (error) {
       console.error('Error during multi-burn:', error);
-    } finally {
-      setIsSigning(false);
     }
   };
 

@@ -21,7 +21,7 @@ function VotingPopup({
   proposal: ProposalSDKType;
 }) {
   const { estimateFee } = useFeeEstimation(env.chain);
-  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { tx, isSigning } = useTx(env.chain);
   const { address } = useChain(env.chain);
   const { vote } = cosmos.group.v1.MessageComposer.withTypeUrl;
 

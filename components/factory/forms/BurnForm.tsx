@@ -50,7 +50,7 @@ export default function BurnForm({
 
   const [isContactsOpen, setIsContactsOpen] = useState(false);
 
-  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
   const { burn } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
   const { burnHeldBalance } = liftedinit.manifest.v1.MessageComposer.withTypeUrl;
@@ -86,7 +86,6 @@ export default function BurnForm({
     if (!amount || Number.isNaN(Number(amount))) {
       return;
     }
-    setIsSigning(true);
     try {
       const amountInBaseUnits = parseNumberToBigInt(amount, exponent).toString();
       let msg;
@@ -153,8 +152,6 @@ export default function BurnForm({
       });
     } catch (error) {
       console.error('Error during burning:', error);
-    } finally {
-      setIsSigning(false);
     }
   };
 
@@ -168,7 +165,7 @@ export default function BurnForm({
       });
       return;
     }
-    setIsSigning(true);
+
     try {
       const burnMsg = burnHeldBalance({
         authority: admin ?? '',
@@ -202,8 +199,6 @@ export default function BurnForm({
       });
     } catch (error) {
       console.error('Error during multi-burning:', error);
-    } finally {
-      setIsSigning(false);
     }
   };
 

@@ -49,13 +49,12 @@ export default function TransferModal({
     newAdmin: '',
   };
 
-  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
   const { changeAdmin } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
   const handleTransfer = async (values: FormikValues, resetForm: () => void) => {
-    setIsSigning(true);
     try {
       const msg = isGroup
         ? submitProposal({
@@ -110,8 +109,6 @@ export default function TransferModal({
         bgColor: '#e74c3c',
       });
       throw error;
-    } finally {
-      setIsSigning(false);
     }
   };
 
