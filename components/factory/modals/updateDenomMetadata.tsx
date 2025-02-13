@@ -69,13 +69,12 @@ export default function UpdateDenomMetadataModal({
     exponent: '6',
     label: fullDenom || '',
   };
-  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
   const { setDenomMetadata } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
   const handleUpdate = async (values: TokenFormData, resetForm: () => void) => {
-    setIsSigning(true);
     const symbol = values.display.toUpperCase();
     try {
       const msg = isGroup
@@ -138,8 +137,6 @@ export default function UpdateDenomMetadataModal({
       });
     } catch (error) {
       console.error('Error during transaction setup:', error);
-    } finally {
-      setIsSigning(false);
     }
   };
 

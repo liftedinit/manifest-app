@@ -36,7 +36,7 @@ export default function MintForm({
   const [recipient, setRecipient] = useState(address || '');
   const [isContactsOpen, setIsContactsOpen] = useState(false);
 
-  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
   const { mint } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
@@ -52,7 +52,7 @@ export default function MintForm({
     if (!amount || Number.isNaN(Number(amount))) {
       return;
     }
-    setIsSigning(true);
+
     try {
       const amountInBaseUnits = parseNumberToBigInt(amount).toString();
       let msg;
@@ -100,8 +100,6 @@ export default function MintForm({
       });
     } catch (error) {
       console.error('Error during minting:', error);
-    } finally {
-      setIsSigning(false);
     }
   };
 

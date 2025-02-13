@@ -50,7 +50,7 @@ const MultiMintSchema = Yup.object().shape({
 
 export function MultiMintModal({ isOpen, onClose, admin, address, denom }: MultiMintModalProps) {
   const [payoutPairs, setPayoutPairs] = useState([{ address: '', amount: '' }]);
-  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
   const { payout } = liftedinit.manifest.v1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
@@ -72,8 +72,6 @@ export function MultiMintModal({ isOpen, onClose, admin, address, denom }: Multi
   };
 
   const handleMultiMint = async (values: { payoutPairs: PayoutPair[] }) => {
-    setIsSigning(true);
-
     try {
       const exponent = denom?.denom_units?.[1]?.exponent ?? 6;
       const payoutMsg = payout({
@@ -111,8 +109,6 @@ export function MultiMintModal({ isOpen, onClose, admin, address, denom }: Multi
       });
     } catch (error) {
       console.error('Error during multi-mint:', error);
-    } finally {
-      setIsSigning(false);
     }
   };
 

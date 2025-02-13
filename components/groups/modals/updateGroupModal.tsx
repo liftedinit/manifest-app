@@ -35,7 +35,7 @@ export function UpdateGroupModal({
   showUpdateModal: boolean;
   setShowUpdateModal: (show: boolean) => void;
 }) {
-  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
 
   let maybeMetadata = null;
@@ -183,11 +183,9 @@ export function UpdateGroupModal({
   };
 
   const handleConfirm = async (values: any) => {
-    setIsSigning(true);
     try {
       const encodedMessages = buildMessages();
       if (encodedMessages.length === 0) {
-        setIsSigning(false);
         alert('No changes detected.');
         return;
       }
@@ -206,7 +204,6 @@ export function UpdateGroupModal({
       try {
         fee = await estimateFee(address, [msg]);
       } catch (feeError) {
-        setIsSigning(false);
         console.error('Error estimating fee:', feeError);
         throw new Error('Failed to estimate transaction fee. Please try again.');
       }
@@ -215,16 +212,13 @@ export function UpdateGroupModal({
         {
           fee,
           onSuccess: () => {
-            setIsSigning(false);
             onUpdate();
           },
         },
         'update-group-modal'
       );
-      setIsSigning(false);
     } catch (error) {
       console.error('Error in handleConfirm:', error);
-      setIsSigning(false);
     }
   };
 

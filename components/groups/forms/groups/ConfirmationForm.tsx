@@ -36,7 +36,7 @@ export default function ConfirmationForm({
     console.error('Failed to serialize group metadata:', error);
     throw new Error('Invalid group metadata format');
   }
-  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
 
   const minExecutionPeriod: Duration = {
@@ -59,7 +59,6 @@ export default function ConfirmationForm({
   const typeUrl = cosmos.group.v1.ThresholdDecisionPolicy.typeUrl;
 
   const handleConfirm = async () => {
-    setIsSigning(true);
     try {
       const msg = createGroupWithPolicy({
         admin: address ?? '',
@@ -87,10 +86,7 @@ export default function ConfirmationForm({
         },
       });
     } catch (error) {
-      setIsSigning(false);
       console.error('Error during transaction setup:', error);
-    } finally {
-      setIsSigning(false);
     }
   };
 
