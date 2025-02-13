@@ -2,11 +2,8 @@ import { afterAll, describe, test, afterEach, expect, jest, mock } from 'bun:tes
 import React from 'react';
 import { screen, fireEvent, cleanup } from '@testing-library/react';
 import ConfirmationModal from '@/components/groups/forms/groups/ConfirmationForm';
-import matchers from '@testing-library/jest-dom/matchers';
 import { FormData } from '@/helpers/formReducer';
 import { renderWithChainProvider } from '@/tests/render';
-
-expect.extend(matchers);
 
 const mockFormData: FormData = {
   title: 'Test Group',

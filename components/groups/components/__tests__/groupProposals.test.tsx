@@ -2,11 +2,8 @@ import { describe, test, afterEach, expect, jest, mock, beforeEach } from 'bun:t
 import React from 'react';
 import { screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
 import GroupProposals from '@/components/groups/components/groupControls';
-import matchers from '@testing-library/jest-dom/matchers';
 import { renderWithChainProvider } from '@/tests/render';
 import { mockProposals, mockGroup, mockGroup2 } from '@/tests/mock';
-
-expect.extend(matchers);
 
 // Mock next/router
 mock.module('next/router', () => ({

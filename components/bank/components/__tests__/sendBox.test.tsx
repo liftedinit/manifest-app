@@ -1,12 +1,9 @@
 import { test, expect, afterEach, describe, mock, jest } from 'bun:test';
 import React from 'react';
-import matchers from '@testing-library/jest-dom/matchers';
 import { screen, cleanup, waitFor, fireEvent, within } from '@testing-library/react';
 import SendBox from '@/components/bank/components/sendBox';
 import { mockBalances } from '@/tests/mock';
 import { renderWithChainProvider } from '@/tests/render';
-
-expect.extend(matchers);
 
 // Mock next/router
 const m = jest.fn();

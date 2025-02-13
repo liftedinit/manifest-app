@@ -1,7 +1,6 @@
-import { PromptSignModalInner, LedgerSignModalInner } from './authSignerModal';
 import { test, expect, afterEach, describe, mock, jest } from 'bun:test';
+import { PromptSignModalInner, LedgerSignModalInner } from './authSignerModal';
 import React from 'react';
-import matchers from '@testing-library/jest-dom/matchers';
 import { fireEvent, screen, cleanup, render } from '@testing-library/react';
 import { renderWithChainProvider, renderWithWeb3AuthProvider } from '@/tests/render';
 
@@ -11,8 +10,6 @@ mock.module('next/router', () => ({
     push: jest.fn(),
   }),
 }));
-
-expect.extend(matchers);
 
 describe('PromptSignModalInner', () => {
   afterEach(() => {

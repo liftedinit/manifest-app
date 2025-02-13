@@ -1,11 +1,8 @@
 import { test, expect, afterEach, describe } from 'bun:test';
 import React from 'react';
-import matchers from '@testing-library/jest-dom/matchers';
 import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import { TextArea } from '@/components/react/inputs';
 import { Formik, Form } from 'formik';
-
-expect.extend(matchers);
 
 const TestForm = ({ children }: { children: React.ReactNode }) => (
   <Formik initialValues={{ test: '' }} onSubmit={() => {}}>

@@ -2,11 +2,8 @@ import { afterAll, afterEach, describe, expect, test, jest, mock, beforeAll } fr
 import React from 'react';
 import { screen, cleanup, fireEvent } from '@testing-library/react';
 import { GroupInfo } from '@/components/groups/modals/groupInfo';
-import matchers from '@testing-library/jest-dom/matchers';
 import { renderWithChainProvider } from '@/tests/render';
 import { mockGroup } from '@/tests/mock';
-
-expect.extend(matchers);
 
 // Mock the useBalance hook
 const m = jest.fn();

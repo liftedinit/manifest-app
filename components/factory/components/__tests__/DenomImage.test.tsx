@@ -1,11 +1,8 @@
-import { afterEach, describe, expect, test, fireEvent, mock, afterAll, jest } from 'bun:test';
+import { afterEach, describe, expect, test, mock, afterAll } from 'bun:test';
 import React from 'react';
 import { screen, cleanup, waitFor } from '@testing-library/react';
 import { DenomImage } from '@/components/factory/components/DenomImage';
-import matchers from '@testing-library/jest-dom/matchers';
 import { renderWithChainProvider } from '@/tests/render';
-
-expect.extend(matchers);
 
 // A cute little candle gif
 const uri =

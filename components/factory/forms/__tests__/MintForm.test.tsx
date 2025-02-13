@@ -2,11 +2,8 @@ import { describe, test, afterEach, expect, jest, mock } from 'bun:test';
 import React from 'react';
 import { screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
 import MintForm from '@/components/factory/forms/MintForm';
-import matchers from '@testing-library/jest-dom/matchers';
 import { renderWithChainProvider } from '@/tests/render';
 import { mockDenomMeta1, mockMfxDenom } from '@/tests/mock';
-
-expect.extend(matchers);
 
 // Mock next/router
 const m = jest.fn();

@@ -2,11 +2,8 @@ import { afterAll, afterEach, describe, expect, test, jest, mock } from 'bun:tes
 import React from 'react';
 import { screen, cleanup, fireEvent, waitFor } from '@testing-library/react';
 import DenomList from '@/components/factory/components/DenomList';
-import matchers from '@testing-library/jest-dom/matchers';
 import { renderWithChainProvider } from '@/tests/render';
 import { mockDenom, mockDenom2, mockMfxDenom } from '@/tests/mock';
-
-expect.extend(matchers);
 
 // Mock next/router
 const m = jest.fn();

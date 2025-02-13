@@ -2,11 +2,8 @@ import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
 import React from 'react';
 import ValidatorList from '@/components/admins/components/validatorList';
 import { fireEvent, screen, cleanup, waitFor } from '@testing-library/react';
-import matchers from '@testing-library/jest-dom/matchers';
 import { mockActiveValidators, mockPendingValidators } from '@/tests/mock';
 import { renderWithChainProvider } from '@/tests/render';
-
-expect.extend(matchers);
 
 // Mock next/router
 const m = jest.fn();

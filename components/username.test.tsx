@@ -1,10 +1,7 @@
 import { afterEach, test, expect, describe } from 'bun:test';
 import { cleanup, render, screen } from '@testing-library/react';
-import matchers from '@testing-library/jest-dom/matchers';
 import React from 'react';
 import { Username } from './username';
-
-expect.extend(matchers);
 
 // Test the happy path of the username component
 describe('Username', () => {

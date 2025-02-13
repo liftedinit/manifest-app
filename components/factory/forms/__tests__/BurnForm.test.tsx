@@ -2,11 +2,8 @@ import { describe, test, afterEach, expect, jest, mock } from 'bun:test';
 import React from 'react';
 import { screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
 import BurnForm from '@/components/factory/forms/BurnForm';
-import matchers from '@testing-library/jest-dom/matchers';
 import { manifestAddr1, mockDenomMeta1, mockMfxDenom } from '@/tests/mock';
 import { renderWithChainProvider } from '@/tests/render';
-
-expect.extend(matchers);
 
 // Mock next/router
 const m = jest.fn();
