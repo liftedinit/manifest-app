@@ -3,20 +3,24 @@ import { TokenList } from '@/components/bank/components/tokenList';
 import {
   useGetMessagesFromAddress,
   useIsMobile,
+  useOsmosisTokenBalancesResolved,
+  useOsmosisTokenFactoryDenomsMetadata,
   useTokenBalances,
+  useTokenBalancesOsmosis,
   useTokenBalancesResolved,
   useTokenFactoryDenomsMetadata,
 } from '@/hooks';
-import { useChain } from '@cosmos-kit/react';
+import { useChain, useChains } from '@cosmos-kit/react';
 
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { BankIcon } from '@/components/icons';
 import { CombinedBalanceInfo } from '@/utils/types';
-import { MFX_TOKEN_DATA } from '@/utils/constants';
+import { MFX_TOKEN_DATA, OSMOSIS_TOKEN_DATA } from '@/utils/constants';
 import env from '@/config/env';
 import { SEO } from '@/components';
 import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
 import Link from 'next/link';
+import { denomToAsset } from '@/utils';
 
 interface PageSizeConfig {
   tokenList: number;
@@ -25,7 +29,8 @@ interface PageSizeConfig {
 }
 
 export default function Bank() {
-  const { address, isWalletConnected } = useChain(env.chain);
+  const { isWalletConnected, address } = useChain(env.chain);
+
   const { balances, isBalancesLoading, refetchBalances } = useTokenBalances(address ?? '');
   const {
     balances: resolvedBalances,
@@ -108,6 +113,32 @@ export default function Bank() {
           rb => rb.denom === coreBalance.denom || rb.denom === coreBalance.denom.split('/').pop()
         );
         const metadata = metadatas.metadatas.find(m => m.base === coreBalance.denom);
+
+        if (coreBalance.denom.startsWith('ibc/')) {
+          const assetInfo = denomToAsset(env.chain, coreBalance.denom);
+
+          const baseDenom = assetInfo?.traces?.[1]?.counterparty?.base_denom;
+
+          return {
+            denom: baseDenom ?? '', // normalized denom (e.g., 'umfx')
+            coreDenom: coreBalance.denom, // full IBC trace
+            amount: coreBalance.amount,
+            metadata: {
+              description: assetInfo?.description ?? '',
+              denom_units:
+                assetInfo?.denom_units?.map(unit => ({
+                  ...unit,
+                  aliases: unit.aliases || [],
+                })) ?? [],
+              base: assetInfo?.base ?? '',
+              display: assetInfo?.display ?? '',
+              name: assetInfo?.name ?? '',
+              symbol: assetInfo?.symbol ?? '',
+              uri: assetInfo?.logo_URIs?.svg ?? assetInfo?.logo_URIs?.png ?? '',
+              uri_hash: assetInfo?.logo_URIs?.svg ?? assetInfo?.logo_URIs?.png ?? '',
+            },
+          };
+        }
 
         return {
           denom: resolvedBalance?.denom || coreBalance.denom,
@@ -202,7 +233,7 @@ export default function Bank() {
                       />
                     ))}
                   {activeTab === 'history' &&
-                    (totalCount === 0 && !txLoading ? (
+                    (totalPages === 0 ? (
                       <NoActivityFound />
                     ) : (
                       <HistoryBox
@@ -210,7 +241,7 @@ export default function Bank() {
                         setCurrentPage={setCurrentPage}
                         address={address ?? ''}
                         isLoading={isLoading}
-                        sendTxs={sendTxs || []}
+                        sendTxs={sendTxs}
                         totalPages={totalPages}
                         txLoading={txLoading}
                         isError={isError}

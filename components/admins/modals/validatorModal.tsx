@@ -14,7 +14,8 @@ import * as Yup from 'yup';
 import { calculateIsUnsafe } from '@/utils/maths';
 import { TextInput } from '@/components/react';
 import env from '@/config/env';
-import { createPortal } from 'react-dom';
+import { Dialog } from '@headlessui/react';
+import { SignModal } from '@/components/react';
 
 const PowerUpdateSchema = Yup.object().shape({
   power: Yup.number()
@@ -41,16 +42,7 @@ export function ValidatorDetailsModal({
   openValidatorModal: boolean;
   setOpenValidatorModal: (open: boolean) => void;
 }>) {
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && openValidatorModal) {
-        handleClose();
-      }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [openValidatorModal]);
+  const [description, setDescription] = useState<string | undefined>(undefined);
 
   const [power, setPowerInput] = useState(validator?.consensus_power?.toString() || '');
 
@@ -71,13 +63,6 @@ export function ValidatorDetailsModal({
     if (!contact) return false;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(contact);
-  };
-
-  const handleDescription = (event: React.MouseEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-    const modal = document.getElementById(`validator-description-modal`) as HTMLDialogElement;
-    modal?.showModal();
   };
 
   const handleUpdate = async (values: { power: string }) => {
@@ -116,35 +101,18 @@ export function ValidatorDetailsModal({
     setIsSigning(false);
   };
 
-  const handleClose = () => {
-    if (setOpenValidatorModal) {
-      setOpenValidatorModal(false);
-    }
-    (document.getElementById(modalId) as HTMLDialogElement)?.close();
-  };
-
-  const modalContent = (
-    <dialog
-      id={modalId}
-      className={`modal ${openValidatorModal ? 'modal-open' : ''}`}
-      onClose={handleClose}
+  return (
+    <Dialog
+      open={openValidatorModal}
+      className="modal modal-open fixed flex p-0 m-0"
+      onClose={() => setOpenValidatorModal(false)}
       style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        zIndex: 9999,
-        backgroundColor: 'transparent',
-        padding: 0,
-        margin: 0,
-        height: '100vh',
-        width: '100vw',
-        display: openValidatorModal ? 'flex' : 'none',
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
+      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+
       <Formik
         initialValues={{ power: power, totalvp, validatorVPArray }}
         validationSchema={PowerUpdateSchema}
@@ -152,10 +120,10 @@ export function ValidatorDetailsModal({
         enableReinitialize
       >
         {({ isValid, errors, touched }) => (
-          <div className="modal-box relative max-w-4xl min-h-96 flex flex-col md:flex-row md:ml-20 -mt-12 rounded-[24px] shadow-lg dark:bg-[#1D192D] bg-[#FFFFFF] transition-all duration-300">
+          <Dialog.Panel className="modal-box relative max-w-4xl min-h-96 flex flex-col md:flex-row md:ml-20 -mt-12 rounded-[24px] shadow-lg dark:bg-[#1D192D] bg-[#FFFFFF] transition-all duration-300">
             <button
               className="btn btn-sm btn-circle text-black dark:text-white btn-ghost absolute right-2 top-2"
-              onClick={handleClose}
+              onClick={() => setOpenValidatorModal(false)}
               type="button"
             >
               ✕
@@ -254,7 +222,9 @@ export function ValidatorDetailsModal({
                     {validator?.description.details.length > 50 && (
                       <button
                         className="btn btn-sm btn-ghost hover:bg-transparent absolute -right-2 -top-2"
-                        onClick={handleDescription}
+                        onClick={() =>
+                          setDescription(validator?.description.details ?? 'No Details')
+                        }
                       >
                         <BsThreeDots />
                       </button>
@@ -269,37 +239,19 @@ export function ValidatorDetailsModal({
                 </div>
               </div>
             </div>
-          </div>
+            <DescriptionModal
+              type="validator"
+              open={description !== undefined}
+              onClose={() => {
+                setDescription(undefined);
+              }}
+              details={validator?.description.details ?? 'No Details'}
+            />
+
+            <SignModal />
+          </Dialog.Panel>
         )}
       </Formik>
-      <DescriptionModal
-        type="validator"
-        modalId="validator-description-modal"
-        details={validator?.description.details ?? 'No Details'}
-      />
-      <form
-        method="dialog"
-        className="modal-backdrop"
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: -1,
-          backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        }}
-        onSubmit={handleClose}
-      >
-        <button>close</button>
-      </form>
-    </dialog>
+    </Dialog>
   );
-
-  // Only render if we're in the browser
-  if (typeof document !== 'undefined') {
-    return createPortal(modalContent, document.body);
-  }
-
-  return null;
 }

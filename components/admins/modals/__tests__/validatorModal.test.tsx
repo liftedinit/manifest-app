@@ -1,10 +1,17 @@
-import { describe, test, afterEach, expect } from 'bun:test';
+import { describe, test, afterEach, expect, mock, jest } from 'bun:test';
 import React from 'react';
 import { screen, fireEvent, cleanup, within, waitFor } from '@testing-library/react';
 import { ValidatorDetailsModal } from '@/components/admins/modals/validatorModal';
 import matchers from '@testing-library/jest-dom/matchers';
 import { mockActiveValidators } from '@/tests/mock';
 import { renderWithChainProvider } from '@/tests/render';
+
+mock.module('next/router', () => ({
+  useRouter: jest.fn().mockReturnValue({
+    query: {},
+    push: jest.fn(),
+  }),
+}));
 
 expect.extend(matchers);
 
@@ -17,6 +24,8 @@ const validatorVPArray = [{ vp: BigInt(1000), moniker: 'Validator One' }];
 function renderWithProps(props = {}) {
   return renderWithChainProvider(
     <ValidatorDetailsModal
+      openValidatorModal={true}
+      setOpenValidatorModal={() => {}}
       validator={validator}
       modalId={modalId}
       admin={admin}

@@ -4,6 +4,7 @@ import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import env from '@/config/env';
+import { Dialog } from '@headlessui/react';
 
 export const DenomInfoModal: React.FC<{
   openDenomInfoModal: boolean;
@@ -11,16 +12,6 @@ export const DenomInfoModal: React.FC<{
   denom: MetadataSDKType | null;
   modalId: string;
 }> = ({ openDenomInfoModal, setOpenDenomInfoModal, denom, modalId }) => {
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && openDenomInfoModal) {
-        setOpenDenomInfoModal(false);
-      }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [openDenomInfoModal]);
   let nameIsAddress = false;
   if (denom?.name?.startsWith('factory/manifest1')) {
     nameIsAddress = true;
@@ -30,28 +21,21 @@ export const DenomInfoModal: React.FC<{
     setOpenDenomInfoModal(false);
   };
 
-  const modalContent = (
-    <dialog
-      id={modalId}
-      className={`modal ${openDenomInfoModal ? 'modal-open' : ''}`}
+  return (
+    <Dialog
+      open={openDenomInfoModal}
+      onClose={handleClose}
+      className={`modal modal-open fixed flex p-0 m-0`}
       style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        zIndex: 9999,
-        backgroundColor: 'transparent',
-        padding: 0,
-        margin: 0,
         height: '100vh',
         width: '100vw',
-        display: openDenomInfoModal ? 'flex' : 'none',
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
-      <div className="modal-box max-w-4xl mx-auto rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg">
+      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+
+      <Dialog.Panel className="modal-box max-w-4xl mx-auto rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg">
         <form method="dialog" onSubmit={handleClose}>
           <button
             className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]"
@@ -107,32 +91,9 @@ export const DenomInfoModal: React.FC<{
             explorerUrl={env.explorerUrl}
           />
         </div>
-      </div>
-      <form
-        method="dialog"
-        className="modal-backdrop"
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: -1,
-          backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        }}
-        onSubmit={handleClose}
-      >
-        <button>close</button>
-      </form>
-    </dialog>
+      </Dialog.Panel>
+    </Dialog>
   );
-
-  // Only render if we're in the browser
-  if (typeof document !== 'undefined') {
-    return createPortal(modalContent, document.body);
-  }
-
-  return null;
 };
 
 function InfoItem({

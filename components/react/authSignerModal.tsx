@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { SignData } from '@cosmos-kit/web3auth';
 import { TxBody, AuthInfo } from '@liftedinit/manifestjs/dist/codegen/cosmos/tx/v1beta1/tx';
 import { decodePubkey } from '@cosmjs/proto-signing';
@@ -30,6 +30,10 @@ import {
   MsgSetDenomMetadata,
   MsgCreateDenom,
 } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+import { Dialog, Portal } from '@headlessui/react';
+import { wallets } from 'cosmos-kit';
+import { wallets as cosmosExtensionWallets } from '@cosmos-kit/cosmos-extension-metamask/cjs/cosmos-metamask-extension';
+import { Web3AuthContext } from '@/contexts/web3AuthContext';
 
 type DisplayDataToSignProps = {
   data: SignData;
@@ -238,39 +242,78 @@ const DisplayDataToSign = ({
   );
 };
 
-const SignModal = ({
-  visible,
-  onClose,
-  data,
-  approve,
-  reject,
-}: {
-  visible: boolean;
-  onClose: () => void;
-  data: SignData;
-  approve: () => void;
-  reject: () => void;
-}) => {
-  const wallet = useWallet();
-  const { address } = useChain(env.chain);
-  const walletIcon = wallet.wallet?.logo;
-  const walletName = wallet.wallet?.prettyName;
-  const { theme } = useTheme();
+/**
+ * Sign modal component. Use this component to insert the signing modal at the appropriate
+ * location in your app's component tree. This component will automatically show the modal
+ * when a sign request is received.
+ * @constructor
+ */
+export const SignModal = ({ id }: { id?: string }) => {
+  const { prompt, promptId } = useContext(Web3AuthContext);
+  const [visible, setVisible] = useState(false);
+  const [data, setData] = useState<SignData | undefined>(undefined);
 
   useEffect(() => {
-    const modal = document.getElementById('sign-modal') as HTMLDialogElement;
-    if (visible) {
-      modal.showModal();
+    if (promptId === id && prompt !== undefined) {
+      setVisible(true);
+      setData(prompt.signData);
     } else {
-      modal.close();
+      setVisible(false);
     }
-  }, [visible]);
+  }, [promptId, id, prompt]);
 
-  const walletIconString = walletIcon?.toString() ?? '';
+  if (!prompt || !data || !visible) {
+    return null;
+  }
+
+  const approve = () => prompt.resolve(true);
+  const reject = () => prompt.resolve(false);
 
   return (
-    <dialog id="sign-modal" className="modal top-0 right-0">
-      <div className="modal-box max-w-lg w-full dark:bg-[#1D192D] bg-[#FFFFFF] rounded-lg shadow-xl">
+    <SignModalInner
+      visible={visible}
+      onClose={reject}
+      data={data}
+      reject={reject}
+      approve={approve}
+    />
+  );
+};
+
+export const SignModalInner = ({
+  visible,
+  data,
+  onClose,
+  reject,
+  approve,
+}: {
+  visible: boolean;
+  data?: SignData;
+  onClose: () => void;
+  reject?: () => void;
+  approve?: () => void;
+}) => {
+  const { wallet } = useWallet();
+  const { address } = useChain(env.chain);
+  const { theme } = useTheme();
+  const walletIcon = wallet?.logo;
+  const walletIconString = walletIcon?.toString() ?? '';
+
+  function handleReject() {
+    reject && reject();
+    onClose();
+  }
+  function handleApprove() {
+    approve && approve();
+    onClose();
+  }
+
+  if (!visible) return null;
+  return (
+    <Dialog open onClose={onClose} className="modal modal-open top-0 right-0 z-[9999]">
+      <div className="fixed inset-0 backdrop-blur-sm bg-black/30" aria-hidden="true" />
+
+      <Dialog.Panel className="modal-box max-w-lg w-full dark:bg-[#1D192D] bg-[#FFFFFF] rounded-lg shadow-xl">
         <div className="flex justify-between items-center pb-4">
           <div className="flex items-center gap-3">
             <img
@@ -286,7 +329,7 @@ const SignModal = ({
         </div>
 
         <DisplayDataToSign
-          data={data}
+          data={data ?? ({} as SignData)}
           address={address ?? ''}
           theme={theme}
           className="space-y-4"
@@ -296,30 +339,16 @@ const SignModal = ({
 
         <div className="modal-action mt-6 flex justify-between gap-4">
           <button
-            className="btn btn-error flex-1 rounded-[12px] focus:outline-none "
-            onClick={() => {
-              reject();
-              onClose();
-            }}
+            className="btn btn-error flex-1 rounded-[12px] focus:outline-none"
+            onClick={handleReject}
           >
             Reject
           </button>
-          <button
-            className="btn btn-gradient flex-1 rounded-[12px]"
-            onClick={() => {
-              approve();
-              onClose();
-            }}
-          >
+          <button className="btn btn-gradient flex-1 rounded-[12px]" onClick={handleApprove}>
             Approve
           </button>
         </div>
-      </div>
-      <form method="dialog" className="modal-backdrop">
-        <button onClick={onClose}>close</button>
-      </form>
-    </dialog>
+      </Dialog.Panel>
+    </Dialog>
   );
 };
-
-export default SignModal;

@@ -1,9 +1,10 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { DenomImage, DenomInfoModal } from '@/components/factory';
+import { DenomDisplay, DenomImage, DenomInfoModal } from '@/components/factory';
 import { shiftDigits, truncateString } from '@/utils';
 import { CombinedBalanceInfo } from '@/utils/types';
-import { SendTxIcon, QuestionIcon } from '@/components/icons';
+import { SendTxIcon, QuestionIcon, VerifiedIcon } from '@/components/icons';
 import SendModal from '@/components/bank/modals/sendModal';
+import { ChainContext } from '@cosmos-kit/core';
 
 interface TokenListProps {
   balances: CombinedBalanceInfo[] | undefined;
@@ -18,7 +19,7 @@ interface TokenListProps {
   searchTerm?: string;
 }
 
-export function TokenList(props: Readonly<TokenListProps>) {
+export const TokenList = React.memo(function TokenList(props: Readonly<TokenListProps>) {
   const {
     balances,
     isLoading,
@@ -32,9 +33,13 @@ export function TokenList(props: Readonly<TokenListProps>) {
     searchTerm = '',
   } = props;
   const [selectedDenom, setSelectedDenom] = useState<any>(null);
-  const [isSendModalOpen, setIsSendModalOpen] = useState(false);
+  const [isSendModalOpen, setIsSendModalOpenHook] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [openDenomInfoModal, setOpenDenomInfoModal] = useState(false);
+
+  function setIsSendModalOpen(isOpen: boolean) {
+    setIsSendModalOpenHook(isOpen);
+  }
 
   const filteredBalances = useMemo(() => {
     if (!Array.isArray(balances)) return [];
@@ -100,16 +105,11 @@ export function TokenList(props: Readonly<TokenListProps>) {
                 className="flex flex-row justify-between gap-4 items-center p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px] cursor-pointer hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] transition-colors"
                 onClick={() => {
                   setSelectedDenom(balance?.denom);
-                  (document?.getElementById(`denom-info-modal`) as HTMLDialogElement)?.showModal();
+                  setOpenDenomInfoModal(true);
                 }}
               >
                 <div className="flex flex-row gap-4 items-center justify-start">
-                  <div className="  flex items-center justify-center">
-                    <DenomImage denom={balance.metadata} />
-                  </div>
-                  <p className="font-semibold text-[#161616] dark:text-white">
-                    {truncateString(balance.metadata?.display ?? '', 12).toUpperCase()}
-                  </p>
+                  <DenomDisplay metadata={balance.metadata} />
                 </div>
                 <div className="text-center hidden sm:block md:block lg:hidden xl:block">
                   <p className="font-semibold text-[#161616] dark:text-white">
@@ -130,9 +130,7 @@ export function TokenList(props: Readonly<TokenListProps>) {
                     onClick={e => {
                       e.stopPropagation();
                       setSelectedDenom(balance?.denom);
-                      (
-                        document?.getElementById(`denom-info-modal`) as HTMLDialogElement
-                      )?.showModal();
+                      setOpenDenomInfoModal(true);
                     }}
                     className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
                   >
@@ -221,14 +219,13 @@ export function TokenList(props: Readonly<TokenListProps>) {
         setOpenDenomInfoModal={setOpenDenomInfoModal}
       />
       <SendModal
-        modalId="send-modal"
-        isOpen={isSendModalOpen}
         address={address}
-        balances={balances ?? []}
+        balances={balances ?? ([] as CombinedBalanceInfo[])}
         isBalancesLoading={isLoading}
         refetchBalances={refetchBalances}
         refetchHistory={refetchHistory}
         selectedDenom={selectedDenom}
+        isOpen={isSendModalOpen}
         setOpen={setIsSendModalOpen}
         isGroup={isGroup}
         admin={admin}
@@ -236,4 +233,4 @@ export function TokenList(props: Readonly<TokenListProps>) {
       />
     </div>
   );
-}
+});

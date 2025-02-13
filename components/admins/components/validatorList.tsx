@@ -236,10 +236,9 @@ export default function ValidatorList({
                         onClick={e => e.stopPropagation()}
                       >
                         <button
-                          onClick={e => {
-                            handleRemove(validator);
-                          }}
-                          className="btn btn-error btn-sm text-white "
+                          onClick={() => handleRemove(validator)}
+                          className="btn btn-error btn-sm text-white"
+                          data-testid="remove-validator"
                           aria-label={`Remove validator ${validator.description.moniker}`}
                         >
                           <TrashIcon className="w-5 h-5" />

@@ -7,8 +7,10 @@ import {
 import { useChain } from '@cosmos-kit/react';
 import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { useToast } from '@/contexts/toastContext';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import env from '@/config/env';
+import { StatusState } from '@skip-go/client';
+import { Web3AuthContext } from '@/contexts/web3AuthContext';
 
 interface Msg {
   typeUrl: string;
@@ -30,6 +32,13 @@ export interface ToastMessage {
   link?: string;
   explorerLink?: string;
   bgColor?: string;
+  isIbcTransfer?: boolean;
+  sourceChain?: string;
+  targetChain?: string;
+  sourceChainIcon?: string;
+  targetChainIcon?: string;
+  status?: StatusState;
+  duration?: number;
 }
 
 const extractSimulationErrorMessage = (errorMessage: string): string => {
@@ -43,12 +52,13 @@ const extractSimulationErrorMessage = (errorMessage: string): string => {
 };
 
 export const useTx = (chainName: string) => {
+  const { promptId, setPromptId } = useContext(Web3AuthContext);
   const { address, getSigningStargateClient, estimateFee } = useChain(chainName);
   const { setToastMessage } = useToast();
   const [isSigning, setIsSigning] = useState(false);
-  const explorerUrl = env.explorerUrl;
+  const explorerUrl = chainName === env.osmosisChain ? env.osmosisExplorerUrl : env.explorerUrl;
 
-  const tx = async (msgs: Msg[], options: TxOptions) => {
+  const tx = async (msgs: Msg[], options: TxOptions, id?: string) => {
     if (!address) {
       setToastMessage({
         type: 'alert-error',
@@ -58,6 +68,7 @@ export const useTx = (chainName: string) => {
       });
       return options.returnError ? { error: 'Wallet not connected' } : undefined;
     }
+    setPromptId(id);
     setIsSigning(true);
     let client: SigningStargateClient;
     try {
@@ -107,6 +118,7 @@ export const useTx = (chainName: string) => {
       if (isDeliverTxSuccess(res)) {
         if (options.onSuccess) options.onSuccess();
         setIsSigning(false);
+
         if (msgs.filter(msg => msg.typeUrl === '/cosmos.group.v1.MsgSubmitProposal').length > 0) {
           const submitProposalEvent = res.events.find(
             event => event.type === 'cosmos.group.v1.EventSubmitProposal'
@@ -155,6 +167,7 @@ export const useTx = (chainName: string) => {
       });
       return options.returnError ? { error: errorMessage } : undefined;
     } finally {
+      setPromptId(undefined);
       setIsSigning(false);
     }
   };

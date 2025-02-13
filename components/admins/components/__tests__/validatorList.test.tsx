@@ -65,7 +65,7 @@ describe('ValidatorList', () => {
 
   test('remove button works and shows the warning modal', async () => {
     renderWithProps();
-    const allRemoveButtons = screen.getAllByText('Remove');
+    const allRemoveButtons = screen.getAllByTestId('remove-validator');
     fireEvent.click(allRemoveButtons[0]);
     await waitFor(() =>
       expect(screen.getByText('Are you sure you want to remove the validator')).toBeInTheDocument()

@@ -1,9 +1,16 @@
-import { describe, test, afterEach, expect } from 'bun:test';
+import { describe, test, afterEach, expect, mock, jest } from 'bun:test';
 import React from 'react';
 import { screen, cleanup } from '@testing-library/react';
 import { WarningModal } from '@/components/admins/modals/warningModal';
 import matchers from '@testing-library/jest-dom/matchers';
 import { renderWithChainProvider } from '@/tests/render';
+
+mock.module('next/router', () => ({
+  useRouter: jest.fn().mockReturnValue({
+    query: {},
+    push: jest.fn(),
+  }),
+}));
 
 expect.extend(matchers);
 
@@ -15,6 +22,8 @@ const modalId = 'test-modal';
 function renderWithProps(props = {}) {
   return renderWithChainProvider(
     <WarningModal
+      openWarningModal={true}
+      setOpenWarningModal={() => {}}
       admin={admin}
       address={address}
       moniker={moniker}

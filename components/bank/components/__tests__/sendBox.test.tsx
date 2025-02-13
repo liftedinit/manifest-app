@@ -1,7 +1,7 @@
 import { test, expect, afterEach, describe, mock, jest } from 'bun:test';
 import React from 'react';
 import matchers from '@testing-library/jest-dom/matchers';
-import { screen, cleanup, waitFor, fireEvent } from '@testing-library/react';
+import { screen, cleanup, waitFor, fireEvent, within } from '@testing-library/react';
 import SendBox from '@/components/bank/components/sendBox';
 import { mockBalances } from '@/tests/mock';
 import { renderWithChainProvider } from '@/tests/render';
@@ -17,12 +17,25 @@ mock.module('next/router', () => ({
   }),
 }));
 
+// Add this mock before your tests
+mock.module('next/image', () => ({
+  default: (props: any) => {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img {...props} alt={props.alt || ''} />;
+  },
+}));
+
 const renderWithProps = (props = {}) => {
   const defaultProps = {
     address: 'test_address',
     balances: mockBalances,
     isBalancesLoading: false,
     refetchBalances: () => {},
+    refetchHistory: () => {},
+    osmosisBalances: [],
+    isOsmosisBalancesLoading: false,
+    refetchOsmosisBalances: () => {},
+    resolveOsmosisRefetch: () => {},
   };
   return renderWithChainProvider(<SendBox {...defaultProps} {...props} />);
 };
@@ -30,6 +43,7 @@ const renderWithProps = (props = {}) => {
 describe('SendBox', () => {
   afterEach(() => {
     cleanup();
+    mock.restore();
   });
 
   test('renders correctly', () => {
@@ -40,42 +54,25 @@ describe('SendBox', () => {
 
   test('toggles between Send and Cross-Chain Transfer', async () => {
     renderWithProps();
-    expect(screen.getByText('Amount')).toBeInTheDocument();
+    // Check initial send form
+    expect(screen.getByPlaceholderText('0.00')).toBeInTheDocument();
+    expect(screen.queryByLabelText('to-chain-selector')).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByText('Cross-Chain Transfer'));
-    await waitFor(() => expect(screen.getByText('Chain')).toBeInTheDocument());
+    // Switch to cross-chain transfer
+    fireEvent.click(screen.getByLabelText('cross-chain-transfer-tab'));
+
+    // Verify cross-chain elements are present
+    await waitFor(() => {
+      expect(screen.getByLabelText('to-chain-selector')).toBeInTheDocument();
+    });
   });
 
-  test('displays chain selection dropdown when in Cross-Chain Transfer mode', async () => {
+  test('displays chain selection dropdowns in Cross-Chain Transfer mode', async () => {
     renderWithProps();
-    fireEvent.click(screen.getByText('Cross-Chain Transfer'));
-    await waitFor(() => expect(screen.getByText('Chain')).toBeInTheDocument());
-  });
-
-  test('selects a chain in Cross-Chain Transfer mode', async () => {
-    renderWithProps();
-    const crossChainBtn = screen.getByLabelText('cross-chain-transfer-tab');
-    fireEvent.click(crossChainBtn);
+    fireEvent.click(screen.getByLabelText('cross-chain-transfer-tab'));
 
     await waitFor(() => {
-      const chainSelector = screen.getByLabelText('chain-selector');
-      expect(chainSelector).toBeTruthy();
-    });
-
-    const chainSelector = screen.getByLabelText('chain-selector');
-    fireEvent.click(chainSelector);
-
-    await waitFor(() => {
-      const osmosisOption = screen.getByText('Osmosis');
-      expect(osmosisOption).toBeTruthy();
-    });
-
-    const osmosisOption = screen.getByText('Osmosis');
-    fireEvent.click(osmosisOption);
-
-    await waitFor(() => {
-      const updatedChainSelector = screen.getByLabelText('chain-selector');
-      expect(updatedChainSelector.textContent).toContain('Osmosis');
+      expect(screen.getByLabelText('to-chain-selector')).toBeInTheDocument();
     });
   });
 });

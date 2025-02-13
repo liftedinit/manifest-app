@@ -21,7 +21,7 @@ export default function CreateDenom({
   const DenomSchema = Yup.object().shape({
     subdenom: Yup.string()
       .required('Subdenom is required')
-      .min(4, 'Subdenom must be at least 4 characters')
+      .min(3, 'Subdenom must be at least 3 characters')
       .max(44, 'Subdenom must not exceed 44 characters')
       .noProfanity('Profanity is not allowed')
       .simulateDenomCreation(async () => {

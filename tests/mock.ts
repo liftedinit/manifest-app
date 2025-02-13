@@ -182,6 +182,42 @@ export const defaultAssetLists = [
   },
 ];
 
+export const osmosisAssetList = [
+  {
+    chain_name: 'osmosistestnet',
+    assets: [
+      {
+        name: 'Osmosis Testnet Token',
+        display: 'uosmo',
+        base: 'uosmo',
+        symbol: 'uosmo',
+        denom_units: [{ denom: 'uosmo', exponent: 0, aliases: ['uosmo'] }],
+      },
+    ],
+  },
+];
+
+export const osmosisChain: Chain = {
+  chain_name: 'osmosistestnet',
+  chain_id: 'osmo-test-5',
+  status: 'live',
+  network_type: 'testnet',
+  pretty_name: 'Osmosis Testnet',
+  bech32_prefix: 'osmo',
+  slip44: 118,
+  fees: {
+    fee_tokens: [
+      {
+        denom: 'uosmo',
+        fixed_min_gas_price: 0.001,
+        low_gas_price: 0.001,
+        average_gas_price: 0.001,
+        high_gas_price: 0.001,
+      },
+    ],
+  },
+};
+
 export const defaultChain: Chain = {
   chain_name: 'manifest',
   chain_id: 'manifest-1',
@@ -495,6 +531,9 @@ const anyMessage = Any.fromPartial({
   value: MsgSend.encode(msg.value).finish(),
 });
 
+const tomorrow = new Date();
+tomorrow.setDate(tomorrow.getDate() + 1);
+
 export const mockProposals: { [key: string]: ProposalSDKType[] } = {
   test_policy_address: [
     {
@@ -514,7 +553,7 @@ export const mockProposals: { [key: string]: ProposalSDKType[] } = {
         no_count: '0',
         no_with_veto_count: '0',
       },
-      voting_period_end: new Date(),
+      voting_period_end: tomorrow,
       executor_result: ProposalExecutorResult.PROPOSAL_EXECUTOR_RESULT_NOT_RUN,
       messages: [
         {

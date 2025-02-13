@@ -89,7 +89,7 @@ Yup.addMethod<Yup.StringSchema>(Yup.string, 'manifestAddress', function (message
       }
       const decoded = bech32.decode(value as `${string}1${string}`);
 
-      const validPrefixes = ['manifest', 'manifestvaloper', 'manifestvalcons'];
+      const validPrefixes = ['manifest', 'manifestvaloper', 'manifestvalcons', 'osmo', 'axelar'];
       if (!validPrefixes.includes(decoded.prefix)) {
         return createError({
           path,

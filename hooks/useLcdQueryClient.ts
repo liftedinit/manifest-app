@@ -19,3 +19,19 @@ export const useLcdQueryClient = () => {
     lcdQueryClient: lcdQueryClient.data,
   };
 };
+
+export const useOsmosisLcdQueryClient = () => {
+  const lcdQueryClient = useQuery({
+    queryKey: ['lcdQueryClientOsmosis', env.osmosisApiUrl],
+    queryFn: () =>
+      createLcdQueryClient({
+        restEndpoint: env.osmosisApiUrl,
+      }),
+    enabled: !!env.osmosisApiUrl,
+    staleTime: Infinity,
+  });
+
+  return {
+    lcdQueryClient: lcdQueryClient.data,
+  };
+};

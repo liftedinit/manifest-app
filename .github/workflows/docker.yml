@@ -40,6 +40,16 @@ jobs:
           echo "NEXT_PUBLIC_WEB3AUTH_CLIENT_ID=${{ secrets.NEXT_PUBLIC_WEB3AUTH_CLIENT_ID }}" >> .env
           echo "NEXT_PUBLIC_EXPLORER_URL=${{ vars.NEXT_PUBLIC_EXPLORER_URL }}" >> .env
           echo "NEXT_PUBLIC_INDEXER_URL=${{ vars.NEXT_PUBLIC_INDEXER_URL }}" >> .env
+          echo "NEXT_PUBLIC_OSMOSIS_CHAIN=${{ vars.NEXT_PUBLIC_OSMOSIS_CHAIN }}" >> .env
+          echo "NEXT_PUBLIC_OSMOSIS_CHAIN_ID=${{ vars.NEXT_PUBLIC_OSMOSIS_CHAIN_ID }}" >> .env
+          echo "NEXT_PUBLIC_OSMOSIS_RPC_URL=${{ vars.NEXT_PUBLIC_OSMOSIS_RPC_URL }}" >> .env
+          echo "NEXT_PUBLIC_OSMOSIS_API_URL=${{ vars.NEXT_PUBLIC_OSMOSIS_API_URL }}" >> .env
+          echo "NEXT_PUBLIC_OSMOSIS_EXPLORER_URL=${{ vars.NEXT_PUBLIC_OSMOSIS_EXPLORER_URL }}" >> .env
+          echo "NEXT_PUBLIC_AXELAR_CHAIN=${{ vars.NEXT_PUBLIC_AXELAR_CHAIN }}" >> .env
+          echo "NEXT_PUBLIC_AXELAR_CHAIN_ID=${{ vars.NEXT_PUBLIC_AXELAR_CHAIN_ID }}" >> .env
+          echo "NEXT_PUBLIC_AXELAR_RPC_URL=${{ vars.NEXT_PUBLIC_AXELAR_RPC_URL }}" >> .env
+          echo "NEXT_PUBLIC_AXELAR_API_URL=${{ vars.NEXT_PUBLIC_AXELAR_API_URL }}" >> .env
+          echo "NEXT_PUBLIC_AXELAR_EXPLORER_URL=${{ vars.NEXT_PUBLIC_AXELAR_EXPLORER_URL }}" >> .env
           cat .env
 
       - name: Get the Git tag

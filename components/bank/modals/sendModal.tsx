@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import SendBox from '../components/sendBox';
 import { CombinedBalanceInfo } from '@/utils/types';
-import { useEffect } from 'react';
-import { createPortal } from 'react-dom';
+import { Dialog, Portal } from '@headlessui/react';
+import { SignModal } from '@/components/react';
 
 interface SendModalProps {
-  modalId: string;
+  modalId?: string;
   address: string;
   balances: CombinedBalanceInfo[];
   isBalancesLoading: boolean;
@@ -19,7 +19,7 @@ interface SendModalProps {
   refetchProposals?: () => void;
 }
 
-export default function SendModal({
+export default React.memo(function SendModal({
   modalId,
   address,
   balances,
@@ -33,58 +33,32 @@ export default function SendModal({
   admin,
   refetchProposals,
 }: SendModalProps) {
-  const handleClose = () => {
-    if (setOpen) {
-      setOpen(false);
-    }
-    (document.getElementById(modalId) as HTMLDialogElement)?.close();
-  };
+  const handleClose = () => setOpen && setOpen(false);
 
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        handleClose();
-      }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [isOpen]);
-
-  const modalContent = (
-    <dialog
+  return (
+    <Dialog
       id={modalId}
-      className={`modal ${isOpen ? 'modal-open' : ''}`}
+      open={isOpen}
+      className={`modal ${isOpen ? 'modal-open' : ''} fixed flex p-0 m-0`}
       onClose={handleClose}
       style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        zIndex: 9999,
         backgroundColor: 'transparent',
-        padding: 0,
-        margin: 0,
-        height: '100vh',
-        width: '100vw',
-        display: isOpen ? 'flex' : 'none',
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
-      <div
+      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+
+      <Dialog.Panel
         className="modal-box max-w-xl mx-auto rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg relative"
         aria-label="send modal"
       >
-        <form method="dialog">
-          <button
-            onClick={handleClose}
-            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]"
-          >
-            ✕
-          </button>
-        </form>
+        <button
+          onClick={handleClose}
+          className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]"
+        >
+          ✕
+        </button>
 
         <h3 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">Send Assets</h3>
 
@@ -99,29 +73,9 @@ export default function SendModal({
           admin={admin}
           refetchProposals={refetchProposals}
         />
-      </div>
-      <form
-        method="dialog"
-        className="modal-backdrop"
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: -1,
-          backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        }}
-      >
-        <button onClick={handleClose}>close</button>
-      </form>
-    </dialog>
+
+        <SignModal />
+      </Dialog.Panel>
+    </Dialog>
   );
-
-  // Only render if we're in the browser
-  if (typeof document !== 'undefined') {
-    return createPortal(modalContent, document.body);
-  }
-
-  return null;
-}
+});

@@ -13,10 +13,12 @@ import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import env from '@/config/env';
 import { createPortal } from 'react-dom';
 
-import { isValidManifestAddress } from '@/utils/string';
+import { isValidManifestAddress, secondsToHumanReadable } from '@/utils/string';
 import { TrashIcon, PlusIcon } from '@/components/icons';
 import { MdContacts } from 'react-icons/md';
 import { TailwindModal } from '@/components/react/modal';
+import { Dialog } from '@headlessui/react';
+import { SignModal } from '@/components/react';
 
 export function UpdateGroupModal({
   group,
@@ -208,13 +210,17 @@ export function UpdateGroupModal({
         console.error('Error estimating fee:', feeError);
         throw new Error('Failed to estimate transaction fee. Please try again.');
       }
-      await tx([msg], {
-        fee,
-        onSuccess: () => {
-          setIsSigning(false);
-          onUpdate();
+      await tx(
+        [msg],
+        {
+          fee,
+          onSuccess: () => {
+            setIsSigning(false);
+            onUpdate();
+          },
         },
-      });
+        'update-group-modal'
+      );
       setIsSigning(false);
     } catch (error) {
       console.error('Error in handleConfirm:', error);
@@ -256,18 +262,22 @@ export function UpdateGroupModal({
           minutes: Yup.number().min(0, 'Must be 0 or greater').required('Required'),
           seconds: Yup.number().min(0, 'Must be 0 or greater').required('Required'),
         })
-        .test('min-total-time', 'Voting period must be at least 30 minutes', function (value) {
-          // Only validate if voting period is being updated
-          if (!value || Object.values(value).every(v => v === 0)) return true;
+        .test(
+          'min-total-time',
+          () => `Voting period must be at least ${secondsToHumanReadable(env.minimumVotingPeriod)}`,
+          function (value) {
+            // Only validate if voting period is being updated
+            if (!value || Object.values(value).every(v => v === 0)) return true;
 
-          const { days, hours, minutes, seconds } = value;
-          const totalSeconds =
-            (Number(days) || 0) * 86400 +
-            (Number(hours) || 0) * 3600 +
-            (Number(minutes) || 0) * 60 +
-            (Number(seconds) || 0);
-          return totalSeconds >= 1800;
-        }),
+            const { days, hours, minutes, seconds } = value;
+            const totalSeconds =
+              (Number(days) || 0) * 86400 +
+              (Number(hours) || 0) * 3600 +
+              (Number(minutes) || 0) * 60 +
+              (Number(seconds) || 0);
+            return totalSeconds >= env.minimumVotingPeriod;
+          }
+        ),
     })
     .test(
       'metadata-total-length',
@@ -304,42 +314,20 @@ export function UpdateGroupModal({
     return hasMetadataChanges || hasThresholdChange || hasVotingPeriodChange;
   };
 
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && showUpdateModal) {
-        e.stopPropagation();
-        setShowUpdateModal(false);
-      }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [showUpdateModal, setShowUpdateModal]);
-
-  const modalContent = (
-    <dialog
-      id="update-group-modal"
-      className={`modal ${showUpdateModal ? 'modal-open' : ''}`}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-title"
+  return (
+    <Dialog
+      open={showUpdateModal}
+      onClose={() => setShowUpdateModal(false)}
+      className={`modal modal-open fixed flex p-0 m-0`}
       style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        zIndex: 9999,
-        backgroundColor: 'transparent',
-        padding: 0,
-        margin: 0,
         height: '100vh',
         width: '100vw',
-        display: showUpdateModal ? 'flex' : 'none',
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
+      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+
       <div
         className="modal-box max-w-2xl bg-secondary rounded-[24px]"
         onClick={e => e.stopPropagation()}
@@ -443,30 +431,10 @@ export function UpdateGroupModal({
           )}
         </Formik>
       </div>
-      <form
-        method="dialog"
-        className="modal-backdrop"
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: -1,
-          backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        }}
-        onClick={() => setShowUpdateModal(false)}
-      >
-        <button>close</button>
-      </form>
-    </dialog>
+
+      <SignModal id="update-group-modal" />
+    </Dialog>
   );
-
-  if (typeof document !== 'undefined' && showUpdateModal) {
-    return createPortal(modalContent, document.body);
-  }
-
-  return null;
 }
 
 function GroupPolicyFormFields({

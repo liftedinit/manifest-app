@@ -13,7 +13,7 @@ import { useRouter } from 'next/router';
 
 import VoteDetailsModal from '@/components/groups/modals/voteDetailsModal';
 import { useGroupsByMember } from '@/hooks/useQueries';
-import { useChain } from '@cosmos-kit/react';
+import { useChain, useChains } from '@cosmos-kit/react';
 import { MemberSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { ArrowRightIcon } from '@/components/icons';
 import ProfileAvatar from '@/utils/identicon';
@@ -43,7 +43,7 @@ type GroupControlsProps = {
   denomLoading: boolean;
   isDenomError: boolean;
   refetchBalances: () => void;
-  refetchHistory: () => void;
+  refetchHistory: () => Promise<unknown>;
   refetchDenoms: () => void;
   refetchGroupInfo: () => void;
   pageSize: number;
@@ -231,6 +231,7 @@ export default function GroupControls({
   }
 
   const { address } = useChain(env.chain);
+  const chains = useChains([env.chain, env.osmosisChain, env.axelarChain]);
   const { groupByMemberData } = useGroupsByMember(address ?? '');
 
   useEffect(() => {
@@ -676,7 +677,6 @@ export default function GroupControls({
           proposal={selectedProposal}
           onClose={handleCloseVoteModal}
           showVoteModal={showVoteModal}
-          setShowVoteModal={setShowVoteModal}
           refetchVotes={refetchVotes}
           refetchTally={refetchTally}
           refetchProposals={refetchProposals}

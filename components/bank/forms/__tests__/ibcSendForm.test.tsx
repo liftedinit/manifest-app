@@ -1,6 +1,6 @@
-import { describe, test, afterEach, expect, jest, mock } from 'bun:test';
+import { describe, test, afterEach, expect, jest, mock, beforeAll } from 'bun:test';
 import React from 'react';
-import { screen, cleanup, fireEvent } from '@testing-library/react';
+import { screen, cleanup, fireEvent, act } from '@testing-library/react';
 import IbcSendForm from '@/components/bank/forms/ibcSendForm';
 import matchers from '@testing-library/jest-dom/matchers';
 import { mockBalances } from '@/tests/mock';
@@ -16,38 +16,87 @@ mock.module('next/router', () => ({
   }),
 }));
 
+// Add this mock before the tests
+mock.module('next/image', () => ({
+  default: (props: any) => {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img {...props} alt={props.alt || ''} />;
+  },
+  __esModule: true,
+}));
+
 function renderWithProps(props = {}) {
+  const defaultChains = [
+    {
+      id: 'manifest',
+      name: 'Manifest',
+      icon: 'https://osmosis.zone/assets/icons/osmo-logo-icon.svg',
+      prefix: 'manifest',
+      chainID: 'manifest-1',
+    },
+    {
+      id: 'osmosistestnet',
+      name: 'Osmosis',
+      icon: 'https://osmosis.zone/assets/icons/osmo-logo-icon.svg',
+      prefix: 'osmo',
+      chainID: 'osmo-test-1',
+    },
+  ];
+
   const defaultProps = {
     address: 'manifest1address',
-    destinationChain: 'osmosis',
+    destinationChain: defaultChains[1],
     balances: mockBalances,
     isBalancesLoading: false,
     refetchBalances: jest.fn(),
+    refetchHistory: jest.fn(),
     isIbcTransfer: true,
-    setIsIbcTransfer: jest.fn(),
-    ibcChains: [
-      {
-        id: 'osmosis',
-        name: 'Osmosis',
-        icon: 'https://osmosis.zone/assets/icons/osmo-logo-icon.svg',
-        prefix: 'osmo',
+    ibcChains: defaultChains,
+    selectedFromChain: defaultChains[0],
+    setSelectedFromChain: jest.fn(),
+    selectedToChain: defaultChains[1],
+    setSelectedToChain: jest.fn(),
+    osmosisBalances: [],
+    isOsmosisBalancesLoading: false,
+    refetchOsmosisBalances: jest.fn(),
+    resolveOsmosisRefetch: jest.fn(),
+    availableToChains: defaultChains,
+    chains: {
+      manifest: {
+        address: 'manifest1address',
+        getOfflineSignerAmino: jest.fn(),
       },
-    ],
-    selectedChain: 'osmosis',
-    setSelectedChain: jest.fn(),
+      osmosistestnet: {
+        address: 'osmo1address',
+        getOfflineSignerAmino: jest.fn(),
+      },
+    },
   };
 
-  return renderWithChainProvider(<IbcSendForm {...defaultProps} {...props} />);
+  const rendered = renderWithChainProvider(
+    <div data-testid="ibc-send-form">
+      <IbcSendForm {...defaultProps} {...props} />
+    </div>
+  );
+
+  // Wait for component to be mounted
+  return {
+    ...rendered,
+    findForm: () => rendered.findByTestId('ibc-send-form'),
+  };
 }
 
 describe('IbcSendForm Component', () => {
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+    mock.restore();
+  });
 
-  test('renders form with correct details', () => {
-    renderWithProps();
-    expect(screen.getByText('Amount')).toBeInTheDocument();
-    expect(screen.getByText('Send To')).toBeInTheDocument();
-    expect(screen.getByText('Chain')).toBeInTheDocument();
+  test('renders form with correct details', async () => {
+    const { findForm } = renderWithProps();
+    const form = await findForm();
+    expect(form).toBeInTheDocument();
+    expect(screen.getByLabelText('to-chain-selector')).toBeInTheDocument();
   });
 
   test('empty balances', async () => {
@@ -73,9 +122,11 @@ describe('IbcSendForm Component', () => {
 
   test('updates chain selector correctly', () => {
     renderWithProps();
-    const chainSelector = screen.getByLabelText('chain-selector');
-    fireEvent.click(chainSelector);
-    expect(chainSelector).toHaveTextContent('Osmosis');
+    const toChainSelector = screen.getByLabelText('to-chain-selector');
+    fireEvent.click(toChainSelector);
+    const osmosisOption = screen.getAllByRole('option', { name: 'Osmosis' });
+    fireEvent.click(osmosisOption[0]);
+    expect(screen.getByLabelText('to-chain-selector')).toHaveTextContent('Osmosis');
   });
 
   test('updates amount input correctly', () => {
@@ -105,5 +156,34 @@ describe('IbcSendForm Component', () => {
     fireEvent.click(dropdownItems[dropdownItems.length - 1]);
     const sendButton = screen.getByRole('button', { name: 'send-btn' });
     expect(sendButton).not.toBeDisabled();
+  });
+
+  test('handles chain selection correctly', async () => {
+    renderWithProps();
+    const toChainSelector = screen.getByLabelText('to-chain-selector');
+    fireEvent.click(toChainSelector);
+    const osmosisOption = screen.getAllByRole('option', { name: 'Osmosis' });
+    fireEvent.click(osmosisOption[0]);
+    expect(screen.getByLabelText('to-chain-selector')).toHaveTextContent('Osmosis');
+  });
+  // cant select from chain anymore hardcoded to manifest
+  test.skip('prevents selecting same chain for source and destination', async () => {
+    const { findForm } = renderWithProps();
+    await findForm();
+    const toChainSelector = screen.getByLabelText('to-chain-selector');
+    await act(async () => {
+      fireEvent.click(toChainSelector);
+    });
+    await act(async () => {
+      const toChainOptions = await screen.findAllByRole('option', {
+        hidden: true,
+      });
+      const manifestInToChain = toChainOptions.find(option => {
+        const link = option.querySelector('a');
+        return link && link.textContent?.includes('Manifest');
+      });
+      expect(manifestInToChain?.querySelector('a')).toHaveStyle({ pointerEvents: 'none' });
+      expect(manifestInToChain?.querySelector('a')).toHaveClass('opacity-50');
+    });
   });
 });

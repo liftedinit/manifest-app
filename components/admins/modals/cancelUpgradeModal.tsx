@@ -6,6 +6,8 @@ import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgCancelUpgrade } from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
 import { PlanSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/upgrade';
 import env from '@/config/env';
+import { Dialog } from '@headlessui/react';
+import { SignModal } from '@/components/react';
 
 interface BaseModalProps {
   isOpen: boolean;
@@ -39,17 +41,6 @@ export function CancelUpgradeModal({
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const { tx, isSigning, setIsSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
-
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [isOpen, onClose]);
 
   const handleCancelUpgrade = async () => {
     setIsSigning(true);
@@ -89,27 +80,23 @@ export function CancelUpgradeModal({
     }
   };
 
-  const modalContent = (
-    <dialog
-      className={`modal ${isOpen ? 'modal-open' : ''}`}
+  return (
+    <Dialog
+      open={isOpen}
+      onClose={onClose}
+      className={`modal ${isOpen ? 'modal-open' : ''} flex fixed p-0 m-0`}
       style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
         zIndex: 9999,
         backgroundColor: 'transparent',
-        padding: 0,
-        margin: 0,
         height: '100vh',
         width: '100vw',
-        display: isOpen ? 'flex' : 'none',
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
-      <div className="modal-box bg-secondary rounded-[24px] max-w-[542px] p-6">
+      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+
+      <Dialog.Panel className="modal-box bg-secondary rounded-[24px] max-w-[542px] p-6">
         <div className="flex items-center justify-between mb-6">
           <h3 className="font-bold text-lg">Cancel Upgrade</h3>
           <form method="dialog">
@@ -158,29 +145,9 @@ export function CancelUpgradeModal({
             {isSigning ? <span className="loading loading-dots"></span> : 'Cancel Upgrade'}
           </button>
         </div>
-      </div>
-      <form
-        method="dialog"
-        className="modal-backdrop"
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: -1,
-          backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        }}
-        onClick={onClose}
-      >
-        <button>close</button>
-      </form>
-    </dialog>
+
+        <SignModal />
+      </Dialog.Panel>
+    </Dialog>
   );
-
-  if (typeof document !== 'undefined') {
-    return createPortal(modalContent, document.body);
-  }
-
-  return null;
 }
