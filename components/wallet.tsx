@@ -180,7 +180,10 @@ export const IconWallet: React.FC<WalletSectionProps> = ({ chainName }) => {
 
   const onClickConnect: MouseEventHandler = e => {
     e.preventDefault();
-    connect().catch(console.error);
+    connect().catch(error => {
+      // Show error notification to user
+      console.error('Failed to connect wallet:', error);
+    });
   };
 
   if (status === WalletStatus.Connecting) {
