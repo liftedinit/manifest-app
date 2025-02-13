@@ -7,7 +7,7 @@ import { WalletStatus } from 'cosmos-kit';
 import { MdWallet } from 'react-icons/md';
 import env from '@/config/env';
 import { Username } from './username';
-import { truncateAddress, truncateString } from '@/utils';
+import { truncateAddress } from '@/utils';
 
 const buttons = {
   Disconnected: {
@@ -113,7 +113,7 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
         {buttonData.title}
       </button>
     );
-  }, [localStatus, connect, openView, username, address]);
+  }, [localStatus, connect, openView]);
 
   return (
     <div className="w-full  duration-300 ease-in-out relative">
@@ -178,94 +178,92 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
 export const IconWallet: React.FC<WalletSectionProps> = ({ chainName }) => {
   const { connect, openView, status, address } = useChain(chainName);
 
-  const onClickConnect: MouseEventHandler = async e => {
+  const onClickConnect: MouseEventHandler = e => {
     e.preventDefault();
-    await connect();
+    connect().catch(console.error);
   };
 
-  const _renderConnectButton = useMemo(() => {
-    if (status === WalletStatus.Connecting) {
-      return (
-        <button className="flex justify-center items-center w-8 h-8">
-          <svg
-            className="w-8 h-8 text-primary animate-spin"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            ></circle>
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
-        </button>
-      );
-    }
-
-    let onClick;
-    if (
-      status === WalletStatus.Disconnected ||
-      status === WalletStatus.Rejected ||
-      status === WalletStatus.Error
-    )
-      onClick = onClickConnect;
-    else onClick = openView;
-
-    const buttonData = buttons[status];
-
+  if (status === WalletStatus.Connecting) {
     return (
-      <div className="relative group">
-        <button
-          onClick={onClick}
-          className={`flex justify-center items-center w-8 h-8 hover:text-primary  duration-200 ease-in-out`}
+      <button className="flex justify-center items-center w-8 h-8">
+        <svg
+          className="w-8 h-8 text-primary animate-spin"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
         >
-          <buttonData.icon className="w-8 h-8" />
-        </button>
-        {status === WalletStatus.Connected && (
-          <div className="absolute -top-4 -right-8 mt-[-0.5rem] mr-[-0.5rem] bg-[#F4F4FF] dark:bg-[#191526] rounded-md shadow-lg opacity-0 group-hover:opacity-100  duration-200 ease-in-out">
-            <button
-              className="p-2 hover:text-primary rounded-t-md w-full flex justify-center items-center"
-              id="copyButton"
-              onClick={() => {
-                navigator.clipboard.writeText(address || '');
-                const button = document.getElementById('copyButton');
-                if (button) {
-                  const originalContent = button.innerHTML;
-                  button.innerHTML =
-                    '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-primary" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" /><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>';
-                  setTimeout(() => {
-                    button.innerHTML = originalContent;
-                  }, 2000);
-                }
-              }}
-            >
-              <CopyIcon className="w-5 h-5" />
-            </button>
-            <button
-              className="p-2 hover:text-primary rounded-b-md w-full flex justify-center items-center"
-              onClick={e => {
-                e.stopPropagation();
-                openView();
-              }}
-            >
-              <ArrowUpIcon className="w-5 h-5" />
-            </button>
-          </div>
-        )}
-      </div>
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
+      </button>
     );
-  }, [status, connect, openView, address]);
+  }
 
-  return _renderConnectButton;
+  let onClick;
+  if (
+    status === WalletStatus.Disconnected ||
+    status === WalletStatus.Rejected ||
+    status === WalletStatus.Error
+  ) {
+    onClick = onClickConnect;
+  } else {
+    onClick = openView;
+  }
+
+  const buttonData = buttons[status];
+
+  return (
+    <div className="relative group">
+      <button
+        onClick={onClick}
+        className={`flex justify-center items-center w-8 h-8 hover:text-primary  duration-200 ease-in-out`}
+      >
+        <buttonData.icon className="w-8 h-8" />
+      </button>
+      {status === WalletStatus.Connected && (
+        <div className="absolute -top-4 -right-8 mt-[-0.5rem] mr-[-0.5rem] bg-[#F4F4FF] dark:bg-[#191526] rounded-md shadow-lg opacity-0 group-hover:opacity-100  duration-200 ease-in-out">
+          <button
+            className="p-2 hover:text-primary rounded-t-md w-full flex justify-center items-center"
+            id="copyButton"
+            onClick={() => {
+              navigator.clipboard.writeText(address || '');
+              const button = document.getElementById('copyButton');
+              if (button) {
+                const originalContent = button.innerHTML;
+                button.innerHTML =
+                  '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-primary" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" /><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>';
+                setTimeout(() => {
+                  button.innerHTML = originalContent;
+                }, 2000);
+              }
+            }}
+          >
+            <CopyIcon className="w-5 h-5" />
+          </button>
+          <button
+            className="p-2 hover:text-primary rounded-b-md w-full flex justify-center items-center"
+            onClick={e => {
+              e.stopPropagation();
+              openView();
+            }}
+          >
+            <ArrowUpIcon className="w-5 h-5" />
+          </button>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export function WalletNotConnected({

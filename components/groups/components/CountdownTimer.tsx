@@ -1,8 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 export default function CountdownTimer({ endTime }: { endTime: Date }) {
-  const calculateTimeLeft = () => {
-    const now = new Date();
+  const [now, setNow] = useState<Date>(new Date());
+  useEffect(() => {
+    const interval = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(interval);
+  }, [setNow]);
+
+  const timeLeft = useMemo(() => {
     const timeDiff = endTime.getTime() - now.getTime();
     if (timeDiff > 0) {
       const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
@@ -12,17 +17,7 @@ export default function CountdownTimer({ endTime }: { endTime: Date }) {
       return { days, hours, min, sec };
     }
     return { days: 0, hours: 0, min: 0, sec: 0 };
-  };
-
-  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(calculateTimeLeft());
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
+  }, [now, endTime]);
 
   return (
     <div className="grid grid-flow-col gap-5 mt-2 text-center auto-cols-max">

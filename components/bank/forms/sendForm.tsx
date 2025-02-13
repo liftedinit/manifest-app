@@ -8,7 +8,7 @@ import { DenomDisplay } from '@/components/factory';
 import { Formik, Form } from 'formik';
 import Yup from '@/utils/yupExtensions';
 import { TextInput } from '@/components/react/inputs';
-import { SearchIcon, VerifiedIcon } from '@/components/icons';
+import { SearchIcon } from '@/components/icons';
 import { TailwindModal } from '@/components/react/modal';
 import { MdContacts } from 'react-icons/md';
 import env from '@/config/env';
@@ -52,7 +52,7 @@ export default function SendForm({
 
   const initialSelectedToken = useMemo(() => {
     return balances?.find(token => token.coreDenom === selectedDenom) || balances?.[0] || null;
-  }, [selectedDenom]);
+  }, [balances, selectedDenom]);
 
   // Loading state checks
   if (isBalancesLoading || !initialSelectedToken) {

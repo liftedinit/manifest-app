@@ -32,6 +32,7 @@ import {
 } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
 import { Dialog } from '@headlessui/react';
 import { Web3AuthContext } from '@/contexts/web3AuthContext';
+import Image from 'next/image';
 
 type DisplayDataToSignProps = {
   data: SignData;
@@ -339,7 +340,7 @@ export const PromptSignModalInner: React.FC<SignModalInnerProps> = ({
   const { address } = useChain(env.chain);
   const { theme } = useTheme();
   const walletIcon = wallet?.logo;
-  const walletIconString = walletIcon?.toString() ?? '';
+  const walletIconString = walletIcon?.toString();
 
   function handleReject() {
     reject?.();
@@ -358,11 +359,15 @@ export const PromptSignModalInner: React.FC<SignModalInnerProps> = ({
       <Dialog.Panel className="modal-box max-w-lg w-full dark:bg-[#1D192D] bg-[#FFFFFF] rounded-lg shadow-xl">
         <div className="flex justify-between items-center pb-4">
           <div className="flex items-center gap-3">
-            <img
-              src={getRealLogo(walletIconString, theme === 'dark')}
-              alt="Wallet type logo"
-              className="w-8 h-8"
-            />
+            {walletIconString && (
+              <Image
+                src={getRealLogo(walletIconString, theme === 'dark')}
+                alt="Wallet type logo"
+                className="w-8 h-8"
+                width={32}
+                height={32}
+              />
+            )}
             <h3 className="text-xl font-semibold">Approve transaction?</h3>
           </div>
           <button className="btn btn-sm btn-circle btn-ghost" onClick={onClose}>
