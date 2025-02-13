@@ -1,9 +1,11 @@
+import env from '@/config/env';
 import React, { useEffect } from 'react';
 import { Form, Formik, useFormikContext } from 'formik';
 import { NumberInput } from '@/components/react/inputs';
 
 import { Action, FormData } from '@/helpers/formReducer';
 import Yup from '@/utils/yupExtensions';
+import { secondsToHumanReadable } from '@/utils';
 
 const createGroupPolicySchema = (maxVotingThreshold: number) =>
   Yup.object().shape({
@@ -14,12 +16,16 @@ const createGroupPolicySchema = (maxVotingThreshold: number) =>
         minutes: Yup.number().min(0).required('Required'),
         seconds: Yup.number().min(0).required('Required'),
       })
-      .test('min-total-time', 'Voting period must be at least 30 minutes', value => {
-        const { days, hours, minutes, seconds } = value || {};
-        const totalSeconds =
-          (days || 0) * 86400 + (hours || 0) * 3600 + (minutes || 0) * 60 + (seconds || 0);
-        return totalSeconds >= 1800;
-      }),
+      .test(
+        'min-total-time',
+        () => `Voting period must be at least ${secondsToHumanReadable(env.minimumVotingPeriod)}`,
+        value => {
+          const { days, hours, minutes, seconds } = value || {};
+          const totalSeconds =
+            (days || 0) * 86400 + (hours || 0) * 3600 + (minutes || 0) * 60 + (seconds || 0);
+          return totalSeconds >= env.minimumVotingPeriod;
+        }
+      ),
     votingThreshold: Yup.number()
       .required('Required')
       .min(1)

@@ -13,7 +13,7 @@ import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import env from '@/config/env';
 import { createPortal } from 'react-dom';
 
-import { isValidManifestAddress } from '@/utils/string';
+import { isValidManifestAddress, secondsToHumanReadable } from '@/utils/string';
 import { TrashIcon, PlusIcon } from '@/components/icons';
 import { MdContacts } from 'react-icons/md';
 import { TailwindModal } from '@/components/react/modal';
@@ -256,18 +256,22 @@ export function UpdateGroupModal({
           minutes: Yup.number().min(0, 'Must be 0 or greater').required('Required'),
           seconds: Yup.number().min(0, 'Must be 0 or greater').required('Required'),
         })
-        .test('min-total-time', 'Voting period must be at least 30 minutes', function (value) {
-          // Only validate if voting period is being updated
-          if (!value || Object.values(value).every(v => v === 0)) return true;
+        .test(
+          'min-total-time',
+          () => `Voting period must be at least ${secondsToHumanReadable(env.minimumVotingPeriod)}`,
+          function (value) {
+            // Only validate if voting period is being updated
+            if (!value || Object.values(value).every(v => v === 0)) return true;
 
-          const { days, hours, minutes, seconds } = value;
-          const totalSeconds =
-            (Number(days) || 0) * 86400 +
-            (Number(hours) || 0) * 3600 +
-            (Number(minutes) || 0) * 60 +
-            (Number(seconds) || 0);
-          return totalSeconds >= 1800;
-        }),
+            const { days, hours, minutes, seconds } = value;
+            const totalSeconds =
+              (Number(days) || 0) * 86400 +
+              (Number(hours) || 0) * 3600 +
+              (Number(minutes) || 0) * 60 +
+              (Number(seconds) || 0);
+            return totalSeconds >= env.minimumVotingPeriod;
+          }
+        ),
     })
     .test(
       'metadata-total-length',
