@@ -547,8 +547,8 @@ export const TailwindModal: React.FC<
    * to ensure we can display toast messages if needed.
    */
   return (
-    <Transition.Root show={isOpen} as={Fragment}>
-      <Portal>
+    <Portal>
+      <Transition.Root show={isOpen}>
         <Dialog as="div" className="relative z-[9999]" onClose={onCloseModal}>
           <div className="fixed inset-0">
             <Transition.Child
@@ -588,7 +588,7 @@ export const TailwindModal: React.FC<
             </div>
           </div>
         </Dialog>
-      </Portal>
-    </Transition.Root>
+      </Transition.Root>
+    </Portal>
   );
 };

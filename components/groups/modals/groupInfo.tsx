@@ -6,8 +6,10 @@ import { ThresholdDecisionPolicySDKType } from '@liftedinit/manifestjs/dist/code
 import { useFeeEstimation, useTx } from '@/hooks';
 import { cosmos } from '@liftedinit/manifestjs';
 import env from '@/config/env';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { Dialog } from '@headlessui/react';
+import { SignModal } from '@/components/react';
 
 interface GroupInfoProps {
   modalId: string;
@@ -28,16 +30,6 @@ export function GroupInfo({
   showInfoModal,
   setShowInfoModal,
 }: GroupInfoProps) {
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && showInfoModal) {
-        setShowInfoModal(false);
-      }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [showInfoModal, setShowInfoModal]);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const { tx, isSigning, setIsSigning } = useTx(env.chain);
   const { leaveGroup } = cosmos.group.v1.MessageComposer.withTypeUrl;
@@ -149,14 +141,18 @@ export function GroupInfo({
       });
 
       const fee = await estimateFee(address, [msg]);
-      await tx([msg], {
-        fee,
-        onSuccess: () => {
-          setIsSigning(false);
-          onUpdate();
-          setShowInfoModal(false);
+      await tx(
+        [msg],
+        {
+          fee,
+          onSuccess: () => {
+            setIsSigning(false);
+            onUpdate();
+            setShowInfoModal(false);
+          },
         },
-      });
+        'leave-modal'
+      );
     } catch (error) {
       console.error('Error leaving group:', error);
     } finally {
@@ -176,30 +172,20 @@ export function GroupInfo({
   }
 
   const modalContent = (
-    <dialog
-      id={modalId}
-      className={`modal ${showInfoModal ? 'modal-open' : ''}`}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-title"
+    <Dialog
+      open={showInfoModal}
+      onClose={() => setShowInfoModal(false)}
+      className={`modal modal-open fixed flex p-0 m-0`}
       style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        zIndex: 9999,
-        backgroundColor: 'transparent',
-        padding: 0,
-        margin: 0,
         height: '100vh',
         width: '100vw',
-        display: showInfoModal ? 'flex' : 'none',
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
-      <div className="modal-box bg-secondary rounded-[24px] max-h-['574px'] max-w-[542px] p-6">
+      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+
+      <Dialog.Panel className="modal-box bg-secondary rounded-[24px] max-h-['574px'] max-w-[542px] p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
             <ProfileAvatar walletAddress={policyAddress} size={40} />
@@ -249,23 +235,8 @@ export function GroupInfo({
           <h4 className="font-semibold mt-6 text-secondary-content">Authors</h4>
           {renderAuthors()}
         </div>
-      </div>
-      <form
-        method="dialog"
-        className="modal-backdrop"
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: -1,
-          backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        }}
-        onClick={() => setShowInfoModal(false)}
-      >
-        <button>close</button>
-      </form>
+      </Dialog.Panel>
+
       <UpdateGroupModal
         group={group}
         policyAddress={policyAddress}
@@ -274,7 +245,9 @@ export function GroupInfo({
         showUpdateModal={showUpdateModal}
         setShowUpdateModal={setShowUpdateModal}
       />
-    </dialog>
+
+      <SignModal id="leave-modal" />
+    </Dialog>
   );
 
   if (typeof document !== 'undefined') {

@@ -662,7 +662,6 @@ export default function GroupControls({
           proposal={selectedProposal}
           onClose={handleCloseVoteModal}
           showVoteModal={showVoteModal}
-          setShowVoteModal={setShowVoteModal}
           refetchVotes={refetchVotes}
           refetchTally={refetchTally}
           refetchProposals={refetchProposals}

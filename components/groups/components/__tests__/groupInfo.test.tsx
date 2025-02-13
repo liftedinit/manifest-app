@@ -24,6 +24,8 @@ mock.module('next/router', () => ({
 }));
 
 const defaultProps = {
+  showInfoModal: true,
+  setShowInfoModal: jest.fn(),
   group: mockGroup,
   address: 'test_address',
   policyAddress: 'test_policy_address',
@@ -96,7 +98,7 @@ describe('GroupInfo', () => {
     renderWithProps();
     const updateButton = screen.getByLabelText('upgrade-btn');
     fireEvent.click(updateButton);
-    const modal = document.getElementById(`update-group-modal`) as HTMLDialogElement;
+    const modal = screen.getByRole('dialog') as HTMLDialogElement;
     expect(modal).toBeInTheDocument();
     expect(screen.getByLabelText('upgrade-group-btn')).toBeInTheDocument();
   });

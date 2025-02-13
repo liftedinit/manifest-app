@@ -33,9 +33,13 @@ export const TokenList = React.memo(function TokenList(props: Readonly<TokenList
     searchTerm = '',
   } = props;
   const [selectedDenom, setSelectedDenom] = useState<any>(null);
-  const [isSendModalOpen, setIsSendModalOpen] = useState(false);
+  const [isSendModalOpen, setIsSendModalOpenHook] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [openDenomInfoModal, setOpenDenomInfoModal] = useState(false);
+
+  function setIsSendModalOpen(isOpen: boolean) {
+    setIsSendModalOpenHook(isOpen);
+  }
 
   const filteredBalances = useMemo(() => {
     if (!Array.isArray(balances)) return [];
@@ -215,14 +219,13 @@ export const TokenList = React.memo(function TokenList(props: Readonly<TokenList
         setOpenDenomInfoModal={setOpenDenomInfoModal}
       />
       <SendModal
-        modalId="send-modal"
-        isOpen={isSendModalOpen}
         address={address}
         balances={balances ?? ([] as CombinedBalanceInfo[])}
         isBalancesLoading={isLoading}
         refetchBalances={refetchBalances}
         refetchHistory={refetchHistory}
         selectedDenom={selectedDenom}
+        isOpen={isSendModalOpen}
         setOpen={setIsSendModalOpen}
         isGroup={isGroup}
         admin={admin}

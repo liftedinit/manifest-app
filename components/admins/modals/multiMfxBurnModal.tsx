@@ -15,6 +15,8 @@ import { parseNumberToBigInt } from '@/utils';
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { TailwindModal } from '@/components/react';
 import env from '@/config/env';
+import { SignModal } from '@/components/react';
+import { Dialog } from '@headlessui/react';
 
 interface BurnPair {
   address: string;
@@ -54,17 +56,6 @@ export function MultiBurnModal({ isOpen, onClose, admin, address, denom }: Multi
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const [isContactsOpen, setIsContactsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [isOpen, onClose]);
 
   const updateBurnPair = (index: number, field: 'address' | 'amount', value: string) => {
     const newPairs = [...burnPairs];
@@ -126,28 +117,23 @@ export function MultiBurnModal({ isOpen, onClose, admin, address, denom }: Multi
     }
   };
 
-  const modalContent = (
-    <dialog
-      id="multi_burn_modal"
-      className={`modal ${isOpen ? 'modal-open' : ''}`}
+  if (!isOpen) return null;
+
+  return (
+    <Dialog
+      open
+      onClose={onClose}
+      className="modal modal-open fixed flex p-0 m-0 top-0"
       style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        zIndex: 9999,
-        backgroundColor: 'transparent',
-        padding: 0,
-        margin: 0,
         height: '100vh',
         width: '100vw',
-        display: isOpen ? 'flex' : 'none',
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
-      <div className="modal-box max-w-4xl mx-auto min-h-[30vh] max-h-[70vh] rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg overflow-y-auto">
+      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+
+      <Dialog.Panel className="modal-box max-w-4xl mx-auto min-h-[30vh] max-h-[70vh] rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg overflow-y-auto">
         <form method="dialog" onSubmit={onClose}>
           <button
             aria-label="Close modal"
@@ -285,30 +271,9 @@ export function MultiBurnModal({ isOpen, onClose, admin, address, denom }: Multi
             )}
           </Formik>
         </div>
-      </div>
-      <form
-        method="dialog"
-        className="modal-backdrop"
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: -1,
-          backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        }}
-        onSubmit={onClose}
-      >
-        <button>close</button>
-      </form>
-    </dialog>
+
+        <SignModal />
+      </Dialog.Panel>
+    </Dialog>
   );
-
-  // Only render if we're in the browser
-  if (typeof document !== 'undefined') {
-    return createPortal(modalContent, document.body);
-  }
-
-  return null;
 }

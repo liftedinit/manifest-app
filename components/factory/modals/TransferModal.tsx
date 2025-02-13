@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { ExtendedMetadataSDKType, truncateString } from '@/utils';
 import { useDenomAuthorityMetadata, useFeeEstimation, useTx } from '@/hooks';
 import { cosmos, osmosis } from '@liftedinit/manifestjs';
@@ -10,6 +10,8 @@ import { useToast } from '@/contexts';
 import env from '@/config/env';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgChangeAdmin } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+import { Dialog } from '@headlessui/react';
+import { SignModal } from '@/components/react';
 
 const TokenOwnershipSchema = Yup.object().shape({
   newAdmin: Yup.string().required('New admin address is required').manifestAddress(),
@@ -18,7 +20,6 @@ const TokenOwnershipSchema = Yup.object().shape({
 export default function TransferModal({
   denom,
   address,
-  modalId,
   isOpen,
   onClose,
   onSuccess,
@@ -27,23 +28,12 @@ export default function TransferModal({
 }: {
   denom: ExtendedMetadataSDKType | null;
   address: string;
-  modalId: string;
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
   admin: string;
   isGroup?: boolean;
 }) {
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [isOpen]);
   const { setToastMessage } = useToast();
 
   const handleCloseModal = (formikReset?: () => void) => {
@@ -126,26 +116,18 @@ export default function TransferModal({
   };
 
   const modalContent = (
-    <dialog
-      id={modalId}
-      className={`modal ${isOpen ? 'modal-open' : ''}`}
+    <Dialog
+      open={isOpen}
+      onClose={onClose}
+      className={`modal modal-open fixed flex p-0 m-0`}
       style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        zIndex: 9999,
-        backgroundColor: 'transparent',
-        padding: 0,
-        margin: 0,
         height: '100vh',
         width: '100vw',
-        display: isOpen ? 'flex' : 'none',
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
+      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
       <Formik
         initialValues={formData}
         validationSchema={TokenOwnershipSchema}
@@ -230,22 +212,9 @@ export default function TransferModal({
           </div>
         )}
       </Formik>
-      <form
-        method="dialog"
-        className="modal-backdrop"
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: -1,
-          backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        }}
-      >
-        <button onClick={() => handleCloseModal()}>close</button>
-      </form>
-    </dialog>
+
+      <SignModal />
+    </Dialog>
   );
 
   // Only render if we're in the browser

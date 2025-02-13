@@ -12,6 +12,8 @@ import { MdContacts } from 'react-icons/md';
 import { TailwindModal } from '@/components/react/modal';
 import env from '@/config/env';
 import { truncateAddress } from '@/utils';
+import { Dialog } from '@headlessui/react';
+import { SignModal } from '@/components/react';
 
 interface ExtendedMember extends MemberSDKType {
   isNew: boolean;
@@ -41,16 +43,6 @@ export function MemberManagementModal({
   setShowMemberManagementModal,
   showMemberManagementModal,
 }: MemberManagementModalProps) {
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && showMemberManagementModal) {
-        setShowMemberManagementModal(false);
-      }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [showMemberManagementModal]);
   const { tx, isSigning, setIsSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
 
@@ -197,28 +189,25 @@ export function MemberManagementModal({
   const submitFormRef = useRef<(() => void) | null>(null);
   const formikRef = useRef<any>(null);
 
-  const modalContent = (
-    <dialog
-      id={modalId}
-      className={`modal ${showMemberManagementModal ? 'modal-open' : ''}`}
+  if (!showMemberManagementModal) {
+    return null;
+  }
+
+  return (
+    <Dialog
+      open
+      onClose={() => setShowMemberManagementModal(false)}
+      className={`modal modal-open fixed flex p-0 m-0`}
       style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        zIndex: 9999,
-        backgroundColor: 'transparent',
-        padding: 0,
-        margin: 0,
         height: '100vh',
         width: '100vw',
-        display: showMemberManagementModal ? 'flex' : 'none',
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
-      <div className="modal-box relative max-w-3xl flex flex-col rounded-[24px] shadow-lg dark:bg-[#1D192D] bg-[#FFFFFF] transition-all duration-300 p-6">
+      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+
+      <Dialog.Panel className="modal-box relative max-w-3xl flex flex-col rounded-[24px] shadow-lg dark:bg-[#1D192D] bg-[#FFFFFF] transition-all duration-300 p-6">
         <button
           onClick={() => setShowMemberManagementModal(false)}
           className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
@@ -323,6 +312,7 @@ export function MemberManagementModal({
                                   placeholder="manifest1..."
                                   disabled={!member.isNew || member.markedForDeletion}
                                   value={truncateAddress(field.value)}
+                                  data-1p-ignore
                                 />
                                 {member.isNew && !member.markedForDeletion && (
                                   <button
@@ -400,30 +390,9 @@ export function MemberManagementModal({
             );
           }}
         </Formik>
-      </div>
-      <form
-        method="dialog"
-        className="modal-backdrop"
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: -1,
-          backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        }}
-        onClick={() => setShowMemberManagementModal(false)}
-      >
-        <button>close</button>
-      </form>
-    </dialog>
+
+        <SignModal />
+      </Dialog.Panel>
+    </Dialog>
   );
-
-  // Only render if we're in the browser
-  if (typeof document !== 'undefined') {
-    return createPortal(modalContent, document.body);
-  }
-
-  return null;
 }

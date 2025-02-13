@@ -10,6 +10,8 @@ function parseDuration(duration: string | undefined, defaultValue: number): numb
 }
 
 const env = {
+  production: process.env.NODE_ENV === 'production',
+
   // Wallet
   walletConnectKey: process.env.NEXT_PUBLIC_WALLETCONNECT_KEY ?? '',
   web3AuthNetwork: process.env.NEXT_PUBLIC_WEB3AUTH_NETWORK ?? '',

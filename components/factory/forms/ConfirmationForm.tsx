@@ -8,6 +8,7 @@ import {
   MsgCreateDenom,
 } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
 import { Any } from 'cosmjs-types/google/protobuf/any';
+import { SignModal } from '@/components/react';
 
 export default function ConfirmationForm({
   nextStep,
@@ -209,6 +210,8 @@ export default function ConfirmationForm({
           )}
         </button>
       </div>
+
+      <SignModal />
     </section>
   );
 }

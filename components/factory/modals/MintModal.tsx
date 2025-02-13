@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import React from 'react';
 import MintForm from '@/components/factory/forms/MintForm';
-import { useGroupsByAdmin, usePoaGetAdmin } from '@/hooks';
+import { useGroupsByAdmin } from '@/hooks';
 import { ExtendedMetadataSDKType, truncateString } from '@/utils';
-import { MultiMintModal } from '../../admins/modals/multiMfxMintModal';
 import { createPortal } from 'react-dom';
+import { Dialog } from '@headlessui/react';
+import { SignModal } from '@/components/react';
 
 export default function MintModal({
   denom,
@@ -14,7 +14,6 @@ export default function MintModal({
   totalSupply,
   isOpen,
   onClose,
-
   admin,
   isGroup,
 }: {
@@ -29,17 +28,6 @@ export default function MintModal({
   admin: string;
   isGroup?: boolean;
 }) {
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [isOpen]);
-
   const { groupByAdmin, isGroupByAdminLoading } = useGroupsByAdmin(admin);
   if (!denom) return null;
 
@@ -51,27 +39,20 @@ export default function MintModal({
   const safeTotalSupply = totalSupply || '0';
 
   const modalContent = (
-    <dialog
-      id={`mint-modal-${denom?.base}`}
-      className={`modal ${isOpen ? 'modal-open' : ''}`}
+    <Dialog
+      open={isOpen}
+      onClose={onClose}
+      className={`modal modal-open fixed flex p-0 m-0`}
       style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        zIndex: 9999,
-        backgroundColor: 'transparent',
-        padding: 0,
-        margin: 0,
         height: '100vh',
         width: '100vw',
-        display: isOpen ? 'flex' : 'none',
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
-      <div className="modal-box max-w-6xl mx-auto rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg">
+      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+
+      <Dialog.Panel className="modal-box max-w-6xl mx-auto rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg">
         <form method="dialog" onSubmit={onClose}>
           <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]">
             ✕
@@ -104,24 +85,10 @@ export default function MintModal({
             />
           )}
         </div>
-      </div>
-      <form
-        method="dialog"
-        className="modal-backdrop"
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: -1,
-          backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        }}
-        onSubmit={onClose}
-      >
-        <button>close</button>
-      </form>
-    </dialog>
+
+        <SignModal />
+      </Dialog.Panel>
+    </Dialog>
   );
 
   // Only render if we're in the browser
