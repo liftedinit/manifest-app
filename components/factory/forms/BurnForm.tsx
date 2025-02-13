@@ -57,7 +57,7 @@ export default function BurnForm({
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const { setToastMessage } = useToast();
   const exponent = denom?.denom_units?.find(unit => unit.denom === denom.display)?.exponent || 0;
-  const isMFX = denom.base.includes('mfx');
+  const isMFX = denom?.base === 'umfx';
 
   const { balance: recipientBalance } = useTokenFactoryBalance(recipient ?? '', denom.base);
   const balanceNumber = useMemo(
@@ -241,7 +241,7 @@ export default function BurnForm({
                 </div>
               </div>
             </div>
-            {!denom.base.includes('umfx') && (
+            {!isMFX && (
               <Formik
                 initialValues={{ amount: '', recipient: address }}
                 validationSchema={BurnSchema}

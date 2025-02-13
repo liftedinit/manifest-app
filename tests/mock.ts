@@ -520,6 +520,16 @@ export const mockMfxDenom = {
   symbol: 'umfx',
 };
 
+export const mockFakeMfxDenom = {
+  base: 'TEST_umfx_TEST',
+  display: 'MFX',
+  denom_units: [
+    { denom: 'umfx', exponent: 0, aliases: ['umfx'] },
+    { denom: 'mfx', exponent: 6, aliases: ['mfx'] },
+  ],
+  symbol: 'umfx',
+};
+
 const { send } = cosmos.bank.v1beta1.MessageComposer.withTypeUrl;
 const msg = send({
   fromAddress: 'fromaddress123',
