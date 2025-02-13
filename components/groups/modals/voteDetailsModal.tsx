@@ -268,17 +268,21 @@ function VoteDetailsModal({
     setIsSigning(true);
     try {
       const fee = await estimateFee(address ?? '', [msgExec]);
-      await tx([msgExec], {
-        fee,
-        onSuccess: () => {
-          setIsSigning(false);
-          refetchTally();
-          refetchVotes();
-          refetchProposals();
-          refetchGroupInfo();
-          refetchDenoms();
+      await tx(
+        [msgExec],
+        {
+          fee,
+          onSuccess: () => {
+            setIsSigning(false);
+            refetchTally();
+            refetchVotes();
+            refetchProposals();
+            refetchGroupInfo();
+            refetchDenoms();
+          },
         },
-      });
+        'vote-details-modal'
+      );
       setIsSigning(false);
     } catch (error) {
       setIsSigning(false);
@@ -303,7 +307,7 @@ function VoteDetailsModal({
             refetchDenoms();
           },
         },
-        'withdrawalPrompt'
+        'vote-details-modal'
       );
       setIsSigning(false);
       onClose();
@@ -311,6 +315,10 @@ function VoteDetailsModal({
       setIsSigning(false);
       console.error('Failed to execute proposal: ', error);
     }
+  };
+
+  const executeVote = async () => {
+    setIsSigning(true);
   };
 
   const optionToVote = (option: string) => {
@@ -437,7 +445,7 @@ function VoteDetailsModal({
       ('PROPOSAL_EXECUTOR_RESULT_FAILURE' as unknown as ProposalExecutorResult);
     const isProposer = proposal.proposers?.includes(address ?? '');
 
-    if (isWithdrawn || isAborted) {
+    if (isWithdrawn || isAborted || isRejected) {
       return { action: null, label: null };
     } else if ((isAccepted && isNotRun) || isFailure) {
       return { action: 'execute', label: 'Execute' };
@@ -736,8 +744,12 @@ function VoteDetailsModal({
 
         <VotingPopup
           open={showVotingPopup}
-          onClose={() => setShowVotingPopup(false)}
+          onClose={() => {
+            setShowVotingPopup(false);
+          }}
           proposal={proposal}
+          onSigningStart={() => setIsSigning(true)}
+          onSigningEnd={() => setIsSigning(false)}
           refetch={() => {
             refetchVotes();
             refetchTally();
@@ -748,7 +760,7 @@ function VoteDetailsModal({
         />
       </Dialog.Panel>
 
-      <SignModal id="withdrawalPrompt" />
+      <SignModal id="vote-details-modal" />
     </Dialog>
   );
 }

@@ -14,9 +14,13 @@ function VotingPopup({
   onClose,
   proposal,
   refetch,
+  onSigningStart,
+  onSigningEnd,
 }: {
   open: boolean;
   onClose: () => void;
+  onSigningStart?: () => void;
+  onSigningEnd?: () => void;
   proposal: ProposalSDKType;
   refetch: () => void;
 }) {
@@ -29,6 +33,7 @@ function VotingPopup({
 
   const handleVote = async (option: number) => {
     setIsSigning(true);
+    onSigningStart?.();
     const msg = vote({
       proposalId: proposal.id,
       voter: address ?? '',
@@ -47,6 +52,7 @@ function VotingPopup({
             refetch();
             closeModal();
             setIsSigning(false);
+            onSigningEnd?.();
           },
         },
         'votingPrompt'
@@ -55,6 +61,7 @@ function VotingPopup({
       console.error('Failed to vote: ', error);
       setError('Failed to cast vote. Please try again.');
       setIsSigning(false);
+      onSigningEnd?.();
     }
   };
 
