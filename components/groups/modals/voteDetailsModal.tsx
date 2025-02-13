@@ -297,8 +297,8 @@ function VoteDetailsModal({
         'vote-details-modal'
       );
     } catch (error) {
-      console.error('Failed to vote: ', error);
       setIsSigning(false);
+      console.error('Failed to vote: ', error);
     }
   };
 
@@ -345,10 +345,6 @@ function VoteDetailsModal({
       setIsSigning(false);
       console.error('Failed to execute proposal: ', error);
     }
-  };
-
-  const executeVote = async () => {
-    setIsSigning(true);
   };
 
   const optionToVote = (option: string) => {

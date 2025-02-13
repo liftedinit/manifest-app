@@ -21,38 +21,7 @@ function VotingPopup({
   const { estimateFee } = useFeeEstimation(env.chain);
   const { tx, isSigning, setIsSigning } = useTx(env.chain);
   const { address } = useChain(env.chain);
-  const [error, setError] = useState<string | null>(null);
-
   const { vote } = cosmos.group.v1.MessageComposer.withTypeUrl;
-
-  const handleVote = async (option: number) => {
-    const msg = vote({
-      proposalId: proposal.id,
-      voter: address ?? '',
-      option: option,
-      metadata: '',
-      exec: 0,
-    });
-
-    const fee = await estimateFee(address ?? '', [msg]);
-    try {
-      await tx(
-        [msg],
-        {
-          fee,
-          onSuccess: () => {
-            closeModal();
-            setIsSigning(false);
-          },
-        },
-        'votingPrompt'
-      );
-    } catch (error) {
-      console.error('Failed to vote: ', error);
-      setError('Failed to cast vote. Please try again.');
-      setIsSigning(false);
-    }
-  };
 
   const closeModal = (vote?: number) => {
     onClose(vote);
@@ -73,7 +42,6 @@ function VotingPopup({
         <h3 className="font-bold text-lg mb-4">
           Cast Your Vote for Proposal #{proposal.id.toString()}
         </h3>
-        {error && <div className="alert alert-error mb-4">{error}</div>}
         <div className="grid w-full grid-cols-2 gap-4">
           {isSigning ? (
             <div className="loading loading-dots loading-sm" />
