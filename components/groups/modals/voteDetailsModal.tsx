@@ -253,6 +253,7 @@ function VoteDetailsModal({
 
   const { exec } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const { withdrawProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
+  const { vote } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
   const msgExec = exec({
     proposalId: proposal?.id,
@@ -264,6 +265,43 @@ function VoteDetailsModal({
     address: address ?? '',
   });
 
+  function refetch() {
+    refetchVotes();
+    refetchTally();
+    refetchProposals();
+    refetchGroupInfo();
+    refetchDenoms();
+  }
+
+  const handleVote = async (option: number) => {
+    setIsSigning(true);
+    const msg = vote({
+      proposalId: proposal.id,
+      voter: address ?? '',
+      option: option,
+      metadata: '',
+      exec: 0,
+    });
+
+    const fee = await estimateFee(address ?? '', [msg]);
+    try {
+      await tx(
+        [msg],
+        {
+          fee,
+          onSuccess: () => {
+            refetch();
+            setIsSigning(false);
+          },
+        },
+        'vote-details-modal'
+      );
+    } catch (error) {
+      console.error('Failed to vote: ', error);
+      setIsSigning(false);
+    }
+  };
+
   const executeProposal = async () => {
     setIsSigning(true);
     try {
@@ -274,11 +312,7 @@ function VoteDetailsModal({
           fee,
           onSuccess: () => {
             setIsSigning(false);
-            refetchTally();
-            refetchVotes();
-            refetchProposals();
-            refetchGroupInfo();
-            refetchDenoms();
+            refetch();
           },
         },
         'vote-details-modal'
@@ -300,11 +334,7 @@ function VoteDetailsModal({
           fee,
           onSuccess: () => {
             setIsSigning(false);
-            refetchTally();
-            refetchVotes();
-            refetchProposals();
-            refetchGroupInfo();
-            refetchDenoms();
+            refetch();
           },
         },
         'vote-details-modal'
@@ -744,19 +774,13 @@ function VoteDetailsModal({
 
         <VotingPopup
           open={showVotingPopup}
-          onClose={() => {
+          onClose={vote => {
+            if (vote) {
+              handleVote(vote);
+            }
             setShowVotingPopup(false);
           }}
           proposal={proposal}
-          onSigningStart={() => setIsSigning(true)}
-          onSigningEnd={() => setIsSigning(false)}
-          refetch={() => {
-            refetchVotes();
-            refetchTally();
-            refetchProposals();
-            refetchGroupInfo();
-            refetchDenoms();
-          }}
         />
       </Dialog.Panel>
 

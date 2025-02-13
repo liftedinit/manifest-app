@@ -13,16 +13,10 @@ function VotingPopup({
   open,
   onClose,
   proposal,
-  refetch,
-  onSigningStart,
-  onSigningEnd,
 }: {
   open: boolean;
-  onClose: () => void;
-  onSigningStart?: () => void;
-  onSigningEnd?: () => void;
+  onClose: (vote?: number) => void;
   proposal: ProposalSDKType;
-  refetch: () => void;
 }) {
   const { estimateFee } = useFeeEstimation(env.chain);
   const { tx, isSigning, setIsSigning } = useTx(env.chain);
@@ -32,8 +26,6 @@ function VotingPopup({
   const { vote } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
   const handleVote = async (option: number) => {
-    setIsSigning(true);
-    onSigningStart?.();
     const msg = vote({
       proposalId: proposal.id,
       voter: address ?? '',
@@ -49,10 +41,8 @@ function VotingPopup({
         {
           fee,
           onSuccess: () => {
-            refetch();
             closeModal();
             setIsSigning(false);
-            onSigningEnd?.();
           },
         },
         'votingPrompt'
@@ -61,18 +51,19 @@ function VotingPopup({
       console.error('Failed to vote: ', error);
       setError('Failed to cast vote. Please try again.');
       setIsSigning(false);
-      onSigningEnd?.();
     }
   };
 
-  const closeModal = () => onClose();
+  const closeModal = (vote?: number) => {
+    onClose(vote);
+  };
 
   if (!proposal) return null;
 
   return (
     <Dialog
       open={open}
-      onClose={closeModal}
+      onClose={() => closeModal()}
       aria-label="vote-modal"
       className="modal modal-open fixed flex p-0 m-0 top-0 right-0 z-[9999]"
     >
@@ -88,16 +79,16 @@ function VotingPopup({
             <div className="loading loading-dots loading-sm" />
           ) : (
             <>
-              <button onClick={() => handleVote(1)} className="btn btn-success">
+              <button onClick={() => closeModal(1)} className="btn btn-success">
                 Yes
               </button>
-              <button onClick={() => handleVote(3)} className="btn btn-error">
+              <button onClick={() => closeModal(3)} className="btn btn-error">
                 No
               </button>
-              <button onClick={() => handleVote(4)} className="btn btn-warning">
+              <button onClick={() => closeModal(4)} className="btn btn-warning">
                 No With Veto
               </button>
-              <button onClick={() => handleVote(2)} className="btn btn-info">
+              <button onClick={() => closeModal(2)} className="btn btn-info">
                 Abstain
               </button>
             </>
@@ -106,14 +97,12 @@ function VotingPopup({
         <div className="modal-action ">
           <button
             className="btn btn-sm absolute top-2 right-2 btn-circle btn-ghost"
-            onClick={closeModal}
+            onClick={() => closeModal(undefined)}
           >
             <CloseIcon className="w-2 h-2" />
           </button>
         </div>
       </Dialog.Panel>
-
-      <SignModal id="votingPrompt" />
     </Dialog>
   );
 }
