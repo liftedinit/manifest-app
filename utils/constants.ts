@@ -1,6 +1,7 @@
 import { ExtendedMetadataSDKType } from './types';
+import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 
-export const MFX_TOKEN_DATA: Omit<ExtendedMetadataSDKType, 'balance' | 'totalSupply'> = {
+export const MFX_TOKEN_DATA: MetadataSDKType = {
   description: 'The native token of the Manifest Chain',
   denom_units: [
     { denom: 'umfx', exponent: 0, aliases: [] },
@@ -14,7 +15,7 @@ export const MFX_TOKEN_DATA: Omit<ExtendedMetadataSDKType, 'balance' | 'totalSup
   uri_hash: '',
 };
 
-export const OSMOSIS_TOKEN_DATA: Omit<ExtendedMetadataSDKType, 'balance' | 'totalSupply'> = {
+export const OSMOSIS_TOKEN_DATA: MetadataSDKType = {
   description: 'The native token of the Osmosis Chain',
   denom_units: [
     { denom: 'uosmo', exponent: 0, aliases: [] },

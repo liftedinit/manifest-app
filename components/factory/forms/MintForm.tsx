@@ -41,7 +41,7 @@ export default function MintForm({
   const { mint } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
-  const isMFX = denom.base.includes('mfx');
+  const isMFX = denom.base === 'umfx';
 
   const MintSchema = Yup.object().shape({
     amount: Yup.number().positive('Amount must be positive').required('Amount is required'),
@@ -135,7 +135,7 @@ export default function MintForm({
                 </div>
               </div>
             </div>
-            {!denom.base.includes('umfx') && (
+            {!isMFX && (
               <Formik
                 initialValues={{ amount: '', recipient: address }}
                 validationSchema={MintSchema}
@@ -210,7 +210,7 @@ export default function MintForm({
                       </div>
                     </div>
                     <div className="flex justify-end mt-6">
-                      {!denom.base.includes('umfx') && (
+                      {!isMFX && (
                         <button
                           type="submit"
                           aria-label={`mint-btn-${denom.display}`}

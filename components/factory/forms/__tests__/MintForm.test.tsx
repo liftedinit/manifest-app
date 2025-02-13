@@ -3,7 +3,7 @@ import React from 'react';
 import { screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
 import MintForm from '@/components/factory/forms/MintForm';
 import { renderWithChainProvider } from '@/tests/render';
-import { mockDenomMeta1, mockMfxDenom } from '@/tests/mock';
+import { mockDenomMeta1, mockFakeMfxDenom, mockMfxDenom } from '@/tests/mock';
 
 // Mock next/router
 const m = jest.fn();
@@ -17,7 +17,11 @@ mock.module('next/router', () => ({
 const mockProps = {
   isAdmin: true,
   admin: 'cosmos1adminaddress',
-  denom: mockDenomMeta1,
+  denom: {
+    ...mockDenomMeta1,
+    balance: '1000000',
+    totalSupply: '1000000',
+  },
   address: 'cosmos1address',
   refetch: jest.fn(),
   balance: '1000000',
@@ -35,6 +39,13 @@ describe('MintForm Component', () => {
     renderWithProps();
     expect(screen.getByText('NAME')).toBeInTheDocument();
     expect(screen.getByText('CIRCULATING SUPPLY')).toBeInTheDocument();
+  });
+
+  test('renders not affiliated message when not admin and token is mfx', () => {
+    renderWithProps({ isAdmin: false, denom: mockMfxDenom });
+    expect(
+      screen.getByText('You must be a member of the admin group to mint MFX.')
+    ).toBeInTheDocument();
   });
 
   test('updates amount input correctly', async () => {
@@ -73,6 +84,22 @@ describe('MintForm Component', () => {
     const amountInput = screen.getByLabelText('AMOUNT');
     const recipientInput = screen.getByLabelText('RECIPIENT');
     const mintButton = screen.getByLabelText(`mint-btn-${mockDenomMeta1.display}`);
+
+    fireEvent.change(amountInput, { target: { value: '1' } });
+    fireEvent.change(recipientInput, {
+      target: { value: 'manifest1aucdev30u9505dx9t6q5fkcm70sjg4rh7rn5nf' },
+    });
+
+    await waitFor(() => {
+      expect(mintButton).toBeEnabled();
+    });
+  });
+
+  test('fake MFX can be minted', async () => {
+    renderWithProps({ isAdmin: false, denom: mockFakeMfxDenom });
+    const amountInput = screen.getByLabelText('AMOUNT');
+    const recipientInput = screen.getByLabelText('RECIPIENT');
+    const mintButton = screen.getByLabelText(`mint-btn-${mockFakeMfxDenom.display}`);
 
     fireEvent.change(amountInput, { target: { value: '1' } });
     fireEvent.change(recipientInput, {
