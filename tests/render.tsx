@@ -11,6 +11,7 @@ import { assets as axelarAssets, chain as axelarChain } from 'chain-registry/tes
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SkipProvider } from '@/contexts/skipGoContext';
 import { manifestAssets, manifestChain } from '@/config/manifestChain';
+import { Web3AuthContext, Web3AuthContextType } from '@/contexts/web3AuthContext';
 
 const defaultOptions = {
   chains: [manifestChain, osmosisChain, axelarChain],
@@ -29,6 +30,17 @@ export const renderWithChainProvider = (ui: React.ReactElement, options = {}) =>
         </SkipProvider>
       </ChainProvider>
     </QueryClientProvider>,
+    options
+  );
+};
+
+export const renderWithWeb3AuthProvider = (
+  ui: React.ReactNode,
+  context: Web3AuthContextType,
+  options = {}
+) => {
+  return renderWithChainProvider(
+    <Web3AuthContext.Provider value={context}>{ui}</Web3AuthContext.Provider>,
     options
   );
 };

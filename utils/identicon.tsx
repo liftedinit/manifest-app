@@ -8,7 +8,7 @@ const ProfileAvatar = ({
   size,
   withBackground = true,
 }: {
-  walletAddress: string;
+  walletAddress?: string;
   size?: number;
   withBackground?: boolean;
 }) => {

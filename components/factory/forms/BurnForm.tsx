@@ -50,14 +50,14 @@ export default function BurnForm({
 
   const [isContactsOpen, setIsContactsOpen] = useState(false);
 
-  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
   const { burn } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
   const { burnHeldBalance } = liftedinit.manifest.v1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const { setToastMessage } = useToast();
   const exponent = denom?.denom_units?.find(unit => unit.denom === denom.display)?.exponent || 0;
-  const isMFX = denom.base.includes('mfx');
+  const isMFX = denom?.base === 'umfx';
 
   const { balance: recipientBalance } = useTokenFactoryBalance(recipient ?? '', denom.base);
   const balanceNumber = useMemo(
@@ -86,7 +86,6 @@ export default function BurnForm({
     if (!amount || Number.isNaN(Number(amount))) {
       return;
     }
-    setIsSigning(true);
     try {
       const amountInBaseUnits = parseNumberToBigInt(amount, exponent).toString();
       let msg;
@@ -153,8 +152,6 @@ export default function BurnForm({
       });
     } catch (error) {
       console.error('Error during burning:', error);
-    } finally {
-      setIsSigning(false);
     }
   };
 
@@ -168,7 +165,7 @@ export default function BurnForm({
       });
       return;
     }
-    setIsSigning(true);
+
     try {
       const burnMsg = burnHeldBalance({
         authority: admin ?? '',
@@ -202,8 +199,6 @@ export default function BurnForm({
       });
     } catch (error) {
       console.error('Error during multi-burning:', error);
-    } finally {
-      setIsSigning(false);
     }
   };
 
@@ -220,7 +215,7 @@ export default function BurnForm({
       <div className="rounded-lg">
         {isMFX && !isAdmin ? (
           <div className="w-full p-2 justify-center items-center my-auto leading-tight text-xl flex flex-col font-medium text-pretty">
-            <span>You must be apart of the admin group to burn MFX.</span>
+            <span>You must be a member of the admin group to burn MFX.</span>
           </div>
         ) : (
           <>
@@ -246,7 +241,7 @@ export default function BurnForm({
                 </div>
               </div>
             </div>
-            {!denom.base.includes('umfx') && (
+            {!isMFX && (
               <Formik
                 initialValues={{ amount: '', recipient: address }}
                 validationSchema={BurnSchema}

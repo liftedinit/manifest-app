@@ -507,7 +507,7 @@ function TokenRow({
           </button>
 
           <button
-            disabled={denom.base.includes('umfx')}
+            disabled={denom.base === 'umfx'}
             className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
             onClick={onBurn}
           >
@@ -515,7 +515,7 @@ function TokenRow({
           </button>
 
           <button
-            disabled={denom.base.includes('umfx')}
+            disabled={denom.base === 'umfx'}
             className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
             onClick={onTransfer}
           >
@@ -523,7 +523,7 @@ function TokenRow({
           </button>
 
           <button
-            disabled={denom.base.includes('umfx')}
+            disabled={denom.base === 'umfx'}
             className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
             onClick={onUpdate}
           >

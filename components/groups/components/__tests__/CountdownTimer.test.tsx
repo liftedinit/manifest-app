@@ -2,9 +2,6 @@ import { afterEach, describe, expect, test, jest } from 'bun:test';
 import React from 'react';
 import { screen, cleanup, render } from '@testing-library/react';
 import CountdownTimer from '@/components/groups/components/CountdownTimer';
-import matchers from '@testing-library/jest-dom/matchers';
-
-expect.extend(matchers);
 
 describe('CountdownTimer', () => {
   afterEach(cleanup);

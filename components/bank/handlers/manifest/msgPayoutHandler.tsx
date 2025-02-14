@@ -28,11 +28,15 @@ const createSendMessage = (
     </span>
   );
   const recipient =
-    pairs.length > 1
-      ? `distributed across ${pairs.length} addresses`
-      : pairs?.[0]?.address
-        ? `to ${(<TruncatedAddressWithCopy address={pairs[0].address} slice={24} />)}`
-        : 'an unknown address';
+    pairs.length > 1 ? (
+      `distributed across ${pairs.length} addresses`
+    ) : pairs?.[0]?.address ? (
+      <>
+        to <TruncatedAddressWithCopy address={pairs[0].address} slice={24} />{' '}
+      </>
+    ) : (
+      'an unknown address'
+    );
   const message = format(template, coloredAmount, recipient);
   return <span className="flex gap-1">{message}</span>;
 };

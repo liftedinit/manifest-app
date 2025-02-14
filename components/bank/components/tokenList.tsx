@@ -82,7 +82,7 @@ export const TokenList = React.memo(function TokenList(props: Readonly<TokenList
           </div>
         </div>
       )),
-    [totalPages]
+    [pageSize]
   );
 
   return (

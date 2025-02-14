@@ -31,7 +31,7 @@ export function GroupInfo({
   setShowInfoModal,
 }: GroupInfoProps) {
   const [showUpdateModal, setShowUpdateModal] = useState(false);
-  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { tx, isSigning } = useTx(env.chain);
   const { leaveGroup } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const { estimateFee } = useFeeEstimation(env.chain);
   if (!group || !group.policies || group.policies.length === 0) return null;
@@ -132,8 +132,6 @@ export function GroupInfo({
   }
 
   const handleLeave = async () => {
-    setIsSigning(true);
-
     try {
       const msg = leaveGroup({
         address: address,
@@ -146,7 +144,6 @@ export function GroupInfo({
         {
           fee,
           onSuccess: () => {
-            setIsSigning(false);
             onUpdate();
             setShowInfoModal(false);
           },
@@ -155,8 +152,6 @@ export function GroupInfo({
       );
     } catch (error) {
       console.error('Error leaving group:', error);
-    } finally {
-      setIsSigning(false);
     }
   };
 

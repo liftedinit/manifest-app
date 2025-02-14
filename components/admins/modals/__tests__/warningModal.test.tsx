@@ -2,7 +2,6 @@ import { describe, test, afterEach, expect, mock, jest } from 'bun:test';
 import React from 'react';
 import { screen, cleanup } from '@testing-library/react';
 import { WarningModal } from '@/components/admins/modals/warningModal';
-import matchers from '@testing-library/jest-dom/matchers';
 import { renderWithChainProvider } from '@/tests/render';
 
 mock.module('next/router', () => ({
@@ -11,8 +10,6 @@ mock.module('next/router', () => ({
     push: jest.fn(),
   }),
 }));
-
-expect.extend(matchers);
 
 const admin = 'manifest1adminaddress';
 const address = 'manifest1validatoraddress';

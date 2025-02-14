@@ -3,9 +3,6 @@ import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { UpdateGroupModal } from '@/components';
 import { renderWithChainProvider } from '@/tests/render';
-import matchers from '@testing-library/jest-dom/matchers';
-
-expect.extend(matchers);
 
 // Mock next/router
 const m = jest.fn();

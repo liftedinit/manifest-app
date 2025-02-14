@@ -1,6 +1,7 @@
 import ProfileAvatar from '@/utils/identicon';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
+import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 
 export const supportedDomains = [
   'imgur.com',
@@ -68,7 +69,7 @@ export const DenomImage = ({
   denom,
   withBackground = true,
 }: {
-  denom: any;
+  denom?: MetadataSDKType | null;
   withBackground?: boolean;
 }) => {
   const [imageError, setImageError] = useState(false);
@@ -76,13 +77,14 @@ export const DenomImage = ({
   const [isSupported, setIsSupported] = useState(false);
 
   useEffect(() => {
-    const checkUri = async () => {
+    const checkUri = () => {
       if (denom?.uri) {
         setIsSupported(isUrlSupported(denom?.uri));
         // Simulate a delay to show the loading state
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        setTimeout(() => setIsLoading(false), 1000);
+      } else {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     checkUri();
@@ -98,7 +100,7 @@ export const DenomImage = ({
   }
 
   // Check for MFX token first
-  if (denom?.base?.includes('umfx') || denom?.base?.includes('uosmo')) {
+  if (denom?.base === 'umfx' || denom?.base?.includes('uosmo')) {
     return (
       <div
         className={`w-11 h-11 p-2 rounded-md ${withBackground ? 'dark:bg-[#ffffff0f] bg-[#0000000a]' : ''}`}
@@ -106,7 +108,7 @@ export const DenomImage = ({
         <Image
           width={44}
           height={44}
-          src={denom?.base?.includes('umfx') ? '/logo.svg' : '/osmosis.svg'}
+          src={denom?.base === 'umfx' ? '/logo.svg' : '/osmosis.svg'}
           alt="MFX Token Icon"
           className="w-full h-full "
         />

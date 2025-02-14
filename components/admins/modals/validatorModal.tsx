@@ -16,6 +16,7 @@ import { TextInput } from '@/components/react';
 import env from '@/config/env';
 import { Dialog } from '@headlessui/react';
 import { SignModal } from '@/components/react';
+import Image from 'next/image';
 
 const PowerUpdateSchema = Yup.object().shape({
   power: Yup.number()
@@ -46,7 +47,7 @@ export function ValidatorDetailsModal({
 
   const [power, setPowerInput] = useState(validator?.consensus_power?.toString() || '');
 
-  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
   const { address: userAddress } = useChain(env.chain);
 
@@ -66,7 +67,6 @@ export function ValidatorDetailsModal({
   };
 
   const handleUpdate = async (values: { power: string }) => {
-    setIsSigning(true);
     // The minimum power is 1_000_000
     const realPower = BigInt(values.power) * BigInt(10 ** 6);
     const msgSetPower = setPower({
@@ -94,11 +94,8 @@ export function ValidatorDetailsModal({
     const fee = await estimateFee(userAddress ?? '', [groupProposalMsg]);
     await tx([groupProposalMsg], {
       fee,
-      onSuccess: () => {
-        setIsSigning(false);
-      },
+      onSuccess: () => {},
     });
-    setIsSigning(false);
   };
 
   return (
@@ -119,7 +116,7 @@ export function ValidatorDetailsModal({
         onSubmit={() => {}}
         enableReinitialize
       >
-        {({ isValid, errors, touched }) => (
+        {({ isValid }) => (
           <Dialog.Panel className="modal-box relative max-w-4xl min-h-96 flex flex-col md:flex-row md:ml-20 -mt-12 rounded-[24px] shadow-lg dark:bg-[#1D192D] bg-[#FFFFFF] transition-all duration-300">
             <button
               className="btn btn-sm btn-circle text-black dark:text-white btn-ghost absolute right-2 top-2"
@@ -134,7 +131,13 @@ export function ValidatorDetailsModal({
                 <span className="text-sm text-gray-500 dark:text-gray-400">VALIDATOR</span>
                 <div className="flex flex-row justify-start items-center gap-4">
                   {validator?.logo_url && (
-                    <img className="h-16 w-16 rounded-full" src={validator.logo_url} alt="" />
+                    <Image
+                      className="h-16 w-16 rounded-full"
+                      src={validator.logo_url}
+                      alt=""
+                      width={64}
+                      height={64}
+                    />
                   )}
                   {!validator?.logo_url && (
                     <ProfileAvatar walletAddress={validator?.operator_address} size={64} />

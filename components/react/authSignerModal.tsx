@@ -7,7 +7,7 @@ import { getRealLogo } from '@/utils';
 import { useTheme } from '@/contexts';
 import env from '@/config/env';
 import { ArrowRightIcon } from '../icons';
-import { objectSyntax } from '../messageSyntax';
+import { objectSyntax } from '@/components';
 import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
 import {
   MsgCreateGroupWithPolicy,
@@ -30,10 +30,9 @@ import {
   MsgSetDenomMetadata,
   MsgCreateDenom,
 } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
-import { Dialog, Portal } from '@headlessui/react';
-import { wallets } from 'cosmos-kit';
-import { wallets as cosmosExtensionWallets } from '@cosmos-kit/cosmos-extension-metamask/cjs/cosmos-metamask-extension';
+import { Dialog } from '@headlessui/react';
 import { Web3AuthContext } from '@/contexts/web3AuthContext';
+import Image from 'next/image';
 
 type DisplayDataToSignProps = {
   data: SignData;
@@ -104,12 +103,10 @@ const DisplayDataToSign = ({
   data,
   address,
   className,
-  addressClassName,
   txInfoClassName,
   theme,
 }: DisplayDataToSignProps & {
   className?: string;
-  addressClassName?: string;
   txInfoClassName?: string;
   theme?: string;
 }) => {
@@ -249,7 +246,8 @@ const DisplayDataToSign = ({
  * @constructor
  */
 export const SignModal = ({ id }: { id?: string }) => {
-  const { prompt, promptId } = useContext(Web3AuthContext);
+  const { wallet } = useWallet();
+  const { prompt, promptId, isSigning } = useContext(Web3AuthContext);
   const [visible, setVisible] = useState(false);
   const [data, setData] = useState<SignData | undefined>(undefined);
 
@@ -262,49 +260,94 @@ export const SignModal = ({ id }: { id?: string }) => {
     }
   }, [promptId, id, prompt]);
 
-  if (!prompt || !data || !visible) {
+  if (!isSigning || !wallet) {
     return null;
   }
 
-  const approve = () => prompt.resolve(true);
-  const reject = () => prompt.resolve(false);
+  const showLedgerMessage = wallet.mode === 'ledger';
 
+  const approve = () => prompt?.resolve(true);
+  const reject = () => prompt?.resolve(false);
+
+  if (showLedgerMessage) {
+    return <LedgerSignModalInner onClose={() => {}} />;
+  } else {
+    return (
+      <PromptSignModalInner
+        visible={visible}
+        onClose={reject}
+        data={data}
+        reject={reject}
+        approve={approve}
+      />
+    );
+  }
+};
+
+export interface LedgerSignModalInnerProps {
+  onClose: () => void;
+}
+
+/**
+ * A signing modal that is displayed when a sign request is received, when the user
+ * is using a Ledger wallet. This should not be cancellable (as the user is expected to
+ * approve/reject on his Ledger device).
+ * @constructor
+ */
+export const LedgerSignModalInner: React.FC<LedgerSignModalInnerProps> = ({ onClose }) => {
   return (
-    <SignModalInner
-      visible={visible}
-      onClose={reject}
-      data={data}
-      reject={reject}
-      approve={approve}
-    />
+    <Dialog open onClose={onClose} className="modal modal-open top-0 right-0 z-[9999]">
+      <div className="fixed inset-0 backdrop-blur-sm bg-black/30" aria-hidden="true" />
+
+      <Dialog.Panel className="modal-box max-w-lg w-full dark:bg-[#1D192D] bg-[#FFFFFF] rounded-lg shadow-xl">
+        <h3 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">Ledger HSM</h3>
+
+        <p className="mt-2 text-sm leading-6 font-light dark:text-gray-400 text-gray-600 ">
+          It seems you are using a Ledger hardware wallet. Please approve or reject the transaction
+          on your device.
+        </p>
+      </Dialog.Panel>
+    </Dialog>
   );
 };
 
-export const SignModalInner = ({
-  visible,
-  data,
-  onClose,
-  reject,
-  approve,
-}: {
+export interface SignModalInnerProps {
   visible: boolean;
   data?: SignData;
   onClose: () => void;
   reject?: () => void;
   approve?: () => void;
+}
+
+/**
+ * The actual signing modal (with transaction info) that is displayed when a sign request is
+ * received.
+ * @param visible Whether the modal is visible.
+ * @param data The transaction data to sign. This will be displayed to the user.
+ * @param onClose Callback when the modal is closed, whether it was approved or rejected.
+ * @param reject Callback when the user rejects the transaction.
+ * @param approve Callback when the user approves the transaction.
+ * @constructor
+ */
+export const PromptSignModalInner: React.FC<SignModalInnerProps> = ({
+  visible,
+  data,
+  onClose,
+  reject,
+  approve,
 }) => {
   const { wallet } = useWallet();
   const { address } = useChain(env.chain);
   const { theme } = useTheme();
   const walletIcon = wallet?.logo;
-  const walletIconString = walletIcon?.toString() ?? '';
+  const walletIconString = walletIcon?.toString();
 
   function handleReject() {
-    reject && reject();
+    reject?.();
     onClose();
   }
   function handleApprove() {
-    approve && approve();
+    approve?.();
     onClose();
   }
 
@@ -316,11 +359,15 @@ export const SignModalInner = ({
       <Dialog.Panel className="modal-box max-w-lg w-full dark:bg-[#1D192D] bg-[#FFFFFF] rounded-lg shadow-xl">
         <div className="flex justify-between items-center pb-4">
           <div className="flex items-center gap-3">
-            <img
-              src={getRealLogo(walletIconString, theme === 'dark')}
-              alt="Wallet type logo"
-              className="w-8 h-8"
-            />
+            {walletIconString && (
+              <Image
+                src={getRealLogo(walletIconString, theme === 'dark')}
+                alt="Wallet type logo"
+                className="w-8 h-8"
+                width={32}
+                height={32}
+              />
+            )}
             <h3 className="text-xl font-semibold">Approve transaction?</h3>
           </div>
           <button className="btn btn-sm btn-circle btn-ghost" onClick={onClose}>
@@ -333,7 +380,6 @@ export const SignModalInner = ({
           address={address ?? ''}
           theme={theme}
           className="space-y-4"
-          addressClassName="p-3 rounded-md text-sm overflow-auto h-12 dark:bg-[#E0E0FF0A] bg-[#E0E0FF0A] dark:border-[#FFFFFF33] border-[#00000033] border"
           txInfoClassName="p-3 rounded-md text-sm overflow-auto h-[32rem] dark:bg-[#E0E0FF0A] bg-[#E0E0FF0A] dark:border-[#FFFFFF33] border-[#00000033] border"
         />
 

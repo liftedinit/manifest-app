@@ -1,6 +1,7 @@
 import { DenomImage, VerifiedIcon } from '@/components';
 import { formatTokenDisplay } from '@/utils';
 import React from 'react';
+import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 
 export const DenomVerifiedBadge = ({
   base,
@@ -16,10 +17,7 @@ export const DenomDisplay = ({
   metadata,
   withBackground,
 }: {
-  metadata?: {
-    display?: string;
-    base?: string;
-  } | null;
+  metadata?: MetadataSDKType | null;
   denom?: string;
   withBackground?: boolean;
 }) => {

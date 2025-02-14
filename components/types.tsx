@@ -36,8 +36,3 @@ export interface FeatureProps {
   text: string;
   href: string;
 }
-
-export interface ChainCardProps {
-  prettyName: string;
-  icon?: string;
-}

@@ -28,7 +28,7 @@ export function WarningModal({
   openWarningModal,
   setOpenWarningModal,
 }: Readonly<WarningModalProps>) {
-  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
   const { address: userAddress } = useChain(env.chain);
   const { removePending, removeValidator } =
@@ -36,7 +36,6 @@ export function WarningModal({
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
   const handleAccept = async () => {
-    setIsSigning(true);
     const msgRemoveActive = removeValidator({
       sender: admin ?? '',
       validatorAddress: address,
@@ -67,11 +66,8 @@ export function WarningModal({
     const fee = await estimateFee(userAddress ?? '', [groupProposalMsg]);
     await tx([groupProposalMsg], {
       fee,
-      onSuccess: () => {
-        setIsSigning(false);
-      },
+      onSuccess: () => {},
     });
-    setIsSigning(false);
   };
 
   const handleClose = () => setOpenWarningModal(false);

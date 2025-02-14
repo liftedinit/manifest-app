@@ -36,12 +36,12 @@ export default function MintForm({
   const [recipient, setRecipient] = useState(address || '');
   const [isContactsOpen, setIsContactsOpen] = useState(false);
 
-  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
   const { mint } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
-  const isMFX = denom.base.includes('mfx');
+  const isMFX = denom.base === 'umfx';
 
   const MintSchema = Yup.object().shape({
     amount: Yup.number().positive('Amount must be positive').required('Amount is required'),
@@ -52,7 +52,7 @@ export default function MintForm({
     if (!amount || Number.isNaN(Number(amount))) {
       return;
     }
-    setIsSigning(true);
+
     try {
       const amountInBaseUnits = parseNumberToBigInt(amount).toString();
       let msg;
@@ -100,8 +100,6 @@ export default function MintForm({
       });
     } catch (error) {
       console.error('Error during minting:', error);
-    } finally {
-      setIsSigning(false);
     }
   };
 
@@ -137,7 +135,7 @@ export default function MintForm({
                 </div>
               </div>
             </div>
-            {!denom.base.includes('umfx') && (
+            {!isMFX && (
               <Formik
                 initialValues={{ amount: '', recipient: address }}
                 validationSchema={MintSchema}
@@ -212,7 +210,7 @@ export default function MintForm({
                       </div>
                     </div>
                     <div className="flex justify-end mt-6">
-                      {!denom.base.includes('umfx') && (
+                      {!isMFX && (
                         <button
                           type="submit"
                           aria-label={`mint-btn-${denom.display}`}

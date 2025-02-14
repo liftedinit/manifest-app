@@ -88,7 +88,7 @@ export default function IbcSendForm({
     if (isGroup) {
       setSelectedFromChain(ibcChains.find(chain => chain.id === env.chain) ?? ibcChains[0]);
     }
-  }, [isGroup, setSelectedFromChain]);
+  }, [ibcChains, isGroup, setSelectedFromChain]);
 
   // Memoized filtered balances based on search term
   const filteredBalances = useMemo(() => {
@@ -96,12 +96,12 @@ export default function IbcSendForm({
       const displayName = token.metadata?.display ?? token.denom;
       return displayName.toLowerCase().includes(searchTerm.toLowerCase());
     });
-  }, [balances, searchTerm, selectedFromChain]);
+  }, [balances, searchTerm]);
 
   // Initial token selection logic
   const initialSelectedToken = useMemo(() => {
     return balances?.find(token => token.coreDenom === selectedDenom) || balances?.[0] || null;
-  }, [selectedDenom]);
+  }, [balances, selectedDenom]);
 
   // Loading state checks
   if (isBalancesLoading || !initialSelectedToken) {

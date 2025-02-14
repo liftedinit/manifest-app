@@ -74,7 +74,7 @@ function VoteDetailsModal({
     [votes]
   );
   const { address } = useChain(env.chain);
-  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
 
   const { exec } = cosmos.group.v1.MessageComposer.withTypeUrl;
@@ -99,7 +99,6 @@ function VoteDetailsModal({
     refetchDenoms();
   }
   const handleVote = async (option: VoteOption) => {
-    setIsSigning(true);
     const msg = vote({
       proposalId: proposal.id,
       voter: address ?? '',
@@ -116,19 +115,16 @@ function VoteDetailsModal({
           fee,
           onSuccess: () => {
             refetch();
-            setIsSigning(false);
           },
         },
         'vote-details-modal'
       );
     } catch (error) {
-      setIsSigning(false);
       console.error('Failed to vote: ', error);
     }
   };
 
   const executeProposal = async () => {
-    setIsSigning(true);
     try {
       const fee = await estimateFee(address ?? '', [msgExec]);
       await tx(
@@ -136,21 +132,17 @@ function VoteDetailsModal({
         {
           fee,
           onSuccess: () => {
-            setIsSigning(false);
             refetch();
           },
         },
         'vote-details-modal'
       );
-      setIsSigning(false);
     } catch (error) {
-      setIsSigning(false);
       console.error('Failed to execute proposal: ', error);
     }
   };
 
   const executeWithdrawal = async () => {
-    setIsSigning(true);
     try {
       const fee = await estimateFee(address ?? '', [msgWithdraw]);
       await tx(
@@ -158,16 +150,13 @@ function VoteDetailsModal({
         {
           fee,
           onSuccess: () => {
-            setIsSigning(false);
             refetch();
           },
         },
         'vote-details-modal'
       );
-      setIsSigning(false);
       onClose();
     } catch (error) {
-      setIsSigning(false);
       console.error('Failed to execute proposal: ', error);
     }
   };

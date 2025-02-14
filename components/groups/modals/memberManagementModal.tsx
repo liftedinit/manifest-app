@@ -43,7 +43,7 @@ export function MemberManagementModal({
   setShowMemberManagementModal,
   showMemberManagementModal,
 }: MemberManagementModalProps) {
-  const { tx, isSigning, setIsSigning } = useTx(env.chain);
+  const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
 
   const validationSchema = Yup.object().shape({
@@ -148,8 +148,6 @@ export function MemberManagementModal({
   };
 
   const handleConfirm = async (values: { members: ExtendedMember[] }) => {
-    setIsSigning(true);
-
     try {
       const encodedMessages = buildMessages(values.members);
       const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
@@ -167,14 +165,11 @@ export function MemberManagementModal({
       await tx([msg], {
         fee,
         onSuccess: () => {
-          setIsSigning(false);
           onUpdate();
         },
       });
     } catch (error) {
       console.error('Error submitting proposal:', error);
-    } finally {
-      setIsSigning(false);
     }
   };
 
