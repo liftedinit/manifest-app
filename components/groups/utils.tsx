@@ -14,6 +14,7 @@ export function getProposalButton(
   executeWithdrawal: () => void,
   executeProposal: () => void,
   setShowVotingPopup: (value: boolean) => void,
+  isSigning: boolean,
   userVoteOption?: VoteOption | undefined
 ): JSX.Element | undefined {
   switch (proposalExecutorResultFromJSON(proposal.executor_result)) {
@@ -32,14 +33,14 @@ export function getProposalButton(
                 className={`btn btn-error text-white rounded-[12px] ${userVoteOption ? 'w-full' : 'w-1/2'}`}
                 onClick={executeWithdrawal}
               >
-                withdraw
+                {isSigning ? <div className="loading loading-dots loading-sm" /> : 'withdraw'}
               </button>
               {!userVoteOption && (
                 <button
                   className="btn btn-gradient text-white rounded-[12px] w-1/2"
                   onClick={() => setShowVotingPopup(true)}
                 >
-                  vote
+                  {isSigning ? <div className="loading loading-dots loading-sm" /> : 'vote'}
                 </button>
               )}
             </div>
@@ -50,7 +51,7 @@ export function getProposalButton(
               className="btn btn-gradient text-white rounded-[12px] w-full"
               onClick={executeProposal}
             >
-              execute
+              {isSigning ? <div className="loading loading-dots loading-sm" /> : 'execute'}
             </button>
           );
       }
@@ -60,7 +61,7 @@ export function getProposalButton(
           className="btn w-full btn-gradient text-white rounded-[12px]"
           onClick={executeProposal}
         >
-          re-execute
+          {isSigning ? <div className="loading loading-dots loading-sm" /> : 're-execute'}
         </button>
       );
     case ProposalExecutorResult.PROPOSAL_EXECUTOR_RESULT_SUCCESS:

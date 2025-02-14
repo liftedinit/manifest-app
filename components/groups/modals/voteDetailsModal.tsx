@@ -1,16 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import {
-  ProposalExecutorResult,
-  proposalExecutorResultFromJSON,
   ProposalSDKType,
-  ProposalStatus,
-  proposalStatusFromJSON,
   VoteOption,
   VoteSDKType,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { QueryTallyResultResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
-import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import VotingPopup from './voteModal';
 
 import { useChain } from '@cosmos-kit/react';
@@ -19,7 +14,6 @@ import { cosmos } from '@liftedinit/manifestjs';
 import CountdownTimer from '../components/CountdownTimer';
 import { ExtendedGroupType, useFeeEstimation } from '@/hooks';
 
-import { CheckIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { ArrowUpIcon, CopyIcon } from '@/components/icons';
 import env from '@/config/env';
 import { Dialog } from '@headlessui/react';
@@ -63,16 +57,6 @@ function VoteDetailsModal({
   refetchGroupInfo,
   refetchDenoms,
 }: VoteDetailsModalProps) {
-  const status = proposalStatusFromJSON(proposal.status);
-  useMemo(
-    () =>
-      votes?.reduce<VoteMap>((acc, vote) => {
-        const voterKey = vote?.voter?.toLowerCase().trim();
-        acc[voterKey] = vote?.option;
-        return acc;
-      }, {}),
-    [votes]
-  );
   const { address } = useChain(env.chain);
   const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
@@ -300,6 +284,7 @@ function VoteDetailsModal({
               executeWithdrawal,
               executeProposal,
               setShowVotingPopup,
+              isSigning,
               userVoteOption
             )}
           </div>
