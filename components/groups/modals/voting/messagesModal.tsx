@@ -1,8 +1,13 @@
-import { defaultFields, importantFields, messageSyntax, MessageType } from '@/components';
 import React from 'react';
 import { ProposalSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { useTheme } from '@/contexts';
 import { Dialog } from '@headlessui/react';
+import { PrismAsyncLight as SyntaxHighlighter } from 'react-syntax-highlighter';
+import json from 'react-syntax-highlighter/dist/esm/languages/prism/json';
+import oneDark from 'react-syntax-highlighter/dist/esm/styles/prism/one-dark';
+import oneLight from 'react-syntax-highlighter/dist/esm/styles/prism/one-light';
+
+SyntaxHighlighter.registerLanguage('json', json);
 
 export function MessagesModal({
   proposal,
@@ -34,28 +39,17 @@ export function MessagesModal({
         </button>
         <h3 className="font-bold text-lg mb-4">Proposal Messages</h3>
         <div className="overflow-y-auto max-h-[60vh]">
-          {proposal.messages?.map((item, index) => {
-            // TODO: validate this in the type system, properly (requires work from manifestjs).
-            const message = item as unknown as MessageType;
-            const messageType = message['@type'];
-            const fieldsToShow = importantFields[messageType] || defaultFields;
-
-            return (
-              <div key={index} className="mb-6 bg-base-300 p-4 rounded-[12px]">
-                <h3 aria-label="msg" className="text-lg font-semibold mb-2 text-primary-content">
-                  {messageType.split('.').pop()?.replace('Msg', '')}
-                </h3>
-                <div className="font-mono">
-                  <pre
-                    className="whitespace-pre-wrap break-words bg-base-200 p-4 rounded-lg text-sm overflow-x-auto"
-                    aria-label="message-json-modal"
-                  >
-                    {messageSyntax(fieldsToShow, message, theme)}
-                  </pre>
-                </div>
-              </div>
-            );
-          })}
+          <SyntaxHighlighter
+            language="json"
+            style={theme === 'dark' ? oneDark : oneLight}
+            customStyle={{
+              backgroundColor: 'transparent',
+              padding: '1rem',
+              borderRadius: '0.5rem',
+            }}
+          >
+            {JSON.stringify(proposal, (_, v) => (typeof v === 'bigint' ? v.toString() : v), 2)}
+          </SyntaxHighlighter>
         </div>
       </Dialog.Panel>
     </Dialog>

@@ -1,7 +1,4 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import dynamic from 'next/dynamic';
-import { PrismAsyncLight as SyntaxHighlighter } from 'react-syntax-highlighter';
-import json from 'react-syntax-highlighter/dist/esm/languages/prism/json';
 
 import {
   ProposalExecutorResult,
@@ -14,19 +11,16 @@ import {
 import { QueryTallyResultResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import VotingPopup from './voteModal';
-import { ApexOptions } from 'apexcharts';
 
 import { useChain } from '@cosmos-kit/react';
 import { useTx } from '@/hooks/useTx';
 import { cosmos } from '@liftedinit/manifestjs';
-import { useTheme } from '@/contexts/theme';
 import CountdownTimer from '../components/CountdownTimer';
 import { ExtendedGroupType, useFeeEstimation } from '@/hooks';
 
 import { CheckIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { ArrowUpIcon, CopyIcon } from '@/components/icons';
 import env from '@/config/env';
-import { messageSyntax } from '@/components';
 import { Dialog } from '@headlessui/react';
 import { SignModal } from '@/components/react';
 import { MessagesModal } from '@/components/groups/modals/voting/messagesModal';
@@ -37,8 +31,6 @@ import {
   getVoteOptionLabel,
 } from '@/components/groups/utils';
 import { Tally } from '@/components/groups/modals/tally';
-
-SyntaxHighlighter.registerLanguage('json', json);
 
 interface VoteMap {
   [key: string]: VoteOption;
@@ -57,44 +49,7 @@ interface VoteDetailsModalProps {
   refetchGroupInfo: () => void;
   refetchDenoms: () => void;
 }
-
-export const importantFields: { [key: string]: string[] } = {
-  '/cosmos.bank.v1beta1.MsgSend': ['from_address', 'to_address', 'amount'],
-  '/cosmos.group.v1.MsgCreateGroup': ['admin', 'members', 'metadata'],
-  '/cosmos.group.v1.MsgUpdateGroupMembers': ['admin', 'group_id', 'member_updates'],
-  '/cosmos.group.v1.MsgUpdateGroupAdmin': ['group_id', 'admin', 'new_admin'],
-  '/cosmos.group.v1.MsgUpdateGroupMetadata': ['admin', 'group_id', 'metadata'],
-  '/cosmos.group.v1.MsgCreateGroupPolicy': ['admin', 'group_id', 'metadata', 'decision_policy'],
-  '/cosmos.group.v1.MsgCreateGroupWithPolicy': [
-    'admin',
-    'members',
-    'group_metadata',
-    'group_policy_metadata',
-    'decision_policy',
-  ],
-  '/cosmos.group.v1.MsgSubmitProposal': [
-    'group_policy_address',
-    'proposers',
-    'metadata',
-    'messages',
-  ],
-  '/cosmos.group.v1.MsgVote': ['proposal_id', 'voter', 'option', 'metadata'],
-  '/cosmos.group.v1.MsgExec': ['proposal_id', 'executor'],
-  '/cosmos.group.v1.MsgLeaveGroup': ['address', 'group_id'],
-  '/liftedinit.manifest.v1.MsgPayout': ['authority', 'payout_pairs'],
-  '/liftedinit.manifest.v1.MsgBurnHeldBalance': ['authority', 'burn_coins'],
-  '/cosmos.group.v1.MsgUpdateGroupPolicyDecisionPolicy': ['group_id', 'decision_policy'],
-  '/cosmos.group.v1.MsgUpdateGroupPolicyMetadata': ['group_id', 'metadata'],
-  '/osmosis.tokenfactory.v1beta1.MsgCreateDenom': ['subdenom'],
-  '/osmosis.tokenfactory.v1beta1.MsgSetDenomMetadata': ['metadata'],
-  '/osmosis.tokenfactory.v1beta1.MsgMint': ['mint_to_address', 'amount'],
-  '/osmosis.tokenfactory.v1beta1.MsgBurn': ['burn_from_address', 'amount'],
-  // Add more message types and their important fields here
-};
-
 // Default fields to show if the message type is not in the mapping
-export const defaultFields = ['@type'];
-
 function VoteDetailsModal({
   tallies,
   votes,
@@ -118,17 +73,6 @@ function VoteDetailsModal({
     [votes]
   );
   const { address } = useChain(env.chain);
-  const { theme } = useTheme();
-  const [, setChartData] = useState<number[]>([0, 0, 0, 0]);
-
-  useEffect(() => {
-    const yesCount = parseInt(tallies?.tally?.yes_count ?? '0');
-    const noCount = parseInt(tallies?.tally?.no_count ?? '0');
-    const vetoCount = parseInt(tallies?.tally?.no_with_veto_count ?? '0');
-    const abstainCount = parseInt(tallies?.tally?.abstain_count ?? '0');
-
-    setChartData([yesCount, noCount, vetoCount, abstainCount]);
-  }, [tallies, votes]);
   const { tx, isSigning, setIsSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
 
@@ -412,10 +356,8 @@ function VoteDetailsModal({
             </div>
           </div>
 
-          {/* Divider */}
           <hr className="w-full border-gray-700" />
 
-          {/* Proposal Title */}
           <div className="mt-4">
             <h2 className="text-lg font-semibold">Title</h2>
             <p className="text-sm text-gray-300 bg-gray-700 p-3 rounded-lg mt-1 max-h-40 overflow-auto">
