@@ -27,10 +27,6 @@ import {
 } from '@/components/groups/utils';
 import { Tally } from '@/components/groups/modals/tally';
 
-interface VoteMap {
-  [key: string]: VoteOption;
-}
-
 interface VoteDetailsModalProps {
   tallies: QueryTallyResultResponseSDKType;
   votes: VoteSDKType[];

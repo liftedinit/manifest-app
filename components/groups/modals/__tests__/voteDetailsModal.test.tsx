@@ -14,10 +14,6 @@ mock.module('next/router', () => ({
   }),
 }));
 
-mock.module('react-apexcharts', () => ({
-  default: jest.fn(),
-}));
-
 mock.module('@cosmos-kit/react', () => ({
   useChain: jest.fn().mockReturnValue({
     address: mockProposals['test_policy_address'][0].proposers[0],
