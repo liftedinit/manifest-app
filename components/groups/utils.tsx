@@ -31,6 +31,7 @@ export function getProposalButton(
             <div className="flex flex-row items-center justify-center gap-2">
               <button
                 className={`btn btn-error text-white rounded-[12px] ${userVoteOption ? 'w-full' : 'w-1/2'}`}
+                disabled={isSigning}
                 onClick={executeWithdrawal}
               >
                 {isSigning ? <div className="loading loading-dots loading-sm" /> : 'withdraw'}
@@ -38,6 +39,7 @@ export function getProposalButton(
               {!userVoteOption && (
                 <button
                   className="btn btn-gradient text-white rounded-[12px] w-1/2"
+                  disabled={isSigning}
                   onClick={() => setShowVotingPopup(true)}
                 >
                   {isSigning ? <div className="loading loading-dots loading-sm" /> : 'vote'}
@@ -49,6 +51,7 @@ export function getProposalButton(
           return (
             <button
               className="btn btn-gradient text-white rounded-[12px] w-full"
+              disabled={isSigning}
               onClick={executeProposal}
             >
               {isSigning ? <div className="loading loading-dots loading-sm" /> : 'execute'}
@@ -59,6 +62,7 @@ export function getProposalButton(
       return (
         <button
           className="btn w-full btn-gradient text-white rounded-[12px]"
+          disabled={isSigning}
           onClick={executeProposal}
         >
           {isSigning ? <div className="loading loading-dots loading-sm" /> : 're-execute'}
