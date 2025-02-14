@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 
 import {
   ProposalExecutorResult,
+  proposalExecutorResultFromJSON,
   ProposalSDKType,
   ProposalStatus,
   proposalStatusFromJSON,
@@ -97,7 +98,6 @@ function VoteDetailsModal({
     refetchGroupInfo();
     refetchDenoms();
   }
-
   const handleVote = async (option: VoteOption) => {
     setIsSigning(true);
     const msg = vote({
@@ -208,91 +208,12 @@ function VoteDetailsModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [proposal?.voting_period_end]);
 
-  const proposalExpired =
-    countdownValues.days +
-      countdownValues.hours +
-      countdownValues.minutes +
-      countdownValues.seconds ===
-    0;
-
   const userHasVoted = votes?.some(vote => vote.voter.toLowerCase().trim() === address);
 
   const userVoteOption = userHasVoted
     ? votes?.find(vote => vote.voter.toLowerCase().trim() === address)?.option
     : undefined;
 
-  const renderMessageField = (key: string, value: any, depth: number = 0): JSX.Element => {
-    const truncateText = (text: string, maxLength: number = 30) => {
-      if (text.length <= maxLength) return text;
-      return `${text.substring(0, maxLength)}...`;
-    };
-
-    if (typeof value === 'object' && value !== null) {
-      if (Array.isArray(value)) {
-        return (
-          <div key={key} style={{ marginLeft: `${depth * 20}px` }}>
-            <h4 className="font-medium text-primary-content">{key}:</h4>
-            {value.map((item, index) => (
-              <div key={index} className="ml-4 text-primary-content">
-                {renderMessageField(`Item ${index + 1}`, item, depth + 1)}
-              </div>
-            ))}
-          </div>
-        );
-      } else {
-        return (
-          <div key={key} style={{ marginLeft: `${depth * 20}px` }}>
-            <h4 className="font-medium text-primary-content">{key}:</h4>
-            {Object.entries(value).map(([subKey, subValue]) =>
-              renderMessageField(subKey, subValue, depth + 1)
-            )}
-          </div>
-        );
-      }
-    } else {
-      return (
-        <div key={key} style={{ marginLeft: `${depth * 20}px` }}>
-          <h4 className="font-large text-md text-primary-content">{key}:</h4>
-          {typeof value === 'string' && value.match(/^[a-zA-Z0-9]{40,}$/) ? (
-            <TruncatedAddressWithCopy slice={14} address={value} />
-          ) : (
-            <p className="text-primary-content" title={String(value)}>
-              {truncateText(String(value))}
-            </p>
-          )}
-        </div>
-      );
-    }
-  };
-  useMemo(() => {
-    const isWithdrawn = status === ProposalStatus.PROPOSAL_STATUS_WITHDRAWN;
-    const isAborted = status === ProposalStatus.PROPOSAL_STATUS_ABORTED;
-    const isAccepted = status === ProposalStatus.PROPOSAL_STATUS_ACCEPTED;
-    const isRejected = status === ProposalStatus.PROPOSAL_STATUS_REJECTED;
-    const isNotRun =
-      proposal.executor_result ===
-      ('PROPOSAL_EXECUTOR_RESULT_NOT_RUN' as unknown as ProposalExecutorResult);
-    const isFailure =
-      proposal.executor_result ===
-      ('PROPOSAL_EXECUTOR_RESULT_FAILURE' as unknown as ProposalExecutorResult);
-    const isProposer = proposal.proposers?.includes(address ?? '');
-
-    if (isWithdrawn || isAborted || isRejected) {
-      return { action: null, label: null };
-    } else if ((isAccepted && isNotRun) || isFailure) {
-      return { action: 'execute', label: 'Execute' };
-    } else if (isNotRun && proposalExpired && !isRejected) {
-      return { action: 'execute', label: 'Execute' };
-    } else if (!proposalExpired && !userHasVoted) {
-      return { action: 'vote', label: 'Vote' };
-    } else if (
-      (!isAccepted && isProposer) ||
-      ((isRejected || userHasVoted) && !isAccepted && !isNotRun)
-    ) {
-      return { action: 'remove', label: 'Remove' };
-    }
-    return { action: null, label: null };
-  }, [proposal, proposalExpired, status, userHasVoted, address]);
   const [copied, setCopied] = useState(false);
 
   const copyProposalLink = () => {
@@ -384,7 +305,15 @@ function VoteDetailsModal({
           <div className="mt-4">
             <Tally tallies={tallies} />
           </div>
-          {getProposalButton(proposal) && <div className="mt-6">{getProposalButton(proposal)}</div>}
+          <div className="mt-6">
+            {getProposalButton(
+              proposal,
+              executeWithdrawal,
+              executeProposal,
+              setShowVotingPopup,
+              userVoteOption
+            )}
+          </div>
         </div>
 
         <MessagesModal

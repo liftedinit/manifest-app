@@ -48,7 +48,11 @@ export function MessagesModal({
               borderRadius: '0.5rem',
             }}
           >
-            {JSON.stringify(proposal, (_, v) => (typeof v === 'bigint' ? v.toString() : v), 2)}
+            {JSON.stringify(
+              proposal.messages,
+              (_, v) => (typeof v === 'bigint' ? v.toString() : v),
+              2
+            )}
           </SyntaxHighlighter>
         </div>
       </Dialog.Panel>
