@@ -1,7 +1,7 @@
 import { test, expect, afterEach, describe, mock, jest } from 'bun:test';
 import { screen, cleanup, fireEvent } from '@testing-library/react';
 import { renderWithChainProvider } from '@/tests/render';
-import { mockTransactions } from '@/tests/mock';
+import { mockMultiDenomTransactions, mockTransactions } from '@/tests/mock';
 import { HistoryBox } from '../historyBox';
 
 // Mock next/router
@@ -24,6 +24,22 @@ mock.module('@/hooks', () => ({
           denom_units: [
             { denom: 'utoken', exponent: 0 },
             { denom: 'token', exponent: 6 },
+          ],
+        },
+        {
+          base: 'ufoobar',
+          display: 'FOOBAR',
+          denom_units: [
+            { denom: 'ufoobar', exponent: 0 },
+            { denom: 'foobar', exponent: 6 },
+          ],
+        },
+        {
+          base: 'umore',
+          display: 'MORE',
+          denom_units: [
+            { denom: 'umore', exponent: 0 },
+            { denom: 'more', exponent: 6 },
           ],
         },
       ],
@@ -135,5 +151,39 @@ describe('HistoryBox', () => {
       />
     );
     expect(screen.getByLabelText('skeleton')).toBeInTheDocument();
+  });
+
+  test('displays multi denoms as address3', () => {
+    renderWithChainProvider(
+      <HistoryBox
+        isLoading={false}
+        address="address3"
+        currentPage={1}
+        sendTxs={mockMultiDenomTransactions}
+        totalPages={2}
+      />
+    );
+    expect(screen.queryByText('123.12M TOKEN')).toBeInTheDocument(); // Send
+    expect(screen.queryByText('12.345678 FOOBAR')).toBeInTheDocument(); // Send
+    expect(screen.queryByText('5 TOKEN')).toBeInTheDocument(); // Send
+    expect(screen.queryByText('0.121212 MORE')).toBeInTheDocument(); // Send
+    expect(screen.queryByText(/and 1 more denomination\(s\)/i)).toBeInTheDocument(); // Send
+  });
+
+  test('displays multi denoms as address4', () => {
+    renderWithChainProvider(
+      <HistoryBox
+        isLoading={false}
+        address="address4"
+        currentPage={1}
+        sendTxs={mockMultiDenomTransactions}
+        totalPages={2}
+      />
+    );
+    expect(screen.queryByText('123.12M TOKEN')).toBeInTheDocument(); // Send
+    expect(screen.queryByText('12.345678 FOOBAR')).toBeInTheDocument(); // Send
+    expect(screen.queryByText('5 TOKEN')).toBeInTheDocument(); // Send
+    expect(screen.queryByText('0.121212 MORE')).toBeInTheDocument(); // Send
+    expect(screen.queryByText(/and 1 more denomination\(s\)/i)).toBeInTheDocument(); // Send
   });
 });

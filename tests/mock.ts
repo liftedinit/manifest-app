@@ -404,6 +404,50 @@ export const mockTransactions: TxMessage[] = [
   },
 ];
 
+export const mockMultiDenomTransactions: TxMessage[] = [
+  {
+    id: '11',
+    message_index: 1,
+    type: MsgSend.typeUrl,
+    sender: 'address3',
+    mentions: [],
+    metadata: {
+      amount: [
+        { amount: '123123123123123', denom: 'utoken' },
+        { amount: '12345678', denom: 'ufoobar' },
+      ],
+      toAddress: 'address4',
+    },
+    fee: { amount: [{ amount: '1', denom: 'denom1' }], gas: '1' },
+    memo: '',
+    height: 11,
+    timestamp: '2023-05-10T12:00:00Z',
+    error: '',
+    proposal_ids: [],
+  },
+  {
+    id: '12',
+    message_index: 2,
+    type: MsgSend.typeUrl,
+    sender: 'address3',
+    mentions: [],
+    metadata: {
+      amount: [
+        { amount: '5000000', denom: 'utoken' },
+        { amount: '6000000', denom: 'ufoobar' },
+        { amount: '121212', denom: 'umore' },
+      ],
+      toAddress: 'address4',
+    },
+    fee: { amount: [{ amount: '1', denom: 'denom1' }], gas: '1' },
+    memo: '',
+    height: 11,
+    timestamp: '2023-05-10T12:00:00Z',
+    error: '',
+    proposal_ids: [],
+  },
+];
+
 export const mockGroup: ExtendedGroupType = {
   id: 1n,
   admin: 'admin1',
