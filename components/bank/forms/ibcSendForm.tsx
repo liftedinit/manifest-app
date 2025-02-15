@@ -25,6 +25,7 @@ import { useChain } from '@cosmos-kit/react';
 import { useToast } from '@/contexts';
 
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
+import { AmountInput } from '@/components';
 
 //TODO: switch to main-net names
 export default function IbcSendForm({
@@ -515,27 +516,16 @@ export default function IbcSendForm({
                   </div>
                 </div>
                 <div className="w-full">
-                  <label className="label">
+                  <label className="label" htmlFor="amount">
                     <span className="label-text text-md font-medium text-[#00000099] dark:text-[#FFFFFF99]">
                       Amount
                     </span>
                   </label>
                   <div className="relative">
-                    <input
-                      type="text"
-                      inputMode="decimal"
-                      pattern="[0-9]*[.]?[0-9]*"
+                    <AmountInput
                       name="amount"
-                      placeholder="0.00"
                       value={values.amount}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        const value = e.target.value;
-                        if (value === '' || /^\d*\.?\d*$/.test(value)) {
-                          setFieldValue('amount', e.target.value);
-                        }
-                      }}
-                      style={{ borderRadius: '12px' }}
-                      className="input input-md border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full pr-24 dark:text-[#FFFFFF] text-[#161616]"
+                      onValueChange={v => setFieldValue('amount', v)}
                     />
                     <div className="absolute inset-y-1 right-1 flex items-center">
                       <div className="dropdown dropdown-end h-full">

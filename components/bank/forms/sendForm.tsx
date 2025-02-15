@@ -14,6 +14,7 @@ import { MdContacts } from 'react-icons/md';
 import env from '@/config/env';
 import { Any } from 'cosmjs-types/google/protobuf/any';
 import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
+import { AmountInput } from '@/components';
 
 export default function SendForm({
   address,
@@ -73,7 +74,7 @@ export default function SendForm({
       ),
     amount: Yup.number()
       .required('Amount is required')
-      .positive('Amount must be positive')
+      .min(0, 'Amount must be positive')
       .test('sufficient-balance', 'Amount exceeds balance', function (value) {
         const { selectedToken } = this.parent;
         if (!selectedToken || !value) return true;
@@ -191,31 +192,16 @@ export default function SendForm({
             <Form className="space-y-6 flex flex-col items-center max-w-md mx-auto">
               <div className="w-full space-y-4">
                 <div className="w-full">
-                  <label className="label">
+                  <label className="label" htmlFor="amount">
                     <span className="label-text text-md font-medium text-[#00000099] dark:text-[#FFFFFF99]">
                       Amount
                     </span>
                   </label>
                   <div className="relative">
-                    <input
-                      className="input input-md border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full pr-24 dark:text-[#FFFFFF] text-[#161616]"
+                    <AmountInput
                       name="amount"
-                      inputMode="decimal"
-                      pattern="[0-9]*[.]?[0-9]*"
-                      placeholder="0.00"
-                      style={{ borderRadius: '12px' }}
                       value={values.amount}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        const value = e.target.value;
-                        if (/^\d*\.?\d*$/.test(value) && parseFloat(value) >= 0) {
-                          setFieldValue('amount', value);
-                        }
-                      }}
-                      onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                        if (!/[\d.]/.test(e.key)) {
-                          e.preventDefault();
-                        }
-                      }}
+                      onValueChange={value => setFieldValue('amount', value)}
                     />
 
                     <div className="absolute inset-y-1 right-1 flex items-center">
