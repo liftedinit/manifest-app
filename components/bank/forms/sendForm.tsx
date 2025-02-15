@@ -192,7 +192,7 @@ export default function SendForm({
             <Form className="space-y-6 flex flex-col items-center max-w-md mx-auto">
               <div className="w-full space-y-4">
                 <div className="w-full">
-                  <label className="label" htmlFor="amount">
+                  <label className="label">
                     <span className="label-text text-md font-medium text-[#00000099] dark:text-[#FFFFFF99]">
                       Amount
                     </span>

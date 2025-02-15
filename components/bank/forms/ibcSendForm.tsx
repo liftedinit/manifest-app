@@ -516,7 +516,7 @@ export default function IbcSendForm({
                   </div>
                 </div>
                 <div className="w-full">
-                  <label className="label" htmlFor="amount">
+                  <label className="label">
                     <span className="label-text text-md font-medium text-[#00000099] dark:text-[#FFFFFF99]">
                       Amount
                     </span>
