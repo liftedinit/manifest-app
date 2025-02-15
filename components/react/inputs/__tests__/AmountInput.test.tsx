@@ -75,4 +75,34 @@ describe('AmountInput', () => {
     fireEvent.change(input, { target: { value: '42.42.42' } });
     expect(onValueChange).toHaveBeenCalledWith('42');
   });
+
+  test('calls onValueChange with the same value when the input is invalid (empty initial value)', () => {
+    const value = '';
+    const onValueChange = jest.fn();
+
+    render(
+      <TestForm>
+        <AmountInput name="test" value={value} onValueChange={onValueChange} />
+      </TestForm>
+    );
+
+    const input = screen.getByPlaceholderText('0.00');
+    fireEvent.change(input, { target: { value: '42.42.42' } });
+    expect(onValueChange).toHaveBeenCalledWith('');
+  });
+
+  test('calls onValueChange when only a dot is present', () => {
+    const value = '42';
+    const onValueChange = jest.fn();
+
+    render(
+      <TestForm>
+        <AmountInput name="test" value={value} onValueChange={onValueChange} />
+      </TestForm>
+    );
+
+    const input = screen.getByPlaceholderText('0.00');
+    fireEvent.change(input, { target: { value: '.' } });
+    expect(onValueChange).toHaveBeenCalledWith('.');
+  });
 });
