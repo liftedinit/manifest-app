@@ -74,7 +74,7 @@ export default function SendForm({
       ),
     amount: Yup.number()
       .required('Amount is required')
-      .min(0, 'Amount must be positive')
+      .positive('Amount must be positive')
       .test('sufficient-balance', 'Amount exceeds balance', function (value) {
         const { selectedToken } = this.parent;
         if (!selectedToken || !value) return true;
