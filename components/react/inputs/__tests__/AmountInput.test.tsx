@@ -89,6 +89,12 @@ describe('AmountInput', () => {
     const input = screen.getByPlaceholderText('0.00');
     fireEvent.change(input, { target: { value: '42.42.42' } });
     expect(onValueChange).toHaveBeenCalledWith('');
+    onValueChange.mockClear();
+    fireEvent.change(input, { target: { value: '1' } });
+    expect(onValueChange).toHaveBeenCalledWith('1');
+    onValueChange.mockClear();
+    fireEvent.change(input, { target: { value: '1E+10' } });
+    expect(onValueChange).toHaveBeenCalledWith('');
   });
 
   test('calls onValueChange when only a dot is present', () => {
