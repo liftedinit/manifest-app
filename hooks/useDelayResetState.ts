@@ -17,13 +17,12 @@ export function useDelayResetState<T>(
   const setDelayResetState = useCallback(
     (value: SetStateAction<T>) => {
       if (typeof value === 'function') {
-        value = (value as Function)(state);
+        value = (value as (prevState: T) => T)(state);
       }
 
       setState(value);
-      if (value) {
-        setTimeout(() => setState(resetState), delay);
-      }
+      const timer = setTimeout(() => setState(resetState), delay);
+      return () => clearTimeout(timer);
     },
     [state, delay, resetState]
   );

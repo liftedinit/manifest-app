@@ -9,7 +9,7 @@ import { format } from 'react-string-format';
 const createMessage = (template: string, newAdmin: string, denom: string) => {
   const message = format(
     template,
-    newAdmin ? <TruncatedAddressWithCopy address={newAdmin} slice={24} /> : 'unknown',
+    newAdmin ? <TruncatedAddressWithCopy address={newAdmin} /> : 'unknown',
     denom ? formatDenom(denom) : 'unknown'
   );
   return <span className="flex gap-1">{message}</span>;

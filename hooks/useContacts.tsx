@@ -35,11 +35,22 @@ export const ContactsContext = createContext<ContactsContextType>({
 export const ContactsProvider = ({ children }: { children: ReactNode }) => {
   const [contacts, setContacts] = useLocalStorage<Contact[]>(STORAGE_KEY, []);
 
-  function findIndex(index: ContactIndex): number {
-    return typeof index === 'number'
-      ? index
-      : contacts.findIndex(c => c.name === index || c.address === index);
-  }
+  const findIndex = useCallback(
+    (index: ContactIndex) =>
+      typeof index === 'number'
+        ? index
+        : contacts.findIndex(c => c.name === index || c.address === index),
+    [contacts]
+  );
+
+  const updateContact = useCallback(
+    (index: ContactIndex, updatedContact: Contact) => {
+      const toUpdate = findIndex(index);
+      const newContacts = contacts.map((contact, i) => (i === toUpdate ? updatedContact : contact));
+      setContacts(newContacts);
+    },
+    [contacts, findIndex, setContacts]
+  );
 
   const addContact = useCallback(
     (contact: Contact) => {
@@ -49,7 +60,7 @@ export const ContactsProvider = ({ children }: { children: ReactNode }) => {
         setContacts([...contacts, contact]);
       }
     },
-    [contacts, setContacts]
+    [contacts, setContacts, updateContact]
   );
 
   const removeContact = useCallback(
@@ -58,16 +69,7 @@ export const ContactsProvider = ({ children }: { children: ReactNode }) => {
       const newContacts = contacts.filter((_, i) => i !== toRemove);
       setContacts(newContacts);
     },
-    [contacts, setContacts]
-  );
-
-  const updateContact = useCallback(
-    (index: ContactIndex, updatedContact: Contact) => {
-      const toUpdate = findIndex(index);
-      const newContacts = contacts.map((contact, i) => (i === toUpdate ? updatedContact : contact));
-      setContacts(newContacts);
-    },
-    [contacts, setContacts]
+    [contacts, findIndex, setContacts]
   );
 
   const importContacts = useCallback(
@@ -84,7 +86,7 @@ export const ContactsProvider = ({ children }: { children: ReactNode }) => {
         return false;
       }
     },
-    [contacts, setContacts]
+    [addContact]
   );
 
   const exportContacts = useCallback(() => {

@@ -282,7 +282,7 @@ function InfoItem({
                 Address
               </span>
               <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99] xs:block hidden">
-                <TruncatedAddressWithCopy address={value} slice={24} />
+                <TruncatedAddressWithCopy address={value} />
               </p>
               <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99] xs:hidden block">
                 <TruncatedAddressWithCopy address={value} slice={14} />

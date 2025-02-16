@@ -9,12 +9,8 @@ const createMessage = (template: string, ids: string, policyAddress: string, sen
   const message = format(
     template,
     ids,
-    policyAddress ? (
-      <TruncatedAddressWithCopy address={policyAddress} slice={24} />
-    ) : (
-      'an unknown address'
-    ),
-    sender ? <TruncatedAddressWithCopy address={sender} slice={24} /> : 'an unknown address'
+    policyAddress ? <TruncatedAddressWithCopy address={policyAddress} /> : 'an unknown address',
+    sender ? <TruncatedAddressWithCopy address={sender} /> : 'an unknown address'
   );
   return <span className="flex gap-1">{message}</span>;
 };

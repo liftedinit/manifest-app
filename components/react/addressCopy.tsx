@@ -1,19 +1,26 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { FiCopy, FiCheck } from 'react-icons/fi';
 import { truncateAddress } from '@/utils';
 import { useContacts } from '@/hooks';
 import { useDelayResetState } from '@/hooks/useDelayResetState';
 
+/**
+ * Show a truncated address with a copy button, and optionally show the name of the address
+ * if it exists in the contacts list.
+ * @param showName Show the name of the address if it exists in the contacts list. Default to true.
+ * @param address The address to show.
+ * @param slice The number of characters to show in the address.
+ * @param size The size of the icon. Default to 16.
+ * @constructor
+ */
 export const TruncatedAddressWithCopy = ({
   showName = true,
-  address = '',
-  slice,
-  size,
+  address,
+  slice = 24,
 }: {
   showName?: boolean;
   address: string;
-  slice: number;
-  size?: string;
+  slice?: number;
 }) => {
   const { contacts } = useContacts();
   const [copied, setCopied] = useDelayResetState(false, 2000);
@@ -36,7 +43,6 @@ export const TruncatedAddressWithCopy = ({
     }
   };
 
-  const iconSize = size === 'small' ? 10 : 16;
   let truncatedAddress = useMemo(() => {
     if (showName && addressToName.has(address)) {
       return (
@@ -44,18 +50,18 @@ export const TruncatedAddressWithCopy = ({
           <span className="truncate">
             {addressToName.get(address)} ({truncateAddress(address, slice)}{' '}
           </span>
-          {copied ? <FiCheck size={iconSize} /> : <FiCopy size={iconSize} />})
+          {copied ? <FiCheck data-icon="check" size={16} /> : <FiCopy data-icon="copy" size={16} />}
         </>
       );
     } else {
       return (
         <>
-          <span className="truncate whitespace-nowrap">{truncateAddress(address, slice)}</span>
-          {copied ? <FiCheck size={iconSize} /> : <FiCopy size={iconSize} />}
+          <span className="truncate">{truncateAddress(address, slice)}</span>
+          {copied ? <FiCheck data-icon="check" size={16} /> : <FiCopy data-icon="copy" size={16} />}
         </>
       );
     }
-  }, [address, addressToName, copied, iconSize, showName, slice]);
+  }, [address, addressToName, copied, showName, slice]);
 
   return (
     <span

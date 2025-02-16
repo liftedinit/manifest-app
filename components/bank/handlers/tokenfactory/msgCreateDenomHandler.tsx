@@ -10,7 +10,7 @@ const createMessage = (template: string, sender: string, subdenom: string) => {
   const message = format(
     template,
     formatDenom(`factory/${sender}/${subdenom}`),
-    sender ? <TruncatedAddressWithCopy address={sender} slice={24} /> : 'an unknown address'
+    sender ? <TruncatedAddressWithCopy address={sender} /> : 'an unknown address'
   );
   return <span className="flex gap-1">{message}</span>;
 };
