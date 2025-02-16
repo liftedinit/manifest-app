@@ -36,12 +36,14 @@ export const ContactsProvider = ({ children }: { children: ReactNode }) => {
   const [contacts, setContacts] = useLocalStorage<Contact[]>(STORAGE_KEY, []);
 
   function findIndex(index: ContactIndex): number {
-    return typeof index === 'number' ? index : contacts.findIndex((c) => c.name === index || c.address === index)
+    return typeof index === 'number'
+      ? index
+      : contacts.findIndex(c => c.name === index || c.address === index);
   }
 
   const addContact = useCallback(
     (contact: Contact) => {
-      if (contacts.some((c) => c.address === contact.address)) {
+      if (contacts.some(c => c.address === contact.address)) {
         updateContact(contact, contact);
       } else {
         setContacts([...contacts, contact]);
@@ -90,7 +92,9 @@ export const ContactsProvider = ({ children }: { children: ReactNode }) => {
   }, [contacts]);
 
   return (
-    <ContactsContext.Provider value={{ contacts, addContact, removeContact, updateContact, importContacts, exportContacts }}>
+    <ContactsContext.Provider
+      value={{ contacts, addContact, removeContact, updateContact, importContacts, exportContacts }}
+    >
       {children}
     </ContactsContext.Provider>
   );
