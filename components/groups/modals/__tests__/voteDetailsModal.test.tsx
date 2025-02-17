@@ -63,10 +63,21 @@ describe('VoteDetailsModal', () => {
     expect(screen.getByLabelText('countdown-timer')).toBeInTheDocument();
   });
 
-  test('renders messages section with correct data', () => {
+  test('renders copy proposal button', () => {
+    renderWithChainProvider(<VoteDetailsModal {...defaultProps} />);
+    expect(screen.getByLabelText('copy-button')).toBeInTheDocument();
+  });
+
+  test('renders expanded messages modal', () => {
     renderWithChainProvider(<VoteDetailsModal {...defaultProps} />);
     fireEvent.click(screen.getByTestId('expand-messages'));
     expect(screen.getByText('Proposal Messages')).toBeInTheDocument();
+  });
+
+  test('do not render expanded tally button when there are no votes', () => {
+    const props = { ...defaultProps, votes: [] };
+    renderWithChainProvider(<VoteDetailsModal {...props} />);
+    expect(screen.queryByTestId('expand-tally')).not.toBeInTheDocument();
   });
 
   test('conditionally renders execute button when proposal is accepted', () => {
@@ -87,6 +98,33 @@ describe('VoteDetailsModal', () => {
     const voteButton = screen.getByText('vote');
     expect(voteButton).toBeInTheDocument();
     expect(voteButton.innerText).toBe('vote');
+  });
+
+  test('conditionally renders withdraw button when user is proposer and has not voted', () => {
+    const props = { ...defaultProps, proposal: { ...mockProposal } };
+    renderWithChainProvider(<VoteDetailsModal {...props} />);
+    const withdrawButton = screen.getByText('withdraw');
+    expect(withdrawButton).toBeInTheDocument();
+  });
+
+  test('does not render withdraw button when user is not the proposer', () => {
+    const props = { ...defaultProps, proposal: { ...mockProposal, proposers: ['proposer2'] } };
+    renderWithChainProvider(<VoteDetailsModal {...props} />);
+    const withdrawButton = screen.queryByText('withdraw');
+    expect(withdrawButton).not.toBeInTheDocument();
+  });
+
+  test('conditionally renders re-execute button when proposal has failed', () => {
+    const props = {
+      ...defaultProps,
+      proposal: {
+        ...mockProposal,
+        status: 'PROPOSAL_STATUS_ACCEPTED',
+        executor_result: 'PROPOSAL_EXECUTOR_RESULT_FAILURE',
+      },
+    };
+    renderWithChainProvider(<VoteDetailsModal {...props} />);
+    expect(screen.getByText('re-execute')).toBeInTheDocument();
   });
 
   test('does not render vote button when user has already voted', () => {

@@ -282,6 +282,7 @@ function VoteDetailsModal({
                 <button
                   className="btn btn-xs btn-ghost btn-circle"
                   title="View Tally Results"
+                  data-testid="expand-tally"
                   onClick={() => setShowTally(true)}
                 >
                   <ArrowUpIcon className="w-4 h-4" />
@@ -305,6 +306,7 @@ function VoteDetailsModal({
             <button
               onClick={copyProposalLink}
               className="flex items-center gap-2 hover:bg-[#FFFFFFCC] dark:hover:bg-[#FFFFFF0F] p-2 rounded-full transition-colors duration-200"
+              aria-label="copy-button"
             >
               {copied ? (
                 <CheckIcon className="w-4 h-4 text-green-500" />
