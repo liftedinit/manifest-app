@@ -1,21 +1,20 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { SignData } from '@cosmos-kit/web3auth';
-import { TxBody, AuthInfo } from '@liftedinit/manifestjs/dist/codegen/cosmos/tx/v1beta1/tx';
+import { AuthInfo, TxBody } from '@liftedinit/manifestjs/dist/codegen/cosmos/tx/v1beta1/tx';
 import { decodePubkey } from '@cosmjs/proto-signing';
-import { useWallet, useChain } from '@cosmos-kit/react';
+import { useChain, useWallet } from '@cosmos-kit/react';
 import { getRealLogo } from '@/utils';
 import { useTheme } from '@/contexts';
 import env from '@/config/env';
 import { ArrowRightIcon } from '../icons';
-import { objectSyntax } from '@/components';
 import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
 import {
   MsgCreateGroupWithPolicy,
   MsgSubmitProposal,
   MsgUpdateGroupMembers,
-  MsgUpdateGroupPolicyMetadata,
-  MsgUpdateGroupPolicyDecisionPolicy,
   MsgUpdateGroupMetadata,
+  MsgUpdateGroupPolicyDecisionPolicy,
+  MsgUpdateGroupPolicyMetadata,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
 import {
   MsgCancelUpgrade,
@@ -23,16 +22,19 @@ import {
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
 import { MsgSetPower } from '@liftedinit/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
 import {
-  MsgPayout,
   MsgBurnHeldBalance,
+  MsgPayout,
 } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
 import {
-  MsgSetDenomMetadata,
   MsgCreateDenom,
+  MsgSetDenomMetadata,
 } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
 import { Dialog } from '@headlessui/react';
 import { Web3AuthContext } from '@/contexts/web3AuthContext';
 import Image from 'next/image';
+import { PrismAsyncLight as SyntaxHighlighter } from 'react-syntax-highlighter';
+import oneDark from 'react-syntax-highlighter/dist/esm/styles/prism/one-dark';
+import oneLight from 'react-syntax-highlighter/dist/esm/styles/prism/one-light';
 
 type DisplayDataToSignProps = {
   data: SignData;
@@ -187,22 +189,27 @@ const DisplayDataToSign = ({
       return Buffer.from(value).toString('base64');
     }
     if (typeof value === 'object' && value !== null) {
+      let v = value;
       if ('bodyBytes' in value && 'authInfoBytes' in value) {
-        const decodedValue = {
+        v = {
           ...value,
           bodyBytes: decodeBodyBytes(value.bodyBytes),
           authInfoBytes: decodeAuthInfoBytes(value.authInfoBytes),
         };
-        return objectSyntax(
-          JSON.parse(
-            JSON.stringify(decodedValue, (_, v) => (typeof v === 'bigint' ? v.toString() : v))
-          ),
-          theme
-        );
       }
-      return objectSyntax(
-        JSON.parse(JSON.stringify(value, (_, v) => (typeof v === 'bigint' ? v.toString() : v))),
-        theme
+
+      return (
+        <SyntaxHighlighter
+          language="json"
+          style={theme === 'dark' ? oneDark : oneLight}
+          customStyle={{
+            backgroundColor: 'transparent',
+            padding: '1rem',
+            borderRadius: '0.5rem',
+          }}
+        >
+          {JSON.stringify(v, (_, v) => (typeof v === 'bigint' ? v.toString() : v), 2)}
+        </SyntaxHighlighter>
       );
     }
     return String(value);
