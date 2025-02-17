@@ -11,12 +11,14 @@ import React from 'react';
 
 export function getProposalButton(
   proposal: ProposalSDKType,
+  address: string | undefined,
   executeWithdrawal: () => void,
   executeProposal: () => void,
   setShowVotingPopup: (value: boolean) => void,
   isSigning: boolean,
   userVoteOption?: VoteOption | undefined
 ): JSX.Element | undefined {
+  const isProposer = proposal.proposers.includes(address || '');
   switch (proposalExecutorResultFromJSON(proposal.executor_result)) {
     case ProposalExecutorResult.PROPOSAL_EXECUTOR_RESULT_NOT_RUN:
       switch (proposalStatusFromJSON(proposal.status)) {
@@ -29,16 +31,18 @@ export function getProposalButton(
         case ProposalStatus.PROPOSAL_STATUS_SUBMITTED:
           return (
             <div className="flex flex-row items-center justify-center gap-2">
-              <button
-                className={`btn btn-error text-white rounded-[12px] ${userVoteOption ? 'w-full' : 'w-1/2'}`}
-                disabled={isSigning}
-                onClick={executeWithdrawal}
-              >
-                {isSigning ? <div className="loading loading-dots loading-sm" /> : 'withdraw'}
-              </button>
+              {isProposer && (
+                <button
+                  className={`btn btn-error text-white rounded-[12px] ${userVoteOption ? 'w-full' : 'w-1/2'}`}
+                  disabled={isSigning}
+                  onClick={executeWithdrawal}
+                >
+                  {isSigning ? <div className="loading loading-dots loading-sm" /> : 'withdraw'}
+                </button>
+              )}
               {!userVoteOption && (
                 <button
-                  className="btn btn-gradient text-white rounded-[12px] w-1/2"
+                  className={`btn btn-gradient text-white rounded-[12px] ${isProposer ? 'w-1/2' : 'w-full'}`}
                   disabled={isSigning}
                   onClick={() => setShowVotingPopup(true)}
                 >

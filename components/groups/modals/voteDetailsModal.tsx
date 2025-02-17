@@ -293,6 +293,7 @@ function VoteDetailsModal({
           <div className="mt-6">
             {getProposalButton(
               proposal,
+              address,
               executeWithdrawal,
               executeProposal,
               setShowVotingPopup,
