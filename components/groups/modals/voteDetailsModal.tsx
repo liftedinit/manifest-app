@@ -225,7 +225,6 @@ function VoteDetailsModal({
             ✕
           </button>
 
-          {/* Header */}
           <div className="grid grid-cols-3 w-full items-center pb-3 mt-4">
             <div className="text-left">
               <h2 className="text-xl font-bold">#{proposal?.id?.toString()}</h2>
@@ -265,6 +264,7 @@ function VoteDetailsModal({
               <button
                 className="btn btn-xs btn-ghost btn-circle"
                 title="View Proposal Messages"
+                data-testid="expand-messages"
                 onClick={() => setShowMessages(true)}
               >
                 <ArrowUpIcon className="w-4 h-4" />
