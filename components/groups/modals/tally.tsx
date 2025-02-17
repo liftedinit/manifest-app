@@ -48,8 +48,10 @@ export function Tally({ tallies }: TallyProps) {
   }, [tallyAbstain, totalTally]);
   return (
     <>
-      <h3 className="text-lg font-semibold">Tally</h3>
-      <div className="w-full bg-gray-700 rounded-lg h-6 relative mt-2 flex">
+      <div
+        className="w-full bg-gray-700 rounded-lg h-6 relative mt-2 flex"
+        aria-label="chart-tally"
+      >
         <div
           className={`bg-[#4CAF50] h-6 rounded-l-lg ${tallyYesPercentage.eq(100) && 'rounded-r-lg'}`}
           style={{ width: `${tallyYesPercentage}%` }}

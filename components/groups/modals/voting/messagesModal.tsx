@@ -30,7 +30,10 @@ export function MessagesModal({
     >
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
 
-      <Dialog.Panel className="modal-box max-w-4xl m-auto" aria-label="proposal-messages-dialog">
+      <Dialog.Panel
+        className="modal-box max-w-4xl m-auto bg-secondary"
+        aria-label="proposal-messages-dialog"
+      >
         <button
           className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
           onClick={onClose}

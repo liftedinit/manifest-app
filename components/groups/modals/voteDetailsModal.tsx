@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import {
+  MemberSDKType,
   ProposalSDKType,
   VoteOption,
   VoteSDKType,
@@ -26,6 +27,8 @@ import {
   getVoteOptionLabel,
 } from '@/components/groups/utils';
 import { Tally } from '@/components/groups/modals/tally';
+import { CheckIcon } from '@heroicons/react/24/outline';
+import { TallyResults } from '@/components/groups/modals/tallyResults';
 
 interface VoteDetailsModalProps {
   tallies: QueryTallyResultResponseSDKType;
@@ -193,6 +196,7 @@ function VoteDetailsModal({
   };
 
   const [showMessages, setShowMessages] = useState(false);
+  const [showTally, setShowTally] = useState(false);
   const [showVotingPopup, setShowVotingPopup] = useState(false);
 
   return (
@@ -229,7 +233,7 @@ function VoteDetailsModal({
                 {getProposalStatusLabel(proposal)}
               </span>
             </div>
-            <div className="text-center">
+            <div className="text-center" aria-label="countdown-timer">
               <CountdownTimer endTime={new Date(proposal.voting_period_end)} />
             </div>
             <div className="text-right">
@@ -272,6 +276,18 @@ function VoteDetailsModal({
           </div>
 
           <div className="mt-4">
+            <div className="flex items-center gap-2 mb-2">
+              <h2 className="text-lg font-semibold">Tally</h2>
+              {votes.length > 0 && (
+                <button
+                  className="btn btn-xs btn-ghost btn-circle"
+                  title="View Tally Results"
+                  onClick={() => setShowTally(true)}
+                >
+                  <ArrowUpIcon className="w-4 h-4" />
+                </button>
+              )}
+            </div>
             <Tally tallies={tallies} />
           </div>
           <div className="mt-6">
@@ -284,7 +300,24 @@ function VoteDetailsModal({
               userVoteOption
             )}
           </div>
+          <div className="mt-6 flex justify-end">
+            <button
+              onClick={copyProposalLink}
+              className="flex items-center gap-2 hover:bg-[#FFFFFFCC] dark:hover:bg-[#FFFFFF0F] p-2 rounded-full transition-colors duration-200"
+            >
+              {copied ? (
+                <CheckIcon className="w-4 h-4 text-green-500" />
+              ) : (
+                <CopyIcon className="w-4 h-4" />
+              )}
+              <p className="text-sm font-light text-gray-500 dark:text-gray-400">
+                {copied ? 'Copied!' : 'Share this proposal'}
+              </p>
+            </button>
+          </div>
         </div>
+
+        <TallyResults votes={votes} opened={showTally} onClose={() => setShowTally(false)} />
 
         <MessagesModal
           proposal={proposal}
