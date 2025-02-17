@@ -14,6 +14,7 @@ interface Pair {
   address: string;
   coin: Coin;
 }
+
 const createSendMessage = (
   template: string,
   pairs: Pair[],
@@ -32,7 +33,7 @@ const createSendMessage = (
       `distributed across ${pairs.length} addresses`
     ) : pairs?.[0]?.address ? (
       <>
-        to <TruncatedAddressWithCopy address={pairs[0].address} slice={24} />{' '}
+        to <TruncatedAddressWithCopy address={pairs[0].address} />{' '}
       </>
     ) : (
       'an unknown address'
@@ -61,7 +62,7 @@ const createReceiveMessage = (
   const message = format(
     template,
     coloredAmount,
-    sender ? <TruncatedAddressWithCopy address={sender} slice={24} /> : 'an unknown address'
+    sender ? <TruncatedAddressWithCopy address={sender} /> : 'an unknown address'
   );
   return <span className="flex gap-1">{message}</span>;
 };

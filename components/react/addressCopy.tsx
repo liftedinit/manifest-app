@@ -1,25 +1,36 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { FiCopy, FiCheck } from 'react-icons/fi';
 import { truncateAddress } from '@/utils';
+import { useContacts } from '@/hooks';
+import { useDelayResetState } from '@/hooks/useDelayResetState';
 
+/**
+ * Show a truncated address with a copy button, and optionally show the name of the address
+ * if it exists in the contacts list.
+ * @param showName Show the name of the address if it exists in the contacts list. Default to true.
+ * @param address The address to show.
+ * @param slice The number of characters to show in the address.
+ * @param size The size of the icon. Default to 16.
+ * @constructor
+ */
 export const TruncatedAddressWithCopy = ({
-  address = '',
-  slice,
-  size,
+  showName = true,
+  address,
+  slice = 24,
 }: {
+  showName?: boolean;
   address: string;
-  slice: number;
-  size?: string;
+  slice?: number;
 }) => {
-  const [copied, setCopied] = useState(false);
+  const { contacts } = useContacts();
+  const [copied, setCopied] = useDelayResetState(false, 2000);
 
-  useEffect(() => {
-    let timer: ReturnType<typeof setTimeout>;
-    if (copied) {
-      timer = setTimeout(() => setCopied(false), 2000);
-    }
-    return () => clearTimeout(timer);
-  }, [copied]);
+  const addressToName = useMemo(() => {
+    return contacts.reduce((acc, contact) => {
+      acc.set(contact.address, contact.name);
+      return acc;
+    }, new Map<string, string>());
+  }, [contacts]);
 
   const handleCopy = async (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
@@ -32,8 +43,25 @@ export const TruncatedAddressWithCopy = ({
     }
   };
 
-  const truncatedAddress = truncateAddress(address, slice);
-  const iconSize = size === 'small' ? 10 : 16;
+  let truncatedAddress = useMemo(() => {
+    if (showName && addressToName.has(address)) {
+      return (
+        <>
+          <span className="truncate">
+            {addressToName.get(address)} ({truncateAddress(address, slice)}{' '}
+          </span>
+          {copied ? <FiCheck data-icon="check" size={16} /> : <FiCopy data-icon="copy" size={16} />}
+        </>
+      );
+    } else {
+      return (
+        <>
+          <span className="truncate">{truncateAddress(address, slice)}</span>
+          {copied ? <FiCheck data-icon="check" size={16} /> : <FiCopy data-icon="copy" size={16} />}
+        </>
+      );
+    }
+  }, [address, addressToName, copied, showName, slice]);
 
   return (
     <span
@@ -41,8 +69,7 @@ export const TruncatedAddressWithCopy = ({
       onClick={handleCopy}
       style={{ cursor: 'pointer' }}
     >
-      <span className="truncate ">{truncatedAddress}</span>
-      {copied ? <FiCheck size={iconSize} /> : <FiCopy size={iconSize} />}
+      {truncatedAddress}
     </span>
   );
 };

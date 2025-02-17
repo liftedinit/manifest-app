@@ -41,7 +41,7 @@ export default function Success({
         <div className="text-md text-[#808080] mb-6 text-pretty">
           The full denom of your token is:{' '}
           <span className="font-semibold">
-            <TruncatedAddressWithCopy address={fullDenom} slice={24} />
+            <TruncatedAddressWithCopy address={fullDenom} />
           </span>
         </div>
         <div className="border-t border-gray-700 pt-4">

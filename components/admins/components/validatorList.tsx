@@ -226,7 +226,7 @@ export default function ValidatorList({
                       </td>
 
                       <td className="py-4 bg-secondary group-hover:bg-base-300 hidden lg:table-cell">
-                        <TruncatedAddressWithCopy slice={24} address={validator.operator_address} />
+                        <TruncatedAddressWithCopy address={validator.operator_address} />
                       </td>
                       <td className="py-4 bg-secondary group-hover:bg-base-300 hidden md:table-cell">
                         {validator.consensus_power?.toString() ?? 'N/A'}

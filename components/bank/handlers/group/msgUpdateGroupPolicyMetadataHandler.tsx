@@ -7,8 +7,7 @@ import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 const createMessage = (prefix: string, policyAddress: string, suffix?: string) => {
   return (
     <span className="flex gap-1">
-      {prefix}{' '}
-      {policyAddress ? <TruncatedAddressWithCopy address={policyAddress} slice={24} /> : 'unknown'}{' '}
+      {prefix} {policyAddress ? <TruncatedAddressWithCopy address={policyAddress} /> : 'unknown'}{' '}
       {suffix}
     </span>
   );

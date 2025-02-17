@@ -1,3 +1,4 @@
+export * from './addressCopy';
 export * from './modal';
 export * from './views';
 export * from './settingsModal';

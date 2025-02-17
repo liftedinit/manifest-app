@@ -14,6 +14,7 @@ interface TxInfoModalProps {
 
 export default function TxInfoModal({ tx, modalId }: TxInfoModalProps) {
   const { theme } = useTheme();
+
   function formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleString('en-US', {
@@ -150,7 +151,7 @@ function InfoItem({
       <div className="bg-[#FFFFFF66] dark:bg-[#FFFFFF1A] rounded-[16px] p-4">
         {isAddress ? (
           <div className="flex items-center">
-            <TruncatedAddressWithCopy address={value} slice={24} />
+            <TruncatedAddressWithCopy address={value} />
             <a
               href={`${env.explorerUrl}/${label === 'TRANSACTION HASH' ? 'transaction' : 'account'}/${label?.includes('TRANSACTION') ? value?.toUpperCase() : value}`}
               target="_blank"

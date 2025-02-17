@@ -87,7 +87,7 @@ const createReceiveMessage = (
   const message = format(
     template,
     coloredAmountDenom,
-    <TruncatedAddressWithCopy address={sender} slice={24} />
+    <TruncatedAddressWithCopy address={sender} />
   );
   return <span className="flex gap-1">{message}</span>;
 };

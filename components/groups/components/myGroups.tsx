@@ -665,7 +665,7 @@ function GroupRow({
       </td>
       <td className="bg-secondary group-hover:bg-base-300 hidden lg:table-cell w-1/6">
         <div onClick={e => e.stopPropagation()}>
-          <TruncatedAddressWithCopy address={policyAddress} slice={24} />
+          <TruncatedAddressWithCopy address={policyAddress} />
         </div>
       </td>
       <td className="bg-secondary group-hover:bg-base-300 rounded-r-[12px] sm:rounded-l-none w-1/6">

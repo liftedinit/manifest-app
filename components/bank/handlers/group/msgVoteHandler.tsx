@@ -11,7 +11,7 @@ const createMessage = (template: string, vote: string, ids: string, sender?: str
     template,
     formatVote(vote),
     ids,
-    sender ? <TruncatedAddressWithCopy address={sender} slice={24} /> : 'an unknown address'
+    sender ? <TruncatedAddressWithCopy address={sender} /> : 'an unknown address'
   );
   return <span className="flex gap-1">{message}</span>;
 };

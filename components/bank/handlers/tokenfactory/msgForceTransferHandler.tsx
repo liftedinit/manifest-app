@@ -29,9 +29,9 @@ const createMessage = (
   const message = format(
     template,
     coloredAmount,
-    from ? <TruncatedAddressWithCopy address={from} slice={24} /> : 'an unknown address',
-    to ? <TruncatedAddressWithCopy address={to} slice={24} /> : 'an unknown address',
-    sender ? <TruncatedAddressWithCopy address={sender} slice={24} /> : 'an unknown address'
+    from ? <TruncatedAddressWithCopy address={from} /> : 'an unknown address',
+    to ? <TruncatedAddressWithCopy address={to} /> : 'an unknown address',
+    sender ? <TruncatedAddressWithCopy address={sender} /> : 'an unknown address'
   );
   return <span className="flex gap-1">{message}</span>;
 };
