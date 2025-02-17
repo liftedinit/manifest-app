@@ -61,7 +61,7 @@ export const ContactsProvider = ({ children }: { children: ReactNode }) => {
     if (contacts.some(c => c.address === contact.address)) {
       updateContact(contact, contact);
     } else {
-      setContacts([...contacts, contact);
+      setContacts([...contacts, contact]);
     }
     return true;
   };
