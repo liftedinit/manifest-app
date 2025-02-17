@@ -306,12 +306,15 @@ export const useProposalsByPolicyAccountAll = (policyAccounts: string[]) => {
   };
 };
 
-export const useTallyCount = (proposalId: bigint) => {
+export const useTallyCount = (proposalId?: bigint) => {
   const { lcdQueryClient } = useLcdQueryClient();
 
   const fetchGroupInfo = async () => {
     if (!lcdQueryClient) {
       throw new Error('LCD Client not ready');
+    }
+    if (!proposalId) {
+      throw new Error('Proposal ID is undefined');
     }
     return await lcdQueryClient.cosmos.group.v1.tallyResult({
       proposalId: proposalId,
@@ -319,9 +322,9 @@ export const useTallyCount = (proposalId: bigint) => {
   };
 
   const tallyQuery = useQuery({
-    queryKey: ['tallyInfo', proposalId.toString()],
+    queryKey: ['tallyInfo', proposalId ? proposalId.toString() : 'tallyInfo'],
     queryFn: fetchGroupInfo,
-    enabled: !!lcdQueryClient && !!proposalId,
+    enabled: !!lcdQueryClient && proposalId !== undefined,
     staleTime: Infinity,
   });
 
@@ -333,12 +336,15 @@ export const useTallyCount = (proposalId: bigint) => {
   };
 };
 
-export const useVotesByProposal = (proposalId: bigint) => {
+export const useVotesByProposal = (proposalId?: bigint) => {
   const { lcdQueryClient } = useLcdQueryClient();
 
   const fetchGroupInfo = async () => {
     if (!lcdQueryClient) {
       throw new Error('LCD Client not ready');
+    }
+    if (!proposalId) {
+      throw new Error('Proposal ID is undefined');
     }
     return await lcdQueryClient.cosmos.group.v1.votesByProposal({
       proposalId: proposalId,
@@ -346,9 +352,9 @@ export const useVotesByProposal = (proposalId: bigint) => {
   };
 
   const voteQuery = useQuery({
-    queryKey: ['voteInfo', proposalId.toString()],
+    queryKey: ['voteInfo', proposalId ? proposalId.toString() : 'voteInfo'],
     queryFn: fetchGroupInfo,
-    enabled: !!lcdQueryClient && !!proposalId,
+    enabled: !!lcdQueryClient && proposalId !== undefined,
     staleTime: Infinity,
   });
 

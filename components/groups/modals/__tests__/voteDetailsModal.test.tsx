@@ -4,6 +4,10 @@ import { screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
 import VoteDetailsModal from '../voteDetailsModal';
 import { renderWithChainProvider } from '@/tests/render';
 import { mockMembers, mockProposals, mockTally, mockVotes } from '@/tests/mock';
+import {
+  ProposalExecutorResult,
+  ProposalStatus,
+} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 
 // Mock next/router
 const m = jest.fn();
@@ -28,8 +32,8 @@ describe('VoteDetailsModal', () => {
     tallies: mockTally,
     votes: mockVotes,
     members: mockMembers,
-    proposal: mockProposal,
-    group: {} as any,
+    proposals: mockProposals['test_policy_address'],
+    proposalId: 1n,
     showVoteModal: true,
     onClose: jest.fn(),
     modalId: 'voteDetailsModal',
@@ -83,11 +87,13 @@ describe('VoteDetailsModal', () => {
   test('conditionally renders execute button when proposal is accepted', () => {
     const props = {
       ...defaultProps,
-      proposal: {
-        ...mockProposal,
-        status: 'PROPOSAL_STATUS_ACCEPTED',
-        executor_result: 'PROPOSAL_EXECUTOR_RESULT_NOT_RUN',
-      },
+      proposals: [
+        {
+          ...mockProposal,
+          status: ProposalStatus.PROPOSAL_STATUS_ACCEPTED,
+          executor_result: ProposalExecutorResult.PROPOSAL_EXECUTOR_RESULT_NOT_RUN,
+        },
+      ],
     };
     renderWithChainProvider(<VoteDetailsModal {...props} />);
     expect(screen.getByText('execute')).toBeInTheDocument();
@@ -108,7 +114,15 @@ describe('VoteDetailsModal', () => {
   });
 
   test('does not render withdraw button when user is not the proposer', () => {
-    const props = { ...defaultProps, proposal: { ...mockProposal, proposers: ['proposer2'] } };
+    const props = {
+      ...defaultProps,
+      proposals: [
+        {
+          ...mockProposal,
+          proposers: ['proposer2'],
+        },
+      ],
+    };
     renderWithChainProvider(<VoteDetailsModal {...props} />);
     const withdrawButton = screen.queryByText('withdraw');
     expect(withdrawButton).not.toBeInTheDocument();
@@ -117,11 +131,13 @@ describe('VoteDetailsModal', () => {
   test('conditionally renders re-execute button when proposal has failed', () => {
     const props = {
       ...defaultProps,
-      proposal: {
-        ...mockProposal,
-        status: 'PROPOSAL_STATUS_ACCEPTED',
-        executor_result: 'PROPOSAL_EXECUTOR_RESULT_FAILURE',
-      },
+      proposals: [
+        {
+          ...mockProposal,
+          status: ProposalStatus.PROPOSAL_STATUS_ACCEPTED,
+          executor_result: ProposalExecutorResult.PROPOSAL_EXECUTOR_RESULT_FAILURE,
+        },
+      ],
     };
     renderWithChainProvider(<VoteDetailsModal {...props} />);
     expect(screen.getByText('re-execute')).toBeInTheDocument();

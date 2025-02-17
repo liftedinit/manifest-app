@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import {
-  MemberSDKType,
   ProposalSDKType,
   VoteOption,
   VoteSDKType,
@@ -13,7 +12,7 @@ import { useChain } from '@cosmos-kit/react';
 import { useTx } from '@/hooks/useTx';
 import { cosmos } from '@liftedinit/manifestjs';
 import CountdownTimer from '../components/CountdownTimer';
-import { ExtendedGroupType, useFeeEstimation } from '@/hooks';
+import { useFeeEstimation } from '@/hooks';
 
 import { ArrowUpIcon, CopyIcon } from '@/components/icons';
 import env from '@/config/env';
@@ -33,9 +32,9 @@ import { TallyResults } from '@/components/groups/modals/tallyResults';
 interface VoteDetailsModalProps {
   tallies: QueryTallyResultResponseSDKType;
   votes: VoteSDKType[];
-  proposal: ProposalSDKType;
+  proposals: ProposalSDKType[];
+  proposalId: bigint;
   showVoteModal: boolean;
-  group: ExtendedGroupType;
   onClose: () => void;
   refetchVotes: () => void;
   refetchTally: () => void;
@@ -47,7 +46,8 @@ interface VoteDetailsModalProps {
 function VoteDetailsModal({
   tallies,
   votes,
-  proposal,
+  proposals,
+  proposalId,
   showVoteModal,
   onClose,
   refetchVotes,
@@ -60,9 +60,23 @@ function VoteDetailsModal({
   const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
 
+  const [copied, setCopied] = useState(false);
+  const [showMessages, setShowMessages] = useState(false);
+  const [showTally, setShowTally] = useState(false);
+  const [showVotingPopup, setShowVotingPopup] = useState(false);
+
   const { exec } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const { withdrawProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const { vote } = cosmos.group.v1.MessageComposer.withTypeUrl;
+
+  const proposal = useMemo(
+    () => proposals.find(p => p.id.toString() === proposalId?.toString()),
+    [proposals, proposalId]
+  );
+
+  if (!proposal) {
+    return null;
+  }
 
   const msgExec = exec({
     proposalId: proposal?.id,
@@ -81,6 +95,7 @@ function VoteDetailsModal({
     refetchGroupInfo();
     refetchDenoms();
   }
+
   const handleVote = async (option: VoteOption) => {
     const msg = vote({
       proposalId: proposal.id,
@@ -143,42 +158,6 @@ function VoteDetailsModal({
       console.error('Failed to execute proposal: ', error);
     }
   };
-  const [countdownValues, setCountdownValues] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-  });
-
-  const endTime = new Date(proposal?.voting_period_end);
-  useEffect(() => {
-    const calculateTimeParts = () => {
-      const now = new Date();
-
-      const timeDiff = endTime.getTime() - now.getTime();
-
-      if (timeDiff > 0) {
-        const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
-        return { days, hours, minutes, seconds };
-      } else {
-        return { days: 0, hours: 0, minutes: 0, seconds: 0 };
-      }
-    };
-
-    const timeParts = calculateTimeParts();
-    setCountdownValues(timeParts);
-
-    const interval = setInterval(() => {
-      const newTimeParts = calculateTimeParts();
-      setCountdownValues(newTimeParts);
-    }, 1000);
-
-    return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [proposal?.voting_period_end]);
 
   const userHasVoted = votes?.some(vote => vote.voter.toLowerCase().trim() === address);
 
@@ -186,18 +165,12 @@ function VoteDetailsModal({
     ? votes?.find(vote => vote.voter.toLowerCase().trim() === address)?.option
     : undefined;
 
-  const [copied, setCopied] = useState(false);
-
   const copyProposalLink = () => {
     const url = `${window.location.origin}/groups?policyAddress=${proposal?.group_policy_address}&proposalId=${proposal?.id}`;
     navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
-
-  const [showMessages, setShowMessages] = useState(false);
-  const [showTally, setShowTally] = useState(false);
-  const [showVotingPopup, setShowVotingPopup] = useState(false);
 
   return (
     <Dialog
@@ -233,7 +206,7 @@ function VoteDetailsModal({
               </span>
             </div>
             <div className="text-center" aria-label="countdown-timer">
-              <CountdownTimer endTime={new Date(proposal.voting_period_end)} />
+              <CountdownTimer endTime={new Date(proposal.voting_period_end)} refetch={refetch} />
             </div>
             <div className="text-right">
               {userHasVoted && (

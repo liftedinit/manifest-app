@@ -1,7 +1,15 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
-export default function CountdownTimer({ endTime }: { endTime: Date }) {
+export default function CountdownTimer({
+  endTime,
+  refetch,
+}: {
+  endTime: Date;
+  refetch: () => void;
+}) {
   const [now, setNow] = useState<Date>(new Date());
+  const hasRefetched = useRef(false);
+
   useEffect(() => {
     const interval = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(interval);
@@ -18,6 +26,19 @@ export default function CountdownTimer({ endTime }: { endTime: Date }) {
     }
     return { days: 0, hours: 0, min: 0, sec: 0 };
   }, [now, endTime]);
+
+  useEffect(() => {
+    if (
+      !hasRefetched.current &&
+      timeLeft.days === 0 &&
+      timeLeft.hours === 0 &&
+      timeLeft.min === 0 &&
+      timeLeft.sec === 0
+    ) {
+      refetch();
+      hasRefetched.current = true;
+    }
+  }, [timeLeft, refetch]);
 
   return (
     <div className="grid grid-flow-col gap-5 mt-2 text-center auto-cols-max">
