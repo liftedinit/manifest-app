@@ -48,11 +48,20 @@ export const ContactsProvider = ({ children }: { children: ReactNode }) => {
     setContacts(contacts.map((contact, i) => (i === toUpdate ? c : contact)));
   };
 
-  const addContact = (contact: Contact) => {
+  const addContact = (contact: Contact, rethrow = false) => {
+    try {
+      contact = ContactSchema.validateSync(contact);
+    } catch (error) {
+      if (rethrow) {
+        throw error;
+      }
+      return false;
+    }
+
     if (contacts.some(c => c.address === contact.address)) {
       updateContact(contact, contact);
     } else {
-      setContacts([...contacts, ContactSchema.validateSync(contact)]);
+      setContacts([...contacts, contact);
     }
     return true;
   };
@@ -63,22 +72,19 @@ export const ContactsProvider = ({ children }: { children: ReactNode }) => {
     setContacts(newContacts);
   };
 
-  const importContacts = useCallback(
-    async (newContacts: Contact[]) => {
-      try {
-        await ContactsArraySchema.validate(newContacts);
+  const importContacts = async (newContacts: Contact[]) => {
+    try {
+      await ContactsArraySchema.validate(newContacts);
 
-        for (const contact of newContacts) {
-          addContact(contact);
-        }
-        return true;
-      } catch (error) {
-        console.error('Invalid contacts format', error);
-        return false;
+      for (const contact of newContacts) {
+        addContact(contact);
       }
-    },
-    [addContact]
-  );
+      return true;
+    } catch (error) {
+      console.error('Invalid contacts format', error);
+      return false;
+    }
+  };
 
   const exportContacts = () => JSON.stringify(contacts);
 
