@@ -11,8 +11,7 @@ export const MsgMintHandler = createSenderReceiverHandler({
   successSender: (tx, _, metadata) =>
     createTokenMessage(
       'You minted {0} to {1}',
-      tx.metadata?.amount?.amount,
-      tx.metadata?.amount?.denom,
+      [tx.metadata?.amount],
       tx.metadata?.mintToAddress,
       'green',
       metadata
@@ -20,8 +19,7 @@ export const MsgMintHandler = createSenderReceiverHandler({
   failSender: (tx, _, metadata) =>
     createTokenMessage(
       'You failed to mint {0} to {1}',
-      tx.metadata?.amount?.amount,
-      tx.metadata?.amount?.denom,
+      [tx.metadata?.amount],
       tx.metadata?.mintToAddress,
       'red',
       metadata
@@ -29,8 +27,7 @@ export const MsgMintHandler = createSenderReceiverHandler({
   successReceiver: (tx, _, metadata) =>
     createTokenMessage(
       'You were minted {0} from {1}',
-      tx.metadata?.amount?.amount,
-      tx.metadata?.amount?.denom,
+      [tx.metadata?.amount],
       tx.sender,
       'green',
       metadata

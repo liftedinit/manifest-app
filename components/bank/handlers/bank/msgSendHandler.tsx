@@ -9,8 +9,7 @@ export const MsgSendHandler = createSenderReceiverHandler({
   successSender: (tx, _, metadata) => {
     return createTokenMessage(
       'You sent {0} to {1}',
-      tx.metadata?.amount?.[0]?.amount,
-      tx.metadata?.amount?.[0]?.denom,
+      tx.metadata?.amount,
       tx.metadata?.toAddress,
       'red',
       metadata
@@ -19,8 +18,7 @@ export const MsgSendHandler = createSenderReceiverHandler({
   failSender: (tx, _, metadata) => {
     return createTokenMessage(
       'You failed to send {0} to {1}',
-      tx.metadata?.amount?.[0]?.amount,
-      tx.metadata?.amount?.[0]?.denom,
+      tx.metadata?.amount,
       tx.metadata?.toAddress,
       'red',
       metadata
@@ -29,8 +27,7 @@ export const MsgSendHandler = createSenderReceiverHandler({
   successReceiver: (tx, _, metadata) => {
     return createTokenMessage(
       'You received {0} from {1}',
-      tx.metadata?.amount?.[0]?.amount,
-      tx.metadata?.amount?.[0]?.denom,
+      tx.metadata?.amount,
       tx.sender,
       'green',
       metadata

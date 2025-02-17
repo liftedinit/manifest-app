@@ -9,8 +9,7 @@ export const MsgBurnHeldBalanceHandler = createSenderReceiverHandler({
   successSender: (tx, _, metadata) =>
     createTokenMessage(
       'You burned {0} from {1}',
-      tx.metadata?.burnCoins?.[0]?.amount,
-      tx.metadata?.burnCoins?.[0]?.denom,
+      tx.metadata?.burnCoins,
       tx.sender,
       'red',
       metadata
@@ -19,8 +18,7 @@ export const MsgBurnHeldBalanceHandler = createSenderReceiverHandler({
   successReceiver: (tx, _, metadata) =>
     createTokenMessage(
       'You were burned {0} by {1}',
-      tx.metadata?.burnCoins?.[0]?.amount,
-      tx.metadata?.burnCoins?.[0]?.denom,
+      tx.metadata?.burnCoins,
       tx.sender,
       'red',
       metadata
