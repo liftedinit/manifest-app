@@ -1,7 +1,7 @@
-import { test, expect, beforeEach, afterEach, describe, mock, jest } from 'bun:test';
+import { test, expect, beforeEach, afterEach, describe } from 'bun:test';
 import { install } from '@sinonjs/fake-timers';
 import { useDelayResetState } from '@/hooks/useDelayResetState';
-import { cleanup, render, waitFor } from '@testing-library/react';
+import { cleanup, render } from '@testing-library/react';
 
 function TestComponent() {
   const [value, setValue, update] = useDelayResetState(0, 1000);

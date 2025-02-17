@@ -16,7 +16,7 @@ export type ContactIndex = Partial<Contact> | number;
 
 export interface ContactsContextType {
   contacts: Contact[];
-  addContact: (contact: Contact) => void;
+  addContact: (contact: Contact) => boolean;
   updateContact: (index: ContactIndex, contact: Contact) => void;
   removeContact: (index: ContactIndex) => void;
   importContacts: (contacts: Contact[]) => Promise<boolean>;
@@ -25,7 +25,7 @@ export interface ContactsContextType {
 
 export const ContactsContext = createContext<ContactsContextType>({
   contacts: [],
-  addContact: () => {},
+  addContact: () => false,
   updateContact: () => {},
   removeContact: () => {},
   importContacts: async () => false,
@@ -35,42 +35,33 @@ export const ContactsContext = createContext<ContactsContextType>({
 export const ContactsProvider = ({ children }: { children: ReactNode }) => {
   const [contacts, setContacts] = useLocalStorage<Contact[]>(STORAGE_KEY, []);
 
-  const findIndex = useCallback(
-    (index: ContactIndex) =>
-      typeof index === 'number'
-        ? index
-        : contacts.findIndex(c => c.name === index || c.address === index),
-    [contacts]
-  );
+  const findIndex = (index: ContactIndex) => {
+    return typeof index === 'number'
+      ? index
+      : contacts.findIndex(c => c.name === index.name || c.address === index.address);
+  };
 
-  const updateContact = useCallback(
-    (index: ContactIndex, updatedContact: Contact) => {
-      const toUpdate = findIndex(index);
-      const newContacts = contacts.map((contact, i) => (i === toUpdate ? updatedContact : contact));
-      setContacts(newContacts);
-    },
-    [contacts, findIndex, setContacts]
-  );
+  const updateContact = (index: ContactIndex, updatedContact: Contact) => {
+    const toUpdate = findIndex(index);
+    const c = ContactSchema.validateSync(updatedContact);
 
-  const addContact = useCallback(
-    (contact: Contact) => {
-      if (contacts.some(c => c.address === contact.address)) {
-        updateContact(contact, contact);
-      } else {
-        setContacts([...contacts, contact]);
-      }
-    },
-    [contacts, setContacts, updateContact]
-  );
+    setContacts(contacts.map((contact, i) => (i === toUpdate ? c : contact)));
+  };
 
-  const removeContact = useCallback(
-    (index: ContactIndex) => {
-      const toRemove = findIndex(index);
-      const newContacts = contacts.filter((_, i) => i !== toRemove);
-      setContacts(newContacts);
-    },
-    [contacts, findIndex, setContacts]
-  );
+  const addContact = (contact: Contact) => {
+    if (contacts.some(c => c.address === contact.address)) {
+      updateContact(contact, contact);
+    } else {
+      setContacts([...contacts, ContactSchema.validateSync(contact)]);
+    }
+    return true;
+  };
+
+  const removeContact = (index: ContactIndex) => {
+    const toRemove = findIndex(index);
+    const newContacts = contacts.filter((_, i) => i !== toRemove);
+    setContacts(newContacts);
+  };
 
   const importContacts = useCallback(
     async (newContacts: Contact[]) => {
@@ -89,9 +80,7 @@ export const ContactsProvider = ({ children }: { children: ReactNode }) => {
     [addContact]
   );
 
-  const exportContacts = useCallback(() => {
-    return JSON.stringify(contacts);
-  }, [contacts]);
+  const exportContacts = () => JSON.stringify(contacts);
 
   return (
     <ContactsContext.Provider
