@@ -2,10 +2,12 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 export default function CountdownTimer({
   endTime,
-  refetch,
+  onTimerEnd,
+  delay = 0,
 }: {
   endTime: Date;
-  refetch: () => void;
+  onTimerEnd: () => void;
+  delay?: number;
 }) {
   const [now, setNow] = useState<Date>(new Date());
   const hasRefetched = useRef(false);
@@ -35,10 +37,12 @@ export default function CountdownTimer({
       timeLeft.min === 0 &&
       timeLeft.sec === 0
     ) {
-      refetch();
-      hasRefetched.current = true;
+      setTimeout(() => {
+        onTimerEnd();
+        hasRefetched.current = true;
+      }, delay);
     }
-  }, [timeLeft, refetch]);
+  }, [timeLeft, onTimerEnd, delay]);
 
   return (
     <div className="grid grid-flow-col gap-5 mt-2 text-center auto-cols-max">

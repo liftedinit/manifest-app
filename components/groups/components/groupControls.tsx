@@ -1,10 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  useMultipleTallyCounts,
-  useProposalsByPolicyAccount,
-  useTallyCount,
-  useVotesByProposal,
-} from '@/hooks/useQueries';
+import { useMultipleTallyCounts, useProposalsByPolicyAccount } from '@/hooks/useQueries';
 import {
   ProposalExecutorResult,
   ProposalSDKType,
@@ -43,8 +38,8 @@ type GroupControlsProps = {
   isDenomError: boolean;
   refetchBalances: () => void;
   refetchHistory: () => Promise<unknown>;
-  refetchDenoms: () => void;
-  refetchGroupInfo: () => void;
+  refetchDenoms: () => Promise<unknown>;
+  refetchGroupInfo: () => Promise<unknown>;
   pageSize: number;
   skeletonGroupCount: number;
   skeletonTxCount: number;
@@ -84,9 +79,6 @@ export default function GroupControls({
   const [activeTab, setActiveTab] = useState('proposals');
 
   const [searchTerm, setSearchTerm] = useState('');
-
-  const { tally, refetchTally } = useTallyCount(selectedProposalId);
-  const { votes, refetchVotes } = useVotesByProposal(selectedProposalId);
 
   const filterProposals = (proposals: ProposalSDKType[]) => {
     return proposals.filter(
@@ -559,7 +551,6 @@ export default function GroupControls({
               refetch={refetchHistory}
               skeletonGroupCount={skeletonGroupCount}
               skeletonTxCount={skeletonTxCount}
-              isGroup={true}
             />
           )}
         </div>
@@ -588,17 +579,11 @@ export default function GroupControls({
       </div>
       {selectedProposalId !== undefined && (
         <VoteDetailsModal
-          tallies={tally ?? ({} as QueryTallyResultResponseSDKType)}
-          votes={votes}
+          policyAddress={policyAddress}
           proposals={proposals}
           proposalId={selectedProposalId}
           onClose={handleCloseVoteModal}
           showVoteModal={showVoteModal}
-          refetchVotes={refetchVotes}
-          refetchTally={refetchTally}
-          refetchProposals={refetchProposals}
-          refetchGroupInfo={refetchGroupInfo}
-          refetchDenoms={refetchDenoms}
         />
       )}
     </div>

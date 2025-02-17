@@ -1,9 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 
 import {
   ProposalSDKType,
   VoteOption,
-  VoteSDKType,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { QueryTallyResultResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
 import VotingPopup from './voteModal';
@@ -12,7 +11,7 @@ import { useChain } from '@cosmos-kit/react';
 import { useTx } from '@/hooks/useTx';
 import { cosmos } from '@liftedinit/manifestjs';
 import CountdownTimer from '../components/CountdownTimer';
-import { useFeeEstimation } from '@/hooks';
+import { useFeeEstimation, useProposalById, useTallyCount, useVotesByProposal } from '@/hooks';
 
 import { ArrowUpIcon, CopyIcon } from '@/components/icons';
 import env from '@/config/env';
@@ -28,34 +27,23 @@ import {
 import { Tally } from '@/components/groups/modals/tally';
 import { CheckIcon } from '@heroicons/react/24/outline';
 import { TallyResults } from '@/components/groups/modals/tallyResults';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface VoteDetailsModalProps {
-  tallies: QueryTallyResultResponseSDKType;
-  votes: VoteSDKType[];
+  policyAddress: string;
   proposals: ProposalSDKType[];
   proposalId: bigint;
   showVoteModal: boolean;
   onClose: () => void;
-  refetchVotes: () => void;
-  refetchTally: () => void;
-  refetchProposals: () => void;
-  refetchGroupInfo: () => void;
-  refetchDenoms: () => void;
 }
 // Default fields to show if the message type is not in the mapping
 function VoteDetailsModal({
-  tallies,
-  votes,
-  proposals,
+  policyAddress,
   proposalId,
   showVoteModal,
   onClose,
-  refetchVotes,
-  refetchTally,
-  refetchProposals,
-  refetchGroupInfo,
-  refetchDenoms,
 }: VoteDetailsModalProps) {
+  const queryClient = useQueryClient();
   const { address } = useChain(env.chain);
   const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
@@ -69,10 +57,9 @@ function VoteDetailsModal({
   const { withdrawProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const { vote } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
-  const proposal = useMemo(
-    () => proposals.find(p => p.id.toString() === proposalId?.toString()),
-    [proposals, proposalId]
-  );
+  const { proposal } = useProposalById(proposalId);
+  const { tally } = useTallyCount(proposalId);
+  const { votes } = useVotesByProposal(proposalId);
 
   if (!proposal) {
     return null;
@@ -88,13 +75,16 @@ function VoteDetailsModal({
     address: address ?? '',
   });
 
-  function refetch() {
-    refetchVotes();
-    refetchTally();
-    refetchProposals();
-    refetchGroupInfo();
-    refetchDenoms();
-  }
+  const invalidateQueries = () => {
+    return Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['proposalInfoById', proposalId] }),
+      queryClient.invalidateQueries({ queryKey: ['voteInfo', proposalId] }),
+      queryClient.invalidateQueries({ queryKey: ['tallyInfo', proposalId] }),
+      queryClient.invalidateQueries({ queryKey: ['groupInfoByAdmin', policyAddress] }),
+      queryClient.invalidateQueries({ queryKey: ['groupInfoByMember', address] }),
+      queryClient.invalidateQueries({ queryKey: ['denoms', policyAddress] }),
+    ]);
+  };
 
   const handleVote = async (option: VoteOption) => {
     const msg = vote({
@@ -112,7 +102,7 @@ function VoteDetailsModal({
         {
           fee,
           onSuccess: () => {
-            refetch();
+            invalidateQueries();
           },
         },
         'vote-details-modal'
@@ -130,7 +120,11 @@ function VoteDetailsModal({
         {
           fee,
           onSuccess: () => {
-            refetch();
+            onClose();
+            queryClient.invalidateQueries({ queryKey: ['proposalInfoAll', policyAddress] });
+            queryClient.invalidateQueries({ queryKey: ['proposalInfo', policyAddress] });
+            queryClient.invalidateQueries({ queryKey: ['groupInfoByAdmin', policyAddress] });
+            queryClient.invalidateQueries({ queryKey: ['groupInfoByMember', address] });
           },
         },
         'vote-details-modal'
@@ -148,7 +142,7 @@ function VoteDetailsModal({
         {
           fee,
           onSuccess: () => {
-            refetch();
+            invalidateQueries();
           },
         },
         'vote-details-modal'
@@ -206,7 +200,10 @@ function VoteDetailsModal({
               </span>
             </div>
             <div className="text-center" aria-label="countdown-timer">
-              <CountdownTimer endTime={new Date(proposal.voting_period_end)} refetch={refetch} />
+              <CountdownTimer
+                endTime={new Date(proposal.voting_period_end)}
+                onTimerEnd={() => {}}
+              />
             </div>
             <div className="text-right">
               {userHasVoted && (
@@ -262,7 +259,7 @@ function VoteDetailsModal({
                 </button>
               )}
             </div>
-            <Tally tallies={tallies} />
+            <Tally tallies={tally ?? ({} as QueryTallyResultResponseSDKType)} />
           </div>
           <div className="mt-6">
             {getProposalButton(
