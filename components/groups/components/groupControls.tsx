@@ -223,7 +223,10 @@ export default function GroupControls({
   const proposalPageSizes = useResponsivePageSize(sizeLookup, defaultSizes);
 
   // Calculate total pages for proposals
-  const totalProposalPages = Math.ceil(filteredProposals.length / proposalPageSizes.proposals);
+  const totalProposalPages = Math.max(
+    1,
+    Math.ceil(filteredProposals.length / proposalPageSizes.proposals)
+  );
 
   // Get current page proposals
   const currentProposals = filteredProposals.slice(
