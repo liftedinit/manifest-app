@@ -2,7 +2,6 @@ import React from 'react';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import env from '@/config/env';
-import { useTheme } from '@/contexts';
 import { TxMessage } from '@/components/bank/types';
 
 interface TxInfoModalProps {
@@ -87,7 +86,7 @@ function InfoItem({
       <div className="bg-[#FFFFFF66] dark:bg-[#FFFFFF1A] rounded-[16px] p-4">
         {isAddress ? (
           <div className="flex items-center">
-            <TruncatedAddressWithCopy address={value} slice={24} />
+            <TruncatedAddressWithCopy address={value} />
             <a
               href={`${env.explorerUrl}/${label === 'TRANSACTION HASH' ? 'transaction' : 'account'}/${label?.includes('TRANSACTION') ? value?.toUpperCase() : value}`}
               target="_blank"

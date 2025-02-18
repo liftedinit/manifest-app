@@ -14,6 +14,7 @@ import { MdContacts } from 'react-icons/md';
 import env from '@/config/env';
 import { Any } from 'cosmjs-types/google/protobuf/any';
 import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
+import { AmountInput } from '@/components';
 
 export default function SendForm({
   address,
@@ -197,25 +198,10 @@ export default function SendForm({
                     </span>
                   </label>
                   <div className="relative">
-                    <input
-                      className="input input-md border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full pr-24 dark:text-[#FFFFFF] text-[#161616]"
+                    <AmountInput
                       name="amount"
-                      inputMode="decimal"
-                      pattern="[0-9]*[.]?[0-9]*"
-                      placeholder="0.00"
-                      style={{ borderRadius: '12px' }}
                       value={values.amount}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        const value = e.target.value;
-                        if (/^\d*\.?\d*$/.test(value) && parseFloat(value) >= 0) {
-                          setFieldValue('amount', value);
-                        }
-                      }}
-                      onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                        if (!/[\d.]/.test(e.key)) {
-                          e.preventDefault();
-                        }
-                      }}
+                      onValueChange={value => setFieldValue('amount', value)}
                     />
 
                     <div className="absolute inset-y-1 right-1 flex items-center">

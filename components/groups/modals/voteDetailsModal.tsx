@@ -82,6 +82,7 @@ function VoteDetailsModal({
     };
 
     cond();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pollForData, proposal]);
 
   if (!proposal) {
