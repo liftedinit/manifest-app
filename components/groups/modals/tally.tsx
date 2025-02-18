@@ -53,7 +53,7 @@ export function Tally({ tallies }: TallyProps) {
         aria-label="chart-tally"
       >
         <div
-          className={`bg-[#4CAF50] h-6 rounded-l-lg ${tallyYesPercentage.eq(100) && 'rounded-r-lg'}`}
+          className={`bg-[#4CAF50] h-6 ${tallyYesPercentage.eq(100) && 'rounded-l-lg rounded-r-lg'}`}
           style={{ width: `${tallyYesPercentage}%` }}
         ></div>
         <div

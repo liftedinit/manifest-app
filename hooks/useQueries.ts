@@ -285,7 +285,7 @@ export const useProposalById = (proposalId: bigint) => {
     return await lcdQueryClient.cosmos.group.v1.proposal({ proposalId: proposalId });
   };
 
-  const debounced = useDebounce(proposalId, DEBOUNCE_TIME);
+  const debounced = useDebounce(proposalId.toString(), DEBOUNCE_TIME);
   const proposalQuery = useQuery({
     queryKey: ['proposalInfoById', debounced],
     queryFn: fetchProposalInfo,
@@ -351,7 +351,7 @@ export const useTallyCount = (proposalId: bigint) => {
     });
   };
 
-  const debounced = useDebounce(proposalId, DEBOUNCE_TIME);
+  const debounced = useDebounce(proposalId.toString(), DEBOUNCE_TIME);
   const tallyQuery = useQuery({
     queryKey: ['tallyInfo', debounced],
     queryFn: fetchGroupInfo,
@@ -380,7 +380,7 @@ export const useVotesByProposal = (proposalId: bigint) => {
     });
   };
 
-  const debounced = useDebounce(proposalId, DEBOUNCE_TIME);
+  const debounced = useDebounce(proposalId.toString(), DEBOUNCE_TIME);
   const voteQuery = useQuery({
     queryKey: ['voteInfo', debounced],
     queryFn: fetchVoteInfo,
