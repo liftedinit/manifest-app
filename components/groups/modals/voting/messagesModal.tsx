@@ -51,11 +51,18 @@ export function MessagesModal({
               borderRadius: '0.5rem',
             }}
           >
-            {JSON.stringify(
-              proposal.messages,
-              (_, v) => (typeof v === 'bigint' ? v.toString() : v),
-              2
-            )}
+            {(() => {
+              try {
+                return JSON.stringify(
+                  proposal.messages,
+                  (_, v) => (typeof v === 'bigint' ? v.toString() : v),
+                  2
+                );
+              } catch (error) {
+                console.error('Failed to stringify messages:', error);
+                return 'Error: Unable to display messages';
+              }
+            })()}
           </SyntaxHighlighter>
         </div>
       </Dialog.Panel>
