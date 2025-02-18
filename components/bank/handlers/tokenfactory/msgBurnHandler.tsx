@@ -9,8 +9,7 @@ export const MsgBurnHandler = createSenderReceiverHandler({
   successSender: (tx, _, metadata) =>
     createTokenMessage(
       'You burned {0} from {1}',
-      tx.metadata?.amount?.amount,
-      tx.metadata?.amount?.denom,
+      [tx.metadata?.amount],
       tx.metadata?.burnFromAddress,
       'red',
       metadata
@@ -18,8 +17,7 @@ export const MsgBurnHandler = createSenderReceiverHandler({
   failSender: (tx, _, metadata) =>
     createTokenMessage(
       'You failed to burn {0} from {1}',
-      tx.metadata?.amount?.amount,
-      tx.metadata?.amount?.denom,
+      [tx.metadata?.amount],
       tx.metadata?.burnFromAddress,
       'red',
       metadata
@@ -27,8 +25,7 @@ export const MsgBurnHandler = createSenderReceiverHandler({
   successReceiver: (tx, _, metadata) =>
     createTokenMessage(
       'You were burned {0} by {1}',
-      tx.metadata?.amount?.amount,
-      tx.metadata?.amount?.denom,
+      [tx.metadata?.amount],
       tx.sender,
       'red',
       metadata
