@@ -59,4 +59,15 @@ describe('CountdownTimer', () => {
     const secSpan = screen.getByLabelText('secs');
     expect(secSpan).toHaveStyle('--value: 0');
   });
+
+  test('calls onTimerEnd when countdown completes', () => {
+    jest.useFakeTimers();
+    const endTime = new Date(Date.now() + 1000); // 1 second from now
+    render(<CountdownTimer endTime={endTime} onTimerEnd={refetch} />);
+
+    jest.setSystemTime(endTime);
+    expect(refetch.mock.calls.length).toBeGreaterThanOrEqual(1);
+
+    jest.useRealTimers();
+  });
 });
