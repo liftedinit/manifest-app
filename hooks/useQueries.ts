@@ -275,7 +275,10 @@ export const useProposalsByPolicyAccount = (policyAccount: string) => {
   };
 };
 
-export const useProposalById = (proposalId: bigint) => {
+interface UseProposalByIdOptions {
+  refetchInterval?: number | false;
+}
+export const useProposalById = (proposalId: bigint, options: UseProposalByIdOptions = {}) => {
   const { lcdQueryClient } = useLcdQueryClient();
 
   const fetchProposalInfo = async () => {
@@ -292,6 +295,7 @@ export const useProposalById = (proposalId: bigint) => {
     enabled: !!lcdQueryClient && !!proposalId,
     staleTime: DEBOUNCE_TIME,
     placeholderData: keepPreviousData,
+    refetchInterval: options.refetchInterval,
   });
 
   return {

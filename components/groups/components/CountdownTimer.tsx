@@ -3,11 +3,9 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 export default function CountdownTimer({
   endTime,
   onTimerEnd,
-  delay = 0,
 }: {
   endTime: Date;
   onTimerEnd: () => void;
-  delay?: number;
 }) {
   const [now, setNow] = useState<Date>(new Date());
   const hasRefetched = useRef(false);
@@ -37,12 +35,10 @@ export default function CountdownTimer({
       timeLeft.min === 0 &&
       timeLeft.sec === 0
     ) {
-      setTimeout(() => {
-        onTimerEnd();
-        hasRefetched.current = true;
-      }, delay);
+      onTimerEnd();
+      hasRefetched.current = true;
     }
-  }, [timeLeft, onTimerEnd, delay]);
+  }, [timeLeft, onTimerEnd]);
 
   return (
     <div className="grid grid-flow-col gap-5 mt-2 text-center auto-cols-max">

@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import {
   ProposalSDKType,
+  ProposalStatus,
+  proposalStatusToJSON,
   VoteOption,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { QueryTallyResultResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
@@ -52,14 +54,26 @@ function VoteDetailsModal({
   const [showMessages, setShowMessages] = useState(false);
   const [showTally, setShowTally] = useState(false);
   const [showVotingPopup, setShowVotingPopup] = useState(false);
+  const [pollForData, setPollForData] = useState(false); // Poll for data after countdown timer ends
 
   const { exec } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const { withdrawProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const { vote } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
-  const { proposal } = useProposalById(proposalId);
+  const { proposal } = useProposalById(proposalId, { refetchInterval: pollForData ? 2000 : false });
   const { tally } = useTallyCount(proposalId);
   const { votes } = useVotesByProposal(proposalId);
+
+  useEffect(() => {
+    if (
+      pollForData &&
+      proposal &&
+      // I don't know why but I need to compare like this for it to work properly
+      proposal.status.toString() !== proposalStatusToJSON(ProposalStatus.PROPOSAL_STATUS_SUBMITTED)
+    ) {
+      setPollForData(false);
+    }
+  }, [pollForData, proposal]);
 
   if (!proposal) {
     return null;
@@ -77,9 +91,9 @@ function VoteDetailsModal({
 
   const invalidateQueries = () => {
     return Promise.all([
-      queryClient.invalidateQueries({ queryKey: ['proposalInfoById', proposalId] }),
-      queryClient.invalidateQueries({ queryKey: ['voteInfo', proposalId] }),
-      queryClient.invalidateQueries({ queryKey: ['tallyInfo', proposalId] }),
+      queryClient.invalidateQueries({ queryKey: ['proposalInfoById', proposalId.toString()] }),
+      queryClient.invalidateQueries({ queryKey: ['voteInfo', proposalId.toString()] }),
+      queryClient.invalidateQueries({ queryKey: ['tallyInfo', proposalId.toString()] }),
       queryClient.invalidateQueries({ queryKey: ['groupInfoByAdmin', policyAddress] }),
       queryClient.invalidateQueries({ queryKey: ['groupInfoByMember', address] }),
       queryClient.invalidateQueries({ queryKey: ['denoms', policyAddress] }),
@@ -180,7 +194,7 @@ function VoteDetailsModal({
     >
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
 
-      <Dialog.Panel className="flex flex-col items-center justify-center w-full h-full">
+      <Dialog.Panel className="relative flex flex-col items-center justify-center w-full h-full">
         <div
           className="modal-box relative max-w-4xl min-h-96 max-h-[80vh] overflow-y-auto flex flex-col -mt-12 rounded-[24px] shadow-lg bg-secondary transition-all duration-300"
           onClick={e => e.stopPropagation()}
@@ -202,7 +216,15 @@ function VoteDetailsModal({
             <div className="text-center" aria-label="countdown-timer">
               <CountdownTimer
                 endTime={new Date(proposal.voting_period_end)}
-                onTimerEnd={() => {}}
+                onTimerEnd={() => {
+                  if (
+                    proposal &&
+                    proposal.status.toString() ===
+                      proposalStatusToJSON(ProposalStatus.PROPOSAL_STATUS_SUBMITTED)
+                  ) {
+                    setPollForData(true);
+                  }
+                }}
               />
             </div>
             <div className="text-right">
@@ -269,6 +291,7 @@ function VoteDetailsModal({
               executeProposal,
               setShowVotingPopup,
               isSigning,
+              pollForData,
               userVoteOption
             )}
           </div>

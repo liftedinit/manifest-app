@@ -16,6 +16,7 @@ export function getProposalButton(
   executeProposal: () => void,
   setShowVotingPopup: (value: boolean) => void,
   isSigning: boolean,
+  pollForData: boolean,
   userVoteOption?: VoteOption | undefined
 ): JSX.Element | undefined {
   const isProposer = proposal.proposers.includes(address || '');
@@ -31,23 +32,34 @@ export function getProposalButton(
         case ProposalStatus.PROPOSAL_STATUS_SUBMITTED:
           return (
             <div className="flex flex-row items-center justify-center gap-2">
-              {isProposer && (
-                <button
-                  className={`btn btn-error text-white rounded-[12px] ${userVoteOption ? 'w-full' : 'w-1/2'}`}
-                  disabled={isSigning}
-                  onClick={executeWithdrawal}
-                >
-                  {isSigning ? <div className="loading loading-dots loading-sm" /> : 'withdraw'}
-                </button>
-              )}
-              {!userVoteOption && (
-                <button
-                  className={`btn btn-gradient text-white rounded-[12px] ${isProposer ? 'w-1/2' : 'w-full'}`}
-                  disabled={isSigning}
-                  onClick={() => setShowVotingPopup(true)}
-                >
-                  {isSigning ? <div className="loading loading-dots loading-sm" /> : 'vote'}
-                </button>
+              {pollForData ? (
+                <div className="flex flex-row items-center justify-center gap-2">
+                  <div className="text-secondary-content">
+                    The proposal is getting accepted. Please wait
+                  </div>
+                  <div className="loading loading-dots loading-sm" />
+                </div>
+              ) : (
+                <>
+                  {isProposer && (
+                    <button
+                      className={`btn btn-error text-white rounded-[12px] ${userVoteOption ? 'w-full' : 'w-1/2'}`}
+                      disabled={isSigning}
+                      onClick={executeWithdrawal}
+                    >
+                      {isSigning ? <div className="loading loading-dots loading-sm" /> : 'withdraw'}
+                    </button>
+                  )}
+                  {!userVoteOption && (
+                    <button
+                      className={`btn btn-gradient text-white rounded-[12px] ${isProposer ? 'w-1/2' : 'w-full'}`}
+                      disabled={isSigning}
+                      onClick={() => setShowVotingPopup(true)}
+                    >
+                      {isSigning ? <div className="loading loading-dots loading-sm" /> : 'vote'}
+                    </button>
+                  )}
+                </>
               )}
             </div>
           );
