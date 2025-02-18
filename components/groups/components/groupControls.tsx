@@ -231,6 +231,13 @@ export default function GroupControls({
     proposalCurrentPage * proposalPageSizes.proposals
   );
 
+  useEffect(() => {
+    // Adjust the current page if the number of proposals changes
+    if (proposalCurrentPage > totalProposalPages) {
+      setProposalCurrentPage(totalProposalPages);
+    }
+  }, [filteredProposals.length, totalProposalPages, proposalCurrentPage]);
+
   return (
     <div className="">
       <div className="flex w-full h-full md:flex-row flex-col md:gap-8">
