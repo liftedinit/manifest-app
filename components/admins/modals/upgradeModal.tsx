@@ -129,7 +129,7 @@ export function UpgradeModal({ isOpen, onClose, admin, address, refetchPlan }: B
       plan: {
         name: values.name,
         height: BigInt(values.height),
-        time: new Date(0),
+        time: new Date('0001-01-01T00:00:00Z'),
         info: JSON.stringify(infoObject),
       },
       authority: admin,
