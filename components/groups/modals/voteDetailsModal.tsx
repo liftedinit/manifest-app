@@ -65,14 +65,23 @@ function VoteDetailsModal({
   const { votes } = useVotesByProposal(proposalId);
 
   useEffect(() => {
-    if (
-      pollForData &&
-      proposal &&
-      // I don't know why but I need to compare like this for it to work properly
-      proposal.status.toString() !== proposalStatusToJSON(ProposalStatus.PROPOSAL_STATUS_SUBMITTED)
-    ) {
-      setPollForData(false);
-    }
+    const cond = async () => {
+      if (
+        pollForData &&
+        proposal &&
+        // I don't know why but I need to compare like this for it to work properly
+        proposal.status.toString() !==
+          proposalStatusToJSON(ProposalStatus.PROPOSAL_STATUS_SUBMITTED)
+      ) {
+        // At this point, we know that the proposal was accepted (or not) on chain
+        // We can fetch the latest vote and tally data
+        await queryClient.invalidateQueries({ queryKey: ['voteInfo', proposalId.toString()] });
+        await queryClient.invalidateQueries({ queryKey: ['tallyInfo', proposalId.toString()] });
+        setPollForData(false);
+      }
+    };
+
+    cond();
   }, [pollForData, proposal]);
 
   if (!proposal) {
