@@ -51,8 +51,8 @@ export default function IbcSendForm({
   destinationChain: IbcChain;
   balances: CombinedBalanceInfo[];
   isBalancesLoading: boolean;
-  refetchBalances: () => void;
-  refetchHistory: () => void;
+  refetchBalances: () => void | Promise<void>;
+  refetchHistory: () => void | Promise<void>;
   isIbcTransfer: boolean;
   ibcChains: IbcChain[];
   isGroup?: boolean;
@@ -94,14 +94,14 @@ export default function IbcSendForm({
   // Memoized filtered balances based on search term
   const filteredBalances = useMemo(() => {
     return balances?.filter(token => {
-      const displayName = token.metadata?.display ?? token.denom;
+      const displayName = token.metadata?.display ?? token.display;
       return displayName.toLowerCase().includes(searchTerm.toLowerCase());
     });
   }, [balances, searchTerm]);
 
   // Initial token selection logic
   const initialSelectedToken = useMemo(() => {
-    return balances?.find(token => token.coreDenom === selectedDenom) || balances?.[0] || null;
+    return balances?.find(token => token.base === selectedDenom) || balances?.[0] || null;
   }, [balances, selectedDenom]);
 
   // Loading state checks
@@ -182,17 +182,17 @@ export default function IbcSendForm({
 
       // Setup token and timeout
       const token = {
-        denom: values.selectedToken.coreDenom,
+        denom: values.selectedToken.base,
         amount: amountInBaseUnits,
       };
       const timeoutInNanos = (Date.now() + 1.2e6) * 1e6;
 
       // Get IBC denom for destination chain
-      const ibcDenom = getIbcDenom(selectedToChain.id, values.selectedToken.coreDenom);
+      const ibcDenom = getIbcDenom(selectedToChain.id, values.selectedToken.base);
 
       // Setup skip protocol route
       const route = await skipClient.route({
-        sourceAssetDenom: values.selectedToken.coreDenom,
+        sourceAssetDenom: values.selectedToken.base,
         sourceAssetChainID: selectedFromChain.chainID,
         destAssetChainID: selectedToChain.chainID,
         destAssetDenom: ibcDenom ?? '',
@@ -356,7 +356,7 @@ export default function IbcSendForm({
         {({ isValid, dirty, setFieldValue, values, errors }) => {
           // Use direct calculation instead of useMemo
           const selectedTokenBalance = values?.selectedToken
-            ? balances?.find(token => token.coreDenom === values.selectedToken.coreDenom)
+            ? balances?.find(token => token.base === values.selectedToken.base)
             : null;
 
           return (
@@ -537,7 +537,8 @@ export default function IbcSendForm({
                           <DenomDisplay
                             withBackground={false}
                             denom={
-                              values.selectedToken?.metadata?.display ?? values.selectedToken?.denom
+                              values.selectedToken?.metadata?.display ??
+                              values.selectedToken?.display
                             }
                             metadata={values.selectedToken?.metadata}
                           />
@@ -566,7 +567,7 @@ export default function IbcSendForm({
                           ) : (
                             filteredBalances?.map(token => (
                               <li
-                                key={token.coreDenom}
+                                key={token.base}
                                 onClick={() => {
                                   setFieldValue('selectedToken', token);
                                   if (document.activeElement instanceof HTMLElement) {
@@ -574,11 +575,11 @@ export default function IbcSendForm({
                                   }
                                 }}
                                 className="hover:bg-[#E0E0FF33] dark:hover:bg-[#FFFFFF0F] cursor-pointer rounded-lg"
-                                aria-label={token.metadata?.display ?? token.denom}
+                                aria-label={token.metadata?.display ?? token.display}
                               >
                                 <a className="flex flex-row items-center gap-2 px-2 py-2">
                                   <DenomDisplay
-                                    denom={token.metadata?.display ?? token.denom}
+                                    denom={token.metadata?.display ?? token.display}
                                     metadata={token.metadata}
                                     withBackground={false}
                                   />
@@ -610,7 +611,7 @@ export default function IbcSendForm({
                         {(() => {
                           const tokenDisplayName =
                             values.selectedToken?.metadata?.display ??
-                            values.selectedToken?.denom ??
+                            values.selectedToken?.display ??
                             'Select';
 
                           return tokenDisplayName.startsWith('factory')
@@ -632,7 +633,7 @@ export default function IbcSendForm({
                             Number(values.selectedToken.amount) / Math.pow(10, exponent);
 
                           let adjustedMaxAmount = maxAmount;
-                          if (values.selectedToken.denom === 'umfx') {
+                          if (values.selectedToken.base === 'umfx') {
                             adjustedMaxAmount = Math.max(0, maxAmount - 0.1);
                           }
 

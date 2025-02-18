@@ -47,12 +47,12 @@ export default function SendForm({
   const [isContactsOpen, setIsContactsOpen] = useState(false);
 
   const filteredBalances = balances?.filter(token => {
-    const displayName = token.metadata?.display ?? token.denom;
+    const displayName = token.metadata?.display ?? token.display;
     return displayName.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   const initialSelectedToken = useMemo(() => {
-    return balances?.find(token => token.coreDenom === selectedDenom) || balances?.[0] || null;
+    return balances?.find(token => token.base === selectedDenom) || balances?.[0] || null;
   }, [balances, selectedDenom]);
 
   // Loading state checks
@@ -131,7 +131,7 @@ export default function SendForm({
                   send({
                     fromAddress: admin!,
                     toAddress: values.recipient,
-                    amount: [{ denom: values.selectedToken.coreDenom, amount: amountInBaseUnits }],
+                    amount: [{ denom: values.selectedToken.base, amount: amountInBaseUnits }],
                   }).value
                 ).finish(),
               }),
@@ -145,7 +145,7 @@ export default function SendForm({
         : send({
             fromAddress: address,
             toAddress: values.recipient,
-            amount: [{ denom: values.selectedToken.coreDenom, amount: amountInBaseUnits }],
+            amount: [{ denom: values.selectedToken.base, amount: amountInBaseUnits }],
           });
 
       const fee = await estimateFee(address, [msg]);
@@ -185,7 +185,7 @@ export default function SendForm({
         {({ isValid, dirty, setFieldValue, values, errors }) => {
           // Use direct calculation instead of useMemo
           const selectedTokenBalance = values?.selectedToken
-            ? balances?.find(token => token.coreDenom === values.selectedToken.coreDenom)
+            ? balances?.find(token => token.base === values.selectedToken.base)
             : null;
 
           return (
@@ -214,7 +214,8 @@ export default function SendForm({
                           <DenomDisplay
                             withBackground={false}
                             denom={
-                              values.selectedToken?.metadata?.display ?? values.selectedToken?.denom
+                              values.selectedToken?.metadata?.display ??
+                              values.selectedToken?.display
                             }
                             metadata={values.selectedToken?.metadata}
                           />
@@ -245,7 +246,7 @@ export default function SendForm({
                           ) : (
                             filteredBalances?.map(token => (
                               <li
-                                key={token.coreDenom}
+                                key={token.base}
                                 onClick={() => {
                                   setFieldValue('selectedToken', token);
                                   if (document.activeElement instanceof HTMLElement) {
@@ -296,20 +297,20 @@ export default function SendForm({
                         type="button"
                         className="text-xs text-primary"
                         onClick={() => {
-                          if (!values.selectedToken) return;
+                          if (!selectedTokenBalance) return;
 
                           const exponent =
-                            values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
+                            selectedTokenBalance.metadata?.denom_units[1]?.exponent ?? 6;
                           const maxAmount =
-                            Number(values.selectedToken.amount) / Math.pow(10, exponent);
+                            Number(selectedTokenBalance.amount) / Math.pow(10, exponent);
 
                           let adjustedMaxAmount = maxAmount;
-                          if (values.selectedToken.denom === 'umfx') {
+                          if (values.selectedToken.base === 'umfx') {
                             adjustedMaxAmount = Math.max(0, maxAmount - 0.1);
                           }
 
                           const decimals =
-                            values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
+                            selectedTokenBalance.metadata?.denom_units[1]?.exponent ?? 6;
                           const formattedAmount = formatAmount(adjustedMaxAmount, decimals);
 
                           setFieldValue('amount', formattedAmount);
