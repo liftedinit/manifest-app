@@ -117,7 +117,7 @@ describe('VoteDetailsModal', () => {
       refetch: jest.fn(),
     }));
     renderWithChainProvider(<VoteDetailsModal {...defaultProps} />);
-    expect(screen.getByText('execute')).toBeInTheDocument();
+    expect(screen.getByText('Execute')).toBeInTheDocument();
     spy.mockImplementation(jest.fn().mockReturnValue(defaultUseProposalById));
   });
 
@@ -129,15 +129,15 @@ describe('VoteDetailsModal', () => {
       refetch: jest.fn(),
     }));
     renderWithChainProvider(<VoteDetailsModal {...defaultProps} />);
-    const voteButton = screen.getByText('vote');
+    const voteButton = screen.getByText('Vote');
     expect(voteButton).toBeInTheDocument();
-    expect(voteButton.innerText).toBe('vote');
+    expect(voteButton.innerText).toBe('Vote');
     spy.mockImplementation(jest.fn().mockReturnValue(defaultUseVotesByProposal));
   });
 
   test('conditionally renders withdraw button when user is proposer and has not voted', () => {
     renderWithChainProvider(<VoteDetailsModal {...defaultProps} />);
-    const withdrawButton = screen.getByText('withdraw');
+    const withdrawButton = screen.getByText('Withdraw');
     expect(withdrawButton).toBeInTheDocument();
   });
 
@@ -149,7 +149,7 @@ describe('VoteDetailsModal', () => {
       refetch: jest.fn(),
     }));
     renderWithChainProvider(<VoteDetailsModal {...defaultProps} />);
-    const withdrawButton = screen.queryByText('withdraw');
+    const withdrawButton = screen.queryByText('Withdraw');
     expect(withdrawButton).not.toBeInTheDocument();
     spy.mockImplementation(jest.fn().mockReturnValue(defaultUseProposalById));
   });
@@ -166,7 +166,7 @@ describe('VoteDetailsModal', () => {
       refetch: jest.fn(),
     }));
     renderWithChainProvider(<VoteDetailsModal {...defaultProps} />);
-    expect(screen.getByText('re-execute')).toBeInTheDocument();
+    expect(screen.getByText('Re-execute')).toBeInTheDocument();
     spy.mockImplementation(jest.fn().mockReturnValue(defaultUseProposalById));
   });
 
@@ -179,14 +179,14 @@ describe('VoteDetailsModal', () => {
     }));
 
     renderWithChainProvider(<VoteDetailsModal {...defaultProps} />);
-    const voteButton = screen.queryByText('vote');
+    const voteButton = screen.queryByText('Vote');
     expect(voteButton).not.toBeInTheDocument();
     spy.mockImplementation(jest.fn().mockReturnValue(defaultUseVotesByProposal));
   });
 
   test('handles vote button click and opens voting modal', async () => {
     renderWithChainProvider(<VoteDetailsModal {...defaultProps} />);
-    const voteButton = screen.getByText('vote');
+    const voteButton = screen.getByText('Vote');
     fireEvent.click(voteButton);
     await waitFor(() => expect(screen.getByLabelText('vote-modal')).toBeInTheDocument());
   });

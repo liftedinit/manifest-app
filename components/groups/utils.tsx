@@ -47,7 +47,7 @@ export function getProposalButton(
                       disabled={isSigning}
                       onClick={executeWithdrawal}
                     >
-                      {isSigning ? <div className="loading loading-dots loading-sm" /> : 'withdraw'}
+                      {isSigning ? <div className="loading loading-dots loading-sm" /> : 'Withdraw'}
                     </button>
                   )}
                   {!userVoteOption && (
@@ -56,7 +56,7 @@ export function getProposalButton(
                       disabled={isSigning}
                       onClick={() => setShowVotingPopup(true)}
                     >
-                      {isSigning ? <div className="loading loading-dots loading-sm" /> : 'vote'}
+                      {isSigning ? <div className="loading loading-dots loading-sm" /> : 'Vote'}
                     </button>
                   )}
                 </>
@@ -70,7 +70,7 @@ export function getProposalButton(
               disabled={isSigning}
               onClick={executeProposal}
             >
-              {isSigning ? <div className="loading loading-dots loading-sm" /> : 'execute'}
+              {isSigning ? <div className="loading loading-dots loading-sm" /> : 'Execute'}
             </button>
           );
       }
@@ -81,7 +81,7 @@ export function getProposalButton(
           disabled={isSigning}
           onClick={executeProposal}
         >
-          {isSigning ? <div className="loading loading-dots loading-sm" /> : 're-execute'}
+          {isSigning ? <div className="loading loading-dots loading-sm" /> : 'Re-execute'}
         </button>
       );
     case ProposalExecutorResult.PROPOSAL_EXECUTOR_RESULT_SUCCESS:
