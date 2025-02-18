@@ -8,7 +8,7 @@ import { format } from 'react-string-format';
 const createMessage = (template: string, policyAddress: string) => {
   const message = format(
     template,
-    policyAddress ? <TruncatedAddressWithCopy address={policyAddress} slice={24} /> : 'unknown'
+    policyAddress ? <TruncatedAddressWithCopy address={policyAddress} /> : 'unknown'
   );
   return <span className="flex gap-1">{message}</span>;
 };

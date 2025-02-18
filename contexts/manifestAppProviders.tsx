@@ -13,7 +13,6 @@ import { ChainProvider } from '@cosmos-kit/react';
 import { ToastProvider } from '@/contexts/toastContext';
 import { SkipProvider } from '@/contexts/skipGoContext';
 import { ThemeProvider } from '@/contexts/theme';
-import { ContactsModalProvider } from '@/contexts/contactsModalContext';
 import { Web3AuthContext, Web3AuthProvider } from '@/contexts/web3AuthContext';
 import { SignerOptions } from 'cosmos-kit';
 import { Chain } from '@chain-registry/types';
@@ -33,6 +32,7 @@ import {
 } from '@liftedinit/manifestjs';
 import { MainWalletBase } from '@cosmos-kit/core';
 import { manifestAssets, manifestChain } from '@/config/manifestChain';
+import { ContactsProvider } from '@/hooks';
 
 const ManifestChainProvider = ({ children }: { children: ReactNode }) => {
   const web3auth = useContext(Web3AuthContext);
@@ -116,7 +116,7 @@ export const ManifestAppProviders = ({ children }: { children: ReactNode }) => {
           <SkipProvider>
             <ThemeProvider>
               <ToastProvider>
-                <ContactsModalProvider>{children}</ContactsModalProvider>
+                <ContactsProvider>{children}</ContactsProvider>
               </ToastProvider>
             </ThemeProvider>
           </SkipProvider>

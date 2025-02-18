@@ -46,7 +46,7 @@ export const createTokenMessage = (
   const message = format(
     template,
     coloredAmountDenom,
-    address ? <TruncatedAddressWithCopy address={address} slice={24} /> : 'an unknown address'
+    address ? <TruncatedAddressWithCopy address={address} /> : 'an unknown address'
   );
   return <span className="flex gap-1">{message}</span>;
 };
@@ -58,12 +58,8 @@ export const createValidatorMessage = (
 ) => {
   const message = format(
     template,
-    validatorAddress ? (
-      <TruncatedAddressWithCopy address={validatorAddress} slice={24} />
-    ) : (
-      'unknown'
-    ),
-    sender ? <TruncatedAddressWithCopy address={sender} slice={24} /> : 'an unknown address'
+    validatorAddress ? <TruncatedAddressWithCopy address={validatorAddress} /> : 'unknown',
+    sender ? <TruncatedAddressWithCopy address={sender} /> : 'an unknown address'
   );
   return <span className="flex gap-1">{message}</span>;
 };

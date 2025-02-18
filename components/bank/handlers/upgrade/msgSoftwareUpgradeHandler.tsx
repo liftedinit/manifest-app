@@ -10,7 +10,7 @@ const createMessage = (template: string, planName: string, planHeight: string, s
     template,
     planName,
     planHeight,
-    sender ? <TruncatedAddressWithCopy address={sender} slice={24} /> : 'an unknown address'
+    sender ? <TruncatedAddressWithCopy address={sender} /> : 'an unknown address'
   );
   return <span className="flex gap-1">{message}</span>;
 };

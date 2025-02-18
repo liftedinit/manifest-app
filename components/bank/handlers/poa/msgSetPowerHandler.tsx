@@ -9,11 +9,7 @@ const createMessage = (template: string, validatorAddress: string, power: number
   const realPower = power / 1000000;
   const message = format(
     template,
-    validatorAddress ? (
-      <TruncatedAddressWithCopy address={validatorAddress} slice={24} />
-    ) : (
-      'unknown'
-    ),
+    validatorAddress ? <TruncatedAddressWithCopy address={validatorAddress} /> : 'unknown',
     realPower
   );
   return <span className="flex gap-1">{message}</span>;
