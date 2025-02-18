@@ -18,7 +18,7 @@ describe('CountdownTimer', () => {
 
     // Now + 2 days - 1 hour - 2 minutes - 1 second
     const endTime = new Date(Date.now() + 2 * oneDay - oneHour - 2 * oneMinute - oneSecond);
-    render(<CountdownTimer endTime={endTime} refetch={refetch} />);
+    render(<CountdownTimer endTime={endTime} onTimerEnd={refetch} />);
 
     expect(screen.getByText('days')).toBeInTheDocument();
     const daysSpan = screen.getByLabelText('days');
@@ -41,7 +41,7 @@ describe('CountdownTimer', () => {
 
   test('shows zero values when countdown is complete', () => {
     const endTime = new Date(Date.now() - 1000); // 1 second ago
-    render(<CountdownTimer endTime={endTime} refetch={refetch} />);
+    render(<CountdownTimer endTime={endTime} onTimerEnd={refetch} />);
 
     expect(screen.getByText('days')).toBeInTheDocument();
     const daysSpan = screen.getByLabelText('days');
