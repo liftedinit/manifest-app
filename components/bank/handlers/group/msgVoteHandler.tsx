@@ -13,7 +13,7 @@ const createMessage = (template: string, vote: string, ids: string, sender?: str
     ids,
     sender ? <TruncatedAddressWithCopy address={sender} /> : 'an unknown address'
   );
-  return <span className="flex gap-1">{message}</span>;
+  return <span className="flex flex-wrap gap-1">{message}</span>;
 };
 
 export const MsgVoteHandler = createSenderReceiverHandler({

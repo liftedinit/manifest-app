@@ -74,23 +74,26 @@ export function YourGroups({
     {
       height: 1000,
       width: 800,
-      sizes: { groupInfo: 7, groupEntries: 5, history: 7, skeleton: 7 },
+      sizes: { groupInfo: 7, groupEntries: 6, history: 7, skeleton: 7 },
     },
     {
       height: 1000,
       width: Infinity,
-      sizes: { groupInfo: 8, groupEntries: 8, history: 8, skeleton: 8 },
+      sizes: { groupInfo: 7, groupEntries: 6, history: 5, skeleton: 7 },
     },
     {
       height: 1300,
       width: Infinity,
-      sizes: { groupInfo: 8, groupEntries: 8, history: 8, skeleton: 8 },
+      sizes: { groupInfo: 9, groupEntries: 9, history: 7, skeleton: 9 },
     },
   ];
 
-  const defaultSizes = { groupInfo: 8, groupEntries: 8, history: 8, skeleton: 8 };
+  const defaultSizes = { groupInfo: 10, groupEntries: 10, history: 10, skeleton: 10 };
+  const responsivePageSize = useResponsivePageSize(sizeLookup, defaultSizes);
 
-  const pageSize = useResponsivePageSize(sizeLookup, defaultSizes);
+  const pageSize = isMobile
+    ? { groupInfo: 4, groupEntries: 4, history: 3, skeleton: 4 }
+    : responsivePageSize;
 
   const pageSizeGroupInfo = pageSize.groupInfo;
   const pageSizeHistory = pageSize.history;
@@ -440,7 +443,6 @@ export function YourGroups({
                     setCurrentPage(prev => Math.max(1, prev - 1));
                   }}
                   disabled={currentPage === 1 || isLoading}
-                  className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   aria-label="Previous page"
                 >
                   ‹

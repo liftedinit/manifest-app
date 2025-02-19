@@ -11,7 +11,7 @@ const createMessage = (template: string, groupId: number, newAdmin: string) => {
     groupId,
     newAdmin ? <TruncatedAddressWithCopy address={newAdmin} /> : 'an unknown address'
   );
-  return <span className="flex gap-1">{message}</span>;
+  return <span className="flex flex-wrap gap-1">{message}</span>;
 };
 
 export const MsgUpdateGroupAdminHandler = createSenderReceiverHandler({

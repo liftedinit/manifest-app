@@ -12,7 +12,7 @@ const createMessage = (template: string, validatorAddress: string, power: number
     validatorAddress ? <TruncatedAddressWithCopy address={validatorAddress} /> : 'unknown',
     realPower
   );
-  return <span className="flex gap-1">{message}</span>;
+  return <span className="flex flex-wrap gap-1">{message}</span>;
 };
 export const MsgSetPowerHandler = createSenderReceiverHandler({
   iconSender: AdminsIcon,

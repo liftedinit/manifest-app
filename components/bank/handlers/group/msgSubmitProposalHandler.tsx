@@ -12,7 +12,7 @@ const createMessage = (template: string, ids: string, policyAddress: string, sen
     policyAddress ? <TruncatedAddressWithCopy address={policyAddress} /> : 'an unknown address',
     sender ? <TruncatedAddressWithCopy address={sender} /> : 'an unknown address'
   );
-  return <span className="flex gap-1">{message}</span>;
+  return <span className="flex flex-wrap gap-1">{message}</span>;
 };
 
 export const MsgSubmitProposalHandler = createSenderReceiverHandler({

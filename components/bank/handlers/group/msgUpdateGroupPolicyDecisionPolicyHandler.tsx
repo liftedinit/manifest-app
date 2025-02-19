@@ -10,7 +10,7 @@ const createMessage = (template: string, policyAddress: string) => {
     template,
     policyAddress ? <TruncatedAddressWithCopy address={policyAddress} /> : 'unknown'
   );
-  return <span className="flex gap-1">{message}</span>;
+  return <span className="flex flex-wrap gap-1">{message}</span>;
 };
 
 export const MsgUpdateGroupPolicyDecisionPolicyHandler = createSenderReceiverHandler({

@@ -6,7 +6,7 @@ import { format } from 'react-string-format';
 
 const createMessage = (template: string, groupId: string) => {
   const message = format(template, groupId);
-  return <span className="flex gap-1">{message}</span>;
+  return <span className="flex flex-wrap gap-1">{message}</span>;
 };
 
 export const MsgUpdateGroupMembersHandler = createSenderReceiverHandler({
