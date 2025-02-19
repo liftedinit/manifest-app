@@ -62,12 +62,12 @@ export default function Bank() {
     {
       height: 1000,
       width: Infinity,
-      sizes: { tokenList: 7, history: 5, skeleton: 7 },
+      sizes: { tokenList: 6, history: 5, skeleton: 6 },
     },
     {
       height: 1300,
       width: Infinity,
-      sizes: { tokenList: 10, history: 8, skeleton: 10 },
+      sizes: { tokenList: 9, history: 7, skeleton: 9 },
     },
   ];
 

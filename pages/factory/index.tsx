@@ -56,12 +56,12 @@ export default function Factory() {
     {
       height: 1000,
       width: Infinity,
-      sizes: { denomList: 10, skeleton: 10 },
+      sizes: { denomList: 6, skeleton: 6 },
     },
     {
       height: 1200,
       width: Infinity,
-      sizes: { denomList: 10, skeleton: 10 },
+      sizes: { denomList: 8, skeleton: 8 },
     },
   ];
 

@@ -74,17 +74,17 @@ export function YourGroups({
     {
       height: 1000,
       width: 800,
-      sizes: { groupInfo: 7, groupEntries: 5, history: 7, skeleton: 7 },
+      sizes: { groupInfo: 7, groupEntries: 6, history: 7, skeleton: 7 },
     },
     {
       height: 1000,
       width: Infinity,
-      sizes: { groupInfo: 8, groupEntries: 8, history: 8, skeleton: 8 },
+      sizes: { groupInfo: 7, groupEntries: 6, history: 5, skeleton: 7 },
     },
     {
       height: 1300,
       width: Infinity,
-      sizes: { groupInfo: 10, groupEntries: 10, history: 8, skeleton: 10 },
+      sizes: { groupInfo: 9, groupEntries: 9, history: 7, skeleton: 9 },
     },
   ];
 

@@ -293,12 +293,12 @@ export default function GroupControls({
     {
       height: 1000,
       width: Infinity,
-      sizes: { proposals: 10 },
+      sizes: { proposals: 8 },
     },
     {
       height: 1300,
       width: Infinity,
-      sizes: { proposals: 14 },
+      sizes: { proposals: 12 },
     },
   ];
 
