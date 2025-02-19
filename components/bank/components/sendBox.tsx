@@ -3,7 +3,6 @@ import SendForm from '../forms/sendForm';
 import IbcSendForm from '../forms/ibcSendForm';
 import env from '@/config/env';
 import { CombinedBalanceInfo } from '@/utils/types';
-import { ChainContext } from '@cosmos-kit/core';
 import React from 'react';
 
 export interface IbcChain {

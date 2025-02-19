@@ -93,13 +93,13 @@ export default function Bank() {
 
     // Find 'umfx' balance (mfx token)
     const mfxCoreBalance = balances.find(b => b.denom === 'umfx');
-    const mfxResolvedBalance = resolvedBalances.find(rb => rb.denom === 'mfx');
+    const mfxResolvedBalance = resolvedBalances.find(rb => rb.denom === 'umfx');
 
     // Create combined balance for 'mfx'
     const mfxCombinedBalance: CombinedBalanceInfo | null = mfxCoreBalance
       ? {
-          denom: mfxResolvedBalance?.denom || 'mfx',
-          coreDenom: 'umfx',
+          display: mfxResolvedBalance?.denom || 'mfx',
+          base: 'umfx',
           amount: mfxCoreBalance.amount,
           metadata: MFX_TOKEN_DATA,
         }
@@ -120,8 +120,8 @@ export default function Bank() {
           const baseDenom = assetInfo?.traces?.[1]?.counterparty?.base_denom;
 
           return {
-            denom: baseDenom ?? '', // normalized denom (e.g., 'umfx')
-            coreDenom: coreBalance.denom, // full IBC trace
+            display: baseDenom ?? '', // normalized denom (e.g., 'umfx')
+            base: coreBalance.denom, // full IBC trace
             amount: coreBalance.amount,
             metadata: {
               description: assetInfo?.description ?? '',
@@ -141,8 +141,8 @@ export default function Bank() {
         }
 
         return {
-          denom: resolvedBalance?.denom || coreBalance.denom,
-          coreDenom: coreBalance.denom,
+          display: resolvedBalance?.denom || coreBalance.denom,
+          base: coreBalance.denom,
           amount: coreBalance.amount,
           metadata: metadata || null,
         };
