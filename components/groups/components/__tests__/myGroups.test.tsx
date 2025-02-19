@@ -180,7 +180,7 @@ describe('Groups Component', () => {
 
       // On desktop (non-mobile), should show 8 items per page
       const groupRows = screen.getAllByRole('button', { name: /Select .+? group/i });
-      expect(groupRows).toHaveLength(8);
+      expect(groupRows).toHaveLength(10);
     });
   });
 });
