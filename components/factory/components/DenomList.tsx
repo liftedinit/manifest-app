@@ -212,7 +212,7 @@ export default function DenomList({
               </thead>
               <tbody className="space-y-4">
                 {isLoading
-                  ? Array(isMobile ? 5 : 8)
+                  ? Array(isMobile ? 4 : 8)
                       .fill(0)
                       .map((_, index) => (
                         <tr key={index}>
@@ -459,6 +459,8 @@ function TokenRow({
   onTransfer: (e: React.MouseEvent) => void;
   onUpdate: () => void;
 }) {
+  const isMobile = useIsMobile();
+
   // Add safety checks for the values
   const exponent = denom?.denom_units?.[1]?.exponent ?? 0;
   const totalSupply = denom?.totalSupply ?? '0';
@@ -500,34 +502,34 @@ function TokenRow({
       >
         <div className="flex space-x-2">
           <button
-            className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+            className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
             onClick={onMint}
           >
-            <MintIcon className="w-7 h-7 text-current" />
+            <MintIcon className="w-4 h-4 sm:w-7 sm:h-7 text-current" />
           </button>
 
           <button
             disabled={denom.base === 'umfx'}
-            className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+            className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
             onClick={onBurn}
           >
-            <BurnIcon className="w-7 h-7 text-current" />
+            <BurnIcon className="w-4 h-4 sm:w-7 sm:h-7 text-current" />
           </button>
 
           <button
             disabled={denom.base === 'umfx'}
-            className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+            className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
             onClick={onTransfer}
           >
-            <TransferIcon className="w-7 h-7 text-current" />
+            <TransferIcon className="w-4 h-4 sm:w-7 sm:h-7 text-current" />
           </button>
 
           <button
             disabled={denom.base === 'umfx'}
-            className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+            className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
             onClick={onUpdate}
           >
-            <PiInfo className="w-7 h-7 text-current" />
+            <PiInfo className="w-4 h-4 sm:w-7 sm:h-7 text-current" />
           </button>
         </div>
       </td>

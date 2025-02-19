@@ -12,7 +12,7 @@ const createMessage = (template: string, newAdmin: string, denom: string) => {
     newAdmin ? <TruncatedAddressWithCopy address={newAdmin} /> : 'unknown',
     denom ? formatDenom(denom) : 'unknown'
   );
-  return <span className="flex gap-1">{message}</span>;
+  return <span className="flex flex-wrap gap-1">{message}</span>;
 };
 
 export const MsgChangeAdminHandler = createSenderReceiverHandler({

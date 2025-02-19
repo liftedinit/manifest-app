@@ -30,6 +30,7 @@ interface PageSizeConfig {
 
 export default function Bank() {
   const { isWalletConnected, address } = useChain(env.chain);
+  const isMobile = useIsMobile();
 
   const { balances, isBalancesLoading, refetchBalances } = useTokenBalances(address ?? '');
   const {
@@ -46,33 +47,34 @@ export default function Bank() {
     {
       height: 700,
       width: Infinity,
-      sizes: { tokenList: 5, history: 4, skeleton: 5 },
+      sizes: { tokenList: 4, history: 2, skeleton: 4 },
     },
     {
       height: 800,
       width: Infinity,
-      sizes: { tokenList: 6, history: 6, skeleton: 7 },
+      sizes: { tokenList: 5, history: 3, skeleton: 5 },
     },
     {
       height: 1000,
       width: 800,
-      sizes: { tokenList: 7, history: 7, skeleton: 7 },
+      sizes: { tokenList: 6, history: 4, skeleton: 6 },
     },
     {
       height: 1000,
       width: Infinity,
-      sizes: { tokenList: 8, history: 8, skeleton: 8 },
+      sizes: { tokenList: 7, history: 5, skeleton: 7 },
     },
     {
       height: 1300,
       width: Infinity,
-      sizes: { tokenList: 9, history: 9, skeleton: 9 },
+      sizes: { tokenList: 10, history: 8, skeleton: 10 },
     },
   ];
 
-  const defaultSizes = { tokenList: 10, history: 10, skeleton: 10 };
+  const defaultSizes = { tokenList: 10, history: 8, skeleton: 10 };
 
-  const pageSize = useResponsivePageSize(sizeLookup, defaultSizes);
+  const responsivePageSize = useResponsivePageSize(sizeLookup, defaultSizes);
+  const pageSize = isMobile ? { tokenList: 5, history: 3, skeleton: 5 } : responsivePageSize;
 
   const skeletonGroupCount = 1;
   const skeletonTxCount = pageSize.skeleton;
