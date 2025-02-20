@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useMultipleTallyCounts, useProposalsByPolicyAccount } from '@/hooks/useQueries';
 import {
-  ProposalExecutorResult,
   ProposalSDKType,
   ProposalStatus,
+  proposalStatusToJSON,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { QueryTallyResultResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
 
@@ -19,6 +19,10 @@ import DenomList from '@/components/factory/components/DenomList';
 import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
 import env from '@/config/env';
 import { TxMessage } from '@/components/bank/types';
+import {
+  ProposalExecutorResult,
+  proposalExecutorResultToJSON,
+} from 'cosmjs-types/cosmos/group/v1/types';
 
 type GroupControlsProps = {
   policyAddress: string;
@@ -80,11 +84,14 @@ export default function GroupControls({
 
   const [searchTerm, setSearchTerm] = useState('');
 
+  // We need to compare strings here
   const filterProposals = (proposals: ProposalSDKType[]) => {
     return proposals.filter(
       proposal =>
-        proposal.status !== ProposalStatus.PROPOSAL_STATUS_REJECTED &&
-        proposal.status !== ProposalStatus.PROPOSAL_STATUS_WITHDRAWN
+        proposal.status.toString() !==
+          proposalStatusToJSON(ProposalStatus.PROPOSAL_STATUS_REJECTED) &&
+        proposal.status.toString() !==
+          proposalStatusToJSON(ProposalStatus.PROPOSAL_STATUS_WITHDRAWN)
     );
   };
 
@@ -397,30 +404,31 @@ export default function GroupControls({
                     const proposalTally = tallies.find(t => t.proposalId === proposal.id)?.tally;
 
                     let status = 'Pending';
-                    switch (proposal.executor_result) {
-                      case ProposalExecutorResult.PROPOSAL_EXECUTOR_RESULT_FAILURE:
-                        status = 'Failure';
-                        break;
-                      default:
-                        switch (proposal.status) {
-                          case ProposalStatus.PROPOSAL_STATUS_ACCEPTED:
-                            status = 'Execute';
-                            break;
-                          default:
-                            if (proposalTally) {
-                              const { isPassing, isThresholdReached, isTie } =
-                                isProposalPassing(proposalTally);
-                              if (isThresholdReached) {
-                                if (isTie) {
-                                  status = 'Tie';
-                                } else {
-                                  status = isPassing ? 'Passing' : 'Failing';
-                                }
-                              }
-                            }
-                            break;
+                    // We need to compare strings here
+                    if (
+                      proposal.executor_result.toString() ===
+                      proposalExecutorResultToJSON(
+                        ProposalExecutorResult.PROPOSAL_EXECUTOR_RESULT_FAILURE
+                      )
+                    ) {
+                      status = 'Failure';
+                    } else if (
+                      proposal.status.toString() ===
+                      proposalStatusToJSON(ProposalStatus.PROPOSAL_STATUS_ACCEPTED)
+                    ) {
+                      status = 'Execute';
+                    } else if (proposalTally) {
+                      const { isPassing, isThresholdReached, isTie } =
+                        isProposalPassing(proposalTally);
+                      if (isThresholdReached) {
+                        if (isTie) {
+                          status = 'Tie';
+                        } else {
+                          status = isPassing ? 'Passing' : 'Failing';
                         }
+                      }
                     }
+
                     return (
                       <tr
                         key={proposal.id.toString()}
