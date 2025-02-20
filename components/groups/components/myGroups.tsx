@@ -45,7 +45,7 @@ interface PageSizeConfig {
   skeleton: number;
 }
 
-export function YourGroups({
+export default React.memo(function YourGroups({
   groups,
   proposals,
   isLoading,
@@ -179,6 +179,8 @@ export function YourGroups({
   const { balances, isBalancesLoading, refetchBalances } = useTokenBalances(
     selectedGroup?.policies[0]?.address ?? ''
   );
+
+  // console.log(`${selectedGroup?.policies[0]?.address} balances`, balances);
   const {
     balances: resolvedBalances,
     isBalancesLoading: resolvedLoading,
@@ -236,7 +238,6 @@ export function YourGroups({
     }
     return [];
   }, [denoms, metadatas, balances, totalSupply]);
-  const isDataReady = combinedData.length > 0;
 
   const combinedBalances = useMemo(() => {
     if (!balances || !resolvedBalances || !metadatas) return [];
@@ -581,9 +582,9 @@ export function YourGroups({
       ))}
     </div>
   );
-}
+});
 
-function GroupRow({
+const GroupRow = React.memo(function GroupRow({
   group,
   proposals,
   onSelectGroup,
@@ -690,4 +691,4 @@ function GroupRow({
       </td>
     </tr>
   );
-}
+});

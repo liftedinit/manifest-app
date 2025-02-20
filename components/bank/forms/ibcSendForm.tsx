@@ -189,7 +189,7 @@ export default function IbcSendForm({
 
       // Get IBC denom for destination chain
       const ibcDenom = getIbcDenom(selectedToChain.id, values.selectedToken.base);
-
+      console.log(selectedFromChain.chainID, selectedToChain.chainID);
       // Setup skip protocol route
       const route = await skipClient.route({
         sourceAssetDenom: values.selectedToken.base,
