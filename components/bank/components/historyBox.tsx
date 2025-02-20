@@ -31,7 +31,6 @@ export function HistoryBox({
   refetch,
   skeletonGroupCount,
   skeletonTxCount,
-  isGroup,
 }: Readonly<{
   isLoading: boolean;
   address: string;
@@ -44,7 +43,6 @@ export function HistoryBox({
   refetch: () => Promise<unknown>;
   skeletonGroupCount: number;
   skeletonTxCount: number;
-  isGroup?: boolean;
 }>) {
   const [selectedTx, setSelectedTx] = useState<TxMessage | null>(null);
   const { metadatas, isMetadatasLoading, refetchMetadatas } = useTokenFactoryDenomsMetadata();
