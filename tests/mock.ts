@@ -61,14 +61,14 @@ export const mockDenomMeta2: MetadataSDKType = {
 
 export const mockBalances: CombinedBalanceInfo[] = [
   {
-    denom: 'token1',
-    coreDenom: 'utoken1',
+    display: 'token1',
+    base: 'utoken1',
     amount: '1000',
     metadata: mockDenomMeta1,
   },
   {
-    denom: 'token2',
-    coreDenom: 'utoken2',
+    display: 'token2',
+    base: 'utoken2',
     amount: '2000',
     metadata: mockDenomMeta2,
   },

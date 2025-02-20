@@ -32,7 +32,7 @@ export const TokenList = React.memo(function TokenList(props: Readonly<TokenList
     refetchProposals,
     searchTerm = '',
   } = props;
-  const [selectedDenom, setSelectedDenom] = useState<any>(null);
+  const [selectedDenomBase, setSelectedDenomBase] = useState<any>(null);
   const [isSendModalOpen, setIsSendModalOpenHook] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [openDenomInfoModal, setOpenDenomInfoModal] = useState(false);
@@ -100,11 +100,11 @@ export const TokenList = React.memo(function TokenList(props: Readonly<TokenList
           <div className="space-y-2">
             {paginatedBalances.map(balance => (
               <div
-                key={balance.denom}
-                aria-label={balance.denom}
+                key={balance.display}
+                aria-label={balance.display}
                 className="flex flex-row justify-between gap-4 items-center p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px] cursor-pointer hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] transition-colors"
                 onClick={() => {
-                  setSelectedDenom(balance?.denom);
+                  setSelectedDenomBase(balance?.base);
                   setOpenDenomInfoModal(true);
                 }}
               >
@@ -126,10 +126,10 @@ export const TokenList = React.memo(function TokenList(props: Readonly<TokenList
                 </div>
                 <div className="flex flex-row gap-2">
                   <button
-                    aria-label={`info-${balance?.denom}`}
+                    aria-label={`info-${balance?.display}`}
                     onClick={e => {
                       e.stopPropagation();
-                      setSelectedDenom(balance?.denom);
+                      setSelectedDenomBase(balance?.base);
                       setOpenDenomInfoModal(true);
                     }}
                     className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
@@ -137,10 +137,10 @@ export const TokenList = React.memo(function TokenList(props: Readonly<TokenList
                     <QuestionIcon className="w-7 h-7 text-current" />
                   </button>
                   <button
-                    aria-label={`send-${balance?.denom}`}
+                    aria-label={`send-${balance?.display}`}
                     onClick={e => {
                       e.stopPropagation();
-                      setSelectedDenom(balance?.denom);
+                      setSelectedDenomBase(balance?.base);
                       setIsSendModalOpen(true);
                     }}
                     className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
@@ -213,7 +213,7 @@ export const TokenList = React.memo(function TokenList(props: Readonly<TokenList
       )}
 
       <DenomInfoModal
-        denom={filteredBalances.find(b => b.denom === selectedDenom)?.metadata ?? null}
+        denom={filteredBalances.find(b => b.base === selectedDenomBase)?.metadata ?? null}
         modalId="denom-info-modal"
         openDenomInfoModal={openDenomInfoModal}
         setOpenDenomInfoModal={setOpenDenomInfoModal}
@@ -224,7 +224,7 @@ export const TokenList = React.memo(function TokenList(props: Readonly<TokenList
         isBalancesLoading={isLoading}
         refetchBalances={refetchBalances}
         refetchHistory={refetchHistory}
-        selectedDenom={selectedDenom}
+        selectedDenom={selectedDenomBase}
         isOpen={isSendModalOpen}
         setOpen={setIsSendModalOpen}
         isGroup={isGroup}

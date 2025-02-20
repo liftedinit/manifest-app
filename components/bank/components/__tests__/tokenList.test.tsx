@@ -15,9 +15,9 @@ mock.module('next/router', () => ({
 
 const mockBalances: CombinedBalanceInfo[] = [
   {
-    denom: 'utoken1',
+    display: 'utoken1',
     amount: '1000',
-    coreDenom: 'token1',
+    base: 'token1',
     metadata: {
       name: 'Token 1',
       uri: 'https://token1.com',
@@ -33,9 +33,9 @@ const mockBalances: CombinedBalanceInfo[] = [
     },
   },
   {
-    denom: 'utoken2',
+    display: 'utoken2',
     amount: '2000',
-    coreDenom: 'token2',
+    base: 'token2',
     metadata: {
       name: 'Token 2',
       uri: 'https://token2.com',

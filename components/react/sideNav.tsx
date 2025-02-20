@@ -212,7 +212,7 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
             <p className="text-sm text-gray-500">v{version}</p>
           </Link>
           <div className="flex flex-row justify-between items-center gap-3">
-            <Link href="https://discord.gg/ndYMdRmFpG" target="_blank">
+            <Link href="https://discord.gg/manifestai" target="_blank">
               <Image
                 src={getRealLogo('/discord', theme === 'dark')}
                 alt={'Discord'}

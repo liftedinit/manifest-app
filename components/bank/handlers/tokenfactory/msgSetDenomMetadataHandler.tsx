@@ -7,7 +7,7 @@ import { format } from 'react-string-format';
 
 const createMessage = (template: string, base: string) => {
   const message = format(template, formatDenom(base));
-  return <span className="flex gap-1">{message}</span>;
+  return <span className="flex flex-wrap gap-1">{message}</span>;
 };
 export const MsgSetDenomMetadataHandler = createSenderReceiverHandler({
   iconSender: FactoryIcon,

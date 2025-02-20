@@ -11,7 +11,7 @@ const createMessage = (template: string, id: string, sender?: string) => {
     id ?? 'unknown',
     sender ? <TruncatedAddressWithCopy address={sender} /> : 'an unknown address'
   );
-  return <span className="flex gap-1">{message}</span>;
+  return <span className="flex flex-wrap gap-1">{message}</span>;
 };
 
 export const MsgExecHandler = createSenderReceiverHandler({

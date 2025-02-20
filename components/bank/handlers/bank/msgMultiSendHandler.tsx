@@ -40,7 +40,7 @@ const createSendMessage = (
 
   const coloredAmountDenom = <span className={`text-${color}-500`}>{displayAmountDenom}</span>;
   const message = format(template, coloredAmountDenom, numReceiver);
-  return <span className="flex gap-1">{message}</span>;
+  return <span className="flex flex-wrap gap-1">{message}</span>;
 };
 
 const createReceiveMessage = (
@@ -89,7 +89,7 @@ const createReceiveMessage = (
     coloredAmountDenom,
     <TruncatedAddressWithCopy address={sender} />
   );
-  return <span className="flex gap-1">{message}</span>;
+  return <span className="flex flex-wrap gap-1">{message}</span>;
 };
 
 export const MsgMultiSendHandler = createSenderReceiverHandler({

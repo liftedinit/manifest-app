@@ -4,7 +4,7 @@
   "private": false,
   "description": "An application to interact with the Manifest Chain",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -H 0.0.0.0",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

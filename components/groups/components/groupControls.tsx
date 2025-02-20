@@ -19,6 +19,7 @@ import DenomList from '@/components/factory/components/DenomList';
 import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
 import env from '@/config/env';
 import { TxMessage } from '@/components/bank/types';
+import useIsMobile from '@/hooks/useIsMobile';
 import {
   ProposalExecutorResult,
   proposalExecutorResultToJSON,
@@ -75,6 +76,7 @@ export default function GroupControls({
   skeletonTxCount,
   proposalPageSize = 10,
 }: GroupControlsProps) {
+  const isMobile = useIsMobile();
   const { proposals, isProposalsLoading, isProposalsError, refetchProposals } =
     useProposalsByPolicyAccount(policyAddress);
 
@@ -217,7 +219,7 @@ export default function GroupControls({
     {
       height: 1000,
       width: Infinity,
-      sizes: { proposals: 10 },
+      sizes: { proposals: 8 },
     },
     {
       height: 1300,
@@ -227,7 +229,8 @@ export default function GroupControls({
   ];
 
   const defaultSizes = { proposals: proposalPageSize };
-  const proposalPageSizes = useResponsivePageSize(sizeLookup, defaultSizes);
+  const responsivePageSize = useResponsivePageSize(sizeLookup, defaultSizes);
+  const proposalPageSizes = isMobile ? { proposals: 7 } : responsivePageSize;
 
   // Calculate total pages for proposals
   const totalProposalPages = Math.max(

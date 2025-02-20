@@ -12,7 +12,7 @@ const createMessage = (template: string, planName: string, planHeight: string, s
     planHeight,
     sender ? <TruncatedAddressWithCopy address={sender} /> : 'an unknown address'
   );
-  return <span className="flex gap-1">{message}</span>;
+  return <span className="flex flex-wrap gap-1">{message}</span>;
 };
 
 export const MsgSoftwareUpgradeHandler = createSenderReceiverHandler({

@@ -76,7 +76,7 @@ export function HistoryBox({
   }
 
   return (
-    <div className="w-full mx-auto rounded-[24px] h-full flex flex-col px-2 sm:px-4">
+    <div className="w-full mx-auto rounded-[24px] h-full flex flex-col px-2 sm:px-4 overflow-x-hidden">
       {isLoading ? (
         <div className="flex-1 overflow-hidden h-full">
           <div aria-label="skeleton" className="space-y-2">
@@ -128,7 +128,7 @@ export function HistoryBox({
               {sendTxs?.slice(0, skeletonTxCount).map((tx, index) => (
                 <div
                   key={`${tx.id}-${index}`}
-                  className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 
+                  className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 min-h-[105px] 
                     ${
                       tx.error
                         ? 'bg-[#E5393522] dark:bg-[#E5393533] hover:bg-[#E5393544] dark:hover:bg-[#E5393555]'
@@ -141,7 +141,7 @@ export function HistoryBox({
                   }}
                 >
                   <div className="flex flex-row items-center space-x-3 mb-2 sm:mb-0">
-                    <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center text-[#161616] dark:text-white">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-[#161616] dark:text-white">
                       {getTransactionIcon(tx, address)}
                     </div>
                     <div>
@@ -174,11 +174,6 @@ export function HistoryBox({
                       )}
                     </div>
                   </div>
-                  {/* Example of placing date/ID on the right side on larger screens:
-                      <div className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 mt-2 sm:mt-0">
-                        Tx ID: {tx.id}
-                      </div>
-                  */}
                 </div>
               ))}
             </div>
@@ -187,7 +182,7 @@ export function HistoryBox({
       )}
 
       {totalPages > 1 && (
-        <div className="flex flex-wrap sm:flex-nowrap items-center justify-center sm:justify-end gap-2 mt-4">
+        <div className="flex flex-wrap sm:flex-nowrap items-center justify-end gap-2 mt-4">
           <button
             onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
             disabled={currentPage === 1 || isLoading}

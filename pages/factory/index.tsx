@@ -16,6 +16,7 @@ import env from '@/config/env';
 
 import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
 import Link from 'next/link';
+import useIsMobile from '@/hooks/useIsMobile';
 
 interface PageSizeConfig {
   denomList: number;
@@ -24,6 +25,7 @@ interface PageSizeConfig {
 
 export default function Factory() {
   const { address, isWalletConnected } = useChain(env.chain);
+  const isMobile = useIsMobile();
   const { denoms, isDenomsLoading, isDenomsError, refetchDenoms } = useTokenFactoryDenomsFromAdmin(
     address ?? ''
   );
@@ -54,18 +56,18 @@ export default function Factory() {
     {
       height: 1000,
       width: Infinity,
-      sizes: { denomList: 8, skeleton: 8 },
+      sizes: { denomList: 6, skeleton: 6 },
     },
     {
       height: 1200,
       width: Infinity,
-      sizes: { denomList: 11, skeleton: 11 },
+      sizes: { denomList: 8, skeleton: 8 },
     },
   ];
 
-  const defaultSizes = { denomList: 8, skeleton: 9 };
-
-  const pageSize = useResponsivePageSize(sizeLookup, defaultSizes);
+  const defaultSizes = { denomList: 10, skeleton: 10 };
+  const responsivePageSize = useResponsivePageSize(sizeLookup, defaultSizes);
+  const pageSize = isMobile ? { denomList: 4, skeleton: 4 } : responsivePageSize;
 
   const denomListPageSize = pageSize.denomList;
 

@@ -40,7 +40,7 @@ const createSendMessage = (
       'an unknown address'
     );
   const message = format(template, coloredAmount, recipient);
-  return <span className="flex gap-1">{message}</span>;
+  return <span className="flex flex-wrap gap-1">{message}</span>;
 };
 
 const createReceiveMessage = (
@@ -66,7 +66,7 @@ const createReceiveMessage = (
     coloredAmount,
     sender ? <TruncatedAddressWithCopy address={sender} /> : 'an unknown address'
   );
-  return <span className="flex gap-1">{message}</span>;
+  return <span className="flex flex-wrap gap-1">{message}</span>;
 };
 
 export const MsgPayoutHandler = createSenderReceiverHandler({

@@ -8,7 +8,7 @@ import { getGroupPolicy } from '@/components/bank/handlers/group/metadata';
 const createMessage = (template: string, policyType: string, groupId: string) => {
   const policy = getGroupPolicy(policyType);
   const message = format(template, policy, groupId);
-  return <span className={'flex gap-1'}>{message}</span>;
+  return <span className={'flex flex-wrap gap-1'}>{message}</span>;
 };
 
 export const MsgCreateGroupPolicyHandler = createSenderReceiverHandler({
