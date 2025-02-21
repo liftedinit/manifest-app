@@ -180,7 +180,7 @@ export const TailwindModal: React.FC<
    * Helper to handle a metamask extension that doesn't fully register as 'NotExist'
    * in the standard wallet flow. We force set the view to NotExist if we detect the error message.
    */
-  const handleMetamaskErrorCheck = useCallback((wallet: ChainWalletBase) => {
+  const handleMetamaskErrorCheck = (wallet: ChainWalletBase) => {
     if (
       wallet?.walletInfo.name === 'cosmos-extension-metamask' &&
       wallet.message?.includes("Cannot read properties of undefined (reading 'request')")
@@ -197,7 +197,7 @@ export const TailwindModal: React.FC<
     }
 
     return false;
-  }, []);
+  };
 
   /**
    * Connect with a wallet that has 'wallet-connect' mode.
@@ -243,8 +243,6 @@ export const TailwindModal: React.FC<
             setCurrentView(ModalView.Error);
           }
         });
-
-      // Remove the timeout and handle errors through the catch block
     },
     [isMobile, walletRepo]
   );
@@ -310,11 +308,9 @@ export const TailwindModal: React.FC<
       // Step 2: We do a small setTimeout to check for metamask extension error
       // or if the wallet doesn't exist. This ensures the error message has time
       // to populate in the wallet's state after calling `getWallet()`.
-      setTimeout(() => {
-        if (handleMetamaskErrorCheck(wallet)) {
-          return;
-        }
-      }, 1);
+      if (handleMetamaskErrorCheck(wallet)) {
+        return;
+      }
 
       // Step 3: If the wallet is "wallet-connect" style, handle phone vs. desktop flows
       if (wallet?.walletInfo.mode === 'wallet-connect') {
@@ -325,13 +321,7 @@ export const TailwindModal: React.FC<
       // Step 4: Otherwise, handle standard extension or browser-based wallet
       handleStandardWalletFlow(wallet, name);
     },
-    [
-      walletRepo,
-      handleEmailOrSmsIfNeeded,
-      handleMetamaskErrorCheck,
-      handleWalletConnectFlow,
-      handleStandardWalletFlow,
-    ]
+    [walletRepo, handleEmailOrSmsIfNeeded, handleWalletConnectFlow, handleStandardWalletFlow]
   );
 
   /**
@@ -353,12 +343,12 @@ export const TailwindModal: React.FC<
    * Called whenever the user closes the modal.
    * If there's a wallet in "Connecting" state, we want to disconnect it before closing.
    */
-  const onCloseModal = useCallback(() => {
+  const onCloseModal = () => {
     if (qrWallet?.walletStatus === WalletStatus.Connecting) {
       qrWallet.disconnect();
     }
     setOpen(false);
-  }, [setOpen, qrWallet]);
+  };
 
   /**
    * If the user clicks "Back to Wallet List" while a QR code is displayed,
