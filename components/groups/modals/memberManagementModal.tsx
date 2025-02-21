@@ -21,7 +21,6 @@ interface ExtendedMember extends MemberSDKType {
 }
 
 interface MemberManagementModalProps {
-  modalId: string;
   members: MemberSDKType[];
   groupId: string;
   groupAdmin: string;
@@ -33,7 +32,6 @@ interface MemberManagementModalProps {
 }
 
 export function MemberManagementModal({
-  modalId,
   members: initialMembers,
   groupId,
   groupAdmin,
@@ -245,7 +243,7 @@ export function MemberManagementModal({
                         setFieldValue(fieldName, selectedAddress);
                       }
                       setIsContactsOpen(false);
-                      (document.getElementById(modalId) as HTMLDialogElement)?.close();
+                      // (document.getElementById(modalId) as HTMLDialogElement)?.close();
                     }}
                     currentAddress={address}
                   />
@@ -315,9 +313,9 @@ export function MemberManagementModal({
                                     aria-label="contacts-btn"
                                     onClick={() => {
                                       handleContactButtonClick(index);
-                                      (
-                                        document.getElementById(modalId) as HTMLDialogElement
-                                      ).close();
+                                      // (
+                                      //   document.getElementById(modalId) as HTMLDialogElement
+                                      // ).close();
                                     }}
                                     className="btn btn-primary btn-xs text-white absolute right-2 top-1"
                                   >
