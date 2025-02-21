@@ -13,7 +13,7 @@ import { TailwindModal } from '@/components/react/modal';
 import env from '@/config/env';
 import { truncateAddress } from '@/utils';
 import { Dialog } from '@headlessui/react';
-import { SignModal } from '@/components/react';
+import { AddressCopyButton, SignModal } from '@/components/react';
 
 interface ExtendedMember extends MemberSDKType {
   isNew: boolean;
@@ -21,7 +21,6 @@ interface ExtendedMember extends MemberSDKType {
 }
 
 interface MemberManagementModalProps {
-  modalId: string;
   members: MemberSDKType[];
   groupId: string;
   groupAdmin: string;
@@ -33,7 +32,6 @@ interface MemberManagementModalProps {
 }
 
 export function MemberManagementModal({
-  modalId,
   members: initialMembers,
   groupId,
   groupAdmin,
@@ -245,7 +243,6 @@ export function MemberManagementModal({
                         setFieldValue(fieldName, selectedAddress);
                       }
                       setIsContactsOpen(false);
-                      (document.getElementById(modalId) as HTMLDialogElement)?.close();
                     }}
                     currentAddress={address}
                   />
@@ -313,12 +310,7 @@ export function MemberManagementModal({
                                   <button
                                     type="button"
                                     aria-label="contacts-btn"
-                                    onClick={() => {
-                                      handleContactButtonClick(index);
-                                      (
-                                        document.getElementById(modalId) as HTMLDialogElement
-                                      ).close();
-                                    }}
+                                    onClick={() => handleContactButtonClick(index)}
                                     className="btn btn-primary btn-xs text-white absolute right-2 top-1"
                                   >
                                     <MdContacts className="w-4 h-4" />
@@ -335,23 +327,17 @@ export function MemberManagementModal({
                               </div>
                             )}
                           </Field>
-                          <button
-                            onClick={e => {
-                              e.preventDefault();
-                              navigator.clipboard.writeText(member.address).catch(error => {
-                                console.error('Failed to copy address:', error);
-                              });
-                            }}
-                            className="btn btn-ghost hover:bg-transparent btn-sm ml-2"
-                          >
-                            <CopyIcon className="w-4 h-4" />
-                          </button>
+
+                          <AddressCopyButton
+                            address={member.address}
+                            className="btn btn-ghost hover:bg-transparent btn-sm"
+                          />
                         </div>
                         <div className="w-[10%] flex justify-end">
                           <button
                             type="button"
                             onClick={() => handleMemberToggleDeletion(index)}
-                            className={`btn btn-primary btn-square rounded-[12px] btn-sm `}
+                            className={`btn btn-primary btn-square rounded-[12px] btn-sm`}
                           >
                             <TrashIcon className="text-white w-5 h-5" />
                           </button>

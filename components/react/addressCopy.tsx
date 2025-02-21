@@ -3,6 +3,43 @@ import { FiCopy, FiCheck } from 'react-icons/fi';
 import { truncateAddress } from '@/utils';
 import { useContacts } from '@/hooks';
 import { useDelayResetState } from '@/hooks/useDelayResetState';
+import { CopyIcon } from '@/components';
+import { CheckIcon } from '@heroicons/react/24/outline';
+
+export interface AddressCopyButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
+  address: string;
+  onCopy?: () => void;
+}
+
+export const AddressCopyButton: React.FC<AddressCopyButtonProps> = ({
+  address,
+  onCopy,
+  ...props
+}) => {
+  const [copied, setCopied] = useDelayResetState(false, 2000);
+
+  const handleCopy = async (e: React.SyntheticEvent<any>) => {
+    e.stopPropagation();
+    e.preventDefault();
+    try {
+      await navigator.clipboard.writeText(address);
+      setCopied(true);
+      onCopy?.();
+    } catch (err) {
+      console.error('Failed to copy: ', err);
+    }
+  };
+
+  return (
+    <button onClick={handleCopy} {...props}>
+      {copied ? (
+        <CheckIcon data-icon="check" height={16} />
+      ) : (
+        <CopyIcon data-icon="copy" height={16} />
+      )}
+    </button>
+  );
+};
 
 /**
  * Show a truncated address with a copy button, and optionally show the name of the address
