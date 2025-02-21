@@ -166,7 +166,7 @@ export function GroupInfo({
 
   const modalContent = (
     <Dialog
-      open={showInfoModal}
+      open
       onClose={() => setShowInfoModal(false)}
       className={`modal modal-open fixed flex p-0 m-0 z-0`}
       style={{
