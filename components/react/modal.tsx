@@ -308,18 +308,20 @@ export const TailwindModal: React.FC<
       // Step 2: We do a small setTimeout to check for metamask extension error
       // or if the wallet doesn't exist. This ensures the error message has time
       // to populate in the wallet's state after calling `getWallet()`.
-      if (handleMetamaskErrorCheck(wallet)) {
-        return;
-      }
+      setTimeout(() => {
+        if (handleMetamaskErrorCheck(wallet)) {
+          return;
+        }
 
-      // Step 3: If the wallet is "wallet-connect" style, handle phone vs. desktop flows
-      if (wallet?.walletInfo.mode === 'wallet-connect') {
-        handleWalletConnectFlow(wallet, name);
-        return;
-      }
+        // Step 3: If the wallet is "wallet-connect" style, handle phone vs. desktop flows
+        if (wallet?.walletInfo.mode === 'wallet-connect') {
+          handleWalletConnectFlow(wallet, name);
+          return;
+        }
 
-      // Step 4: Otherwise, handle standard extension or browser-based wallet
-      handleStandardWalletFlow(wallet, name);
+        // Step 4: Otherwise, handle standard extension or browser-based wallet
+        handleStandardWalletFlow(wallet, name);
+      }, 0);
     },
     [walletRepo, handleEmailOrSmsIfNeeded, handleWalletConnectFlow, handleStandardWalletFlow]
   );
