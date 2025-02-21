@@ -6,13 +6,12 @@ import { ThresholdDecisionPolicySDKType } from '@liftedinit/manifestjs/dist/code
 import { useFeeEstimation, useTx } from '@/hooks';
 import { cosmos } from '@liftedinit/manifestjs';
 import env from '@/config/env';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Dialog } from '@headlessui/react';
 import { SignModal } from '@/components/react';
 
 interface GroupInfoProps {
-  modalId: string;
   group: ExtendedGroupType | null;
   policyAddress: string;
   address: string;
@@ -22,7 +21,6 @@ interface GroupInfoProps {
 }
 
 export function GroupInfo({
-  modalId,
   group,
   policyAddress,
   address,
@@ -170,7 +168,7 @@ export function GroupInfo({
     <Dialog
       open={showInfoModal}
       onClose={() => setShowInfoModal(false)}
-      className={`modal modal-open fixed flex p-0 m-0`}
+      className={`modal modal-open fixed flex p-0 m-0 z-0`}
       style={{
         height: '100vh',
         width: '100vw',

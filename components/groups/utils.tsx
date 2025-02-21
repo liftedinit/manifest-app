@@ -31,26 +31,27 @@ export function getProposalButton(
           return undefined;
         case ProposalStatus.PROPOSAL_STATUS_SUBMITTED:
           return (
-            <div className="flex flex-row items-center justify-center gap-2">
+            <div className="flex flex-row items-stretch justify-center gap-2">
               {pollForData ? (
-                <div className="flex flex-row items-center justify-center gap-2">
-                  <div className="text-secondary-content">
-                    The proposal is getting accepted. Please wait
+                <div className="flex flex-col items-center justify-center gap-2">
+                  <div className="text-secondary-content">The proposal is getting processed.</div>
+                  <div className="flex flex-row items-center justify-center gap-2">
+                    <div className="text-secondary-content">Please wait</div>
+                    <div className="loading loading-dots loading-sm" />
                   </div>
-                  <div className="loading loading-dots loading-sm" />
                 </div>
               ) : (
                 <>
                   {isProposer && (
                     <button
-                      className={`btn btn-error text-white rounded-[12px] ${userVoteOption ? 'w-full' : 'w-1/2'}`}
+                      className={`btn btn-error text-white rounded-[12px] w-1/2`}
                       disabled={isSigning}
                       onClick={executeWithdrawal}
                     >
                       {isSigning ? <div className="loading loading-dots loading-sm" /> : 'Withdraw'}
                     </button>
                   )}
-                  {!userVoteOption && (
+                  {!userVoteOption ? (
                     <button
                       className={`btn btn-gradient text-white rounded-[12px] ${isProposer ? 'w-1/2' : 'w-full'}`}
                       disabled={isSigning}
@@ -58,6 +59,12 @@ export function getProposalButton(
                     >
                       {isSigning ? <div className="loading loading-dots loading-sm" /> : 'Vote'}
                     </button>
+                  ) : (
+                    <div
+                      className={`flex min-h-12 items-center justify-center text-white rounded-[12px] px-3 py-1 font-semibold ${isProposer ? 'w-1/2' : 'w-full'} ${getVoteOptionBadgeColor(userVoteOption)}`}
+                    >
+                      You voted {userVoteOption ? getVoteOptionLabel(userVoteOption) : null}
+                    </div>
                   )}
                 </>
               )}

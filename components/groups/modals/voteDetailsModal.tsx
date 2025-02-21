@@ -38,7 +38,7 @@ interface VoteDetailsModalProps {
   showVoteModal: boolean;
   onClose: () => void;
 }
-// Default fields to show if the message type is not in the mapping
+
 function VoteDetailsModal({
   policyAddress,
   proposalId,
@@ -236,18 +236,6 @@ function VoteDetailsModal({
                   }
                 }}
               />
-            </div>
-            <div className="text-right">
-              {userHasVoted && (
-                <div className="text-right mt-2">
-                  <span className="text-sm text-primary-content">Your vote:</span>
-                  <span
-                    className={`badge badge-lg rounded-full ${getVoteOptionBadgeColor(userVoteOption)}`}
-                  >
-                    {userVoteOption ? getVoteOptionLabel(userVoteOption) : null}
-                  </span>
-                </div>
-              )}
             </div>
           </div>
 

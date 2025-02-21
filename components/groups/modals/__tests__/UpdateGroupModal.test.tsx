@@ -3,6 +3,7 @@ import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { UpdateGroupModal } from '@/components';
 import { renderWithChainProvider } from '@/tests/render';
+import { ExtendedGroupType } from '@/hooks';
 
 // Mock next/router
 const m = jest.fn();
@@ -13,39 +14,47 @@ mock.module('next/router', () => ({
   }),
 }));
 
+const mockGroup: ExtendedGroupType = {
+  id: 1n,
+  admin: 'admin_address',
+  metadata:
+    '{"title":"Test Group","authors":["Test Author"],"summary":"Test Summary","proposalForumURL":"https://example.com","details":"Test Description"}',
+  members: [
+    {
+      group_id: 1n,
+      member: {
+        address: 'member1_address',
+        metadata: 'Member 1',
+        weight: '1',
+        added_at: new Date(),
+      },
+    },
+  ],
+  policies: [
+    {
+      group_id: 1n,
+      address: 'policy_address',
+      admin: 'admin_address',
+      decision_policy: {
+        threshold: '1',
+        windows: {
+          voting_period: { seconds: 86400n, nanos: 0 },
+          min_execution_period: { seconds: 86400n, nanos: 0 },
+        },
+      },
+      metadata: '',
+      version: 0n,
+      created_at: new Date(),
+    },
+  ],
+  total_weight: '',
+  version: 0n,
+  created_at: new Date(),
+};
+
 // Mock group data
 const mockProps = {
-  group: {
-    id: '1',
-    admin: 'admin_address',
-    metadata:
-      '{"title":"Test Group","authors":["Test Author"],"summary":"Test Summary","proposalForumURL":"https://example.com","details":"Test Description"}',
-    members: [
-      {
-        group_id: '1',
-        member: {
-          address: 'member1_address',
-          metadata: 'Member 1',
-          weight: '1',
-          added_at: new Date(),
-          isCoreMember: true,
-          isActive: true,
-        },
-      },
-    ],
-    policies: [
-      {
-        address: 'policy_address',
-        admin: 'admin_address',
-        decision_policy: {
-          threshold: '1',
-          windows: {
-            voting_period: '86400s',
-          },
-        },
-      },
-    ],
-  },
+  group: mockGroup,
   address: 'group_address',
   modalId: 'test-modal',
   policyAddress: 'policy_address',
