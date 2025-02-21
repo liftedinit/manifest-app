@@ -6,7 +6,7 @@ import { ThresholdDecisionPolicySDKType } from '@liftedinit/manifestjs/dist/code
 import { useFeeEstimation, useTx } from '@/hooks';
 import { cosmos } from '@liftedinit/manifestjs';
 import env from '@/config/env';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Dialog } from '@headlessui/react';
 import { SignModal } from '@/components/react';
