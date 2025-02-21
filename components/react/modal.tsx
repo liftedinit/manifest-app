@@ -343,12 +343,12 @@ export const TailwindModal: React.FC<
    * Called whenever the user closes the modal.
    * If there's a wallet in "Connecting" state, we want to disconnect it before closing.
    */
-  const onCloseModal = () => {
+  const onCloseModal = useCallback(() => {
     if (qrWallet?.walletStatus === WalletStatus.Connecting) {
       qrWallet.disconnect();
     }
     setOpen(false);
-  };
+  }, [setOpen, qrWallet]);
 
   /**
    * If the user clicks "Back to Wallet List" while a QR code is displayed,
