@@ -59,7 +59,9 @@ export function UpdateGroupModal({
     cosmos.group.v1.MessageComposer.withTypeUrl;
 
   const [name, setName] = useState(maybeTitle);
-  const [authors, setAuthors] = useState(maybeAuthors ? [maybeAuthors] : []);
+  const [authors, setAuthors] = useState(
+    maybeAuthors ? (Array.isArray(maybeAuthors) ? maybeAuthors : [maybeAuthors]) : []
+  );
   const [description, setDescription] = useState(maybeDetails);
   const [threshold, setThreshold] = useState(maybeThreshold !== '' ? maybeThreshold : '1');
   const [votingPeriod, setVotingPeriod] = useState({
