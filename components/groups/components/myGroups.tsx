@@ -16,7 +16,7 @@ import {
   MFX_TOKEN_DATA,
   truncateString,
 } from '@/utils';
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import {
@@ -54,7 +54,7 @@ export function YourGroups({
   groups: ExtendedQueryGroupsByMemberResponseSDKType;
   proposals: { [policyAddress: string]: ProposalSDKType[] };
   isLoading: boolean;
-  refetch: () => void;
+  refetch: () => Promise<unknown>;
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -208,10 +208,12 @@ export function YourGroups({
     useTotalSupply();
 
   const refetchData = () => {
-    refetchDenoms();
-    refetchMetadatas();
-    refetchBalances();
-    refetchTotalSupply();
+    return Promise.all([
+      refetchDenoms(),
+      refetchMetadatas(),
+      refetchBalances(),
+      refetchTotalSupply(),
+    ]);
   };
 
   const combinedData = useMemo(() => {
@@ -537,7 +539,6 @@ export function YourGroups({
             pageSize={pageSizeGroupInfo}
             skeletonGroupCount={skeletonGroupCount}
             skeletonTxCount={skeletonTxCount}
-            group={selectedGroup}
           />
         )}
       </div>
