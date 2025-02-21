@@ -19,7 +19,7 @@ const mockProps = {
     id: '1',
     admin: 'admin_address',
     metadata:
-      '{"title":"Test Group","authors":"Test Author","summary":"Test Summary","proposalForumURL":"https://example.com","details":"Test Description"}',
+      '{"title":"Test Group","authors":["Test Author"],"summary":"Test Summary","proposalForumURL":"https://example.com","details":"Test Description"}',
     members: [
       {
         group_id: '1',
