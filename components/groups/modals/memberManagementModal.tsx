@@ -243,7 +243,6 @@ export function MemberManagementModal({
                         setFieldValue(fieldName, selectedAddress);
                       }
                       setIsContactsOpen(false);
-                      // (document.getElementById(modalId) as HTMLDialogElement)?.close();
                     }}
                     currentAddress={address}
                   />
