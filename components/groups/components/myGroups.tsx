@@ -16,7 +16,7 @@ import {
   MFX_TOKEN_DATA,
   truncateString,
 } from '@/utils';
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import {
@@ -54,7 +54,7 @@ export default React.memo(function YourGroups({
   groups: ExtendedQueryGroupsByMemberResponseSDKType;
   proposals: { [policyAddress: string]: ProposalSDKType[] };
   isLoading: boolean;
-  refetch: () => void;
+  refetch: () => Promise<unknown>;
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -210,10 +210,12 @@ export default React.memo(function YourGroups({
     useTotalSupply();
 
   const refetchData = () => {
-    refetchDenoms();
-    refetchMetadatas();
-    refetchBalances();
-    refetchTotalSupply();
+    return Promise.all([
+      refetchDenoms(),
+      refetchMetadatas(),
+      refetchBalances(),
+      refetchTotalSupply(),
+    ]);
   };
 
   const combinedData = useMemo(() => {
@@ -405,6 +407,7 @@ export default React.memo(function YourGroups({
                         ))
                     : paginatedGroupEntries.map((group, index) => (
                         <GroupRow
+                          address={address}
                           key={index}
                           group={group}
                           proposals={
@@ -415,10 +418,7 @@ export default React.memo(function YourGroups({
                               : []
                           }
                           onSelectGroup={handleSelectGroup}
-                          activeMemberModalId={activeMemberModalId}
-                          setActiveMemberModalId={setActiveMemberModalId}
-                          activeInfoModalId={activeInfoModalId}
-                          setActiveInfoModalId={setActiveInfoModalId}
+                          refetch={refetch}
                         />
                       ))}
                 </tbody>
@@ -538,70 +538,29 @@ export default React.memo(function YourGroups({
             pageSize={pageSizeGroupInfo}
             skeletonGroupCount={skeletonGroupCount}
             skeletonTxCount={skeletonTxCount}
-            group={selectedGroup}
           />
         )}
       </div>
-
-      {/* Render modals outside table structure */}
-      {filteredGroups.map((group, index) => (
-        <React.Fragment key={`modals-${index}`}>
-          <GroupInfo
-            modalId={`group-info-modal-${group.id}`}
-            group={group}
-            address={address ?? ''}
-            policyAddress={group.policies[0]?.address ?? ''}
-            onUpdate={refetch}
-            showInfoModal={activeInfoModalId === group.id.toString()}
-            setShowInfoModal={show => setActiveInfoModalId(show ? group.id.toString() : null)}
-          />
-          <MemberManagementModal
-            modalId={`member-management-modal-${group.id}`}
-            members={group.members.map(member => ({
-              ...member.member,
-              address: member?.member?.address || '',
-              weight: member?.member?.weight || '0',
-              metadata: member?.member?.metadata || '',
-              added_at: member?.member?.added_at || new Date(),
-              isCoreMember: true,
-              isActive: true,
-              isAdmin: member?.member?.address === group.admin,
-              isPolicyAdmin: member?.member?.address === group.policies[0]?.admin,
-            }))}
-            groupId={group.id.toString()}
-            groupAdmin={group.admin}
-            policyAddress={group.policies[0]?.address ?? ''}
-            address={address ?? ''}
-            onUpdate={refetch}
-            setShowMemberManagementModal={show =>
-              setActiveMemberModalId(show ? group.id.toString() : null)
-            }
-            showMemberManagementModal={activeMemberModalId === group.id.toString()}
-          />
-        </React.Fragment>
-      ))}
     </div>
   );
 });
 
 const GroupRow = React.memo(function GroupRow({
+  address,
   group,
   proposals,
   onSelectGroup,
-  activeMemberModalId,
-  setActiveMemberModalId,
-  activeInfoModalId,
-  setActiveInfoModalId,
+  refetch,
 }: {
+  address: string | undefined;
   group: ExtendedQueryGroupsByMemberResponseSDKType['groups'][0];
   proposals: ProposalSDKType[];
   onSelectGroup: (group: ExtendedGroupType) => void;
-
-  activeMemberModalId: string | null;
-  setActiveMemberModalId: (id: string | null) => void;
-  activeInfoModalId: string | null;
-  setActiveInfoModalId: (id: string | null) => void;
+  refetch: () => Promise<unknown>;
 }) {
+  const [showInfo, setShowInfo] = useState(false);
+  const [showMembers, setShowMembers] = useState(false);
+
   const policyAddress = (group.policies && group.policies[0]?.address) || '';
   let groupName = 'Untitled Group';
   try {
@@ -623,72 +582,108 @@ const GroupRow = React.memo(function GroupRow({
 
   const openInfoModal = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setActiveInfoModalId(group.id ? group.id.toString() : null);
+    setShowInfo(true);
   };
 
   const openMemberModal = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setActiveMemberModalId(group.id ? group.id.toString() : null);
+    setShowMembers(true);
   };
 
   return (
-    <tr
-      className="group text-black dark:text-white rounded-lg cursor-pointer"
-      onClick={() => onSelectGroup(group)}
-      tabIndex={0}
-      role="button"
-      aria-label={`Select ${groupName} group`}
-    >
-      <td className="bg-secondary group-hover:bg-base-300 rounded-l-[12px] w-1/6">
-        <div className="items-center space-x-3 hidden xs:flex">
-          <ProfileAvatar walletAddress={policyAddress} />
-          <span className="font-medium">{truncateString(groupName, 24)}</span>
-        </div>
-        <div className="items-center flex xs:hidden block">
-          <ProfileAvatar walletAddress={policyAddress} />
-        </div>
-      </td>
-      <td className="bg-secondary group-hover:bg-base-300 hidden xl:table-cell w-1/6">
-        {activeProposals.length > 0 ? (
-          <span className="badge badge-primary badge-sm text-neutral-content">
-            {activeProposals.length}
-          </span>
-        ) : (
-          '-'
+    <>
+      <tr
+        className="group text-black dark:text-white rounded-lg cursor-pointer"
+        onClick={() => onSelectGroup(group)}
+        tabIndex={0}
+        role="button"
+        aria-label={`Select ${groupName} group`}
+      >
+        <td className="bg-secondary group-hover:bg-base-300 rounded-l-[12px] w-1/6">
+          <div className="items-center space-x-3 hidden xs:flex">
+            <ProfileAvatar walletAddress={policyAddress} />
+            <span className="font-medium">{truncateString(groupName, 24)}</span>
+          </div>
+          <div className="items-center flex xs:hidden block">
+            <ProfileAvatar walletAddress={policyAddress} />
+          </div>
+        </td>
+        <td className="bg-secondary group-hover:bg-base-300 hidden xl:table-cell w-1/6">
+          {activeProposals.length > 0 ? (
+            <span className="badge badge-primary badge-sm text-neutral-content">
+              {activeProposals.length}
+            </span>
+          ) : (
+            '-'
+          )}
+        </td>
+        <td className="bg-secondary group-hover:bg-base-300 hidden sm:table-cell w-1/6">
+          {Number(shiftDigits(balance?.amount ?? '0', -6)).toLocaleString(undefined, {
+            maximumFractionDigits: 6,
+          })}{' '}
+          MFX
+        </td>
+        <td className="bg-secondary group-hover:bg-base-300 hidden xl:table-cell w-1/6">
+          {`${(group.policies?.[0]?.decision_policy as ThresholdDecisionPolicySDKType)?.threshold ?? '0'} / ${group.total_weight ?? '0'}`}
+        </td>
+        <td className="bg-secondary group-hover:bg-base-300 hidden lg:table-cell w-1/6">
+          <div onClick={e => e.stopPropagation()}>
+            <TruncatedAddressWithCopy address={policyAddress} />
+          </div>
+        </td>
+        <td className="bg-secondary group-hover:bg-base-300 rounded-r-[12px] sm:rounded-l-none w-1/6">
+          <div className="flex space-x-2 justify-end">
+            <button
+              className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+              onClick={openInfoModal}
+              aria-label={`View info for ${groupName}`}
+            >
+              <PiInfo className="w-7 h-7 text-current" />
+            </button>
+            <button
+              className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+              onClick={openMemberModal}
+              aria-label={`Manage members for ${groupName}`}
+            >
+              <MemberIcon className="w-7 h-7 text-current" />
+            </button>
+          </div>
+        </td>
+
+        {showInfo && (
+          <GroupInfo
+            group={group}
+            address={address ?? ''}
+            policyAddress={group.policies[0]?.address ?? ''}
+            onUpdate={refetch}
+            showInfoModal={showInfo}
+            setShowInfoModal={show => setShowInfo(show)}
+          />
         )}
-      </td>
-      <td className="bg-secondary group-hover:bg-base-300 hidden sm:table-cell w-1/6">
-        {Number(shiftDigits(balance?.amount ?? '0', -6)).toLocaleString(undefined, {
-          maximumFractionDigits: 6,
-        })}{' '}
-        MFX
-      </td>
-      <td className="bg-secondary group-hover:bg-base-300 hidden xl:table-cell w-1/6">
-        {`${(group.policies?.[0]?.decision_policy as ThresholdDecisionPolicySDKType)?.threshold ?? '0'} / ${group.total_weight ?? '0'}`}
-      </td>
-      <td className="bg-secondary group-hover:bg-base-300 hidden lg:table-cell w-1/6">
-        <div onClick={e => e.stopPropagation()}>
-          <TruncatedAddressWithCopy address={policyAddress} />
-        </div>
-      </td>
-      <td className="bg-secondary group-hover:bg-base-300 rounded-r-[12px] sm:rounded-l-none w-1/6">
-        <div className="flex space-x-2 justify-end">
-          <button
-            className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
-            onClick={openInfoModal}
-            aria-label={`View info for ${groupName}`}
-          >
-            <PiInfo className="w-7 h-7 text-current" />
-          </button>
-          <button
-            className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
-            onClick={openMemberModal}
-            aria-label={`Manage members for ${groupName}`}
-          >
-            <MemberIcon className="w-7 h-7 text-current" />
-          </button>
-        </div>
-      </td>
-    </tr>
+
+        {showMembers && (
+          <MemberManagementModal
+            members={group.members.map(member => ({
+              ...member.member,
+              address: member?.member?.address || '',
+              weight: member?.member?.weight || '0',
+              metadata: member?.member?.metadata || '',
+              added_at: member?.member?.added_at || new Date(),
+              isCoreMember: true,
+              isActive: true,
+              isAdmin: member?.member?.address === group.admin,
+              isPolicyAdmin: member?.member?.address === group.policies[0]?.admin,
+            }))}
+            groupId={group.id.toString()}
+            groupAdmin={group.admin}
+            policyAddress={group.policies[0]?.address ?? ''}
+            address={address ?? ''}
+            onUpdate={refetch}
+            setShowMemberManagementModal={show => setShowMembers(show)}
+            showMemberManagementModal={showMembers}
+          />
+        )}
+      </tr>
+    </>
   );
 });

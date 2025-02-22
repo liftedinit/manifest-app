@@ -55,10 +55,6 @@ mock.module('@/hooks/useQueries', () => ({
   }),
 }));
 
-mock.module('react-apexcharts', () => ({
-  default: jest.fn(),
-}));
-
 const mockProps = {
   policyAddress: 'test_policy_address',
 };

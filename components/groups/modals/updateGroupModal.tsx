@@ -11,7 +11,6 @@ import {
 import { cosmos } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import env from '@/config/env';
-import { createPortal } from 'react-dom';
 
 import { isValidManifestAddress, secondsToHumanReadable } from '@/utils/string';
 import { TrashIcon, PlusIcon } from '@/components/icons';
@@ -60,7 +59,9 @@ export function UpdateGroupModal({
     cosmos.group.v1.MessageComposer.withTypeUrl;
 
   const [name, setName] = useState(maybeTitle);
-  const [authors, setAuthors] = useState(maybeAuthors ? [maybeAuthors] : []);
+  const [authors, setAuthors] = useState(
+    maybeAuthors ? (Array.isArray(maybeAuthors) ? maybeAuthors : [maybeAuthors]) : []
+  );
   const [description, setDescription] = useState(maybeDetails);
   const [threshold, setThreshold] = useState(maybeThreshold !== '' ? maybeThreshold : '1');
   const [votingPeriod, setVotingPeriod] = useState({
@@ -312,7 +313,7 @@ export function UpdateGroupModal({
     <Dialog
       open={showUpdateModal}
       onClose={() => setShowUpdateModal(false)}
-      className={`modal modal-open fixed flex p-0 m-0`}
+      className={`modal modal-open fixed flex p-0 m-0 z-1`}
       style={{
         height: '100vh',
         width: '100vw',
@@ -363,10 +364,7 @@ export function UpdateGroupModal({
                         break;
                     }
                   }}
-                  address={address}
-                  isContactsOpen={isContactsOpen}
                   setIsContactsOpen={setIsContactsOpen}
-                  activeAuthorIndex={activeAuthorIndex}
                   setActiveAuthorIndex={setActiveAuthorIndex}
                 />
 
@@ -492,17 +490,11 @@ function GroupPolicyFormFields({
 
 function GroupDetailsFormFields({
   dispatch,
-  address,
-  isContactsOpen,
   setIsContactsOpen,
-  activeAuthorIndex,
   setActiveAuthorIndex,
 }: {
   dispatch: ({ field, value }: { field: 'title' | 'authors' | 'description'; value: any }) => void;
-  address: string;
-  isContactsOpen: boolean;
   setIsContactsOpen: (open: boolean) => void;
-  activeAuthorIndex: number | null;
   setActiveAuthorIndex: (index: number | null) => void;
 }) {
   const { values, setFieldValue } = useFormikContext<{
