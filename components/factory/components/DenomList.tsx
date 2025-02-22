@@ -47,9 +47,9 @@ export default function DenomList({
     'mint' | 'burn' | 'multimint' | 'multiburn' | 'update' | 'info' | 'transfer' | null
   >(null);
 
-  const filteredDenoms = useMemo(() => {
-    return denoms.filter(denom => denom?.display.toLowerCase().includes(searchTerm.toLowerCase()));
-  }, [denoms, searchTerm]);
+  const filteredDenoms = denoms.filter(denom =>
+    denom?.display.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const totalPages = Math.ceil(filteredDenoms.length / pageSize);
   const paginatedDenoms = filteredDenoms.slice(
