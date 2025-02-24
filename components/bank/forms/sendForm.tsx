@@ -14,7 +14,7 @@ import { MdContacts } from 'react-icons/md';
 import env from '@/config/env';
 import { Any } from 'cosmjs-types/google/protobuf/any';
 import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
-import { AmountInput } from '@/components';
+import { AmountInput, MaxButton } from '@/components';
 
 export default function SendForm({
   address,
@@ -105,10 +105,6 @@ export default function SendForm({
     selectedToken: Yup.object().required('Please select a token'),
     memo: Yup.string().max(255, 'Memo must be less than 255 characters'),
   });
-
-  const formatAmount = (amount: number, decimals: number) => {
-    return amount.toFixed(decimals).replace(/\.?0+$/, '');
-  };
 
   const handleSend = async (values: {
     recipient: string;
@@ -284,7 +280,6 @@ export default function SendForm({
                               )
                             ).toLocaleString()}
                       </span>
-
                       <span className="">
                         {values.selectedToken?.metadata?.display?.startsWith('factory')
                           ? values.selectedToken?.metadata?.display?.split('/').pop()?.toUpperCase()
@@ -293,31 +288,12 @@ export default function SendForm({
                               10
                             ).toUpperCase()}
                       </span>
-                      <button
-                        type="button"
-                        className="text-xs text-primary"
-                        onClick={() => {
-                          if (!selectedTokenBalance) return;
 
-                          const exponent =
-                            selectedTokenBalance.metadata?.denom_units[1]?.exponent ?? 6;
-                          const maxAmount =
-                            Number(selectedTokenBalance.amount) / Math.pow(10, exponent);
-
-                          let adjustedMaxAmount = maxAmount;
-                          if (values.selectedToken.base === 'umfx') {
-                            adjustedMaxAmount = Math.max(0, maxAmount - 0.1);
-                          }
-
-                          const decimals =
-                            selectedTokenBalance.metadata?.denom_units[1]?.exponent ?? 6;
-                          const formattedAmount = formatAmount(adjustedMaxAmount, decimals);
-
-                          setFieldValue('amount', formattedAmount);
-                        }}
-                      >
-                        MAX
-                      </button>
+                      <MaxButton
+                        token={values.selectedToken}
+                        setTokenAmount={(amount: string) => setFieldValue('amount', amount)}
+                        disabled={isSending}
+                      />
                     </div>
                     {errors.amount && <div className="text-red-500 text-xs">{errors.amount}</div>}
                     {feeWarning && !errors.amount && (

@@ -1,15 +1,8 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useFeeEstimation, useTx } from '@/hooks';
 import { cosmos, ibc } from '@liftedinit/manifestjs';
 import { MsgTransfer } from '@liftedinit/manifestjs/dist/codegen/ibc/applications/transfer/v1/tx';
-import {
-  getIbcInfo,
-  parseNumberToBigInt,
-  shiftDigits,
-  truncateString,
-  getIbcDenom,
-  isMfxToken,
-} from '@/utils';
+import { getIbcInfo, parseNumberToBigInt, shiftDigits, truncateString, getIbcDenom } from '@/utils';
 import { PiCaretDownBold } from 'react-icons/pi';
 import { MdContacts } from 'react-icons/md';
 import { CombinedBalanceInfo } from '@/utils/types';
@@ -26,7 +19,7 @@ import env from '@/config/env';
 
 import { useSkipClient } from '@/contexts/skipGoContext';
 
-import { IbcChain } from '@/components';
+import { IbcChain, MaxButton } from '@/components';
 
 import { useChain } from '@cosmos-kit/react';
 import { useToast } from '@/contexts';
@@ -111,8 +104,6 @@ export default function IbcSendForm({
     return balances?.find(token => token.base === selectedDenom) || balances?.[0] || null;
   }, [balances, selectedDenom]);
 
-  const estimateMax = useMaxAmountEstimate();
-
   // Loading state checks
   if (isBalancesLoading || !initialSelectedToken) {
     return null;
@@ -167,11 +158,6 @@ export default function IbcSendForm({
     selectedToken: Yup.object().required('Please select a token'),
     memo: Yup.string().max(255, 'Memo must be less than 255 characters'),
   });
-
-  // Helper function to format amount with proper decimals
-  const formatAmount = (amount: number, decimals: number) => {
-    return amount.toFixed(decimals).replace(/\.?0+$/, '');
-  };
 
   // Main form submission handler
   const handleSend = async (values: {
@@ -630,22 +616,10 @@ export default function IbcSendForm({
                               : truncateString(tokenDisplayName, 10).toUpperCase();
                         })()}
                       </span>
-                      <button
-                        type="button"
-                        className="text-xs text-primary"
-                        onClick={async () => {
-                          if (!values.selectedToken) return;
-
-                          const adjustedMaxAmount = estimateMax(values.selectedToken);
-                          const decimals =
-                            values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-                          const formattedAmount = formatAmount(await adjustedMaxAmount, decimals);
-
-                          setFieldValue('amount', formattedAmount);
-                        }}
-                      >
-                        MAX
-                      </button>
+                      <MaxButton
+                        token={values.selectedToken}
+                        setTokenAmount={(amount: string) => setFieldValue('amount', amount)}
+                      />
                     </div>
                     {errors.amount && <div className="text-red-500 text-xs">{errors.amount}</div>}
                     {feeWarning && !errors.amount && (

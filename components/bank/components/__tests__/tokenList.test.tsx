@@ -4,6 +4,7 @@ import { fireEvent, screen, cleanup, within, waitFor } from '@testing-library/re
 import { TokenList } from '@/components/bank/components/tokenList';
 import { CombinedBalanceInfo } from '@/utils/types';
 import { renderWithChainProvider } from '@/tests/render';
+import { unsafeConvertTokenBase } from '@/utils';
 
 // Mock next/router
 mock.module('next/router', () => ({
@@ -17,7 +18,7 @@ const mockBalances: CombinedBalanceInfo[] = [
   {
     display: 'utoken1',
     amount: '1000',
-    base: 'token1',
+    base: unsafeConvertTokenBase('token1'),
     metadata: {
       name: 'Token 1',
       uri: 'https://token1.com',
@@ -35,7 +36,7 @@ const mockBalances: CombinedBalanceInfo[] = [
   {
     display: 'utoken2',
     amount: '2000',
-    base: 'token2',
+    base: unsafeConvertTokenBase('token2'),
     metadata: {
       name: 'Token 2',
       uri: 'https://token2.com',
