@@ -55,7 +55,7 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
 
     return (
       <li
-        className="relative w-full flex justify-center mb-5 tooltip tooltip-primary tooltip-bottom"
+        className="relative w-full flex justify-center mb-5 tooltip tooltip-primary tooltip-bottom hover:after:delay-1000 hover:before:delay-1000"
         data-tip={tooltip}
       >
         <Link href={href} passHref legacyBehavior>
@@ -88,7 +88,10 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
         <NavItem Icon={FactoryIcon} href="/factory" tooltip="Token Factory" />
       </ul>
       <div className="mt-auto flex flex-col items-center space-y-6 dark:bg-[#FFFFFF0F] bg-[#0000000A] rounded-lg p-4 w-[75%]">
-        <div className="tooltip tooltip-primary tooltip-top" data-tip="Contacts">
+        <div
+          className="tooltip tooltip-primary tooltip-top hover:after:delay-1000 hover:before:delay-1000"
+          data-tip="Contacts"
+        >
           <button
             onClick={() => setContactsOpen(true)}
             className="relative group flex justify-center w-full text-[#00000066] dark:text-[#FFFFFF66] hover:text-primary dark:hover:text-primary transition-all duration-300 ease-in-out"
@@ -96,7 +99,10 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
             <MdContacts className="w-8 h-8" />
           </button>
         </div>
-        <div className="tooltip tooltip-top tooltip-primary" data-tip="Wallet">
+        <div
+          className="tooltip tooltip-top tooltip-primary hover:after:delay-1000 hover:before:delay-1000"
+          data-tip="Wallet"
+        >
           <div className="flex justify-center w-full text-[#00000066] dark:text-[#FFFFFF66]">
             <IconWallet chainName={env.chain} />
           </div>
@@ -125,7 +131,10 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
     const isActive = pathname === href;
 
     return (
-      <li className="w-full mb-5 group tooltip tooltip-primary tooltip-bottom" data-tip={tooltip}>
+      <li
+        className="w-full mb-5 group tooltip tooltip-primary tooltip-bottom hover:after:delay-1000 hover:before:delay-1000"
+        data-tip={tooltip}
+      >
         <Link href={href} legacyBehavior>
           <a
             className={`flex items-center p-2 text-base font-normal rounded-lg transition duration-300 ease-in-out ${
@@ -174,7 +183,10 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
         />
       </ul>
       <div className="mt-auto w-full">
-        <div className="w-full tooltip tooltip-primary tooltip-top" data-tip="Manage your contacts">
+        <div
+          className="w-full tooltip tooltip-primary tooltip-top hover:after:delay-1000 hover:before:delay-1000"
+          data-tip="Manage your contacts"
+        >
           <div className="w-full flex flex-col space-y-2 mb-4">
             <button
               onClick={() => setContactsOpen(true)}

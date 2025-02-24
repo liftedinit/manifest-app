@@ -632,20 +632,30 @@ function GroupRow({
         </td>
         <td className="bg-secondary group-hover:bg-base-300 rounded-r-[12px] sm:rounded-l-none w-1/6">
           <div className="flex space-x-2 justify-end">
-            <button
-              className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
-              onClick={openInfoModal}
-              aria-label={`View info for ${groupName}`}
+            <div
+              className="tooltip tooltip-left tooltip-primary hover:after:delay-1000 hover:before:delay-1000"
+              data-tip="Group Details"
             >
-              <PiInfo className="w-7 h-7 text-current" />
-            </button>
-            <button
-              className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
-              onClick={openMemberModal}
-              aria-label={`Manage members for ${groupName}`}
+              <button
+                className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+                onClick={openInfoModal}
+                aria-label={`View info for ${groupName}`}
+              >
+                <PiInfo className="w-7 h-7 text-current" />
+              </button>
+            </div>
+            <div
+              className="tooltip tooltip-left tooltip-primary hover:after:delay-1000 hover:before:delay-1000"
+              data-tip="Manage Members"
             >
-              <MemberIcon className="w-7 h-7 text-current" />
-            </button>
+              <button
+                className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+                onClick={openMemberModal}
+                aria-label={`Manage members for ${groupName}`}
+              >
+                <MemberIcon className="w-7 h-7 text-current" />
+              </button>
+            </div>
           </div>
         </td>
 
