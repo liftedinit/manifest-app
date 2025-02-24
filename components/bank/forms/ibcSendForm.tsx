@@ -111,6 +111,8 @@ export default function IbcSendForm({
     return balances?.find(token => token.base === selectedDenom) || balances?.[0] || null;
   }, [balances, selectedDenom]);
 
+  const estimateMax = useMaxAmountEstimate();
+
   // Loading state checks
   if (isBalancesLoading || !initialSelectedToken) {
     return null;
@@ -169,17 +171,6 @@ export default function IbcSendForm({
   // Helper function to format amount with proper decimals
   const formatAmount = (amount: number, decimals: number) => {
     return amount.toFixed(decimals).replace(/\.?0+$/, '');
-  };
-
-  const estimateMax = (selectedToken: CombinedBalanceInfo) => {
-    const exponent = selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-    const maxAmount = Number(selectedToken.amount) / Math.pow(10, exponent);
-
-    let adjustedMaxAmount = maxAmount;
-    if (isMfxToken(selectedToken.base)) {
-      adjustedMaxAmount = Math.max(0, maxAmount - 0.1);
-    }
-    return adjustedMaxAmount;
   };
 
   // Main form submission handler
@@ -642,13 +633,13 @@ export default function IbcSendForm({
                       <button
                         type="button"
                         className="text-xs text-primary"
-                        onClick={() => {
+                        onClick={async () => {
                           if (!values.selectedToken) return;
 
                           const adjustedMaxAmount = estimateMax(values.selectedToken);
                           const decimals =
                             values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-                          const formattedAmount = formatAmount(adjustedMaxAmount, decimals);
+                          const formattedAmount = formatAmount(await adjustedMaxAmount, decimals);
 
                           setFieldValue('amount', formattedAmount);
                         }}
