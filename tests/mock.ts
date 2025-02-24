@@ -451,8 +451,13 @@ export const mockMultiDenomTransactions: TxMessage[] = [
 export const mockGroup: ExtendedGroupType = {
   id: 1n,
   admin: 'admin1',
-  metadata:
-    '{"title": "title1", "summary": "summary1", "details": "details1", "authors": ["author1, author2"], "voteOptionContext": "context1"}',
+  metadata: JSON.stringify({
+    title: 'title1',
+    summary: 'summary1',
+    details: 'details1 at least 20 characters',
+    authors: [manifestAddr1, manifestAddr2],
+    voteOptionContext: 'context1',
+  }),
   version: 1n,
   created_at: new Date(),
   total_weight: '10',

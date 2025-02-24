@@ -3,7 +3,7 @@ import React from 'react';
 import { screen, cleanup, fireEvent } from '@testing-library/react';
 import { GroupInfo } from '@/components/groups/modals/groupInfo';
 import { renderWithChainProvider } from '@/tests/render';
-import { mockGroup } from '@/tests/mock';
+import { manifestAddr1, manifestAddr2, mockGroup } from '@/tests/mock';
 
 // Mock the useBalance hook
 const m = jest.fn();
@@ -26,6 +26,7 @@ const defaultProps = {
   group: mockGroup,
   address: 'test_address',
   policyAddress: 'test_policy_address',
+  onUpdate: jest.fn(),
 };
 
 const renderWithProps = (props = {}) => {
@@ -55,8 +56,11 @@ describe('GroupInfo', () => {
     expect(screen.getByText('No voting period')).toBeInTheDocument();
     expect(screen.getByText('Qualified Majority')).toBeInTheDocument();
     expect(screen.getByText('5')).toBeInTheDocument();
-    expect(screen.getByText('Author 1')).toBeInTheDocument();
-    expect(screen.getByText('author1, author2')).toBeInTheDocument();
+
+    // Using a RegExp of the first 20 characters as the address might be
+    // truncated.
+    expect(screen.getByText(new RegExp(manifestAddr1.slice(0, 20)))).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(manifestAddr2.slice(0, 20)))).toBeInTheDocument();
   });
 
   test("renders 'No authors available' when no authors are provided", () => {
@@ -65,7 +69,7 @@ describe('GroupInfo', () => {
       group: {
         ...defaultProps.group,
         metadata:
-          '{"title": "title1", "summary": "summary1", "details": "details1", "authors": [], "voteOptionContext": "context1"}',
+          '{"title": "title1", "summary": "summary1", "details": "details1 at least 20 characters", "authors": [], "voteOptionContext": "context1"}',
       },
     };
     renderWithProps({ ...props });

@@ -1,9 +1,11 @@
-import { describe, test, expect, beforeEach, jest, mock } from 'bun:test';
+import { env } from '@/config';
+import { afterEach, describe, test, expect, beforeEach, jest, mock } from 'bun:test';
 import React from 'react';
-import { fireEvent, screen, waitFor } from '@testing-library/react';
-import { UpdateGroupModal } from '@/components';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { UpdateFormValues, UpdateGroupForm, UpdateGroupModal } from '@/components';
 import { renderWithChainProvider } from '@/tests/render';
 import { ExtendedGroupType } from '@/hooks';
+import { duration } from '@/schemas';
 
 // Mock next/router
 const m = jest.fn();
@@ -17,8 +19,11 @@ mock.module('next/router', () => ({
 const mockGroup: ExtendedGroupType = {
   id: 1n,
   admin: 'admin_address',
-  metadata:
-    '{"title":"Test Group","authors":["Test Author"],"summary":"Test Summary","proposalForumURL":"https://example.com","details":"Test Description"}',
+  metadata: JSON.stringify({
+    title: 'Test Group',
+    authors: ['manifest1aucdev30u9505dx9t6q5fkcm70sjg4rh7rn5nf'],
+    details: 'Test Description That is at least 20 characters',
+  }),
   members: [
     {
       group_id: 1n,
@@ -74,6 +79,8 @@ describe('UpdateGroupModal Component Input State Changes', () => {
     }
   });
 
+  afterEach(cleanup);
+
   test('updates input fields correctly', async () => {
     // Test name input
     const nameInput = screen.getByLabelText('Group Title') as HTMLInputElement;
@@ -106,5 +113,199 @@ describe('UpdateGroupModal Component Input State Changes', () => {
     const descriptionInput = screen.getByLabelText('Description') as HTMLTextAreaElement;
     fireEvent.change(descriptionInput, { target: { value: 'New Description' } });
     expect(descriptionInput.value).toBe('New Description');
+  });
+});
+
+const mockValues: UpdateFormValues = {
+  threshold: 1,
+  votingPeriod: duration.fromSeconds(env.minimumVotingPeriod),
+  title: 'Test Group',
+  authors: ['manifest1aucdev30u9505dx9t6q5fkcm70sjg4rh7rn5nf'],
+  details: 'Test Description That is at least 20 characters',
+  voteOptionContext: '',
+};
+
+describe('UpdateGroupForm', () => {
+  function factory() {
+    return (
+      <UpdateGroupForm
+        initialValues={mockValues}
+        onSubmit={jest.fn()}
+        isContactsOpen={false}
+        setIsContactsOpen={jest.fn()}
+        activeAuthorIndex={null}
+        setActiveAuthorIndex={jest.fn()}
+        setShowUpdateModal={jest.fn()}
+        address={'manifest1aucdev30u9505dx9t6q5fkcm70sjg4rh7rn5nf'}
+        isSigning={false}
+      />
+    );
+  }
+
+  function changeField(field: HTMLElement, value: string) {
+    field.focus();
+    fireEvent.change(field, { target: { value } });
+    field.blur();
+  }
+
+  afterEach(cleanup);
+
+  test('Group Title validates', async () => {
+    const mockup = render(factory());
+
+    const groupTitle = mockup.getByLabelText('Group Title') as HTMLInputElement;
+    expect(groupTitle).toBeInTheDocument();
+
+    changeField(groupTitle, '');
+    mockup.rerender(factory());
+    await waitFor(() => {
+      expect(mockup.getByText('Title is required')).toBeInTheDocument();
+    });
+
+    changeField(groupTitle, 'Profane title with FUCK in it');
+    mockup.rerender(factory());
+    await waitFor(() => {
+      expect(mockup.getByText('Profanity is not allowed')).toBeInTheDocument();
+    });
+
+    changeField(groupTitle, 'Hello World');
+    mockup.rerender(factory());
+    await waitFor(() => {
+      expect(mockup.queryByText('Title is required')).not.toBeInTheDocument();
+      expect(mockup.getByTestId('update-btn')).toBeEnabled();
+    });
+
+    changeField(groupTitle, 'a'.repeat(51));
+    mockup.rerender(factory());
+    await waitFor(() => {
+      expect(mockup.getByText('Title must not exceed 50 characters')).toBeInTheDocument();
+      expect(mockup.getByTestId('update-btn')).toBeDisabled();
+    });
+  });
+
+  test('Group Details validates', async () => {
+    const mockup = render(
+      <UpdateGroupForm
+        initialValues={mockValues}
+        onSubmit={jest.fn()}
+        isContactsOpen={false}
+        setIsContactsOpen={jest.fn()}
+        activeAuthorIndex={null}
+        setActiveAuthorIndex={jest.fn()}
+        setShowUpdateModal={jest.fn()}
+        address={'manifest1aucdev30u9505dx9t6q5fkcm70sjg4rh7rn5nf'}
+        isSigning={false}
+      />
+    );
+
+    const groupDetails = mockup.getByLabelText('Description') as HTMLInputElement;
+    expect(groupDetails).toBeInTheDocument();
+
+    changeField(groupDetails, '');
+    await waitFor(() => {
+      expect(mockup.getByText('Details is required')).toBeInTheDocument();
+      expect(mockup.getByTestId('update-btn')).toBeDisabled();
+    });
+
+    changeField(groupDetails, 'Not Long Enough');
+    await waitFor(() => {
+      expect(mockup.queryByText('Details must be at least 20 characters')).toBeInTheDocument();
+      expect(mockup.getByTestId('update-btn')).toBeDisabled();
+    });
+
+    changeField(groupDetails, 'Long Enough But Using Profanity like FUCK');
+    await waitFor(() => {
+      expect(mockup.getByText('Profanity is not allowed')).toBeInTheDocument();
+      expect(mockup.getByTestId('update-btn')).toBeDisabled();
+    });
+
+    changeField(groupDetails, 'Long Enough And Just Lovely Nothing Profane');
+    await waitFor(() => {
+      expect(mockup.getByTestId('update-btn')).toBeEnabled();
+    });
+  });
+
+  test('Authors validates', async () => {
+    const mockup = render(
+      <UpdateGroupForm
+        initialValues={mockValues}
+        onSubmit={jest.fn()}
+        isContactsOpen={false}
+        setIsContactsOpen={jest.fn()}
+        activeAuthorIndex={null}
+        setActiveAuthorIndex={jest.fn()}
+        setShowUpdateModal={jest.fn()}
+        address={'manifest1aucdev30u9505dx9t6q5fkcm70sjg4rh7rn5nf'}
+        isSigning={false}
+      />
+    );
+
+    // Make sure the initial author is in there.
+    expect(mockup.getByDisplayValue(mockValues.authors[0])).toBeInTheDocument();
+
+    // Update the group title so we have at least some dirty fields.
+    changeField(mockup.getByLabelText('Group Title'), 'Hello World');
+    await waitFor(() => {
+      expect(mockup.getByTestId('update-btn')).toBeEnabled();
+    });
+
+    // Add an author. Update should still be disabled.
+    mockup.getByTestId('add-author-btn').click();
+    await waitFor(() => expect(mockup.getByTestId('update-btn')).toBeDisabled());
+    changeField(mockup.getByTestId('author-1'), 'Hello World');
+    await waitFor(() => {
+      expect(mockup.getByText('Invalid manifest address')).toBeInTheDocument();
+      expect(mockup.getByTestId('update-btn')).toBeDisabled();
+    });
+
+    changeField(mockup.getByTestId('author-1'), mockValues.authors[0]);
+    await waitFor(() => {
+      expect(mockup.getByText('Authors must be unique')).toBeInTheDocument();
+      expect(mockup.getByTestId('update-btn')).toBeDisabled();
+    });
+
+    const remove1Button = mockup.getByTestId('remove-author-btn-1');
+    fireEvent.click(remove1Button);
+    await waitFor(() => {
+      expect(mockup.getByTestId('update-btn')).toBeEnabled();
+    });
+  });
+
+  test('Voting Period validates', async () => {
+    const mockup = render(
+      <UpdateGroupForm
+        initialValues={mockValues}
+        onSubmit={jest.fn()}
+        isContactsOpen={false}
+        setIsContactsOpen={jest.fn()}
+        activeAuthorIndex={null}
+        setActiveAuthorIndex={jest.fn()}
+        setShowUpdateModal={jest.fn()}
+        address={'manifest1aucdev30u9505dx9t6q5fkcm70sjg4rh7rn5nf'}
+        isSigning={false}
+      />
+    );
+
+    // Make sure the initial author is in there.
+    expect(mockup.getByDisplayValue(mockValues.authors[0])).toBeInTheDocument();
+
+    // Update the group title so we have at least some dirty fields.
+    changeField(mockup.getByLabelText('Group Title'), 'Hello World');
+    await waitFor(() => {
+      expect(mockup.getByTestId('update-btn')).toBeEnabled();
+    });
+
+    changeField(mockup.getByTestId('voting-period-seconds'), '0');
+    changeField(mockup.getByTestId('voting-period-minutes'), '0');
+    changeField(mockup.getByTestId('voting-period-hours'), '0');
+    await waitFor(() => {
+      expect(mockup.getByText(/^Voting period must be at least \d+/)).toBeInTheDocument();
+      expect(mockup.getByTestId('update-btn')).toBeDisabled();
+    });
+
+    changeField(mockup.getByTestId('voting-period-hours'), '2');
+    await waitFor(() => {
+      expect(mockup.getByTestId('update-btn')).toBeEnabled();
+    });
   });
 });

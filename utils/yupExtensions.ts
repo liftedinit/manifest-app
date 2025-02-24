@@ -11,6 +11,10 @@ declare module 'yup' {
     simulateDenomMetadata(simulateFn: () => Promise<boolean>, message?: string): this;
     supportedImageUrl(message?: string): this;
   }
+
+  interface ArraySchema<TIn extends any[] | null | undefined, TContext> {
+    unique(message?: string): this;
+  }
 }
 
 Yup.addMethod<Yup.StringSchema>(
@@ -83,37 +87,41 @@ Yup.addMethod<Yup.StringSchema>(Yup.string, 'manifestAddress', function (message
     const { path, createError } = this;
     if (!value) return true;
 
+    if (!value.includes('1')) {
+      return createError({
+        path,
+        message: message || `Invalid bech32 address format`,
+      });
+    }
+    let decoded;
     try {
-      if (!value.includes('1')) {
-        throw new Error('Invalid bech32 address format');
-      }
-      const decoded = bech32.decode(value as `${string}1${string}`);
-
-      const validPrefixes = ['manifest', 'manifestvaloper', 'manifestvalcons', 'osmo', 'axelar'];
-      if (!validPrefixes.includes(decoded.prefix)) {
-        return createError({
-          path,
-          message: message || `Invalid address prefix; expected one of ${validPrefixes.join(', ')}`,
-        });
-      }
-
-      const minLength = 32;
-      const maxLength = 64;
-
-      if (decoded.words.length < minLength || decoded.words.length > maxLength) {
-        return createError({
-          path,
-          message: message || 'Invalid address length',
-        });
-      }
-
-      return true;
-    } catch (error) {
+      decoded = bech32.decode(value as `${string}1${string}`);
+    } catch (_) {
       return createError({
         path,
         message: message || 'Please enter a valid Bech32 address',
       });
     }
+
+    const validPrefixes = ['manifest', 'manifestvaloper', 'manifestvalcons', 'osmo', 'axelar'];
+    if (!validPrefixes.includes(decoded.prefix)) {
+      return createError({
+        path,
+        message: message || `Invalid address prefix; expected one of ${validPrefixes.join(', ')}`,
+      });
+    }
+
+    const minLength = 32;
+    const maxLength = 64;
+
+    if (decoded.words.length < minLength || decoded.words.length > maxLength) {
+      return createError({
+        path,
+        message: message || 'Invalid address length',
+      });
+    }
+
+    return true;
   });
 });
 
@@ -144,5 +152,33 @@ Yup.addMethod<Yup.StringSchema>(Yup.string, 'supportedImageUrl', function (messa
     }
   });
 });
+
+Yup.addMethod<Yup.ArraySchema<Yup.AnySchema[] | undefined, any>>(
+  Yup.array,
+  'unique',
+  function (this: Yup.ArraySchema<Yup.AnySchema[] | undefined, any>, message) {
+    return this.test('array-unique-items', message, function (array) {
+      if (!array) {
+        return true;
+      }
+
+      const uniqueData = Array.from(new Set(array));
+      const isUnique = array.length === uniqueData.length;
+      if (isUnique) {
+        return true;
+      }
+
+      const index = array.findIndex((item, i) => item !== uniqueData[i]);
+      if (!array[index]) {
+        return true;
+      }
+
+      return this.createError({
+        path: `${this.path}[${index}]`,
+        message: message || `${this.path}[${index}] must be unique`,
+      });
+    });
+  }
+);
 
 export default Yup;

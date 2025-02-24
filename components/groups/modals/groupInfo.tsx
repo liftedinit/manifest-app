@@ -230,14 +230,16 @@ export function GroupInfo({
         </div>
       </Dialog.Panel>
 
-      <UpdateGroupModal
-        group={group}
-        policyAddress={policyAddress}
-        address={address}
-        onUpdate={onUpdate}
-        showUpdateModal={showUpdateModal}
-        setShowUpdateModal={setShowUpdateModal}
-      />
+      {showUpdateModal && (
+        <UpdateGroupModal
+          group={group}
+          policyAddress={policyAddress}
+          address={address}
+          onUpdate={onUpdate}
+          showUpdateModal={showUpdateModal}
+          setShowUpdateModal={setShowUpdateModal}
+        />
+      )}
 
       <SignModal id="leave-modal" />
     </Dialog>

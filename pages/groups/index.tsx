@@ -43,14 +43,12 @@ export default function Groups() {
           ) : groupByMemberData?.groups.length === 0 ? (
             <NoGroupsFound />
           ) : (
-            <>
-              <YourGroups
-                groups={groupByMemberData ?? { groups: [] }}
-                proposals={proposalsByPolicyAccount}
-                isLoading={isLoading}
-                refetch={refetchGroupByMember || refetchProposals}
-              />
-            </>
+            <YourGroups
+              groups={groupByMemberData ?? { groups: [] }}
+              proposals={proposalsByPolicyAccount}
+              isLoading={isLoading}
+              refetch={refetchGroupByMember || refetchProposals}
+            />
           )}
         </div>
       </div>
