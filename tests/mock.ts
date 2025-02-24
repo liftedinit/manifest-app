@@ -27,6 +27,7 @@ import {
   MsgPayout,
 } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
 import { TxMessage } from '@/components/bank/types';
+import { unsafeConvertTokenBase } from '@/utils';
 
 export const manifestAddr1 = 'manifest1hj5fveer5cjtn4wd6wstzugjfdxzl0xp8ws9ct';
 export const manifestAddr2 = 'manifest1efd63aw40lxf3n4mhf7dzhjkr453axurm6rp3z';
@@ -62,13 +63,13 @@ export const mockDenomMeta2: MetadataSDKType = {
 export const mockBalances: CombinedBalanceInfo[] = [
   {
     display: 'token1',
-    base: 'utoken1',
+    base: unsafeConvertTokenBase('utoken1'),
     amount: '1000',
     metadata: mockDenomMeta1,
   },
   {
     display: 'token2',
-    base: 'utoken2',
+    base: unsafeConvertTokenBase('utoken2'),
     amount: '2000',
     metadata: mockDenomMeta2,
   },

@@ -1,8 +1,15 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useFeeEstimation, useTx } from '@/hooks';
 import { cosmos, ibc } from '@liftedinit/manifestjs';
 import { MsgTransfer } from '@liftedinit/manifestjs/dist/codegen/ibc/applications/transfer/v1/tx';
-import { getIbcInfo, parseNumberToBigInt, shiftDigits, truncateString, getIbcDenom } from '@/utils';
+import {
+  getIbcInfo,
+  parseNumberToBigInt,
+  shiftDigits,
+  truncateString,
+  getIbcDenom,
+  isMfxToken,
+} from '@/utils';
 import { PiCaretDownBold } from 'react-icons/pi';
 import { MdContacts } from 'react-icons/md';
 import { CombinedBalanceInfo } from '@/utils/types';
@@ -162,6 +169,17 @@ export default function IbcSendForm({
   // Helper function to format amount with proper decimals
   const formatAmount = (amount: number, decimals: number) => {
     return amount.toFixed(decimals).replace(/\.?0+$/, '');
+  };
+
+  const estimateMax = (selectedToken: CombinedBalanceInfo) => {
+    const exponent = selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
+    const maxAmount = Number(selectedToken.amount) / Math.pow(10, exponent);
+
+    let adjustedMaxAmount = maxAmount;
+    if (isMfxToken(selectedToken.base)) {
+      adjustedMaxAmount = Math.max(0, maxAmount - 0.1);
+    }
+    return adjustedMaxAmount;
   };
 
   // Main form submission handler
@@ -627,16 +645,7 @@ export default function IbcSendForm({
                         onClick={() => {
                           if (!values.selectedToken) return;
 
-                          const exponent =
-                            values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-                          const maxAmount =
-                            Number(values.selectedToken.amount) / Math.pow(10, exponent);
-
-                          let adjustedMaxAmount = maxAmount;
-                          if (values.selectedToken.base === 'umfx') {
-                            adjustedMaxAmount = Math.max(0, maxAmount - 0.1);
-                          }
-
+                          const adjustedMaxAmount = estimateMax(values.selectedToken);
                           const decimals =
                             values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
                           const formattedAmount = formatAmount(adjustedMaxAmount, decimals);
