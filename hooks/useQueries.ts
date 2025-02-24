@@ -20,6 +20,7 @@ import { TxMessage } from '@/components/bank/types';
 import { QueryProposalsByGroupPolicyResponse } from 'cosmjs-types/cosmos/group/v1/query';
 
 const DEBOUNCE_TIME = 1000;
+const PAGE_DEBOUNCE_TIME = 30;
 
 export type ExtendedGroupType = QueryGroupsByMemberResponseSDKType['groups'][0] & {
   policies: GroupPolicyInfoSDKType[];
@@ -815,12 +816,16 @@ export const useGetMessagesFromAddress = (
   page: number = 1,
   pageSize: number = 10
 ) => {
+  const debouncedAddress = useDebounce(address, DEBOUNCE_TIME);
+  const debouncedPage = useDebounce(page, PAGE_DEBOUNCE_TIME);
+  const debouncedPageSize = useDebounce(pageSize, PAGE_DEBOUNCE_TIME);
+
   const fetchMessages = async () => {
-    const baseUrl = `${indexerUrl}/rpc/get_messages_for_address?_address=${address}`;
+    const baseUrl = `${indexerUrl}/rpc/get_messages_for_address?_address=${debouncedAddress}`;
 
     // Update order parameter to sort by timestamp instead of height
-    const offset = (page - 1) * pageSize;
-    const paginationParams = `&limit=${pageSize}&offset=${offset}`;
+    const offset = (debouncedPage - 1) * debouncedPageSize;
+    const paginationParams = `&limit=${debouncedPageSize}&offset=${offset}`;
     const orderParam = `&order=timestamp.desc`;
 
     const finalUrl = `${baseUrl}${orderParam}${paginationParams}`;
@@ -842,7 +847,7 @@ export const useGetMessagesFromAddress = (
       const dataResponse = await axios.get(finalUrl, {
         headers: {
           'Range-Unit': 'items',
-          Range: `${offset}-${offset + pageSize - 1}`,
+          Range: `${offset}-${offset + debouncedPageSize - 1}`,
         },
       });
 
@@ -860,7 +865,7 @@ export const useGetMessagesFromAddress = (
       return {
         transactions,
         totalCount,
-        totalPages: Math.ceil(totalCount / pageSize),
+        totalPages: Math.ceil(totalCount / debouncedPageSize),
       };
     } catch (error) {
       console.error('Error fetching transactions:', error);
@@ -868,12 +873,12 @@ export const useGetMessagesFromAddress = (
     }
   };
 
-  const debounced = useDebounce([address, page, pageSize], DEBOUNCE_TIME);
   const sendQuery = useQuery({
-    queryKey: ['getMessagesForAddress', ...debounced],
+    queryKey: ['getMessagesForAddress', debouncedAddress, debouncedPage, debouncedPageSize],
     queryFn: fetchMessages,
-    enabled: !!address,
+    enabled: !!debouncedAddress,
     staleTime: DEBOUNCE_TIME,
+    refetchInterval: 2000,
     placeholderData: keepPreviousData,
   });
 
