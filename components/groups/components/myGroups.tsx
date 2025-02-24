@@ -13,8 +13,10 @@ import {
   CombinedBalanceInfo,
   denomToAsset,
   ExtendedMetadataSDKType,
+  MFX_TOKEN_BASE,
   MFX_TOKEN_DATA,
   truncateString,
+  unsafeConvertTokenBase,
 } from '@/utils';
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
@@ -251,7 +253,7 @@ export function YourGroups({
     const mfxCombinedBalance: CombinedBalanceInfo | null = mfxCoreBalance
       ? {
           display: mfxResolvedBalance?.denom || 'mfx',
-          base: 'umfx',
+          base: MFX_TOKEN_BASE,
           amount: mfxCoreBalance.amount,
           metadata: MFX_TOKEN_DATA,
         }
@@ -276,7 +278,7 @@ export function YourGroups({
 
           return {
             display: baseDenom ?? '', // normalized denom (e.g., 'umfx')
-            base: coreBalance.denom, // full IBC trace
+            base: unsafeConvertTokenBase(coreBalance.denom), // full IBC trace
             amount: coreBalance.amount,
             metadata: {
               description: assetInfo?.description ?? '',
@@ -295,9 +297,10 @@ export function YourGroups({
           };
         }
 
+        // TODO: move this code to a `CombinedBalanceInfo` factory function.
         return {
           display: resolvedBalance?.denom || coreBalance.denom,
-          base: metadata?.base ?? coreBalance.denom,
+          base: unsafeConvertTokenBase(metadata?.base ?? coreBalance.denom),
           amount: coreBalance.amount,
           metadata: metadata || null,
         };

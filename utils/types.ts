@@ -1,4 +1,5 @@
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { TokenBase } from '@/utils/tokens';
 
 export interface ExtendedMetadataSDKType extends MetadataSDKType {
   balance: string;
@@ -17,7 +18,7 @@ export type CombinedBalanceInfo = {
   /**
    * The base denomination of the token.
    */
-  base: string;
+  base: TokenBase;
 
   /**
    * The token balance.
