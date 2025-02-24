@@ -501,36 +501,56 @@ function TokenRow({
         onClick={e => e.stopPropagation()}
       >
         <div className="flex space-x-2">
-          <button
-            className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
-            onClick={onMint}
+          <div
+            className="tooltip tooltip-left tooltip-primary hover:after:delay-1000 hover:before:delay-1000"
+            data-tip="Mint Token"
           >
-            <MintIcon className="w-4 h-4 sm:w-7 sm:h-7 text-current" />
-          </button>
+            <button
+              className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+              onClick={onMint}
+            >
+              <MintIcon className="w-4 h-4 sm:w-7 sm:h-7 text-current" />
+            </button>
+          </div>
 
-          <button
-            disabled={denom.base === 'umfx'}
-            className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
-            onClick={onBurn}
+          <div
+            className="tooltip tooltip-left tooltip-primary hover:after:delay-1000 hover:before:delay-1000"
+            data-tip="Burn Token"
           >
-            <BurnIcon className="w-4 h-4 sm:w-7 sm:h-7 text-current" />
-          </button>
+            <button
+              disabled={denom.base === 'umfx'}
+              className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+              onClick={onBurn}
+            >
+              <BurnIcon className="w-4 h-4 sm:w-7 sm:h-7 text-current" />
+            </button>
+          </div>
 
-          <button
-            disabled={denom.base === 'umfx'}
-            className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
-            onClick={onTransfer}
+          <div
+            className="tooltip tooltip-left tooltip-primary hover:after:delay-1000 hover:before:delay-1000"
+            data-tip="Transfer Token Ownership"
           >
-            <TransferIcon className="w-4 h-4 sm:w-7 sm:h-7 text-current" />
-          </button>
+            <button
+              disabled={denom.base === 'umfx'}
+              className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+              onClick={onTransfer}
+            >
+              <TransferIcon className="w-4 h-4 sm:w-7 sm:h-7 text-current" />
+            </button>
+          </div>
 
-          <button
-            disabled={denom.base === 'umfx'}
-            className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
-            onClick={onUpdate}
+          <div
+            className="tooltip tooltip-left tooltip-primary hover:after:delay-1000 hover:before:delay-1000"
+            data-tip="Token Details"
           >
-            <PiInfo className="w-4 h-4 sm:w-7 sm:h-7 text-current" />
-          </button>
+            <button
+              disabled={denom.base === 'umfx'}
+              className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+              onClick={onUpdate}
+            >
+              <PiInfo className="w-4 h-4 sm:w-7 sm:h-7 text-current" />
+            </button>
+          </div>
         </div>
       </td>
     </tr>
