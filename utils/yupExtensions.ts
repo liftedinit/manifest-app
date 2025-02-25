@@ -169,7 +169,7 @@ Yup.addMethod<Yup.ArraySchema<Yup.AnySchema[] | undefined, any>>(
       }
 
       const index = array.findIndex((item, i) => item !== uniqueData[i]);
-      if (!array[index]) {
+      if (index === -1) {
         return true;
       }
 
