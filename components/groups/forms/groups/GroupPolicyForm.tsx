@@ -50,10 +50,7 @@ export default function GroupPolicyForm({
   nextStep: () => void;
   prevStep: () => void;
 }>) {
-  const totalMemberWeight = formData.members.reduce(
-    (acc, member) => acc + Number(member.weight || 0),
-    0
-  );
+  const totalMemberWeight = formData.members.length;
   const maxVotingThreshold = totalMemberWeight > 0 ? totalMemberWeight : Number.MAX_SAFE_INTEGER;
 
   return (

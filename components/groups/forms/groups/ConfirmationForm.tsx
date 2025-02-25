@@ -64,7 +64,7 @@ export default function ConfirmationForm({
         admin: address ?? '',
         members: formData.members.map(member => ({
           address: member.address,
-          weight: member.weight,
+          weight: '1',
           metadata: member.name,
           added_at: new Date(),
         })),
