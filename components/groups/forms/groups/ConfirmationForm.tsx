@@ -8,6 +8,7 @@ import { Duration } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/du
 import { secondsToHumanReadable } from '@/utils/string';
 import env from '@/config/env';
 import { SignModal } from '@/components/react';
+import { useGroupsByMember } from '@/hooks';
 export default function ConfirmationForm({
   nextStep,
   prevStep,
@@ -58,6 +59,8 @@ export default function ConfirmationForm({
 
   const typeUrl = cosmos.group.v1.ThresholdDecisionPolicy.typeUrl;
 
+  const { refetchGroupByMember } = useGroupsByMember(address ?? '');
+
   const handleConfirm = async () => {
     try {
       const msg = createGroupWithPolicy({
@@ -82,6 +85,7 @@ export default function ConfirmationForm({
       await tx([msg], {
         fee,
         onSuccess: () => {
+          refetchGroupByMember();
           nextStep();
         },
       });

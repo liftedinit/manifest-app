@@ -14,6 +14,7 @@ import { MdContacts } from 'react-icons/md';
 import env from '@/config/env';
 import { Any } from 'cosmjs-types/google/protobuf/any';
 import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
+import { useQueryClient } from '@tanstack/react-query';
 import { AmountInput, MaxButton } from '@/components';
 
 export default function SendForm({
@@ -40,6 +41,9 @@ export default function SendForm({
   const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [feeWarning, setFeeWarning] = useState('');
+
+  const queryClient = useQueryClient();
+
   const { tx } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
   const { send } = cosmos.bank.v1beta1.MessageComposer.withTypeUrl;
@@ -146,13 +150,23 @@ export default function SendForm({
 
       const fee = await estimateFee(address, [msg]);
 
-      let txResult = await tx([msg], {
+      await tx([msg], {
         memo: values.memo,
         fee,
         onSuccess: () => {
           refetchBalances();
           refetchHistory();
           refetchProposals?.();
+          queryClient.invalidateQueries({
+            predicate: query => {
+              return ['balanceInfo'].includes(query.queryKey[0] as string);
+            },
+          });
+          queryClient.invalidateQueries({
+            predicate: query => {
+              return ['balances'].includes(query.queryKey[0] as string);
+            },
+          });
         },
       });
     } catch (error) {

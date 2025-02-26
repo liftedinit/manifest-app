@@ -140,7 +140,9 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
 
             {!toastMessage.isIbcTransfer && (
               <div className="flex flex-row items-center gap-2 justify-between">
-                <p className="text-sm text-gray-500">{toastMessage.description}</p>
+                <p className="text-sm text-gray-500 break-words whitespace-pre-wrap max-w-full">
+                  {toastMessage.description}
+                </p>
               </div>
             )}
 
