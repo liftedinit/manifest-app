@@ -13,8 +13,10 @@ import {
   CombinedBalanceInfo,
   denomToAsset,
   ExtendedMetadataSDKType,
+  MFX_TOKEN_BASE,
   MFX_TOKEN_DATA,
   truncateString,
+  unsafeConvertTokenBase,
 } from '@/utils';
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
@@ -252,7 +254,7 @@ export default React.memo(function YourGroups({
     const mfxCombinedBalance: CombinedBalanceInfo | null = mfxCoreBalance
       ? {
           display: mfxResolvedBalance?.denom || 'mfx',
-          base: 'umfx',
+          base: MFX_TOKEN_BASE,
           amount: mfxCoreBalance.amount,
           metadata: MFX_TOKEN_DATA,
         }
@@ -277,7 +279,7 @@ export default React.memo(function YourGroups({
 
           return {
             display: baseDenom ?? '', // normalized denom (e.g., 'umfx')
-            base: coreBalance.denom, // full IBC trace
+            base: unsafeConvertTokenBase(coreBalance.denom), // full IBC trace
             amount: coreBalance.amount,
             metadata: {
               description: assetInfo?.description ?? '',
@@ -296,9 +298,10 @@ export default React.memo(function YourGroups({
           };
         }
 
+        // TODO: move this code to a `CombinedBalanceInfo` factory function.
         return {
           display: resolvedBalance?.denom || coreBalance.denom,
-          base: metadata?.base ?? coreBalance.denom,
+          base: unsafeConvertTokenBase(metadata?.base ?? coreBalance.denom),
           amount: coreBalance.amount,
           metadata: metadata || null,
         };
@@ -314,9 +317,6 @@ export default React.memo(function YourGroups({
     isMetadatasLoading ||
     isDenomsLoading ||
     isTotalSupplyLoading;
-
-  const [activeInfoModalId, setActiveInfoModalId] = useState<string | null>(null);
-  const [activeMemberModalId, setActiveMemberModalId] = useState<string | null>(null);
 
   return (
     <div className="relative w-full h-screen overflow-x-hidden scrollbar-hide ">
@@ -341,7 +341,7 @@ export default React.memo(function YourGroups({
                   className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
-                  aria-label="Search groups"
+                  aria-label="input-search-term"
                 />
                 <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               </div>
@@ -351,7 +351,7 @@ export default React.memo(function YourGroups({
             <div className="max-w-8xl mx-auto">
               <table
                 className="table w-full border-separate border-spacing-y-3"
-                aria-label="Your groups"
+                aria-label="table-proposals"
               >
                 <thead className="sticky top-0 bg-background-color">
                   <tr className="text-sm font-medium">
@@ -426,7 +426,7 @@ export default React.memo(function YourGroups({
             </div>
           </div>
           <div className="flex item-center justify-between">
-            <Link href="/groups/create" passHref aria-label="Create new group">
+            <Link href="/groups/create" passHref aria-label="btn-create-new-group">
               <button className="btn btn-gradient w-[224px] h-[52px] hidden md:block text-white rounded-[12px] focus:outline-none focus-visible:ring-1 focus-visible:ring-primary">
                 Create New Group
               </button>
@@ -436,7 +436,7 @@ export default React.memo(function YourGroups({
                 className="flex items-center justify-end gap-2"
                 onClick={e => e.stopPropagation()}
                 role="navigation"
-                aria-label="Pagination"
+                aria-label="pagination"
               >
                 <button
                   onClick={e => {
@@ -444,7 +444,7 @@ export default React.memo(function YourGroups({
                     setCurrentPage(prev => Math.max(1, prev - 1));
                   }}
                   disabled={currentPage === 1 || isLoading}
-                  aria-label="Previous page"
+                  aria-label="btn-previous-page"
                 >
                   ‹
                 </button>
@@ -465,7 +465,7 @@ export default React.memo(function YourGroups({
                         }}
                         className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors text-black dark:text-white
                             ${currentPage === pageNum ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A]' : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A]'}`}
-                        aria-label={`Page ${pageNum}`}
+                        aria-label={`btn-page-${pageNum}`}
                         aria-current={currentPage === pageNum ? 'page' : undefined}
                       >
                         {pageNum}
@@ -488,7 +488,7 @@ export default React.memo(function YourGroups({
                   }}
                   disabled={currentPage === totalPages || isLoading}
                   className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  aria-label="Next page"
+                  aria-label="btn-next-page"
                 >
                   ›
                 </button>
@@ -597,7 +597,7 @@ const GroupRow = React.memo(function GroupRow({
         onClick={() => onSelectGroup(group)}
         tabIndex={0}
         role="button"
-        aria-label={`Select ${groupName} group`}
+        aria-label={`row-${groupName}`}
       >
         <td className="bg-secondary group-hover:bg-base-300 rounded-l-[12px] w-1/6">
           <div className="items-center space-x-3 hidden xs:flex">
@@ -633,20 +633,30 @@ const GroupRow = React.memo(function GroupRow({
         </td>
         <td className="bg-secondary group-hover:bg-base-300 rounded-r-[12px] sm:rounded-l-none w-1/6">
           <div className="flex space-x-2 justify-end">
-            <button
-              className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
-              onClick={openInfoModal}
-              aria-label={`View info for ${groupName}`}
+            <div
+              className="tooltip tooltip-left tooltip-primary hover:after:delay-1000 hover:before:delay-1000"
+              data-tip="Group Details"
             >
-              <PiInfo className="w-7 h-7 text-current" />
-            </button>
-            <button
-              className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
-              onClick={openMemberModal}
-              aria-label={`Manage members for ${groupName}`}
+              <button
+                className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+                onClick={openInfoModal}
+                aria-label="btn-group-details"
+              >
+                <PiInfo className="w-7 h-7 text-current" />
+              </button>
+            </div>
+            <div
+              className="tooltip tooltip-left tooltip-primary hover:after:delay-1000 hover:before:delay-1000"
+              data-tip="Manage Members"
             >
-              <MemberIcon className="w-7 h-7 text-current" />
-            </button>
+              <button
+                className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+                onClick={openMemberModal}
+                aria-label="btn-group-members"
+              >
+                <MemberIcon className="w-7 h-7 text-current" />
+              </button>
+            </div>
           </div>
         </td>
 

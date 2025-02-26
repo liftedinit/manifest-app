@@ -49,12 +49,6 @@ export function HistoryBox({
 
   const isLoading = initialLoading || txLoading || isMetadatasLoading;
 
-  useIntervalDebounceEffect(
-    () => Promise.all([refetch(), refetchMetadatas()]),
-    HISTORY_BOX_REFRESH_INTERVAL,
-    [refetch, refetchMetadatas]
-  );
-
   function formatDateShort(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleString('en-US', {

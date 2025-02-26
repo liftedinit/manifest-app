@@ -19,8 +19,7 @@ import { MFX_TOKEN_DATA, OSMOSIS_TOKEN_DATA } from '@/utils/constants';
 import env from '@/config/env';
 import { SEO } from '@/components';
 import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
-import Link from 'next/link';
-import { denomToAsset } from '@/utils';
+import { denomToAsset, MFX_TOKEN_BASE, unsafeConvertTokenBase } from '@/utils';
 
 interface PageSizeConfig {
   tokenList: number;
@@ -101,7 +100,7 @@ export default function Bank() {
     const mfxCombinedBalance: CombinedBalanceInfo | null = mfxCoreBalance
       ? {
           display: mfxResolvedBalance?.denom || 'mfx',
-          base: 'umfx',
+          base: MFX_TOKEN_BASE,
           amount: mfxCoreBalance.amount,
           metadata: MFX_TOKEN_DATA,
         }
@@ -123,7 +122,7 @@ export default function Bank() {
 
           return {
             display: baseDenom ?? '', // normalized denom (e.g., 'umfx')
-            base: coreBalance.denom, // full IBC trace
+            base: unsafeConvertTokenBase(coreBalance.denom), // full IBC trace
             amount: coreBalance.amount,
             metadata: {
               description: assetInfo?.description ?? '',
@@ -142,9 +141,10 @@ export default function Bank() {
           };
         }
 
+        // TODO: move this code to a `CombinedBalanceInfo` factory function.
         return {
           display: resolvedBalance?.denom || coreBalance.denom,
-          base: coreBalance.denom,
+          base: unsafeConvertTokenBase(coreBalance.denom),
           amount: coreBalance.amount,
           metadata: metadata || null,
         };

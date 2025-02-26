@@ -124,28 +124,38 @@ export const TokenList = React.memo(function TokenList(props: Readonly<TokenList
                   </p>
                 </div>
                 <div className="flex flex-row gap-2">
-                  <button
-                    aria-label={`info-${balance?.display}`}
-                    onClick={e => {
-                      e.stopPropagation();
-                      setSelectedDenomBase(balance?.base);
-                      setOpenDenomInfoModal(true);
-                    }}
-                    className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+                  <div
+                    className="tooltip tooltip-left tooltip-primary hover:after:delay-1000 hover:before:delay-1000"
+                    data-tip="Token Details"
                   >
-                    <QuestionIcon className="w-7 h-7 text-current" />
-                  </button>
-                  <button
-                    aria-label={`send-${balance?.display}`}
-                    onClick={e => {
-                      e.stopPropagation();
-                      setSelectedDenomBase(balance?.base);
-                      setIsSendModalOpen(true);
-                    }}
-                    className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+                    <button
+                      aria-label={`info-${balance?.display}`}
+                      onClick={e => {
+                        e.stopPropagation();
+                        setSelectedDenomBase(balance?.base);
+                        setOpenDenomInfoModal(true);
+                      }}
+                      className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+                    >
+                      <QuestionIcon className="w-7 h-7 text-current" />
+                    </button>
+                  </div>
+                  <div
+                    className="tooltip tooltip-left tooltip-primary hover:after:delay-1000 hover:before:delay-1000"
+                    data-tip="Send Tokens"
                   >
-                    <SendTxIcon className="w-7 h-7 text-current" />
-                  </button>
+                    <button
+                      aria-label={`send-${balance?.display}`}
+                      onClick={e => {
+                        e.stopPropagation();
+                        setSelectedDenomBase(balance?.base);
+                        setIsSendModalOpen(true);
+                      }}
+                      className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+                    >
+                      <SendTxIcon className="w-7 h-7 text-current" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
