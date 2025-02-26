@@ -9,7 +9,7 @@ export type FormData = {
   description: string;
   votingPeriod: Duration;
   votingThreshold: string;
-  members: { address: string; name: string; weight: string }[];
+  members: { address: string; name: string }[];
 };
 
 export type TokenFormData = {

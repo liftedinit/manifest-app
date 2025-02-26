@@ -35,14 +35,24 @@ describe('GroupPolicyForm Component', () => {
     expect(hoursInput).toHaveValue(2);
 
     const votingThresholdInput = screen.getByPlaceholderText('e.g., 1');
-    fireEvent.change(votingThresholdInput, { target: { value: 3 } });
+    fireEvent.change(votingThresholdInput, { target: { value: 2 } });
     await waitFor(() => {
       expect(mockProps.dispatch).toHaveBeenCalledWith({
         type: 'UPDATE_FIELD',
         field: 'votingThreshold',
-        value: 3,
+        value: 2,
       });
     });
+    const nextButton = screen.getByText('Next: Confirmation');
+    expect(nextButton).toBeEnabled();
+  });
+
+  test('next button is disabled if voting threshold is higher than total members', async () => {
+    renderWithChainProvider(<GroupPolicyForm {...mockProps} />);
+    const votingThresholdInput = screen.getByPlaceholderText('e.g., 1');
+    fireEvent.change(votingThresholdInput, { target: { value: 3 } });
+    const nextButton = screen.getByText('Next: Confirmation');
+    expect(nextButton).toBeDisabled();
   });
 
   test('next button is disabled when form is not dirty', async () => {

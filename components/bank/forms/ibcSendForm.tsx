@@ -19,7 +19,7 @@ import env from '@/config/env';
 
 import { useSkipClient } from '@/contexts/skipGoContext';
 
-import { IbcChain } from '@/components';
+import { IbcChain, MaxButton } from '@/components';
 
 import { useChain } from '@cosmos-kit/react';
 import { useToast } from '@/contexts';
@@ -159,11 +159,6 @@ export default function IbcSendForm({
     memo: Yup.string().max(255, 'Memo must be less than 255 characters'),
   });
 
-  // Helper function to format amount with proper decimals
-  const formatAmount = (amount: number, decimals: number) => {
-    return amount.toFixed(decimals).replace(/\.?0+$/, '');
-  };
-
   // Main form submission handler
   const handleSend = async (values: {
     recipient: string;
@@ -189,7 +184,7 @@ export default function IbcSendForm({
 
       // Get IBC denom for destination chain
       const ibcDenom = getIbcDenom(selectedToChain.id, values.selectedToken.base);
-
+      console.log(selectedFromChain.chainID, selectedToChain.chainID);
       // Setup skip protocol route
       const route = await skipClient.route({
         sourceAssetDenom: values.selectedToken.base,
@@ -621,31 +616,10 @@ export default function IbcSendForm({
                               : truncateString(tokenDisplayName, 10).toUpperCase();
                         })()}
                       </span>
-                      <button
-                        type="button"
-                        className="text-xs text-primary"
-                        onClick={() => {
-                          if (!values.selectedToken) return;
-
-                          const exponent =
-                            values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-                          const maxAmount =
-                            Number(values.selectedToken.amount) / Math.pow(10, exponent);
-
-                          let adjustedMaxAmount = maxAmount;
-                          if (values.selectedToken.base === 'umfx') {
-                            adjustedMaxAmount = Math.max(0, maxAmount - 0.1);
-                          }
-
-                          const decimals =
-                            values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-                          const formattedAmount = formatAmount(adjustedMaxAmount, decimals);
-
-                          setFieldValue('amount', formattedAmount);
-                        }}
-                      >
-                        MAX
-                      </button>
+                      <MaxButton
+                        token={values.selectedToken}
+                        setTokenAmount={(amount: string) => setFieldValue('amount', amount)}
+                      />
                     </div>
                     {errors.amount && <div className="text-red-500 text-xs">{errors.amount}</div>}
                     {feeWarning && !errors.amount && (

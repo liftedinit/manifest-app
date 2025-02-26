@@ -1,10 +1,7 @@
 import { Chain } from '@chain-registry/types';
-import {
-  BondStatus,
-  ParamsSDKType,
-} from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
-import { ExtendedValidatorSDKType, TransactionGroup } from '@/components';
-import { CombinedBalanceInfo } from '@/utils/types';
+import { BondStatus } from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
+import { ExtendedValidatorSDKType } from '@/components';
+import { CombinedBalanceInfo, ExtendedMetadataSDKType } from '@/utils/types';
 import { ExtendedGroupType } from '@/hooks';
 import {
   MemberSDKType,
@@ -27,6 +24,7 @@ import {
   MsgPayout,
 } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
 import { TxMessage } from '@/components/bank/types';
+import { MFX_TOKEN_BASE, unsafeConvertTokenBase } from '@/utils';
 
 export const manifestAddr1 = 'manifest1hj5fveer5cjtn4wd6wstzugjfdxzl0xp8ws9ct';
 export const manifestAddr2 = 'manifest1efd63aw40lxf3n4mhf7dzhjkr453axurm6rp3z';
@@ -62,13 +60,13 @@ export const mockDenomMeta2: MetadataSDKType = {
 export const mockBalances: CombinedBalanceInfo[] = [
   {
     display: 'token1',
-    base: 'utoken1',
+    base: unsafeConvertTokenBase('utoken1'),
     amount: '1000',
     metadata: mockDenomMeta1,
   },
   {
     display: 'token2',
-    base: 'utoken2',
+    base: unsafeConvertTokenBase('utoken2'),
     amount: '2000',
     metadata: mockDenomMeta2,
   },
@@ -559,14 +557,27 @@ export const mockDenom2 = {
   symbol: 'TST2',
 };
 
-export const mockMfxDenom = {
+export const mockMfxDenom: ExtendedMetadataSDKType = {
   base: 'umfx',
   display: 'MFX',
+  description: 'MFX',
+  name: 'MFX',
   denom_units: [
     { denom: 'umfx', exponent: 0, aliases: ['umfx'] },
     { denom: 'mfx', exponent: 6, aliases: ['mfx'] },
   ],
   symbol: 'umfx',
+  uri: 'www.someuri.com',
+  uri_hash: 's0m3h4sh',
+  balance: '2000000',
+  totalSupply: '2000000000',
+};
+
+export const mockMfxBalance: CombinedBalanceInfo = {
+  display: 'mfx',
+  base: MFX_TOKEN_BASE,
+  amount: '2000000',
+  metadata: mockMfxDenom,
 };
 
 export const mockFakeMfxDenom = {

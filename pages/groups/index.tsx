@@ -1,5 +1,5 @@
 import { WalletNotConnected, GroupsIcon } from '@/components';
-import { YourGroups } from '@/components/groups/components/myGroups';
+import YourGroups from '@/components/groups/components/myGroups';
 import { useChain } from '@cosmos-kit/react';
 import Link from 'next/link';
 import React from 'react';

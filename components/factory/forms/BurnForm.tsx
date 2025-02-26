@@ -14,7 +14,7 @@ import { NumberInput, TextInput } from '@/components/react/inputs';
 import { TailwindModal } from '@/components/react/modal';
 import env from '@/config/env';
 import { MsgBurn } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
-
+import { useQueryClient } from '@tanstack/react-query';
 interface BurnPair {
   address: string;
   amount: string;
@@ -49,6 +49,7 @@ export default function BurnForm({
   const [burnPairs, setBurnPairs] = useState<BurnPair[]>([{ address: '', amount: '' }]);
 
   const [isContactsOpen, setIsContactsOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
@@ -148,6 +149,10 @@ export default function BurnForm({
         onSuccess: () => {
           setAmount('');
           refetch();
+          queryClient.invalidateQueries({ queryKey: ['allMetadatas'] });
+          queryClient.invalidateQueries({ queryKey: ['denoms'] });
+          queryClient.invalidateQueries({ queryKey: ['balances'] });
+          queryClient.invalidateQueries({ queryKey: ['totalSupply'] });
         },
       });
     } catch (error) {

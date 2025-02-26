@@ -13,8 +13,10 @@ import {
   CombinedBalanceInfo,
   denomToAsset,
   ExtendedMetadataSDKType,
+  MFX_TOKEN_BASE,
   MFX_TOKEN_DATA,
   truncateString,
+  unsafeConvertTokenBase,
 } from '@/utils';
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
@@ -45,7 +47,7 @@ interface PageSizeConfig {
   skeleton: number;
 }
 
-export function YourGroups({
+export default React.memo(function YourGroups({
   groups,
   proposals,
   isLoading,
@@ -179,6 +181,8 @@ export function YourGroups({
   const { balances, isBalancesLoading, refetchBalances } = useTokenBalances(
     selectedGroup?.policies[0]?.address ?? ''
   );
+
+  // console.log(`${selectedGroup?.policies[0]?.address} balances`, balances);
   const {
     balances: resolvedBalances,
     isBalancesLoading: resolvedLoading,
@@ -238,7 +242,6 @@ export function YourGroups({
     }
     return [];
   }, [denoms, metadatas, balances, totalSupply]);
-  const isDataReady = combinedData.length > 0;
 
   const combinedBalances = useMemo(() => {
     if (!balances || !resolvedBalances || !metadatas) return [];
@@ -251,7 +254,7 @@ export function YourGroups({
     const mfxCombinedBalance: CombinedBalanceInfo | null = mfxCoreBalance
       ? {
           display: mfxResolvedBalance?.denom || 'mfx',
-          base: 'umfx',
+          base: MFX_TOKEN_BASE,
           amount: mfxCoreBalance.amount,
           metadata: MFX_TOKEN_DATA,
         }
@@ -276,7 +279,7 @@ export function YourGroups({
 
           return {
             display: baseDenom ?? '', // normalized denom (e.g., 'umfx')
-            base: coreBalance.denom, // full IBC trace
+            base: unsafeConvertTokenBase(coreBalance.denom), // full IBC trace
             amount: coreBalance.amount,
             metadata: {
               description: assetInfo?.description ?? '',
@@ -295,9 +298,10 @@ export function YourGroups({
           };
         }
 
+        // TODO: move this code to a `CombinedBalanceInfo` factory function.
         return {
           display: resolvedBalance?.denom || coreBalance.denom,
-          base: metadata?.base ?? coreBalance.denom,
+          base: unsafeConvertTokenBase(metadata?.base ?? coreBalance.denom),
           amount: coreBalance.amount,
           metadata: metadata || null,
         };
@@ -539,9 +543,9 @@ export function YourGroups({
       </div>
     </div>
   );
-}
+});
 
-function GroupRow({
+const GroupRow = React.memo(function GroupRow({
   address,
   group,
   proposals,
@@ -692,4 +696,4 @@ function GroupRow({
       </tr>
     </>
   );
-}
+});
