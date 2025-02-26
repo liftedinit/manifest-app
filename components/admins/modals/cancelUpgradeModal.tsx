@@ -1,13 +1,14 @@
-import React, { useEffect } from 'react';
-import { createPortal } from 'react-dom';
+import { Dialog } from '@headlessui/react';
 import { cosmos } from '@liftedinit/manifestjs';
-import { useFeeEstimation, useTx } from '@/hooks';
-import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgCancelUpgrade } from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
 import { PlanSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/upgrade';
-import env from '@/config/env';
-import { Dialog } from '@headlessui/react';
+import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
+import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
+
 import { SignModal } from '@/components/react';
+import env from '@/config/env';
+import { useFeeEstimation, useTx } from '@/hooks';
 
 interface BaseModalProps {
   isOpen: boolean;

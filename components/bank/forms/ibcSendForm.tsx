@@ -1,31 +1,26 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { useFeeEstimation, useTx } from '@/hooks';
+import { useChain } from '@cosmos-kit/react';
 import { cosmos, ibc } from '@liftedinit/manifestjs';
+import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgTransfer } from '@liftedinit/manifestjs/dist/codegen/ibc/applications/transfer/v1/tx';
-import { getIbcInfo, parseNumberToBigInt, shiftDigits, truncateString, getIbcDenom } from '@/utils';
-import { PiCaretDownBold } from 'react-icons/pi';
-import { MdContacts } from 'react-icons/md';
-import { CombinedBalanceInfo } from '@/utils/types';
-import { DenomDisplay } from '@/components/factory';
-import { Formik, Form } from 'formik';
-import Yup from '@/utils/yupExtensions';
-import { TextInput } from '@/components/react/inputs';
-
+import { Form, Formik } from 'formik';
 import Image from 'next/image';
-import { SearchIcon } from '@/components/icons';
-
-import { TailwindModal } from '@/components/react/modal';
-import env from '@/config/env';
-
-import { useSkipClient } from '@/contexts/skipGoContext';
+import React, { useEffect, useMemo, useState } from 'react';
+import { MdContacts } from 'react-icons/md';
+import { PiCaretDownBold } from 'react-icons/pi';
 
 import { IbcChain, MaxButton } from '@/components';
-
-import { useChain } from '@cosmos-kit/react';
-import { useToast } from '@/contexts';
-
-import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { AmountInput } from '@/components';
+import { DenomDisplay } from '@/components/factory';
+import { SearchIcon } from '@/components/icons';
+import { TextInput } from '@/components/react/inputs';
+import { TailwindModal } from '@/components/react/modal';
+import env from '@/config/env';
+import { useToast } from '@/contexts';
+import { useSkipClient } from '@/contexts/skipGoContext';
+import { useFeeEstimation, useTx } from '@/hooks';
+import { getIbcDenom, getIbcInfo, parseNumberToBigInt, shiftDigits, truncateString } from '@/utils';
+import { CombinedBalanceInfo } from '@/utils/types';
+import Yup from '@/utils/yupExtensions';
 
 //TODO: switch to main-net names
 export default function IbcSendForm({

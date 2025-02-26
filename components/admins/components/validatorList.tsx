@@ -1,12 +1,14 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { ValidatorSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
+import Image from 'next/image';
+import React, { useEffect, useMemo, useState } from 'react';
+
+import { SearchIcon, TrashIcon } from '@/components/icons';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import useIsMobile from '@/hooks/useIsMobile';
+import ProfileAvatar from '@/utils/identicon';
+
 import { ValidatorDetailsModal } from '../modals/validatorModal';
 import { WarningModal } from '../modals/warningModal';
-import { ValidatorSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
-import ProfileAvatar from '@/utils/identicon';
-import Image from 'next/image';
-import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
-import { SearchIcon, TrashIcon } from '@/components/icons';
-import useIsMobile from '@/hooks/useIsMobile';
 
 export interface ExtendedValidatorSDKType extends ValidatorSDKType {
   consensus_power?: bigint;

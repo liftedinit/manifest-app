@@ -1,6 +1,7 @@
-import { describe, test, afterEach, expect, mock, jest } from 'bun:test';
+import { cleanup, screen } from '@testing-library/react';
+import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
 import React from 'react';
-import { screen, cleanup } from '@testing-library/react';
+
 import { WarningModal } from '@/components/admins/modals/warningModal';
 import { renderWithChainProvider } from '@/tests/render';
 

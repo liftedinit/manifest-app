@@ -1,13 +1,13 @@
-import '../styles/globals.css';
-import '@interchain-ui/react/styles';
 import '@fontsource/manrope';
-
+import '@interchain-ui/react/styles';
 import type { AppProps } from 'next/app';
-import SideNav from '../components/react/sideNav';
-import MobileNav from '@/components/react/mobileNav';
 
+import MobileNav from '@/components/react/mobileNav';
 import { ManifestAppProviders } from '@/contexts/manifestAppProviders';
 import { useLocalStorage } from '@/hooks';
+
+import SideNav from '../components/react/sideNav';
+import '../styles/globals.css';
 
 type ManifestAppProps = AppProps & {
   Component: AppProps['Component'];

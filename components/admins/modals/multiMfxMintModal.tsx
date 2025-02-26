@@ -1,21 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { Formik, Form, FieldArray, Field, FieldProps } from 'formik';
-import Yup from '@/utils/yupExtensions';
-import { NumberInput, TextInput } from '@/components/react/inputs';
-import { TailwindModal } from '@/components/react';
-import { createPortal } from 'react-dom';
-
-import { MdContacts } from 'react-icons/md';
-import { PlusIcon, MinusIcon } from '@/components/icons';
-import { useTx, useFeeEstimation } from '@/hooks';
+import { Dialog } from '@headlessui/react';
 import { cosmos, liftedinit } from '@liftedinit/manifestjs';
+import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgPayout } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
-import { parseNumberToBigInt, shiftDigits } from '@/utils';
-import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
-import env from '@/config/env';
-import { Dialog } from '@headlessui/react';
+import { Field, FieldArray, FieldProps, Form, Formik } from 'formik';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { MdContacts } from 'react-icons/md';
+
+import { MinusIcon, PlusIcon } from '@/components/icons';
+import { TailwindModal } from '@/components/react';
 import { SignModal } from '@/components/react';
+import { NumberInput, TextInput } from '@/components/react/inputs';
+import env from '@/config/env';
+import { useFeeEstimation, useTx } from '@/hooks';
+import { parseNumberToBigInt, shiftDigits } from '@/utils';
+import Yup from '@/utils/yupExtensions';
+
 //TODO: find max mint amount from team for mfx. Find tx size limit for max payout pairs
 interface PayoutPair {
   address: string;

@@ -1,13 +1,14 @@
-import React, { MouseEventHandler, useEffect, useMemo, useState, useRef } from 'react';
-
-import { ArrowDownTrayIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
-import { ArrowUpIcon, CopyIcon } from './icons';
 import { useChain } from '@cosmos-kit/react';
+import { ArrowDownTrayIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { WalletStatus } from 'cosmos-kit';
+import React, { MouseEventHandler, useEffect, useMemo, useRef, useState } from 'react';
 import { MdWallet } from 'react-icons/md';
+
 import env from '@/config/env';
-import { Username } from './username';
 import { truncateAddress } from '@/utils';
+
+import { ArrowUpIcon, CopyIcon } from './icons';
+import { Username } from './username';
 
 const buttons = {
   Disconnected: {

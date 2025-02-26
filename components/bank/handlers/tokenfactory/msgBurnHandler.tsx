@@ -1,8 +1,10 @@
-import { FactoryIcon } from '@/components/icons/FactoryIcon';
-import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
-import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
 import { MsgBurn } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+
 import { createTokenMessage } from '@/components';
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { FactoryIcon } from '@/components/icons/FactoryIcon';
+
+import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 
 export const MsgBurnHandler = createSenderReceiverHandler({
   iconSender: FactoryIcon,

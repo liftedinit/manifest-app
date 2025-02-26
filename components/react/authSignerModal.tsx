@@ -1,12 +1,7 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { SignData } from '@cosmos-kit/web3auth';
-import { AuthInfo, TxBody } from '@liftedinit/manifestjs/dist/codegen/cosmos/tx/v1beta1/tx';
 import { decodePubkey } from '@cosmjs/proto-signing';
 import { useChain, useWallet } from '@cosmos-kit/react';
-import { getRealLogo } from '@/utils';
-import { useTheme } from '@/contexts';
-import env from '@/config/env';
-import { ArrowRightIcon } from '../icons';
+import { SignData } from '@cosmos-kit/web3auth';
+import { Dialog } from '@headlessui/react';
 import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
 import {
   MsgCreateGroupWithPolicy,
@@ -16,11 +11,11 @@ import {
   MsgUpdateGroupPolicyDecisionPolicy,
   MsgUpdateGroupPolicyMetadata,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
+import { AuthInfo, TxBody } from '@liftedinit/manifestjs/dist/codegen/cosmos/tx/v1beta1/tx';
 import {
   MsgCancelUpgrade,
   MsgSoftwareUpgrade,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
-import { MsgSetPower } from '@liftedinit/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
 import {
   MsgBurnHeldBalance,
   MsgPayout,
@@ -29,12 +24,19 @@ import {
   MsgCreateDenom,
   MsgSetDenomMetadata,
 } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
-import { Dialog } from '@headlessui/react';
-import { Web3AuthContext } from '@/contexts/web3AuthContext';
+import { MsgSetPower } from '@liftedinit/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
 import Image from 'next/image';
+import React, { useContext, useEffect, useState } from 'react';
 import { PrismAsyncLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import oneDark from 'react-syntax-highlighter/dist/esm/styles/prism/one-dark';
 import oneLight from 'react-syntax-highlighter/dist/esm/styles/prism/one-light';
+
+import env from '@/config/env';
+import { useTheme } from '@/contexts';
+import { Web3AuthContext } from '@/contexts/web3AuthContext';
+import { getRealLogo } from '@/utils';
+
+import { ArrowRightIcon } from '../icons';
 
 type DisplayDataToSignProps = {
   data: SignData;

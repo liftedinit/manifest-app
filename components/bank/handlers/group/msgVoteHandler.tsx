@@ -1,10 +1,12 @@
-import { GroupsIcon } from '@/components/icons/GroupsIcon';
-import { formatVote } from '@/utils';
-import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
-import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
 import { MsgVote } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
-import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { format } from 'react-string-format';
+
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { GroupsIcon } from '@/components/icons/GroupsIcon';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import { formatVote } from '@/utils';
+
+import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 
 const createMessage = (template: string, vote: string, ids: string, sender?: string) => {
   const message = format(

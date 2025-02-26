@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import { useTx } from '@/hooks/useTx';
-import { osmosis } from '@liftedinit/manifestjs';
 import { useChain } from '@cosmos-kit/react';
+import { osmosis } from '@liftedinit/manifestjs';
 import { DenomUnit } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { useState } from 'react';
+
 import env from '@/config/env';
+import { useTx } from '@/hooks/useTx';
 
 export const useSimulateDenomCreation = () => {
   const [isSimulating, setIsSimulating] = useState(false);

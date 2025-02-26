@@ -1,6 +1,7 @@
-import { CombinedBalanceInfo, isMfxToken } from '@/utils';
-import { MFX_FEES_CONSTANT, useEstimateMaxTokenAmount } from '@/hooks';
 import React from 'react';
+
+import { MFX_FEES_CONSTANT, useEstimateMaxTokenAmount } from '@/hooks';
+import { CombinedBalanceInfo, isMfxToken } from '@/utils';
 
 export interface MaxButtonProps {
   token: CombinedBalanceInfo | null;

@@ -1,5 +1,6 @@
-import { ExtendedMetadataSDKType } from './types';
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+
+import { ExtendedMetadataSDKType } from './types';
 
 export const MFX_TOKEN_DATA: MetadataSDKType = {
   description: 'The native token of the Manifest Chain',

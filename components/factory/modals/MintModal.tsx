@@ -1,10 +1,11 @@
+import { Dialog } from '@headlessui/react';
 import React from 'react';
+import { createPortal } from 'react-dom';
+
 import MintForm from '@/components/factory/forms/MintForm';
+import { SignModal } from '@/components/react';
 import { useGroupsByAdmin } from '@/hooks';
 import { ExtendedMetadataSDKType, truncateString } from '@/utils';
-import { createPortal } from 'react-dom';
-import { Dialog } from '@headlessui/react';
-import { SignModal } from '@/components/react';
 
 export default function MintModal({
   denom,

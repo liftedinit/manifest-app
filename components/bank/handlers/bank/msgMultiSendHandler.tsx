@@ -1,17 +1,18 @@
-import { MsgMultiSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
-import { createSenderReceiverHandler } from '@/components/bank/handlers/createSenderReceiverHandler';
-import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
-import { BankIcon } from '@/components/icons/BankIcon';
-import { format } from 'react-string-format';
-import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
-import BigNumber from 'bignumber.js';
 import {
   Input,
   MetadataSDKType,
   Output,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
-import { formatAmount, formatDenom, formatLargeNumber } from '@/utils';
+import { MsgMultiSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
+import BigNumber from 'bignumber.js';
 import React from 'react';
+import { format } from 'react-string-format';
+
+import { createSenderReceiverHandler } from '@/components/bank/handlers/createSenderReceiverHandler';
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { BankIcon } from '@/components/icons/BankIcon';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import { formatAmount, formatDenom, formatLargeNumber } from '@/utils';
 
 const createSendMessage = (
   template: string,

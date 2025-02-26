@@ -1,6 +1,7 @@
-import { describe, test, expect, afterEach } from 'bun:test';
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, test } from 'bun:test';
 import React from 'react';
-import { render, screen, cleanup } from '@testing-library/react';
+
 import StepIndicator from '@/components/react/StepIndicator';
 
 describe('StepIndicator Component', () => {

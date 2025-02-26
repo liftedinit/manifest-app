@@ -1,6 +1,7 @@
-import { test, expect, afterEach, describe, mock, jest } from 'bun:test';
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
 import React from 'react';
-import { screen, cleanup, render } from '@testing-library/react';
+
 import { MaxButton } from '@/components';
 import { mockBalances, mockMfxBalance } from '@/tests/mock';
 

@@ -1,8 +1,10 @@
-import React, { useMemo } from 'react';
-import SendBox from '../components/sendBox';
-import { CombinedBalanceInfo } from '@/utils/types';
 import { Dialog, Portal } from '@headlessui/react';
+import React, { useMemo } from 'react';
+
 import { SignModal } from '@/components/react';
+import { CombinedBalanceInfo } from '@/utils/types';
+
+import SendBox from '../components/sendBox';
 
 interface SendModalProps {
   modalId?: string;

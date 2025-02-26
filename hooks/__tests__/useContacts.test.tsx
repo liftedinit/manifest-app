@@ -1,9 +1,10 @@
-import { test, expect, beforeEach, afterEach, describe, jest } from 'bun:test';
-import { cleanup, render, waitFor } from '@testing-library/react';
-import { ContactsContext, ContactsContextType, ContactsProvider, useContacts } from '@/hooks';
-import React, { useContext } from 'react';
-import { ErrorBoundary } from 'next/dist/client/components/error-boundary';
 import matchers from '@testing-library/jest-dom/matchers';
+import { cleanup, render, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, jest, test } from 'bun:test';
+import { ErrorBoundary } from 'next/dist/client/components/error-boundary';
+import React, { useContext } from 'react';
+
+import { ContactsContext, ContactsContextType, ContactsProvider, useContacts } from '@/hooks';
 
 expect.extend({ ...matchers });
 

@@ -1,29 +1,28 @@
-import React, { useEffect, useState } from 'react';
-import { useMultipleTallyCounts, useProposalsByPolicyAccount } from '@/hooks/useQueries';
+import { useChain } from '@cosmos-kit/react';
+import { QueryTallyResultResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
 import {
   ProposalSDKType,
   ProposalStatus,
   proposalStatusToJSON,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
-import { QueryTallyResultResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
-
-import { useRouter } from 'next/router';
-
-import VoteDetailsModal from '@/components/groups/modals/voteDetailsModal';
-import { useChain } from '@cosmos-kit/react';
-import { ArrowRightIcon } from '@/components/icons';
-import ProfileAvatar from '@/utils/identicon';
-import { HistoryBox, TokenList } from '@/components';
-import { CombinedBalanceInfo, ExtendedMetadataSDKType } from '@/utils';
-import DenomList from '@/components/factory/components/DenomList';
-import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
-import env from '@/config/env';
-import { TxMessage } from '@/components/bank/types';
-import useIsMobile from '@/hooks/useIsMobile';
 import {
   ProposalExecutorResult,
   proposalExecutorResultToJSON,
 } from 'cosmjs-types/cosmos/group/v1/types';
+import { useRouter } from 'next/router';
+import React, { useEffect, useState } from 'react';
+
+import { HistoryBox, TokenList } from '@/components';
+import { TxMessage } from '@/components/bank/types';
+import DenomList from '@/components/factory/components/DenomList';
+import VoteDetailsModal from '@/components/groups/modals/voteDetailsModal';
+import { ArrowRightIcon } from '@/components/icons';
+import env from '@/config/env';
+import useIsMobile from '@/hooks/useIsMobile';
+import { useMultipleTallyCounts, useProposalsByPolicyAccount } from '@/hooks/useQueries';
+import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
+import { CombinedBalanceInfo, ExtendedMetadataSDKType } from '@/utils';
+import ProfileAvatar from '@/utils/identicon';
 
 type GroupControlsProps = {
   policyAddress: string;

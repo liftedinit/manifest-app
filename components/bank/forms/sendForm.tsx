@@ -1,21 +1,22 @@
-import React, { useMemo, useState } from 'react';
-import { useFeeEstimation, useTx } from '@/hooks';
 import { cosmos } from '@liftedinit/manifestjs';
-import { PiCaretDownBold } from 'react-icons/pi';
-import { parseNumberToBigInt, shiftDigits, truncateString } from '@/utils';
-import { CombinedBalanceInfo } from '@/utils/types';
-import { DenomDisplay } from '@/components/factory';
-import { Formik, Form } from 'formik';
-import Yup from '@/utils/yupExtensions';
-import { TextInput } from '@/components/react/inputs';
-import { SearchIcon } from '@/components/icons';
-import { TailwindModal } from '@/components/react/modal';
-import { MdContacts } from 'react-icons/md';
-import env from '@/config/env';
-import { Any } from 'cosmjs-types/google/protobuf/any';
 import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
 import { useQueryClient } from '@tanstack/react-query';
+import { Any } from 'cosmjs-types/google/protobuf/any';
+import { Form, Formik } from 'formik';
+import React, { useMemo, useState } from 'react';
+import { MdContacts } from 'react-icons/md';
+import { PiCaretDownBold } from 'react-icons/pi';
+
 import { AmountInput, MaxButton } from '@/components';
+import { DenomDisplay } from '@/components/factory';
+import { SearchIcon } from '@/components/icons';
+import { TextInput } from '@/components/react/inputs';
+import { TailwindModal } from '@/components/react/modal';
+import env from '@/config/env';
+import { useFeeEstimation, useTx } from '@/hooks';
+import { parseNumberToBigInt, shiftDigits, truncateString } from '@/utils';
+import { CombinedBalanceInfo } from '@/utils/types';
+import Yup from '@/utils/yupExtensions';
 
 export default function SendForm({
   address,

@@ -1,9 +1,9 @@
 import { AssetList } from '@chain-registry/types';
-import { assets } from 'chain-registry';
 import {
   VoteOption,
   voteOptionFromJSON,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { assets } from 'chain-registry';
 
 export const decodeUint8Arr = (uint8array: Uint8Array | undefined) => {
   if (!uint8array) return '';

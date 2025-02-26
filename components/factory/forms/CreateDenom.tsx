@@ -1,10 +1,11 @@
-import React from 'react';
-import { Formik, Form } from 'formik';
-import Yup from '@/utils/yupExtensions';
-import { TokenAction, TokenFormData } from '@/helpers/formReducer';
+import { Form, Formik } from 'formik';
 import Link from 'next/link';
+import React from 'react';
+
 import { TextInput } from '@/components/react/inputs';
+import { TokenAction, TokenFormData } from '@/helpers/formReducer';
 import { useSimulateDenomCreation } from '@/utils';
+import Yup from '@/utils/yupExtensions';
 
 export default function CreateDenom({
   nextStep,

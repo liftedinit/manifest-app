@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { TransactionAmount, TxMessage } from '../types';
-import { shiftDigits, formatLargeNumber, formatDenom, formatDenomWithBadge } from '@/utils';
-import { getHandler } from '@/components/bank/handlers/handlerRegistry';
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import React, { useEffect, useState } from 'react';
+
+import { getHandler } from '@/components/bank/handlers/handlerRegistry';
 import { useTokenFactoryDenomsMetadata } from '@/hooks';
-import TxInfoModal from '../modals/txInfo';
 import { useIntervalDebounceEffect } from '@/hooks/useDebounceEffect';
+import { formatDenom, formatDenomWithBadge, formatLargeNumber, shiftDigits } from '@/utils';
+
+import TxInfoModal from '../modals/txInfo';
+import { TransactionAmount, TxMessage } from '../types';
 
 // Interval to refresh the history box transaction and metadata.
 // This is used as a delay between successful queries.

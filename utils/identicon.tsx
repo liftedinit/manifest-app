@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
-import React, { useState, useEffect } from 'react';
-import Identicon, { IdenticonOptions } from 'identicon.js';
 import CryptoJS from 'crypto-js';
+import Identicon, { IdenticonOptions } from 'identicon.js';
+import React, { useEffect, useState } from 'react';
 
 const ProfileAvatar = ({
   walletAddress,

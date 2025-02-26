@@ -1,14 +1,14 @@
-import env from '@/config/env';
-import { SEO } from '@/components';
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
 import {
-  BookmarkSquareIcon,
   BookOpenIcon,
-  RssIcon,
+  BookmarkSquareIcon,
   MagnifyingGlassCircleIcon,
+  RssIcon,
 } from '@heroicons/react/24/solid';
-
 import Link from 'next/link';
+
+import { SEO } from '@/components';
+import env from '@/config/env';
 
 export default function FourOhFour() {
   const links = [

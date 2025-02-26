@@ -1,16 +1,17 @@
-import { WalletNotConnected } from '@/components';
 import { useChain } from '@cosmos-kit/react';
-import ValidatorList from '@/components/admins/components/validatorList';
+import { ValidatorSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
 import Head from 'next/head';
 import React from 'react';
-
-import { useGroupsByAdmin, usePendingValidators, usePoaGetAdmin, useValidators } from '@/hooks';
-import { ValidatorSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
 import { PiWarning } from 'react-icons/pi';
-import { AdminsIcon } from '@/components/icons';
-import { StakeHolderPayout, ChainUpgrader } from '@/components/admins/components';
-import env from '@/config/env';
+
+import { WalletNotConnected } from '@/components';
 import { SEO } from '@/components';
+import { ChainUpgrader, StakeHolderPayout } from '@/components/admins/components';
+import ValidatorList from '@/components/admins/components/validatorList';
+import { AdminsIcon } from '@/components/icons';
+import env from '@/config/env';
+import { useGroupsByAdmin, usePendingValidators, usePoaGetAdmin, useValidators } from '@/hooks';
+
 export default function Admins() {
   const { address, isWalletConnected } = useChain(env.chain);
   const { poaAdmin } = usePoaGetAdmin();

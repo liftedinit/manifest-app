@@ -1,5 +1,6 @@
-import { containsProfanity } from '@/utils/profanityFilter';
 import { describe, expect, test } from 'bun:test';
+
+import { containsProfanity } from '@/utils/profanityFilter';
 
 describe('containsProfanity', () => {
   test('should return true if the string contains profanity', () => {

@@ -1,5 +1,6 @@
-import env from './env';
 import { AssetList, Chain, IBCInfo } from '@chain-registry/types';
+
+import env from './env';
 
 const buildType = env.chainTier;
 let manifestModule: {

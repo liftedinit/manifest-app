@@ -1,7 +1,8 @@
-import { useCallback, createContext, ReactNode, useContext } from 'react';
+import { ReactNode, createContext, useCallback, useContext } from 'react';
+
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { Contact } from '@/utils/types';
 import Yup from '@/utils/yupExtensions';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 const STORAGE_KEY = 'manifest.contacts';
 

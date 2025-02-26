@@ -1,10 +1,11 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import { ChainContext } from '@cosmos-kit/core';
+import React, { useEffect, useMemo, useState } from 'react';
+
+import SendModal from '@/components/bank/modals/sendModal';
 import { DenomDisplay, DenomImage, DenomInfoModal } from '@/components/factory';
+import { QuestionIcon, SendTxIcon, VerifiedIcon } from '@/components/icons';
 import { shiftDigits, truncateString } from '@/utils';
 import { CombinedBalanceInfo } from '@/utils/types';
-import { SendTxIcon, QuestionIcon, VerifiedIcon } from '@/components/icons';
-import SendModal from '@/components/bank/modals/sendModal';
-import { ChainContext } from '@cosmos-kit/core';
 
 interface TokenListProps {
   balances: CombinedBalanceInfo[] | undefined;

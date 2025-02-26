@@ -1,11 +1,11 @@
 import { Asset, AssetList, IBCInfo } from '@chain-registry/types';
-
 import { Coin } from '@liftedinit/manifestjs/dist/codegen/cosmos/base/v1beta1/coin';
+import { assets as axelarAssets, ibc as axelarIbc } from 'chain-registry/testnet/axelartestnet';
+import { assets as osmosisAssets, ibc as osmosisIbc } from 'chain-registry/testnet/osmosistestnet';
+
+import { manifestAssets, manifestIbc } from '@/config/manifestChain';
 
 import { shiftDigits } from './maths';
-import { assets as osmosisAssets, ibc as osmosisIbc } from 'chain-registry/testnet/osmosistestnet';
-import { assets as axelarAssets, ibc as axelarIbc } from 'chain-registry/testnet/axelartestnet';
-import { manifestAssets, manifestIbc } from '@/config/manifestChain';
 
 const assets: AssetList[] = [manifestAssets, osmosisAssets, axelarAssets];
 

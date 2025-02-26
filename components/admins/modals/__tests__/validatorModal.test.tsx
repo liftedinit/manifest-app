@@ -1,6 +1,7 @@
-import { describe, test, afterEach, expect, mock, jest } from 'bun:test';
+import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
 import React from 'react';
-import { screen, fireEvent, cleanup, within, waitFor } from '@testing-library/react';
+
 import { ValidatorDetailsModal } from '@/components/admins/modals/validatorModal';
 import { mockActiveValidators } from '@/tests/mock';
 import { renderWithChainProvider } from '@/tests/render';

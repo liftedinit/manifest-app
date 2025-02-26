@@ -1,5 +1,6 @@
-import { test, expect, afterEach, describe } from 'bun:test';
-import { isMfxToken, MFX_TOKEN_BASE, unsafeConvertTokenBase } from '@/utils';
+import { afterEach, describe, expect, test } from 'bun:test';
+
+import { MFX_TOKEN_BASE, isMfxToken, unsafeConvertTokenBase } from '@/utils';
 
 describe('isMfxToken', () => {
   test('works', () => {

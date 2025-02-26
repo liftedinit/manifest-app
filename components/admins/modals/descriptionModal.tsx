@@ -1,5 +1,5 @@
-import React from 'react';
 import { Dialog } from '@headlessui/react';
+import React from 'react';
 
 interface DescriptionModalProps {
   open?: boolean;

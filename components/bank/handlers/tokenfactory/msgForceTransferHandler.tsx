@@ -1,12 +1,14 @@
-import { FactoryIcon } from '@/components/icons/FactoryIcon';
-import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
-import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { MsgForceTransfer } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
 import React from 'react';
 import { format } from 'react-string-format';
-import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
-import { formatAmount, formatDenom, formatLargeNumber } from '@/utils';
+
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { FactoryIcon } from '@/components/icons/FactoryIcon';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import { formatAmount, formatDenom, formatLargeNumber } from '@/utils';
+
+import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 
 const createMessage = (
   template: string,

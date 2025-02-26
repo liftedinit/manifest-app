@@ -1,9 +1,10 @@
+import { cleanup, fireEvent, screen } from '@testing-library/react';
 import { afterEach, describe, expect, jest, test } from 'bun:test';
 import React from 'react';
-import { cleanup, fireEvent, screen } from '@testing-library/react';
+
 import ConfirmationForm from '@/components/factory/forms/ConfirmationForm';
-import { renderWithChainProvider } from '@/tests/render';
 import { mockTokenFormData } from '@/tests/mock';
+import { renderWithChainProvider } from '@/tests/render';
 
 function renderWithProps(props = {}) {
   const mockProps = {

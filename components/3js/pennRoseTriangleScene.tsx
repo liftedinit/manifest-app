@@ -1,10 +1,10 @@
 // components/react/PenroseTriangleScene.tsx
-import { Canvas, useThree, useFrame } from '@react-three/fiber';
 import { Environment } from '@react-three/drei';
-import PenroseTriangle from './pennRoseTriangle';
-import { useRef, useEffect, useState, Suspense } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Easing, Tween } from '@tweenjs/tween.js';
+import { Suspense, useEffect, useRef, useState } from 'react';
 
-import { Tween, Easing } from '@tweenjs/tween.js';
+import PenroseTriangle from './pennRoseTriangle';
 
 function PenroseTriangleScene({ onLoad }: { onLoad: () => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);

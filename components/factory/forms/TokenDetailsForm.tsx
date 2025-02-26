@@ -1,8 +1,9 @@
+import { Form, Formik } from 'formik';
 import React from 'react';
-import { Formik, Form } from 'formik';
-import Yup from '@/utils/yupExtensions';
+
+import { TextArea, TextInput } from '@/components/react/inputs';
 import { TokenAction, TokenFormData } from '@/helpers/formReducer';
-import { TextInput, TextArea } from '@/components/react/inputs';
+import Yup from '@/utils/yupExtensions';
 
 export default function TokenDetails({
   nextStep,

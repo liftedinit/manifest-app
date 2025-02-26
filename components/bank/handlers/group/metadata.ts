@@ -1,6 +1,7 @@
-import { truncateString } from '@/utils';
 import { ThresholdDecisionPolicy } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { PercentageDecisionPolicy } from 'cosmjs-types/cosmos/group/v1/types';
+
+import { truncateString } from '@/utils';
 
 export function getGroupTitle(metadata: string): string | undefined {
   let title = '';

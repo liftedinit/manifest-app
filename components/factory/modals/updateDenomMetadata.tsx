@@ -1,18 +1,19 @@
-import { TokenFormData } from '@/helpers/formReducer';
-import { useFeeEstimation } from '@/hooks/useFeeEstimation';
-import { useTx } from '@/hooks/useTx';
+import { Dialog } from '@headlessui/react';
 import { cosmos, osmosis } from '@liftedinit/manifestjs';
-import { Formik, Form } from 'formik';
-import Yup from '@/utils/yupExtensions';
-import { TextInput, TextArea } from '@/components/react/inputs';
-import { truncateString, ExtendedMetadataSDKType } from '@/utils';
-import React from 'react';
-import env from '@/config/env';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgSetDenomMetadata } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
-import { useProposalsByPolicyAccount } from '@/hooks/useQueries';
-import { Dialog } from '@headlessui/react';
+import { Form, Formik } from 'formik';
+import React from 'react';
+
 import { SignModal } from '@/components/react';
+import { TextArea, TextInput } from '@/components/react/inputs';
+import env from '@/config/env';
+import { TokenFormData } from '@/helpers/formReducer';
+import { useFeeEstimation } from '@/hooks/useFeeEstimation';
+import { useProposalsByPolicyAccount } from '@/hooks/useQueries';
+import { useTx } from '@/hooks/useTx';
+import { ExtendedMetadataSDKType, truncateString } from '@/utils';
+import Yup from '@/utils/yupExtensions';
 
 const TokenDetailsSchema = (context: { subdenom: string }) =>
   Yup.object().shape({

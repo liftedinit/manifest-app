@@ -1,22 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
-import { ExtendedValidatorSDKType } from '@/components';
-import ProfileAvatar from '@/utils/identicon';
-import { BsThreeDots } from 'react-icons/bs';
-import { DescriptionModal } from './descriptionModal';
-import { useTx, useFeeEstimation } from '@/hooks';
-import { strangelove_ventures, cosmos } from '@liftedinit/manifestjs';
 import { useChain } from '@cosmos-kit/react';
+import { Dialog } from '@headlessui/react';
+import { cosmos, strangelove_ventures } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgSetPower } from '@liftedinit/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
-import { Formik, Field, FieldProps } from 'formik';
-import * as Yup from 'yup';
-import { calculateIsUnsafe } from '@/utils/maths';
-import { TextInput } from '@/components/react';
-import env from '@/config/env';
-import { Dialog } from '@headlessui/react';
-import { SignModal } from '@/components/react';
+import { Field, FieldProps, Formik } from 'formik';
 import Image from 'next/image';
+import React, { useEffect, useState } from 'react';
+import { BsThreeDots } from 'react-icons/bs';
+import * as Yup from 'yup';
+
+import { ExtendedValidatorSDKType } from '@/components';
+import { TextInput } from '@/components/react';
+import { SignModal } from '@/components/react';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import env from '@/config/env';
+import { useFeeEstimation, useTx } from '@/hooks';
+import ProfileAvatar from '@/utils/identicon';
+import { calculateIsUnsafe } from '@/utils/maths';
+
+import { DescriptionModal } from './descriptionModal';
 
 const PowerUpdateSchema = Yup.object().shape({
   power: Yup.number()

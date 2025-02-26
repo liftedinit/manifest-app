@@ -1,9 +1,10 @@
+import { MsgCreateGroupPolicy } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
+import { format } from 'react-string-format';
+
+import { createSenderReceiverHandler } from '@/components/bank/handlers/createSenderReceiverHandler';
+import { getGroupPolicy } from '@/components/bank/handlers/group/metadata';
 import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
 import { GroupsIcon } from '@/components/icons/GroupsIcon';
-import { MsgCreateGroupPolicy } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
-import { createSenderReceiverHandler } from '@/components/bank/handlers/createSenderReceiverHandler';
-import { format } from 'react-string-format';
-import { getGroupPolicy } from '@/components/bank/handlers/group/metadata';
 
 const createMessage = (template: string, policyType: string, groupId: string) => {
   const policy = getGroupPolicy(policyType);

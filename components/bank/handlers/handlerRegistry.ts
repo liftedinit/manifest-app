@@ -1,8 +1,10 @@
-import React from 'react';
-import { QuestionIcon } from '@/components/icons';
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
-import { TxMessage } from '../types';
+import React from 'react';
+
 import { DefaultHandler } from '@/components/bank/handlers/defaultHandler';
+import { QuestionIcon } from '@/components/icons';
+
+import { TxMessage } from '../types';
 
 export type Handler = (
   tx: TxMessage,
