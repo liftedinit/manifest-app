@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, jest, mock, test } from 'bun:test';
 import React from 'react';
 
@@ -127,8 +127,16 @@ const mockValues: UpdateFormValues = {
 };
 
 describe('UpdateGroupForm', () => {
-  function factory() {
-    return (
+  function changeField(field: HTMLElement, value: string) {
+    field.focus();
+    fireEvent.change(field, { target: { value } });
+    field.blur();
+  }
+
+  afterEach(cleanup);
+
+  test('Group Title validates', async () => {
+    const mockup = renderWithChainProvider(
       <UpdateGroupForm
         initialValues={mockValues}
         onSubmit={jest.fn()}
@@ -141,43 +149,27 @@ describe('UpdateGroupForm', () => {
         isSigning={false}
       />
     );
-  }
-
-  function changeField(field: HTMLElement, value: string) {
-    field.focus();
-    fireEvent.change(field, { target: { value } });
-    field.blur();
-  }
-
-  afterEach(cleanup);
-
-  test('Group Title validates', async () => {
-    const mockup = render(factory());
 
     const groupTitle = mockup.getByLabelText('Group Title') as HTMLInputElement;
     expect(groupTitle).toBeInTheDocument();
 
     changeField(groupTitle, '');
-    mockup.rerender(factory());
     await waitFor(() => {
       expect(mockup.getByText('Title is required')).toBeInTheDocument();
     });
 
     changeField(groupTitle, 'Profane title with FUCK in it');
-    mockup.rerender(factory());
     await waitFor(() => {
       expect(mockup.getByText('Profanity is not allowed')).toBeInTheDocument();
     });
 
     changeField(groupTitle, 'Hello World');
-    mockup.rerender(factory());
     await waitFor(() => {
       expect(mockup.queryByText('Title is required')).not.toBeInTheDocument();
       expect(mockup.getByTestId('update-btn')).toBeEnabled();
     });
 
     changeField(groupTitle, 'a'.repeat(51));
-    mockup.rerender(factory());
     await waitFor(() => {
       expect(mockup.getByText('Title must not exceed 50 characters')).toBeInTheDocument();
       expect(mockup.getByTestId('update-btn')).toBeDisabled();
@@ -185,7 +177,7 @@ describe('UpdateGroupForm', () => {
   });
 
   test('Group Details validates', async () => {
-    const mockup = render(
+    const mockup = renderWithChainProvider(
       <UpdateGroupForm
         initialValues={mockValues}
         onSubmit={jest.fn()}
@@ -227,7 +219,7 @@ describe('UpdateGroupForm', () => {
   });
 
   test('Authors validates', async () => {
-    const mockup = render(
+    const mockup = renderWithChainProvider(
       <UpdateGroupForm
         initialValues={mockValues}
         onSubmit={jest.fn()}
@@ -273,7 +265,7 @@ describe('UpdateGroupForm', () => {
   });
 
   test('Voting Period validates', async () => {
-    const mockup = render(
+    const mockup = renderWithChainProvider(
       <UpdateGroupForm
         initialValues={mockValues}
         onSubmit={jest.fn()}
