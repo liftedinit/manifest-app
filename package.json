@@ -4,8 +4,10 @@
   "private": false,
   "description": "An application to interact with the Manifest Chain",
   "scripts": {
+    "update-version": "bun scripts/update-version.js",
     "dev": "next dev",
     "build": "next build",
+    "build-release": "bun update-version && next build",
     "start": "next start",
     "lint": "next lint",
     "format": "prettier --write .",
