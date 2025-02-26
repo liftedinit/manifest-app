@@ -23,6 +23,8 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+RUN apt update && apt install -y git
+
 RUN \
     if [ -f .env ]; then echo ".env file found, continuing..."; else echo ".env file not found, exiting..."; exit 1; fi
 
@@ -32,10 +34,10 @@ RUN \
 ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN \
-  if [ -f yarn.lock ]; then yarn run build; \
-  elif [ -f package-lock.json ]; then npm run build; \
-  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run build; \
-  elif [ -f bun.lockb ] || [ -f bun.lock ]; then bun run build; \
+  if [ -f yarn.lock ]; then yarn run build-release; \
+  elif [ -f package-lock.json ]; then npm run build-release; \
+  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run build-release; \
+  elif [ -f bun.lockb ] || [ -f bun.lock ]; then bun run build-release; \
   else echo "Lockfile not found." && exit 1; \
   fi
 
