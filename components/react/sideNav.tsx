@@ -12,6 +12,7 @@ import {
   FactoryIcon,
   GroupsIcon,
   LightIcon,
+  QuestionIcon,
 } from '@/components/icons';
 import env from '@/config/env';
 import { useTheme } from '@/contexts/theme';
@@ -117,6 +118,18 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
           <LightIcon className="swap-on fill-current w-9 h-9 duration-300" />
           <DarkIcon className="swap-off fill-current w-9 h-9 duration-300" />
         </label>
+        <div
+          className="tooltip tooltip-top tooltip-primary hover:after:delay-1000 hover:before:delay-1000"
+          data-tip="Help Guide"
+        >
+          <div className="flex justify-center w-full text-[#00000066] dark:text-[#FFFFFF66]">
+            <Link href="https://docs.manifestai.org/" target="_blank">
+              <QuestionIcon
+                className={`w-8 h-8 rounded-xl text-[#00000066] dark:text-[#FFFFFF66] hover:text-primary dark:hover:text-primary transition-all duration-300 ease-in-out`}
+              />
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -233,20 +246,42 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
           </div>
         </ul>
         <div className="flex flex-row justify-between items-center">
-          <Link href="https://github.com/liftedinit/manifest-app" target="_blank">
-            <p className="text-sm text-gray-500">v{version}</p>
-          </Link>
           <div className="flex flex-row justify-between items-center gap-3">
-            <Link href="https://discord.gg/manifestai" target="_blank">
+            <Link href="https://github.com/liftedinit/manifest-app" target="_blank">
+              <p className="text-sm text-gray-500">v{version}</p>
+            </Link>
+            <Link
+              href="https://docs.manifestai.org/"
+              target="_blank"
+              className="tooltip tooltip-primary tooltip-top hover:after:delay-1000 hover:before:delay-1000"
+              data-tip="Help Guide"
+            >
+              <QuestionIcon
+                className={`w-4 h-4 rounded-xl text-black dark:text-white transition-colors duration-300`}
+              />
+            </Link>
+          </div>
+          <div className="flex flex-row justify-between items-center gap-3">
+            <Link
+              href="https://discord.gg/manifestai"
+              target="_blank"
+              className="tooltip tooltip-primary tooltip-top hover:after:delay-1000 hover:before:delay-1000"
+              data-tip="Discord"
+            >
               <Image
                 src={getRealLogo('/discord', theme === 'dark')}
-                alt={'Discord'}
+                alt={'Manifest Discord'}
                 width={12}
                 height={12}
                 className="w-4 h-4 rounded-xl"
               />
             </Link>
-            <Link href="https://x.com/ManifestAIs" target="_blank">
+            <Link
+              href="https://x.com/ManifestAIs"
+              target="_blank"
+              className="tooltip tooltip-primary tooltip-top hover:after:delay-1000 hover:before:delay-1000"
+              data-tip="X"
+            >
               <Image
                 src={getRealLogo('/x', theme === 'dark')}
                 alt={'Twitter'}

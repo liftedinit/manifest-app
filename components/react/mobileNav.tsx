@@ -13,6 +13,7 @@ import {
   FactoryIcon,
   GroupsIcon,
   LightIcon,
+  QuestionIcon,
 } from '@/components/icons';
 import env from '@/config/env';
 import { useTheme } from '@/contexts/theme';
@@ -40,7 +41,11 @@ export default function MobileNav() {
     if (drawer) drawer.checked = false;
   };
 
-  const NavItem: React.FC<{ Icon: React.ElementType; href: string }> = ({ Icon, href }) => {
+  const NavItem: React.FC<{ Icon: React.ElementType; href: string; label: string }> = ({
+    Icon,
+    href,
+    label,
+  }) => {
     return (
       <li>
         <Link href={href} legacyBehavior>
@@ -49,7 +54,7 @@ export default function MobileNav() {
             className="flex flex-row justify-start items-center transition-all duration-300 ease-in-out text-primary"
           >
             <Icon className="w-8 h-8" />
-            <span className="text-2xl">{href.slice(1, 12)}</span>
+            <span className="text-2xl">{label}</span>
           </div>
         </Link>
       </li>
@@ -86,26 +91,36 @@ export default function MobileNav() {
               </div>
 
               {/* Updated Theme Toggle */}
-              <label className="swap swap-rotate text-[#00000066] dark:text-[#FFFFFF66] hover:text-primary dark:hover:text-primary transition-all duration-300 ease-in-out">
-                <input
-                  type="checkbox"
-                  className="theme-controller hidden"
-                  value="light"
-                  checked={isDark}
-                  onChange={() => {
-                    setIsDark(!isDark);
-                    toggleTheme();
-                  }}
-                />
-                <DarkIcon className="swap-on fill-current w-9 h-9 duration-300" />
-                <LightIcon className="swap-off fill-current w-9 h-9 duration-300" />
-              </label>
+              <div className="flex flex-row items-center gap-2">
+                <Link
+                  href="https://docs.manifestai.org/"
+                  target="_blank"
+                  className="tooltip tooltip-primary tooltip-top hover:after:delay-1000 hover:before:delay-1000"
+                  data-tip="Help Guide"
+                >
+                  <QuestionIcon className={`w-8 h-8 rounded-xl text-primary`} />
+                </Link>
+                <label className="swap swap-rotate text-primary">
+                  <input
+                    type="checkbox"
+                    className="theme-controller hidden"
+                    value="light"
+                    checked={isDark}
+                    onChange={() => {
+                      setIsDark(!isDark);
+                      toggleTheme();
+                    }}
+                  />
+                  <DarkIcon className="swap-on fill-current w-9 h-9 duration-300" />
+                  <LightIcon className="swap-off fill-current w-9 h-9 duration-300" />
+                </label>
+              </div>
             </div>
             <div className="divider divider-horizon"></div>
-            <NavItem Icon={BankIcon} href="/bank" />
-            <NavItem Icon={GroupsIcon} href="/groups" />
-            {isMember && <NavItem Icon={AdminsIcon} href="/admins" />}
-            <NavItem Icon={FactoryIcon} href="/factory" />
+            <NavItem Icon={BankIcon} href="/bank" label="Bank" />
+            <NavItem Icon={GroupsIcon} href="/groups" label="Groups" />
+            {isMember && <NavItem Icon={AdminsIcon} href="/admins" label="Admin" />}
+            <NavItem Icon={FactoryIcon} href="/factory" label="Factory" />
 
             <div className="divider divider-horizon"></div>
 
