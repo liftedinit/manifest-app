@@ -18,30 +18,17 @@ import { duration, group as groupSchema } from '@/schemas';
 import { secondsToHumanReadable } from '@/utils/string';
 import Yup from '@/utils/yupExtensions';
 
-const updateFormSchema = groupSchema.metadataSchema
-  .shape({
-    threshold: Yup.number().min(1, 'Threshold must be at least 1').required().default(1),
-    votingPeriod: duration.schema
-      .required()
-      .test(
-        'min-total-time',
-        () => `Voting period must be at least ${secondsToHumanReadable(env.minimumVotingPeriod)}`,
-        value => duration.toSeconds(value) >= env.minimumVotingPeriod
-      )
-      .default(() => duration.fromSeconds(env.minimumVotingPeriod)),
-  })
-  .test(
-    'metadata-total-length',
-    'Total metadata length must not exceed 100000 characters',
-    function (values) {
-      const metadata = JSON.stringify({
-        title: values.title ?? '',
-        authors: values.authors ?? '',
-        details: values.details ?? '',
-      });
-      return metadata.length <= 100_000;
-    }
-  );
+const updateFormSchema = groupSchema.metadataSchema.shape({
+  threshold: Yup.number().min(1, 'Threshold must be at least 1').required().default(1),
+  votingPeriod: duration.schema
+    .required()
+    .test(
+      'min-total-time',
+      () => `Voting period must be at least ${secondsToHumanReadable(env.minimumVotingPeriod)}`,
+      value => duration.toSeconds(value) >= env.minimumVotingPeriod
+    )
+    .default(() => duration.fromSeconds(env.minimumVotingPeriod)),
+});
 
 export type UpdateFormValues = Yup.InferType<typeof updateFormSchema>;
 
