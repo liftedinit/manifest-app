@@ -1,5 +1,6 @@
+import { useEffect, useMemo, useState } from 'react';
+
 import { debounce } from '@/helpers';
-import { useState, useEffect, useMemo } from 'react';
 
 interface PageSizeConfig {
   [key: string]: number;

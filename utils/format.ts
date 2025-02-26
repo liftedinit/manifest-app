@@ -1,7 +1,9 @@
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
-import { shiftDigits } from '@/utils/maths';
-import { denomToAsset } from './ibc';
+
 import env from '@/config/env';
+import { shiftDigits } from '@/utils/maths';
+
+import { denomToAsset } from './ibc';
 
 export function formatLargeNumber(num: number): string {
   if (!Number.isFinite(num)) return 'Invalid number';

@@ -1,5 +1,11 @@
-import { WalletNotConnected, HistoryBox, SearchIcon } from '@/components';
+import { useChain, useChains } from '@cosmos-kit/react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+
+import { HistoryBox, SearchIcon, WalletNotConnected } from '@/components';
+import { SEO } from '@/components';
 import { TokenList } from '@/components/bank/components/tokenList';
+import { BankIcon } from '@/components/icons';
+import env from '@/config/env';
 import {
   useGetMessagesFromAddress,
   useIsMobile,
@@ -10,16 +16,10 @@ import {
   useTokenBalancesResolved,
   useTokenFactoryDenomsMetadata,
 } from '@/hooks';
-import { useChain, useChains } from '@cosmos-kit/react';
-
-import React, { useMemo, useState, useCallback, useEffect } from 'react';
-import { BankIcon } from '@/components/icons';
-import { CombinedBalanceInfo } from '@/utils/types';
-import { MFX_TOKEN_DATA, OSMOSIS_TOKEN_DATA } from '@/utils/constants';
-import env from '@/config/env';
-import { SEO } from '@/components';
 import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
-import { denomToAsset, MFX_TOKEN_BASE, unsafeConvertTokenBase } from '@/utils';
+import { MFX_TOKEN_BASE, denomToAsset, unsafeConvertTokenBase } from '@/utils';
+import { MFX_TOKEN_DATA, OSMOSIS_TOKEN_DATA } from '@/utils/constants';
+import { CombinedBalanceInfo } from '@/utils/types';
 
 interface PageSizeConfig {
   tokenList: number;

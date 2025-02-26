@@ -1,8 +1,9 @@
-import { test, expect, afterEach, describe } from 'bun:test';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, test } from 'bun:test';
+import { Form, Formik } from 'formik';
 import React from 'react';
-import { render, screen, cleanup, fireEvent } from '@testing-library/react';
+
 import { TextInput } from '@/components/react/inputs';
-import { Formik, Form } from 'formik';
 
 const TestForm = ({ children }: { children: React.ReactNode }) => (
   <Formik initialValues={{ test: '' }} onSubmit={() => {}}>

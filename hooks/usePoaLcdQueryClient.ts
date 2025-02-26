@@ -1,7 +1,7 @@
-import env from '@/config/env';
 import { strangelove_ventures } from '@liftedinit/manifestjs';
-
 import { useQuery } from '@tanstack/react-query';
+
+import env from '@/config/env';
 
 const createLcdQueryClient = strangelove_ventures.ClientFactory.createLCDClient;
 

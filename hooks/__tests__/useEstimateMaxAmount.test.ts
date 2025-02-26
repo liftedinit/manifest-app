@@ -1,4 +1,5 @@
-import { test, expect, beforeEach, afterEach, describe } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+
 import { useEstimateMaxTokenAmount } from '@/hooks';
 import { CombinedBalanceInfo, MFX_TOKEN_BASE, unsafeConvertTokenBase } from '@/utils';
 

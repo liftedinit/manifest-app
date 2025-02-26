@@ -1,6 +1,7 @@
-import { afterEach, describe, expect, test, jest } from 'bun:test';
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, jest, test } from 'bun:test';
 import React from 'react';
-import { screen, cleanup, render } from '@testing-library/react';
+
 import CountdownTimer from '@/components/groups/components/CountdownTimer';
 
 const refetch = jest.fn();

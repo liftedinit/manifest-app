@@ -1,11 +1,13 @@
-import { test, expect, describe, afterEach, mock, jest } from 'bun:test';
-import { cleanup, screen } from '@testing-library/react';
-import { MsgSendHandler } from '../msgSendHandler';
-import { HistoryBox } from '@/components/bank/components/historyBox';
-import { renderWithChainProvider } from '@/tests/render';
 import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
 import { CoinSDKType } from '@liftedinit/manifestjs/src/codegen/cosmos/base/v1beta1/coin';
+import { cleanup, screen } from '@testing-library/react';
+import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
+
+import { HistoryBox } from '@/components/bank/components/historyBox';
 import { TxMessage } from '@/components/bank/types';
+import { renderWithChainProvider } from '@/tests/render';
+
+import { MsgSendHandler } from '../msgSendHandler';
 
 // Mock next/router
 const m = jest.fn();

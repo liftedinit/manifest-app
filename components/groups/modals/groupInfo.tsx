@@ -1,15 +1,16 @@
-import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
-import ProfileAvatar from '@/utils/identicon';
-import { ExtendedGroupType } from '@/hooks/useQueries';
-import { UpdateGroupModal } from '@/components';
-import { ThresholdDecisionPolicySDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
-import { useFeeEstimation, useTx } from '@/hooks';
+import { Dialog } from '@headlessui/react';
 import { cosmos } from '@liftedinit/manifestjs';
-import env from '@/config/env';
+import { ThresholdDecisionPolicySDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Dialog } from '@headlessui/react';
+
+import { UpdateGroupModal } from '@/components';
 import { SignModal } from '@/components/react';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import env from '@/config/env';
+import { useFeeEstimation, useTx } from '@/hooks';
+import { ExtendedGroupType } from '@/hooks/useQueries';
+import ProfileAvatar from '@/utils/identicon';
 
 interface GroupInfoProps {
   group: ExtendedGroupType | null;

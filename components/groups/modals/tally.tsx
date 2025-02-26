@@ -1,6 +1,6 @@
 import { QueryTallyResultResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
-import { useMemo } from 'react';
 import BigNumber from 'bignumber.js';
+import { useMemo } from 'react';
 
 interface TallyProps {
   tallies: QueryTallyResultResponseSDKType;

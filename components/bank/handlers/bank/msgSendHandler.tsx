@@ -1,8 +1,10 @@
-import { BankIcon } from '@/components/icons/BankIcon';
-import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
-import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
 import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
+
 import { createTokenMessage } from '@/components';
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { BankIcon } from '@/components/icons/BankIcon';
+
+import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 
 export const MsgSendHandler = createSenderReceiverHandler({
   iconSender: BankIcon,

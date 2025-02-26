@@ -1,9 +1,10 @@
-import { afterAll, afterEach, describe, expect, test, jest, mock, beforeAll } from 'bun:test';
+import { cleanup, fireEvent, screen } from '@testing-library/react';
+import { afterAll, afterEach, beforeAll, describe, expect, jest, mock, test } from 'bun:test';
 import React from 'react';
-import { screen, cleanup, fireEvent } from '@testing-library/react';
+
 import { GroupInfo } from '@/components/groups/modals/groupInfo';
-import { renderWithChainProvider } from '@/tests/render';
 import { manifestAddr1, manifestAddr2, mockGroup } from '@/tests/mock';
+import { renderWithChainProvider } from '@/tests/render';
 
 // Mock the useBalance hook
 const m = jest.fn();

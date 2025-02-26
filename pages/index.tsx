@@ -1,11 +1,12 @@
-import Head from 'next/head';
-import { Link as ScrollLink, Element, animateScroll as scroll } from 'react-scroll';
 import dynamic from 'next/dynamic';
-import { useState, useEffect } from 'react';
+import Head from 'next/head';
 import Image from 'next/image';
-import { BankIcon, GroupsIcon, AdminsIcon, FactoryIcon } from '@/components/icons';
-import { useInView } from 'react-intersection-observer';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { useInView } from 'react-intersection-observer';
+import { Element, Link as ScrollLink, animateScroll as scroll } from 'react-scroll';
+
+import { AdminsIcon, BankIcon, FactoryIcon, GroupsIcon } from '@/components/icons';
 import { useIsMobile } from '@/hooks';
 
 const PenroseTriangleScene = dynamic(() => import('@/components/3js/pennRoseTriangleScene'), {

@@ -1,9 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
-
 import { Dialog } from '@headlessui/react';
-import { XMarkIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { ChevronLeftIcon } from '@heroicons/react/20/solid';
+import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
+
 import { getRealLogo } from '@/utils';
 
 export const Error = ({

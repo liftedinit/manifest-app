@@ -1,9 +1,11 @@
-import { TransferIcon } from '@/components/icons/TransferIcon';
-import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
-import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
-import { MsgRecvPacket } from 'cosmjs-types/ibc/core/channel/v1/tx';
-import { createTokenMessage } from '@/components';
 import { CoinSDKType } from '@liftedinit/manifestjs/src/codegen/cosmos/base/v1beta1/coin';
+import { MsgRecvPacket } from 'cosmjs-types/ibc/core/channel/v1/tx';
+
+import { createTokenMessage } from '@/components';
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { TransferIcon } from '@/components/icons/TransferIcon';
+
+import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 
 export const MsgRecvPacketHandler = createSenderReceiverHandler({
   iconSender: TransferIcon,

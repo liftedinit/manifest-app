@@ -1,10 +1,12 @@
-import { FactoryIcon } from '@/components/icons/FactoryIcon';
-import { formatAmount, formatDenom, formatLargeNumber } from '@/utils';
-import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
-import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
 import { MsgMint } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
-import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+
 import { createTokenMessage } from '@/components';
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { FactoryIcon } from '@/components/icons/FactoryIcon';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import { formatAmount, formatDenom, formatLargeNumber } from '@/utils';
+
+import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 
 export const MsgMintHandler = createSenderReceiverHandler({
   iconSender: FactoryIcon,

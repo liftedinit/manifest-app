@@ -1,13 +1,15 @@
-import { describe, test, expect, jest, mock, afterEach, spyOn } from 'bun:test';
-import React from 'react';
-import { screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
-import VoteDetailsModal from '../voteDetailsModal';
-import { renderWithChainProvider } from '@/tests/render';
-import { mockMembers, mockProposals, mockTally, mockVotes } from '@/tests/mock';
 import {
   ProposalExecutorResult,
   ProposalStatus,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, jest, mock, spyOn, test } from 'bun:test';
+import React from 'react';
+
+import { mockMembers, mockProposals, mockTally, mockVotes } from '@/tests/mock';
+import { renderWithChainProvider } from '@/tests/render';
+
+import VoteDetailsModal from '../voteDetailsModal';
 
 // Mock next/router
 const m = jest.fn();

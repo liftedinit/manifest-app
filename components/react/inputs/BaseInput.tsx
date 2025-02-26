@@ -1,6 +1,8 @@
-import React from 'react';
 import { useField } from 'formik';
+import React from 'react';
+
 import { QuestionIcon } from '@/components/icons';
+
 interface BaseInputProps {
   label?: string;
   name: string;

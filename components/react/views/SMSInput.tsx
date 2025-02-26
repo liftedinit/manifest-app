@@ -1,14 +1,15 @@
-import { ArrowLeftIcon, ChevronLeftIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { Dialog } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
-import { Formik, Form } from 'formik';
-import * as Yup from 'yup';
-import { TextInput } from '../inputs/TextInput';
+import { ArrowLeftIcon, ChevronLeftIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { AU, CN, DE, FR, GB, IN, JP, US } from 'country-flag-icons/react/3x2';
+import { Form, Formik } from 'formik';
+import Image from 'next/image';
 import { useState } from 'react';
-import { GB, US, IN, FR, DE, JP, CN, AU } from 'country-flag-icons/react/3x2';
+import * as Yup from 'yup';
+
 import { getRealLogo } from '@/utils/logos';
 
-import { Dialog } from '@headlessui/react';
-import Image from 'next/image';
+import { TextInput } from '../inputs/TextInput';
 
 // Country codes data with flag components
 const countryCodes = [

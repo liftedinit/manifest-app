@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+
 declare global {
   interface Navigator {
     userAgentData?: {

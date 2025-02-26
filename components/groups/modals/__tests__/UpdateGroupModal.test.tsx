@@ -1,11 +1,12 @@
-import { env } from '@/config';
-import { afterEach, describe, test, expect, beforeEach, jest, mock } from 'bun:test';
-import React from 'react';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, jest, mock, test } from 'bun:test';
+import React from 'react';
+
 import { UpdateFormValues, UpdateGroupForm, UpdateGroupModal } from '@/components';
-import { renderWithChainProvider } from '@/tests/render';
+import { env } from '@/config';
 import { ExtendedGroupType } from '@/hooks';
 import { duration } from '@/schemas';
+import { renderWithChainProvider } from '@/tests/render';
 
 // Mock next/router
 const m = jest.fn();

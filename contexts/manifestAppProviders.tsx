@@ -1,23 +1,8 @@
-import env from '@/config/env';
-
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import {
-  assets as osmosisAssets,
-  chain as osmosisChain,
-} from 'chain-registry/testnet/osmosistestnet';
-import { assets as axelarAssets, chain as axelarChain } from 'chain-registry/testnet/axelartestnet';
-import { TailwindModal } from '@/components';
-import { ReactNode, useContext, useMemo } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ChainProvider } from '@cosmos-kit/react';
-import { ToastProvider } from '@/contexts/toastContext';
-import { SkipProvider } from '@/contexts/skipGoContext';
-import { ThemeProvider } from '@/contexts/theme';
-import { Web3AuthContext, Web3AuthProvider } from '@/contexts/web3AuthContext';
-import { SignerOptions } from 'cosmos-kit';
 import { Chain } from '@chain-registry/types';
-import { AminoTypes, SigningStargateClientOptions } from '@cosmjs/stargate';
 import { Registry } from '@cosmjs/proto-signing';
+import { AminoTypes, SigningStargateClientOptions } from '@cosmjs/stargate';
+import { MainWalletBase } from '@cosmos-kit/core';
+import { ChainProvider } from '@cosmos-kit/react';
 import {
   cosmosAminoConverters,
   cosmosProtoRegistry,
@@ -30,8 +15,23 @@ import {
   strangeloveVenturesAminoConverters,
   strangeloveVenturesProtoRegistry,
 } from '@liftedinit/manifestjs';
-import { MainWalletBase } from '@cosmos-kit/core';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { assets as axelarAssets, chain as axelarChain } from 'chain-registry/testnet/axelartestnet';
+import {
+  assets as osmosisAssets,
+  chain as osmosisChain,
+} from 'chain-registry/testnet/osmosistestnet';
+import { SignerOptions } from 'cosmos-kit';
+import { ReactNode, useContext, useMemo } from 'react';
+
+import { TailwindModal } from '@/components';
+import env from '@/config/env';
 import { manifestAssets, manifestChain } from '@/config/manifestChain';
+import { SkipProvider } from '@/contexts/skipGoContext';
+import { ThemeProvider } from '@/contexts/theme';
+import { ToastProvider } from '@/contexts/toastContext';
+import { Web3AuthContext, Web3AuthProvider } from '@/contexts/web3AuthContext';
 import { ContactsProvider } from '@/hooks';
 
 const ManifestChainProvider = ({ children }: { children: ReactNode }) => {

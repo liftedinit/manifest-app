@@ -1,8 +1,7 @@
 import { Chain } from '@chain-registry/types';
-import { BondStatus } from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
-import { ExtendedValidatorSDKType } from '@/components';
-import { CombinedBalanceInfo, ExtendedMetadataSDKType } from '@/utils/types';
-import { ExtendedGroupType } from '@/hooks';
+import { cosmos } from '@liftedinit/manifestjs';
+import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
 import {
   MemberSDKType,
   ProposalExecutorResult,
@@ -10,21 +9,23 @@ import {
   ProposalStatus,
   VoteOption,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
-import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
-import { FormData, ProposalFormData } from '@/helpers';
-import { cosmos } from '@liftedinit/manifestjs';
+import { BondStatus } from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
-import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
-import {
-  MsgBurn,
-  MsgMint,
-} from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
 import {
   MsgBurnHeldBalance,
   MsgPayout,
 } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
+import {
+  MsgBurn,
+  MsgMint,
+} from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+
+import { ExtendedValidatorSDKType } from '@/components';
 import { TxMessage } from '@/components/bank/types';
+import { FormData, ProposalFormData } from '@/helpers';
+import { ExtendedGroupType } from '@/hooks';
 import { MFX_TOKEN_BASE, unsafeConvertTokenBase } from '@/utils';
+import { CombinedBalanceInfo, ExtendedMetadataSDKType } from '@/utils/types';
 
 export const manifestAddr1 = 'manifest1hj5fveer5cjtn4wd6wstzugjfdxzl0xp8ws9ct';
 export const manifestAddr2 = 'manifest1efd63aw40lxf3n4mhf7dzhjkr453axurm6rp3z';

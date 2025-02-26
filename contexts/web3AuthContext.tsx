@@ -1,10 +1,11 @@
-import { wallets as cosmosWallets } from 'cosmos-kit';
-import { wallets as cosmosExtensionWallets } from '@cosmos-kit/cosmos-extension-metamask';
-import { makeWeb3AuthWallets, SignData, Web3AuthWallet } from '@cosmos-kit/web3auth';
-import { WEB3AUTH_NETWORK_TYPE } from '@web3auth/auth';
-import { createContext, ReactNode, useMemo, useState } from 'react';
-import env from '@/config/env';
 import { MainWalletBase } from '@cosmos-kit/core';
+import { wallets as cosmosExtensionWallets } from '@cosmos-kit/cosmos-extension-metamask';
+import { SignData, Web3AuthWallet, makeWeb3AuthWallets } from '@cosmos-kit/web3auth';
+import { WEB3AUTH_NETWORK_TYPE } from '@web3auth/auth';
+import { wallets as cosmosWallets } from 'cosmos-kit';
+import { ReactNode, createContext, useMemo, useState } from 'react';
+
+import env from '@/config/env';
 
 export interface Web3AuthContextType {
   prompt?: {

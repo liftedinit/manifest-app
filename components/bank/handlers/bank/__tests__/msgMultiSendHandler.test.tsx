@@ -1,11 +1,13 @@
-import { test, expect, describe, afterEach, mock, jest } from 'bun:test';
-import { cleanup, screen } from '@testing-library/react';
-import { MsgMultiSendHandler } from '../msgMultiSendHandler';
-import { HistoryBox } from '@/components/bank/components/historyBox';
-import { renderWithChainProvider } from '@/tests/render';
-import { MsgMultiSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
-import { TxMessage } from '@/components/bank/types';
 import { Input, Output } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { MsgMultiSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
+import { cleanup, screen } from '@testing-library/react';
+import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
+
+import { HistoryBox } from '@/components/bank/components/historyBox';
+import { TxMessage } from '@/components/bank/types';
+import { renderWithChainProvider } from '@/tests/render';
+
+import { MsgMultiSendHandler } from '../msgMultiSendHandler';
 
 // Mock next/router
 const m = jest.fn();

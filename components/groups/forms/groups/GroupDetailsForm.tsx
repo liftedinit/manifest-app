@@ -1,13 +1,12 @@
+import { Form, Formik, useFormikContext } from 'formik';
+import Link from 'next/link';
 import React from 'react';
-import { Formik, Form, useFormikContext } from 'formik';
+import { MdContacts } from 'react-icons/md';
 import * as Yup from 'yup';
 
-import { TextInput, TextArea } from '@/components/react/inputs';
-import { TrashIcon, PlusIcon } from '@/components/icons';
-import { MdContacts } from 'react-icons/md';
+import { PlusIcon, TrashIcon } from '@/components/icons';
+import { TextArea, TextInput } from '@/components/react/inputs';
 import { TailwindModal } from '@/components/react/modal';
-import Link from 'next/link';
-
 import { Action, FormData } from '@/helpers/formReducer';
 import { isValidManifestAddress } from '@/utils/string';
 

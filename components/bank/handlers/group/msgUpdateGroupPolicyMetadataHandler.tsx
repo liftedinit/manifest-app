@@ -1,8 +1,10 @@
-import { GroupsIcon } from '@/components/icons/GroupsIcon';
-import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
-import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
 import { MsgUpdateGroupPolicyMetadata } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
+
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { GroupsIcon } from '@/components/icons/GroupsIcon';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+
+import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 
 const createMessage = (prefix: string, policyAddress: string, suffix?: string) => {
   return (

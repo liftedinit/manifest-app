@@ -1,8 +1,10 @@
-import { AdminsIcon } from '@/components/icons/AdminsIcon';
-import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
-import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
 import { MsgCreateValidator } from '@liftedinit/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
+
 import { createValidatorMessage } from '@/components';
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { AdminsIcon } from '@/components/icons/AdminsIcon';
+
+import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 
 export const MsgCreateValidatorHandler = createSenderReceiverHandler({
   iconSender: AdminsIcon,

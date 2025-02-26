@@ -1,12 +1,12 @@
+import { Field, FieldArray, FieldProps, Form, Formik, useFormikContext } from 'formik';
 import React, { useState } from 'react';
-import { Formik, Form, Field, FieldArray, useFormikContext, FieldProps } from 'formik';
 import { MdContacts } from 'react-icons/md';
-import Yup from '@/utils/yupExtensions';
 
-import { Action, FormData } from '@/helpers/formReducer';
-import { TrashIcon, PlusIcon } from '@/components/icons';
+import { PlusIcon, TrashIcon } from '@/components/icons';
 import { NumberInput, TextInput } from '@/components/react';
 import { TailwindModal } from '@/components/react/modal';
+import { Action, FormData } from '@/helpers/formReducer';
+import Yup from '@/utils/yupExtensions';
 
 const MemberSchema = Yup.object().shape({
   address: Yup.string().manifestAddress().required('Required'),

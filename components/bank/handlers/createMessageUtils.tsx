@@ -1,9 +1,10 @@
-import React from 'react';
-import { formatAmount, formatDenomWithBadge, formatLargeNumber } from '@/utils';
-import { format } from 'react-string-format';
-import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { CoinSDKType } from '@liftedinit/manifestjs/src/codegen/cosmos/base/v1beta1/coin';
+import React from 'react';
+import { format } from 'react-string-format';
+
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import { formatAmount, formatDenomWithBadge, formatLargeNumber } from '@/utils';
 
 export const createTokenMessage = (
   template: string,

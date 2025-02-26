@@ -1,6 +1,7 @@
-import env from '@/config/env';
 import { cosmos } from '@liftedinit/manifestjs';
 import { useQuery } from '@tanstack/react-query';
+
+import env from '@/config/env';
 
 const createLcdQueryClient = cosmos.ClientFactory.createLCDClient;
 

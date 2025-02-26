@@ -1,7 +1,8 @@
-import ProfileAvatar from '@/utils/identicon';
-import Image from 'next/image';
-import { useState, useEffect } from 'react';
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
+
+import ProfileAvatar from '@/utils/identicon';
 
 export const supportedDomains = [
   'imgur.com',

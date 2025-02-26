@@ -1,6 +1,7 @@
-import { test, expect, afterEach, describe, mock, jest } from 'bun:test';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
 import React from 'react';
-import { fireEvent, screen, cleanup, render, waitFor } from '@testing-library/react';
+
 import { Contacts, TruncatedAddressWithCopy } from '@/components';
 import { ContactsContext, ContactsContextType } from '@/hooks';
 

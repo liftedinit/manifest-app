@@ -1,23 +1,22 @@
-import { useEffect, useState } from 'react';
-import { keepPreviousData, useQueries, useQuery, UseQueryResult } from '@tanstack/react-query';
 import { QueryGroupsByMemberResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
-
-import { useLcdQueryClient, useOsmosisLcdQueryClient } from './useLcdQueryClient';
-import { usePoaLcdQueryClient } from './usePoaLcdQueryClient';
-import { getLogoUrls, normalizeIBCDenom } from '@/utils';
-import { useDebounce } from '@uidotdev/usehooks';
-import { useManifestLcdQueryClient } from './useManifestLcdQueryClient';
-
-import axios from 'axios';
 import {
   GroupMemberSDKType,
   GroupPolicyInfoSDKType,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
-import { Octokit } from 'octokit';
-
-import { useOsmosisRpcQueryClient } from '@/hooks/useOsmosisRpcQueryClient';
-import { TxMessage } from '@/components/bank/types';
+import { UseQueryResult, keepPreviousData, useQueries, useQuery } from '@tanstack/react-query';
+import { useDebounce } from '@uidotdev/usehooks';
+import axios from 'axios';
 import { QueryProposalsByGroupPolicyResponse } from 'cosmjs-types/cosmos/group/v1/query';
+import { Octokit } from 'octokit';
+import { useEffect, useState } from 'react';
+
+import { TxMessage } from '@/components/bank/types';
+import { useOsmosisRpcQueryClient } from '@/hooks/useOsmosisRpcQueryClient';
+import { getLogoUrls, normalizeIBCDenom } from '@/utils';
+
+import { useLcdQueryClient, useOsmosisLcdQueryClient } from './useLcdQueryClient';
+import { useManifestLcdQueryClient } from './useManifestLcdQueryClient';
+import { usePoaLcdQueryClient } from './usePoaLcdQueryClient';
 
 const DEBOUNCE_TIME = 1000;
 const PAGE_DEBOUNCE_TIME = 30;

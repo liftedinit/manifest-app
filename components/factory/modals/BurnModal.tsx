@@ -1,10 +1,11 @@
+import { Dialog } from '@headlessui/react';
 import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
+
 import BurnForm from '@/components/factory/forms/BurnForm';
+import { SignModal } from '@/components/react';
 import { useGroupsByAdmin, usePoaGetAdmin } from '@/hooks';
 import { ExtendedMetadataSDKType, truncateString } from '@/utils';
-import { Dialog } from '@headlessui/react';
-import { SignModal } from '@/components/react';
 
 export default function BurnModal({
   denom,

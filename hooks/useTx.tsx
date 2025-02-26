@@ -1,15 +1,16 @@
 import {
   DeliverTxResponse,
-  isDeliverTxSuccess,
-  StdFee,
   SigningStargateClient,
+  StdFee,
+  isDeliverTxSuccess,
 } from '@cosmjs/stargate';
 import { useChain } from '@cosmos-kit/react';
-import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
-import { useToast } from '@/contexts/toastContext';
-import { useContext } from 'react';
-import env from '@/config/env';
 import { StatusState } from '@skip-go/client';
+import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
+import { useContext } from 'react';
+
+import env from '@/config/env';
+import { useToast } from '@/contexts/toastContext';
 import { Web3AuthContext } from '@/contexts/web3AuthContext';
 
 interface Msg {

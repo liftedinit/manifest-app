@@ -1,7 +1,9 @@
+import { bech32 } from '@scure/base';
 import * as Yup from 'yup';
-import { containsProfanity } from '@/utils/profanityFilter';
-import { bech32 } from '@scure/base'; // Updated import
+
+// Updated import
 import { supportedDomains, supportedPatterns } from '@/components/factory/components/DenomImage';
+import { containsProfanity } from '@/utils/profanityFilter';
 
 declare module 'yup' {
   interface StringSchema {

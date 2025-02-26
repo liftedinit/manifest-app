@@ -1,6 +1,7 @@
 import { EncodeObject } from '@cosmjs/proto-signing';
 import { GasPrice, calculateFee } from '@cosmjs/stargate';
 import { useChain } from '@cosmos-kit/react';
+
 import { useToast } from '@/contexts/toastContext';
 
 export const useFeeEstimation = (chainName: string) => {

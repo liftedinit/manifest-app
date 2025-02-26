@@ -1,17 +1,18 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { createPortal } from 'react-dom';
-import { cosmos } from '@liftedinit/manifestjs';
-import { useTx, useFeeEstimation, useGitHubReleases, GitHubRelease, useBlockHeight } from '@/hooks';
-import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
-import { MsgSoftwareUpgrade } from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
-import { Formik, Form } from 'formik';
-import Yup from '@/utils/yupExtensions';
-import { TextInput } from '@/components/react/inputs';
-import { PiCaretDownBold } from 'react-icons/pi';
-import { SearchIcon } from '@/components/icons';
-import env from '@/config/env';
 import { Dialog } from '@headlessui/react';
+import { cosmos } from '@liftedinit/manifestjs';
+import { MsgSoftwareUpgrade } from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
+import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
+import { Form, Formik } from 'formik';
+import React, { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { PiCaretDownBold } from 'react-icons/pi';
+
+import { SearchIcon } from '@/components/icons';
 import { SignModal } from '@/components/react';
+import { TextInput } from '@/components/react/inputs';
+import env from '@/config/env';
+import { GitHubRelease, useBlockHeight, useFeeEstimation, useGitHubReleases, useTx } from '@/hooks';
+import Yup from '@/utils/yupExtensions';
 
 interface BaseModalProps {
   isOpen: boolean;

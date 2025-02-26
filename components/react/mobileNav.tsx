@@ -1,25 +1,26 @@
-import { useTheme } from '@/contexts/theme';
+import { useChain } from '@cosmos-kit/react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { TailwindModal } from './modal';
-
-import {
-  GroupsIcon,
-  BankIcon,
-  FactoryIcon,
-  AdminsIcon,
-  LightIcon,
-  DarkIcon,
-  ArrowRightIcon,
-} from '@/components/icons';
-import { WalletSection } from '../wallet';
-import { RiMenuUnfoldFill } from 'react-icons/ri';
 import { useState } from 'react';
 import { MdContacts } from 'react-icons/md';
+import { RiMenuUnfoldFill } from 'react-icons/ri';
+
+import {
+  AdminsIcon,
+  ArrowRightIcon,
+  BankIcon,
+  DarkIcon,
+  FactoryIcon,
+  GroupsIcon,
+  LightIcon,
+} from '@/components/icons';
 import env from '@/config/env';
-import { useChain } from '@cosmos-kit/react';
+import { useTheme } from '@/contexts/theme';
 import { usePoaGetAdmin } from '@/hooks';
 import { useGroupsByAdmin } from '@/hooks';
+
+import { WalletSection } from '../wallet';
+import { TailwindModal } from './modal';
 
 export default function MobileNav() {
   const { address } = useChain(env.chain);

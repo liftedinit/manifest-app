@@ -1,6 +1,7 @@
-import { MultiMintModal, MultiBurnModal } from '@/components/factory/modals';
-import { MFX_TOKEN_DATA } from '@/utils/constants';
 import { useState } from 'react';
+
+import { MultiBurnModal, MultiMintModal } from '@/components/factory/modals';
+import { MFX_TOKEN_DATA } from '@/utils/constants';
 
 interface StakeHolderPayoutProps {
   admin: string;
