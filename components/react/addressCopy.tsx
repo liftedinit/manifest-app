@@ -57,9 +57,10 @@ export const TruncatedAddressWithCopy = ({
   slice = 24,
 }: {
   showName?: boolean;
-  address: string;
+  address: string | null | undefined;
   slice?: number;
 }) => {
+  address = address ?? '';
   const { contacts } = useContacts();
   const [copied, setCopied] = useDelayResetState(false, 2000);
 

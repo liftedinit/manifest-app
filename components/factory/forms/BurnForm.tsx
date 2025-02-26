@@ -8,7 +8,7 @@ import React, { useMemo, useState } from 'react';
 import { MdContacts } from 'react-icons/md';
 
 import { NumberInput, TextInput } from '@/components/react/inputs';
-import { TailwindModal } from '@/components/react/modal';
+import { AddressInput } from '@/components/react/inputs/AddressInput';
 import env from '@/config/env';
 import { useToast } from '@/contexts';
 import { useFeeEstimation, useTokenFactoryBalance, useTx } from '@/hooks';
@@ -48,7 +48,6 @@ export default function BurnForm({
 
   const [burnPairs, setBurnPairs] = useState<BurnPair[]>([{ address: '', amount: '' }]);
 
-  const [isContactsOpen, setIsContactsOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const { tx, isSigning } = useTx(env.chain);
@@ -286,7 +285,7 @@ export default function BurnForm({
                         )}
                       </div>
                       <div className="flex-grow relative">
-                        <TextInput
+                        <AddressInput
                           showError={false}
                           label="TARGET"
                           name="recipient"
@@ -299,16 +298,6 @@ export default function BurnForm({
                           className={`input input-bordered w-full transition-none ${
                             touched.recipient && errors.recipient ? 'input-error' : ''
                           }`}
-                          rightElement={
-                            <button
-                              type="button"
-                              aria-label="contacts-btn"
-                              onClick={() => setIsContactsOpen(true)}
-                              className="btn btn-primary btn-sm text-white"
-                            >
-                              <MdContacts className="w-5 h-5" />
-                            </button>
-                          }
                         />
                         {touched.recipient && errors.recipient && (
                           <div
@@ -338,16 +327,6 @@ export default function BurnForm({
                         )}
                       </button>
                     </div>
-                    <TailwindModal
-                      isOpen={isContactsOpen}
-                      setOpen={setIsContactsOpen}
-                      showContacts={true}
-                      currentAddress={address}
-                      onSelect={(selectedAddress: string) => {
-                        setRecipient(selectedAddress);
-                        setFieldValue('recipient', selectedAddress);
-                      }}
-                    />
                   </Form>
                 )}
               </Formik>
