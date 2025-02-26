@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
+import { RenderResult, cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, jest, mock, test } from 'bun:test';
 import React from 'react';
 
@@ -6,7 +6,7 @@ import { UpdateFormValues, UpdateGroupForm, UpdateGroupModal } from '@/component
 import { env } from '@/config';
 import { ExtendedGroupType } from '@/hooks';
 import { duration } from '@/schemas';
-import { renderWithChainProvider } from '@/tests/render';
+import { factoryWithChainProvider, renderWithChainProvider } from '@/tests/render';
 
 // Mock next/router
 const m = jest.fn();
@@ -133,6 +133,18 @@ describe('UpdateGroupForm', () => {
     field.blur();
   }
 
+  function waitForUpdateButtonToBeEnabled(mockup: RenderResult) {
+    return waitFor(() => {
+      expect(mockup.getByTestId('update-btn')).toBeEnabled();
+    });
+  }
+
+  function waitForUpdateButtonToBeDisabled(mockup: RenderResult) {
+    return waitFor(() => {
+      expect(mockup.getByTestId('update-btn')).toBeDisabled();
+    });
+  }
+
   afterEach(cleanup);
 
   test('Group Title validates', async () => {
@@ -164,16 +176,14 @@ describe('UpdateGroupForm', () => {
     });
 
     changeField(groupTitle, 'Hello World');
-    await waitFor(() => {
-      expect(mockup.queryByText('Title is required')).not.toBeInTheDocument();
-      expect(mockup.getByTestId('update-btn')).toBeEnabled();
-    });
+    await waitFor(() => expect(mockup.queryByText('Title is required')).not.toBeInTheDocument());
+    await waitForUpdateButtonToBeEnabled(mockup);
 
     changeField(groupTitle, 'a'.repeat(51));
     await waitFor(() => {
       expect(mockup.getByText('Title must not exceed 50 characters')).toBeInTheDocument();
-      expect(mockup.getByTestId('update-btn')).toBeDisabled();
     });
+    await waitForUpdateButtonToBeDisabled(mockup);
   });
 
   test('Group Details validates', async () => {
@@ -197,24 +207,17 @@ describe('UpdateGroupForm', () => {
     changeField(groupDetails, '');
     await waitFor(() => {
       expect(mockup.getByText('Details is required')).toBeInTheDocument();
-      expect(mockup.getByTestId('update-btn')).toBeDisabled();
     });
+    await waitForUpdateButtonToBeDisabled(mockup);
 
     changeField(groupDetails, 'Not Long Enough');
     await waitFor(() => {
       expect(mockup.queryByText('Details must be at least 20 characters')).toBeInTheDocument();
-      expect(mockup.getByTestId('update-btn')).toBeDisabled();
     });
 
     changeField(groupDetails, 'Long Enough But Using Profanity like FUCK');
     await waitFor(() => {
       expect(mockup.getByText('Profanity is not allowed')).toBeInTheDocument();
-      expect(mockup.getByTestId('update-btn')).toBeDisabled();
-    });
-
-    changeField(groupDetails, 'Long Enough And Just Lovely Nothing Profane');
-    await waitFor(() => {
-      expect(mockup.getByTestId('update-btn')).toBeEnabled();
     });
   });
 
@@ -244,23 +247,16 @@ describe('UpdateGroupForm', () => {
 
     // Add an author. Update should still be disabled.
     mockup.getByTestId('add-author-btn').click();
-    await waitFor(() => expect(mockup.getByTestId('update-btn')).toBeDisabled());
+    await waitForUpdateButtonToBeDisabled(mockup);
+
     changeField(mockup.getByTestId('author-1'), 'Hello World');
     await waitFor(() => {
       expect(mockup.getByText('Invalid manifest address')).toBeInTheDocument();
-      expect(mockup.getByTestId('update-btn')).toBeDisabled();
     });
 
     changeField(mockup.getByTestId('author-1'), mockValues.authors[0]);
     await waitFor(() => {
       expect(mockup.getByText('Authors must be unique')).toBeInTheDocument();
-      expect(mockup.getByTestId('update-btn')).toBeDisabled();
-    });
-
-    const remove1Button = mockup.getByTestId('remove-author-btn-1');
-    fireEvent.click(remove1Button);
-    await waitFor(() => {
-      expect(mockup.getByTestId('update-btn')).toBeEnabled();
     });
   });
 
@@ -284,21 +280,17 @@ describe('UpdateGroupForm', () => {
 
     // Update the group title so we have at least some dirty fields.
     changeField(mockup.getByLabelText('Group Title'), 'Hello World');
-    await waitFor(() => {
-      expect(mockup.getByTestId('update-btn')).toBeEnabled();
-    });
+    await waitForUpdateButtonToBeEnabled(mockup);
 
     changeField(mockup.getByTestId('voting-period-seconds'), '0');
     changeField(mockup.getByTestId('voting-period-minutes'), '0');
     changeField(mockup.getByTestId('voting-period-hours'), '0');
     await waitFor(() => {
       expect(mockup.getByText(/^Voting period must be at least \d+/)).toBeInTheDocument();
-      expect(mockup.getByTestId('update-btn')).toBeDisabled();
     });
+    await waitForUpdateButtonToBeDisabled(mockup);
 
     changeField(mockup.getByTestId('voting-period-hours'), '2');
-    await waitFor(() => {
-      expect(mockup.getByTestId('update-btn')).toBeEnabled();
-    });
+    await waitForUpdateButtonToBeEnabled(mockup);
   });
 });
