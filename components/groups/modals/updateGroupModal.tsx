@@ -5,18 +5,43 @@ import {
   ThresholdDecisionPolicySDKType,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
-import { Form, Formik, useFormikContext } from 'formik';
-import React, { useEffect, useState } from 'react';
+import { FieldArray, Form, Formik, useFormikContext } from 'formik';
+import React, { useState } from 'react';
 import { MdContacts } from 'react-icons/md';
 
 import { PlusIcon, TrashIcon } from '@/components/icons';
-import { SignModal } from '@/components/react';
+import { SignModal, TailwindModal } from '@/components/react';
 import { NumberInput, TextArea, TextInput } from '@/components/react/inputs';
-import { TailwindModal } from '@/components/react/modal';
 import env from '@/config/env';
 import { ExtendedGroupType, useFeeEstimation, useTx } from '@/hooks';
-import { isValidManifestAddress, secondsToHumanReadable } from '@/utils/string';
+import { duration, group as groupSchema } from '@/schemas';
+import { secondsToHumanReadable } from '@/utils/string';
 import Yup from '@/utils/yupExtensions';
+
+const updateFormSchema = groupSchema.metadataSchema.shape({
+  threshold: Yup.number().min(1, 'Threshold must be at least 1').required().default(1),
+  votingPeriod: duration.schema
+    .required()
+    .test(
+      'min-total-time',
+      () => `Voting period must be at least ${secondsToHumanReadable(env.minimumVotingPeriod)}`,
+      value => duration.toSeconds(value) >= env.minimumVotingPeriod
+    )
+    .default(() => duration.fromSeconds(env.minimumVotingPeriod)),
+});
+
+export type UpdateFormValues = Yup.InferType<typeof updateFormSchema>;
+
+/**
+ * Default values for the update group form, when the group metadata could not be validated.
+ */
+const defaultValues: UpdateFormValues = {
+  title: 'Unknown Group Title',
+  authors: [''],
+  details: 'Unknown Group Details',
+  threshold: 1,
+  votingPeriod: duration.fromSeconds(env.minimumVotingPeriod),
+};
 
 export function UpdateGroupModal({
   group,
@@ -36,17 +61,18 @@ export function UpdateGroupModal({
   const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
 
-  let maybeMetadata = null;
+  let maybeMetadata: groupSchema.GroupMetadata;
   try {
-    maybeMetadata = group.metadata ? JSON.parse(group.metadata) : null;
+    maybeMetadata = groupSchema.metadataFromJson(group.metadata);
   } catch (e) {
-    // console.warn('Failed to parse group metadata:', e);
+    console.error('Failed to parse group metadata:', e);
+    maybeMetadata = defaultValues;
   }
 
-  const maybeTitle = maybeMetadata?.title ?? '';
-  const maybeAuthors = maybeMetadata?.authors ?? '';
+  const title = maybeMetadata.title;
+  const initialAuthors = maybeMetadata.authors;
+  const details = maybeMetadata.details;
 
-  const maybeDetails = maybeMetadata?.details ?? '';
   const maybePolicies = group?.policies?.[0];
   const maybeDecisionPolicy = maybePolicies?.decision_policy;
   const maybeThreshold = (maybeDecisionPolicy as ThresholdDecisionPolicySDKType)?.threshold ?? '';
@@ -57,65 +83,27 @@ export function UpdateGroupModal({
   const { updateGroupMetadata, updateGroupPolicyDecisionPolicy, updateGroupPolicyMetadata } =
     cosmos.group.v1.MessageComposer.withTypeUrl;
 
-  const [name, setName] = useState(maybeTitle);
-  const [authors, setAuthors] = useState(
-    maybeAuthors ? (Array.isArray(maybeAuthors) ? maybeAuthors : [maybeAuthors]) : []
-  );
-  const [description, setDescription] = useState(maybeDetails);
-  const [threshold, setThreshold] = useState(maybeThreshold !== '' ? maybeThreshold : '1');
-  const [votingPeriod, setVotingPeriod] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-  });
+  const threshold = Number(maybeThreshold || 1);
 
   const [isContactsOpen, setIsContactsOpen] = useState(false);
   const [activeAuthorIndex, setActiveAuthorIndex] = useState<number | null>(null);
 
   // Initialize voting period state from existing data if available
-  useEffect(() => {
-    const initialVotingPeriodSeconds = maybeVotingPeriod ? Number(maybeVotingPeriod.seconds) : 0;
-    const secondsToDHMS = (totalSeconds: number) => {
-      const days = Math.floor(totalSeconds / (3600 * 24)) || 0;
-      const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600) || 0;
-      const minutes = Math.floor((totalSeconds % 3600) / 60) || 0;
-      const seconds = totalSeconds % 60 || 0;
-      return { days, hours, minutes, seconds };
-    };
-    const initialVotingPeriod = secondsToDHMS(initialVotingPeriodSeconds);
-    setVotingPeriod(initialVotingPeriod);
-  }, [maybeVotingPeriod]);
-
-  // Update windowSeconds whenever votingPeriod changes
-  const [windowSeconds, setWindowSeconds] = useState(0);
-  useEffect(() => {
-    const totalSeconds =
-      (Number(votingPeriod.days) || 0) * 86400 +
-      (Number(votingPeriod.hours) || 0) * 3600 +
-      (Number(votingPeriod.minutes) || 0) * 60 +
-      (Number(votingPeriod.seconds) || 0);
-    setWindowSeconds(totalSeconds);
-  }, [votingPeriod]);
-
-  const hasStateChanged = (newValue: any, originalValue: any) => {
-    return newValue !== null && newValue !== undefined && newValue !== originalValue;
-  };
-
-  const buildMessages = () => {
+  const votingPeriod = duration.fromSdk(maybeVotingPeriod ?? { seconds: 0n, nanos: 0 });
+  const buildMessages = (values: UpdateFormValues) => {
     const messages: Any[] = [];
 
     // Update Group Metadata
-    if (
-      hasStateChanged(name, maybeTitle) ||
-      hasStateChanged(authors.join(','), maybeAuthors) ||
-      hasStateChanged(description, maybeDetails)
-    ) {
+    const authorsDiff = values.authors
+      .filter(a => !initialAuthors.includes(a))
+      .concat(initialAuthors.filter(a => !values.authors.includes(a)));
+    if (title !== values.title || authorsDiff.length > 0 || details !== values.details) {
       const newMetadata = JSON.stringify({
-        title: name,
-        authors: authors.join(','),
-        details: description,
+        title: values.title,
+        authors: values.authors,
+        details: values.details,
       });
+
       const msgGroupMetadata = updateGroupMetadata({
         admin: group.admin,
         groupId: BigInt(maybeMembers?.[0]?.group_id),
@@ -144,18 +132,11 @@ export function UpdateGroupModal({
     }
 
     // Update Group Policy Decision Policy
-    const numericThreshold = Number(threshold) || 0;
-    const originalThreshold = Number(maybeThreshold) || 0;
-    const originalVotingPeriodSeconds = Number(maybeVotingPeriod?.seconds) || 0;
-
-    if (
-      hasStateChanged(numericThreshold, originalThreshold) ||
-      hasStateChanged(windowSeconds, originalVotingPeriodSeconds)
-    ) {
+    if (values.threshold !== threshold || duration.compare(values.votingPeriod, votingPeriod)) {
       const thresholdMsg = {
-        threshold: numericThreshold.toString(),
+        threshold: (values.threshold || 1).toString(),
         windows: {
-          votingPeriod: { seconds: BigInt(windowSeconds || 0), nanos: 0 },
+          votingPeriod: duration.toSdk(values.votingPeriod),
           minExecutionPeriod: { seconds: BigInt(0), nanos: 0 },
         },
       };
@@ -182,11 +163,11 @@ export function UpdateGroupModal({
     return messages;
   };
 
-  const handleConfirm = async (values: any) => {
+  async function handleConfirm(values: UpdateFormValues) {
     try {
-      const encodedMessages = buildMessages();
+      const encodedMessages = buildMessages(values);
       if (encodedMessages.length === 0) {
-        alert('No changes detected.');
+        console.warn('No changes detected.');
         return;
       }
       const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
@@ -200,13 +181,7 @@ export function UpdateGroupModal({
         summary: 'Update Group',
       });
 
-      let fee;
-      try {
-        fee = await estimateFee(address, [msg]);
-      } catch (feeError) {
-        console.error('Error estimating fee:', feeError);
-        throw new Error('Failed to estimate transaction fee. Please try again.');
-      }
+      const fee = await estimateFee(address, [msg]);
       await tx(
         [msg],
         {
@@ -220,93 +195,7 @@ export function UpdateGroupModal({
     } catch (error) {
       console.error('Error in handleConfirm:', error);
     }
-  };
-
-  const validationSchema = Yup.object()
-    .shape({
-      name: Yup.string()
-        .max(50, 'Name must be at most 50 characters')
-        .noProfanity('Profanity is not allowed'),
-      authors: Yup.array()
-        .of(
-          Yup.string().test(
-            'author-validation',
-            'Invalid author name or address',
-            function (value) {
-              if (value?.startsWith('manifest')) {
-                return isValidManifestAddress(value);
-              }
-              return Yup.string()
-                .max(50, 'Author name must not exceed 50 characters')
-                .noProfanity('Profanity is not allowed')
-                .isValidSync(value);
-            }
-          )
-        )
-        .min(1, 'At least one author is required'),
-      description: Yup.string()
-        .min(20, 'Description must be at least 20 characters')
-        .max(1000, 'Description must not exceed 1000 characters')
-        .noProfanity('Profanity is not allowed'),
-      threshold: Yup.number().min(1, 'Threshold must be at least 1').optional(),
-      votingPeriod: Yup.object()
-        .shape({
-          days: Yup.number().min(0, 'Must be 0 or greater').required('Required'),
-          hours: Yup.number().min(0, 'Must be 0 or greater').required('Required'),
-          minutes: Yup.number().min(0, 'Must be 0 or greater').required('Required'),
-          seconds: Yup.number().min(0, 'Must be 0 or greater').required('Required'),
-        })
-        .test(
-          'min-total-time',
-          () => `Voting period must be at least ${secondsToHumanReadable(env.minimumVotingPeriod)}`,
-          function (value) {
-            // Only validate if voting period is being updated
-            if (!value || Object.values(value).every(v => v === 0)) return true;
-
-            const { days, hours, minutes, seconds } = value;
-            const totalSeconds =
-              (Number(days) || 0) * 86400 +
-              (Number(hours) || 0) * 3600 +
-              (Number(minutes) || 0) * 60 +
-              (Number(seconds) || 0);
-            return totalSeconds >= env.minimumVotingPeriod;
-          }
-        ),
-    })
-    .test(
-      'metadata-total-length',
-      'Total metadata length must not exceed 100000 characters',
-      function (values) {
-        const metadata = JSON.stringify({
-          title: values.name ?? '',
-          authors: values.authors ?? '',
-          details: values.description ?? '',
-        });
-        return metadata.length <= 10000;
-      }
-    );
-
-  const hasAnyChanges = (values: any) => {
-    // Check metadata changes
-    const hasMetadataChanges =
-      values.name !== maybeTitle ||
-      values.authors !== maybeAuthors ||
-      values.description !== maybeDetails;
-
-    // Check policy changes
-    const hasThresholdChange = values.threshold !== maybeThreshold;
-
-    // Check voting period changes
-    const totalSeconds =
-      (Number(values.votingPeriod.days) || 0) * 86400 +
-      (Number(values.votingPeriod.hours) || 0) * 3600 +
-      (Number(values.votingPeriod.minutes) || 0) * 60 +
-      (Number(values.votingPeriod.seconds) || 0);
-    const originalSeconds = Number(maybeVotingPeriod?.seconds) || 0;
-    const hasVotingPeriodChange = totalSeconds !== originalSeconds;
-
-    return hasMetadataChanges || hasThresholdChange || hasVotingPeriodChange;
-  };
+  }
 
   return (
     <Dialog
@@ -334,93 +223,24 @@ export function UpdateGroupModal({
             ✕
           </button>
         </form>
-        <Formik
+
+        <UpdateGroupForm
           initialValues={{
-            name,
-            authors,
-            description,
+            title,
+            authors: [...initialAuthors],
+            details,
             threshold,
-            votingPeriod,
+            votingPeriod: { ...votingPeriod },
           }}
-          validationSchema={validationSchema}
           onSubmit={handleConfirm}
-          enableReinitialize
-        >
-          {({ values, isValid, touched }) => (
-            <Form className="flex flex-col gap-4">
-              <div className="grid grid-cols-1 gap-4">
-                <GroupDetailsFormFields
-                  dispatch={({ field, value }) => {
-                    switch (field) {
-                      case 'title':
-                        setName(value);
-                        break;
-                      case 'authors':
-                        setAuthors(value);
-                        break;
-                      case 'description':
-                        setDescription(value);
-                        break;
-                    }
-                  }}
-                  setIsContactsOpen={setIsContactsOpen}
-                  setActiveAuthorIndex={setActiveAuthorIndex}
-                />
-
-                <GroupPolicyFormFields
-                  dispatch={({
-                    field,
-                    value,
-                  }: {
-                    field: 'votingPeriod' | 'votingThreshold';
-                    value: any;
-                  }) => {
-                    switch (field) {
-                      case 'votingPeriod':
-                        setVotingPeriod(value);
-                        break;
-                      case 'votingThreshold':
-                        setThreshold(value.toString());
-                        break;
-                    }
-                  }}
-                />
-              </div>
-
-              <TailwindModal
-                isOpen={isContactsOpen}
-                setOpen={setIsContactsOpen}
-                showContacts={true}
-                currentAddress={address}
-                onSelect={(selectedAddress: string) => {
-                  if (activeAuthorIndex !== null) {
-                    const newAuthors = [...authors];
-                    newAuthors[activeAuthorIndex] = selectedAddress;
-                    setAuthors(newAuthors);
-                  }
-                }}
-              />
-
-              <div className="mt-4 gap-6 flex justify-center w-full">
-                <button
-                  type="button"
-                  className="btn w-[calc(50%-8px)] btn-md focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
-                  onClick={() => setShowUpdateModal(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  aria-label={'upgrade-group-btn'}
-                  className="btn btn-md w-[calc(50%-8px)] btn-gradient text-white"
-                  disabled={isSigning || !isValid || !hasAnyChanges(values) || !touched}
-                >
-                  {isSigning ? <span className="loading loading-dots loading-md"></span> : 'Update'}
-                </button>
-              </div>
-            </Form>
-          )}
-        </Formik>
+          setShowUpdateModal={setShowUpdateModal}
+          address={address}
+          isSigning={isSigning}
+          isContactsOpen={isContactsOpen}
+          activeAuthorIndex={activeAuthorIndex}
+          setIsContactsOpen={setIsContactsOpen}
+          setActiveAuthorIndex={setActiveAuthorIndex}
+        />
       </div>
 
       <SignModal id="update-group-modal" />
@@ -428,15 +248,96 @@ export function UpdateGroupModal({
   );
 }
 
-function GroupPolicyFormFields({
-  dispatch,
-}: {
-  dispatch: ({ field, value }: { field: 'votingPeriod' | 'votingThreshold'; value: any }) => void;
-}) {
-  const { values, setFieldValue } = useFormikContext<{
-    votingPeriod: { days: number; hours: number; minutes: number; seconds: number };
-    votingThreshold: number | string;
-  }>();
+interface UpdateGroupFormProps {
+  initialValues: UpdateFormValues;
+  onSubmit: (values: UpdateFormValues) => Promise<void>;
+
+  isContactsOpen: boolean;
+  setIsContactsOpen: React.Dispatch<boolean>;
+
+  activeAuthorIndex: number | null;
+  setActiveAuthorIndex: React.Dispatch<number | null>;
+
+  setShowUpdateModal: React.Dispatch<boolean>;
+
+  address: string;
+
+  isSigning: boolean;
+}
+
+/**
+ * The update group form itself. Exported for tests.
+ *
+ * TODO: refactor this to have only the fields it really needs.
+ */
+export const UpdateGroupForm: React.FC<UpdateGroupFormProps> = ({
+  initialValues,
+  onSubmit,
+  setIsContactsOpen,
+  setActiveAuthorIndex,
+  setShowUpdateModal,
+  isSigning,
+  isContactsOpen,
+  address,
+  activeAuthorIndex,
+}) => {
+  return (
+    <Formik
+      initialValues={initialValues}
+      validationSchema={updateFormSchema}
+      onSubmit={onSubmit}
+      enableReinitialize
+    >
+      {({ isValid, dirty, setFieldValue, handleSubmit }) => (
+        <Form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+          <div className="grid grid-cols-1 gap-4">
+            <GroupDetailsFormFields
+              setIsContactsOpen={setIsContactsOpen}
+              setActiveAuthorIndex={setActiveAuthorIndex}
+            />
+
+            <GroupPolicyFormFields />
+          </div>
+
+          <TailwindModal
+            isOpen={isContactsOpen}
+            setOpen={setIsContactsOpen}
+            showContacts={true}
+            currentAddress={address}
+            onSelect={async (selectedAddress: string) => {
+              if (activeAuthorIndex !== null) {
+                await setFieldValue(`authors.${activeAuthorIndex}`, selectedAddress, true);
+                setActiveAuthorIndex(null);
+              }
+            }}
+          />
+
+          <div className="mt-4 gap-6 flex justify-center w-full">
+            <button
+              type="button"
+              className="btn w-[calc(50%-8px)] btn-md focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
+              onClick={() => setShowUpdateModal(false)}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              aria-label={'upgrade-group-btn'}
+              className="btn btn-md w-[calc(50%-8px)] btn-gradient text-white"
+              disabled={isSigning || !isValid || !dirty}
+              data-testid="update-btn"
+            >
+              {isSigning ? <span className="loading loading-dots loading-md"></span> : 'Update'}
+            </button>
+          </div>
+        </Form>
+      )}
+    </Formik>
+  );
+};
+
+function GroupPolicyFormFields() {
+  const { values, handleChange, touched, errors } = useFormikContext<UpdateFormValues>();
 
   return (
     <div className="flex flex-col gap-4">
@@ -449,21 +350,20 @@ function GroupPolicyFormFields({
             <NumberInput
               key={unit}
               name={`votingPeriod.${unit}`}
+              data-testid={`voting-period-${unit}`}
               placeholder={unit.charAt(0).toUpperCase() + unit.slice(1)}
               label={unit.charAt(0).toUpperCase() + unit.slice(1)}
-              value={values.votingPeriod[unit as keyof typeof values.votingPeriod]}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                const val = Math.max(0, parseInt(e.target.value) || 0);
-                setFieldValue(`votingPeriod.${unit}`, val);
-                dispatch({
-                  field: 'votingPeriod',
-                  value: { ...values.votingPeriod, [unit]: val },
-                });
-              }}
+              onChange={handleChange}
               min={0}
+              max={unit === 'days' ? 365 : unit === 'hours' ? 23 : 59}
             />
           ))}
         </div>
+        {touched.votingPeriod && typeof errors.votingPeriod == 'string' ? (
+          <label className="label">
+            <span className="label-text-alt text-error">{errors.votingPeriod}</span>
+          </label>
+        ) : null}
       </div>
 
       <div>
@@ -472,14 +372,10 @@ function GroupPolicyFormFields({
         </label>
         <NumberInput
           aria-label={'Qualified Majority'}
-          name="votingThreshold"
+          name="threshold"
           placeholder="e.g., 1"
-          value={values.votingThreshold}
-          onChange={e => {
-            const val = Math.max(1, parseInt(e.target.value) || 1);
-            setFieldValue('votingThreshold', val);
-            dispatch({ field: 'votingThreshold', value: val });
-          }}
+          value={values.threshold}
+          onChange={handleChange}
           min={1}
         />
       </div>
@@ -488,99 +384,83 @@ function GroupPolicyFormFields({
 }
 
 function GroupDetailsFormFields({
-  dispatch,
   setIsContactsOpen,
   setActiveAuthorIndex,
 }: {
-  dispatch: ({ field, value }: { field: 'title' | 'authors' | 'description'; value: any }) => void;
-  setIsContactsOpen: (open: boolean) => void;
-  setActiveAuthorIndex: (index: number | null) => void;
+  setIsContactsOpen: React.Dispatch<boolean>;
+  setActiveAuthorIndex: React.Dispatch<number | null>;
 }) {
-  const { values, setFieldValue } = useFormikContext<{
-    name: string;
-    authors: string[];
-    description: string;
-  }>();
+  const { values, handleChange } = useFormikContext<UpdateFormValues>();
 
   return (
     <div className="flex flex-col gap-4">
       <TextInput
         label="Group Title"
-        name="name"
+        name="title"
         placeholder="Title"
-        value={values.name}
-        onChange={e => {
-          setFieldValue('name', e.target.value);
-          dispatch({ field: 'title', value: e.target.value });
-        }}
+        value={values.title}
+        onChange={handleChange}
       />
 
       <TextArea
         label="Description"
-        name="description"
+        name="details"
         placeholder="Description"
-        value={values.description}
-        onChange={e => {
-          setFieldValue('description', e.target.value);
-          dispatch({ field: 'description', value: e.target.value });
-        }}
+        value={values.details}
+        onChange={handleChange}
       />
 
-      <div className="form-control w-full">
-        {values.authors.map((author, index) => (
-          <div key={index} className="flex mb-2">
-            <TextInput
-              label={index === 0 ? 'Author name or address' : ''}
-              name={`authors.${index}`}
-              value={author}
-              onChange={e => {
-                const newAuthors = [...values.authors];
-                newAuthors[index] = e.target.value;
-                setFieldValue('authors', newAuthors);
-                dispatch({ field: 'authors', value: newAuthors });
-              }}
-              rightElement={
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveAuthorIndex(index);
-                      setIsContactsOpen(true);
-                    }}
-                    className="btn btn-primary btn-sm text-white"
-                  >
-                    <MdContacts className="w-5 h-5" />
-                  </button>
-                  {values.authors.length > 1 && index !== 0 && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const newAuthors = values.authors.filter((_, i) => i !== index);
-                        setFieldValue('authors', newAuthors);
-                        dispatch({ field: 'authors', value: newAuthors });
-                      }}
-                      className="btn btn-error btn-sm text-white"
-                    >
-                      <TrashIcon className="w-5 h-5" />
-                    </button>
-                  )}
+      <FieldArray
+        name="authors"
+        render={arrayHelpers => {
+          return (
+            <div className="form-control w-full">
+              {values.authors.map((_, index) => (
+                <div key={index} className="flex mb-2">
+                  <TextInput
+                    data-testid={`author-${index}`}
+                    label={index === 0 ? 'Author name or address' : ''}
+                    name={`authors.${index}`}
+                    onChange={handleChange}
+                    rightElement={
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveAuthorIndex(index);
+                            setIsContactsOpen(true);
+                          }}
+                          className="btn btn-primary btn-sm text-white"
+                        >
+                          <MdContacts className="w-5 h-5" />
+                        </button>
+                        {values.authors.length > 1 && index !== 0 && (
+                          <button
+                            type="button"
+                            onClick={() => arrayHelpers.remove(index)}
+                            className="btn btn-error btn-sm text-white"
+                            data-testid={`remove-author-btn-${index}`}
+                          >
+                            <TrashIcon className="w-5 h-5" />
+                          </button>
+                        )}
+                      </div>
+                    }
+                  />
                 </div>
-              }
-            />
-          </div>
-        ))}
-        <button
-          type="button"
-          onClick={() => {
-            const newAuthors = [...values.authors, ''];
-            setFieldValue('authors', newAuthors);
-            dispatch({ field: 'authors', value: newAuthors });
-          }}
-          className="btn btn-gradient text-white w-full mt-2"
-        >
-          <PlusIcon className="mr-2" /> Add Author
-        </button>
-      </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => arrayHelpers.push('')}
+                className="btn btn-gradient text-white w-full mt-2"
+                data-testid="add-author-btn"
+              >
+                <PlusIcon className="mr-2" /> Add Author
+              </button>
+            </div>
+          );
+        }}
+      />
     </div>
   );
 }

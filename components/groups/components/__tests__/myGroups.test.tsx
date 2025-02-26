@@ -47,7 +47,7 @@ const mockProps = {
       {
         id: '1',
         metadata:
-          '{"title":"title1","authors":"author1","summary":"summary1","details":"details1"}',
+          '{"title":"title1","authors":"author1","summary":"summary1","details":"details1 at least 20 characters"}',
         policies: [{ address: 'policy1', decision_policy: { threshold: '1' } }],
         admin: 'admin1',
         members: [{ member: { address: 'member1' } }],
