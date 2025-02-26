@@ -1,5 +1,5 @@
-import Yup from '@/utils/yupExtensions';
 import * as address from '@/schemas/address';
+import Yup from '@/utils/yupExtensions';
 
 /**
  * The maximum length of the group metadata JSON string, in bytes.

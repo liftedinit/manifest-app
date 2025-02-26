@@ -1,4 +1,5 @@
-import { afterEach, describe, test, expect, beforeEach, jest, mock } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, jest, mock, test } from 'bun:test';
+
 import Yup from '@/utils/yupExtensions';
 
 describe('yupExtensions', () => {

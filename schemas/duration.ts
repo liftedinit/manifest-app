@@ -1,5 +1,5 @@
-import * as Yup from 'yup';
 import { DurationSDKType } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/duration';
+import * as Yup from 'yup';
 
 const SECONDS_IN_A_MINUTE: bigint = 60n;
 const SECONDS_IN_AN_HOUR: bigint = 3600n;

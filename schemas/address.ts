@@ -1,5 +1,5 @@
-import Yup from '@/utils/yupExtensions';
 import { isValidManifestAddress } from '@/utils';
+import Yup from '@/utils/yupExtensions';
 
 export const schema = Yup.string()
   .min(8)
