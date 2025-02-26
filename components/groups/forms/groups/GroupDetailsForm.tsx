@@ -1,13 +1,13 @@
 import { FieldArray, Form, Formik, useFormikContext } from 'formik';
 import Link from 'next/link';
 import React from 'react';
-import * as Yup from 'yup';
 
 import { PlusIcon, TrashIcon } from '@/components/icons';
 import { TextArea, TextInput } from '@/components/react/inputs';
 import { AddressInput } from '@/components/react/inputs/AddressInput';
 import { Action, FormData } from '@/helpers/formReducer';
 import { isValidManifestAddress } from '@/utils/string';
+import Yup from '@/utils/yupExtensions';
 
 const GroupSchema = Yup.object().shape({
   title: Yup.string()
