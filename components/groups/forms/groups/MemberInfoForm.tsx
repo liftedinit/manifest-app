@@ -1,10 +1,9 @@
 import { Field, FieldArray, FieldProps, Form, Formik, useFormikContext } from 'formik';
 import React, { useState } from 'react';
-import { MdContacts } from 'react-icons/md';
 
 import { PlusIcon, TrashIcon } from '@/components/icons';
-import { NumberInput, TextInput } from '@/components/react';
-import { TailwindModal } from '@/components/react/modal';
+import { TextInput } from '@/components/react';
+import { AddressInput } from '@/components/react/inputs/AddressInput';
 import { Action, FormData } from '@/helpers/formReducer';
 import Yup from '@/utils/yupExtensions';
 
@@ -27,20 +26,13 @@ const MemberInfoSchema = Yup.object().shape({
 
 function MemberInfoFormFields({
   dispatch,
-  isContactsOpen,
-  setIsContactsOpen,
-  activeMemberIndex,
-  setActiveMemberIndex,
-  address,
 }: Readonly<{
   dispatch: (action: Action) => void;
-  isContactsOpen: boolean;
-  setIsContactsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   activeMemberIndex: number | null;
   setActiveMemberIndex: React.Dispatch<React.SetStateAction<number | null>>;
   address: string;
 }>) {
-  const { values, isValid, setFieldValue } = useFormikContext<{
+  const { values } = useFormikContext<{
     members: { address: string; name: string }[];
   }>();
 
@@ -61,7 +53,7 @@ function MemberInfoFormFields({
                     <Field name={`members.${index}.address`}>
                       {({ field, meta }: FieldProps) => (
                         <div className="relative">
-                          <TextInput
+                          <AddressInput
                             showError={false}
                             label="Address"
                             {...field}
@@ -70,20 +62,6 @@ function MemberInfoFormFields({
                             className={`input input-bordered w-full ${
                               meta.touched && meta.error ? 'input-error' : ''
                             }`}
-                            rightElement={
-                              <button
-                                type="button"
-                                aria-label="Select contact from address book"
-                                title="Select contact from address book"
-                                onClick={() => {
-                                  setActiveMemberIndex(index);
-                                  setIsContactsOpen(true);
-                                }}
-                                className="btn btn-primary btn-sm text-white"
-                              >
-                                <MdContacts className="w-5 h-5" />
-                              </button>
-                            }
                             onChange={e => {
                               field.onChange(e);
                               dispatch({
@@ -178,25 +156,6 @@ function MemberInfoFormFields({
           )}
         </FieldArray>
       </div>
-
-      <TailwindModal
-        isOpen={isContactsOpen}
-        setOpen={setIsContactsOpen}
-        showContacts={true}
-        currentAddress={address}
-        onSelect={(selectedAddress: string) => {
-          if (activeMemberIndex !== null) {
-            setFieldValue(`members.${activeMemberIndex}.address`, selectedAddress);
-            dispatch({
-              type: 'UPDATE_MEMBER',
-              index: activeMemberIndex,
-              field: 'address',
-              value: selectedAddress,
-            });
-            setActiveMemberIndex(null);
-          }
-        }}
-      />
     </Form>
   );
 }
@@ -215,7 +174,6 @@ export default function MemberInfoForm({
   address: string;
 }>) {
   // Local states needed by the form fields
-  const [isContactsOpen, setIsContactsOpen] = useState(false);
   const [activeMemberIndex, setActiveMemberIndex] = useState<number | null>(null);
 
   return (
@@ -243,8 +201,6 @@ export default function MemberInfoForm({
 
                     <MemberInfoFormFields
                       dispatch={dispatch}
-                      isContactsOpen={isContactsOpen}
-                      setIsContactsOpen={setIsContactsOpen}
                       activeMemberIndex={activeMemberIndex}
                       setActiveMemberIndex={setActiveMemberIndex}
                       address={address}
