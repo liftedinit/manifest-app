@@ -13,7 +13,7 @@ import { AmountInput } from '@/components';
 import { DenomDisplay } from '@/components/factory';
 import { SearchIcon } from '@/components/icons';
 import { TextInput } from '@/components/react/inputs';
-import { TailwindModal } from '@/components/react/modal';
+import { AddressInput } from '@/components/react/inputs/AddressInput';
 import env from '@/config/env';
 import { useToast } from '@/contexts';
 import { useSkipClient } from '@/contexts/skipGoContext';
@@ -64,7 +64,6 @@ export default function IbcSendForm({
   const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [feeWarning, setFeeWarning] = useState('');
-  const [isContactsOpen, setIsContactsOpen] = useState(false);
 
   // Hooks and context
   const { getOfflineSignerAmino } = useChain(env.chain);
@@ -623,7 +622,7 @@ export default function IbcSendForm({
                   </div>
                 </div>
 
-                <TextInput
+                <AddressInput
                   label="Send To"
                   name="recipient"
                   placeholder="Enter address"
@@ -633,16 +632,6 @@ export default function IbcSendForm({
                   }}
                   className="input-md w-full"
                   style={{ borderRadius: '12px' }}
-                  rightElement={
-                    <button
-                      type="button"
-                      aria-label="contacts-btn"
-                      onClick={() => setIsContactsOpen(true)}
-                      className="btn btn-primary btn-sm text-white"
-                    >
-                      <MdContacts className="w-5 h-5" />
-                    </button>
-                  }
                 />
 
                 <TextInput
@@ -668,15 +657,6 @@ export default function IbcSendForm({
                   {isSending ? <span className="loading loading-dots loading-xs"></span> : 'Send'}
                 </button>
               </div>
-              <TailwindModal
-                isOpen={isContactsOpen}
-                setOpen={setIsContactsOpen}
-                showContacts={true}
-                currentAddress={address}
-                onSelect={(selectedAddress: string) => {
-                  setFieldValue('recipient', selectedAddress);
-                }}
-              />
             </Form>
           );
         }}

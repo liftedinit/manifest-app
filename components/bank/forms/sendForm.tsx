@@ -4,14 +4,13 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Any } from 'cosmjs-types/google/protobuf/any';
 import { Form, Formik } from 'formik';
 import React, { useMemo, useState } from 'react';
-import { MdContacts } from 'react-icons/md';
 import { PiCaretDownBold } from 'react-icons/pi';
 
 import { AmountInput, MaxButton } from '@/components';
 import { DenomDisplay } from '@/components/factory';
 import { SearchIcon } from '@/components/icons';
 import { TextInput } from '@/components/react/inputs';
-import { TailwindModal } from '@/components/react/modal';
+import { AddressInput } from '@/components/react/inputs/AddressInput';
 import env from '@/config/env';
 import { useFeeEstimation, useTx } from '@/hooks';
 import { parseNumberToBigInt, shiftDigits, truncateString } from '@/utils';
@@ -49,7 +48,6 @@ export default function SendForm({
   const { estimateFee } = useFeeEstimation(env.chain);
   const { send } = cosmos.bank.v1beta1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
-  const [isContactsOpen, setIsContactsOpen] = useState(false);
 
   const filteredBalances = balances?.filter(token => {
     const displayName = token.metadata?.display ?? token.display;
@@ -193,7 +191,7 @@ export default function SendForm({
         validationSchema={validationSchema}
         onSubmit={handleSend}
       >
-        {({ isValid, dirty, setFieldValue, values, errors }) => {
+        {({ isValid, dirty, setFieldValue, values, errors, handleChange }) => {
           // Use direct calculation instead of useMemo
           const selectedTokenBalance = values?.selectedToken
             ? balances?.find(token => token.base === values.selectedToken.base)
@@ -317,26 +315,14 @@ export default function SendForm({
                   </div>
                 </div>
 
-                <TextInput
-                  label="Send To"
+                <AddressInput
                   name="recipient"
+                  label="Send To"
                   placeholder="Enter address"
                   value={values.recipient}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    setFieldValue('recipient', e.target.value);
-                  }}
+                  onChange={handleChange}
                   className="input-md w-full"
                   style={{ borderRadius: '12px' }}
-                  rightElement={
-                    <button
-                      type="button"
-                      aria-label="contacts-btn"
-                      onClick={() => setIsContactsOpen(true)}
-                      className="btn btn-primary btn-sm text-white"
-                    >
-                      <MdContacts className="w-5 h-5" />
-                    </button>
-                  }
                 />
                 <TextInput
                   label="Memo (optional)"
@@ -344,9 +330,7 @@ export default function SendForm({
                   placeholder="Memo"
                   style={{ borderRadius: '12px' }}
                   value={values.memo}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    setFieldValue('memo', e.target.value);
-                  }}
+                  onChange={handleChange}
                   className="input-md w-full"
                 />
               </div>
@@ -361,15 +345,6 @@ export default function SendForm({
                   {isSending ? <span className="loading loading-dots loading-xs"></span> : 'Send'}
                 </button>
               </div>
-              <TailwindModal
-                isOpen={isContactsOpen}
-                setOpen={setIsContactsOpen}
-                showContacts={true}
-                currentAddress={address}
-                onSelect={(selectedAddress: string) => {
-                  setFieldValue('recipient', selectedAddress);
-                }}
-              />
             </Form>
           );
         }}

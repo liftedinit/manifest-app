@@ -3,14 +3,13 @@ import { cosmos } from '@liftedinit/manifestjs';
 import { MemberSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { Field, FieldProps, Form, Formik } from 'formik';
-import React, { useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
+import React, { useRef, useState } from 'react';
 import { MdContacts } from 'react-icons/md';
 import * as Yup from 'yup';
 
 import { CopyIcon, TrashIcon } from '@/components/icons';
 import { AddressCopyButton, SignModal } from '@/components/react';
-import { TailwindModal } from '@/components/react/modal';
+import { AddressInput } from '@/components/react/inputs/AddressInput';
 import env from '@/config/env';
 import { useFeeEstimation, useTx } from '@/hooks';
 import { truncateAddress } from '@/utils';
@@ -171,14 +170,6 @@ export function MemberManagementModal({
     }
   };
 
-  const [isContactsOpen, setIsContactsOpen] = useState(false);
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
-
-  const handleContactButtonClick = (index: number) => {
-    setActiveIndex(index);
-    setIsContactsOpen(true);
-  };
-
   const submitFormRef = useRef<(() => void) | null>(null);
   const formikRef = useRef<any>(null);
 
@@ -231,22 +222,6 @@ export function MemberManagementModal({
 
             return (
               <>
-                <div className="z-[9999]">
-                  <TailwindModal
-                    isOpen={isContactsOpen}
-                    setOpen={setIsContactsOpen}
-                    showContacts={true}
-                    showMemberManagementModal={true}
-                    onSelect={(selectedAddress: string) => {
-                      if (activeIndex !== null) {
-                        const fieldName = `members.${activeIndex}.address`;
-                        setFieldValue(fieldName, selectedAddress);
-                      }
-                      setIsContactsOpen(false);
-                    }}
-                    currentAddress={address}
-                  />
-                </div>
                 <Form>
                   <div className="flex items-center mb-4 px-4 text-sm text-gray-400">
                     <div className="w-[10%] ml-3">#</div>
@@ -295,27 +270,17 @@ export function MemberManagementModal({
                           <Field name={`members.${index}.address`}>
                             {({ field, meta }: FieldProps) => (
                               <div className="flex-grow relative">
-                                <input
+                                <AddressInput
                                   {...field}
-                                  type="text"
                                   className={`input input-sm focus:outline-none disabled:bg-transparent disabled:border-none bg-transparent input-ghost w-full ${
                                     meta.touched && meta.error ? 'input-error' : ''
                                   }`}
                                   placeholder="manifest1..."
                                   disabled={!member.isNew || member.markedForDeletion}
                                   value={truncateAddress(field.value)}
+                                  small
                                   data-1p-ignore
                                 />
-                                {member.isNew && !member.markedForDeletion && (
-                                  <button
-                                    type="button"
-                                    aria-label="contacts-btn"
-                                    onClick={() => handleContactButtonClick(index)}
-                                    className="btn btn-primary btn-xs text-white absolute right-2 top-1"
-                                  >
-                                    <MdContacts className="w-4 h-4" />
-                                  </button>
-                                )}
                                 {meta.touched && meta.error && (
                                   <div
                                     className="tooltip tooltip-bottom tooltip-open tooltip-primary dark:text-white text-white text-xs mt-1 absolute left-1/2 transform translate-y-7 -translate-x-4 z-50"

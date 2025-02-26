@@ -4,14 +4,13 @@ import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgPayout } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
 import { Field, FieldArray, FieldProps, Form, Formik } from 'formik';
-import React, { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
+import React, { useState } from 'react';
 import { MdContacts } from 'react-icons/md';
 
 import { MinusIcon, PlusIcon } from '@/components/icons';
-import { TailwindModal } from '@/components/react';
 import { SignModal } from '@/components/react';
 import { NumberInput, TextInput } from '@/components/react/inputs';
+import { AddressInput } from '@/components/react/inputs/AddressInput';
 import env from '@/config/env';
 import { useFeeEstimation, useTx } from '@/hooks';
 import { parseNumberToBigInt, shiftDigits } from '@/utils';
@@ -55,7 +54,6 @@ export function MultiMintModal({ isOpen, onClose, admin, address, denom }: Multi
   const { estimateFee } = useFeeEstimation(env.chain);
   const { payout } = liftedinit.manifest.v1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
-  const [isContactsOpen, setIsContactsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const updatePayoutPair = (index: number, field: 'address' | 'amount', value: string) => {
@@ -180,7 +178,7 @@ export function MultiMintModal({ isOpen, onClose, admin, address, denom }: Multi
                               <Field name={`payoutPairs.${index}.address`}>
                                 {({ field, meta }: FieldProps) => (
                                   <div className="relative">
-                                    <TextInput
+                                    <AddressInput
                                       showError={false}
                                       label="Address"
                                       {...field}
@@ -188,18 +186,6 @@ export function MultiMintModal({ isOpen, onClose, admin, address, denom }: Multi
                                       className={`input input-bordered w-full ${
                                         meta.touched && meta.error ? 'input-error' : ''
                                       }`}
-                                      rightElement={
-                                        <button
-                                          type="button"
-                                          onClick={() => {
-                                            setSelectedIndex(index);
-                                            setIsContactsOpen(true);
-                                          }}
-                                          className="btn btn-primary btn-sm text-white"
-                                        >
-                                          <MdContacts className="w-5 h-5" />
-                                        </button>
-                                      }
                                     />
                                     {meta.touched && meta.error && (
                                       <div
@@ -274,21 +260,6 @@ export function MultiMintModal({ isOpen, onClose, admin, address, denom }: Multi
                     )}
                   </button>
                 </div>
-                <TailwindModal
-                  isOpen={isContactsOpen}
-                  setOpen={setIsContactsOpen}
-                  showContacts={true}
-                  currentAddress={address}
-                  onSelect={(selectedAddress: string) => {
-                    if (selectedIndex !== null) {
-                      // Update both the local state and Formik state
-                      updatePayoutPair(selectedIndex, 'address', selectedAddress);
-                      setFieldValue(`payoutPairs.${selectedIndex}.address`, selectedAddress);
-                    }
-                    setIsContactsOpen(false);
-                    setSelectedIndex(null);
-                  }}
-                />
               </Form>
             )}
           </Formik>

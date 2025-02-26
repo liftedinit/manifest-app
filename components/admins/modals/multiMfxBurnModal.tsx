@@ -4,11 +4,8 @@ import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { Field, FieldArray, FieldProps, Form, Formik } from 'formik';
 import React, { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { MdContacts } from 'react-icons/md';
 
-import { MinusIcon, PlusIcon } from '@/components/icons';
-import { TailwindModal } from '@/components/react';
+import { MinusIcon } from '@/components/icons';
 import { SignModal } from '@/components/react';
 import { NumberInput, TextInput } from '@/components/react/inputs';
 import env from '@/config/env';
@@ -52,7 +49,6 @@ export function MultiBurnModal({ isOpen, onClose, admin, address, denom }: Multi
   const { estimateFee } = useFeeEstimation(env.chain);
   const { burnHeldBalance } = liftedinit.manifest.v1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
-  const [isContactsOpen, setIsContactsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const updateBurnPair = (index: number, field: 'address' | 'amount', value: string) => {
@@ -248,20 +244,6 @@ export function MultiBurnModal({ isOpen, onClose, admin, address, denom }: Multi
                     {isSigning ? <span className="loading loading-dots loading-md"></span> : 'Burn'}
                   </button>
                 </div>
-                <TailwindModal
-                  isOpen={isContactsOpen}
-                  setOpen={setIsContactsOpen}
-                  showContacts={true}
-                  currentAddress={address}
-                  onSelect={(selectedAddress: string) => {
-                    if (selectedIndex !== null) {
-                      updateBurnPair(selectedIndex, 'address', selectedAddress);
-                      setFieldValue(`burnPairs.${selectedIndex}.address`, selectedAddress);
-                    }
-                    setIsContactsOpen(false);
-                    setSelectedIndex(null);
-                  }}
-                />
               </Form>
             )}
           </Formik>
