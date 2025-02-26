@@ -1,5 +1,4 @@
 import { useChain, useChains } from '@cosmos-kit/react';
-import Link from 'next/link';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { HistoryBox, SearchIcon, WalletNotConnected } from '@/components';
@@ -18,7 +17,7 @@ import {
   useTokenFactoryDenomsMetadata,
 } from '@/hooks';
 import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
-import { denomToAsset } from '@/utils';
+import { MFX_TOKEN_BASE, denomToAsset, unsafeConvertTokenBase } from '@/utils';
 import { MFX_TOKEN_DATA, OSMOSIS_TOKEN_DATA } from '@/utils/constants';
 import { CombinedBalanceInfo } from '@/utils/types';
 
@@ -101,7 +100,7 @@ export default function Bank() {
     const mfxCombinedBalance: CombinedBalanceInfo | null = mfxCoreBalance
       ? {
           display: mfxResolvedBalance?.denom || 'mfx',
-          base: 'umfx',
+          base: MFX_TOKEN_BASE,
           amount: mfxCoreBalance.amount,
           metadata: MFX_TOKEN_DATA,
         }
@@ -123,7 +122,7 @@ export default function Bank() {
 
           return {
             display: baseDenom ?? '', // normalized denom (e.g., 'umfx')
-            base: coreBalance.denom, // full IBC trace
+            base: unsafeConvertTokenBase(coreBalance.denom), // full IBC trace
             amount: coreBalance.amount,
             metadata: {
               description: assetInfo?.description ?? '',
@@ -142,9 +141,10 @@ export default function Bank() {
           };
         }
 
+        // TODO: move this code to a `CombinedBalanceInfo` factory function.
         return {
           display: resolvedBalance?.denom || coreBalance.denom,
-          base: coreBalance.denom,
+          base: unsafeConvertTokenBase(coreBalance.denom),
           amount: coreBalance.amount,
           metadata: metadata || null,
         };

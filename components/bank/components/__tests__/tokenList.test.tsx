@@ -4,6 +4,7 @@ import React from 'react';
 
 import { TokenList } from '@/components/bank/components/tokenList';
 import { renderWithChainProvider } from '@/tests/render';
+import { unsafeConvertTokenBase } from '@/utils';
 import { CombinedBalanceInfo } from '@/utils/types';
 
 // Mock next/router
@@ -18,7 +19,7 @@ const mockBalances: CombinedBalanceInfo[] = [
   {
     display: 'utoken1',
     amount: '1000',
-    base: 'token1',
+    base: unsafeConvertTokenBase('token1'),
     metadata: {
       name: 'Token 1',
       uri: 'https://token1.com',
@@ -36,7 +37,7 @@ const mockBalances: CombinedBalanceInfo[] = [
   {
     display: 'utoken2',
     amount: '2000',
-    base: 'token2',
+    base: unsafeConvertTokenBase('token2'),
     metadata: {
       name: 'Token 2',
       uri: 'https://token2.com',

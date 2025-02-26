@@ -33,7 +33,6 @@ describe('MemberInfoForm Component', () => {
     expect(screen.getByText('Member Info')).toBeTruthy();
     expect(screen.getAllByLabelText('Address')[0]).toBeTruthy();
     expect(screen.getAllByLabelText('Name')[0]).toBeTruthy();
-    expect(screen.getAllByLabelText('Weight')[0]).toBeTruthy();
   });
 
   test('updates form fields correctly', async () => {
@@ -57,17 +56,6 @@ describe('MemberInfoForm Component', () => {
         index: 0,
         field: 'name',
         value: 'New Name',
-      });
-    });
-
-    const weightInput = screen.getAllByLabelText('Weight')[0] as HTMLInputElement;
-    fireEvent.change(weightInput, { target: { value: '3' } });
-    await waitFor(() => {
-      expect(mockProps.dispatch).toHaveBeenCalledWith({
-        type: 'UPDATE_MEMBER',
-        index: 0,
-        field: 'weight',
-        value: '3',
       });
     });
   });

@@ -11,7 +11,6 @@ import Yup from '@/utils/yupExtensions';
 const MemberSchema = Yup.object().shape({
   address: Yup.string().manifestAddress().required('Required'),
   name: Yup.string().required('Required').noProfanity('Profanity is not allowed'),
-  weight: Yup.number().min(1, 'Must be at least 1').required('Required'),
 });
 
 const MemberInfoSchema = Yup.object().shape({
@@ -42,7 +41,7 @@ function MemberInfoFormFields({
   address: string;
 }>) {
   const { values, isValid, setFieldValue } = useFormikContext<{
-    members: { address: string; name: string; weight: string }[];
+    members: { address: string; name: string }[];
   }>();
 
   return (
@@ -146,52 +145,6 @@ function MemberInfoFormFields({
                     </Field>
                   </div>
 
-                  <div className="flex-grow relative">
-                    <Field name={`members.${index}.weight`}>
-                      {({ field, meta }: FieldProps) => (
-                        <div className="relative">
-                          <NumberInput
-                            showError={false}
-                            label="Weight"
-                            {...field}
-                            type="number"
-                            min="1"
-                            step="1"
-                            onKeyDown={e => {
-                              // Prevent negative signs and decimals
-                              if (e.key === '-' || e.key === '.' || e.key === 'e') {
-                                e.preventDefault();
-                              }
-                            }}
-                            placeholder="1"
-                            className={`input input-bordered w-full ${
-                              meta.touched && meta.error ? 'input-error' : ''
-                            }`}
-                            onChange={e => {
-                              const value = Math.max(1, parseInt(e.target.value) || 1);
-                              field.onChange(e);
-                              setFieldValue(`members.${index}.weight`, value.toString());
-                              dispatch({
-                                type: 'UPDATE_MEMBER',
-                                index,
-                                field: 'weight',
-                                value: value.toString(),
-                              });
-                            }}
-                          />
-                          {meta.touched && meta.error && (
-                            <div
-                              className="tooltip tooltip-bottom tooltip-open tooltip-error bottom-0 absolute left-1/2 transform -translate-x-1/2 translate-y-full mt-1 z-50 text-white text-xs"
-                              data-tip={meta.error}
-                            >
-                              <div className="w-0 h-0"></div>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </Field>
-                  </div>
-
                   {index > 0 && (
                     <button
                       type="button"
@@ -211,10 +164,10 @@ function MemberInfoFormFields({
                 type="button"
                 className="btn btn-gradient w-full"
                 onClick={() => {
-                  push({ address: '', name: '', weight: '1' });
+                  push({ address: '', name: '' });
                   dispatch({
                     type: 'ADD_MEMBER',
-                    member: { address: '', name: '', weight: '1' },
+                    member: { address: '', name: '' },
                   });
                 }}
               >

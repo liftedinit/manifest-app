@@ -6,6 +6,7 @@ import { SignModal } from '@/components/react';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import env from '@/config/env';
 import { FormData } from '@/helpers/formReducer';
+import { useGroupsByMember } from '@/hooks';
 import { useFeeEstimation } from '@/hooks/useFeeEstimation';
 import { useTx } from '@/hooks/useTx';
 import { secondsToHumanReadable } from '@/utils/string';
@@ -60,13 +61,15 @@ export default function ConfirmationForm({
 
   const typeUrl = cosmos.group.v1.ThresholdDecisionPolicy.typeUrl;
 
+  const { refetchGroupByMember } = useGroupsByMember(address ?? '');
+
   const handleConfirm = async () => {
     try {
       const msg = createGroupWithPolicy({
         admin: address ?? '',
         members: formData.members.map(member => ({
           address: member.address,
-          weight: member.weight,
+          weight: '1',
           metadata: member.name,
           added_at: new Date(),
         })),
@@ -84,6 +87,7 @@ export default function ConfirmationForm({
       await tx([msg], {
         fee,
         onSuccess: () => {
+          refetchGroupByMember();
           nextStep();
         },
       });

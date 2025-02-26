@@ -1,12 +1,13 @@
 import { cosmos } from '@liftedinit/manifestjs';
 import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
+import { useQueryClient } from '@tanstack/react-query';
 import { Any } from 'cosmjs-types/google/protobuf/any';
 import { Form, Formik } from 'formik';
 import React, { useMemo, useState } from 'react';
 import { MdContacts } from 'react-icons/md';
 import { PiCaretDownBold } from 'react-icons/pi';
 
-import { AmountInput } from '@/components';
+import { AmountInput, MaxButton } from '@/components';
 import { DenomDisplay } from '@/components/factory';
 import { SearchIcon } from '@/components/icons';
 import { TextInput } from '@/components/react/inputs';
@@ -41,6 +42,9 @@ export default function SendForm({
   const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [feeWarning, setFeeWarning] = useState('');
+
+  const queryClient = useQueryClient();
+
   const { tx } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
   const { send } = cosmos.bank.v1beta1.MessageComposer.withTypeUrl;
@@ -107,10 +111,6 @@ export default function SendForm({
     memo: Yup.string().max(255, 'Memo must be less than 255 characters'),
   });
 
-  const formatAmount = (amount: number, decimals: number) => {
-    return amount.toFixed(decimals).replace(/\.?0+$/, '');
-  };
-
   const handleSend = async (values: {
     recipient: string;
     amount: string;
@@ -151,13 +151,23 @@ export default function SendForm({
 
       const fee = await estimateFee(address, [msg]);
 
-      let txResult = await tx([msg], {
+      await tx([msg], {
         memo: values.memo,
         fee,
         onSuccess: () => {
           refetchBalances();
           refetchHistory();
           refetchProposals?.();
+          queryClient.invalidateQueries({
+            predicate: query => {
+              return ['balanceInfo'].includes(query.queryKey[0] as string);
+            },
+          });
+          queryClient.invalidateQueries({
+            predicate: query => {
+              return ['balances'].includes(query.queryKey[0] as string);
+            },
+          });
         },
       });
     } catch (error) {
@@ -285,7 +295,6 @@ export default function SendForm({
                               )
                             ).toLocaleString()}
                       </span>
-
                       <span className="">
                         {values.selectedToken?.metadata?.display?.startsWith('factory')
                           ? values.selectedToken?.metadata?.display?.split('/').pop()?.toUpperCase()
@@ -294,31 +303,12 @@ export default function SendForm({
                               10
                             ).toUpperCase()}
                       </span>
-                      <button
-                        type="button"
-                        className="text-xs text-primary"
-                        onClick={() => {
-                          if (!selectedTokenBalance) return;
 
-                          const exponent =
-                            selectedTokenBalance.metadata?.denom_units[1]?.exponent ?? 6;
-                          const maxAmount =
-                            Number(selectedTokenBalance.amount) / Math.pow(10, exponent);
-
-                          let adjustedMaxAmount = maxAmount;
-                          if (values.selectedToken.base === 'umfx') {
-                            adjustedMaxAmount = Math.max(0, maxAmount - 0.1);
-                          }
-
-                          const decimals =
-                            selectedTokenBalance.metadata?.denom_units[1]?.exponent ?? 6;
-                          const formattedAmount = formatAmount(adjustedMaxAmount, decimals);
-
-                          setFieldValue('amount', formattedAmount);
-                        }}
-                      >
-                        MAX
-                      </button>
+                      <MaxButton
+                        token={values.selectedToken}
+                        setTokenAmount={(amount: string) => setFieldValue('amount', amount)}
+                        disabled={isSending}
+                      />
                     </div>
                     {errors.amount && <div className="text-red-500 text-xs">{errors.amount}</div>}
                     {feeWarning && !errors.amount && (

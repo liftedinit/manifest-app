@@ -19,7 +19,7 @@ const initialFormData: FormData = {
   description: '',
   votingPeriod: {} as Duration,
   votingThreshold: '',
-  members: [{ address: '', name: '', weight: '' }],
+  members: [{ address: '', name: '' }],
 };
 
 export default function CreateGroup() {

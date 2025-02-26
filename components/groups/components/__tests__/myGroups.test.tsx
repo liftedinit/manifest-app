@@ -2,7 +2,7 @@ import { cleanup, fireEvent, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, jest, mock, test } from 'bun:test';
 import React from 'react';
 
-import { YourGroups } from '@/components/groups/components/myGroups';
+import YourGroups from '@/components/groups/components/myGroups';
 import { mockGroup, mockGroup2 } from '@/tests/mock';
 import { renderWithChainProvider } from '@/tests/render';
 

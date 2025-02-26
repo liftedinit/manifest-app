@@ -68,11 +68,12 @@ export const useTx = (chainName: string) => {
       });
       return options.returnError ? { error: 'Wallet not connected' } : undefined;
     }
+
     setPromptId(id);
     setIsSigning(true);
-    let client: SigningStargateClient;
+
     try {
-      client = await getSigningStargateClient();
+      const client = await getSigningStargateClient();
 
       if (options.simulate) {
         try {
@@ -97,12 +98,16 @@ export const useTx = (chainName: string) => {
         }
       }
 
-      const signed = await client.sign(
-        address,
-        msgs,
-        options.fee || (await estimateFee(msgs)),
-        options.memo || ''
-      );
+      // Get fee first and exit early if it fails
+      const fee = options.fee || (await estimateFee(msgs));
+      if (!fee) {
+        setIsSigning(false);
+        setPromptId(undefined);
+        // Return early since estimateFee already showed an error toast
+        return options.returnError ? { error: 'Fee estimation failed' } : undefined;
+      }
+
+      const signed = await client.sign(address, msgs, fee, options.memo || '');
 
       setToastMessage({
         type: 'alert-info',

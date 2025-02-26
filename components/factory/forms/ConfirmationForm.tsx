@@ -3,6 +3,7 @@ import {
   MsgCreateDenom,
   MsgSetDenomMetadata,
 } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+import { useQueryClient } from '@tanstack/react-query';
 import { Any } from 'cosmjs-types/google/protobuf/any';
 
 import { SignModal } from '@/components/react';
@@ -27,6 +28,7 @@ export default function ConfirmationForm({
   const { setDenomMetadata, createDenom } =
     osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
+  const queryClient = useQueryClient();
 
   const effectiveAddress =
     formData.isGroup && formData.groupPolicyAddress ? formData.groupPolicyAddress : address;
@@ -96,6 +98,10 @@ export default function ConfirmationForm({
         fee: fee,
         onSuccess: () => {
           nextStep();
+          queryClient.invalidateQueries({ queryKey: ['allMetadatas'] });
+          queryClient.invalidateQueries({ queryKey: ['denoms'] });
+          queryClient.invalidateQueries({ queryKey: ['balances'] });
+          queryClient.invalidateQueries({ queryKey: ['totalSupply'] });
         },
         returnError: true,
       });
@@ -139,6 +145,10 @@ export default function ConfirmationForm({
         fee: setMetadataFee,
         onSuccess: () => {
           nextStep();
+          queryClient.invalidateQueries({ queryKey: ['allMetadatas'] });
+          queryClient.invalidateQueries({ queryKey: ['denoms'] });
+          queryClient.invalidateQueries({ queryKey: ['balances'] });
+          queryClient.invalidateQueries({ queryKey: ['totalSupply'] });
         },
         returnError: true,
       });
@@ -169,7 +179,7 @@ export default function ConfirmationForm({
               </div>
               <div className="bg-base-300 p-4 rounded-[12px]">
                 <label className="text-sm text-gray-500 dark:text-gray-400">Logo URL</label>
-                <div className="">{formData.uri || 'N/A'}</div>
+                <div className=" truncate">{formData.uri || 'N/A'}</div>
               </div>
             </div>
             <div className="mt-4 bg-base-300 p-4 rounded-[12px]">

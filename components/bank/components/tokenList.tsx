@@ -42,12 +42,11 @@ export const TokenList = React.memo(function TokenList(props: Readonly<TokenList
     setIsSendModalOpenHook(isOpen);
   }
 
-  const filteredBalances = useMemo(() => {
-    if (!Array.isArray(balances)) return [];
-    return balances.filter(balance =>
-      balance.metadata?.display.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [balances, searchTerm]);
+  const filteredBalances = !Array.isArray(balances)
+    ? []
+    : balances.filter(balance =>
+        balance.metadata?.display.toLowerCase().includes(searchTerm.toLowerCase())
+      );
 
   const totalPages = Math.max(1, Math.ceil(filteredBalances.length / pageSize));
 
@@ -55,10 +54,10 @@ export const TokenList = React.memo(function TokenList(props: Readonly<TokenList
     setCurrentPage(1);
   }, [searchTerm]);
 
-  const paginatedBalances = useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize;
-    return filteredBalances.slice(startIndex, startIndex + pageSize);
-  }, [filteredBalances, currentPage, pageSize]);
+  const paginatedBalances = filteredBalances.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
   const skeletonItems = useMemo(
     () =>

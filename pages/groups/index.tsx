@@ -4,7 +4,7 @@ import React from 'react';
 
 import { GroupsIcon, WalletNotConnected } from '@/components';
 import { SEO } from '@/components';
-import { YourGroups } from '@/components/groups/components/myGroups';
+import YourGroups from '@/components/groups/components/myGroups';
 import env from '@/config/env';
 import { useGroupsByMember, useProposalsByPolicyAccountAll } from '@/hooks';
 

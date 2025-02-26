@@ -63,7 +63,7 @@ export default function Success({
             {formData.uri && (
               <div className="col-span-1 md:col-span-2">
                 <h3 className="text-md font-light text-gray-400">Logo URL</h3>
-                <p className="text-lg font-medium">{formData.uri}</p>
+                <p className="text-lg font-medium truncate">{formData.uri}</p>
               </div>
             )}
           </div>

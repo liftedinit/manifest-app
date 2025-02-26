@@ -103,7 +103,6 @@ export default function Factory() {
     return [];
   }, [denoms, metadatas, balances, totalSupply]);
 
-  const isDataReady = combinedData.length > 0;
   const [searchTerm, setSearchTerm] = useState('');
 
   return (

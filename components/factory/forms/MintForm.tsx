@@ -1,5 +1,6 @@
 import { cosmos, osmosis } from '@liftedinit/manifestjs';
 import { MsgMint } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+import { useQueryClient } from '@tanstack/react-query';
 import { Any } from 'cosmjs-types/google/protobuf/any';
 import { Form, Formik } from 'formik';
 import React, { useState } from 'react';
@@ -34,7 +35,7 @@ export default function MintForm({
   const [amount, setAmount] = useState('');
   const [recipient, setRecipient] = useState(address || '');
   const [isContactsOpen, setIsContactsOpen] = useState(false);
-
+  const queryClient = useQueryClient();
   const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
   const { mint } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
@@ -95,6 +96,10 @@ export default function MintForm({
         onSuccess: () => {
           setAmount('');
           refetch();
+          queryClient.invalidateQueries({ queryKey: ['allMetadatas'] });
+          queryClient.invalidateQueries({ queryKey: ['denoms'] });
+          queryClient.invalidateQueries({ queryKey: ['balances'] });
+          queryClient.invalidateQueries({ queryKey: ['totalSupply'] });
         },
       });
     } catch (error) {
