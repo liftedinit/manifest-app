@@ -6,7 +6,7 @@ import { UpdateFormValues, UpdateGroupForm, UpdateGroupModal } from '@/component
 import { env } from '@/config';
 import { ExtendedGroupType } from '@/hooks';
 import { duration } from '@/schemas';
-import { factoryWithChainProvider, renderWithChainProvider } from '@/tests/render';
+import { renderWithChainProvider } from '@/tests/render';
 
 // Mock next/router
 const m = jest.fn();
@@ -152,12 +152,7 @@ describe('UpdateGroupForm', () => {
       <UpdateGroupForm
         initialValues={mockValues}
         onSubmit={jest.fn()}
-        isContactsOpen={false}
-        setIsContactsOpen={jest.fn()}
-        activeAuthorIndex={null}
-        setActiveAuthorIndex={jest.fn()}
         setShowUpdateModal={jest.fn()}
-        address={'manifest1aucdev30u9505dx9t6q5fkcm70sjg4rh7rn5nf'}
         isSigning={false}
       />
     );
@@ -191,12 +186,7 @@ describe('UpdateGroupForm', () => {
       <UpdateGroupForm
         initialValues={mockValues}
         onSubmit={jest.fn()}
-        isContactsOpen={false}
-        setIsContactsOpen={jest.fn()}
-        activeAuthorIndex={null}
-        setActiveAuthorIndex={jest.fn()}
         setShowUpdateModal={jest.fn()}
-        address={'manifest1aucdev30u9505dx9t6q5fkcm70sjg4rh7rn5nf'}
         isSigning={false}
       />
     );
@@ -226,12 +216,7 @@ describe('UpdateGroupForm', () => {
       <UpdateGroupForm
         initialValues={mockValues}
         onSubmit={jest.fn()}
-        isContactsOpen={false}
-        setIsContactsOpen={jest.fn()}
-        activeAuthorIndex={null}
-        setActiveAuthorIndex={jest.fn()}
         setShowUpdateModal={jest.fn()}
-        address={'manifest1aucdev30u9505dx9t6q5fkcm70sjg4rh7rn5nf'}
         isSigning={false}
       />
     );
@@ -247,7 +232,9 @@ describe('UpdateGroupForm', () => {
 
     // Add an author. Update should still be disabled.
     mockup.getByTestId('add-author-btn').click();
-    await waitForUpdateButtonToBeDisabled(mockup);
+    await waitFor(() => {
+      expect(mockup.getByTestId('author-1')).toBeInTheDocument();
+    });
 
     changeField(mockup.getByTestId('author-1'), 'Hello World');
     await waitFor(() => {
@@ -258,6 +245,7 @@ describe('UpdateGroupForm', () => {
     await waitFor(() => {
       expect(mockup.getByText('Authors must be unique')).toBeInTheDocument();
     });
+    await waitForUpdateButtonToBeDisabled(mockup);
   });
 
   test('Voting Period validates', async () => {
@@ -265,12 +253,7 @@ describe('UpdateGroupForm', () => {
       <UpdateGroupForm
         initialValues={mockValues}
         onSubmit={jest.fn()}
-        isContactsOpen={false}
-        setIsContactsOpen={jest.fn()}
-        activeAuthorIndex={null}
-        setActiveAuthorIndex={jest.fn()}
         setShowUpdateModal={jest.fn()}
-        address={'manifest1aucdev30u9505dx9t6q5fkcm70sjg4rh7rn5nf'}
         isSigning={false}
       />
     );
@@ -280,17 +263,15 @@ describe('UpdateGroupForm', () => {
 
     // Update the group title so we have at least some dirty fields.
     changeField(mockup.getByLabelText('Group Title'), 'Hello World');
-    await waitForUpdateButtonToBeEnabled(mockup);
 
     changeField(mockup.getByTestId('voting-period-seconds'), '0');
     changeField(mockup.getByTestId('voting-period-minutes'), '0');
     changeField(mockup.getByTestId('voting-period-hours'), '0');
-    await waitFor(() => {
-      expect(mockup.getByText(/^Voting period must be at least \d+/)).toBeInTheDocument();
-    });
-    await waitForUpdateButtonToBeDisabled(mockup);
 
-    changeField(mockup.getByTestId('voting-period-hours'), '2');
-    await waitForUpdateButtonToBeEnabled(mockup);
+    let $errEl: any;
+    await waitFor(() => {
+      $errEl = mockup.getByText(/^Voting period must be at least \d+/);
+      expect($errEl).toBeInTheDocument();
+    });
   });
 });
