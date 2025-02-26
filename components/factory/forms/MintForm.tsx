@@ -1,17 +1,16 @@
-import React, { useState } from 'react';
-import { useFeeEstimation, useTx } from '@/hooks';
 import { cosmos, osmosis } from '@liftedinit/manifestjs';
-
-import { parseNumberToBigInt, shiftDigits, ExtendedMetadataSDKType, truncateString } from '@/utils';
+import { MsgMint } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+import { Any } from 'cosmjs-types/google/protobuf/any';
+import { Form, Formik } from 'formik';
+import React, { useState } from 'react';
 import { MdContacts } from 'react-icons/md';
 
-import { Formik, Form } from 'formik';
-import Yup from '@/utils/yupExtensions';
 import { NumberInput, TextInput } from '@/components/react/inputs';
 import { TailwindModal } from '@/components/react/modal';
 import env from '@/config/env';
-import { Any } from 'cosmjs-types/google/protobuf/any';
-import { MsgMint } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+import { useFeeEstimation, useTx } from '@/hooks';
+import { ExtendedMetadataSDKType, parseNumberToBigInt, shiftDigits, truncateString } from '@/utils';
+import Yup from '@/utils/yupExtensions';
 
 export default function MintForm({
   isAdmin,

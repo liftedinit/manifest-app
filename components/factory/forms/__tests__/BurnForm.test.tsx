@@ -1,8 +1,9 @@
-import { describe, test, afterEach, expect, jest, mock } from 'bun:test';
+import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
 import React from 'react';
-import { screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
+
 import BurnForm from '@/components/factory/forms/BurnForm';
-import { manifestAddr1, mockDenomMeta1, mockMfxDenom, mockFakeMfxDenom } from '@/tests/mock';
+import { manifestAddr1, mockDenomMeta1, mockFakeMfxDenom, mockMfxDenom } from '@/tests/mock';
 import { renderWithChainProvider } from '@/tests/render';
 
 // Mock next/router

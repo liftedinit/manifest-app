@@ -1,22 +1,20 @@
-import { WalletNotConnected, FactoryIcon, SearchIcon } from '@/components';
+import { useChain } from '@cosmos-kit/react';
+import Link from 'next/link';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+
+import { FactoryIcon, SearchIcon, WalletNotConnected } from '@/components';
+import { SEO } from '@/components';
 import DenomList from '@/components/factory/components/DenomList';
+import env from '@/config/env';
 import {
   useTokenBalances,
   useTokenFactoryDenomsFromAdmin,
   useTokenFactoryDenomsMetadata,
   useTotalSupply,
 } from '@/hooks';
-
-import { useChain } from '@cosmos-kit/react';
-
-import React, { useMemo, useState, useCallback, useEffect } from 'react';
-import { ExtendedMetadataSDKType } from '@/utils';
-import { SEO } from '@/components';
-import env from '@/config/env';
-
-import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
-import Link from 'next/link';
 import useIsMobile from '@/hooks/useIsMobile';
+import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
+import { ExtendedMetadataSDKType } from '@/utils';
 
 interface PageSizeConfig {
   denomList: number;

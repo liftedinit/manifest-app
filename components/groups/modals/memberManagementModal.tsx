@@ -1,19 +1,19 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Formik, Form, Field, FieldProps } from 'formik';
-import { createPortal } from 'react-dom';
-
-import * as Yup from 'yup';
+import { Dialog } from '@headlessui/react';
 import { cosmos } from '@liftedinit/manifestjs';
-import { useTx, useFeeEstimation } from '@/hooks';
-import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MemberSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
-import { CopyIcon, TrashIcon } from '@/components/icons';
+import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
+import { Field, FieldProps, Form, Formik } from 'formik';
+import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { MdContacts } from 'react-icons/md';
+import * as Yup from 'yup';
+
+import { CopyIcon, TrashIcon } from '@/components/icons';
+import { AddressCopyButton, SignModal } from '@/components/react';
 import { TailwindModal } from '@/components/react/modal';
 import env from '@/config/env';
+import { useFeeEstimation, useTx } from '@/hooks';
 import { truncateAddress } from '@/utils';
-import { Dialog } from '@headlessui/react';
-import { AddressCopyButton, SignModal } from '@/components/react';
 
 interface ExtendedMember extends MemberSDKType {
   isNew: boolean;

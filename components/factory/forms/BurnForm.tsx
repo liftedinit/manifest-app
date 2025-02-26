@@ -1,19 +1,18 @@
-import React, { useMemo, useState } from 'react';
-import { useTokenFactoryBalance, useFeeEstimation, useTx } from '@/hooks';
-import { cosmos, osmosis, liftedinit } from '@liftedinit/manifestjs';
-
-import { MdContacts } from 'react-icons/md';
-import { parseNumberToBigInt, shiftDigits, ExtendedMetadataSDKType, truncateString } from '@/utils';
+import { cosmos, liftedinit, osmosis } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgBurnHeldBalance } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
+import { MsgBurn } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+import { Form, Formik } from 'formik';
+import React, { useMemo, useState } from 'react';
+import { MdContacts } from 'react-icons/md';
 
-import { useToast } from '@/contexts';
-import { Formik, Form } from 'formik';
-import Yup from '@/utils/yupExtensions';
 import { NumberInput, TextInput } from '@/components/react/inputs';
 import { TailwindModal } from '@/components/react/modal';
 import env from '@/config/env';
-import { MsgBurn } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+import { useToast } from '@/contexts';
+import { useFeeEstimation, useTokenFactoryBalance, useTx } from '@/hooks';
+import { ExtendedMetadataSDKType, parseNumberToBigInt, shiftDigits, truncateString } from '@/utils';
+import Yup from '@/utils/yupExtensions';
 
 interface BurnPair {
   address: string;

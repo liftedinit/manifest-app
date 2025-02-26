@@ -1,8 +1,10 @@
-import { GroupsIcon } from '@/components/icons/GroupsIcon';
-import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
-import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
 import { MsgUpdateGroupMembers } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
 import { format } from 'react-string-format';
+
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { GroupsIcon } from '@/components/icons/GroupsIcon';
+
+import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 
 const createMessage = (template: string, groupId: string) => {
   const message = format(template, groupId);

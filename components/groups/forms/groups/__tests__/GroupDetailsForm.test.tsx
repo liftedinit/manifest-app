@@ -1,10 +1,11 @@
-import { afterEach, describe, expect, jest, test, mock } from 'bun:test';
-import React from 'react';
-import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
-import GroupDetails from '@/components/groups/forms/groups/GroupDetailsForm';
-import { renderWithChainProvider } from '@/tests/render';
-import { manifestAddr1, mockGroupFormData } from '@/tests/mock';
 import { Duration } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/duration';
+import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
+import React from 'react';
+
+import GroupDetails from '@/components/groups/forms/groups/GroupDetailsForm';
+import { manifestAddr1, mockGroupFormData } from '@/tests/mock';
+import { renderWithChainProvider } from '@/tests/render';
 
 // Mock next/router
 const m = jest.fn();

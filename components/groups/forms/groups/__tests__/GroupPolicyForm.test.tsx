@@ -1,9 +1,10 @@
-import { describe, test, afterEach, expect, jest } from 'bun:test';
+import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, jest, test } from 'bun:test';
 import React from 'react';
-import { screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
+
 import GroupPolicyForm from '@/components/groups/forms/groups/GroupPolicyForm';
-import { renderWithChainProvider } from '@/tests/render';
 import { mockGroupFormData } from '@/tests/mock';
+import { renderWithChainProvider } from '@/tests/render';
 
 const mockProps = {
   nextStep: jest.fn(),

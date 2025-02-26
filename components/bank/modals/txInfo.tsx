@@ -1,8 +1,9 @@
 import React from 'react';
-import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { FaExternalLinkAlt } from 'react-icons/fa';
-import env from '@/config/env';
+
 import { TxMessage } from '@/components/bank/types';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import env from '@/config/env';
 
 interface TxInfoModalProps {
   tx: TxMessage;

@@ -1,10 +1,12 @@
-import { XMarkIcon, ArrowLeftIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
-import { Formik, Form } from 'formik';
-import * as Yup from 'yup';
-import { TextInput } from '../inputs/TextInput';
 import { Dialog } from '@headlessui/react';
+import { ArrowLeftIcon, ChevronLeftIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { Form, Formik } from 'formik';
 import Image from 'next/image';
+import * as Yup from 'yup';
+
 import { getRealLogo } from '@/utils';
+
+import { TextInput } from '../inputs/TextInput';
 
 const validationSchema = Yup.object({
   email: Yup.string()

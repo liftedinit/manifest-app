@@ -1,24 +1,19 @@
-import React, { useEffect, useState } from 'react';
-
+import { useChain } from '@cosmos-kit/react';
+import { Dialog } from '@headlessui/react';
+import { CheckIcon } from '@heroicons/react/24/outline';
+import { cosmos } from '@liftedinit/manifestjs';
+import { QueryTallyResultResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
 import {
   ProposalSDKType,
   ProposalStatus,
-  proposalStatusToJSON,
   VoteOption,
+  proposalStatusToJSON,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
-import { QueryTallyResultResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
-import VotingPopup from './voteModal';
+import { useQueryClient } from '@tanstack/react-query';
+import React, { useEffect, useState } from 'react';
 
-import { useChain } from '@cosmos-kit/react';
-import { useTx } from '@/hooks/useTx';
-import { cosmos } from '@liftedinit/manifestjs';
-import CountdownTimer from '../components/CountdownTimer';
-import { useFeeEstimation, useProposalById, useTallyCount, useVotesByProposal } from '@/hooks';
-
-import { ArrowUpIcon, CopyIcon } from '@/components/icons';
-import env from '@/config/env';
-import { Dialog } from '@headlessui/react';
-import { SignModal } from '@/components/react';
+import { Tally } from '@/components/groups/modals/tally';
+import { TallyResults } from '@/components/groups/modals/tallyResults';
 import { MessagesModal } from '@/components/groups/modals/voting/messagesModal';
 import {
   getProposalButton,
@@ -26,10 +21,14 @@ import {
   getVoteOptionBadgeColor,
   getVoteOptionLabel,
 } from '@/components/groups/utils';
-import { Tally } from '@/components/groups/modals/tally';
-import { CheckIcon } from '@heroicons/react/24/outline';
-import { TallyResults } from '@/components/groups/modals/tallyResults';
-import { useQueryClient } from '@tanstack/react-query';
+import { ArrowUpIcon, CopyIcon } from '@/components/icons';
+import { SignModal } from '@/components/react';
+import env from '@/config/env';
+import { useFeeEstimation, useProposalById, useTallyCount, useVotesByProposal } from '@/hooks';
+import { useTx } from '@/hooks/useTx';
+
+import CountdownTimer from '../components/CountdownTimer';
+import VotingPopup from './voteModal';
 
 interface VoteDetailsModalProps {
   policyAddress: string;

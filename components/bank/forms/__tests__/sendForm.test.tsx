@@ -1,6 +1,7 @@
-import { describe, test, afterEach, expect, jest, mock } from 'bun:test';
+import { cleanup, fireEvent, screen, within } from '@testing-library/react';
+import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
 import React from 'react';
-import { screen, cleanup, fireEvent, within } from '@testing-library/react';
+
 import SendForm from '@/components/bank/forms/sendForm';
 import { mockBalances } from '@/tests/mock';
 import { renderWithChainProvider } from '@/tests/render';

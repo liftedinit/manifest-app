@@ -1,10 +1,10 @@
 import {
   ProposalExecutorResult,
-  proposalExecutorResultFromJSON,
   ProposalSDKType,
   ProposalStatus,
-  proposalStatusFromJSON,
   VoteOption,
+  proposalExecutorResultFromJSON,
+  proposalStatusFromJSON,
   voteOptionFromJSON,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import React from 'react';

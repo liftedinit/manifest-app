@@ -1,14 +1,15 @@
+import { cosmos, osmosis } from '@liftedinit/manifestjs';
+import {
+  MsgCreateDenom,
+  MsgSetDenomMetadata,
+} from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+import { Any } from 'cosmjs-types/google/protobuf/any';
+
+import { SignModal } from '@/components/react';
 import env from '@/config/env';
 import { TokenFormData } from '@/helpers/formReducer';
 import { useFeeEstimation } from '@/hooks/useFeeEstimation';
 import { useTx } from '@/hooks/useTx';
-import { osmosis, cosmos } from '@liftedinit/manifestjs';
-import {
-  MsgSetDenomMetadata,
-  MsgCreateDenom,
-} from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
-import { Any } from 'cosmjs-types/google/protobuf/any';
-import { SignModal } from '@/components/react';
 
 export default function ConfirmationForm({
   nextStep,

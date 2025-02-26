@@ -1,17 +1,18 @@
-import React, { useEffect } from 'react';
-import { ExtendedMetadataSDKType, truncateString } from '@/utils';
-import { useDenomAuthorityMetadata, useFeeEstimation, useTx } from '@/hooks';
+import { Dialog } from '@headlessui/react';
 import { cosmos, osmosis } from '@liftedinit/manifestjs';
-import { createPortal } from 'react-dom';
-import Yup from '@/utils/yupExtensions';
-import { Form, Formik, FormikValues } from 'formik';
-import { TextInput } from '@/components';
-import { useToast } from '@/contexts';
-import env from '@/config/env';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgChangeAdmin } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
-import { Dialog } from '@headlessui/react';
+import { Form, Formik, FormikValues } from 'formik';
+import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
+
+import { TextInput } from '@/components';
 import { SignModal } from '@/components/react';
+import env from '@/config/env';
+import { useToast } from '@/contexts';
+import { useDenomAuthorityMetadata, useFeeEstimation, useTx } from '@/hooks';
+import { ExtendedMetadataSDKType, truncateString } from '@/utils';
+import Yup from '@/utils/yupExtensions';
 
 const TokenOwnershipSchema = Yup.object().shape({
   newAdmin: Yup.string().required('New admin address is required').manifestAddress(),

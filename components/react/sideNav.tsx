@@ -1,27 +1,27 @@
-import { useState } from 'react';
+import { useChain } from '@cosmos-kit/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { IconWallet, WalletSection } from '../wallet';
-import { useTheme } from '@/contexts/theme';
-import { TailwindModal } from './modal';
-import packageInfo from '../../package.json';
+import { useState } from 'react';
+import { MdContacts } from 'react-icons/md';
 
 import {
   AdminsIcon,
   BankIcon,
+  DarkIcon,
   FactoryIcon,
   GroupsIcon,
-  DarkIcon,
   LightIcon,
 } from '@/components/icons';
-
-import { MdContacts } from 'react-icons/md';
-import { getRealLogo } from '@/utils';
 import env from '@/config/env';
+import { useTheme } from '@/contexts/theme';
 import { useGroupsByAdmin } from '@/hooks';
 import { usePoaGetAdmin } from '@/hooks';
-import { useChain } from '@cosmos-kit/react';
+import { getRealLogo } from '@/utils';
+
+import packageInfo from '../../package.json';
+import { IconWallet, WalletSection } from '../wallet';
+import { TailwindModal } from './modal';
 
 interface SideNavProps {
   isDrawerVisible: boolean;

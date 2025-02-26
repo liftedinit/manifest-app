@@ -1,7 +1,8 @@
-import { UpgradeModal, CancelUpgradeModal } from '@/components/admins/modals';
-import { useCurrentPlan } from '@/hooks/useQueries';
 import { PlanSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/upgrade';
 import { useState } from 'react';
+
+import { CancelUpgradeModal, UpgradeModal } from '@/components/admins/modals';
+import { useCurrentPlan } from '@/hooks/useQueries';
 
 export const ChainUpgrader = ({ admin, address }: { admin: string; address: string }) => {
   const [isOpen, setIsOpen] = useState(false);

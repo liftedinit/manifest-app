@@ -1,10 +1,11 @@
+import { CheckIcon } from '@heroicons/react/24/outline';
 import React, { useMemo } from 'react';
-import { FiCopy, FiCheck } from 'react-icons/fi';
-import { truncateAddress } from '@/utils';
+import { FiCheck, FiCopy } from 'react-icons/fi';
+
+import { CopyIcon } from '@/components';
 import { useContacts } from '@/hooks';
 import { useDelayResetState } from '@/hooks/useDelayResetState';
-import { CopyIcon } from '@/components';
-import { CheckIcon } from '@heroicons/react/24/outline';
+import { truncateAddress } from '@/utils';
 
 export interface AddressCopyButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   address: string;

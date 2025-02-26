@@ -1,17 +1,19 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useRouter } from 'next/router';
-import { DenomImage } from './DenomImage';
-import { DenomDisplay } from './DenomDisplay';
 import Link from 'next/link';
-import { truncateString, ExtendedMetadataSDKType, shiftDigits, formatTokenDisplay } from '@/utils';
-import { MintIcon, BurnIcon, TransferIcon } from '@/components/icons';
-import { DenomInfoModal } from '@/components/factory/modals/denomInfo';
-import MintModal from '@/components/factory/modals/MintModal';
-import BurnModal from '@/components/factory/modals/BurnModal';
-import UpdateDenomMetadataModal from '@/components/factory/modals/updateDenomMetadata';
+import { useRouter } from 'next/router';
+import { useEffect, useMemo, useState } from 'react';
 import { PiInfo } from 'react-icons/pi';
-import useIsMobile from '@/hooks/useIsMobile';
+
+import BurnModal from '@/components/factory/modals/BurnModal';
+import MintModal from '@/components/factory/modals/MintModal';
 import TransferModal from '@/components/factory/modals/TransferModal';
+import { DenomInfoModal } from '@/components/factory/modals/denomInfo';
+import UpdateDenomMetadataModal from '@/components/factory/modals/updateDenomMetadata';
+import { BurnIcon, MintIcon, TransferIcon } from '@/components/icons';
+import useIsMobile from '@/hooks/useIsMobile';
+import { ExtendedMetadataSDKType, formatTokenDisplay, shiftDigits, truncateString } from '@/utils';
+
+import { DenomDisplay } from './DenomDisplay';
+import { DenomImage } from './DenomImage';
 
 type DenomListProps = {
   denoms: ExtendedMetadataSDKType[];

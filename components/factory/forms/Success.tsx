@@ -1,6 +1,7 @@
+import Link from 'next/link';
+
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { TokenFormData } from '@/helpers';
-import Link from 'next/link';
 
 export default function Success({
   formData,

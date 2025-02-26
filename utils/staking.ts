@@ -1,7 +1,4 @@
 import { Coin, decodeCosmosSdkDecFromProto } from '@cosmjs/stargate';
-import { bech32 } from 'bech32';
-import BigNumber from 'bignumber.js';
-import * as CryptoJS from 'crypto-js';
 import { QueryDelegationTotalRewardsResponse } from '@liftedinit/manifestjs/dist/codegen/cosmos/distribution/v1beta1/query';
 import { QueryAnnualProvisionsResponse } from '@liftedinit/manifestjs/dist/codegen/cosmos/mint/v1beta1/query';
 import {
@@ -10,6 +7,9 @@ import {
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/query';
 import { Pool } from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
 import { Validator } from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
+import { bech32 } from 'bech32';
+import BigNumber from 'bignumber.js';
+import * as CryptoJS from 'crypto-js';
 
 import { decodeUint8Arr, isGreaterThanZero, shiftDigits, toNumber } from '.';
 

@@ -1,10 +1,10 @@
+import { Dialog } from '@headlessui/react';
+import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 
-import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import env from '@/config/env';
-import { Dialog } from '@headlessui/react';
 
 export const DenomInfoModal: React.FC<{
   openDenomInfoModal: boolean;

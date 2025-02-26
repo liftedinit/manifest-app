@@ -1,6 +1,7 @@
-import { afterAll, describe, test, afterEach, expect, jest, mock } from 'bun:test';
+import { cleanup, fireEvent, screen } from '@testing-library/react';
+import { afterAll, afterEach, describe, expect, jest, mock, test } from 'bun:test';
 import React from 'react';
-import { screen, fireEvent, cleanup } from '@testing-library/react';
+
 import ConfirmationModal from '@/components/groups/forms/groups/ConfirmationForm';
 import { FormData } from '@/helpers/formReducer';
 import { renderWithChainProvider } from '@/tests/render';

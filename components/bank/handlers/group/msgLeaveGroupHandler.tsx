@@ -1,7 +1,9 @@
-import { GroupsIcon } from '@/components/icons/GroupsIcon';
-import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
-import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
 import { MsgLeaveGroup } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
+
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { GroupsIcon } from '@/components/icons/GroupsIcon';
+
+import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 
 export const MsgLeaveGroupHandler = createSenderReceiverHandler({
   iconSender: GroupsIcon,

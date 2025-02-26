@@ -1,23 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { Formik, Form, useFormikContext } from 'formik';
-import Yup from '@/utils/yupExtensions';
-import { TextInput, TextArea, NumberInput } from '@/components/react/inputs';
-
-import { useTx, useFeeEstimation, ExtendedGroupType } from '@/hooks';
+import { Dialog } from '@headlessui/react';
+import { cosmos } from '@liftedinit/manifestjs';
 import {
   ThresholdDecisionPolicy,
   ThresholdDecisionPolicySDKType,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
-import { cosmos } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
-import env from '@/config/env';
-
-import { isValidManifestAddress, secondsToHumanReadable } from '@/utils/string';
-import { TrashIcon, PlusIcon } from '@/components/icons';
+import { Form, Formik, useFormikContext } from 'formik';
+import React, { useEffect, useState } from 'react';
 import { MdContacts } from 'react-icons/md';
-import { TailwindModal } from '@/components/react/modal';
-import { Dialog } from '@headlessui/react';
+
+import { PlusIcon, TrashIcon } from '@/components/icons';
 import { SignModal } from '@/components/react';
+import { NumberInput, TextArea, TextInput } from '@/components/react/inputs';
+import { TailwindModal } from '@/components/react/modal';
+import env from '@/config/env';
+import { ExtendedGroupType, useFeeEstimation, useTx } from '@/hooks';
+import { isValidManifestAddress, secondsToHumanReadable } from '@/utils/string';
+import Yup from '@/utils/yupExtensions';
 
 export function UpdateGroupModal({
   group,

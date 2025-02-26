@@ -1,15 +1,16 @@
-import { useFeeEstimation } from '@/hooks';
-import { useTx } from '@/hooks/useTx';
-import { cosmos } from '@liftedinit/manifestjs';
 import { useChain } from '@cosmos-kit/react';
-import React from 'react';
-import { CloseIcon } from '@/components/icons';
-import env from '@/config/env';
 import { Dialog } from '@headlessui/react';
+import { cosmos } from '@liftedinit/manifestjs';
 import {
   ProposalSDKType,
   VoteOption,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import React from 'react';
+
+import { CloseIcon } from '@/components/icons';
+import env from '@/config/env';
+import { useFeeEstimation } from '@/hooks';
+import { useTx } from '@/hooks/useTx';
 
 function VotingPopup({
   open,

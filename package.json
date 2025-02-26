@@ -51,6 +51,7 @@
     "@skip-go/client": "^0.16.9",
     "@tanstack/react-query": "^5.55.0",
     "@tanstack/react-query-devtools": "^5.55.0",
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/file-saver": "^2.0.7",
     "@types/react-syntax-highlighter": "^15.5.13",
     "@types/sinonjs__fake-timers": "^8.1.5",

@@ -1,3 +1,18 @@
+import { useChain } from '@cosmos-kit/react';
+import {
+  ProposalSDKType,
+  ThresholdDecisionPolicySDKType,
+} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import React, { useEffect, useMemo, useState } from 'react';
+import { PiInfo } from 'react-icons/pi';
+
+import { SearchIcon } from '@/components/icons';
+import { MemberIcon } from '@/components/icons';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import env from '@/config/env';
+import useIsMobile from '@/hooks/useIsMobile';
 import {
   ExtendedGroupType,
   ExtendedQueryGroupsByMemberResponseSDKType,
@@ -8,34 +23,21 @@ import {
   useTokenFactoryDenomsMetadata,
   useTotalSupply,
 } from '@/hooks/useQueries';
-import ProfileAvatar from '@/utils/identicon';
+import { useBalance } from '@/hooks/useQueries';
+import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
 import {
   CombinedBalanceInfo,
-  denomToAsset,
   ExtendedMetadataSDKType,
   MFX_TOKEN_DATA,
+  denomToAsset,
   truncateString,
 } from '@/utils';
-import React, { useState, useEffect, useMemo } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import {
-  ProposalSDKType,
-  ThresholdDecisionPolicySDKType,
-} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
-import GroupControls from './groupControls';
-import { useBalance } from '@/hooks/useQueries';
 import { shiftDigits } from '@/utils';
-import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
-import { SearchIcon } from '@/components/icons';
-import { MemberIcon } from '@/components/icons';
-import { PiInfo } from 'react-icons/pi';
+import ProfileAvatar from '@/utils/identicon';
+
 import { GroupInfo } from '../modals/groupInfo';
 import { MemberManagementModal } from '../modals/memberManagementModal';
-import { useChain } from '@cosmos-kit/react';
-import useIsMobile from '@/hooks/useIsMobile';
-import env from '@/config/env';
-import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
+import GroupControls from './groupControls';
 
 // Add this interface outside the component
 interface PageSizeConfig {

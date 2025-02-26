@@ -1,7 +1,9 @@
-import { test, expect, afterEach, describe, mock, jest } from 'bun:test';
-import { screen, cleanup, fireEvent } from '@testing-library/react';
-import { renderWithChainProvider } from '@/tests/render';
+import { cleanup, fireEvent, screen } from '@testing-library/react';
+import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
+
 import { mockMultiDenomTransactions, mockTransactions } from '@/tests/mock';
+import { renderWithChainProvider } from '@/tests/render';
+
 import { HistoryBox } from '../historyBox';
 
 // Mock next/router

@@ -1,6 +1,7 @@
-import { describe, test, afterEach, expect, jest } from 'bun:test';
+import { cleanup, getDefaultNormalizer, screen } from '@testing-library/react';
+import { afterEach, describe, expect, jest, test } from 'bun:test';
 import React from 'react';
-import { screen, cleanup, getDefaultNormalizer } from '@testing-library/react';
+
 import Success from '@/components/groups/forms/groups/Success';
 import { mockGroupFormData } from '@/tests/mock';
 import { renderWithChainProvider } from '@/tests/render';

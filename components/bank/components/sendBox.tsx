@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import SendForm from '../forms/sendForm';
-import IbcSendForm from '../forms/ibcSendForm';
+import React from 'react';
+
 import env from '@/config/env';
 import { CombinedBalanceInfo } from '@/utils/types';
-import React from 'react';
+
+import IbcSendForm from '../forms/ibcSendForm';
+import SendForm from '../forms/sendForm';
 
 export interface IbcChain {
   id: string;

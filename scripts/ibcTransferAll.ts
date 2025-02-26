@@ -1,27 +1,22 @@
 // This script is used to transfer all tokens on manifest to destination chain then print out a list of tokens that can be used in the chain-registry
 // you can run this script by providing a mnemonic as an environment variable: `WALLET_MNEMONIC="..." bun run ibc-transfer`
-
 // ENV's:
 // DESTINATION_RPC_URL: the rpc url of the destination chain
 // DESTINATION_CHAIN: the name of the destination chain
 // DESTINATION_PREFIX: the prefix of the destination chain
 // SOURCE_CHANNEL: the channel id of the source chain
 // DESTINATION_CHANNEL: the channel id of the destination chain
-
 // You can provide the above env's in the command in the same fashion as the mnemonic or they will be set to default values
 // Axelar example:
 // WALLET_MNEMONIC="" DESTINATION_CHAIN="axelar-testnet-lisbon-3" DESTINATION_PREFIX="axelar" SOURCE_CHANNEL="channel-3" DESTINATION_CHANNEL="channel-591" DESTINATION_RPC_URL="https://axelar-testnet-rpc.polkachu.com/"  bun run ibc-transfer
 // Axlear query only:
 // QUERY_ONLY=true WALLET_MNEMONIC="" DESTINATION_CHAIN="axelar-testnet-lisbon-3" DESTINATION_PREFIX="axelar" SOURCE_CHANNEL="channel-3" DESTINATION_CHANNEL="channel-591" DESTINATION_RPC_URL="https://axelar-testnet-rpc.polkachu.com/" QUERY_ONLY="true" bun run ibc-transfer
-
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 import { SigningStargateClient } from '@cosmjs/stargate';
-
+import { ibc } from '@liftedinit/manifestjs';
 import { MsgTransfer } from '@liftedinit/manifestjs/dist/codegen/ibc/applications/transfer/v1/tx';
-
 import * as fs from 'fs';
 import * as path from 'path';
-import { ibc } from '@liftedinit/manifestjs';
 
 // Environment Configuration
 const env = {

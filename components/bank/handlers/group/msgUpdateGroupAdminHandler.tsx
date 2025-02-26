@@ -1,7 +1,8 @@
-import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
 import { MsgUpdateGroupAdmin } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
 import { format } from 'react-string-format';
+
 import { createSenderReceiverHandler } from '@/components/bank/handlers/createSenderReceiverHandler';
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
 import { GroupsIcon } from '@/components/icons/GroupsIcon';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 

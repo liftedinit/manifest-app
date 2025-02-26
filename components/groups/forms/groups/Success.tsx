@@ -1,8 +1,9 @@
+import Link from 'next/link';
+
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { FormData } from '@/helpers';
-import Link from 'next/link';
-import { secondsToHumanReadable } from '@/utils/string';
 import { useGroupsByMember } from '@/hooks';
+import { secondsToHumanReadable } from '@/utils/string';
 
 export default function Success({
   formData,

@@ -1,10 +1,12 @@
-import { TransferIcon } from '@/components/icons/TransferIcon';
-import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
-import { formatDenom } from '@/utils';
-import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
 import { MsgChangeAdmin } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
-import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { format } from 'react-string-format';
+
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { TransferIcon } from '@/components/icons/TransferIcon';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import { formatDenom } from '@/utils';
+
+import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 
 const createMessage = (template: string, newAdmin: string, denom: string) => {
   const message = format(

@@ -1,6 +1,7 @@
-import { afterEach, describe, expect, test, mock, afterAll } from 'bun:test';
+import { cleanup, screen, waitFor } from '@testing-library/react';
+import { afterAll, afterEach, describe, expect, mock, test } from 'bun:test';
 import React from 'react';
-import { screen, cleanup, waitFor } from '@testing-library/react';
+
 import { DenomImage } from '@/components/factory/components/DenomImage';
 import { renderWithChainProvider } from '@/tests/render';
 

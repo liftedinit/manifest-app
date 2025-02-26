@@ -1,10 +1,12 @@
-import { FactoryIcon } from '@/components/icons/FactoryIcon';
-import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
-import { formatDenom } from '@/utils';
-import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
 import { MsgCreateDenom } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
 import { format } from 'react-string-format';
+
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { FactoryIcon } from '@/components/icons/FactoryIcon';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import { formatDenom } from '@/utils';
+
+import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 
 const createMessage = (template: string, sender: string, subdenom: string) => {
   const message = format(

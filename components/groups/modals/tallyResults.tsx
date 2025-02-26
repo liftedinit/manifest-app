@@ -1,7 +1,8 @@
-import { VoteSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
-import { getVoteOptionBadgeColor, getVoteOptionLabel } from '@/components/groups/utils';
 import { Dialog } from '@headlessui/react';
+import { VoteSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import React from 'react';
+
+import { getVoteOptionBadgeColor, getVoteOptionLabel } from '@/components/groups/utils';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 
 export function TallyResults({

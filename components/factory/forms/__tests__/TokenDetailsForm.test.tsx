@@ -1,9 +1,10 @@
-import { describe, test, afterEach, expect, jest } from 'bun:test';
+import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, jest, test } from 'bun:test';
 import React from 'react';
-import { screen, cleanup, fireEvent, waitFor } from '@testing-library/react';
+
 import TokenDetailsForm from '@/components/factory/forms/TokenDetailsForm';
-import { renderWithChainProvider } from '@/tests/render';
 import { mockTokenFormData } from '@/tests/mock';
+import { renderWithChainProvider } from '@/tests/render';
 
 const mockProps = {
   nextStep: jest.fn(),

@@ -1,9 +1,11 @@
-import { GroupsIcon } from '@/components/icons/GroupsIcon';
-import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
-import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
 import { MsgWithdrawProposal } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
-import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { format } from 'react-string-format';
+
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { GroupsIcon } from '@/components/icons/GroupsIcon';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+
+import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 
 const createMessage = (template: string, ids: string, sender?: string) => {
   const message = format(

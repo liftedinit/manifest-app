@@ -1,17 +1,17 @@
-import React, { useState, useReducer } from 'react';
-import { formDataReducer, FormData } from '@/helpers/formReducer';
+import { useChain } from '@cosmos-kit/react';
+import { Duration } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/duration';
+import React, { useReducer, useState } from 'react';
+
+import { GroupsIcon, WalletNotConnected } from '@/components';
+import { SEO } from '@/components';
 import ConfirmationForm from '@/components/groups/forms/groups/ConfirmationForm';
 import GroupDetails from '@/components/groups/forms/groups/GroupDetailsForm';
 import GroupPolicyForm from '@/components/groups/forms/groups/GroupPolicyForm';
 import MemberInfoForm from '@/components/groups/forms/groups/MemberInfoForm';
-import { Duration } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/duration';
-import StepIndicator from '@/components/react/StepIndicator';
-import { useChain } from '@cosmos-kit/react';
-import { WalletNotConnected, GroupsIcon } from '@/components';
 import Success from '@/components/groups/forms/groups/Success';
-
+import StepIndicator from '@/components/react/StepIndicator';
 import env from '@/config/env';
-import { SEO } from '@/components';
+import { FormData, formDataReducer } from '@/helpers/formReducer';
 
 const initialFormData: FormData = {
   title: '',

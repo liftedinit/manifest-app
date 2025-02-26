@@ -1,9 +1,11 @@
-import { AdminsIcon } from '@/components/icons/AdminsIcon';
-import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
-import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
 import { MsgSetPower } from '@liftedinit/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
-import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { format } from 'react-string-format';
+
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { AdminsIcon } from '@/components/icons/AdminsIcon';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+
+import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 
 const createMessage = (template: string, validatorAddress: string, power: number) => {
   const realPower = power / 1000000;

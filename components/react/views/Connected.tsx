@@ -1,14 +1,16 @@
 import { Dialog } from '@headlessui/react';
-import { XMarkIcon, ArrowRightOnRectangleIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { ChevronLeftIcon } from '@heroicons/react/20/solid';
-import { useState } from 'react';
-import ProfileAvatar from '@/utils/identicon';
-import { useBalance } from '@/hooks/useQueries';
-import { Username } from '@/components/username';
-import { CopyIcon } from '@/components/icons';
-import { getRealLogo, shiftDigits, truncateAddress } from '@/utils';
+import { ArrowRightOnRectangleIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
+import { useState } from 'react';
 import { MdContacts } from 'react-icons/md';
+
+import { CopyIcon } from '@/components/icons';
+import { Username } from '@/components/username';
+import { useBalance } from '@/hooks/useQueries';
+import { getRealLogo, shiftDigits, truncateAddress } from '@/utils';
+import ProfileAvatar from '@/utils/identicon';
+
 import { Contacts } from './Contacts';
 
 export const Connected = ({

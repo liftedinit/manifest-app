@@ -1,7 +1,7 @@
-import { useMemo, useRef, useEffect } from 'react';
-import * as THREE from 'three';
-import { useThree } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
+import { useThree } from '@react-three/fiber';
+import { useEffect, useMemo, useRef } from 'react';
+import * as THREE from 'three';
 
 function PenroseTriangle({
   animationProgress = 0,
