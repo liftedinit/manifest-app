@@ -265,7 +265,7 @@ export const UpdateGroupForm: React.FC<UpdateGroupFormProps> = ({
       onSubmit={onSubmit}
       enableReinitialize
     >
-      {({ isValid, dirty, setFieldValue, handleSubmit }) => (
+      {({ isValid, dirty, handleSubmit }) => (
         <Form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 gap-4">
             <GroupDetailsFormFields />
