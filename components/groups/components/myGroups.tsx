@@ -4,18 +4,20 @@ import {
   ThresholdDecisionPolicySDKType,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/router';
 import React, { useEffect, useMemo, useState } from 'react';
 import { PiInfo } from 'react-icons/pi';
 
-import { SearchIcon } from '@/components/icons';
-import { MemberIcon } from '@/components/icons';
+import { GroupInfo, MemberManagementModal } from '@/components';
+import { MemberIcon, SearchIcon } from '@/components/icons';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import env from '@/config/env';
 import useIsMobile from '@/hooks/useIsMobile';
 import {
   ExtendedGroupType,
   ExtendedQueryGroupsByMemberResponseSDKType,
+  useBalance,
   useGetMessagesFromAddress,
   useTokenBalances,
   useTokenBalancesResolved,
@@ -23,22 +25,20 @@ import {
   useTokenFactoryDenomsMetadata,
   useTotalSupply,
 } from '@/hooks/useQueries';
-import { useBalance } from '@/hooks/useQueries';
 import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
+import { group as groupSchema } from '@/schemas';
 import {
   CombinedBalanceInfo,
   ExtendedMetadataSDKType,
   MFX_TOKEN_BASE,
   MFX_TOKEN_DATA,
   denomToAsset,
+  shiftDigits,
   truncateString,
   unsafeConvertTokenBase,
 } from '@/utils';
-import { shiftDigits } from '@/utils';
 import ProfileAvatar from '@/utils/identicon';
 
-import { GroupInfo } from '../modals/groupInfo';
-import { MemberManagementModal } from '../modals/memberManagementModal';
 import GroupControls from './groupControls';
 
 // Add this interface outside the component
@@ -108,6 +108,7 @@ export default React.memo(function YourGroups({
   const [selectedGroupName, setSelectedGroupName] = useState<string>('Untitled Group');
 
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { address } = useChain(env.chain);
 
   const filteredGroups = groups.groups.filter(group => {
@@ -130,11 +131,10 @@ export default React.memo(function YourGroups({
 
   useEffect(() => {
     // Check if there's a policy address in the URL on component mount
-    const { policyAddress } = router.query;
-    if (policyAddress && typeof policyAddress === 'string') {
-      const group = groups.groups.find(
-        g => g.policies && g.policies.length > 0 && g.policies[0]?.address === policyAddress
-      );
+    const policyAddress = searchParams.get('policyAddress');
+
+    if (policyAddress) {
+      const group = groups.groups.find(g => g.policies?.[0]?.address === policyAddress);
       if (group) {
         let groupName = 'Untitled Group';
         try {
@@ -147,9 +147,13 @@ export default React.memo(function YourGroups({
 
         setSelectedGroupName(groupName);
         setSelectedGroup(group);
+      } else {
+        // Group not found, reset selected group.
+        setSelectedGroup(null);
+        router.push('/groups', undefined, { shallow: true });
       }
     }
-  }, [router.query, groups.groups]);
+  }, [searchParams, groups.groups, router]);
 
   useEffect(() => {
     // Scroll to top when a group is selected
@@ -161,11 +165,11 @@ export default React.memo(function YourGroups({
   const handleSelectGroup = (group: ExtendedGroupType) => {
     let groupName = 'Untitled Group';
     try {
-      const metadata = group.metadata ? JSON.parse(group.metadata) : null;
+      const metadata = groupSchema.metadataFromJson(group.metadata, false);
       groupName = metadata?.title ?? 'Untitled Group';
     } catch (e) {
       // If JSON parsing fails, fall back to default name
-      // console.warn('Failed to parse group metadata:', e);
+      console.warn('Failed to parse group metadata:', e);
     }
     setSelectedGroupName(groupName);
     setSelectedGroup(group);
@@ -208,10 +212,10 @@ export default React.memo(function YourGroups({
     pageSizeHistory
   );
 
-  const { denoms, isDenomsLoading, isDenomsError, denomError, refetchDenoms } =
-    useTokenFactoryDenomsFromAdmin(selectedGroup?.policies[0]?.address ?? '');
-  const { totalSupply, isTotalSupplyLoading, isTotalSupplyError, refetchTotalSupply } =
-    useTotalSupply();
+  const { denoms, isDenomsLoading, isDenomsError, refetchDenoms } = useTokenFactoryDenomsFromAdmin(
+    selectedGroup?.policies[0]?.address ?? ''
+  );
+  const { totalSupply, isTotalSupplyLoading, refetchTotalSupply } = useTotalSupply();
 
   const refetchData = () => {
     return Promise.all([
