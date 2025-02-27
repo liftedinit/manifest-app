@@ -18,7 +18,6 @@ import { DenomDisplay } from './DenomDisplay';
 type DenomListProps = {
   denoms: ExtendedMetadataSDKType[];
   isLoading: boolean;
-
   address: string;
   pageSize: number;
   isGroup?: boolean;
@@ -29,7 +28,6 @@ type DenomListProps = {
 export default function DenomList({
   denoms,
   isLoading,
-
   address,
   pageSize,
   isGroup = false,
