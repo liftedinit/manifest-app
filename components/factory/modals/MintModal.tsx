@@ -10,7 +10,6 @@ import { ExtendedMetadataSDKType, truncateString } from '@/utils';
 export default function MintModal({
   denom,
   address,
-  refetch,
   balance,
   totalSupply,
   isOpen,
@@ -20,7 +19,6 @@ export default function MintModal({
 }: {
   denom: ExtendedMetadataSDKType | null;
   address: string;
-  refetch: () => void;
   balance: string;
   totalSupply: string;
   isOpen: boolean;
@@ -36,7 +34,6 @@ export default function MintModal({
   const isAdmin = members?.some(member => member?.member?.address === address);
   const isLoading = isGroupByAdminLoading;
 
-  const safeBalance = balance || '0';
   const safeTotalSupply = totalSupply || '0';
 
   const modalContent = (
@@ -76,9 +73,7 @@ export default function MintModal({
           ) : (
             <MintForm
               isAdmin={isAdmin ?? false}
-              balance={safeBalance}
               totalSupply={safeTotalSupply}
-              refetch={refetch}
               address={address}
               denom={denom}
               isGroup={isGroup}

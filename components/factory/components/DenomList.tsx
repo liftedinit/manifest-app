@@ -13,7 +13,6 @@ import useIsMobile from '@/hooks/useIsMobile';
 import { ExtendedMetadataSDKType, formatTokenDisplay, shiftDigits, truncateString } from '@/utils';
 
 import { DenomDisplay } from './DenomDisplay';
-import { DenomImage } from './DenomImage';
 
 type DenomListProps = {
   denoms: ExtendedMetadataSDKType[];
@@ -40,7 +39,7 @@ export default function DenomList({
 }: Readonly<DenomListProps>) {
   const [currentPage, setCurrentPage] = useState(1);
   const [openUpdateDenomMetadataModal, setOpenUpdateDenomMetadataModal] = useState(false);
-  const [openTransferDenomModal, setOpenTransferDenomModal] = useState(false);
+
   const isMobile = useIsMobile();
 
   const router = useRouter();
@@ -59,15 +58,7 @@ export default function DenomList({
     currentPage * pageSize
   );
 
-  const getBaseUrl = () => {
-    if (isGroup) {
-      return `/groups?policyAddress=${admin}&tab=tokens`;
-    }
-    return '/factory';
-  };
-
   const updateUrlWithModal = (action: string, denomBase?: string) => {
-    const baseUrl = getBaseUrl();
     const query: Record<string, string> = isGroup ? { policyAddress: admin, tab: 'tokens' } : {};
 
     if (action) query.action = action;
@@ -120,9 +111,6 @@ export default function DenomList({
           if (action === 'update') {
             setOpenUpdateDenomMetadataModal(true);
           }
-          if (action === 'transfer') {
-            setOpenTransferDenomModal(true);
-          }
         } else {
           setModalType('info');
         }
@@ -137,22 +125,14 @@ export default function DenomList({
     setSelectedDenom(null);
     setModalType(null);
     setOpenUpdateDenomMetadataModal(false);
-    setOpenTransferDenomModal(false);
     updateUrlWithModal('');
   };
 
   const handleUpdateModalClose = () => {
     setSelectedDenom(null);
     setOpenUpdateDenomMetadataModal(false);
-    setOpenTransferDenomModal(false);
     setModalType(null);
     updateUrlWithModal('');
-  };
-
-  const handleUpdateModal = (denom: ExtendedMetadataSDKType) => {
-    setSelectedDenom(denom);
-    setOpenUpdateDenomMetadataModal(true);
-    updateUrlWithModal('update', denom.base);
   };
 
   const handleTransferModal = (denom: ExtendedMetadataSDKType, e: React.MouseEvent) => {
@@ -160,7 +140,6 @@ export default function DenomList({
     e.stopPropagation();
     setSelectedDenom(denom);
     setModalType('transfer');
-    setOpenTransferDenomModal(true);
     updateUrlWithModal('transfer', denom.base);
   };
 
@@ -391,7 +370,6 @@ export default function DenomList({
         openDenomInfoModal={modalType === 'info'}
         setOpenDenomInfoModal={open => {
           if (!open) {
-            refetch();
             handleCloseModal();
           }
         }}
@@ -402,7 +380,6 @@ export default function DenomList({
         admin={admin}
         denom={modalType === 'mint' ? selectedDenom : null}
         address={address}
-        refetch={refetch}
         balance={selectedDenom?.balance ?? '0'}
         totalSupply={selectedDenom?.totalSupply ?? '0'}
         isOpen={modalType === 'mint'}
@@ -413,7 +390,6 @@ export default function DenomList({
         admin={admin}
         denom={selectedDenom}
         address={address}
-        refetch={refetch}
         balance={selectedDenom?.balance ?? '0'}
         totalSupply={selectedDenom?.totalSupply ?? '0'}
         isOpen={modalType === 'burn'}
@@ -461,8 +437,6 @@ function TokenRow({
   onTransfer: (e: React.MouseEvent) => void;
   onUpdate: () => void;
 }) {
-  const isMobile = useIsMobile();
-
   // Add safety checks for the values
   const exponent = denom?.denom_units?.[1]?.exponent ?? 0;
   const totalSupply = denom?.totalSupply ?? '0';

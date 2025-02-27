@@ -557,7 +557,6 @@ export default function GroupControls({
               totalPages={totalPages}
               txLoading={txLoading}
               isError={isError}
-              refetch={refetchHistory}
               skeletonGroupCount={skeletonGroupCount}
               skeletonTxCount={skeletonTxCount}
             />

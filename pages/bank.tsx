@@ -238,7 +238,6 @@ export default function Bank() {
                         totalPages={totalPages}
                         txLoading={txLoading}
                         isError={isError}
-                        refetch={refetchHistory}
                         skeletonGroupCount={skeletonGroupCount}
                         skeletonTxCount={skeletonTxCount}
                       />

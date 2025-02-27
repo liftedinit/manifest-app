@@ -17,8 +17,6 @@ export default function MintForm({
   isAdmin,
   denom,
   address,
-  refetch,
-  balance,
   totalSupply,
   isGroup,
   admin,
@@ -26,8 +24,6 @@ export default function MintForm({
   isAdmin: boolean;
   denom: ExtendedMetadataSDKType;
   address: string;
-  refetch: () => void;
-  balance: string;
   totalSupply: string;
   isGroup?: boolean;
   admin?: string;
@@ -94,11 +90,11 @@ export default function MintForm({
         fee,
         onSuccess: () => {
           setAmount('');
-          refetch();
           queryClient.invalidateQueries({ queryKey: ['allMetadatas'] });
           queryClient.invalidateQueries({ queryKey: ['denoms'] });
           queryClient.invalidateQueries({ queryKey: ['balances'] });
           queryClient.invalidateQueries({ queryKey: ['totalSupply'] });
+          queryClient.invalidateQueries({ queryKey: ['proposalInfo'] });
         },
       });
     } catch (error) {

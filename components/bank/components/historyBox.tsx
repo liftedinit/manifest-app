@@ -1,17 +1,12 @@
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 import { getHandler } from '@/components/bank/handlers/handlerRegistry';
 import { useTokenFactoryDenomsMetadata } from '@/hooks';
-import { useIntervalDebounceEffect } from '@/hooks/useDebounceEffect';
-import { formatDenom, formatDenomWithBadge, formatLargeNumber, shiftDigits } from '@/utils';
+import { formatDenomWithBadge, formatLargeNumber, shiftDigits } from '@/utils';
 
 import TxInfoModal from '../modals/txInfo';
 import { TransactionAmount, TxMessage } from '../types';
-
-// Interval to refresh the history box transaction and metadata.
-// This is used as a delay between successful queries.
-const HISTORY_BOX_REFRESH_INTERVAL = 2000;
 
 export interface TransactionGroup {
   tx_hash: string;
@@ -30,7 +25,6 @@ export function HistoryBox({
   totalPages,
   txLoading,
   isError,
-  refetch,
   skeletonGroupCount,
   skeletonTxCount,
 }: Readonly<{
@@ -42,12 +36,11 @@ export function HistoryBox({
   totalPages: number;
   txLoading: boolean;
   isError: boolean;
-  refetch: () => Promise<unknown>;
   skeletonGroupCount: number;
   skeletonTxCount: number;
 }>) {
   const [selectedTx, setSelectedTx] = useState<TxMessage | null>(null);
-  const { metadatas, isMetadatasLoading, refetchMetadatas } = useTokenFactoryDenomsMetadata();
+  const { metadatas, isMetadatasLoading } = useTokenFactoryDenomsMetadata();
 
   const isLoading = initialLoading || txLoading || isMetadatasLoading;
 

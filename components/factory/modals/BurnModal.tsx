@@ -11,7 +11,6 @@ export default function BurnModal({
   denom,
   address,
   admin,
-  refetch,
   balance,
   totalSupply,
   isOpen,
@@ -21,7 +20,6 @@ export default function BurnModal({
   denom: ExtendedMetadataSDKType | null;
   address: string;
   admin: string;
-  refetch: () => void;
   balance: string;
   totalSupply: string;
   isOpen: boolean;
@@ -77,7 +75,6 @@ export default function BurnModal({
               admin={admin}
               balance={balance}
               totalSupply={totalSupply}
-              refetch={refetch}
               address={address}
               denom={denom}
               isGroup={isGroup}
