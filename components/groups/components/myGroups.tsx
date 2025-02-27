@@ -531,12 +531,6 @@ export default React.memo(function YourGroups({
             isError={isError}
             balances={combinedBalances}
             denoms={combinedData}
-            denomLoading={isDenomsLoading}
-            isDenomError={isDenomsError}
-            refetchBalances={resolveRefetch}
-            refetchHistory={refetchHistory}
-            refetchDenoms={refetchData}
-            refetchGroupInfo={refetch}
             pageSize={pageSizeGroupInfo}
             skeletonGroupCount={skeletonGroupCount}
             skeletonTxCount={skeletonTxCount}

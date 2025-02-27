@@ -16,6 +16,7 @@ export default function BurnModal({
   isOpen,
   onClose,
   isGroup,
+  refetch,
 }: {
   denom: ExtendedMetadataSDKType | null;
   address: string;
@@ -24,7 +25,7 @@ export default function BurnModal({
   totalSupply: string;
   isOpen: boolean;
   onClose: () => void;
-
+  refetch: () => void;
   isGroup?: boolean;
 }) {
   const { groupByAdmin, isGroupByAdminLoading } = useGroupsByAdmin(admin);
@@ -78,6 +79,7 @@ export default function BurnModal({
               address={address}
               denom={denom}
               isGroup={isGroup}
+              refetch={refetch}
             />
           )}
         </div>

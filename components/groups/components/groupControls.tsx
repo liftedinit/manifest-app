@@ -38,8 +38,6 @@ type GroupControlsProps = {
   isError: boolean;
   balances: CombinedBalanceInfo[];
   denoms: ExtendedMetadataSDKType[];
-  refetchHistory: () => Promise<unknown>;
-  refetchDenoms: () => Promise<unknown>;
   pageSize: number;
   skeletonGroupCount: number;
   skeletonTxCount: number;
@@ -60,15 +58,13 @@ export default function GroupControls({
   isError,
   balances,
   denoms,
-  refetchHistory,
-  refetchDenoms,
   pageSize,
   skeletonGroupCount,
   skeletonTxCount,
   proposalPageSize = 10,
 }: GroupControlsProps) {
   const isMobile = useIsMobile();
-  const { proposals, isProposalsLoading, isProposalsError, refetchProposals } =
+  const { proposals, isProposalsLoading, isProposalsError } =
     useProposalsByPolicyAccount(policyAddress);
 
   const [selectedProposalId, setSelectedProposalId] = useState<bigint | undefined>(undefined);
@@ -574,8 +570,6 @@ export default function GroupControls({
               <DenomList
                 denoms={denoms}
                 isLoading={isLoading}
-                refetchDenoms={refetchDenoms}
-                refetchProposals={refetchProposals}
                 address={address ?? ''}
                 admin={policyAddress}
                 pageSize={pageSize - 1}

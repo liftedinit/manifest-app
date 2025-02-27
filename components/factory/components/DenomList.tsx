@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
@@ -17,8 +18,7 @@ import { DenomDisplay } from './DenomDisplay';
 type DenomListProps = {
   denoms: ExtendedMetadataSDKType[];
   isLoading: boolean;
-  refetchDenoms: () => void;
-  refetchProposals?: () => void;
+
   address: string;
   pageSize: number;
   isGroup?: boolean;
@@ -29,8 +29,7 @@ type DenomListProps = {
 export default function DenomList({
   denoms,
   isLoading,
-  refetchDenoms,
-  refetchProposals,
+
   address,
   pageSize,
   isGroup = false,
@@ -41,7 +40,7 @@ export default function DenomList({
   const [openUpdateDenomMetadataModal, setOpenUpdateDenomMetadataModal] = useState(false);
 
   const isMobile = useIsMobile();
-
+  const queryClient = useQueryClient();
   const router = useRouter();
   const [selectedDenom, setSelectedDenom] = useState<ExtendedMetadataSDKType | null>(null);
   const [modalType, setModalType] = useState<
@@ -79,13 +78,6 @@ export default function DenomList({
       setSelectedDenom(denom);
       setModalType('info');
       updateUrlWithModal('info', denom.base);
-    }
-  };
-
-  const refetch = () => {
-    refetchDenoms();
-    if (refetchProposals) {
-      refetchProposals();
     }
   };
 
@@ -175,6 +167,38 @@ export default function DenomList({
     setSelectedDenom(denom);
     setOpenUpdateDenomMetadataModal(true);
     updateUrlWithModal('update', denom.base);
+  };
+
+  const queryInvalidations = ({
+    all = false,
+    metadata = false,
+    amount = false,
+    proposal = false,
+  }: {
+    all?: boolean;
+    metadata?: boolean;
+    amount?: boolean;
+    proposal?: boolean;
+  }) => {
+    const queryKeys = new Set<string>();
+
+    if (all || metadata) {
+      queryKeys.add('allMetadatas');
+      queryKeys.add('denoms');
+    }
+
+    if (all || amount) {
+      queryKeys.add('balances');
+      queryKeys.add('totalSupply');
+    }
+
+    if (all || proposal) {
+      queryKeys.add('proposalInfo');
+    }
+
+    queryKeys.forEach(key => {
+      queryClient.invalidateQueries({ queryKey: [key] });
+    });
   };
 
   return (
@@ -380,7 +404,7 @@ export default function DenomList({
         admin={admin}
         denom={modalType === 'mint' ? selectedDenom : null}
         address={address}
-        balance={selectedDenom?.balance ?? '0'}
+        refetch={() => queryInvalidations({ all: true })}
         totalSupply={selectedDenom?.totalSupply ?? '0'}
         isOpen={modalType === 'mint'}
         onClose={handleCloseModal}
@@ -395,24 +419,24 @@ export default function DenomList({
         isOpen={modalType === 'burn'}
         onClose={handleCloseModal}
         isGroup={isGroup}
+        refetch={() => queryInvalidations({ all: true })}
       />
       <UpdateDenomMetadataModal
         isOpen={openUpdateDenomMetadataModal}
         onClose={handleUpdateModalClose}
         denom={selectedDenom}
         address={address}
-        modalId="update-denom-metadata-modal"
-        onSuccess={refetchDenoms}
         admin={admin}
         isGroup={isGroup}
+        refetch={() => queryInvalidations({ metadata: true, proposal: true })}
       />
       <TransferModal
         denom={selectedDenom}
         address={address}
         isOpen={modalType === 'transfer'}
         onClose={handleModalClose}
-        onSuccess={() => {
-          refetch();
+        refetch={() => {
+          queryInvalidations({ metadata: true, proposal: true });
           handleModalClose();
         }}
         admin={admin}

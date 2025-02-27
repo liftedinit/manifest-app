@@ -4,7 +4,7 @@ import { MsgBurnHeldBalance } from '@liftedinit/manifestjs/dist/codegen/liftedin
 import { MsgBurn } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
 import { useQueryClient } from '@tanstack/react-query';
 import { Form, Formik } from 'formik';
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 
 import { NumberInput } from '@/components/react/inputs';
 import { AddressInput } from '@/components/react/inputs/AddressInput';
@@ -21,6 +21,7 @@ interface BurnFormProps {
   balance: string;
   totalSupply: string;
   isGroup?: boolean;
+  refetch: () => void;
 }
 
 export default function BurnForm({
@@ -31,6 +32,7 @@ export default function BurnForm({
   balance,
   totalSupply,
   isGroup,
+  refetch,
 }: Readonly<BurnFormProps>) {
   const [amount, setAmount] = useState('');
   const [recipient, setRecipient] = useState(address || '');

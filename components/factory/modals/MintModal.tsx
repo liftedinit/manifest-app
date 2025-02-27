@@ -10,20 +10,19 @@ import { ExtendedMetadataSDKType, truncateString } from '@/utils';
 export default function MintModal({
   denom,
   address,
-  balance,
   totalSupply,
   isOpen,
   onClose,
   admin,
   isGroup,
+  refetch,
 }: {
   denom: ExtendedMetadataSDKType | null;
   address: string;
-  balance: string;
   totalSupply: string;
   isOpen: boolean;
   onClose: () => void;
-
+  refetch: () => void;
   admin: string;
   isGroup?: boolean;
 }) {
@@ -78,6 +77,7 @@ export default function MintModal({
               denom={denom}
               isGroup={isGroup}
               admin={admin}
+              refetch={refetch}
             />
           )}
         </div>
