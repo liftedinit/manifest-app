@@ -38,12 +38,8 @@ type GroupControlsProps = {
   isError: boolean;
   balances: CombinedBalanceInfo[];
   denoms: ExtendedMetadataSDKType[];
-  denomLoading: boolean;
-  isDenomError: boolean;
-  refetchBalances: () => void;
   refetchHistory: () => Promise<unknown>;
   refetchDenoms: () => Promise<unknown>;
-  refetchGroupInfo: () => Promise<unknown>;
   pageSize: number;
   skeletonGroupCount: number;
   skeletonTxCount: number;
@@ -64,12 +60,8 @@ export default function GroupControls({
   isError,
   balances,
   denoms,
-  denomLoading,
-  isDenomError,
-  refetchBalances,
   refetchHistory,
   refetchDenoms,
-  refetchGroupInfo,
   pageSize,
   skeletonGroupCount,
   skeletonTxCount,
@@ -541,13 +533,10 @@ export default function GroupControls({
             <TokenList
               balances={balances}
               isLoading={isLoading}
-              refetchBalances={refetchBalances}
-              refetchHistory={refetchHistory}
               address={address ?? ''}
               pageSize={pageSize}
               isGroup={true}
               admin={policyAddress}
-              refetchProposals={refetchProposals}
             />
           )}
         </div>

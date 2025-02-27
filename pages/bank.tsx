@@ -9,16 +9,13 @@ import env from '@/config/env';
 import {
   useGetMessagesFromAddress,
   useIsMobile,
-  useOsmosisTokenBalancesResolved,
-  useOsmosisTokenFactoryDenomsMetadata,
   useTokenBalances,
-  useTokenBalancesOsmosis,
   useTokenBalancesResolved,
   useTokenFactoryDenomsMetadata,
 } from '@/hooks';
 import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
 import { MFX_TOKEN_BASE, denomToAsset, unsafeConvertTokenBase } from '@/utils';
-import { MFX_TOKEN_DATA, OSMOSIS_TOKEN_DATA } from '@/utils/constants';
+import { MFX_TOKEN_DATA } from '@/utils/constants';
 import { CombinedBalanceInfo } from '@/utils/types';
 
 interface PageSizeConfig {
@@ -31,12 +28,9 @@ export default function Bank() {
   const { isWalletConnected, address } = useChain(env.chain);
   const isMobile = useIsMobile();
 
-  const { balances, isBalancesLoading, refetchBalances } = useTokenBalances(address ?? '');
-  const {
-    balances: resolvedBalances,
-    isBalancesLoading: resolvedLoading,
-    refetchBalances: resolveRefetch,
-  } = useTokenBalancesResolved(address ?? '');
+  const { balances, isBalancesLoading } = useTokenBalances(address ?? '');
+  const { balances: resolvedBalances, isBalancesLoading: resolvedLoading } =
+    useTokenBalancesResolved(address ?? '');
 
   const { metadatas, isMetadatasLoading } = useTokenFactoryDenomsMetadata();
   const [currentPage, setCurrentPage] = useState(1);
@@ -86,7 +80,6 @@ export default function Bank() {
     isLoading: txLoading,
     isError,
     refetch: refetchHistory,
-    totalCount,
   } = useGetMessagesFromAddress(env.indexerUrl, address ?? '', currentPage, historyPageSize);
 
   const combinedBalances = useMemo(() => {
@@ -225,10 +218,8 @@ export default function Bank() {
                       <NoAssetsFound />
                     ) : (
                       <TokenList
-                        refetchBalances={refetchBalances || resolveRefetch}
                         isLoading={isLoading}
                         balances={combinedBalances}
-                        refetchHistory={refetchHistory}
                         address={address ?? ''}
                         pageSize={tokenListPageSize}
                         searchTerm={searchTerm}

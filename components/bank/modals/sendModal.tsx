@@ -1,5 +1,5 @@
-import { Dialog, Portal } from '@headlessui/react';
-import React, { useMemo } from 'react';
+import { Dialog } from '@headlessui/react';
+import React from 'react';
 
 import { SignModal } from '@/components/react';
 import { CombinedBalanceInfo } from '@/utils/types';
@@ -11,14 +11,11 @@ interface SendModalProps {
   address: string;
   balances: CombinedBalanceInfo[];
   isBalancesLoading: boolean;
-  refetchBalances: () => void;
   isOpen: boolean;
-  refetchHistory: () => void;
   selectedDenom?: string;
   setOpen?: (isOpen: boolean) => void;
   isGroup?: boolean;
   admin?: string;
-  refetchProposals?: () => void;
 }
 
 export default React.memo(function SendModal({
@@ -26,14 +23,11 @@ export default React.memo(function SendModal({
   address,
   balances,
   isBalancesLoading,
-  refetchBalances,
-  refetchHistory,
   selectedDenom,
   isOpen,
   setOpen,
   isGroup,
   admin,
-  refetchProposals,
 }: SendModalProps) {
   const handleClose = () => setOpen && setOpen(false);
 
@@ -68,12 +62,9 @@ export default React.memo(function SendModal({
           address={address}
           balances={balances}
           isBalancesLoading={isBalancesLoading}
-          refetchBalances={refetchBalances}
-          refetchHistory={refetchHistory}
           selectedDenom={selectedDenom}
           isGroup={isGroup}
           admin={admin}
-          refetchProposals={refetchProposals}
         />
 
         <SignModal />
