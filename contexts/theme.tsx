@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useContext, useEffect, useState } from 'react';
+import { ReactNode, createContext, useContext, useEffect } from 'react';
 
 import { useLocalStorage } from '@/hooks';
 
@@ -6,7 +6,7 @@ export type Theme = 'light' | 'dark';
 
 export interface ThemeContext {
   theme: Theme;
-  toggleTheme: (newTheme?: Theme) => void;
+  toggleTheme: () => void;
 }
 
 export const Theme = createContext<ThemeContext>({
@@ -22,7 +22,10 @@ const getDefaultTheme = (): Theme => {
 };
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [theme, setTheme] = useLocalStorage<Theme>('theme', getDefaultTheme);
+  const [theme, setTheme] = useLocalStorage<Theme>('theme', getDefaultTheme, [
+    v => (v === 'dark' ? v : 'light'),
+    v => v,
+  ]);
 
   // Only apply theme changes after initialization
   useEffect(() => {

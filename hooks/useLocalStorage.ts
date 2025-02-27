@@ -16,10 +16,12 @@ export function useLocalStorage<T>(
   let initialValueFn = () => (initialValue instanceof Function ? initialValue() : initialValue);
 
   const [storedValue, setStoredValue] = useState<T>(() => {
-    const item = ls?.getItem(key);
-    if (item) {
-      return from(item);
-    }
+    try {
+      const item = ls?.getItem(key);
+      if (item) {
+        return from(item);
+      }
+    } catch (_) {}
 
     return initialValueFn();
   });
