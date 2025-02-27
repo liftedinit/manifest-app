@@ -9,24 +9,31 @@ import { Dispatch, SetStateAction, useState } from 'react';
  */
 export function useLocalStorage<T>(
   key: string,
-  initialValue: T,
+  initialValue: T | (() => T),
   [from, to]: [(store: string) => T, (value: T) => string] = [JSON.parse, JSON.stringify]
-): [T, Dispatch<SetStateAction<T>>] {
+): [T, Dispatch<SetStateAction<T>>, () => void] {
+  const ls = typeof localStorage !== 'undefined' ? localStorage : undefined;
+  let initialValueFn = () => (initialValue instanceof Function ? initialValue() : initialValue);
+
   const [storedValue, setStoredValue] = useState<T>(() => {
-    try {
-      if (typeof window !== 'undefined') {
-        const item = window.localStorage.getItem(key);
-        return item ? from(item) : initialValue;
-      }
-    } catch (_) {}
-    return initialValue;
+    const item = ls?.getItem(key);
+    if (item) {
+      return from(item);
+    }
+
+    return initialValueFn();
   });
 
   const setValue = (value: T | ((val: T) => T)) => {
     const valueToStore = value instanceof Function ? value(storedValue) : value;
-    window.localStorage.setItem(key, to(valueToStore));
+    ls?.setItem(key, to(valueToStore));
     setStoredValue(valueToStore);
   };
 
-  return [storedValue, setValue];
+  const clearValue = () => {
+    ls?.removeItem(key);
+    setStoredValue(initialValueFn());
+  };
+
+  return [storedValue, setValue, clearValue];
 }

@@ -1,8 +1,12 @@
 import { ReactNode, createContext, useContext, useEffect, useState } from 'react';
 
+import { useLocalStorage } from '@/hooks';
+
+export type Theme = 'light' | 'dark';
+
 export interface ThemeContext {
-  theme: 'light' | 'dark';
-  toggleTheme: () => void;
+  theme: Theme;
+  toggleTheme: (newTheme?: Theme) => void;
 }
 
 export const Theme = createContext<ThemeContext>({
@@ -10,39 +14,23 @@ export const Theme = createContext<ThemeContext>({
   toggleTheme: () => {},
 });
 
-const getInitialTheme = (): 'light' | 'dark' => {
+const getDefaultTheme = (): Theme => {
   if (typeof window === 'undefined') return 'light';
 
-  // Move localStorage and system preference check to client-side only
-  return 'light'; // Default for initial render
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  return isDark ? 'dark' : 'light';
 };
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [theme, setTheme] = useState<'light' | 'dark'>(getInitialTheme);
-  const [isInitialized, setIsInitialized] = useState(false);
-
-  // New effect to handle client-side initialization
-  useEffect(() => {
-    const stored = localStorage.getItem('theme');
-    if (stored === 'dark' || stored === 'light') {
-      setTheme(stored);
-    } else {
-      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setTheme(isDark ? 'dark' : 'light');
-    }
-    setIsInitialized(true);
-  }, []);
+  const [theme, setTheme] = useLocalStorage<Theme>('theme', getDefaultTheme);
 
   // Only apply theme changes after initialization
   useEffect(() => {
-    if (!isInitialized) return;
-
     const root = document.documentElement;
     root.classList.remove('light', 'dark');
     root.classList.add(theme);
     root.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
-  }, [theme, isInitialized]);
+  }, [theme]);
 
   const toggleTheme = () => {
     setTheme(current => (current === 'light' ? 'dark' : 'light'));

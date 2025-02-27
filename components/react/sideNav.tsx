@@ -113,7 +113,8 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
             type="checkbox"
             className="theme-controller hidden"
             checked={theme === 'dark'}
-            onChange={toggleTheme}
+            value={theme}
+            onChange={() => toggleTheme()}
           />
           <LightIcon className="swap-on fill-current w-9 h-9 duration-300" />
           <DarkIcon className="swap-off fill-current w-9 h-9 duration-300" />
@@ -219,7 +220,7 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
                 type="checkbox"
                 className="sr-only peer"
                 checked={theme === 'dark'}
-                onChange={toggleTheme}
+                onChange={() => toggleTheme()}
               />
               <div className="flex items-center justify-center w-1/2 h-full z-10">
                 <LightIcon

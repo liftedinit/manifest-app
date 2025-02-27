@@ -62,7 +62,6 @@ export default function MobileNav() {
   };
 
   const { toggleTheme, theme } = useTheme();
-  const [isDark, setIsDark] = useState(theme === 'dark');
   const [isContactsOpen, setContactsOpen] = useState(false);
 
   return (
@@ -104,12 +103,9 @@ export default function MobileNav() {
                   <input
                     type="checkbox"
                     className="theme-controller hidden"
-                    value="light"
-                    checked={isDark}
-                    onChange={() => {
-                      setIsDark(!isDark);
-                      toggleTheme();
-                    }}
+                    value={theme}
+                    checked={theme === 'dark'}
+                    onChange={() => toggleTheme()}
                   />
                   <DarkIcon className="swap-on fill-current w-9 h-9 duration-300" />
                   <LightIcon className="swap-off fill-current w-9 h-9 duration-300" />
