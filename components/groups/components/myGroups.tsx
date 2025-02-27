@@ -4,7 +4,6 @@ import {
   ThresholdDecisionPolicySDKType,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/router';
 import React, { useEffect, useMemo, useState } from 'react';
 import { PiInfo } from 'react-icons/pi';
@@ -108,7 +107,6 @@ export default React.memo(function YourGroups({
   const [selectedGroupName, setSelectedGroupName] = useState<string>('Untitled Group');
 
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { address } = useChain(env.chain);
 
   const filteredGroups = groups.groups.filter(group => {
@@ -131,9 +129,8 @@ export default React.memo(function YourGroups({
 
   useEffect(() => {
     // Check if there's a policy address in the URL on component mount
-    const policyAddress = searchParams.get('policyAddress');
-
-    if (policyAddress) {
+    const { policyAddress } = router.query;
+    if (policyAddress && typeof policyAddress === 'string') {
       const group = groups.groups.find(g => g.policies?.[0]?.address === policyAddress);
       if (group) {
         let groupName = 'Untitled Group';
@@ -153,7 +150,7 @@ export default React.memo(function YourGroups({
         router.push('/groups', undefined, { shallow: true });
       }
     }
-  }, [searchParams, groups.groups, router]);
+  }, [groups.groups, router]);
 
   useEffect(() => {
     // Scroll to top when a group is selected
