@@ -9,14 +9,9 @@ import { useLocalStorage } from '@/hooks';
 import SideNav from '../components/react/sideNav';
 import '../styles/globals.css';
 
-type ManifestAppProps = AppProps & {
-  Component: AppProps['Component'];
-  pageProps: AppProps['pageProps'];
-};
-
 // TODO: remove asset list injections when chain registry is updated
 
-function ManifestApp({ Component, pageProps }: ManifestAppProps) {
+function ManifestApp({ Component, pageProps }: AppProps) {
   const [drawer, setDrawer] = useLocalStorage('isDrawerVisible', true);
 
   return (
