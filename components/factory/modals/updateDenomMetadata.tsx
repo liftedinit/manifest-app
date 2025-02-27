@@ -11,7 +11,6 @@ import { TextArea, TextInput } from '@/components/react/inputs';
 import env from '@/config/env';
 import { TokenFormData } from '@/helpers/formReducer';
 import { useFeeEstimation } from '@/hooks/useFeeEstimation';
-import { useProposalsByPolicyAccount } from '@/hooks/useQueries';
 import { useTx } from '@/hooks/useTx';
 import { ExtendedMetadataSDKType, truncateString } from '@/utils';
 import Yup from '@/utils/yupExtensions';
@@ -126,6 +125,7 @@ export default function UpdateDenomMetadataModal({
       await tx([msg], {
         fee,
         onSuccess: () => {
+          refetch();
           onClose();
         },
       });
@@ -157,7 +157,7 @@ export default function UpdateDenomMetadataModal({
         validateOnChange={true}
         validateOnBlur={true}
       >
-        {({ isValid, dirty, values, handleChange, handleSubmit, resetForm }) => (
+        {({ isValid, dirty, values, handleChange, handleSubmit }) => (
           <Dialog.Panel className="modal-box max-w-4xl mx-auto p-6 bg-[#F4F4FF] dark:bg-[#1D192D] rounded-[24px] shadow-lg relative">
             <form method="dialog">
               <button

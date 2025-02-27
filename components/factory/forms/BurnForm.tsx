@@ -2,7 +2,6 @@ import { cosmos, liftedinit, osmosis } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgBurnHeldBalance } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
 import { MsgBurn } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
-import { useQueryClient } from '@tanstack/react-query';
 import { Form, Formik } from 'formik';
 import React, { useState } from 'react';
 
@@ -36,7 +35,7 @@ export default function BurnForm({
 }: Readonly<BurnFormProps>) {
   const [amount, setAmount] = useState('');
   const [recipient, setRecipient] = useState(address || '');
-  const queryClient = useQueryClient();
+
   const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
   const { burn } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
@@ -50,7 +49,7 @@ export default function BurnForm({
       .positive('Amount must be positive')
       .required('Amount is required')
       .test('max-balance', 'Amount exceeds balance', function (value) {
-        return value <= parseNumberToBigInt(balance, -exponent);
+        return value <= Number(shiftDigits(balance, -exponent));
       }),
     recipient: Yup.string().required('Recipient address is required').manifestAddress(),
   });
@@ -120,11 +119,7 @@ export default function BurnForm({
         fee,
         onSuccess: () => {
           setAmount('');
-          queryClient.invalidateQueries({ queryKey: ['proposalInfo'] });
-          queryClient.invalidateQueries({ queryKey: ['allMetadatas'] });
-          queryClient.invalidateQueries({ queryKey: ['denoms'] });
-          queryClient.invalidateQueries({ queryKey: ['balances'] });
-          queryClient.invalidateQueries({ queryKey: ['totalSupply'] });
+          refetch();
         },
       });
     } catch (error) {

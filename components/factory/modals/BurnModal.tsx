@@ -79,7 +79,7 @@ export default function BurnModal({
               address={address}
               denom={denom}
               isGroup={isGroup}
-              refetch={() => refetch()}
+              refetch={refetch}
             />
           )}
         </div>
