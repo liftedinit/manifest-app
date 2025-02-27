@@ -169,7 +169,7 @@ export function GroupInfo({
     <Dialog
       open={showInfoModal}
       onClose={() => setShowInfoModal(false)}
-      className={`modal modal-open fixed flex p-0 m-0 z-0`}
+      className={`modal ${showInfoModal ? 'modal-open' : ''} fixed flex p-0 m-0`}
       style={{
         height: '100vh',
         width: '100vw',
@@ -179,7 +179,7 @@ export function GroupInfo({
     >
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
 
-      <Dialog.Panel className="modal-box bg-secondary rounded-[24px] max-h-['574px'] max-w-[542px] p-6">
+      <Dialog.Panel className="modal-box mx-auto bg-secondary rounded-[24px] max-h-['574px'] max-w-[542px] p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
             <ProfileAvatar walletAddress={policyAddress} size={40} />
