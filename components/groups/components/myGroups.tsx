@@ -3,6 +3,7 @@ import {
   ProposalSDKType,
   ThresholdDecisionPolicySDKType,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -53,12 +54,10 @@ export default React.memo(function YourGroups({
   groups,
   proposals,
   isLoading,
-  refetch,
 }: {
   groups: ExtendedQueryGroupsByMemberResponseSDKType;
   proposals: { [policyAddress: string]: ProposalSDKType[] };
   isLoading: boolean;
-  refetch: () => Promise<unknown>;
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -180,16 +179,13 @@ export default React.memo(function YourGroups({
     router.push('/groups', undefined, { shallow: true });
   };
 
-  const { balances, isBalancesLoading, refetchBalances } = useTokenBalances(
+  const { balances, isBalancesLoading } = useTokenBalances(
     selectedGroup?.policies[0]?.address ?? ''
   );
 
   // console.log(`${selectedGroup?.policies[0]?.address} balances`, balances);
-  const {
-    balances: resolvedBalances,
-    isBalancesLoading: resolvedLoading,
-    refetchBalances: resolveRefetch,
-  } = useTokenBalancesResolved(address ?? '');
+  const { balances: resolvedBalances, isBalancesLoading: resolvedLoading } =
+    useTokenBalancesResolved(address ?? '');
 
   const { metadatas, isMetadatasLoading, isMetadatasError, refetchMetadatas } =
     useTokenFactoryDenomsMetadata();
@@ -200,7 +196,6 @@ export default React.memo(function YourGroups({
     totalPages: totalPagesGroupInfo,
     isLoading: txLoading,
     isError,
-    refetch: refetchHistory,
   } = useGetMessagesFromAddress(
     env.indexerUrl,
     selectedGroup?.policies[0]?.address ?? '',
@@ -208,19 +203,10 @@ export default React.memo(function YourGroups({
     pageSizeHistory
   );
 
-  const { denoms, isDenomsLoading, isDenomsError, denomError, refetchDenoms } =
-    useTokenFactoryDenomsFromAdmin(selectedGroup?.policies[0]?.address ?? '');
-  const { totalSupply, isTotalSupplyLoading, isTotalSupplyError, refetchTotalSupply } =
-    useTotalSupply();
-
-  const refetchData = () => {
-    return Promise.all([
-      refetchDenoms(),
-      refetchMetadatas(),
-      refetchBalances(),
-      refetchTotalSupply(),
-    ]);
-  };
+  const { denoms, isDenomsLoading } = useTokenFactoryDenomsFromAdmin(
+    selectedGroup?.policies[0]?.address ?? ''
+  );
+  const { totalSupply, isTotalSupplyLoading } = useTotalSupply();
 
   const combinedData = useMemo(() => {
     if (denoms?.denoms && metadatas?.metadatas && balances && totalSupply) {
@@ -420,7 +406,6 @@ export default React.memo(function YourGroups({
                               : []
                           }
                           onSelectGroup={handleSelectGroup}
-                          refetch={refetch}
                         />
                       ))}
                 </tbody>
@@ -546,17 +531,15 @@ const GroupRow = React.memo(function GroupRow({
   group,
   proposals,
   onSelectGroup,
-  refetch,
 }: {
   address: string | undefined;
   group: ExtendedQueryGroupsByMemberResponseSDKType['groups'][0];
   proposals: ProposalSDKType[];
   onSelectGroup: (group: ExtendedGroupType) => void;
-  refetch: () => Promise<unknown>;
 }) {
   const [showInfo, setShowInfo] = useState(false);
   const [showMembers, setShowMembers] = useState(false);
-
+  const queryClient = useQueryClient();
   const policyAddress = (group.policies && group.policies[0]?.address) || '';
   let groupName = 'Untitled Group';
   try {
@@ -584,6 +567,11 @@ const GroupRow = React.memo(function GroupRow({
   const openMemberModal = (e: React.MouseEvent) => {
     e.stopPropagation();
     setShowMembers(true);
+  };
+
+  const refetch = () => {
+    queryClient.invalidateQueries({ queryKey: ['groupInfoByMember'] });
+    queryClient.invalidateQueries({ queryKey: ['proposalsByPolicyAccountAll'] });
   };
 
   return (
