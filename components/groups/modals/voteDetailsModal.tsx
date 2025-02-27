@@ -193,7 +193,7 @@ function VoteDetailsModal({
     <Dialog
       open={showVoteModal}
       onClose={onClose}
-      className="modal modal-open fixed flex p-0 m-0"
+      className={`modal  ${showVoteModal ? 'modal-open' : ''} fixed flex p-0 m-0`}
       style={{
         height: '100vh',
         width: '100vw',
@@ -203,7 +203,10 @@ function VoteDetailsModal({
     >
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
 
-      <Dialog.Panel className="relative flex flex-col items-center justify-center w-full h-full">
+      <Dialog.Panel
+        className="relative flex flex-col items-center justify-center w-full h-full"
+        onClick={onClose}
+      >
         <div
           className="modal-box relative max-w-4xl min-h-96 max-h-[80vh] overflow-y-auto flex flex-col -mt-12 rounded-[24px] shadow-lg bg-secondary transition-all duration-300"
           onClick={e => e.stopPropagation()}
