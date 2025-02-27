@@ -7,7 +7,7 @@ import { useCurrentPlan } from '@/hooks/useQueries';
 export const ChainUpgrader = ({ admin, address }: { admin: string; address: string }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isCancelOpen, setIsCancelOpen] = useState(false);
-  const { plan, isPlanLoading, refetchPlan } = useCurrentPlan();
+  const { plan, isPlanLoading } = useCurrentPlan();
 
   if (isPlanLoading) {
     return (
@@ -57,7 +57,6 @@ export const ChainUpgrader = ({ admin, address }: { admin: string; address: stri
         admin={admin}
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        refetchPlan={refetchPlan}
       />
       <CancelUpgradeModal
         plan={plan ?? ({} as PlanSDKType)}
@@ -65,7 +64,6 @@ export const ChainUpgrader = ({ admin, address }: { admin: string; address: stri
         address={address}
         isOpen={isCancelOpen}
         onClose={() => setIsCancelOpen(false)}
-        refetchPlan={refetchPlan}
       />
     </div>
   );
