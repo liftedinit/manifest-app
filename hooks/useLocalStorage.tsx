@@ -1,5 +1,12 @@
 import { Dispatch, SetStateAction, useState } from 'react';
 
+/**
+ * A hook to use local storage with a key and initial value. This hook is server-side safe.
+ * @param key The key to use for the local storage.
+ * @param initialValue The initial value to use if the key is not set.
+ * @param from A function to convert the stored string to the value.
+ * @param to A function to convert the value to a string for storage.
+ */
 export function useLocalStorage<T>(
   key: string,
   initialValue: T,
