@@ -193,7 +193,7 @@ function VoteDetailsModal({
     <Dialog
       open={showVoteModal}
       onClose={onClose}
-      className={`modal  ${showVoteModal ? 'modal-open' : ''} fixed flex p-0 m-0`}
+      className={`modal modal-open fixed flex p-0 m-0`}
       style={{
         height: '100vh',
         width: '100vw',
@@ -203,114 +203,106 @@ function VoteDetailsModal({
     >
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
 
-      <Dialog.Panel
-        className="relative flex flex-col items-center justify-center w-full h-full"
-        onClick={onClose}
-      >
-        <div
-          className="modal-box relative max-w-4xl min-h-96 max-h-[80vh] overflow-y-auto flex flex-col -mt-12 rounded-[24px] shadow-lg bg-secondary transition-all duration-300"
-          onClick={e => e.stopPropagation()}
+      <Dialog.Panel className="modal-box relative justify-center max-w-4xl min-h-96 max-h-[80vh] overflow-y-auto flex flex-col -mt-12 rounded-[24px] shadow-lg bg-secondary transition-all duration-300">
+        <button
+          onClick={onClose}
+          className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
         >
-          <button
-            onClick={onClose}
-            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]"
-          >
-            ✕
-          </button>
+          ✕
+        </button>
 
-          <div className="grid grid-cols-3 w-full items-center pb-3 mt-4">
-            <div className="text-left">
-              <h2 className="text-xl font-bold">#{proposal?.id?.toString()}</h2>
-              <span className="badge badge-lg shadow-lg badge-primary text-neutral-content rounded-full px-3 py-1 mt-2">
-                {getProposalStatusLabel(proposal)}
-              </span>
-            </div>
-            <div className="text-center" aria-label="countdown-timer">
-              <CountdownTimer
-                endTime={new Date(proposal.voting_period_end)}
-                onTimerEnd={() => {
-                  if (
-                    proposal &&
-                    proposal.status.toString() ===
-                      proposalStatusToJSON(ProposalStatus.PROPOSAL_STATUS_SUBMITTED)
-                  ) {
-                    setPollForData(true);
-                  }
-                }}
-              />
-            </div>
+        <div className="grid grid-cols-3 w-full items-center pb-3 mt-4">
+          <div className="text-left">
+            <h2 className="text-xl font-bold">#{proposal?.id?.toString()}</h2>
+            <span className="badge badge-lg shadow-lg badge-primary text-neutral-content rounded-full px-3 py-1 mt-2">
+              {getProposalStatusLabel(proposal)}
+            </span>
           </div>
-
-          <hr className="w-full border-gray-700" />
-
-          <div className="mt-4">
-            <h2 className="text-lg font-semibold">Title</h2>
-            <p className="text-sm text-gray-300 bg-gray-700 p-3 rounded-lg mt-1 max-h-40 overflow-auto">
-              {proposal.title}
-            </p>
+          <div className="text-center" aria-label="countdown-timer">
+            <CountdownTimer
+              endTime={new Date(proposal.voting_period_end)}
+              onTimerEnd={() => {
+                if (
+                  proposal &&
+                  proposal.status.toString() ===
+                    proposalStatusToJSON(ProposalStatus.PROPOSAL_STATUS_SUBMITTED)
+                ) {
+                  setPollForData(true);
+                }
+              }}
+            />
           </div>
+        </div>
 
-          <div className="mt-4">
-            <div className="flex items-center gap-2 mb-2">
-              <h2 className="text-lg font-semibold">Summary</h2>
+        <hr className="w-full border-gray-700" />
+
+        <div className="mt-4">
+          <h2 className="text-lg font-semibold">Title</h2>
+          <p className="text-sm text-gray-300 bg-gray-700 p-3 rounded-lg mt-1 max-h-40 overflow-auto">
+            {proposal.title}
+          </p>
+        </div>
+
+        <div className="mt-4">
+          <div className="flex items-center gap-2 mb-2">
+            <h2 className="text-lg font-semibold">Summary</h2>
+            <button
+              className="btn btn-xs btn-ghost btn-circle"
+              title="View Proposal Messages"
+              data-testid="expand-messages"
+              onClick={() => setShowMessages(true)}
+            >
+              <ArrowUpIcon className="w-4 h-4" />
+            </button>
+          </div>
+          <p className="text-sm text-gray-300 bg-gray-700 p-3 rounded-lg mt-1 max-h-40 overflow-auto">
+            {proposal.summary}
+          </p>
+        </div>
+
+        <div className="mt-4">
+          <div className="flex items-center gap-2 mb-2">
+            <h2 className="text-lg font-semibold">Tally</h2>
+            {votes.length > 0 && (
               <button
                 className="btn btn-xs btn-ghost btn-circle"
-                title="View Proposal Messages"
-                data-testid="expand-messages"
-                onClick={() => setShowMessages(true)}
+                title="View Tally Results"
+                data-testid="expand-tally"
+                onClick={() => setShowTally(true)}
               >
                 <ArrowUpIcon className="w-4 h-4" />
               </button>
-            </div>
-            <p className="text-sm text-gray-300 bg-gray-700 p-3 rounded-lg mt-1 max-h-40 overflow-auto">
-              {proposal.summary}
-            </p>
-          </div>
-
-          <div className="mt-4">
-            <div className="flex items-center gap-2 mb-2">
-              <h2 className="text-lg font-semibold">Tally</h2>
-              {votes.length > 0 && (
-                <button
-                  className="btn btn-xs btn-ghost btn-circle"
-                  title="View Tally Results"
-                  data-testid="expand-tally"
-                  onClick={() => setShowTally(true)}
-                >
-                  <ArrowUpIcon className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-            <Tally tallies={tally ?? ({} as QueryTallyResultResponseSDKType)} />
-          </div>
-          <div className="mt-6">
-            {getProposalButton(
-              proposal,
-              address,
-              executeWithdrawal,
-              executeProposal,
-              setShowVotingPopup,
-              isSigning,
-              pollForData,
-              userVoteOption
             )}
           </div>
-          <div className="mt-6 flex justify-end">
-            <button
-              onClick={copyProposalLink}
-              className="flex items-center gap-2 hover:bg-[#FFFFFFCC] dark:hover:bg-[#FFFFFF0F] p-2 rounded-full transition-colors duration-200"
-              aria-label="copy-button"
-            >
-              {copied ? (
-                <CheckIcon className="w-4 h-4 text-green-500" />
-              ) : (
-                <CopyIcon className="w-4 h-4" />
-              )}
-              <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-                {copied ? 'Copied!' : 'Share this proposal'}
-              </p>
-            </button>
-          </div>
+          <Tally tallies={tally ?? ({} as QueryTallyResultResponseSDKType)} />
+        </div>
+        <div className="mt-6">
+          {getProposalButton(
+            proposal,
+            address,
+            executeWithdrawal,
+            executeProposal,
+            setShowVotingPopup,
+            isSigning,
+            pollForData,
+            userVoteOption
+          )}
+        </div>
+        <div className="mt-6 flex justify-end">
+          <button
+            onClick={copyProposalLink}
+            className="flex items-center gap-2 hover:bg-[#FFFFFFCC] dark:hover:bg-[#FFFFFF0F] p-2 rounded-full transition-colors duration-200"
+            aria-label="copy-button"
+          >
+            {copied ? (
+              <CheckIcon className="w-4 h-4 text-green-500" />
+            ) : (
+              <CopyIcon className="w-4 h-4" />
+            )}
+            <p className="text-sm font-light text-gray-500 dark:text-gray-400">
+              {copied ? 'Copied!' : 'Share this proposal'}
+            </p>
+          </button>
         </div>
 
         <TallyResults votes={votes} opened={showTally} onClose={() => setShowTally(false)} />
