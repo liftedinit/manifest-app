@@ -77,7 +77,7 @@ export default function MintModal({
               denom={denom}
               isGroup={isGroup}
               admin={admin}
-              refetch={refetch}
+              refetch={() => refetch()}
             />
           )}
         </div>

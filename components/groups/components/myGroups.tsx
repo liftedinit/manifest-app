@@ -649,7 +649,7 @@ const GroupRow = React.memo(function GroupRow({
             group={group}
             address={address ?? ''}
             policyAddress={group.policies[0]?.address ?? ''}
-            onUpdate={refetch}
+            onUpdate={() => refetch()}
             showInfoModal={showInfo}
             setShowInfoModal={show => setShowInfo(show)}
           />
@@ -672,7 +672,7 @@ const GroupRow = React.memo(function GroupRow({
             groupAdmin={group.admin}
             policyAddress={group.policies[0]?.address ?? ''}
             address={address ?? ''}
-            onUpdate={refetch}
+            onUpdate={() => refetch()}
             setShowMemberManagementModal={show => setShowMembers(show)}
             showMemberManagementModal={showMembers}
           />

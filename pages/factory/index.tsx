@@ -1,6 +1,6 @@
 import { useChain } from '@cosmos-kit/react';
 import Link from 'next/link';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { FactoryIcon, SearchIcon, WalletNotConnected } from '@/components';
 import { SEO } from '@/components';
@@ -24,16 +24,10 @@ interface PageSizeConfig {
 export default function Factory() {
   const { address, isWalletConnected } = useChain(env.chain);
   const isMobile = useIsMobile();
-  const { denoms, isDenomsLoading, isDenomsError, refetchDenoms } = useTokenFactoryDenomsFromAdmin(
-    address ?? ''
-  );
-  const { metadatas, isMetadatasLoading, isMetadatasError, refetchMetadatas } =
-    useTokenFactoryDenomsMetadata();
-  const { balances, isBalancesLoading, isBalancesError, refetchBalances } = useTokenBalances(
-    address ?? ''
-  );
-  const { totalSupply, isTotalSupplyLoading, isTotalSupplyError, refetchTotalSupply } =
-    useTotalSupply();
+  const { denoms, isDenomsLoading, isDenomsError } = useTokenFactoryDenomsFromAdmin(address ?? '');
+  const { metadatas, isMetadatasLoading, isMetadatasError } = useTokenFactoryDenomsMetadata();
+  const { balances, isBalancesLoading, isBalancesError } = useTokenBalances(address ?? '');
+  const { totalSupply, isTotalSupplyLoading, isTotalSupplyError } = useTotalSupply();
 
   const sizeLookup: Array<{ height: number; width: number; sizes: PageSizeConfig }> = [
     {
@@ -72,13 +66,6 @@ export default function Factory() {
   const isLoading =
     isDenomsLoading || isMetadatasLoading || isBalancesLoading || isTotalSupplyLoading;
   const isError = isDenomsError || isMetadatasError || isBalancesError || isTotalSupplyError;
-
-  const refetchData = () => {
-    refetchDenoms();
-    refetchMetadatas();
-    refetchBalances();
-    refetchTotalSupply();
-  };
 
   const combinedData = useMemo(() => {
     if (denoms?.denoms && metadatas?.metadatas && balances && totalSupply) {
@@ -150,7 +137,6 @@ export default function Factory() {
                     <DenomList
                       denoms={combinedData}
                       isLoading={isLoading}
-                      refetchDenoms={refetchData}
                       pageSize={denomListPageSize}
                       address={address ?? ''}
                       admin={address ?? ''}

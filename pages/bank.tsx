@@ -79,7 +79,6 @@ export default function Bank() {
     totalPages,
     isLoading: txLoading,
     isError,
-    refetch: refetchHistory,
   } = useGetMessagesFromAddress(env.indexerUrl, address ?? '', currentPage, historyPageSize);
 
   const combinedBalances = useMemo(() => {
