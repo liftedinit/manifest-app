@@ -169,7 +169,7 @@ export function GroupInfo({
     <Dialog
       open={showInfoModal}
       onClose={() => setShowInfoModal(false)}
-      className={`modal ${showInfoModal ? 'modal-open' : ''} fixed flex p-0 m-0`}
+      className={`modal modal-open fixed flex p-0 m-0`}
       style={{
         height: '100vh',
         width: '100vw',
