@@ -9,13 +9,21 @@ export const MAXIMUM_GROUP_METADATA_JSON_LENGTH = 100_000;
 /**
  * Converts and validates a JSON string as a group metadata object.
  * @param json The JSON string to convert.
+ * @param throws If true, throws an error if the JSON string is invalid or does not match the
+ *               schema, otherwise would return `undefined`.
  * @returns The group metadata object.
  * @throws If the JSON string is invalid or does not match the schema.
  */
-export function metadataFromJson(json: string): GroupMetadata {
+export function metadataFromJson(json: string, throws?: true): GroupMetadata;
+export function metadataFromJson(json: string, throws: false): GroupMetadata | undefined;
+export function metadataFromJson(json: string, throws: boolean = true): GroupMetadata | undefined {
   try {
     return metadataSchema.validateSync(JSON.parse(json));
   } catch (e: any) {
+    if (!throws) {
+      return undefined;
+    }
+
     // If the error is due to duplicate authors, remove duplicates and try again.
     if (e instanceof Yup.ValidationError && e.type === 'array-unique-items') {
       const x = JSON.parse(json);
