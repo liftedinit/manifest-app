@@ -10,13 +10,14 @@ import { useGroupsByMember, useProposalsByPolicyAccountAll } from '@/hooks';
 
 export default function Groups() {
   const { address, isWalletConnected } = useChain(env.chain);
-  const { groupByMemberData, isGroupByMemberLoading, isGroupByMemberError, refetchGroupByMember } =
-    useGroupsByMember(address ?? '');
+  const { groupByMemberData, isGroupByMemberLoading, isGroupByMemberError } = useGroupsByMember(
+    address ?? ''
+  );
 
   const groupPolicyAddresses =
     groupByMemberData?.groups?.map(group => group.policies[0].address) ?? [];
 
-  const { proposalsByPolicyAccount, isProposalsError, isProposalsLoading, refetchProposals } =
+  const { proposalsByPolicyAccount, isProposalsError, isProposalsLoading } =
     useProposalsByPolicyAccountAll(groupPolicyAddresses ?? []);
 
   const isLoading = isGroupByMemberLoading || isProposalsLoading;
@@ -37,7 +38,6 @@ export default function Groups() {
               groups={groupByMemberData ?? { groups: [] }}
               proposals={proposalsByPolicyAccount}
               isLoading={isLoading}
-              refetch={refetchGroupByMember || refetchProposals}
             />
           ) : isError ? (
             <div className="text-center text-error">Error loading groups or proposals</div>
@@ -48,7 +48,6 @@ export default function Groups() {
               groups={groupByMemberData ?? { groups: [] }}
               proposals={proposalsByPolicyAccount}
               isLoading={isLoading}
-              refetch={refetchGroupByMember || refetchProposals}
             />
           )}
         </div>

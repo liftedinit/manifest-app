@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
@@ -13,13 +14,10 @@ import useIsMobile from '@/hooks/useIsMobile';
 import { ExtendedMetadataSDKType, formatTokenDisplay, shiftDigits, truncateString } from '@/utils';
 
 import { DenomDisplay } from './DenomDisplay';
-import { DenomImage } from './DenomImage';
 
 type DenomListProps = {
   denoms: ExtendedMetadataSDKType[];
   isLoading: boolean;
-  refetchDenoms: () => void;
-  refetchProposals?: () => void;
   address: string;
   pageSize: number;
   isGroup?: boolean;
@@ -30,8 +28,6 @@ type DenomListProps = {
 export default function DenomList({
   denoms,
   isLoading,
-  refetchDenoms,
-  refetchProposals,
   address,
   pageSize,
   isGroup = false,
@@ -40,9 +36,9 @@ export default function DenomList({
 }: Readonly<DenomListProps>) {
   const [currentPage, setCurrentPage] = useState(1);
   const [openUpdateDenomMetadataModal, setOpenUpdateDenomMetadataModal] = useState(false);
-  const [openTransferDenomModal, setOpenTransferDenomModal] = useState(false);
-  const isMobile = useIsMobile();
 
+  const isMobile = useIsMobile();
+  const queryClient = useQueryClient();
   const router = useRouter();
   const [selectedDenom, setSelectedDenom] = useState<ExtendedMetadataSDKType | null>(null);
   const [modalType, setModalType] = useState<
@@ -59,15 +55,7 @@ export default function DenomList({
     currentPage * pageSize
   );
 
-  const getBaseUrl = () => {
-    if (isGroup) {
-      return `/groups?policyAddress=${admin}&tab=tokens`;
-    }
-    return '/factory';
-  };
-
   const updateUrlWithModal = (action: string, denomBase?: string) => {
-    const baseUrl = getBaseUrl();
     const query: Record<string, string> = isGroup ? { policyAddress: admin, tab: 'tokens' } : {};
 
     if (action) query.action = action;
@@ -88,13 +76,6 @@ export default function DenomList({
       setSelectedDenom(denom);
       setModalType('info');
       updateUrlWithModal('info', denom.base);
-    }
-  };
-
-  const refetch = () => {
-    refetchDenoms();
-    if (refetchProposals) {
-      refetchProposals();
     }
   };
 
@@ -120,9 +101,6 @@ export default function DenomList({
           if (action === 'update') {
             setOpenUpdateDenomMetadataModal(true);
           }
-          if (action === 'transfer') {
-            setOpenTransferDenomModal(true);
-          }
         } else {
           setModalType('info');
         }
@@ -137,22 +115,14 @@ export default function DenomList({
     setSelectedDenom(null);
     setModalType(null);
     setOpenUpdateDenomMetadataModal(false);
-    setOpenTransferDenomModal(false);
     updateUrlWithModal('');
   };
 
   const handleUpdateModalClose = () => {
     setSelectedDenom(null);
     setOpenUpdateDenomMetadataModal(false);
-    setOpenTransferDenomModal(false);
     setModalType(null);
     updateUrlWithModal('');
-  };
-
-  const handleUpdateModal = (denom: ExtendedMetadataSDKType) => {
-    setSelectedDenom(denom);
-    setOpenUpdateDenomMetadataModal(true);
-    updateUrlWithModal('update', denom.base);
   };
 
   const handleTransferModal = (denom: ExtendedMetadataSDKType, e: React.MouseEvent) => {
@@ -160,7 +130,6 @@ export default function DenomList({
     e.stopPropagation();
     setSelectedDenom(denom);
     setModalType('transfer');
-    setOpenTransferDenomModal(true);
     updateUrlWithModal('transfer', denom.base);
   };
 
@@ -196,6 +165,38 @@ export default function DenomList({
     setSelectedDenom(denom);
     setOpenUpdateDenomMetadataModal(true);
     updateUrlWithModal('update', denom.base);
+  };
+
+  const queryInvalidations = ({
+    all = false,
+    metadata = false,
+    amount = false,
+    proposal = false,
+  }: {
+    all?: boolean;
+    metadata?: boolean;
+    amount?: boolean;
+    proposal?: boolean;
+  }) => {
+    const queryKeys = new Set<string>();
+
+    if (all || metadata) {
+      queryKeys.add('allMetadatas');
+      queryKeys.add('denoms');
+    }
+
+    if (all || amount) {
+      queryKeys.add('balances');
+      queryKeys.add('totalSupply');
+    }
+
+    if (all || proposal) {
+      queryKeys.add('proposalInfo');
+    }
+
+    queryKeys.forEach(key => {
+      queryClient.invalidateQueries({ queryKey: [key] });
+    });
   };
 
   return (
@@ -391,7 +392,6 @@ export default function DenomList({
         openDenomInfoModal={modalType === 'info'}
         setOpenDenomInfoModal={open => {
           if (!open) {
-            refetch();
             handleCloseModal();
           }
         }}
@@ -402,8 +402,7 @@ export default function DenomList({
         admin={admin}
         denom={modalType === 'mint' ? selectedDenom : null}
         address={address}
-        refetch={refetch}
-        balance={selectedDenom?.balance ?? '0'}
+        refetch={() => queryInvalidations({ all: true })}
         totalSupply={selectedDenom?.totalSupply ?? '0'}
         isOpen={modalType === 'mint'}
         onClose={handleCloseModal}
@@ -413,30 +412,29 @@ export default function DenomList({
         admin={admin}
         denom={selectedDenom}
         address={address}
-        refetch={refetch}
         balance={selectedDenom?.balance ?? '0'}
         totalSupply={selectedDenom?.totalSupply ?? '0'}
         isOpen={modalType === 'burn'}
         onClose={handleCloseModal}
         isGroup={isGroup}
+        refetch={() => queryInvalidations({ all: true })}
       />
       <UpdateDenomMetadataModal
         isOpen={openUpdateDenomMetadataModal}
         onClose={handleUpdateModalClose}
         denom={selectedDenom}
         address={address}
-        modalId="update-denom-metadata-modal"
-        onSuccess={refetchDenoms}
         admin={admin}
         isGroup={isGroup}
+        refetch={() => queryInvalidations({ metadata: true, proposal: true })}
       />
       <TransferModal
         denom={selectedDenom}
         address={address}
         isOpen={modalType === 'transfer'}
         onClose={handleModalClose}
-        onSuccess={() => {
-          refetch();
+        refetch={() => {
+          queryInvalidations({ metadata: true, proposal: true });
           handleModalClose();
         }}
         admin={admin}
@@ -461,8 +459,6 @@ function TokenRow({
   onTransfer: (e: React.MouseEvent) => void;
   onUpdate: () => void;
 }) {
-  const isMobile = useIsMobile();
-
   // Add safety checks for the values
   const exponent = denom?.denom_units?.[1]?.exponent ?? 0;
   const totalSupply = denom?.totalSupply ?? '0';

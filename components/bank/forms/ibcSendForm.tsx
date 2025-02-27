@@ -2,10 +2,10 @@ import { useChain } from '@cosmos-kit/react';
 import { cosmos, ibc } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgTransfer } from '@liftedinit/manifestjs/dist/codegen/ibc/applications/transfer/v1/tx';
+import { useQueryClient } from '@tanstack/react-query';
 import { Form, Formik } from 'formik';
 import Image from 'next/image';
 import React, { useEffect, useMemo, useState } from 'react';
-import { MdContacts } from 'react-icons/md';
 import { PiCaretDownBold } from 'react-icons/pi';
 
 import { IbcChain, MaxButton } from '@/components';
@@ -25,11 +25,8 @@ import Yup from '@/utils/yupExtensions';
 //TODO: switch to main-net names
 export default function IbcSendForm({
   address,
-  destinationChain,
   balances,
   isBalancesLoading,
-  refetchBalances,
-  refetchHistory,
   isIbcTransfer,
   ibcChains,
   selectedFromChain,
@@ -38,16 +35,12 @@ export default function IbcSendForm({
   setSelectedToChain,
   selectedDenom,
   isGroup,
-  refetchProposals,
   admin,
   availableToChains,
 }: Readonly<{
   address: string;
-  destinationChain: IbcChain;
   balances: CombinedBalanceInfo[];
   isBalancesLoading: boolean;
-  refetchBalances: () => void | Promise<void>;
-  refetchHistory: () => void | Promise<void>;
   isIbcTransfer: boolean;
   ibcChains: IbcChain[];
   isGroup?: boolean;
@@ -56,7 +49,6 @@ export default function IbcSendForm({
   selectedToChain: IbcChain;
   setSelectedToChain: (selectedChain: IbcChain) => void;
   selectedDenom?: string;
-  refetchProposals?: () => void;
   admin?: string;
   availableToChains: IbcChain[];
 }>) {
@@ -71,7 +63,7 @@ export default function IbcSendForm({
   const { estimateFee } = useFeeEstimation(env.chain);
   const { setToastMessage } = useToast();
   const skipClient = useSkipClient({ getCosmosSigner: async () => getOfflineSignerAmino() });
-
+  const queryClient = useQueryClient();
   // Constants
   const explorerUrl =
     selectedFromChain.id === env.osmosisChain ? env.osmosisExplorerUrl : env.explorerUrl;
@@ -238,7 +230,9 @@ export default function IbcSendForm({
             },
             onTransactionCompleted: async (chainID, txHash, status) => {
               if (status.state === 'STATE_COMPLETED_SUCCESS') {
-                await Promise.all([refetchBalances(), refetchHistory()]);
+                queryClient.invalidateQueries({ queryKey: ['balances'] });
+                queryClient.invalidateQueries({ queryKey: ['balances-resolved'] });
+                queryClient.invalidateQueries({ queryKey: ['getMessagesForAddress'] });
               }
 
               setToastMessage({
@@ -312,9 +306,10 @@ export default function IbcSendForm({
           memo: values.memo,
           fee,
           onSuccess: () => {
-            refetchBalances();
-            refetchHistory();
-            refetchProposals?.();
+            queryClient.invalidateQueries({ queryKey: ['balances'] });
+            queryClient.invalidateQueries({ queryKey: ['balances-resolved'] });
+            queryClient.invalidateQueries({ queryKey: ['getMessagesForAddress'] });
+            queryClient.invalidateQueries({ queryKey: ['proposalInfo'] });
           },
         });
       }

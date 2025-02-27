@@ -21,22 +21,16 @@ export default function SendForm({
   address,
   balances,
   isBalancesLoading,
-  refetchBalances,
-  refetchHistory,
   selectedDenom,
   isGroup,
   admin,
-  refetchProposals,
 }: Readonly<{
   address: string;
   balances: CombinedBalanceInfo[];
   isBalancesLoading: boolean;
-  refetchBalances: () => void;
-  refetchHistory: () => void;
   selectedDenom?: string;
   isGroup?: boolean;
   admin?: string;
-  refetchProposals?: () => void;
 }>) {
   const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -153,19 +147,10 @@ export default function SendForm({
         memo: values.memo,
         fee,
         onSuccess: () => {
-          refetchBalances();
-          refetchHistory();
-          refetchProposals?.();
-          queryClient.invalidateQueries({
-            predicate: query => {
-              return ['balanceInfo'].includes(query.queryKey[0] as string);
-            },
-          });
-          queryClient.invalidateQueries({
-            predicate: query => {
-              return ['balances'].includes(query.queryKey[0] as string);
-            },
-          });
+          queryClient.invalidateQueries({ queryKey: ['balances'] });
+          queryClient.invalidateQueries({ queryKey: ['balances-resolved'] });
+          queryClient.invalidateQueries({ queryKey: ['getMessagesForAddress'] });
+          queryClient.invalidateQueries({ queryKey: ['proposalInfo'] });
         },
       });
     } catch (error) {

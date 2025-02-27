@@ -2,6 +2,7 @@ import { Dialog } from '@headlessui/react';
 import { cosmos, osmosis } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgSetDenomMetadata } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+import { useQueryClient } from '@tanstack/react-query';
 import { Form, Formik } from 'formik';
 import React from 'react';
 
@@ -35,22 +36,18 @@ export default function UpdateDenomMetadataModal({
   onClose,
   denom,
   address,
-  modalId,
-  onSuccess,
   admin,
+  refetch,
   isGroup,
 }: {
   isOpen: boolean;
   onClose: () => void;
   denom: ExtendedMetadataSDKType | null;
   address: string;
-  modalId: string;
-  onSuccess: () => void;
   admin: string;
   isGroup?: boolean;
+  refetch: () => void;
 }) {
-  const { refetchProposals } = useProposalsByPolicyAccount(admin);
-
   const baseDenom = denom?.base?.split('/').pop() || '';
   const fullDenom = `factory/${address}/${baseDenom}`;
   const symbol = baseDenom.slice(1).toUpperCase();
@@ -74,7 +71,7 @@ export default function UpdateDenomMetadataModal({
   const { estimateFee } = useFeeEstimation(env.chain);
   const { setDenomMetadata } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
-
+  const queryClient = useQueryClient();
   const handleUpdate = async (values: TokenFormData, resetForm: () => void) => {
     const symbol = values.display.toUpperCase();
     try {
@@ -129,10 +126,6 @@ export default function UpdateDenomMetadataModal({
       await tx([msg], {
         fee,
         onSuccess: () => {
-          if (isGroup) {
-            refetchProposals();
-          }
-          onSuccess();
           onClose();
         },
       });

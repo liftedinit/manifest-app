@@ -2,9 +2,9 @@ import { Dialog } from '@headlessui/react';
 import { cosmos } from '@liftedinit/manifestjs';
 import { MsgSoftwareUpgrade } from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
+import { useQueryClient } from '@tanstack/react-query';
 import { Form, Formik } from 'formik';
-import React, { useEffect, useMemo, useState } from 'react';
-import { createPortal } from 'react-dom';
+import React, { useMemo, useState } from 'react';
 import { PiCaretDownBold } from 'react-icons/pi';
 
 import { SearchIcon } from '@/components/icons';
@@ -19,7 +19,6 @@ interface BaseModalProps {
   onClose: () => void;
   admin: string;
   address: string;
-  refetchPlan: () => void;
 }
 
 interface UpgradeInfo {
@@ -73,10 +72,10 @@ const UpgradeSchema = Yup.object().shape({
     ),
 });
 
-export function UpgradeModal({ isOpen, onClose, admin, address, refetchPlan }: BaseModalProps) {
+export function UpgradeModal({ isOpen, onClose, admin, address }: BaseModalProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const { releases, isReleasesLoading } = useGitHubReleases();
-
+  const queryClient = useQueryClient();
   const { blockHeight } = useBlockHeight();
 
   // Filter releases that are upgradeable
@@ -155,7 +154,7 @@ export function UpgradeModal({ isOpen, onClose, admin, address, refetchPlan }: B
     await tx([groupProposalMsg], {
       fee,
       onSuccess: () => {
-        refetchPlan();
+        queryClient.invalidateQueries({ queryKey: ['currentPlan'] });
       },
     });
   };

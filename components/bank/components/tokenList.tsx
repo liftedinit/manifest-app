@@ -1,38 +1,23 @@
-import { ChainContext } from '@cosmos-kit/core';
 import React, { useEffect, useMemo, useState } from 'react';
 
 import SendModal from '@/components/bank/modals/sendModal';
-import { DenomDisplay, DenomImage, DenomInfoModal } from '@/components/factory';
-import { QuestionIcon, SendTxIcon, VerifiedIcon } from '@/components/icons';
+import { DenomDisplay, DenomInfoModal } from '@/components/factory';
+import { QuestionIcon, SendTxIcon } from '@/components/icons';
 import { shiftDigits, truncateString } from '@/utils';
 import { CombinedBalanceInfo } from '@/utils/types';
 
 interface TokenListProps {
   balances: CombinedBalanceInfo[] | undefined;
   isLoading: boolean;
-  refetchBalances: () => void;
-  refetchHistory: () => void;
   address: string;
   pageSize: number;
   isGroup?: boolean;
   admin?: string;
-  refetchProposals?: () => void;
   searchTerm?: string;
 }
 
 export const TokenList = React.memo(function TokenList(props: Readonly<TokenListProps>) {
-  const {
-    balances,
-    isLoading,
-    refetchBalances,
-    refetchHistory,
-    address,
-    pageSize,
-    isGroup,
-    admin,
-    refetchProposals,
-    searchTerm = '',
-  } = props;
+  const { balances, isLoading, address, pageSize, isGroup, admin, searchTerm = '' } = props;
   const [selectedDenomBase, setSelectedDenomBase] = useState<any>(null);
   const [isSendModalOpen, setIsSendModalOpenHook] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -232,14 +217,11 @@ export const TokenList = React.memo(function TokenList(props: Readonly<TokenList
         address={address}
         balances={balances ?? ([] as CombinedBalanceInfo[])}
         isBalancesLoading={isLoading}
-        refetchBalances={refetchBalances}
-        refetchHistory={refetchHistory}
         selectedDenom={selectedDenomBase}
         isOpen={isSendModalOpen}
         setOpen={setIsSendModalOpen}
         isGroup={isGroup}
         admin={admin}
-        refetchProposals={refetchProposals}
       />
     </div>
   );

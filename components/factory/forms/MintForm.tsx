@@ -17,20 +17,18 @@ export default function MintForm({
   isAdmin,
   denom,
   address,
-  refetch,
-  balance,
   totalSupply,
   isGroup,
+  refetch,
   admin,
 }: Readonly<{
   isAdmin: boolean;
   denom: ExtendedMetadataSDKType;
   address: string;
-  refetch: () => void;
-  balance: string;
   totalSupply: string;
   isGroup?: boolean;
   admin?: string;
+  refetch: () => void;
 }>) {
   const [amount, setAmount] = useState('');
   const [recipient, setRecipient] = useState(address || '');
@@ -95,10 +93,6 @@ export default function MintForm({
         onSuccess: () => {
           setAmount('');
           refetch();
-          queryClient.invalidateQueries({ queryKey: ['allMetadatas'] });
-          queryClient.invalidateQueries({ queryKey: ['denoms'] });
-          queryClient.invalidateQueries({ queryKey: ['balances'] });
-          queryClient.invalidateQueries({ queryKey: ['totalSupply'] });
         },
       });
     } catch (error) {

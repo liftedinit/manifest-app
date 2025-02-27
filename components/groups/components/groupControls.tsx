@@ -38,12 +38,6 @@ type GroupControlsProps = {
   isError: boolean;
   balances: CombinedBalanceInfo[];
   denoms: ExtendedMetadataSDKType[];
-  denomLoading: boolean;
-  isDenomError: boolean;
-  refetchBalances: () => void;
-  refetchHistory: () => Promise<unknown>;
-  refetchDenoms: () => Promise<unknown>;
-  refetchGroupInfo: () => Promise<unknown>;
   pageSize: number;
   skeletonGroupCount: number;
   skeletonTxCount: number;
@@ -64,19 +58,13 @@ export default function GroupControls({
   isError,
   balances,
   denoms,
-  denomLoading,
-  isDenomError,
-  refetchBalances,
-  refetchHistory,
-  refetchDenoms,
-  refetchGroupInfo,
   pageSize,
   skeletonGroupCount,
   skeletonTxCount,
   proposalPageSize = 10,
 }: GroupControlsProps) {
   const isMobile = useIsMobile();
-  const { proposals, isProposalsLoading, isProposalsError, refetchProposals } =
+  const { proposals, isProposalsLoading, isProposalsError } =
     useProposalsByPolicyAccount(policyAddress);
 
   const [selectedProposalId, setSelectedProposalId] = useState<bigint | undefined>(undefined);
@@ -541,13 +529,10 @@ export default function GroupControls({
             <TokenList
               balances={balances}
               isLoading={isLoading}
-              refetchBalances={refetchBalances}
-              refetchHistory={refetchHistory}
               address={address ?? ''}
               pageSize={pageSize}
               isGroup={true}
               admin={policyAddress}
-              refetchProposals={refetchProposals}
             />
           )}
         </div>
@@ -568,7 +553,6 @@ export default function GroupControls({
               totalPages={totalPages}
               txLoading={txLoading}
               isError={isError}
-              refetch={refetchHistory}
               skeletonGroupCount={skeletonGroupCount}
               skeletonTxCount={skeletonTxCount}
             />
@@ -586,8 +570,6 @@ export default function GroupControls({
               <DenomList
                 denoms={denoms}
                 isLoading={isLoading}
-                refetchDenoms={refetchDenoms}
-                refetchProposals={refetchProposals}
                 address={address ?? ''}
                 admin={policyAddress}
                 pageSize={pageSize - 1}

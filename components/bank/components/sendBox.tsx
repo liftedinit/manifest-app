@@ -19,19 +19,13 @@ export default React.memo(function SendBox({
   address,
   balances,
   isBalancesLoading,
-  refetchBalances,
-  refetchHistory,
   selectedDenom,
   isGroup,
   admin,
-  refetchProposals,
 }: {
   address: string;
   balances: CombinedBalanceInfo[];
   isBalancesLoading: boolean;
-  refetchBalances: () => void;
-  refetchHistory: () => void;
-  refetchProposals?: () => void;
   selectedDenom?: string;
   isGroup?: boolean;
   admin?: string;
@@ -130,15 +124,11 @@ export default React.memo(function SendBox({
                 selectedToChain={selectedToChain}
                 setSelectedToChain={setSelectedToChain}
                 address={address}
-                destinationChain={selectedToChain}
                 balances={balances}
                 isBalancesLoading={isBalancesLoading}
-                refetchBalances={refetchBalances}
-                refetchHistory={refetchHistory}
                 selectedDenom={selectedDenom}
                 isGroup={isGroup}
                 admin={admin}
-                refetchProposals={refetchProposals}
                 availableToChains={getAvailableToChains}
               />
             ) : (
@@ -146,12 +136,9 @@ export default React.memo(function SendBox({
                 address={address}
                 balances={balances}
                 isBalancesLoading={isBalancesLoading}
-                refetchBalances={refetchBalances}
-                refetchHistory={refetchHistory}
                 selectedDenom={selectedDenom}
                 isGroup={isGroup}
                 admin={admin}
-                refetchProposals={refetchProposals}
               />
             )}
           </div>
