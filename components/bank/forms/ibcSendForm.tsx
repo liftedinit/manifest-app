@@ -277,7 +277,7 @@ export default function IbcSendForm({
   };
   const initialValue: sendForm.SendForm = {
     recipient: '',
-    amount: 0,
+    amount: '',
     selectedToken: initialSelectedToken,
     memo: '',
   };
@@ -464,8 +464,11 @@ export default function IbcSendForm({
                   <div className="relative">
                     <AmountInput
                       name="amount"
+                      className="pr-[11rem]"
                       value={values.amount}
-                      onValueChange={v => setFieldValue('amount', v)}
+                      onValueChange={value => {
+                        setFieldValue('amount', value?.toFixed());
+                      }}
                     />
                     <div className="absolute inset-y-1 right-1 flex items-center">
                       <div className="dropdown dropdown-end h-full">

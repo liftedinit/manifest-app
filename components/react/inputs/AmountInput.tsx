@@ -1,8 +1,9 @@
+import BigNumber from 'bignumber.js';
 import React from 'react';
 
 export interface AmountInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   value: string | number | undefined;
-  onValueChange: (newAmount: number | undefined) => void;
+  onValueChange: (newAmount: BigNumber | undefined) => void;
 }
 
 /**
@@ -11,10 +12,16 @@ export interface AmountInputProps extends React.InputHTMLAttributes<HTMLInputEle
  * @param value The current value of the input field.
  * @param onValueChange A callback that is called when the value of the input field
  *                      changes, with the new amount.
+ * @param className Additional classes to apply to the input field.
  * @param props Additional props to pass to the input field.
  * @constructor
  */
-export const AmountInput: React.FC<AmountInputProps> = ({ value, onValueChange, ...props }) => {
+export const AmountInput: React.FC<AmountInputProps> = ({
+  value,
+  onValueChange,
+  className,
+  ...props
+}) => {
   const [internalValue, setInternalValue] = React.useState<string>(
     value === undefined ? '' : value.toString()
   );
@@ -38,23 +45,20 @@ export const AmountInput: React.FC<AmountInputProps> = ({ value, onValueChange, 
       return;
     }
 
-    const newValue = /^\d*\.?\d*$/.test(v) ? parseFloat(v) : NaN;
-    // Smaller than Number.MAX_SAFE_INTEGER to avoid rounding errors.
-    if (Number.isFinite(newValue) && newValue < Number.MAX_SAFE_INTEGER) {
+    const newValue = /^\d*\.?\d*$/.test(v) ? new BigNumber(v) : null;
+
+    if (newValue !== null) {
       setInternalValue(v);
       onValueChange(newValue);
-    } else if (internalValue !== '') {
-      onValueChange(parseFloat(internalValue));
     } else {
-      onValueChange(undefined);
+      onValueChange(internalValue === '' ? undefined : new BigNumber(internalValue));
     }
   }
 
   return (
     <input
-      className="input input-md border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full pr-24 dark:text-[#FFFFFF] text-[#161616] rounded-xl"
+      className={`input input-md border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full pr-24 dark:text-[#FFFFFF] text-[#161616] rounded-xl ${className}`}
       type="text"
-      inputMode="decimal"
       placeholder="0.00"
       min={0}
       value={internalValue}

@@ -1,5 +1,14 @@
-import { CombinedBalanceInfo, MFX_TOKEN_BASE, isValidManifestAddress } from '@/utils';
+import BigNumber from 'bignumber.js';
+
+import { MFX_TOKEN_BASE } from '@/utils';
 import Yup from '@/utils/yupExtensions';
+
+function amountToBN(amount: string, selectedToken: any) {
+  const exponent = selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
+  return new BigNumber(amount).div(Math.pow(10, exponent));
+}
+
+const MIN_FEE_BUFFER = 0.09;
 
 export const schema = Yup.object().shape({
   recipient: Yup.string()
@@ -9,17 +18,20 @@ export const schema = Yup.object().shape({
       if (!value) return true;
       return value.startsWith('manifest');
     }),
-  amount: Yup.number()
+  amount: Yup.string()
+    .matches(/^\d*(\.\d*)?$/, 'Amount must be a number')
     .required('Amount is required')
-    .positive('Amount must be positive')
+    .test('is-greater-than-zero', 'Amount must be greater than zero', function (value) {
+      return new BigNumber(value || 0).gt(0);
+    })
     .test('sufficient-balance', 'Amount exceeds balance', function (value) {
       const { selectedToken } = this.parent;
       if (!selectedToken || !value) return true;
 
-      const exponent = selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-      const balance = parseFloat(selectedToken.amount) / Math.pow(10, exponent);
+      const valueBN = new BigNumber(value);
+      const balance = amountToBN(selectedToken.amount, selectedToken);
 
-      return value <= balance;
+      return valueBN.lte(balance);
     }),
 
   // TODO: Use the proper type (CombinedBalanceInfo) for selectedToken.
@@ -33,11 +45,11 @@ export const schema = Yup.object().shape({
         return true;
       }
 
-      const exponent = selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-      const balance = parseFloat(selectedToken.amount) / Math.pow(10, exponent);
+      const amountBN = new BigNumber(amount, selectedToken);
+      const balance = amountToBN(selectedToken.amount, selectedToken);
 
       const MIN_FEE_BUFFER = 0.09;
-      const hasInsufficientBuffer = amount > balance - MIN_FEE_BUFFER;
+      const hasInsufficientBuffer = amount.gt(balance.minus(MIN_FEE_BUFFER));
 
       return !hasInsufficientBuffer;
     }),

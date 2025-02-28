@@ -106,7 +106,7 @@ export default function SendForm({
 
   const initialValues: sendForm.SendForm = {
     recipient: '',
-    amount: 0,
+    amount: '',
     selectedToken: initialSelectedToken,
     memo: '',
   };
@@ -139,8 +139,11 @@ export default function SendForm({
                   <div className="relative">
                     <AmountInput
                       name="amount"
+                      className="pr-[11rem]"
                       value={values.amount}
-                      onValueChange={value => setFieldValue('amount', value)}
+                      onValueChange={value => {
+                        setFieldValue('amount', value?.toFixed());
+                      }}
                     />
 
                     <div className="absolute inset-y-1 right-1 flex items-center">
