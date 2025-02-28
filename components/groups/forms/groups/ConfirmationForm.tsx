@@ -82,9 +82,8 @@ export default function ConfirmationForm({
           typeUrl: typeUrl,
         },
       });
-      const fee = await estimateFee(address ?? '', [msg]);
       await tx([msg], {
-        fee,
+        fee: () => estimateFee(address ?? '', [msg]),
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: ['groupInfoByMember'] });
           nextStep();

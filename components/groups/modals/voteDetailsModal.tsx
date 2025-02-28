@@ -118,12 +118,11 @@ function VoteDetailsModal({
       exec: 0,
     });
 
-    const fee = await estimateFee(address ?? '', [msg]);
     try {
       await tx(
         [msg],
         {
-          fee,
+          fee: () => estimateFee(address ?? '', [msg]),
           onSuccess: () => {
             invalidateQueries();
           },
@@ -137,11 +136,10 @@ function VoteDetailsModal({
 
   const executeProposal = async () => {
     try {
-      const fee = await estimateFee(address ?? '', [msgExec]);
       await tx(
         [msgExec],
         {
-          fee,
+          fee: () => estimateFee(address ?? '', [msgExec]),
           onSuccess: () => {
             onClose();
             queryClient.invalidateQueries({ queryKey: ['proposalInfoAll', policyAddress] });
@@ -159,11 +157,10 @@ function VoteDetailsModal({
 
   const executeWithdrawal = async () => {
     try {
-      const fee = await estimateFee(address ?? '', [msgWithdraw]);
       await tx(
         [msgWithdraw],
         {
-          fee,
+          fee: () => estimateFee(address ?? '', [msgWithdraw]),
           onSuccess: () => {
             invalidateQueries();
           },

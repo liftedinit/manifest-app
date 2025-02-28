@@ -84,10 +84,8 @@ export default function TransferModal({
             newAdmin: values.newAdmin,
           });
 
-      const fee = await estimateFee(address, [msg]);
-
       await tx([msg], {
-        fee,
+        fee: () => estimateFee(address, [msg]),
         onSuccess: () => {
           refetch();
           handleCloseModal(resetForm);

@@ -137,11 +137,10 @@ export function GroupInfo({
         groupId: group?.id,
       });
 
-      const fee = await estimateFee(address, [msg]);
       await tx(
         [msg],
         {
-          fee,
+          fee: () => estimateFee(address, [msg]),
           onSuccess: () => {
             onUpdate();
             setShowInfoModal(false);

@@ -56,9 +56,8 @@ export function CancelUpgradeModal({ isOpen, onClose, admin, address, plan }: Ba
         exec: 0,
       });
 
-      const fee = await estimateFee(address ?? '', [groupProposalMsg]);
       await tx([groupProposalMsg], {
-        fee,
+        fee: () => estimateFee(address ?? '', [groupProposalMsg]),
         onSuccess: () => {
           onClose();
           queryClient.invalidateQueries({ queryKey: ['currentPlan'] });
