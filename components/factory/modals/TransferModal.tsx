@@ -23,7 +23,7 @@ export default function TransferModal({
   address,
   isOpen,
   onClose,
-  onSuccess,
+  refetch,
   admin,
   isGroup,
 }: {
@@ -31,7 +31,7 @@ export default function TransferModal({
   address: string;
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  refetch: () => void;
   admin: string;
   isGroup?: boolean;
 }) {
@@ -87,7 +87,7 @@ export default function TransferModal({
       await tx([msg], {
         fee: () => estimateFee(address, [msg]),
         onSuccess: () => {
-          onSuccess();
+          refetch();
           handleCloseModal(resetForm);
         },
       });

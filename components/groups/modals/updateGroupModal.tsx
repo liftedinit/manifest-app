@@ -207,10 +207,7 @@ export function UpdateGroupModal({
     >
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
 
-      <div
-        className="modal-box max-w-2xl bg-secondary rounded-[24px]"
-        onClick={e => e.stopPropagation()}
-      >
+      <Dialog.Panel className="modal-box max-w-2xl bg-secondary rounded-[24px]">
         <form method="dialog">
           <button
             onClick={() => setShowUpdateModal(false)}
@@ -232,7 +229,7 @@ export function UpdateGroupModal({
           setShowUpdateModal={setShowUpdateModal}
           isSigning={isSigning}
         />
-      </div>
+      </Dialog.Panel>
 
       <SignModal id="update-group-modal" />
     </Dialog>

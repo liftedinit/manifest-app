@@ -1,6 +1,7 @@
 import { cosmos } from '@liftedinit/manifestjs';
 import { ThresholdDecisionPolicy } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { Duration } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/duration';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { SignModal } from '@/components/react';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
@@ -41,7 +42,7 @@ export default function ConfirmationForm({
   }
   const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
-
+  const queryClient = useQueryClient();
   const minExecutionPeriod: Duration = {
     seconds: BigInt(0),
     nanos: 0,
@@ -60,8 +61,6 @@ export default function ConfirmationForm({
   const threshholdPolicy = ThresholdDecisionPolicy.encode(threshholdPolicyFromPartial).finish();
 
   const typeUrl = cosmos.group.v1.ThresholdDecisionPolicy.typeUrl;
-
-  const { refetchGroupByMember } = useGroupsByMember(address ?? '');
 
   const handleConfirm = async () => {
     try {
@@ -86,7 +85,7 @@ export default function ConfirmationForm({
       await tx([msg], {
         fee: () => estimateFee(address ?? '', [msg]),
         onSuccess: () => {
-          refetchGroupByMember();
+          queryClient.invalidateQueries({ queryKey: ['groupInfoByMember'] });
           nextStep();
         },
       });
