@@ -39,7 +39,8 @@ export const AmountInput: React.FC<AmountInputProps> = ({ value, onValueChange, 
     }
 
     const newValue = /^\d*\.?\d*$/.test(v) ? parseFloat(v) : NaN;
-    if (Number.isFinite(newValue)) {
+    // Smaller than Number.MAX_SAFE_INTEGER to avoid rounding errors.
+    if (Number.isFinite(newValue) && newValue < Number.MAX_SAFE_INTEGER) {
       setInternalValue(v);
       onValueChange(newValue);
     } else if (internalValue !== '') {
@@ -59,7 +60,7 @@ export const AmountInput: React.FC<AmountInputProps> = ({ value, onValueChange, 
       value={internalValue}
       onChange={onChange}
       onKeyDown={e => {
-        if (e.key.length === 1 && !/[\d.]/.test(e.key)) {
+        if (e.key.length === 1 && !/[\d.]/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey) {
           e.preventDefault();
         }
       }}

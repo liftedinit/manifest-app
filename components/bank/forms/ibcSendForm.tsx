@@ -126,7 +126,7 @@ export default function IbcSendForm({
     try {
       // Convert amount to base units
       const exponent = values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-      const amountInBaseUnits = parseNumberToBigInt('' + values.amount, exponent).toString();
+      const amountInBaseUnits = parseNumberToBigInt(values.amount.toString(), exponent).toString();
 
       // Get IBC channel info
       const { source_port, source_channel } = getIbcInfo(selectedFromChain.id, selectedToChain.id);

@@ -112,4 +112,37 @@ describe('AmountInput', () => {
     fireEvent.change(input, { target: { value: '.' } });
     expect(onValueChange).toHaveBeenCalledWith(undefined);
   });
+
+  test('returns the right amount when a number too high is used', () => {
+    const onValueChange = jest.fn();
+
+    render(
+      <TestForm>
+        <AmountInput name="test" value={42} onValueChange={onValueChange} />
+      </TestForm>
+    );
+
+    const input = screen.getByPlaceholderText('0.00');
+    fireEvent.change(input, { target: { value: '' + (Number.MAX_SAFE_INTEGER - 1) } });
+    expect(onValueChange).toHaveBeenCalledWith(Number.MAX_SAFE_INTEGER - 1);
+
+    onValueChange.mockClear();
+
+    fireEvent.change(input, { target: { value: '' + Number.MAX_SAFE_INTEGER + '123' } });
+    expect(onValueChange).toHaveBeenCalledWith(Number.MAX_SAFE_INTEGER - 1);
+  });
+
+  test('returns the same amount even if too many decimals are used', () => {
+    const onValueChange = jest.fn();
+
+    render(
+      <TestForm>
+        <AmountInput name="test" value={42} onValueChange={onValueChange} />
+      </TestForm>
+    );
+
+    const input = screen.getByPlaceholderText('0.00');
+    fireEvent.change(input, { target: { value: '0.1234567890123456789' } });
+    expect(onValueChange).toHaveBeenCalledWith(0.1234567890123456789);
+  });
 });
