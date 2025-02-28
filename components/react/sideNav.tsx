@@ -15,7 +15,7 @@ import {
   QuestionIcon,
 } from '@/components/icons';
 import env from '@/config/env';
-import { useTheme } from '@/contexts/theme';
+import { useTheme } from '@/contexts';
 import { useGroupsByAdmin } from '@/hooks';
 import { usePoaGetAdmin } from '@/hooks';
 import { getRealLogo } from '@/utils';
@@ -112,12 +112,12 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
           <input
             type="checkbox"
             className="theme-controller hidden"
+            value="dark"
             checked={theme === 'dark'}
-            value={theme}
             onChange={() => toggleTheme()}
           />
-          <LightIcon className="swap-on fill-current w-9 h-9 duration-300" />
-          <DarkIcon className="swap-off fill-current w-9 h-9 duration-300" />
+          <DarkIcon className="swap-on fill-current w-9 h-9 duration-300" />
+          <LightIcon className="swap-off fill-current w-9 h-9 duration-300" />
         </label>
         <div
           className="tooltip tooltip-top tooltip-primary hover:after:delay-1000 hover:before:delay-1000"
@@ -218,7 +218,8 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
             <label className="flex items-center justify-between w-full h-full cursor-pointer">
               <input
                 type="checkbox"
-                className="sr-only peer"
+                className="theme-controller hidden"
+                value="dark"
                 checked={theme === 'dark'}
                 onChange={() => toggleTheme()}
               />

@@ -16,7 +16,7 @@ import {
   QuestionIcon,
 } from '@/components/icons';
 import env from '@/config/env';
-import { useTheme } from '@/contexts/theme';
+import { useTheme } from '@/contexts';
 import { usePoaGetAdmin } from '@/hooks';
 import { useGroupsByAdmin } from '@/hooks';
 
@@ -103,7 +103,7 @@ export default function MobileNav() {
                   <input
                     type="checkbox"
                     className="theme-controller hidden"
-                    value={theme}
+                    value="dark"
                     checked={theme === 'dark'}
                     onChange={() => toggleTheme()}
                   />
