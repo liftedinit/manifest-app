@@ -3,7 +3,7 @@ import { afterEach, describe, expect, jest, test } from 'bun:test';
 import { Form, Formik } from 'formik';
 import React from 'react';
 
-import { AmountInput, NumberInput } from '@/components/react/inputs';
+import { AmountInput } from '@/components/react/inputs';
 
 const TestForm = ({ children }: { children: React.ReactNode }) => (
   <Formik initialValues={{ test: '' }} onSubmit={() => {}}>
@@ -44,7 +44,7 @@ describe('AmountInput', () => {
 
     const input = screen.getByPlaceholderText('0.00');
     fireEvent.change(input, { target: { value: '42.42' } });
-    expect(onValueChange).toHaveBeenCalledWith('42.42');
+    expect(onValueChange).toHaveBeenCalledWith(42.42);
   });
 
   test('calls onValueChange with an empty string when the input is empty', () => {
@@ -59,7 +59,7 @@ describe('AmountInput', () => {
 
     const input = screen.getByPlaceholderText('0.00');
     fireEvent.change(input, { target: { value: '' } });
-    expect(onValueChange).toHaveBeenCalledWith('');
+    expect(onValueChange).toHaveBeenCalledWith(undefined);
   });
 
   test('calls onValueChange with the same value when the input is invalid', () => {
@@ -74,7 +74,7 @@ describe('AmountInput', () => {
 
     const input = screen.getByPlaceholderText('0.00');
     fireEvent.change(input, { target: { value: '42.42.42' } });
-    expect(onValueChange).toHaveBeenCalledWith('42');
+    expect(onValueChange).toHaveBeenCalledWith(42);
   });
 
   test('calls onValueChange with the same value when the input is invalid (empty initial value)', () => {
@@ -89,13 +89,13 @@ describe('AmountInput', () => {
 
     const input = screen.getByPlaceholderText('0.00');
     fireEvent.change(input, { target: { value: '42.42.42' } });
-    expect(onValueChange).toHaveBeenCalledWith('');
+    expect(onValueChange).toHaveBeenCalledWith(undefined);
     onValueChange.mockClear();
     fireEvent.change(input, { target: { value: '1' } });
-    expect(onValueChange).toHaveBeenCalledWith('1');
+    expect(onValueChange).toHaveBeenCalledWith(1);
     onValueChange.mockClear();
     fireEvent.change(input, { target: { value: '1E+10' } });
-    expect(onValueChange).toHaveBeenCalledWith('');
+    expect(onValueChange).toHaveBeenCalledWith(1);
   });
 
   test('calls onValueChange when only a dot is present', () => {
@@ -110,6 +110,6 @@ describe('AmountInput', () => {
 
     const input = screen.getByPlaceholderText('0.00');
     fireEvent.change(input, { target: { value: '.' } });
-    expect(onValueChange).toHaveBeenCalledWith('.');
+    expect(onValueChange).toHaveBeenCalledWith(undefined);
   });
 });

@@ -96,9 +96,8 @@ export function MultiBurnModal({ isOpen, onClose, admin, address, denom }: Multi
         exec: 0,
       });
 
-      const fee = await estimateFee(address, [msg]);
       await tx([msg], {
-        fee,
+        fee: () => estimateFee(address, [msg]),
         onSuccess: () => {
           onClose();
         },

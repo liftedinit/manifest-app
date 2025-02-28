@@ -93,9 +93,8 @@ export function ValidatorDetailsModal({
       exec: 0,
     });
 
-    const fee = await estimateFee(userAddress ?? '', [groupProposalMsg]);
     await tx([groupProposalMsg], {
-      fee,
+      fee: () => estimateFee(userAddress ?? '', [groupProposalMsg]),
       onSuccess: () => {},
     });
   };

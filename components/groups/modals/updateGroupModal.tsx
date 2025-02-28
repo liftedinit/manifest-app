@@ -178,11 +178,10 @@ export function UpdateGroupModal({
         summary: 'Update Group',
       });
 
-      const fee = await estimateFee(address, [msg]);
       await tx(
         [msg],
         {
-          fee,
+          fee: () => estimateFee(address, [msg]),
           onSuccess: () => {
             onUpdate();
           },

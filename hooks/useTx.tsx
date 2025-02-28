@@ -1,11 +1,5 @@
-import {
-  DeliverTxResponse,
-  SigningStargateClient,
-  StdFee,
-  isDeliverTxSuccess,
-} from '@cosmjs/stargate';
+import { DeliverTxResponse, StdFee, isDeliverTxSuccess } from '@cosmjs/stargate';
 import { useChain } from '@cosmos-kit/react';
-import { StatusState } from '@skip-go/client';
 import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { useContext } from 'react';
 
@@ -19,27 +13,11 @@ interface Msg {
 }
 
 export interface TxOptions {
-  fee?: StdFee | null;
+  fee?: StdFee | (() => Promise<StdFee | undefined | null>) | null;
   memo?: string;
   onSuccess?: () => void;
   returnError?: boolean;
   simulate?: boolean;
-}
-
-export interface ToastMessage {
-  type: string;
-  title: string;
-  description?: string;
-  link?: string;
-  explorerLink?: string;
-  bgColor?: string;
-  isIbcTransfer?: boolean;
-  sourceChain?: string;
-  targetChain?: string;
-  sourceChainIcon?: string;
-  targetChainIcon?: string;
-  status?: StatusState;
-  duration?: number;
 }
 
 const extractSimulationErrorMessage = (errorMessage: string): string => {
@@ -99,7 +77,12 @@ export const useTx = (chainName: string) => {
       }
 
       // Get fee first and exit early if it fails
-      const fee = options.fee || (await estimateFee(msgs));
+      let fee = undefined;
+      if (options.fee) {
+        fee = typeof options.fee === 'function' ? await options.fee() : options.fee;
+      }
+      fee = fee ?? (await estimateFee(msgs));
+
       if (!fee) {
         setIsSigning(false);
         setPromptId(undefined);

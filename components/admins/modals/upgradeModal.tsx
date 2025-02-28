@@ -151,9 +151,8 @@ export function UpgradeModal({ isOpen, onClose, admin, address, refetchPlan }: B
       exec: 0,
     });
 
-    const fee = await estimateFee(address ?? '', [groupProposalMsg]);
     await tx([groupProposalMsg], {
-      fee,
+      fee: () => estimateFee(address ?? '', [groupProposalMsg]),
       onSuccess: () => {
         refetchPlan();
       },

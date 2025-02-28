@@ -1,8 +1,8 @@
 import React from 'react';
 
 export interface AmountInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  value: string;
-  onValueChange: (newAmount: string) => void;
+  value: string | number | undefined;
+  onValueChange: (newAmount: number | undefined) => void;
 }
 
 /**
@@ -15,26 +15,37 @@ export interface AmountInputProps extends React.InputHTMLAttributes<HTMLInputEle
  * @constructor
  */
 export const AmountInput: React.FC<AmountInputProps> = ({ value, onValueChange, ...props }) => {
+  const [internalValue, setInternalValue] = React.useState<string>(
+    value === undefined ? '' : value.toString()
+  );
+
+  const [lastValue, setLastValue] = React.useState<string | number | undefined>(value);
+
+  React.useEffect(() => {
+    if (value !== lastValue) {
+      setInternalValue(value === undefined ? '' : value.toString());
+      setLastValue(value);
+    }
+  }, [value, lastValue]);
+
   function onChange(event: React.ChangeEvent<HTMLInputElement>) {
     const v = event.target.value;
 
-    if (v === '') {
-      onValueChange('');
+    // Allow for `.` to be entered on its way to a real number.
+    if (v === '' || v === '.') {
+      setInternalValue(v);
+      onValueChange(undefined);
       return;
     }
-    if (v === '.') {
-      // Allow for `.` to be entered on its way to a real number.
-      onValueChange('.');
-      return;
-    }
-    const newValue = /^\d*\.?\d*$/.test(v) ? parseFloat(v) : NaN;
 
+    const newValue = /^\d*\.?\d*$/.test(v) ? parseFloat(v) : NaN;
     if (Number.isFinite(newValue)) {
-      onValueChange(v);
-    } else if (value !== '') {
-      onValueChange(value);
+      setInternalValue(v);
+      onValueChange(newValue);
+    } else if (internalValue !== '') {
+      onValueChange(parseFloat(internalValue));
     } else {
-      onValueChange('');
+      onValueChange(undefined);
     }
   }
 
@@ -45,8 +56,13 @@ export const AmountInput: React.FC<AmountInputProps> = ({ value, onValueChange, 
       inputMode="decimal"
       placeholder="0.00"
       min={0}
-      value={value}
+      value={internalValue}
       onChange={onChange}
+      onKeyDown={e => {
+        if (e.key.length === 1 && !/[\d.]/.test(e.key)) {
+          e.preventDefault();
+        }
+      }}
       {...props}
     />
   );

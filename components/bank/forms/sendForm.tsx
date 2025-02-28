@@ -13,9 +13,9 @@ import { TextInput } from '@/components/react/inputs';
 import { AddressInput } from '@/components/react/inputs/AddressInput';
 import env from '@/config/env';
 import { useFeeEstimation, useTx } from '@/hooks';
+import { sendForm } from '@/schemas';
 import { parseNumberToBigInt, shiftDigits, truncateString } from '@/utils';
 import { CombinedBalanceInfo } from '@/utils/types';
-import Yup from '@/utils/yupExtensions';
 
 export default function SendForm({
   address,
@@ -38,18 +38,16 @@ export default function SendForm({
   admin?: string;
   refetchProposals?: () => void;
 }>) {
-  const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [feeWarning, setFeeWarning] = useState('');
 
   const queryClient = useQueryClient();
 
-  const { tx } = useTx(env.chain);
+  const { isSigning, tx } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
   const { send } = cosmos.bank.v1beta1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
 
-  const filteredBalances = balances?.filter(token => {
+  const filteredBalances = balances.filter(token => {
     const displayName = token.metadata?.display ?? token.display;
     return displayName.toLowerCase().includes(searchTerm.toLowerCase());
   });
@@ -63,62 +61,12 @@ export default function SendForm({
     return null;
   }
 
-  const validationSchema = Yup.object().shape({
-    recipient: Yup.string()
-      .required('Recipient is required')
-      .manifestAddress()
-      .test(
-        'recipient-has-prefix',
-        'Recipient prefix must match recipient chain',
-        function (value) {
-          if (!value) return true;
-          return value.startsWith('manifest');
-        }
-      ),
-    amount: Yup.number()
-      .required('Amount is required')
-      .positive('Amount must be positive')
-      .test('sufficient-balance', 'Amount exceeds balance', function (value) {
-        const { selectedToken } = this.parent;
-        if (!selectedToken || !value) return true;
+  const validationSchema = sendForm.schema;
 
-        const exponent = selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-        const balance = parseFloat(selectedToken.amount) / Math.pow(10, exponent);
-
-        return value <= balance;
-      })
-      .test('leave-for-fees', '', function (value) {
-        const { selectedToken } = this.parent;
-        if (!selectedToken || !value || selectedToken.denom !== 'umfx') return true;
-
-        const exponent = selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-        const balance = parseFloat(selectedToken.amount) / Math.pow(10, exponent);
-
-        const MIN_FEE_BUFFER = 0.09;
-        const hasInsufficientBuffer = value > balance - MIN_FEE_BUFFER;
-
-        if (hasInsufficientBuffer) {
-          setFeeWarning('Remember to leave tokens for fees!');
-        } else {
-          setFeeWarning('');
-        }
-
-        return !hasInsufficientBuffer;
-      }),
-    selectedToken: Yup.object().required('Please select a token'),
-    memo: Yup.string().max(255, 'Memo must be less than 255 characters'),
-  });
-
-  const handleSend = async (values: {
-    recipient: string;
-    amount: string;
-    selectedToken: CombinedBalanceInfo;
-    memo: string;
-  }) => {
-    setIsSending(true);
+  const handleSend = async (values: sendForm.SendForm) => {
     try {
       const exponent = values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-      const amountInBaseUnits = parseNumberToBigInt(values.amount, exponent).toString();
+      const amountInBaseUnits = parseNumberToBigInt(values.amount.toString(), exponent).toString();
 
       const msg = isGroup
         ? submitProposal({
@@ -147,11 +95,9 @@ export default function SendForm({
             amount: [{ denom: values.selectedToken.base, amount: amountInBaseUnits }],
           });
 
-      const fee = await estimateFee(address, [msg]);
-
       await tx([msg], {
         memo: values.memo,
-        fee,
+        fee: () => estimateFee(address, [msg]),
         onSuccess: () => {
           refetchBalances();
           refetchHistory();
@@ -170,9 +116,14 @@ export default function SendForm({
       });
     } catch (error) {
       console.error('Error during sending:', error);
-    } finally {
-      setIsSending(false);
     }
+  };
+
+  const initialValues: sendForm.SendForm = {
+    recipient: '',
+    amount: 0,
+    selectedToken: initialSelectedToken,
+    memo: '',
   };
 
   return (
@@ -181,13 +132,7 @@ export default function SendForm({
       className="text-sm bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] px-6 pb-6 pt-4 w-full h-full animate-fadeIn duration-400"
     >
       <Formik
-        initialValues={{
-          recipient: '',
-          amount: '',
-          selectedToken: initialSelectedToken,
-          memo: '',
-        }}
-        enableReinitialize={false}
+        initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={handleSend}
       >
@@ -305,12 +250,12 @@ export default function SendForm({
                       <MaxButton
                         token={values.selectedToken}
                         setTokenAmount={(amount: string) => setFieldValue('amount', amount)}
-                        disabled={isSending}
+                        disabled={isSigning}
                       />
                     </div>
                     {errors.amount && <div className="text-red-500 text-xs">{errors.amount}</div>}
-                    {feeWarning && !errors.amount && (
-                      <div className="text-yellow-500 text-xs">{feeWarning}</div>
+                    {errors.feeWarning && !errors.amount && (
+                      <div className="text-yellow-500 text-xs">{errors.feeWarning}</div>
                     )}
                   </div>
                 </div>
@@ -339,10 +284,10 @@ export default function SendForm({
                 <button
                   type="submit"
                   className="btn btn-gradient w-full text-white"
-                  disabled={isSending || !isValid || !dirty}
+                  disabled={isSigning || !isValid || !dirty}
                   aria-label="send-btn"
                 >
-                  {isSending ? <span className="loading loading-dots loading-xs"></span> : 'Send'}
+                  {isSigning ? <span className="loading loading-dots loading-xs"></span> : 'Send'}
                 </button>
               </div>
             </Form>

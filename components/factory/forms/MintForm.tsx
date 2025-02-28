@@ -89,9 +89,8 @@ export default function MintForm({
             mintToAddress: recipient,
           });
 
-      const fee = await estimateFee(address ?? '', [msg]);
       await tx([msg], {
-        fee,
+        fee: () => estimateFee(address ?? '', [msg]),
         onSuccess: () => {
           setAmount('');
           refetch();

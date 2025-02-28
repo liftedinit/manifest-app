@@ -102,7 +102,7 @@ export default function BurnForm({
           groupPolicyAddress: admin ?? '',
           messages: [encodedMessage],
           metadata: '',
-          proposers: [address ?? ''],
+          proposers: [address],
           title: `Burn MFX`,
           summary: `This proposal includes a burn action for MFX.`,
           exec: 0,
@@ -127,7 +127,7 @@ export default function BurnForm({
                 }),
               ],
               metadata: '',
-              proposers: [address ?? ''],
+              proposers: [address],
               title: `Burn ${denom.display}`,
               summary: `This proposal will burn ${amount} ${denom.display} from ${recipient}.`,
               exec: 0,
@@ -142,9 +142,8 @@ export default function BurnForm({
             });
       }
 
-      const fee = await estimateFee(address ?? '', [msg]);
       await tx([msg], {
-        fee,
+        fee: () => estimateFee(address, [msg]),
         onSuccess: () => {
           setAmount('');
           refetch();
@@ -192,9 +191,8 @@ export default function BurnForm({
         exec: 0,
       });
 
-      const fee = await estimateFee(address ?? '', [msg]);
       await tx([msg], {
-        fee,
+        fee: () => estimateFee(address, [msg]),
         onSuccess: () => {
           setBurnPairs([{ address: '', amount: '' }]);
 
