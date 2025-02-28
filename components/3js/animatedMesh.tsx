@@ -1,4 +1,4 @@
-import { Environment, OrbitControls } from '@react-three/drei';
+import { Environment, OrbitControls, useProgress } from '@react-three/drei';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Suspense, useEffect, useMemo, useRef } from 'react';
 import { BufferAttribute, Mesh, Vector3 } from 'three';
@@ -11,7 +11,6 @@ function AnimatedMesh({
   offset = 0,
   index,
   shape = 'icosahedron',
-  onLoad,
 }: {
   scaleFactor: number;
   extrusionMultiplier: number;
@@ -19,7 +18,6 @@ function AnimatedMesh({
   offset?: number;
   index: number;
   shape: 'icosahedron' | 'octahedron' | 'tetrahedron' | 'cube';
-  onLoad?: () => void;
 }) {
   const meshRef = useRef<Mesh>(null);
   const extrusionRef = useRef<{ value: number } | null>(null);
@@ -121,33 +119,16 @@ function AnimatedMesh({
     }
   });
 
-  useEffect(() => {
-    if (meshRef.current) {
-      // Mesh is loaded
-      onLoad?.();
-    }
-  }, [onLoad]);
-
   return <mesh ref={meshRef} geometry={geometry} material={material} />;
 }
 
 export default function AnimatedShape({
   shape,
-  onLoad,
 }: {
   shape: 'icosahedron' | 'octahedron' | 'tetrahedron' | 'cube';
-  onLoad?: () => void;
 }) {
-  const levels = 3; // Number of nested shapes
+  const levels = 3;
   const meshes = [];
-  const loadedMeshes = useRef(0);
-
-  const handleMeshLoad = () => {
-    loadedMeshes.current += 1;
-    if (loadedMeshes.current === levels) {
-      onLoad?.();
-    }
-  };
 
   for (let i = 0; i < levels; i++) {
     const scaleFactor = 1 - i * 0.2;
@@ -164,7 +145,6 @@ export default function AnimatedShape({
         speed={speed}
         offset={offset}
         index={i}
-        onLoad={handleMeshLoad}
       />
     );
   }
@@ -174,11 +154,9 @@ export default function AnimatedShape({
       style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
       camera={{ position: [0, 0, 10] }}
     >
-      <Suspense fallback={null}>
-        {meshes}
-        <Environment files="/rosendal_park_sunset_puresky_1k.hdr" background={false} />
-        <OrbitControls enablePan={false} enableZoom={false} />
-      </Suspense>
+      {meshes}
+      <Environment files="/rosendal_park_sunset_puresky_1k.hdr" background={false} />
+      <OrbitControls enablePan={false} enableZoom={false} />
     </Canvas>
   );
 }

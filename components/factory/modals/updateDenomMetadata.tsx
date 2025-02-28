@@ -2,6 +2,7 @@ import { Dialog } from '@headlessui/react';
 import { cosmos, osmosis } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgSetDenomMetadata } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+import { useQueryClient } from '@tanstack/react-query';
 import { Form, Formik } from 'formik';
 import React from 'react';
 
@@ -10,7 +11,6 @@ import { TextArea, TextInput } from '@/components/react/inputs';
 import env from '@/config/env';
 import { TokenFormData } from '@/helpers/formReducer';
 import { useFeeEstimation } from '@/hooks/useFeeEstimation';
-import { useProposalsByPolicyAccount } from '@/hooks/useQueries';
 import { useTx } from '@/hooks/useTx';
 import { ExtendedMetadataSDKType, truncateString } from '@/utils';
 import Yup from '@/utils/yupExtensions';
@@ -35,22 +35,18 @@ export default function UpdateDenomMetadataModal({
   onClose,
   denom,
   address,
-  modalId,
-  onSuccess,
   admin,
+  refetch,
   isGroup,
 }: {
   isOpen: boolean;
   onClose: () => void;
   denom: ExtendedMetadataSDKType | null;
   address: string;
-  modalId: string;
-  onSuccess: () => void;
   admin: string;
   isGroup?: boolean;
+  refetch: () => void;
 }) {
-  const { refetchProposals } = useProposalsByPolicyAccount(admin);
-
   const baseDenom = denom?.base?.split('/').pop() || '';
   const fullDenom = `factory/${address}/${baseDenom}`;
   const symbol = baseDenom.slice(1).toUpperCase();
@@ -74,7 +70,7 @@ export default function UpdateDenomMetadataModal({
   const { estimateFee } = useFeeEstimation(env.chain);
   const { setDenomMetadata } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
-
+  const queryClient = useQueryClient();
   const handleUpdate = async (values: TokenFormData, resetForm: () => void) => {
     const symbol = values.display.toUpperCase();
     try {
@@ -129,10 +125,7 @@ export default function UpdateDenomMetadataModal({
       await tx([msg], {
         fee,
         onSuccess: () => {
-          if (isGroup) {
-            refetchProposals();
-          }
-          onSuccess();
+          refetch();
           onClose();
         },
       });
@@ -164,7 +157,7 @@ export default function UpdateDenomMetadataModal({
         validateOnChange={true}
         validateOnBlur={true}
       >
-        {({ isValid, dirty, values, handleChange, handleSubmit, resetForm }) => (
+        {({ isValid, dirty, values, handleChange, handleSubmit }) => (
           <Dialog.Panel className="modal-box max-w-4xl mx-auto p-6 bg-[#F4F4FF] dark:bg-[#1D192D] rounded-[24px] shadow-lg relative">
             <form method="dialog">
               <button

@@ -3,8 +3,8 @@ import { cosmos } from '@liftedinit/manifestjs';
 import { MsgCancelUpgrade } from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
 import { PlanSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/upgrade';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
-import React, { useEffect } from 'react';
-import { createPortal } from 'react-dom';
+import { useQueryClient } from '@tanstack/react-query';
+import React from 'react';
 
 import { SignModal } from '@/components/react';
 import env from '@/config/env';
@@ -16,7 +16,6 @@ interface BaseModalProps {
   admin: string;
   address: string | null;
   plan: PlanSDKType;
-  refetchPlan: () => void;
 }
 
 function InfoItem({ label, value }: { label: string; value?: string | number | bigint }) {
@@ -30,19 +29,12 @@ function InfoItem({ label, value }: { label: string; value?: string | number | b
   );
 }
 
-export function CancelUpgradeModal({
-  isOpen,
-  onClose,
-  admin,
-  address,
-  plan,
-  refetchPlan,
-}: BaseModalProps) {
+export function CancelUpgradeModal({ isOpen, onClose, admin, address, plan }: BaseModalProps) {
   const { cancelUpgrade } = cosmos.upgrade.v1beta1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
-
+  const queryClient = useQueryClient();
   const handleCancelUpgrade = async () => {
     try {
       const msgUpgrade = cancelUpgrade({
@@ -69,7 +61,7 @@ export function CancelUpgradeModal({
         fee,
         onSuccess: () => {
           onClose();
-          refetchPlan();
+          queryClient.invalidateQueries({ queryKey: ['currentPlan'] });
         },
       });
     } catch (error) {
