@@ -1,9 +1,7 @@
-import { Dialog } from '@headlessui/react';
 import React from 'react';
-import { createPortal } from 'react-dom';
 
+import { SigningModalDialog } from '@/components';
 import MintForm from '@/components/factory/forms/MintForm';
-import { SignModal } from '@/components/react';
 import { useGroupsByAdmin } from '@/hooks';
 import { ExtendedMetadataSDKType, truncateString } from '@/utils';
 
@@ -35,62 +33,42 @@ export default function MintModal({
 
   const safeTotalSupply = totalSupply || '0';
 
-  const modalContent = (
-    <Dialog
+  const tokenName = denom.display
+    ? denom.display.startsWith('factory')
+      ? (denom.display.split('/').pop()?.toUpperCase() ??
+        truncateString(denom.display, 12).toUpperCase())
+      : truncateString(denom.display, 12).toUpperCase()
+    : 'UNKNOWN';
+
+  return (
+    <SigningModalDialog
       open={isOpen}
       onClose={onClose}
-      className={`modal modal-open fixed flex p-0 m-0`}
       style={{
         height: '100vh',
         width: '100vw',
-        alignItems: 'center',
-        justifyContent: 'center',
       }}
+      title={
+        <>
+          Mint <span className="font-light text-primary">{tokenName}</span>
+        </>
+      }
     >
-      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-
-      <Dialog.Panel className="modal-box max-w-6xl mx-auto rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg">
-        <form method="dialog" onSubmit={onClose}>
-          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]">
-            ✕
-          </button>
-        </form>
-        <h3 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">
-          Mint{' '}
-          <span className="font-light text-primary">
-            {denom.display
-              ? denom.display.startsWith('factory')
-                ? (denom.display.split('/').pop()?.toUpperCase() ??
-                  truncateString(denom.display, 12).toUpperCase())
-                : truncateString(denom.display, 12).toUpperCase()
-              : 'UNKNOWN'}
-          </span>
-        </h3>
-        <div className="py-4">
-          {isLoading ? (
-            <div className="skeleton h-[17rem] max-h-72 w-full"></div>
-          ) : (
-            <MintForm
-              isAdmin={isAdmin ?? false}
-              totalSupply={safeTotalSupply}
-              address={address}
-              denom={denom}
-              isGroup={isGroup}
-              admin={admin}
-              refetch={() => refetch()}
-            />
-          )}
-        </div>
-
-        <SignModal />
-      </Dialog.Panel>
-    </Dialog>
+      <div className="py-4">
+        {isLoading ? (
+          <div className="skeleton h-[17rem] max-h-72 w-full"></div>
+        ) : (
+          <MintForm
+            isAdmin={isAdmin ?? false}
+            totalSupply={safeTotalSupply}
+            address={address}
+            denom={denom}
+            isGroup={isGroup}
+            admin={admin}
+            refetch={() => refetch()}
+          />
+        )}
+      </div>
+    </SigningModalDialog>
   );
-
-  // Only render if we're in the browser
-  if (typeof document !== 'undefined') {
-    return createPortal(modalContent, document.body);
-  }
-
-  return null;
 }
