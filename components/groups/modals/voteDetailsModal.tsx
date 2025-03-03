@@ -146,6 +146,8 @@ function VoteDetailsModal({
             queryClient.invalidateQueries({ queryKey: ['proposalInfo', policyAddress] });
             queryClient.invalidateQueries({ queryKey: ['groupInfoByAdmin', policyAddress] });
             queryClient.invalidateQueries({ queryKey: ['groupInfoByMember', address] });
+            queryClient.invalidateQueries({ queryKey: ['validators'] });
+            queryClient.invalidateQueries({ queryKey: ['pendingVals'] });
           },
         },
         'vote-details-modal'
