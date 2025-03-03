@@ -1,14 +1,12 @@
-import { Dialog } from '@headlessui/react';
 import { cosmos } from '@liftedinit/manifestjs';
 import { MemberSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { Field, FieldProps, Form, Formik } from 'formik';
 import React, { useRef, useState } from 'react';
-import { MdContacts } from 'react-icons/md';
 import * as Yup from 'yup';
 
-import { CopyIcon, TrashIcon } from '@/components/icons';
-import { AddressCopyButton, SignModal, SigningModalDialog } from '@/components/react';
+import { AddressCopyButton, SigningModalDialog } from '@/components';
+import { TrashIcon } from '@/components/icons';
 import { AddressInput } from '@/components/react/inputs/AddressInput';
 import env from '@/config/env';
 import { useFeeEstimation, useTx } from '@/hooks';

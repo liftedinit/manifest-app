@@ -5,7 +5,7 @@ import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 
-import { SigningModalDialog } from '@/components/react';
+import { SigningModalDialog } from '@/components';
 import env from '@/config/env';
 import { useFeeEstimation, useTx } from '@/hooks';
 

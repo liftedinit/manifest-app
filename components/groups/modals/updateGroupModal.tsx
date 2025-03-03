@@ -1,4 +1,3 @@
-import { Dialog } from '@headlessui/react';
 import { cosmos } from '@liftedinit/manifestjs';
 import {
   ThresholdDecisionPolicy,
@@ -8,8 +7,8 @@ import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { FieldArray, Form, Formik, useFormikContext } from 'formik';
 import React from 'react';
 
+import { SigningModalDialog } from '@/components';
 import { PlusIcon, TrashIcon } from '@/components/icons';
-import { SignModal, SigningModalDialog } from '@/components/react';
 import { NumberInput, TextArea, TextInput } from '@/components/react/inputs';
 import { AddressInput } from '@/components/react/inputs/AddressInput';
 import env from '@/config/env';

@@ -11,12 +11,12 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 
+import { SigningModalDialog } from '@/components';
 import { Tally } from '@/components/groups/modals/tally';
 import { TallyResults } from '@/components/groups/modals/tallyResults';
 import { MessagesModal } from '@/components/groups/modals/voting/messagesModal';
 import { getProposalButton, getProposalStatusLabel } from '@/components/groups/utils';
 import { ArrowUpIcon, CopyIcon } from '@/components/icons';
-import { SigningModalDialog } from '@/components/react';
 import env from '@/config/env';
 import { useFeeEstimation, useProposalById, useTallyCount, useVotesByProposal } from '@/hooks';
 import { useTx } from '@/hooks/useTx';

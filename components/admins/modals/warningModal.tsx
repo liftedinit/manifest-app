@@ -1,12 +1,11 @@
 import { useChain } from '@cosmos-kit/react';
-import { Dialog } from '@headlessui/react';
 import { cosmos, strangelove_ventures } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgRemoveValidator } from '@liftedinit/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { PiWarning } from 'react-icons/pi';
 
-import { SignModal, SigningModalDialog } from '@/components/react';
+import { SigningModalDialog } from '@/components';
 import env from '@/config/env';
 import { useFeeEstimation, useTx } from '@/hooks';
 

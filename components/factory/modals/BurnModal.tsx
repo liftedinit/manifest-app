@@ -1,7 +1,7 @@
 import React from 'react';
 
+import { SigningModalDialog } from '@/components';
 import BurnForm from '@/components/factory/forms/BurnForm';
-import { SigningModalDialog } from '@/components/react';
 import { useGroupsByAdmin } from '@/hooks';
 import { ExtendedMetadataSDKType, truncateString } from '@/utils';
 

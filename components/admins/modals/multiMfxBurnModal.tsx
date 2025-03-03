@@ -4,8 +4,8 @@ import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { Field, FieldArray, FieldProps, Form, Formik } from 'formik';
 import React, { useState } from 'react';
 
+import { SigningModalDialog } from '@/components';
 import { MinusIcon } from '@/components/icons';
-import { SigningModalDialog } from '@/components/react';
 import { NumberInput, TextInput } from '@/components/react/inputs';
 import env from '@/config/env';
 import { useFeeEstimation, useTx } from '@/hooks';

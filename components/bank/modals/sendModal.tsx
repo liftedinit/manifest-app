@@ -1,8 +1,7 @@
 import { Dialog } from '@headlessui/react';
 import React from 'react';
 
-import { SignModal } from '@/components/react';
-import { SigningModalDialog } from '@/components/react/modalDialog';
+import { SigningModalDialog } from '@/components';
 import { CombinedBalanceInfo } from '@/utils/types';
 
 import SendBox from '../components/sendBox';

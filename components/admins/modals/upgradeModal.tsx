@@ -7,8 +7,8 @@ import { Form, Formik } from 'formik';
 import React, { useMemo, useState } from 'react';
 import { PiCaretDownBold } from 'react-icons/pi';
 
+import { SigningModalDialog } from '@/components';
 import { SearchIcon } from '@/components/icons';
-import { SignModal, SigningModalDialog } from '@/components/react';
 import { TextInput } from '@/components/react/inputs';
 import env from '@/config/env';
 import { GitHubRelease, useBlockHeight, useFeeEstimation, useGitHubReleases, useTx } from '@/hooks';

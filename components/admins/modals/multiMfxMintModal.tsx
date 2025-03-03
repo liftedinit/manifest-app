@@ -1,15 +1,13 @@
-import { Dialog } from '@headlessui/react';
 import { cosmos, liftedinit } from '@liftedinit/manifestjs';
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgPayout } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
 import { Field, FieldArray, FieldProps, Form, Formik } from 'formik';
 import React, { useState } from 'react';
-import { MdContacts } from 'react-icons/md';
 
+import { SigningModalDialog } from '@/components';
 import { MinusIcon, PlusIcon } from '@/components/icons';
-import { SignModal, SigningModalDialog } from '@/components/react';
-import { NumberInput, TextInput } from '@/components/react/inputs';
+import { NumberInput } from '@/components/react/inputs';
 import { AddressInput } from '@/components/react/inputs/AddressInput';
 import env from '@/config/env';
 import { useFeeEstimation, useTx } from '@/hooks';

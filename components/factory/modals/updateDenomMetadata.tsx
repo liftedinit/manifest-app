@@ -1,4 +1,3 @@
-import { Dialog } from '@headlessui/react';
 import { cosmos, osmosis } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgSetDenomMetadata } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
@@ -6,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Form, Formik } from 'formik';
 import React from 'react';
 
-import { SignModal, SigningModalDialog } from '@/components/react';
+import { SigningModalDialog } from '@/components';
 import { TextArea, TextInput } from '@/components/react/inputs';
 import env from '@/config/env';
 import { TokenFormData } from '@/helpers/formReducer';
