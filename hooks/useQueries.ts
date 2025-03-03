@@ -278,6 +278,7 @@ export const useProposalsByPolicyAccount = (policyAccount: string) => {
 interface UseProposalByIdOptions {
   refetchInterval?: number | false;
 }
+
 export const useProposalById = (proposalId: bigint, options: UseProposalByIdOptions = {}) => {
   const { lcdQueryClient } = useLcdQueryClient();
 
@@ -318,9 +319,8 @@ export const useProposalsByPolicyAccountAll = (policyAccounts: string[]) => {
     });
   };
 
-  const debounced = useDebounce(policyAccounts, DEBOUNCE_TIME);
   const proposalQueries: UseQueryResult<QueryProposalsByGroupPolicyResponse, Error>[] = useQueries({
-    queries: debounced.map(policyAccount => ({
+    queries: policyAccounts.map(policyAccount => ({
       queryKey: ['proposalInfoAll', policyAccount],
       queryFn: () => fetchGroupInfo(policyAccount),
       enabled: !!lcdQueryClient && !!policyAccount,

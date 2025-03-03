@@ -1,7 +1,14 @@
 import { useChain } from '@cosmos-kit/react';
 import { ArrowDownTrayIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { WalletStatus } from 'cosmos-kit';
-import React, { MouseEventHandler, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  ComponentType,
+  MouseEventHandler,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { MdWallet } from 'react-icons/md';
 
 import env from '@/config/env';
@@ -296,3 +303,30 @@ export function WalletNotConnected({
     </section>
   );
 }
+
+/**
+ * Component to render children only if wallet is connected, and a message otherwise.
+ * @param children The children to render if wallet is connected.
+ * @param message The description to show if wallet is not connected.
+ * @param icon
+ * @constructor
+ */
+export const IfWalletConnected: React.FC<
+  React.PropsWithChildren<{
+    message?: string;
+    icon: React.ComponentType<{ className?: string }>;
+  }>
+> = ({ children, message, icon: Icon }) => {
+  const { isWalletConnected } = useChain(env.chain);
+
+  if (!isWalletConnected) {
+    return (
+      <WalletNotConnected
+        description={`Use the button below to connect your wallet and ${message ?? 'access the application'}.`}
+        icon={<Icon className="h-60 w-60 text-primary" />}
+      />
+    );
+  } else {
+    return <>{children}</>;
+  }
+};
