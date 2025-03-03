@@ -7,8 +7,8 @@ import { Form, Formik } from 'formik';
 import React, { useMemo, useState } from 'react';
 import { PiCaretDownBold } from 'react-icons/pi';
 
+import { SigningModalDialog } from '@/components';
 import { SearchIcon } from '@/components/icons';
-import { SignModal } from '@/components/react';
 import { TextInput } from '@/components/react/inputs';
 import env from '@/config/env';
 import { GitHubRelease, useBlockHeight, useFeeEstimation, useGitHubReleases, useTx } from '@/hooks';
@@ -176,19 +176,12 @@ export function UpgradeModal({ isOpen, onClose, admin, address }: BaseModalProps
   if (!isOpen) return null;
 
   return (
-    <Dialog
-      className={`modal ${isOpen ? 'modal-open' : ''} fixed flex p-0 m-0`}
-      open
+    <SigningModalDialog
+      open={isOpen}
       onClose={onClose}
-      style={{
-        height: '100vh',
-        width: '100vw',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
+      title="Chain Upgrade"
+      panelClassName="max-w-4xl"
     >
-      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-
       <Formik
         initialValues={initialValues}
         validationSchema={UpgradeSchema}
@@ -214,23 +207,7 @@ export function UpgradeModal({ isOpen, onClose, admin, address }: BaseModalProps
         validateOnBlur={true}
       >
         {({ isValid, dirty, values, handleChange, handleSubmit, setFieldValue, resetForm }) => (
-          <Dialog.Panel className="modal-box max-w-4xl mx-auto min-h-[30vh] max-h-[70vh] rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg overflow-y-auto">
-            <form method="dialog">
-              <button
-                type="button"
-                className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]"
-                onClick={() => {
-                  onClose();
-                  resetForm();
-                }}
-              >
-                ✕
-              </button>
-            </form>
-            <h3 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">
-              Chain Upgrade
-            </h3>
-
+          <>
             <Form className="py-4 space-y-6">
               <div className="grid gap-6">
                 <div className="w-full">
@@ -361,11 +338,9 @@ export function UpgradeModal({ isOpen, onClose, admin, address }: BaseModalProps
                 </button>
               </div>
             </Form>
-
-            <SignModal />
-          </Dialog.Panel>
+          </>
         )}
       </Formik>
-    </Dialog>
+    </SigningModalDialog>
   );
 }
