@@ -136,7 +136,7 @@ export default function UpdateDenomMetadataModal({
   if (!isOpen) return null;
 
   return (
-    <SigningModalDialog open onClose={onClose}>
+    <SigningModalDialog open={isOpen} onClose={onClose}>
       <Formik
         initialValues={formData}
         validationSchema={() => TokenDetailsSchema({ subdenom: baseDenom })}

@@ -254,11 +254,13 @@ const DisplayDataToSign = ({
  * when a sign request is received.
  * @constructor
  */
-export const SignModal = ({ id }: { id?: string }) => {
+export const SignModal = ({ id, testing }: { id?: string; testing?: boolean }) => {
   const { wallet } = useWallet();
   const { prompt, promptId, isSigning } = useContext(Web3AuthContext);
   const [visible, setVisible] = useState(false);
   const [data, setData] = useState<SignData | undefined>(undefined);
+
+  const isLedgerWallet = wallet?.mode === 'ledger';
 
   useEffect(() => {
     if (promptId === id && prompt !== undefined) {
@@ -269,16 +271,14 @@ export const SignModal = ({ id }: { id?: string }) => {
     }
   }, [promptId, id, prompt]);
 
-  if (!isSigning || !wallet) {
+  if (!isSigning || !visible) {
     return null;
   }
-
-  const showLedgerMessage = wallet.mode === 'ledger';
 
   const approve = () => prompt?.resolve(true);
   const reject = () => prompt?.resolve(false);
 
-  if (showLedgerMessage) {
+  if (isLedgerWallet) {
     return <LedgerSignModalInner onClose={() => {}} />;
   } else {
     return (
@@ -395,12 +395,19 @@ export const PromptSignModalInner: React.FC<SignModalInnerProps> = ({
 
         <div className="modal-action mt-6 flex justify-between gap-4">
           <button
+            role="button"
+            aria-label="Reject"
             className="btn btn-error flex-1 rounded-[12px] focus:outline-none"
             onClick={handleReject}
           >
             Reject
           </button>
-          <button className="btn btn-gradient flex-1 rounded-[12px]" onClick={handleApprove}>
+          <button
+            role="button"
+            aria-label="Approve"
+            className="btn btn-gradient flex-1 rounded-[12px]"
+            onClick={handleApprove}
+          >
             Approve
           </button>
         </div>

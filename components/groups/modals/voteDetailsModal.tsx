@@ -1,5 +1,4 @@
 import { useChain } from '@cosmos-kit/react';
-import { Dialog } from '@headlessui/react';
 import { CheckIcon } from '@heroicons/react/24/outline';
 import { cosmos } from '@liftedinit/manifestjs';
 import { QueryTallyResultResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
@@ -15,14 +14,9 @@ import React, { useEffect, useState } from 'react';
 import { Tally } from '@/components/groups/modals/tally';
 import { TallyResults } from '@/components/groups/modals/tallyResults';
 import { MessagesModal } from '@/components/groups/modals/voting/messagesModal';
-import {
-  getProposalButton,
-  getProposalStatusLabel,
-  getVoteOptionBadgeColor,
-  getVoteOptionLabel,
-} from '@/components/groups/utils';
+import { getProposalButton, getProposalStatusLabel } from '@/components/groups/utils';
 import { ArrowUpIcon, CopyIcon } from '@/components/icons';
-import { SignModal, SigningModalDialog } from '@/components/react';
+import { SigningModalDialog } from '@/components/react';
 import env from '@/config/env';
 import { useFeeEstimation, useProposalById, useTallyCount, useVotesByProposal } from '@/hooks';
 import { useTx } from '@/hooks/useTx';
@@ -282,7 +276,7 @@ function VoteDetailsModal({
         open={showVotingPopup}
         onClose={vote => {
           if (vote) {
-            handleVote(vote as unknown as VoteOption);
+            handleVote(vote);
           }
           setShowVotingPopup(false);
         }}

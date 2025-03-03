@@ -1,7 +1,7 @@
 import React from 'react';
 
+import { SigningModalDialog } from '@/components';
 import MintForm from '@/components/factory/forms/MintForm';
-import { SigningModalDialog } from '@/components/react/modalDialog';
 import { useGroupsByAdmin } from '@/hooks';
 import { ExtendedMetadataSDKType, truncateString } from '@/utils';
 
