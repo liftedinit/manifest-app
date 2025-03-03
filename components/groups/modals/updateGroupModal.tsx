@@ -9,7 +9,7 @@ import { FieldArray, Form, Formik, useFormikContext } from 'formik';
 import React from 'react';
 
 import { PlusIcon, TrashIcon } from '@/components/icons';
-import { SignModal } from '@/components/react';
+import { SignModal, SigningModalDialog } from '@/components/react';
 import { NumberInput, TextArea, TextInput } from '@/components/react/inputs';
 import { AddressInput } from '@/components/react/inputs/AddressInput';
 import env from '@/config/env';
@@ -178,61 +178,32 @@ export function UpdateGroupModal({
         summary: 'Update Group',
       });
 
-      await tx(
-        [msg],
-        {
-          fee: () => estimateFee(address, [msg]),
-          onSuccess: () => {
-            onUpdate();
-          },
+      await tx([msg], {
+        fee: () => estimateFee(address, [msg]),
+        onSuccess: () => {
+          onUpdate();
         },
-        'update-group-modal'
-      );
+      });
     } catch (error) {
       console.error('Error in handleConfirm:', error);
     }
   }
 
   return (
-    <Dialog
-      open={showUpdateModal}
-      onClose={() => setShowUpdateModal(false)}
-      className={`modal modal-open fixed flex p-0 m-0 z-1`}
-      style={{
-        height: '100vh',
-        width: '100vw',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-
-      <Dialog.Panel className="modal-box max-w-2xl bg-secondary rounded-[24px]">
-        <form method="dialog">
-          <button
-            onClick={() => setShowUpdateModal(false)}
-            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-          >
-            ✕
-          </button>
-        </form>
-
-        <UpdateGroupForm
-          initialValues={{
-            title,
-            authors: [...initialAuthors],
-            details,
-            threshold,
-            votingPeriod: { ...votingPeriod },
-          }}
-          onSubmit={handleConfirm}
-          setShowUpdateModal={setShowUpdateModal}
-          isSigning={isSigning}
-        />
-      </Dialog.Panel>
-
-      <SignModal id="update-group-modal" />
-    </Dialog>
+    <SigningModalDialog open={showUpdateModal} onClose={() => setShowUpdateModal(false)}>
+      <UpdateGroupForm
+        initialValues={{
+          title,
+          authors: [...initialAuthors],
+          details,
+          threshold,
+          votingPeriod: { ...votingPeriod },
+        }}
+        onSubmit={handleConfirm}
+        setShowUpdateModal={setShowUpdateModal}
+        isSigning={isSigning}
+      />
+    </SigningModalDialog>
   );
 }
 
@@ -272,6 +243,7 @@ export const UpdateGroupForm: React.FC<UpdateGroupFormProps> = ({
             <button
               type="button"
               className="btn w-[calc(50%-8px)] btn-md focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
+              disabled={isSigning}
               onClick={() => setShowUpdateModal(false)}
             >
               Cancel

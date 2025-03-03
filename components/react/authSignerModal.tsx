@@ -355,6 +355,7 @@ export const PromptSignModalInner: React.FC<SignModalInnerProps> = ({
     reject?.();
     onClose();
   }
+
   function handleApprove() {
     approve?.();
     onClose();

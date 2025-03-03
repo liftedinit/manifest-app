@@ -1,14 +1,12 @@
 import { ValidatorSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
 import Image from 'next/image';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
+import { ValidatorDetailsModal, WarningModal } from '@/components';
 import { SearchIcon, TrashIcon } from '@/components/icons';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import useIsMobile from '@/hooks/useIsMobile';
 import ProfileAvatar from '@/utils/identicon';
-
-import { ValidatorDetailsModal } from '../modals/validatorModal';
-import { WarningModal } from '../modals/warningModal';
 
 export interface ExtendedValidatorSDKType extends ValidatorSDKType {
   consensus_power?: bigint;
@@ -31,7 +29,6 @@ export default function ValidatorList({
   const [active, setActive] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedValidator, setSelectedValidator] = useState<ExtendedValidatorSDKType | null>(null);
-  const [modalId, setModalId] = useState<string | null>(null);
   const [openWarningModal, setOpenWarningModal] = useState(false);
   const [openValidatorModal, setOpenValidatorModal] = useState(false);
 
@@ -78,7 +75,6 @@ export default function ValidatorList({
   const handleRowClick = (validator: ExtendedValidatorSDKType) => {
     setSelectedValidator(validator);
     setModalKey(prevKey => prevKey + 1);
-    setModalId(`validator-modal-${validator.operator_address}-${Date.now()}`);
     setOpenValidatorModal(true);
   };
 
@@ -258,7 +254,6 @@ export default function ValidatorList({
       <ValidatorDetailsModal
         key={modalKey}
         validator={selectedValidator}
-        modalId={modalId || ''}
         admin={admin}
         totalvp={totalvp.toString()}
         validatorVPArray={validatorVPArray}
