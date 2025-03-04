@@ -1,6 +1,9 @@
 import BigNumber from 'bignumber.js';
 import React from 'react';
 
+import env from '@/config/env';
+import { useTx } from '@/hooks';
+
 export interface AmountInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   value: string | number | undefined;
   onValueChange: (newAmount: BigNumber | undefined) => void;
@@ -22,6 +25,7 @@ export const AmountInput: React.FC<AmountInputProps> = ({
   className,
   ...props
 }) => {
+  const { isSigning } = useTx(env.chain);
   const [internalValue, setInternalValue] = React.useState<string>(
     value === undefined ? '' : value.toString()
   );
@@ -62,6 +66,7 @@ export const AmountInput: React.FC<AmountInputProps> = ({
       placeholder="0.00"
       min={0}
       value={internalValue}
+      disabled={isSigning}
       onChange={onChange}
       onKeyDown={e => {
         if (e.key.length === 1 && !/[\d.]/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey) {

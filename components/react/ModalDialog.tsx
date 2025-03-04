@@ -80,11 +80,10 @@ export const ModalDialog = ({
   if (open && !opened) {
     setOpened(true);
   }
-  function handleClose() {
-    if (onClose) {
-      if (onClose() === false) {
-        return;
-      }
+  function handleClose(value: any) {
+    if (onClose && onClose() === false) {
+      setOpened(true);
+      return;
     }
     setOpened(false);
   }
@@ -109,7 +108,7 @@ export const ModalDialog = ({
         className={`${panelClassName} modal-box mx-auto rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg relative`}
         aria-label="modal"
       >
-        <form method="dialog" onSubmit={onClose}>
+        <form method="dialog" onSubmit={handleClose}>
           <button
             role="button"
             aria-label="Close"
