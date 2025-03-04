@@ -41,7 +41,7 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
   const { connect, openView, status, username, address, wallet } = useChain(chainName);
 
   const [localStatus, setLocalStatus] = useState(status);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (status === WalletStatus.Connecting) {
@@ -136,7 +136,7 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
               truncated
             />
             <div className="bg-base-100 dark:bg-base-200 rounded-full py-2 px-4 text-center mb-4 flex items-center flex-row justify-between w-full ">
-              <p className="text-xs  truncate flex-grow">
+              <p className="text-xs  truncate grow">
                 {address ? truncateAddress(address) : 'Address not available'}
               </p>
               <button
@@ -160,7 +160,7 @@ export const WalletSection: React.FC<WalletSectionProps> = ({ chainName }) => {
                   fontSize: '0.37rem',
                   backgroundColor: 'transparent',
                 }}
-                className=" btn btn-ghost -mt-1 focus:outline-none s duration-200"
+                className=" btn btn-ghost -mt-1 focus:outline-hidden s duration-200"
                 id="copyButton2"
               >
                 <CopyIcon className="w-4 h-4  hover:text-primary" />
@@ -275,7 +275,7 @@ export function WalletNotConnected({
   icon,
 }: {
   description: string;
-  icon: JSX.Element;
+  icon: React.ReactNode;
 }) {
   return (
     <section className="transition-opacity duration-300 h-[80vh] ease-in-out animate-fadeIn w-full flex items-center justify-center">
@@ -296,3 +296,30 @@ export function WalletNotConnected({
     </section>
   );
 }
+
+/**
+ * Component to render children only if wallet is connected, and a message otherwise.
+ * @param children The children to render if wallet is connected.
+ * @param message The description to show if wallet is not connected.
+ * @param icon
+ * @constructor
+ */
+export const IfWalletConnected: React.FC<
+  React.PropsWithChildren<{
+    message?: string;
+    icon: React.ComponentType<{ className?: string }>;
+  }>
+> = ({ children, message, icon: Icon }) => {
+  const { isWalletConnected } = useChain(env.chain);
+
+  if (!isWalletConnected) {
+    return (
+      <WalletNotConnected
+        description={`Use the button below to connect your wallet and ${message ?? 'access the application'}.`}
+        icon={<Icon className="h-60 w-60 text-primary" />}
+      />
+    );
+  } else {
+    return <>{children}</>;
+  }
+};

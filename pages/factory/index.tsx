@@ -93,9 +93,9 @@ export default function Factory() {
   const [searchTerm, setSearchTerm] = useState('');
 
   return (
-    <div className="min-h-screen relative lg:py-0 py-4 px-2 mx-auto text-white ">
+    <div className=" relative mx-auto text-white ">
       <SEO title="Factory - Alberto" />
-      <div className="flex-grow animate-fadeIn transition-all duration-300">
+      <div className="grow animate-fadeIn transition-all duration-300">
         <div className="w-full mx-auto">
           {!isWalletConnected ? (
             <WalletNotConnected
@@ -105,7 +105,7 @@ export default function Factory() {
           ) : combinedData.length === 0 && !isLoading ? (
             <NoAssetsFound />
           ) : (
-            <div className="relative w-full h-full overflow-hidden scrollbar-hide p-1">
+            <div className="relative w-full h-full overflow-hidden scrollbar-hide">
               <div className="h-full flex flex-col ">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
@@ -119,7 +119,7 @@ export default function Factory() {
                       <input
                         type="text"
                         placeholder="Search for a token ..."
-                        className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+                        className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-hidden focus-visible:ring-1 focus-visible:ring-primary"
                         value={searchTerm}
                         onChange={e => setSearchTerm(e.target.value)}
                       />
@@ -128,7 +128,7 @@ export default function Factory() {
                   </div>
                 </div>
 
-                <div className="flex flex-col w-full mt-4">
+                <div className="flex flex-col w-full">
                   {isError ? (
                     <div className="text-center my-auto text-error">
                       Error loading tokens. Please try again.

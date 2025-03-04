@@ -28,8 +28,8 @@ import { ReactNode, useContext, useMemo } from 'react';
 import { TailwindModal } from '@/components';
 import env from '@/config/env';
 import { manifestAssets, manifestChain } from '@/config/manifestChain';
+import { ThemeProvider } from '@/contexts';
 import { SkipProvider } from '@/contexts/skipGoContext';
-import { ThemeProvider } from '@/contexts/theme';
 import { ToastProvider } from '@/contexts/toastContext';
 import { Web3AuthContext, Web3AuthProvider } from '@/contexts/web3AuthContext';
 import { ContactsProvider } from '@/hooks';
@@ -80,7 +80,6 @@ const ManifestChainProvider = ({ children }: { children: ReactNode }) => {
     <ChainProvider
       chains={[manifestChain, osmosisChain, axelarChain]}
       assetLists={[manifestAssets, osmosisAssets, axelarAssets]}
-      defaultChain={manifestChain}
       wallets={combinedWallets}
       logLevel={env.production ? 'NONE' : 'INFO'}
       endpointOptions={endpointOptions}

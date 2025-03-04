@@ -18,7 +18,7 @@ export function getProposalButton(
   isSigning: boolean,
   pollForData: boolean,
   userVoteOption?: VoteOption | undefined
-): JSX.Element | undefined {
+): React.ReactNode | undefined {
   const isProposer = proposal.proposers.includes(address || '');
   switch (proposalExecutorResultFromJSON(proposal.executor_result)) {
     case ProposalExecutorResult.PROPOSAL_EXECUTOR_RESULT_NOT_RUN:

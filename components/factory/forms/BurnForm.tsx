@@ -34,12 +34,12 @@ export default function BurnForm({
   refetch,
 }: Readonly<BurnFormProps>) {
   const [amount, setAmount] = useState('');
-  const [recipient, setRecipient] = useState(address || '');
+  const [recipient, setRecipient] = useState(admin ? admin : address || '');
 
   const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
   const { burn } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
-  const { burnHeldBalance } = liftedinit.manifest.v1.MessageComposer.withTypeUrl;
+
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const exponent = denom?.denom_units?.find(unit => unit.denom === denom.display)?.exponent || 0;
   const isMFX = denom?.base === 'umfx';
@@ -60,63 +60,41 @@ export default function BurnForm({
     }
     try {
       const amountInBaseUnits = parseNumberToBigInt(amount, exponent).toString();
-      let msg;
-      if (isMFX) {
-        const burnMsg = burnHeldBalance({
-          authority: admin ?? '',
-          burnCoins: [{ denom: denom.base, amount: amountInBaseUnits }],
-        });
-        const encodedMessage = Any.fromPartial({
-          typeUrl: burnMsg.typeUrl,
-          value: MsgBurnHeldBalance.encode(burnMsg.value).finish(),
-        });
-        msg = submitProposal({
-          groupPolicyAddress: admin ?? '',
-          messages: [encodedMessage],
-          metadata: '',
-          proposers: [address ?? ''],
-          title: `Burn MFX`,
-          summary: `This proposal includes a burn action for MFX.`,
-          exec: 0,
-        });
-      } else {
-        msg = isGroup
-          ? submitProposal({
-              groupPolicyAddress: admin,
-              messages: [
-                Any.fromPartial({
-                  typeUrl: MsgBurn.typeUrl,
-                  value: MsgBurn.encode(
-                    burn({
-                      amount: {
-                        amount: amountInBaseUnits,
-                        denom: denom.base,
-                      },
-                      sender: admin,
-                      burnFromAddress: recipient,
-                    }).value
-                  ).finish(),
-                }),
-              ],
-              metadata: '',
-              proposers: [address ?? ''],
-              title: `Burn ${denom.display}`,
-              summary: `This proposal will burn ${amount} ${denom.display} from ${recipient}.`,
-              exec: 0,
-            })
-          : burn({
-              amount: {
-                amount: amountInBaseUnits,
-                denom: denom.base,
-              },
-              sender: address,
-              burnFromAddress: recipient,
-            });
-      }
+      const msg = isGroup
+        ? submitProposal({
+            groupPolicyAddress: admin,
+            messages: [
+              Any.fromPartial({
+                typeUrl: MsgBurn.typeUrl,
+                value: MsgBurn.encode(
+                  burn({
+                    amount: {
+                      amount: amountInBaseUnits,
+                      denom: denom.base,
+                    },
+                    sender: admin,
+                    burnFromAddress: admin,
+                  }).value
+                ).finish(),
+              }),
+            ],
+            metadata: '',
+            proposers: [address],
+            title: `Burn ${denom.display}`,
+            summary: `This proposal will burn ${amount} ${denom.display} from ${recipient}.`,
+            exec: 0,
+          })
+        : burn({
+            amount: {
+              amount: amountInBaseUnits,
+              denom: denom.base,
+            },
+            sender: address,
+            burnFromAddress: recipient,
+          });
 
-      const fee = await estimateFee(address ?? '', [msg]);
       await tx([msg], {
-        fee,
+        fee: () => estimateFee(address, [msg]),
         onSuccess: () => {
           setAmount('');
           refetch();
@@ -139,19 +117,17 @@ export default function BurnForm({
             <div className="grid grid-cols-2 gap-6">
               <div>
                 <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">NAME</p>
-                <div className="bg-base-300 p-4 rounded-md">
+                <div className="dark:bg-[#FFFFFF0F] bg-[#0000000A] p-4 rounded-md">
                   <p className="font-semibold text-md max-w-[20ch] truncate text-black dark:text-white">
                     {denom.name}
                   </p>
                 </div>
               </div>
               <div>
-                <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">
-                  CIRCULATING SUPPLY
-                </p>
-                <div className="bg-base-300 p-4 rounded-md">
+                <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">BALANCE</p>
+                <div className="dark:bg-[#FFFFFF0F] bg-[#0000000A] p-4 rounded-md">
                   <p className="font-semibold text-md text-black truncate dark:text-white">
-                    {Number(shiftDigits(totalSupply, -exponent)).toLocaleString(undefined, {
+                    {Number(shiftDigits(balance, -exponent)).toLocaleString(undefined, {
                       maximumFractionDigits: exponent,
                     })}{' '}
                   </p>
@@ -173,7 +149,7 @@ export default function BurnForm({
                 {({ isValid, dirty, setFieldValue, errors, touched }) => (
                   <Form>
                     <div className="flex space-x-4 mt-8">
-                      <div className="flex-grow relative">
+                      <div className="grow relative">
                         <NumberInput
                           showError={false}
                           label="AMOUNT"
@@ -197,7 +173,7 @@ export default function BurnForm({
                           </div>
                         )}
                       </div>
-                      <div className="flex-grow relative">
+                      <div className="grow relative">
                         <AddressInput
                           showError={false}
                           label="TARGET"
@@ -227,7 +203,7 @@ export default function BurnForm({
                       <button
                         type="submit"
                         aria-label={`burn-btn-${denom.base}`}
-                        className="btn btn-error disabled:bg-error/40 disabled:text-white/40 btn-md flex-grow text-white"
+                        className="btn btn-error disabled:bg-error/40 disabled:text-white/40 btn-md grow text-white"
                         disabled={isSigning || !isValid || !dirty}
                       >
                         {isSigning ? (

@@ -1,14 +1,12 @@
-import { Dialog } from '@headlessui/react';
 import { cosmos } from '@liftedinit/manifestjs';
 import { MemberSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { Field, FieldProps, Form, Formik } from 'formik';
 import React, { useRef, useState } from 'react';
-import { MdContacts } from 'react-icons/md';
 import * as Yup from 'yup';
 
-import { CopyIcon, TrashIcon } from '@/components/icons';
-import { AddressCopyButton, SignModal } from '@/components/react';
+import { AddressCopyButton, SigningModalDialog } from '@/components';
+import { TrashIcon } from '@/components/icons';
 import { AddressInput } from '@/components/react/inputs/AddressInput';
 import env from '@/config/env';
 import { useFeeEstimation, useTx } from '@/hooks';
@@ -158,9 +156,8 @@ export function MemberManagementModal({
         summary: 'Update Group Members',
       });
 
-      const fee = await estimateFee(address, [msg]);
       await tx([msg], {
-        fee,
+        fee: () => estimateFee(address, [msg]),
         onSuccess: () => {
           onUpdate();
         },
@@ -178,167 +175,142 @@ export function MemberManagementModal({
   }
 
   return (
-    <Dialog
-      open
-      onClose={() => setShowMemberManagementModal(false)}
-      className={`modal modal-open fixed flex p-0 m-0`}
-      style={{
-        height: '100vh',
-        width: '100vw',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-
-      <Dialog.Panel className="modal-box relative max-w-3xl flex flex-col rounded-[24px] shadow-lg dark:bg-[#1D192D] bg-[#FFFFFF] transition-all duration-300 p-6">
+    <SigningModalDialog open onClose={() => setShowMemberManagementModal(false)}>
+      <div className="flex justify-between items-center my-8">
+        <h3 className="text-2xl font-semibold">Members</h3>
         <button
-          onClick={() => setShowMemberManagementModal(false)}
-          className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+          type="button"
+          className="btn btn-gradient xs:max-3xl:w-[140px] xxs:w-auto h-[52px] text-white rounded-[12px] btn-sm"
+          disabled={isSigning}
+          onClick={handleAddMember}
         >
-          ✕
+          New member
         </button>
+      </div>
 
-        <div className="flex justify-between items-center my-8">
-          <h3 className="text-2xl font-semibold">Members</h3>
-          <button
-            type="button"
-            className="btn btn-gradient xs:max-3xl:w-[140px] xxs:w-auto h-[52px] text-white rounded-[12px] btn-sm"
-            onClick={handleAddMember}
-          >
-            New member
-          </button>
-        </div>
+      <Formik
+        innerRef={formikRef}
+        initialValues={{ members }}
+        validationSchema={validationSchema}
+        onSubmit={handleConfirm}
+        enableReinitialize={true}
+      >
+        {({ values, isValid, setFieldValue, handleSubmit, touched }) => {
+          submitFormRef.current = handleSubmit;
 
-        <Formik
-          innerRef={formikRef}
-          initialValues={{ members }}
-          validationSchema={validationSchema}
-          onSubmit={handleConfirm}
-          enableReinitialize={true}
-        >
-          {({ values, isValid, setFieldValue, handleSubmit, touched }) => {
-            submitFormRef.current = handleSubmit;
-
-            return (
-              <>
-                <Form>
-                  <div className="flex items-center mb-4 px-4 text-sm text-gray-400">
-                    <div className="w-[10%] ml-3">#</div>
-                    <div className="w-[35%] ml-11">Name</div>
-                    <div className="w-[45%]">Address</div>
-                    <div className="w-[10%]"></div>
-                  </div>
-                  <div className="space-y-4 max-h-[22rem] overflow-y-auto">
-                    {values.members.map((member, index) => (
-                      <div
-                        key={index}
-                        className={`flex items-center dark:bg-[#2D2A3E] bg-[#0000000A] rounded-[12px] p-3 ${
-                          member.markedForDeletion ? 'opacity-50' : ''
-                        }`}
-                      >
-                        <div className="w-[10%] text-center">{index + 1}</div>
-                        {/* Name Field with Daisy UI Tooltip */}
-                        <div className="w-[35%] ml-12 pr-6 relative">
-                          <Field name={`members.${index}.metadata`}>
-                            {({ field, meta }: FieldProps) => (
-                              <div>
-                                <input
-                                  {...field}
-                                  type="text"
-                                  className={`input input-sm focus:outline-none input-ghost  bg-transparent w-full max-w-xs  ${
-                                    meta.touched && meta.error ? 'input-error' : ''
-                                  }`}
-                                  placeholder="member name"
-                                  disabled={member.markedForDeletion}
-                                />
-                                {meta.touched && meta.error && (
-                                  <div
-                                    className="tooltip tooltip-bottom tooltip-open tooltip-primary dark:text-white text-white text-xs mt-1 absolute left-1/2 transform translate-y-7 -translate-x-4 z-50"
-                                    data-tip={meta.error}
-                                  >
-                                    {/* Invisible element to anchor the tooltip */}
-                                    <div className="w-0 h-0"></div>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </Field>
-                        </div>
-                        {/* Address Field with Daisy UI Tooltip */}
-                        <div className="w-[45%] flex items-center relative">
-                          <Field name={`members.${index}.address`}>
-                            {({ field, meta }: FieldProps) => (
-                              <div className="flex-grow relative">
-                                <AddressInput
-                                  {...field}
-                                  className={`input input-sm focus:outline-none disabled:bg-transparent disabled:border-none bg-transparent input-ghost w-full ${
-                                    meta.touched && meta.error ? 'input-error' : ''
-                                  }`}
-                                  placeholder="manifest1..."
-                                  disabled={!member.isNew || member.markedForDeletion}
-                                  value={truncateAddress(field.value)}
-                                  small
-                                  data-1p-ignore
-                                />
-                                {meta.touched && meta.error && (
-                                  <div
-                                    className="tooltip tooltip-bottom tooltip-open tooltip-primary dark:text-white text-white text-xs mt-1 absolute left-1/2 transform translate-y-7 -translate-x-4 z-50"
-                                    data-tip={meta.error}
-                                  >
-                                    <div className="w-0 h-0"></div>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </Field>
-
-                          <AddressCopyButton
-                            address={member.address}
-                            className="btn btn-ghost hover:bg-transparent btn-sm"
-                          />
-                        </div>
-                        <div className="w-[10%] flex justify-end">
-                          <button
-                            type="button"
-                            onClick={() => handleMemberToggleDeletion(index)}
-                            className={`btn btn-primary btn-square rounded-[12px] btn-sm`}
-                          >
-                            <TrashIcon className="text-white w-5 h-5" />
-                          </button>
-                        </div>
+          return (
+            <>
+              <Form>
+                <div className="flex items-center mb-4 px-4 text-sm text-gray-400">
+                  <div className="w-[10%] ml-3">#</div>
+                  <div className="w-[35%] ml-11">Name</div>
+                  <div className="w-[45%]">Address</div>
+                  <div className="w-[10%]"></div>
+                </div>
+                <div className="space-y-4 max-h-[22rem] overflow-y-auto">
+                  {values.members.map((member, index) => (
+                    <div
+                      key={index}
+                      className={`flex items-center dark:bg-[#2D2A3E] bg-[#0000000A] rounded-[12px] p-3 ${
+                        member.markedForDeletion ? 'opacity-50' : ''
+                      }`}
+                    >
+                      <div className="w-[10%] text-center">{index + 1}</div>
+                      {/* Name Field with Daisy UI Tooltip */}
+                      <div className="w-[35%] ml-12 pr-6 relative">
+                        <Field name={`members.${index}.metadata`}>
+                          {({ field, meta }: FieldProps) => (
+                            <div>
+                              <input
+                                {...field}
+                                type="text"
+                                className={`input input-sm focus:outline-hidden input-ghost  bg-transparent w-full max-w-xs  ${
+                                  meta.touched && meta.error ? 'input-error' : ''
+                                }`}
+                                placeholder="member name"
+                                disabled={member.markedForDeletion}
+                              />
+                              {meta.touched && meta.error && (
+                                <div
+                                  className="tooltip tooltip-bottom tooltip-open tooltip-primary dark:text-white text-white text-xs mt-1 absolute left-1/2 transform translate-y-7 -translate-x-4 z-50"
+                                  data-tip={meta.error}
+                                >
+                                  {/* Invisible element to anchor the tooltip */}
+                                  <div className="w-0 h-0"></div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </Field>
                       </div>
-                    ))}
-                  </div>
-                  <div className="mt-4 gap-6 flex justify-center w-full">
-                    <button
-                      type="button"
-                      className="btn w-[calc(50%-8px)] btn-md focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
-                      onClick={() => setShowMemberManagementModal(false)}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-md w-[calc(50%-8px)] btn-gradient  text-white"
-                      onClick={() => submitFormRef.current?.()}
-                      disabled={isSigning || !isValid || !touched}
-                    >
-                      {isSigning ? (
-                        <span className="loading loading-dots loading-md"></span>
-                      ) : (
-                        'Save'
-                      )}
-                    </button>
-                  </div>
-                </Form>
-              </>
-            );
-          }}
-        </Formik>
+                      {/* Address Field with Daisy UI Tooltip */}
+                      <div className="w-[45%] flex items-center relative">
+                        <Field name={`members.${index}.address`}>
+                          {({ field, meta }: FieldProps) => (
+                            <div className="grow relative">
+                              <AddressInput
+                                {...field}
+                                className={`input input-sm focus:outline-hidden disabled:bg-transparent disabled:border-none bg-transparent input-ghost w-full ${
+                                  meta.touched && meta.error ? 'input-error' : ''
+                                }`}
+                                placeholder="manifest1..."
+                                disabled={!member.isNew || member.markedForDeletion}
+                                value={truncateAddress(field.value)}
+                                small
+                                data-1p-ignore
+                              />
+                              {meta.touched && meta.error && (
+                                <div
+                                  className="tooltip tooltip-bottom tooltip-open tooltip-primary dark:text-white text-white text-xs mt-1 absolute left-1/2 transform translate-y-7 -translate-x-4 z-50"
+                                  data-tip={meta.error}
+                                >
+                                  <div className="w-0 h-0"></div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </Field>
 
-        <SignModal />
-      </Dialog.Panel>
-    </Dialog>
+                        <AddressCopyButton
+                          address={member.address}
+                          className="btn btn-ghost hover:bg-transparent btn-sm"
+                        />
+                      </div>
+                      <div className="w-[10%] flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() => handleMemberToggleDeletion(index)}
+                          className={`btn btn-primary btn-square rounded-[12px] btn-sm`}
+                        >
+                          <TrashIcon className="text-white w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 gap-6 flex justify-center w-full">
+                  <button
+                    type="button"
+                    className="btn w-[calc(50%-8px)] btn-md focus:outline-hidden dark:bg-[#FFFFFF0F] bg-[#0000000A]"
+                    disabled={isSigning}
+                    onClick={() => setShowMemberManagementModal(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-md w-[calc(50%-8px)] btn-gradient  text-white"
+                    onClick={() => submitFormRef.current?.()}
+                    disabled={isSigning || !isValid || !touched}
+                  >
+                    {isSigning ? <span className="loading loading-dots loading-md"></span> : 'Save'}
+                  </button>
+                </div>
+              </Form>
+            </>
+          );
+        }}
+      </Formik>
+    </SigningModalDialog>
   );
 }

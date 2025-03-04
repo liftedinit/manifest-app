@@ -254,11 +254,13 @@ const DisplayDataToSign = ({
  * when a sign request is received.
  * @constructor
  */
-export const SignModal = ({ id }: { id?: string }) => {
+export const SignModal = ({ id, testing }: { id?: string; testing?: boolean }) => {
   const { wallet } = useWallet();
   const { prompt, promptId, isSigning } = useContext(Web3AuthContext);
   const [visible, setVisible] = useState(false);
   const [data, setData] = useState<SignData | undefined>(undefined);
+
+  const isLedgerWallet = wallet?.mode === 'ledger';
 
   useEffect(() => {
     if (promptId === id && prompt !== undefined) {
@@ -269,16 +271,14 @@ export const SignModal = ({ id }: { id?: string }) => {
     }
   }, [promptId, id, prompt]);
 
-  if (!isSigning || !wallet) {
+  if (!isSigning || !visible) {
     return null;
   }
-
-  const showLedgerMessage = wallet.mode === 'ledger';
 
   const approve = () => prompt?.resolve(true);
   const reject = () => prompt?.resolve(false);
 
-  if (showLedgerMessage) {
+  if (isLedgerWallet) {
     return <LedgerSignModalInner onClose={() => {}} />;
   } else {
     return (
@@ -305,8 +305,8 @@ export interface LedgerSignModalInnerProps {
  */
 export const LedgerSignModalInner: React.FC<LedgerSignModalInnerProps> = ({ onClose }) => {
   return (
-    <Dialog open onClose={onClose} className="modal modal-open top-0 right-0 z-[9999]">
-      <div className="fixed inset-0 backdrop-blur-sm bg-black/30" aria-hidden="true" />
+    <Dialog open onClose={onClose} className="modal modal-open top-0 right-0 z-9999">
+      <div className="fixed inset-0  bg-black/30" aria-hidden="true" />
 
       <Dialog.Panel className="modal-box max-w-lg w-full dark:bg-[#1D192D] bg-[#FFFFFF] rounded-lg shadow-xl">
         <h3 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">Ledger HSM</h3>
@@ -355,6 +355,7 @@ export const PromptSignModalInner: React.FC<SignModalInnerProps> = ({
     reject?.();
     onClose();
   }
+
   function handleApprove() {
     approve?.();
     onClose();
@@ -362,8 +363,8 @@ export const PromptSignModalInner: React.FC<SignModalInnerProps> = ({
 
   if (!visible) return null;
   return (
-    <Dialog open onClose={onClose} className="modal modal-open top-0 right-0 z-[9999]">
-      <div className="fixed inset-0 backdrop-blur-sm bg-black/30" aria-hidden="true" />
+    <Dialog open onClose={onClose} className="modal modal-open top-0 right-0 z-9999">
+      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
 
       <Dialog.Panel className="modal-box max-w-lg w-full dark:bg-[#1D192D] bg-[#FFFFFF] rounded-lg shadow-xl">
         <div className="flex justify-between items-center pb-4">
@@ -394,12 +395,19 @@ export const PromptSignModalInner: React.FC<SignModalInnerProps> = ({
 
         <div className="modal-action mt-6 flex justify-between gap-4">
           <button
-            className="btn btn-error flex-1 rounded-[12px] focus:outline-none"
+            role="button"
+            aria-label="Reject"
+            className="btn btn-error flex-1 rounded-[12px] focus:outline-hidden"
             onClick={handleReject}
           >
             Reject
           </button>
-          <button className="btn btn-gradient flex-1 rounded-[12px]" onClick={handleApprove}>
+          <button
+            role="button"
+            aria-label="Approve"
+            className="btn btn-gradient flex-1 rounded-[12px]"
+            onClick={handleApprove}
+          >
             Approve
           </button>
         </div>

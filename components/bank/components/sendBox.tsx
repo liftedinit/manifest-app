@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import React from 'react';
 
 import env from '@/config/env';
+import { useTx } from '@/hooks';
 import { CombinedBalanceInfo } from '@/utils/types';
 
 import IbcSendForm from '../forms/ibcSendForm';
@@ -60,6 +61,8 @@ export default React.memo(function SendBox({
   const [selectedFromChain, setSelectedFromChain] = useState<IbcChain>(ibcChains[0]);
   const [selectedToChain, setSelectedToChain] = useState<IbcChain>(ibcChains[1]);
 
+  const { isSigning } = useTx(env.chain);
+
   useEffect(() => {
     if (selectedFromChain && selectedToChain && selectedFromChain.id === selectedToChain.id) {
       // If chains match, switch the destination chain to the other available chain
@@ -89,6 +92,7 @@ export default React.memo(function SendBox({
           className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl transition-colors relative z-10 ${
             activeTab === 'send' ? 'text-[#161616] dark:text-white' : 'text-[#808080]'
           }`}
+          disabled={isSigning}
           onClick={() => setActiveTab('send')}
         >
           Send
@@ -99,6 +103,7 @@ export default React.memo(function SendBox({
             className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl transition-colors relative z-10 ${
               activeTab === 'cross-chain' ? 'text-[#161616] dark:text-white' : 'text-[#808080]'
             }`}
+            disabled={isSigning}
             onClick={() => setActiveTab('cross-chain')}
           >
             Cross-Chain Transfer
@@ -112,7 +117,7 @@ export default React.memo(function SendBox({
         ) : (
           <div
             className={`transition-all duration-300 ease-in-out ${
-              activeTab === 'cross-chain' ? 'h-[630px]' : 'h-[450px]'
+              activeTab === 'cross-chain' ? 'h-[635px]' : 'h-[430px]'
             }`}
           >
             {activeTab === 'cross-chain' && env.chainTier === 'testnet' ? (

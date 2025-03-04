@@ -6,7 +6,7 @@ import { Form, Formik, FormikValues } from 'formik';
 import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
-import { TextInput } from '@/components';
+import { SigningModalDialog, TextInput } from '@/components';
 import { SignModal } from '@/components/react';
 import env from '@/config/env';
 import { useToast } from '@/contexts';
@@ -84,10 +84,8 @@ export default function TransferModal({
             newAdmin: values.newAdmin,
           });
 
-      const fee = await estimateFee(address, [msg]);
-
       await tx([msg], {
-        fee,
+        fee: () => estimateFee(address, [msg]),
         onSuccess: () => {
           refetch();
           handleCloseModal(resetForm);
@@ -114,18 +112,7 @@ export default function TransferModal({
   };
 
   const modalContent = (
-    <Dialog
-      open={isOpen}
-      onClose={onClose}
-      className={`modal modal-open fixed flex p-0 m-0`}
-      style={{
-        height: '100vh',
-        width: '100vw',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+    <SigningModalDialog panelClassName="max-w-4xl" open={isOpen} onClose={onClose}>
       <Formik
         initialValues={formData}
         validationSchema={TokenOwnershipSchema}
@@ -135,16 +122,7 @@ export default function TransferModal({
         enableReinitialize={true}
       >
         {({ isValid, dirty, values, handleChange, handleSubmit, resetForm }) => (
-          <div className="modal-box max-w-4xl mx-auto p-6 bg-[#F4F4FF] dark:bg-[#1D192D] rounded-[24px] shadow-lg relative">
-            <form method="dialog">
-              <button
-                type="button"
-                className="btn btn-sm btn-circle btn-ghost absolute right-4 top-4 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]"
-                onClick={() => handleCloseModal(() => resetForm())}
-              >
-                ✕
-              </button>
-            </form>
+          <div className="">
             <h3 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">
               Update administrator for{' '}
               <span className="font-light text-primary">
@@ -187,8 +165,9 @@ export default function TransferModal({
                 <div className="mt-4 flex flex-row justify-center gap-2 w-full">
                   <button
                     type="button"
-                    className="btn w-1/2  focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A] dark:text-white text-black"
+                    className="btn w-[calc(50%-8px)] btn-md focus:outline-hidden dark:bg-[#FFFFFF0F] bg-[#0000000A]"
                     onClick={() => handleCloseModal(() => resetForm())}
+                    disabled={isSigning}
                   >
                     Cancel
                   </button>
@@ -210,9 +189,7 @@ export default function TransferModal({
           </div>
         )}
       </Formik>
-
-      <SignModal />
-    </Dialog>
+    </SigningModalDialog>
   );
 
   // Only render if we're in the browser

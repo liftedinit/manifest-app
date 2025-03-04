@@ -24,9 +24,9 @@ export default function Groups() {
   const isError = isGroupByMemberError || isProposalsError;
 
   return (
-    <div className="min-h-screen relative lg:py-0 py-4 px-2 mx-auto text-white ">
+    <div className="relative mx-auto">
       <SEO title="Groups - Alberto" />
-      <div className="flex-grow h-full animate-fadeIn transition-all duration-300">
+      <div className="grow h-full animate-fadeIn transition-all duration-300">
         <div className="w-full mx-auto">
           {!isWalletConnected ? (
             <WalletNotConnected

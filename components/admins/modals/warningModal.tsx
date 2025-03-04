@@ -1,12 +1,11 @@
 import { useChain } from '@cosmos-kit/react';
-import { Dialog } from '@headlessui/react';
 import { cosmos, strangelove_ventures } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgRemoveValidator } from '@liftedinit/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { PiWarning } from 'react-icons/pi';
 
-import { SignModal } from '@/components/react';
+import { SigningModalDialog } from '@/components';
 import env from '@/config/env';
 import { useFeeEstimation, useTx } from '@/hooks';
 
@@ -64,9 +63,8 @@ export function WarningModal({
       exec: 0,
     });
 
-    const fee = await estimateFee(userAddress ?? '', [groupProposalMsg]);
     await tx([groupProposalMsg], {
-      fee,
+      fee: () => estimateFee(userAddress ?? '', [groupProposalMsg]),
       onSuccess: () => {},
     });
   };
@@ -74,64 +72,38 @@ export function WarningModal({
   const handleClose = () => setOpenWarningModal(false);
 
   return (
-    <Dialog
-      className="modal modal-open fixed flex p-0 m-0"
-      open={openWarningModal}
-      onClose={handleClose}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-title"
-      aria-describedby="modal-description"
-      style={{
-        height: '100vh',
-        width: '100vw',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+    <SigningModalDialog open={openWarningModal} onClose={handleClose}>
+      <form method="dialog">
+        <div className="p-4">
+          <div className="flex flex-col gap-2 items-center mb-6">
+            <PiWarning className="text-yellow-200 text-6xl" />
+          </div>
+          <p className="text-md text-center font-thin">
+            Are you sure you want to remove the validator{' '}
+          </p>
+          <p className="text-center font-bold text-2xl mt-2">{moniker}</p>
+          <p className="text-md text-center font-thin mt-2">
+            from the {isActive ? 'active set' : 'pending list'}?
+          </p>
+        </div>
 
-      <Dialog.Panel className="modal-box text-black dark:text-white dark:bg-[#1D192D] bg-[#FFFFFF]">
-        <form method="dialog">
+        <div className="modal-action">
           <button
-            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-            onClick={handleClose}
+            type="button"
+            className="btn btn-error text-white w-1/2 mx-auto -mt-2"
+            onClick={handleAccept}
+            disabled={isSigning}
           >
-            ✕
+            {isSigning ? (
+              <span className="loading loading-dots loading-sm"></span>
+            ) : isActive ? (
+              'Remove From Active Set'
+            ) : (
+              'Remove From Pending List'
+            )}
           </button>
-          <div className="p-4">
-            <div className="flex flex-col gap-2 items-center mb-6">
-              <PiWarning className="text-yellow-200 text-6xl" />
-            </div>
-            <p className="text-md text-center font-thin">
-              Are you sure you want to remove the validator{' '}
-            </p>
-            <p className="text-center font-bold text-2xl mt-2">{moniker}</p>
-            <p className="text-md text-center font-thin mt-2">
-              from the {isActive ? 'active set' : 'pending list'}?
-            </p>
-          </div>
-
-          <div className="modal-action">
-            <button
-              type="button"
-              className="btn btn-error text-white w-1/2 mx-auto -mt-2"
-              onClick={handleAccept}
-              disabled={isSigning}
-            >
-              {isSigning ? (
-                <span className="loading loading-dots loading-sm"></span>
-              ) : isActive ? (
-                'Remove From Active Set'
-              ) : (
-                'Remove From Pending List'
-              )}
-            </button>
-          </div>
-        </form>
-
-        <SignModal />
-      </Dialog.Panel>
-    </Dialog>
+        </div>
+      </form>
+    </SigningModalDialog>
   );
 }

@@ -23,8 +23,8 @@ export const TextArea: React.FC<
           {...field}
           {...props}
           className={`dark:text-[#FFFFFF99] text-[#161616] textarea border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full 
-            autofill:bg-[#E0E0FF0A] autofill:dark:bg-[#E0E0FF0A]
-            focus:bg-[#E0E0FF0A] focus:dark:bg-[#E0E0FF0A]
+            autofill:bg-[#E0E0FF0A] dark:autofill:bg-[#E0E0FF0A]
+            focus:bg-[#E0E0FF0A] dark:focus:bg-[#E0E0FF0A]
             ${props.className}`}
         />
       </div>

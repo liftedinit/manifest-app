@@ -38,7 +38,10 @@ export const parseNumberToBigInt = (v: string, maxDigits: number = 6) => {
     return BigInt(0);
   }
   const precision = new BigNumber(10).pow(maxDigits);
-  const b = amount.times(precision).toFixed();
+
+  // Round to maxDigits decimal places before converting to base units
+  const roundedAmount = amount.toFixed(maxDigits);
+  const b = new BigNumber(roundedAmount).times(precision).toFixed(0);
 
   return BigInt(b);
 };

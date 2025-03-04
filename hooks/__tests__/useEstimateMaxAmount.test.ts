@@ -46,8 +46,8 @@ describe('useEstimateMaxTokenAmount', () => {
   test('works', () => {
     const estimateMax = useEstimateMaxTokenAmount();
 
-    expect(estimateMax(mockBalances[0])).toBe(0.001);
+    expect(estimateMax(mockBalances[0]).toFixed()).toBe('0.001');
     // MFX should have 0.1 subtracted from the max amount.
-    expect(estimateMax(mockBalances[1])).toBe(1.9);
+    expect(estimateMax(mockBalances[1]).toFixed()).toBe('1.9');
   });
 });

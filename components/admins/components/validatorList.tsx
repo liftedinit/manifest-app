@@ -1,14 +1,12 @@
 import { ValidatorSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
 import Image from 'next/image';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
+import { ValidatorDetailsModal, WarningModal } from '@/components';
 import { SearchIcon, TrashIcon } from '@/components/icons';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import useIsMobile from '@/hooks/useIsMobile';
 import ProfileAvatar from '@/utils/identicon';
-
-import { ValidatorDetailsModal } from '../modals/validatorModal';
-import { WarningModal } from '../modals/warningModal';
 
 export interface ExtendedValidatorSDKType extends ValidatorSDKType {
   consensus_power?: bigint;
@@ -31,7 +29,6 @@ export default function ValidatorList({
   const [active, setActive] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedValidator, setSelectedValidator] = useState<ExtendedValidatorSDKType | null>(null);
-  const [modalId, setModalId] = useState<string | null>(null);
   const [openWarningModal, setOpenWarningModal] = useState(false);
   const [openValidatorModal, setOpenValidatorModal] = useState(false);
 
@@ -78,13 +75,12 @@ export default function ValidatorList({
   const handleRowClick = (validator: ExtendedValidatorSDKType) => {
     setSelectedValidator(validator);
     setModalKey(prevKey => prevKey + 1);
-    setModalId(`validator-modal-${validator.operator_address}-${Date.now()}`);
     setOpenValidatorModal(true);
   };
 
   return (
     <div className="relative w-full h-full overflow-hidden">
-      <div className="h-full flex flex-col p-1">
+      <div className="h-full flex flex-col">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
             <h1
@@ -97,7 +93,7 @@ export default function ValidatorList({
               <input
                 type="text"
                 placeholder="Search for a validator..."
-                className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+                className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-hidden focus-visible:ring-1 focus-visible:ring-primary"
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
               />
@@ -108,23 +104,31 @@ export default function ValidatorList({
         <div
           role="tablist"
           aria-label="Validator status filter"
-          className="flex mb-2 w-full h-[3.5rem] rounded-xl p-1 bg-secondary"
+          className="flex mb-2 w-full h-[3.5rem] rounded-xl p-1 bg-[#0000000A] dark:bg-[#FFFFFF0F] relative"
         >
+          <div
+            className={`absolute transition-all duration-200 ease-in-out h-[calc(100%-8px)] top-1 rounded-xl bg-white dark:bg-[#FFFFFF1F] ${
+              active ? 'left-1 w-[calc(50%-4px)]' : 'left-[calc(50%+1px)] w-[calc(50%-4px)]'
+            }`}
+          />
           <button
             onClick={() => setActive(true)}
             role="tab"
             aria-selected={active}
             aria-controls="active-validators"
-            className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl focus:outline-none focus:ring-1 focus:ring-primary/50  ${
-              active ? 'bg-base-300 text-secondary-content' : 'text-gray-500'
+            className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl focus:outline-hidden  relative z-10 ${
+              active ? 'text-[#161616] dark:text-white' : 'text-[#808080]'
             }`}
           >
             Active
           </button>
           <button
             onClick={() => setActive(false)}
-            className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl focus:outline-none focus:ring-1 focus:ring-primary/50  ${
-              !active ? 'bg-base-300 text-secondary-content' : 'text-gray-500'
+            role="tab"
+            aria-selected={!active}
+            aria-controls="pending-validators"
+            className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl focus:outline-hidden  relative z-10 ${
+              !active ? 'text-[#161616] dark:text-white' : 'text-[#808080]'
             }`}
           >
             Pending
@@ -204,7 +208,7 @@ export default function ValidatorList({
                   {paginatedValidators.map(validator => (
                     <tr
                       key={validator.operator_address}
-                      className="group text-black dark:text-white rounded-lg cursor-pointer focus:outline-none transition-colors"
+                      className="group text-black dark:text-white rounded-lg cursor-pointer focus:outline-hidden transition-colors"
                       onClick={() => handleRowClick(validator)}
                       tabIndex={0}
                       role="row"
@@ -258,7 +262,6 @@ export default function ValidatorList({
       <ValidatorDetailsModal
         key={modalKey}
         validator={selectedValidator}
-        modalId={modalId || ''}
         admin={admin}
         totalvp={totalvp.toString()}
         validatorVPArray={validatorVPArray}

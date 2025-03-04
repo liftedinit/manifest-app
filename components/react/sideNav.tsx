@@ -15,7 +15,7 @@ import {
   QuestionIcon,
 } from '@/components/icons';
 import env from '@/config/env';
-import { useTheme } from '@/contexts/theme';
+import { useTheme } from '@/contexts';
 import { useGroupsByAdmin } from '@/hooks';
 import { usePoaGetAdmin } from '@/hooks';
 import { getRealLogo } from '@/utils';
@@ -82,7 +82,7 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
           <Image src={'/logo.svg'} className="h-16 w-16" alt="Logo" height={264} width={264} />
         </a>
       </Link>
-      <ul className="flex flex-col items-center flex-grow mt-8">
+      <ul className="flex flex-col items-center grow mt-8">
         <NavItem Icon={BankIcon} href="/bank" tooltip="Bank" />
         <NavItem Icon={GroupsIcon} href="/groups" tooltip="Groups" />
         {isMember && <NavItem Icon={AdminsIcon} href="/admins" tooltip="Admin" />}
@@ -112,11 +112,12 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
           <input
             type="checkbox"
             className="theme-controller hidden"
+            value="dark"
             checked={theme === 'dark'}
-            onChange={toggleTheme}
+            onChange={() => toggleTheme()}
           />
-          <LightIcon className="swap-on fill-current w-9 h-9 duration-300" />
-          <DarkIcon className="swap-off fill-current w-9 h-9 duration-300" />
+          <DarkIcon className="swap-on fill-current w-9 h-9 duration-300" />
+          <LightIcon className="swap-off fill-current w-9 h-9 duration-300" />
         </label>
         <div
           className="tooltip tooltip-top tooltip-primary hover:after:delay-1000 hover:before:delay-1000"
@@ -177,7 +178,7 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
           )}
         </div>
       </div>
-      <ul className="flex-grow mt-8 p-1">
+      <ul className="grow mt-8 p-1">
         <NavDrawer Icon={BankIcon} href="/bank" label="Bank" tooltip="Manage your assets" />
         <NavDrawer
           Icon={GroupsIcon}
@@ -217,9 +218,10 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
             <label className="flex items-center justify-between w-full h-full cursor-pointer">
               <input
                 type="checkbox"
-                className="sr-only peer"
+                className="theme-controller hidden"
+                value="dark"
                 checked={theme === 'dark'}
-                onChange={toggleTheme}
+                onChange={() => toggleTheme()}
               />
               <div className="flex items-center justify-center w-1/2 h-full z-10">
                 <LightIcon

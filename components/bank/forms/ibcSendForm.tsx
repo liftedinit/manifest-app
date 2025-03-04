@@ -18,6 +18,7 @@ import env from '@/config/env';
 import { useToast } from '@/contexts';
 import { useSkipClient } from '@/contexts/skipGoContext';
 import { useFeeEstimation, useTx } from '@/hooks';
+import { sendForm } from '@/schemas';
 import { getIbcDenom, getIbcInfo, parseNumberToBigInt, shiftDigits, truncateString } from '@/utils';
 import { CombinedBalanceInfo } from '@/utils/types';
 import Yup from '@/utils/yupExtensions';
@@ -53,15 +54,13 @@ export default function IbcSendForm({
   availableToChains: IbcChain[];
 }>) {
   // State management
-  const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [feeWarning, setFeeWarning] = useState('');
 
   // Hooks and context
   const { getOfflineSignerAmino } = useChain(env.chain);
-  const { tx } = useTx(env.chain);
-  const { estimateFee } = useFeeEstimation(env.chain);
+  const { isSigning, tx } = useTx(env.chain);
   const { setToastMessage } = useToast();
+  const { estimateFee } = useFeeEstimation(env.chain);
   const skipClient = useSkipClient({ getCosmosSigner: async () => getOfflineSignerAmino() });
   const queryClient = useQueryClient();
   // Constants
@@ -95,8 +94,9 @@ export default function IbcSendForm({
     return null;
   }
 
-  // Form validation schema
-  const validationSchema = Yup.object().shape({
+  // Form validation schema, same as sendForm but the recipient field
+  // must have the prefix of the target chain.
+  const validationSchema = sendForm.schema.shape({
     recipient: Yup.string()
       .required('Recipient is required')
       .manifestAddress()
@@ -112,51 +112,14 @@ export default function IbcSendForm({
               : value.startsWith('manifest');
         }
       ),
-    amount: Yup.number()
-      .required('Amount is required')
-      .positive('Amount must be positive')
-      .test('sufficient-balance', 'Amount exceeds balance', function (value) {
-        const { selectedToken } = this.parent;
-        if (!selectedToken || !value) return true;
-
-        const exponent = selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-        const balance = parseFloat(selectedToken.amount) / Math.pow(10, exponent);
-        return value <= balance;
-      })
-      .test('leave-for-fees', '', function (value) {
-        const { selectedToken } = this.parent;
-        if (!selectedToken || !value || selectedToken.denom !== 'umfx') return true;
-
-        const exponent = selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-        const balance = parseFloat(selectedToken.amount) / Math.pow(10, exponent);
-
-        const MIN_FEE_BUFFER = 0.09;
-        const hasInsufficientBuffer = value > balance - MIN_FEE_BUFFER;
-
-        if (hasInsufficientBuffer) {
-          setFeeWarning('Remember to leave tokens for fees!');
-        } else {
-          setFeeWarning('');
-        }
-
-        return !hasInsufficientBuffer;
-      }),
-    selectedToken: Yup.object().required('Please select a token'),
-    memo: Yup.string().max(255, 'Memo must be less than 255 characters'),
   });
 
   // Main form submission handler
-  const handleSend = async (values: {
-    recipient: string;
-    amount: string;
-    selectedToken: CombinedBalanceInfo;
-    memo: string;
-  }) => {
-    setIsSending(true);
+  const handleSend = async (values: sendForm.SendForm) => {
     try {
       // Convert amount to base units
       const exponent = values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-      const amountInBaseUnits = parseNumberToBigInt(values.amount, exponent).toString();
+      const amountInBaseUnits = parseNumberToBigInt(values.amount.toString(), exponent).toString();
 
       // Get IBC channel info
       const { source_port, source_channel } = getIbcInfo(selectedFromChain.id, selectedToChain.id);
@@ -267,9 +230,6 @@ export default function IbcSendForm({
           });
         } catch (error) {
           console.error('Error during sending:', error);
-          setIsSending(false);
-        } finally {
-          setIsSending(false);
         }
       } else {
         const transferMsg = transfer({
@@ -300,11 +260,9 @@ export default function IbcSendForm({
           exec: 0,
         });
 
-        const fee = await estimateFee(address ?? '', [msg]);
-
         await tx([msg], {
           memo: values.memo,
-          fee,
+          fee: () => estimateFee(address ?? '', [msg]),
           onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['balances'] });
             queryClient.invalidateQueries({ queryKey: ['balances-resolved'] });
@@ -315,10 +273,13 @@ export default function IbcSendForm({
       }
     } catch (error) {
       console.error('Error during sending:', error);
-      setIsSending(false);
-    } finally {
-      setIsSending(false);
     }
+  };
+  const initialValue: sendForm.SendForm = {
+    recipient: '',
+    amount: '',
+    selectedToken: initialSelectedToken,
+    memo: '',
   };
 
   return (
@@ -327,12 +288,7 @@ export default function IbcSendForm({
       className="text-sm bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] p-6 w-full h-full animate-fadeIn duration-400"
     >
       <Formik
-        initialValues={{
-          recipient: '',
-          amount: '',
-          selectedToken: initialSelectedToken,
-          memo: '',
-        }}
+        initialValues={initialValue}
         enableReinitialize={false}
         validationSchema={validationSchema}
         onSubmit={handleSend}
@@ -344,8 +300,8 @@ export default function IbcSendForm({
             : null;
 
           return (
-            <Form className="space-y-6 flex flex-col items-center max-w-md mx-auto">
-              <div className="w-full space-y-4">
+            <Form className="space-y-8 flex flex-col items-center max-w-md mx-auto">
+              <div className="w-full space-y-8">
                 <div className=" relative w-full flex flex-col space-y-4">
                   {/* From Chain */}
                   <div className={`w-full ${isIbcTransfer ? 'block' : 'hidden'}`}>
@@ -436,7 +392,7 @@ export default function IbcSendForm({
                     <ul
                       tabIndex={0}
                       role="listbox"
-                      className="dropdown-content z-[100] menu p-2 shadow bg-base-300 rounded-lg w-full mt-1 dark:text-[#FFFFFF] text-[#161616]"
+                      className="dropdown-content z-100 menu p-2 shadow-sm bg-base-300 rounded-lg w-full mt-1 dark:text-[#FFFFFF] text-[#161616]"
                     >
                       {availableToChains?.map(chain => (
                         <li
@@ -508,8 +464,11 @@ export default function IbcSendForm({
                   <div className="relative">
                     <AmountInput
                       name="amount"
+                      className="pr-[11rem]"
                       value={values.amount}
-                      onValueChange={v => setFieldValue('amount', v)}
+                      onValueChange={value => {
+                        setFieldValue('amount', value?.toFixed());
+                      }}
                     />
                     <div className="absolute inset-y-1 right-1 flex items-center">
                       <div className="dropdown dropdown-end h-full">
@@ -530,14 +489,14 @@ export default function IbcSendForm({
                         </label>
                         <ul
                           tabIndex={0}
-                          className="dropdown-content z-20 p-2 shadow bg-base-300 rounded-lg w-full mt-1 max-h-72 min-w-44 overflow-y-auto dark:text-[#FFFFFF] text-[#161616]"
+                          className="dropdown-content z-20 p-2 shadow-sm bg-base-300 rounded-lg w-full mt-1 max-h-72 min-w-44 overflow-y-auto dark:text-[#FFFFFF] text-[#161616]"
                         >
                           <li className=" bg-base-300 z-30 hover:bg-transparent h-full mb-2">
                             <div className="px-2 py-1 relative">
                               <input
                                 type="text"
                                 placeholder="Search tokens..."
-                                className="input input-sm w-full pr-8 focus:outline-none focus:ring-0 border  border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A]"
+                                className="input input-sm w-full pr-8 focus:outline-hidden focus:ring-0 border  border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A]"
                                 onChange={e => setSearchTerm(e.target.value)}
                                 style={{ boxShadow: 'none', borderRadius: '8px' }}
                               />
@@ -611,8 +570,8 @@ export default function IbcSendForm({
                       />
                     </div>
                     {errors.amount && <div className="text-red-500 text-xs">{errors.amount}</div>}
-                    {feeWarning && !errors.amount && (
-                      <div className="text-yellow-500 text-xs">{feeWarning}</div>
+                    {errors.feeWarning && !errors.amount && (
+                      <div className="text-yellow-500 text-xs">{errors.feeWarning}</div>
                     )}
                   </div>
                 </div>
@@ -642,14 +601,14 @@ export default function IbcSendForm({
                 />
               </div>
 
-              <div className="w-full mt-6">
+              <div className="w-full">
                 <button
                   type="submit"
                   className="btn btn-gradient w-full text-white"
-                  disabled={isSending || !isValid || !dirty}
+                  disabled={isSigning || !isValid || !dirty}
                   aria-label="send-btn"
                 >
-                  {isSending ? <span className="loading loading-dots loading-xs"></span> : 'Send'}
+                  {isSigning ? <span className="loading loading-dots loading-xs"></span> : 'Send'}
                 </button>
               </div>
             </Form>
