@@ -8,7 +8,7 @@ import env from '../../config/env';
 
 export interface ModalDialogProps extends React.PropsWithChildren {
   open: boolean;
-  onClose?: () => void;
+  onClose?: () => boolean | void;
 
   style?: React.CSSProperties;
   className?: string;
@@ -34,20 +34,17 @@ export const SigningModalDialog = ({
   ...props
 }: SigningModalDialogProps) => {
   const { isSigning } = useTx(env.chain);
-  const [opened, setOpened] = React.useState(open);
-  if (open && !opened) {
-    setOpened(true);
-  }
 
   const handleClose = () => {
     if (!isSigning) {
-      setOpened(false);
       onClose && onClose();
+      return true;
     }
+    return false;
   };
 
   return (
-    <ModalDialog open={opened} onClose={handleClose} disabled={isSigning} {...props}>
+    <ModalDialog open={open} onClose={handleClose} disabled={isSigning} {...props}>
       {children}
 
       <SignModal />
@@ -83,12 +80,19 @@ export const ModalDialog = ({
   if (open && !opened) {
     setOpened(true);
   }
+  function handleClose(value: any) {
+    if (onClose && onClose() === false) {
+      setOpened(true);
+      return;
+    }
+    setOpened(false);
+  }
 
   return (
     <Dialog
       open={opened}
       className={`modal ${open ? 'modal-open' : ''} fixed flex p-0 m-0 top-0 left-0 ${className}`}
-      onClose={() => onClose?.()}
+      onClose={handleClose}
       style={{
         backgroundColor: 'transparent',
         alignItems: 'center',
@@ -104,7 +108,7 @@ export const ModalDialog = ({
         className={`${panelClassName} modal-box mx-auto rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg relative`}
         aria-label="modal"
       >
-        <form method="dialog" onSubmit={onClose}>
+        <form method="dialog" onSubmit={handleClose}>
           <button
             role="button"
             aria-label="Close"

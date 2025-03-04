@@ -1,6 +1,5 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, jest, mock, test } from 'bun:test';
-import { boolean, string } from 'yup';
 
 import { ModalDialog, SigningModalDialog } from '@/components';
 import { renderWithWeb3AuthProvider } from '@/tests/render';
@@ -11,9 +10,17 @@ describe('ModalDialog', () => {
   test('renders correctly', () => {
     const mockup = render(<ModalDialog open={true} onClose={jest.fn()} />);
 
+    expect(document.querySelector('[inert]')).toBeInTheDocument();
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Title' })).not.toBeInTheDocument();
+  });
+
+  test('renders correctly when closed', () => {
+    const mockup = render(<ModalDialog open={false} onClose={jest.fn()} />);
+
+    expect(document.querySelector('[inert]')).not.toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   test('renders title', () => {
@@ -81,6 +88,7 @@ describe('SigningModalDialog', () => {
       }
     );
 
+    expect(document.querySelector('[inert]')).toBeInTheDocument();
     expect(screen.getByText('CHILDREN HERE')).toBeInTheDocument();
     expect(screen.getByRole('dialog')).toBeInTheDocument();
 
