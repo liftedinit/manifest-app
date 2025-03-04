@@ -27,9 +27,9 @@ function VotingPopup({
       open={open}
       onClose={() => closeModal()}
       aria-label="vote-modal"
-      className="modal modal-open fixed flex p-0 m-0 top-0 right-0 z-[9999]"
+      className="modal modal-open fixed flex p-0 m-0 top-0 right-0 z-9999"
     >
-      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+      <div className="fixed inset-0 bg-black/30 " aria-hidden="true" />
 
       <Dialog.Panel className="modal-box m-auto relative dark:bg-[#1D192D] bg-[#FFFFFF]">
         <h3 className="font-bold text-lg mb-4">

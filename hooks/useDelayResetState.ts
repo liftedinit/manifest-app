@@ -13,7 +13,7 @@ export function useDelayResetState<T>(
 ): [T, Dispatch<SetStateAction<T>>, Dispatch<SetStateAction<T>>] {
   const [state, setState] = useState(initialState);
   const resetStateRef = useRef<T>(initialState);
-  const timerRef = useRef<Timer | undefined>();
+  const timerRef = useRef<Timer | undefined>(undefined);
 
   const setDelayResetState = (value: SetStateAction<T>) => {
     if (typeof value === 'function') {

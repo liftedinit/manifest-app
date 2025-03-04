@@ -304,7 +304,7 @@ export default function DenomList({
           }
           passHref
         >
-          <button className="btn btn-gradient w-[224px] h-[52px] hidden md:block text-white rounded-[12px] focus:outline-none focus-visible:ring-1 focus-visible:ring-primary">
+          <button className="btn btn-gradient w-[224px] h-[52px] hidden md:block text-white rounded-[12px] focus:outline-hidden focus-visible:ring-1 focus-visible:ring-primary">
             Create New Token
           </button>
         </Link>
@@ -504,7 +504,7 @@ function TokenRow({
             data-tip="Mint Token"
           >
             <button
-              className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+              className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-hidden"
               onClick={onMint}
             >
               <MintIcon className="w-4 h-4 sm:w-7 sm:h-7 text-current" />
@@ -517,7 +517,7 @@ function TokenRow({
           >
             <button
               disabled={denom.base === 'umfx'}
-              className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+              className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-hidden"
               onClick={onBurn}
             >
               <BurnIcon className="w-4 h-4 sm:w-7 sm:h-7 text-current" />
@@ -530,7 +530,7 @@ function TokenRow({
           >
             <button
               disabled={denom.base === 'umfx'}
-              className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+              className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-hidden"
               onClick={onTransfer}
             >
               <TransferIcon className="w-4 h-4 sm:w-7 sm:h-7 text-current" />
@@ -543,7 +543,7 @@ function TokenRow({
           >
             <button
               disabled={denom.base === 'umfx'}
-              className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+              className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-hidden"
               onClick={onUpdate}
             >
               <PiInfo className="w-4 h-4 sm:w-7 sm:h-7 text-current" />

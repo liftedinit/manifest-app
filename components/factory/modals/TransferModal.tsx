@@ -112,7 +112,7 @@ export default function TransferModal({
   };
 
   const modalContent = (
-    <SigningModalDialog open={isOpen} onClose={onClose}>
+    <SigningModalDialog panelClassName="max-w-4xl" open={isOpen} onClose={onClose}>
       <Formik
         initialValues={formData}
         validationSchema={TokenOwnershipSchema}
@@ -122,7 +122,7 @@ export default function TransferModal({
         enableReinitialize={true}
       >
         {({ isValid, dirty, values, handleChange, handleSubmit, resetForm }) => (
-          <div className="modal-box max-w-4xl mx-auto p-6 bg-[#F4F4FF] dark:bg-[#1D192D] rounded-[24px] shadow-lg relative">
+          <div className="">
             <h3 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">
               Update administrator for{' '}
               <span className="font-light text-primary">
@@ -165,7 +165,7 @@ export default function TransferModal({
                 <div className="mt-4 flex flex-row justify-center gap-2 w-full">
                   <button
                     type="button"
-                    className="btn w-[calc(50%-8px)] btn-md focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
+                    className="btn w-[calc(50%-8px)] btn-md focus:outline-hidden dark:bg-[#FFFFFF0F] bg-[#0000000A]"
                     onClick={() => handleCloseModal(() => resetForm())}
                     disabled={isSigning}
                   >

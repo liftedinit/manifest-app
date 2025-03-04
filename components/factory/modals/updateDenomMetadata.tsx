@@ -135,7 +135,7 @@ export default function UpdateDenomMetadataModal({
   if (!isOpen) return null;
 
   return (
-    <SigningModalDialog open={isOpen} onClose={onClose}>
+    <SigningModalDialog panelClassName="max-w-4xl" open={isOpen} onClose={onClose}>
       <Formik
         initialValues={formData}
         validationSchema={() => TokenDetailsSchema({ subdenom: baseDenom })}
@@ -199,7 +199,7 @@ export default function UpdateDenomMetadataModal({
             <div className="mt-4 flex flex-row justify-center gap-2 w-full">
               <button
                 type="button"
-                className="btn w-[calc(50%-8px)] btn-md focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
+                className="btn w-[calc(50%-8px)] btn-md focus:outline-hidden dark:bg-[#FFFFFF0F] bg-[#0000000A]"
                 disabled={isSigning}
                 onClick={() => onClose()}
               >

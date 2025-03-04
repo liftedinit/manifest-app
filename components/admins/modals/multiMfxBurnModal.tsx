@@ -122,7 +122,7 @@ export function MultiBurnModal({ isOpen, onClose, admin, address, denom }: Multi
                 <div className="text-lg font-semibold">Burn Pairs</div>
               </div>
 
-              <div className="overflow-y-auto flex-grow px-1 max-h-[40vh]">
+              <div className="overflow-y-auto grow px-1 max-h-[40vh]">
                 <FieldArray name="burnPairs">
                   {({ remove }) => (
                     <div className="flex flex-col gap-4 overflow-y-auto">
@@ -134,7 +134,7 @@ export function MultiBurnModal({ isOpen, onClose, admin, address, denom }: Multi
                           {index > 0 && (
                             <div className="absolute -top-2 left-2 text-xs">#{index + 1}</div>
                           )}
-                          <div className="flex-grow relative">
+                          <div className="grow relative">
                             <Field name={`burnPairs.${index}.address`}>
                               {({ field, meta }: FieldProps) => (
                                 <div className="relative">
@@ -159,7 +159,7 @@ export function MultiBurnModal({ isOpen, onClose, admin, address, denom }: Multi
                               )}
                             </Field>
                           </div>
-                          <div className="flex-grow relative">
+                          <div className="grow relative">
                             <Field name={`burnPairs.${index}.amount`}>
                               {({ field, meta }: FieldProps) => (
                                 <div className="relative">
@@ -204,7 +204,7 @@ export function MultiBurnModal({ isOpen, onClose, admin, address, denom }: Multi
               <div className="mt-4 gap-6 flex justify-center w-full p-2">
                 <button
                   type="button"
-                  className="btn w-[calc(50%-8px)] btn-md focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
+                  className="btn w-[calc(50%-8px)] btn-md focus:outline-hidden dark:bg-[#FFFFFF0F] bg-[#0000000A]"
                   onClick={onClose}
                   disabled={isSigning}
                 >

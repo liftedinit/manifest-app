@@ -128,8 +128,8 @@ export default function SendForm({
             : null;
 
           return (
-            <Form className="space-y-6 flex flex-col items-center max-w-md mx-auto">
-              <div className="w-full space-y-4">
+            <Form className="space-y-8 flex flex-col items-center max-w-md mx-auto">
+              <div className="w-full space-y-8">
                 <div className="w-full">
                   <label className="label">
                     <span className="label-text text-md font-medium text-[#00000099] dark:text-[#FFFFFF99]">
@@ -167,14 +167,14 @@ export default function SendForm({
                           tabIndex={0}
                           role="listbox"
                           aria-label="Token selection"
-                          className="dropdown-content z-20 p-2 shadow bg-base-300 rounded-lg w-full mt-1 max-h-72 min-w-44 overflow-y-auto dark:text-[#FFFFFF] text-[#161616]"
+                          className="dropdown-content z-20 p-2 shadow-sm bg-base-300 rounded-lg w-full mt-1 max-h-72 min-w-44 overflow-y-auto dark:text-[#FFFFFF] text-[#161616]"
                         >
                           <li className=" bg-base-300 z-30 hover:bg-transparent h-full mb-2">
                             <div className="px-2 py-1 relative">
                               <input
                                 type="text"
                                 placeholder="Search tokens..."
-                                className="input input-sm w-full pr-8 focus:outline-none focus:ring-0 border  border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A]"
+                                className="input input-sm w-full pr-8 focus:outline-hidden focus:ring-0 border  border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A]"
                                 onChange={e => setSearchTerm(e.target.value)}
                                 style={{ boxShadow: 'none', borderRadius: '8px' }}
                               />
@@ -268,7 +268,7 @@ export default function SendForm({
                 />
               </div>
 
-              <div className="w-full mt-6">
+              <div className="w-full">
                 <button
                   type="submit"
                   className="btn btn-gradient w-full text-white"

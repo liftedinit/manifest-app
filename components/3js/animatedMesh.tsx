@@ -1,6 +1,6 @@
 import { Environment, OrbitControls, useProgress } from '@react-three/drei';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Suspense, useEffect, useMemo, useRef } from 'react';
+import React, { Suspense, useEffect, useMemo, useRef } from 'react';
 import { BufferAttribute, Mesh, Vector3 } from 'three';
 import * as THREE from 'three';
 
