@@ -8,7 +8,7 @@ import env from '../../config/env';
 
 export interface ModalDialogProps extends React.PropsWithChildren {
   open: boolean;
-  onClose?: () => boolean | undefined;
+  onClose?: () => boolean | void;
 
   style?: React.CSSProperties;
   className?: string;
@@ -40,6 +40,7 @@ export const SigningModalDialog = ({
       onClose && onClose();
       return true;
     }
+    return false;
   };
 
   return (
