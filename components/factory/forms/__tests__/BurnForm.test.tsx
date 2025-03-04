@@ -42,7 +42,7 @@ describe('BurnForm Component', () => {
   test('renders form with correct details', () => {
     renderWithProps();
     expect(screen.getByText('NAME')).toBeInTheDocument();
-    expect(screen.getByText('CIRCULATING SUPPLY')).toBeInTheDocument();
+    expect(screen.getByText('BALANCE')).toBeInTheDocument();
   });
 
   test('renders not affiliated message when not admin and token is mfx', () => {
