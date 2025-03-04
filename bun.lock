@@ -15,7 +15,7 @@
         "@headlessui/react": "^1.7.18",
         "@heroicons/react": "^2.1.5",
         "@interchain-ui/react": "1.26.1",
-        "@liftedinit/manifestjs": "0.0.1-rc.1",
+        "@liftedinit/manifestjs": "2.0.0",
         "@react-three/drei": "^9.114.0",
         "@react-three/fiber": "^8.17.8",
         "@sinonjs/fake-timers": "^14.0.0",
@@ -510,7 +510,7 @@
 
     "@ledgerhq/logs": ["@ledgerhq/logs@6.12.0", "", {}, "sha512-ExDoj1QV5eC6TEbMdLUMMk9cfvNKhhv5gXol4SmULRVCx/3iyCPhJ74nsb3S0Vb+/f+XujBEj3vQn5+cwS0fNA=="],
 
-    "@liftedinit/manifestjs": ["@liftedinit/manifestjs@0.0.1-rc.1", "", { "dependencies": { "@cosmjs/amino": "^0.32.4", "@cosmjs/encoding": "^0.32.4", "@cosmjs/proto-signing": "^0.32.4", "@cosmjs/stargate": "npm:@liftedinit/stargate@0.32.4-ll.3", "@cosmjs/tendermint-rpc": "^0.32.4", "@cosmology/lcd": "^0.14.0" } }, "sha512-C5MCY5fAtbBxn6KytPDW0vakg2VicqrLzKLy/yxVg25ucoNv7cMm2tLFIJ3HDIWI8JbvdKgUWXQwsCTr0yBknw=="],
+    "@liftedinit/manifestjs": ["@liftedinit/manifestjs@2.0.0", "", { "dependencies": { "@cosmjs/amino": "^0.32.4", "@cosmjs/encoding": "^0.32.4", "@cosmjs/proto-signing": "^0.32.4", "@cosmjs/stargate": "npm:@liftedinit/stargate@0.32.4-ll.3", "@cosmjs/tendermint-rpc": "^0.32.4", "@cosmology/lcd": "^0.14.0" } }, "sha512-PpruCrV4C1QDzHsSoEJ02iSpnV1LYWxhyQk/mw2NKZYqEjchgvzW4+IIIc8VhULVYbIR+6mJJ09OOcxKCclBDw=="],
 
     "@mediapipe/tasks-vision": ["@mediapipe/tasks-vision@0.10.17", "", {}, "sha512-CZWV/q6TTe8ta61cZXjfnnHsfWIdFhms03M9T7Cnd5y2mdpylJM0rF1qRq+wsQVRMLz1OYPVEBU9ph2Bx8cxrg=="],
 

@@ -46,7 +46,7 @@
     "@headlessui/react": "^1.7.18",
     "@heroicons/react": "^2.1.5",
     "@interchain-ui/react": "1.26.1",
-    "@liftedinit/manifestjs": "0.0.1-rc.1",
+    "@liftedinit/manifestjs": "2.0.0",
     "@react-three/drei": "^9.114.0",
     "@react-three/fiber": "^8.17.8",
     "@sinonjs/fake-timers": "^14.0.0",
