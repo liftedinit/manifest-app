@@ -80,8 +80,9 @@ export const useTx = (chainName: string) => {
       let fee = undefined;
       if (options.fee) {
         fee = typeof options.fee === 'function' ? await options.fee() : options.fee;
+      } else {
+        fee = fee ?? (await estimateFee(msgs));
       }
-      fee = fee ?? (await estimateFee(msgs));
 
       if (!fee) {
         setIsSigning(false);
