@@ -1,11 +1,11 @@
-import env from '@/config/env';
-import React, { useEffect } from 'react';
 import { Form, Formik, useFormikContext } from 'formik';
-import { NumberInput } from '@/components/react/inputs';
+import React, { useEffect } from 'react';
 
+import { NumberInput } from '@/components/react/inputs';
+import env from '@/config/env';
 import { Action, FormData } from '@/helpers/formReducer';
-import Yup from '@/utils/yupExtensions';
 import { secondsToHumanReadable } from '@/utils';
+import Yup from '@/utils/yupExtensions';
 
 const createGroupPolicySchema = (maxVotingThreshold: number) =>
   Yup.object().shape({
@@ -50,10 +50,7 @@ export default function GroupPolicyForm({
   nextStep: () => void;
   prevStep: () => void;
 }>) {
-  const totalMemberWeight = formData.members.reduce(
-    (acc, member) => acc + Number(member.weight || 0),
-    0
-  );
+  const totalMemberWeight = formData.members.length;
   const maxVotingThreshold = totalMemberWeight > 0 ? totalMemberWeight : Number.MAX_SAFE_INTEGER;
 
   return (

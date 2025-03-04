@@ -1,18 +1,18 @@
-import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
-import ProfileAvatar from '@/utils/identicon';
-import { ExtendedGroupType } from '@/hooks/useQueries';
-import { UpdateGroupModal } from '@/components';
-import { ThresholdDecisionPolicySDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
-import { useFeeEstimation, useTx } from '@/hooks';
-import { cosmos } from '@liftedinit/manifestjs';
-import env from '@/config/env';
-import React, { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { Dialog } from '@headlessui/react';
+import { cosmos } from '@liftedinit/manifestjs';
+import { ThresholdDecisionPolicySDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
+
+import { SigningModalDialog, UpdateGroupModal } from '@/components';
 import { SignModal } from '@/components/react';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import env from '@/config/env';
+import { useFeeEstimation, useTx } from '@/hooks';
+import { ExtendedGroupType } from '@/hooks/useQueries';
+import ProfileAvatar from '@/utils/identicon';
 
 interface GroupInfoProps {
-  modalId: string;
   group: ExtendedGroupType | null;
   policyAddress: string;
   address: string;
@@ -22,7 +22,6 @@ interface GroupInfoProps {
 }
 
 export function GroupInfo({
-  modalId,
   group,
   policyAddress,
   address,
@@ -138,18 +137,13 @@ export function GroupInfo({
         groupId: group?.id,
       });
 
-      const fee = await estimateFee(address, [msg]);
-      await tx(
-        [msg],
-        {
-          fee,
-          onSuccess: () => {
-            onUpdate();
-            setShowInfoModal(false);
-          },
+      await tx([msg], {
+        fee: () => estimateFee(address, [msg]),
+        onSuccess: () => {
+          onUpdate();
+          setShowInfoModal(false);
         },
-        'leave-modal'
-      );
+      });
     } catch (error) {
       console.error('Error leaving group:', error);
     }
@@ -166,90 +160,60 @@ export function GroupInfo({
     // console.warn('Failed to parse group metadata:', e);
   }
 
-  const modalContent = (
-    <Dialog
-      open={showInfoModal}
-      onClose={() => setShowInfoModal(false)}
-      className={`modal modal-open fixed flex p-0 m-0`}
-      style={{
-        height: '100vh',
-        width: '100vw',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-
-      <Dialog.Panel className="modal-box bg-secondary rounded-[24px] max-h-['574px'] max-w-[542px] p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-4">
-            <ProfileAvatar walletAddress={policyAddress} size={40} />
-            <h3 className="font-bold text-lg">{title}</h3>
-          </div>
-          <form method="dialog">
-            <button
-              onClick={() => setShowInfoModal(false)}
-              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-            >
-              ✕
-            </button>
-          </form>
+  return (
+    <SigningModalDialog open={showInfoModal} onClose={() => setShowInfoModal(false)}>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center space-x-4">
+          <ProfileAvatar walletAddress={policyAddress} size={40} />
+          <h3 className="font-bold text-lg">{title}</h3>
         </div>
+      </div>
 
-        <div className="flex justify-between items-center mb-6">
-          <span className="text-xl font-semibold text-secondary-content">Info</span>
-          <div className="flex items-center space-x-4">
-            <button
-              aria-label={'leave-btn'}
-              className="btn btn-error text-white disabled:bg-red-900 rounded-[12px] h-[52px] w-[140px]"
-              onClick={handleLeave}
-              disabled={isSigning}
-            >
-              {isSigning ? <span className="loading loading-dots loading-md"></span> : 'Leave'}
-            </button>
+      <div className="flex justify-between items-center mb-6">
+        <span className="text-xl font-semibold text-secondary-content">Info</span>
+        <div className="flex items-center space-x-4">
+          <button
+            aria-label={'leave-btn'}
+            className="btn btn-error text-white disabled:bg-red-900 rounded-[12px] h-[52px] w-[140px]"
+            onClick={handleLeave}
+            disabled={isSigning}
+          >
+            {isSigning ? <span className="loading loading-dots loading-md"></span> : 'Leave'}
+          </button>
 
-            <button
-              aria-label={'upgrade-btn'}
-              className="btn btn-gradient text-white rounded-[12px] h-[52px] w-[140px]"
-              onClick={() => setShowUpdateModal(true)}
-            >
-              Update
-            </button>
-          </div>
+          <button
+            aria-label={'upgrade-btn'}
+            className="btn btn-gradient text-white rounded-[12px] h-[52px] w-[140px]"
+            onClick={() => setShowUpdateModal(true)}
+          >
+            Update
+          </button>
         </div>
+      </div>
 
-        <div className="space-y-4">
-          <h4 className="font-semibold dark:text-[#FFFFFF99] text-[#00000099]">
-            Group Information
-          </h4>
-          <InfoItem label="Voting period" value={votingPeriodDisplay} />
-          <InfoItem label="Qualified Majority" value={threshold} />
+      <div className="space-y-4">
+        <h4 className="font-semibold dark:text-[#FFFFFF99] text-[#00000099]">Group Information</h4>
+        <InfoItem label="Voting period" value={votingPeriodDisplay} />
+        <InfoItem label="Qualified Majority" value={threshold} />
 
-          <InfoItem label="Description" value={details} isProposal={true} />
-          <InfoItem label="Policy Address" value={policyAddress} isAddress={true} />
-          <h4 className="font-semibold mt-6 text-secondary-content">Authors</h4>
-          {renderAuthors()}
-        </div>
-      </Dialog.Panel>
+        <InfoItem label="Description" value={details} isProposal={true} />
+        <InfoItem label="Policy Address" value={policyAddress} isAddress={true} />
+        <h4 className="font-semibold mt-6 text-secondary-content">Authors</h4>
+        {renderAuthors()}
+      </div>
 
-      <UpdateGroupModal
-        group={group}
-        policyAddress={policyAddress}
-        address={address}
-        onUpdate={onUpdate}
-        showUpdateModal={showUpdateModal}
-        setShowUpdateModal={setShowUpdateModal}
-      />
-
-      <SignModal id="leave-modal" />
-    </Dialog>
+      {showUpdateModal && (
+        <UpdateGroupModal
+          group={group}
+          policyAddress={policyAddress}
+          address={address}
+          onUpdate={onUpdate}
+          showUpdateModal={showUpdateModal}
+          setShowUpdateModal={setShowUpdateModal}
+        />
+      )}
+    </SigningModalDialog>
   );
-
-  if (typeof document !== 'undefined') {
-    return createPortal(modalContent, document.body);
-  }
-
-  return null;
 }
 
 function InfoItem({
@@ -282,7 +246,7 @@ function InfoItem({
                 Address
               </span>
               <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99] xs:block hidden">
-                <TruncatedAddressWithCopy address={value} slice={24} />
+                <TruncatedAddressWithCopy address={value} />
               </p>
               <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99] xs:hidden block">
                 <TruncatedAddressWithCopy address={value} slice={14} />

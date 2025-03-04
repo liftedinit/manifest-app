@@ -1,16 +1,17 @@
-import { FactoryIcon } from '@/components/icons/FactoryIcon';
-import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
-import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
 import { MsgBurn } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+
 import { createTokenMessage } from '@/components';
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { FactoryIcon } from '@/components/icons/FactoryIcon';
+
+import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 
 export const MsgBurnHandler = createSenderReceiverHandler({
   iconSender: FactoryIcon,
   successSender: (tx, _, metadata) =>
     createTokenMessage(
       'You burned {0} from {1}',
-      tx.metadata?.amount?.amount,
-      tx.metadata?.amount?.denom,
+      [tx.metadata?.amount],
       tx.metadata?.burnFromAddress,
       'red',
       metadata
@@ -18,8 +19,7 @@ export const MsgBurnHandler = createSenderReceiverHandler({
   failSender: (tx, _, metadata) =>
     createTokenMessage(
       'You failed to burn {0} from {1}',
-      tx.metadata?.amount?.amount,
-      tx.metadata?.amount?.denom,
+      [tx.metadata?.amount],
       tx.metadata?.burnFromAddress,
       'red',
       metadata
@@ -27,8 +27,7 @@ export const MsgBurnHandler = createSenderReceiverHandler({
   successReceiver: (tx, _, metadata) =>
     createTokenMessage(
       'You were burned {0} by {1}',
-      tx.metadata?.amount?.amount,
-      tx.metadata?.amount?.denom,
+      [tx.metadata?.amount],
       tx.sender,
       'red',
       metadata

@@ -1,16 +1,18 @@
 import { Dialog } from '@headlessui/react';
-import { XMarkIcon, ChevronLeftIcon, PencilIcon } from '@heroicons/react/24/outline';
-import { useState, useCallback } from 'react';
-import { MdContacts } from 'react-icons/md';
-import { Formik, Form } from 'formik';
-import Yup from '@/utils/yupExtensions';
-import { TextInput } from '@/components/react/inputs';
-import { Contact } from '@/utils/types';
-import { TruncatedAddressWithCopy } from '../addressCopy';
-import { useContacts } from '@/hooks/useContacts';
+import { ChevronLeftIcon, PencilIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { saveAs } from 'file-saver';
-import { useToast } from '@/contexts/toastContext';
+import { Form, Formik } from 'formik';
+import { useCallback, useState } from 'react';
+import { MdContacts } from 'react-icons/md';
+
 import { SearchIcon } from '@/components/icons';
+import { TextInput } from '@/components/react/inputs';
+import { useToast } from '@/contexts/toastContext';
+import { useContacts } from '@/hooks/useContacts';
+import { Contact } from '@/utils/types';
+import Yup from '@/utils/yupExtensions';
+
+import { TruncatedAddressWithCopy } from '../addressCopy';
 
 export const Contacts = ({
   onClose,
@@ -337,10 +339,18 @@ export const Contacts = ({
                       {contact.name}
                     </p>
                     <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99] xs:block hidden">
-                      <TruncatedAddressWithCopy address={contact.address} slice={24} />
+                      <TruncatedAddressWithCopy
+                        showName={false}
+                        address={contact.address}
+                        slice={24}
+                      />
                     </p>
                     <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99] xs:hidden block">
-                      <TruncatedAddressWithCopy address={contact.address} slice={14} />
+                      <TruncatedAddressWithCopy
+                        showName={false}
+                        address={contact.address}
+                        slice={14}
+                      />
                     </p>
                   </div>
                   {!selectionMode && (

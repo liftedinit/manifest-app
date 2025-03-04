@@ -1,32 +1,55 @@
-import React from 'react';
-import { formatAmount, formatDenomWithBadge, formatLargeNumber } from '@/utils';
-import { format } from 'react-string-format';
-import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { CoinSDKType } from '@liftedinit/manifestjs/src/codegen/cosmos/base/v1beta1/coin';
+import React from 'react';
+import { format } from 'react-string-format';
+
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import { formatAmount, formatDenomWithBadge, formatLargeNumber } from '@/utils';
 
 export const createTokenMessage = (
   template: string,
-  amount: string,
-  denom: string,
+  amounts: CoinSDKType[],
   address: string,
   color: string,
   metadata?: MetadataSDKType[]
 ) => {
-  const formattedAmount = formatLargeNumber(formatAmount(amount, denom, metadata));
-  const formattedDenom = formatDenomWithBadge(denom);
+  let allAmountDenom: React.ReactNode[] = [];
+  amounts?.forEach(coin => {
+    const amount = coin.amount;
+    const denom = coin.denom;
+    const formattedAmount = formatLargeNumber(formatAmount(amount, denom, metadata));
+    const formattedDenom = formatDenomWithBadge(denom);
+    allAmountDenom.push(
+      <span key={coin.denom}>
+        {formattedAmount} {formattedDenom}
+      </span>
+    );
+  });
 
-  // coloredAmount is {0}
-  const coloredAmount = (
-    <span className={`text-${color}-500`}>
-      {formattedAmount} {formattedDenom}
-    </span>
-  );
+  let displayAmountDenom: React.ReactNode;
+  if (allAmountDenom.length > 2) {
+    displayAmountDenom = (
+      <>
+        {allAmountDenom[0]}, {allAmountDenom[allAmountDenom.length - 1]} and{' '}
+        {allAmountDenom.length - 2} more denomination(s)
+      </>
+    );
+  } else {
+    displayAmountDenom = allAmountDenom.map((elem, i) => (
+      <React.Fragment key={i}>
+        {elem}
+        {i < allAmountDenom.length - 1 && ', '}
+      </React.Fragment>
+    ));
+  }
+
+  const coloredAmountDenom = <span className={`text-${color}-500`}>{displayAmountDenom}</span>;
   const message = format(
     template,
-    coloredAmount,
-    address ? <TruncatedAddressWithCopy address={address} slice={24} /> : 'an unknown address'
+    coloredAmountDenom,
+    address ? <TruncatedAddressWithCopy address={address} /> : 'an unknown address'
   );
-  return <span className="flex gap-1">{message}</span>;
+  return <span className="flex flex-wrap gap-1">{message}</span>;
 };
 
 export const createValidatorMessage = (
@@ -36,12 +59,8 @@ export const createValidatorMessage = (
 ) => {
   const message = format(
     template,
-    validatorAddress ? (
-      <TruncatedAddressWithCopy address={validatorAddress} slice={24} />
-    ) : (
-      'unknown'
-    ),
-    sender ? <TruncatedAddressWithCopy address={sender} slice={24} /> : 'an unknown address'
+    validatorAddress ? <TruncatedAddressWithCopy address={validatorAddress} /> : 'unknown',
+    sender ? <TruncatedAddressWithCopy address={sender} /> : 'an unknown address'
   );
-  return <span className="flex gap-1">{message}</span>;
+  return <span className="flex flex-wrap gap-1">{message}</span>;
 };

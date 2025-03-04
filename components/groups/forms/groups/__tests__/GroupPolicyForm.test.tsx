@@ -1,9 +1,10 @@
-import { describe, test, afterEach, expect, jest } from 'bun:test';
+import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, jest, test } from 'bun:test';
 import React from 'react';
-import { screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
+
 import GroupPolicyForm from '@/components/groups/forms/groups/GroupPolicyForm';
-import { renderWithChainProvider } from '@/tests/render';
 import { mockGroupFormData } from '@/tests/mock';
+import { renderWithChainProvider } from '@/tests/render';
 
 const mockProps = {
   nextStep: jest.fn(),
@@ -35,14 +36,24 @@ describe('GroupPolicyForm Component', () => {
     expect(hoursInput).toHaveValue(2);
 
     const votingThresholdInput = screen.getByPlaceholderText('e.g., 1');
-    fireEvent.change(votingThresholdInput, { target: { value: 3 } });
+    fireEvent.change(votingThresholdInput, { target: { value: 2 } });
     await waitFor(() => {
       expect(mockProps.dispatch).toHaveBeenCalledWith({
         type: 'UPDATE_FIELD',
         field: 'votingThreshold',
-        value: 3,
+        value: 2,
       });
     });
+    const nextButton = screen.getByText('Next: Confirmation');
+    expect(nextButton).toBeEnabled();
+  });
+
+  test('next button is disabled if voting threshold is higher than total members', async () => {
+    renderWithChainProvider(<GroupPolicyForm {...mockProps} />);
+    const votingThresholdInput = screen.getByPlaceholderText('e.g., 1');
+    fireEvent.change(votingThresholdInput, { target: { value: 3 } });
+    const nextButton = screen.getByText('Next: Confirmation');
+    expect(nextButton).toBeDisabled();
   });
 
   test('next button is disabled when form is not dirty', async () => {

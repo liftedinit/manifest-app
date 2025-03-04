@@ -1,6 +1,7 @@
+import Link from 'next/link';
+
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { TokenFormData } from '@/helpers';
-import Link from 'next/link';
 
 export default function Success({
   formData,
@@ -41,7 +42,7 @@ export default function Success({
         <div className="text-md text-[#808080] mb-6 text-pretty">
           The full denom of your token is:{' '}
           <span className="font-semibold">
-            <TruncatedAddressWithCopy address={fullDenom} slice={24} />
+            <TruncatedAddressWithCopy address={fullDenom} />
           </span>
         </div>
         <div className="border-t border-gray-700 pt-4">
@@ -62,7 +63,7 @@ export default function Success({
             {formData.uri && (
               <div className="col-span-1 md:col-span-2">
                 <h3 className="text-md font-light text-gray-400">Logo URL</h3>
-                <p className="text-lg font-medium">{formData.uri}</p>
+                <p className="text-lg font-medium truncate">{formData.uri}</p>
               </div>
             )}
           </div>

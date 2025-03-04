@@ -1,11 +1,11 @@
-import React, { useEffect, useState, useRef } from 'react';
-
-import Link from 'next/link';
-import Confetti from 'react-confetti';
-import { CloseIcon, CopyIcon, BroadcastingIcon } from './icons';
-import { useRouter } from 'next/router';
-import { IbcTransferProgress } from './ibcTransferProgress';
 import { StatusState } from '@skip-go/client';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import React, { useEffect, useRef, useState } from 'react';
+import Confetti from 'react-confetti';
+
+import { IbcTransferProgress } from './ibcTransferProgress';
+import { BroadcastingIcon, CloseIcon, CopyIcon } from './icons';
 
 export interface ToastMessage {
   type: string;
@@ -140,7 +140,9 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
 
             {!toastMessage.isIbcTransfer && (
               <div className="flex flex-row items-center gap-2 justify-between">
-                <p className="text-sm text-gray-500">{toastMessage.description}</p>
+                <p className="text-sm text-gray-500 break-words whitespace-pre-wrap max-w-full">
+                  {toastMessage.description}
+                </p>
               </div>
             )}
 

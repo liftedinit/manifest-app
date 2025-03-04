@@ -1,12 +1,14 @@
-import { FactoryIcon } from '@/components/icons/FactoryIcon';
-import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
-import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { MsgForceTransfer } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
 import React from 'react';
 import { format } from 'react-string-format';
-import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
-import { formatAmount, formatDenom, formatLargeNumber } from '@/utils';
+
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { FactoryIcon } from '@/components/icons/FactoryIcon';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import { formatAmount, formatDenom, formatLargeNumber } from '@/utils';
+
+import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 
 const createMessage = (
   template: string,
@@ -29,11 +31,11 @@ const createMessage = (
   const message = format(
     template,
     coloredAmount,
-    from ? <TruncatedAddressWithCopy address={from} slice={24} /> : 'an unknown address',
-    to ? <TruncatedAddressWithCopy address={to} slice={24} /> : 'an unknown address',
-    sender ? <TruncatedAddressWithCopy address={sender} slice={24} /> : 'an unknown address'
+    from ? <TruncatedAddressWithCopy address={from} /> : 'an unknown address',
+    to ? <TruncatedAddressWithCopy address={to} /> : 'an unknown address',
+    sender ? <TruncatedAddressWithCopy address={sender} /> : 'an unknown address'
   );
-  return <span className="flex gap-1">{message}</span>;
+  return <span className="flex flex-wrap gap-1">{message}</span>;
 };
 
 export const MsgForceTransferHandler = createSenderReceiverHandler({

@@ -1,15 +1,13 @@
-import React from 'react';
-import { Formik, Form, useFormikContext } from 'formik';
-import * as Yup from 'yup';
-
-import { TextInput, TextArea } from '@/components/react/inputs';
-import { TrashIcon, PlusIcon } from '@/components/icons';
-import { MdContacts } from 'react-icons/md';
-import { TailwindModal } from '@/components/react/modal';
+import { FieldArray, Form, Formik, useFormikContext } from 'formik';
 import Link from 'next/link';
+import React from 'react';
 
+import { PlusIcon, TrashIcon } from '@/components/icons';
+import { TextArea, TextInput } from '@/components/react/inputs';
+import { AddressInput } from '@/components/react/inputs/AddressInput';
 import { Action, FormData } from '@/helpers/formReducer';
 import { isValidManifestAddress } from '@/utils/string';
+import Yup from '@/utils/yupExtensions';
 
 const GroupSchema = Yup.object().shape({
   title: Yup.string()
@@ -50,22 +48,18 @@ const GroupSchema = Yup.object().shape({
   description: Yup.string()
     .required('Description is required')
     .min(20, 'Description must be at least 20 characters')
-    .max(1000, 'Description must not exceed 1000 characters')
+    .max(10000, 'Description must not exceed 10000 characters')
     .noProfanity('Profanity is not allowed'),
 });
 
 function GroupDetailsFormFields({
   dispatch,
   address,
-  isContactsOpen,
-  setIsContactsOpen,
   activeAuthorIndex,
   setActiveAuthorIndex,
 }: Readonly<{
   dispatch: React.Dispatch<Action>;
   address: string;
-  isContactsOpen: boolean;
-  setIsContactsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   activeAuthorIndex: number | null;
   setActiveAuthorIndex: React.Dispatch<React.SetStateAction<number | null>>;
 }>) {
@@ -102,81 +96,54 @@ function GroupDetailsFormFields({
 
       <div className="form-control w-full">
         <div className="max-h-[30vh] overflow-y-auto px-1">
-          {authors.map((author, index) => (
-            <div key={index} className="flex mb-2 items-center">
-              <TextInput
-                label="Author name or address"
-                name={`authors[${index}]`}
-                placeholder="Author name or address"
-                value={author}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  const newAuthors = [...values.authors];
-                  newAuthors[index] = e.target.value;
-                  setFieldValue('authors', newAuthors);
-                  updateField('authors', newAuthors);
-                }}
-                className="flex-grow"
-                rightElement={
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActiveAuthorIndex(index);
-                        setIsContactsOpen(true);
-                      }}
-                      className="btn btn-primary btn-sm text-white"
-                    >
-                      <MdContacts className="w-5 h-5" />
-                    </button>
-                    {/* Only show trash if more than 1 author OR if it's not the first item */}
-                    {values.authors.length > 1 && index !== 0 && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const newAuthors = authors.filter((_, i) => i !== index);
+          <FieldArray
+            name={'authors'}
+            render={arrayHelpers => {
+              return (
+                <>
+                  {authors.map((author, index) => (
+                    <div key={index} className="flex mb-2 items-center">
+                      <AddressInput
+                        label={index == 0 ? 'Author name or address' : undefined}
+                        name={`authors[${index}]`}
+                        placeholder="Author name or address"
+                        value={author}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          const newAuthors = [...values.authors];
+                          newAuthors[index] = e.target.value;
                           setFieldValue('authors', newAuthors);
                           updateField('authors', newAuthors);
                         }}
-                        className="btn btn-error btn-sm text-white"
-                      >
-                        <TrashIcon className="w-5 h-5" />
-                      </button>
-                    )}
-                  </div>
-                }
-              />
-            </div>
-          ))}
+                        className="flex-grow"
+                        rightElement={
+                          values.authors.length > 1 &&
+                          index !== 0 && (
+                            <button
+                              type="button"
+                              onClick={() => arrayHelpers.remove(index)}
+                              className="btn btn-error btn-sm text-white"
+                            >
+                              <TrashIcon className="w-5 h-5" />
+                            </button>
+                          )
+                        }
+                      />
+                    </div>
+                  ))}
+
+                  <button
+                    type="button"
+                    onClick={() => arrayHelpers.push('')}
+                    className="btn btn-gradient text-white w-full mt-2"
+                  >
+                    <PlusIcon className="mr-2" /> Add Author
+                  </button>
+                </>
+              );
+            }}
+          />
         </div>
-
-        <button
-          type="button"
-          onClick={() => {
-            const newAuthors = [...values.authors, ''];
-            setFieldValue('authors', newAuthors);
-            updateField('authors', newAuthors);
-          }}
-          className="btn btn-gradient text-white w-full mt-2"
-        >
-          <PlusIcon className="mr-2" /> Add Author
-        </button>
       </div>
-
-      <TailwindModal
-        isOpen={isContactsOpen}
-        setOpen={setIsContactsOpen}
-        showContacts={true}
-        currentAddress={address}
-        onSelect={(selectedAddress: string) => {
-          if (activeAuthorIndex !== null) {
-            const newAuthors = [...values.authors];
-            newAuthors[activeAuthorIndex] = selectedAddress;
-            setFieldValue('authors', newAuthors);
-            updateField('authors', newAuthors);
-            setActiveAuthorIndex(null);
-          }
-        }}
-      />
     </Form>
   );
 }
@@ -192,7 +159,6 @@ export default function GroupDetails({
   dispatch: React.Dispatch<Action>;
   address: string;
 }>) {
-  const [isContactsOpen, setIsContactsOpen] = React.useState(false);
   const [activeAuthorIndex, setActiveAuthorIndex] = React.useState<number | null>(null);
 
   const authors = Array.isArray(formData.authors) ? formData.authors : [formData.authors];
@@ -224,8 +190,6 @@ export default function GroupDetails({
                     <GroupDetailsFormFields
                       dispatch={dispatch}
                       address={address}
-                      isContactsOpen={isContactsOpen}
-                      setIsContactsOpen={setIsContactsOpen}
                       activeAuthorIndex={activeAuthorIndex}
                       setActiveAuthorIndex={setActiveAuthorIndex}
                     />

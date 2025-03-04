@@ -1,5 +1,4 @@
 // This script prints all the tokens in the manifest testnet chain in a format to be used in the chain-registry
-
 import { cosmos } from '@liftedinit/manifestjs';
 import * as fs from 'fs';
 import * as path from 'path';

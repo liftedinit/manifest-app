@@ -1,22 +1,20 @@
-import { GroupsIcon } from '@/components/icons/GroupsIcon';
-import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
-import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
 import { MsgSubmitProposal } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
-import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { format } from 'react-string-format';
+
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { GroupsIcon } from '@/components/icons/GroupsIcon';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+
+import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 
 const createMessage = (template: string, ids: string, policyAddress: string, sender?: string) => {
   const message = format(
     template,
     ids,
-    policyAddress ? (
-      <TruncatedAddressWithCopy address={policyAddress} slice={24} />
-    ) : (
-      'an unknown address'
-    ),
-    sender ? <TruncatedAddressWithCopy address={sender} slice={24} /> : 'an unknown address'
+    policyAddress ? <TruncatedAddressWithCopy address={policyAddress} /> : 'an unknown address',
+    sender ? <TruncatedAddressWithCopy address={sender} /> : 'an unknown address'
   );
-  return <span className="flex gap-1">{message}</span>;
+  return <span className="flex flex-wrap gap-1">{message}</span>;
 };
 
 export const MsgSubmitProposalHandler = createSenderReceiverHandler({

@@ -1,9 +1,15 @@
-import { describe, test, expect, jest, mock, afterEach } from 'bun:test';
+import {
+  ProposalExecutorResult,
+  ProposalStatus,
+} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, jest, mock, spyOn, test } from 'bun:test';
 import React from 'react';
-import { screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
-import VoteDetailsModal from '../voteDetailsModal';
-import { renderWithChainProvider } from '@/tests/render';
+
 import { mockMembers, mockProposals, mockTally, mockVotes } from '@/tests/mock';
+import { renderWithChainProvider } from '@/tests/render';
+
+import VoteDetailsModal from '../voteDetailsModal';
 
 // Mock next/router
 const m = jest.fn();
@@ -14,10 +20,6 @@ mock.module('next/router', () => ({
   }),
 }));
 
-mock.module('react-apexcharts', () => ({
-  default: jest.fn(),
-}));
-
 mock.module('@cosmos-kit/react', () => ({
   useChain: jest.fn().mockReturnValue({
     address: mockProposals['test_policy_address'][0].proposers[0],
@@ -25,23 +27,42 @@ mock.module('@cosmos-kit/react', () => ({
   }),
 }));
 
+const defaultUseProposalById = {
+  proposal: mockProposals['test_policy_address'][0],
+  isLoading: false,
+  isError: false,
+  refetch: jest.fn(),
+};
+
+const defaultUseTallyCount = {
+  tally: mockTally,
+  isLoading: false,
+  isError: false,
+  refetch: jest.fn(),
+};
+
+const defaultUseVotesByProposal = {
+  votes: mockVotes,
+  isLoading: false,
+  isError: false,
+  refetch: jest.fn(),
+};
+
+mock.module('@/hooks', () => ({
+  useProposalById: jest.fn().mockReturnValue(defaultUseProposalById),
+  useTallyCount: jest.fn().mockReturnValue(defaultUseTallyCount),
+  useVotesByProposal: jest.fn().mockReturnValue(defaultUseVotesByProposal),
+}));
+
 const mockProposal = mockProposals['test_policy_address'][0];
 
 describe('VoteDetailsModal', () => {
   const defaultProps = {
-    tallies: mockTally,
-    votes: mockVotes,
-    members: mockMembers,
-    proposal: mockProposal,
-    group: {} as any,
+    policyAddress: 'test_policy_address',
+    proposals: mockProposals['test_policy_address'],
+    proposalId: 1n,
     showVoteModal: true,
     onClose: jest.fn(),
-    modalId: 'voteDetailsModal',
-    refetchVotes: jest.fn(),
-    refetchTally: jest.fn(),
-    refetchProposals: jest.fn(),
-    refetchGroupInfo: jest.fn(),
-    refetchDenoms: jest.fn(),
   };
 
   afterEach(() => {
@@ -53,7 +74,7 @@ describe('VoteDetailsModal', () => {
     renderWithChainProvider(<VoteDetailsModal {...defaultProps} />);
     expect(screen.getByText(`#${mockProposal.id.toString()}`)).toBeInTheDocument();
     expect(screen.getByText(mockProposal.title)).toBeInTheDocument();
-    expect(screen.getByText('SUMMARY')).toBeInTheDocument();
+    expect(screen.getByText('Summary')).toBeInTheDocument();
     expect(screen.getByText(mockProposal.summary)).toBeInTheDocument();
   });
 
@@ -64,50 +85,110 @@ describe('VoteDetailsModal', () => {
 
   test('renders voting countdown timer', () => {
     renderWithChainProvider(<VoteDetailsModal {...defaultProps} />);
-    expect(screen.getByLabelText('voting-countdown-1')).toBeInTheDocument();
-    expect(screen.getByLabelText('voting-countdown-2')).toBeInTheDocument();
+    expect(screen.getByLabelText('countdown-timer')).toBeInTheDocument();
   });
 
-  test('renders messages section with correct data', () => {
+  test('renders copy proposal button', () => {
     renderWithChainProvider(<VoteDetailsModal {...defaultProps} />);
-    expect(screen.getByText('MESSAGES')).toBeInTheDocument();
-    expect(screen.getByLabelText('message-json')).toBeInTheDocument();
+    expect(screen.getByLabelText('copy-button')).toBeInTheDocument();
+  });
 
-    // Expand messages
+  test('renders expanded messages modal', () => {
+    renderWithChainProvider(<VoteDetailsModal {...defaultProps} />);
     fireEvent.click(screen.getByTestId('expand-messages'));
-    expect(screen.getByLabelText('msg')).toBeInTheDocument();
+    expect(screen.getByText('Proposal Messages')).toBeInTheDocument();
+  });
+
+  test('do not render expanded tally button when there are no votes', () => {
+    const spy = spyOn(require('@/hooks'), 'useVotesByProposal').mockImplementation(() => ({
+      votes: [],
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+    }));
+    renderWithChainProvider(<VoteDetailsModal {...defaultProps} />);
+    expect(screen.queryByTestId('expand-tally')).not.toBeInTheDocument();
+    spy.mockImplementation(jest.fn().mockReturnValue(defaultUseVotesByProposal));
   });
 
   test('conditionally renders execute button when proposal is accepted', () => {
-    const props = {
-      ...defaultProps,
-      proposal: {
-        ...mockProposal,
-        status: 'PROPOSAL_STATUS_ACCEPTED',
-        executor_result: 'PROPOSAL_EXECUTOR_RESULT_NOT_RUN',
-      },
-    };
-    renderWithChainProvider(<VoteDetailsModal {...props} />);
+    const spy = spyOn(require('@/hooks'), 'useProposalById').mockImplementation(() => ({
+      proposal: { ...mockProposal, status: ProposalStatus.PROPOSAL_STATUS_ACCEPTED },
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+    }));
+    renderWithChainProvider(<VoteDetailsModal {...defaultProps} />);
     expect(screen.getByText('Execute')).toBeInTheDocument();
+    spy.mockImplementation(jest.fn().mockReturnValue(defaultUseProposalById));
   });
 
   test('conditionally renders vote button when proposal is open and user has not voted', () => {
+    const spy = spyOn(require('@/hooks'), 'useVotesByProposal').mockImplementation(() => ({
+      votes: [],
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+    }));
     renderWithChainProvider(<VoteDetailsModal {...defaultProps} />);
-    const voteButton = screen.getByLabelText('action-btn');
+    const voteButton = screen.getByText('Vote');
     expect(voteButton).toBeInTheDocument();
     expect(voteButton.innerText).toBe('Vote');
+    spy.mockImplementation(jest.fn().mockReturnValue(defaultUseVotesByProposal));
+  });
+
+  test('conditionally renders withdraw button when user is proposer and has not voted', () => {
+    renderWithChainProvider(<VoteDetailsModal {...defaultProps} />);
+    const withdrawButton = screen.getByText('Withdraw');
+    expect(withdrawButton).toBeInTheDocument();
+  });
+
+  test('does not render withdraw button when user is not the proposer', () => {
+    const spy = spyOn(require('@/hooks'), 'useProposalById').mockImplementation(() => ({
+      proposal: { ...mockProposal, proposers: ['random_address'] },
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+    }));
+    renderWithChainProvider(<VoteDetailsModal {...defaultProps} />);
+    const withdrawButton = screen.queryByText('Withdraw');
+    expect(withdrawButton).not.toBeInTheDocument();
+    spy.mockImplementation(jest.fn().mockReturnValue(defaultUseProposalById));
+  });
+
+  test('conditionally renders re-execute button when proposal has failed', () => {
+    const spy = spyOn(require('@/hooks'), 'useProposalById').mockImplementation(() => ({
+      proposal: {
+        ...mockProposal,
+        status: ProposalStatus.PROPOSAL_STATUS_ACCEPTED,
+        executor_result: ProposalExecutorResult.PROPOSAL_EXECUTOR_RESULT_FAILURE,
+      },
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+    }));
+    renderWithChainProvider(<VoteDetailsModal {...defaultProps} />);
+    expect(screen.getByText('Re-execute')).toBeInTheDocument();
+    spy.mockImplementation(jest.fn().mockReturnValue(defaultUseProposalById));
   });
 
   test('does not render vote button when user has already voted', () => {
-    const props = { ...defaultProps, votes: [{ ...mockVotes[0], voter: 'proposer1' }] };
-    renderWithChainProvider(<VoteDetailsModal {...props} />);
-    const btn = screen.getByLabelText('action-btn');
-    expect(btn.textContent).not.toBe('Vote');
+    const spy = spyOn(require('@/hooks'), 'useVotesByProposal').mockImplementation(() => ({
+      votes: [{ ...mockVotes[0], voter: 'proposer1' }],
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+    }));
+
+    renderWithChainProvider(<VoteDetailsModal {...defaultProps} />);
+    const voteButton = screen.queryByText('Vote');
+    expect(voteButton).not.toBeInTheDocument();
+    spy.mockImplementation(jest.fn().mockReturnValue(defaultUseVotesByProposal));
   });
 
   test('handles vote button click and opens voting modal', async () => {
     renderWithChainProvider(<VoteDetailsModal {...defaultProps} />);
-    const voteButton = screen.getByLabelText('action-btn');
+    const voteButton = screen.getByText('Vote');
     fireEvent.click(voteButton);
     await waitFor(() => expect(screen.getByLabelText('vote-modal')).toBeInTheDocument());
   });

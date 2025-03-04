@@ -1,38 +1,24 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { DenomDisplay, DenomImage, DenomInfoModal } from '@/components/factory';
+import React, { useEffect, useMemo, useState } from 'react';
+
+import SendModal from '@/components/bank/modals/sendModal';
+import { DenomDisplay, DenomInfoModal } from '@/components/factory';
+import { QuestionIcon, SendTxIcon } from '@/components/icons';
 import { shiftDigits, truncateString } from '@/utils';
 import { CombinedBalanceInfo } from '@/utils/types';
-import { SendTxIcon, QuestionIcon, VerifiedIcon } from '@/components/icons';
-import SendModal from '@/components/bank/modals/sendModal';
-import { ChainContext } from '@cosmos-kit/core';
 
 interface TokenListProps {
   balances: CombinedBalanceInfo[] | undefined;
   isLoading: boolean;
-  refetchBalances: () => void;
-  refetchHistory: () => void;
   address: string;
   pageSize: number;
   isGroup?: boolean;
   admin?: string;
-  refetchProposals?: () => void;
   searchTerm?: string;
 }
 
 export const TokenList = React.memo(function TokenList(props: Readonly<TokenListProps>) {
-  const {
-    balances,
-    isLoading,
-    refetchBalances,
-    refetchHistory,
-    address,
-    pageSize,
-    isGroup,
-    admin,
-    refetchProposals,
-    searchTerm = '',
-  } = props;
-  const [selectedDenom, setSelectedDenom] = useState<any>(null);
+  const { balances, isLoading, address, pageSize, isGroup, admin, searchTerm = '' } = props;
+  const [selectedDenomBase, setSelectedDenomBase] = useState<any>(null);
   const [isSendModalOpen, setIsSendModalOpenHook] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [openDenomInfoModal, setOpenDenomInfoModal] = useState(false);
@@ -41,12 +27,11 @@ export const TokenList = React.memo(function TokenList(props: Readonly<TokenList
     setIsSendModalOpenHook(isOpen);
   }
 
-  const filteredBalances = useMemo(() => {
-    if (!Array.isArray(balances)) return [];
-    return balances.filter(balance =>
-      balance.metadata?.display.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [balances, searchTerm]);
+  const filteredBalances = !Array.isArray(balances)
+    ? []
+    : balances.filter(balance =>
+        balance.metadata?.display.toLowerCase().includes(searchTerm.toLowerCase())
+      );
 
   const totalPages = Math.max(1, Math.ceil(filteredBalances.length / pageSize));
 
@@ -54,10 +39,10 @@ export const TokenList = React.memo(function TokenList(props: Readonly<TokenList
     setCurrentPage(1);
   }, [searchTerm]);
 
-  const paginatedBalances = useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize;
-    return filteredBalances.slice(startIndex, startIndex + pageSize);
-  }, [filteredBalances, currentPage, pageSize]);
+  const paginatedBalances = filteredBalances.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
   const skeletonItems = useMemo(
     () =>
@@ -100,11 +85,11 @@ export const TokenList = React.memo(function TokenList(props: Readonly<TokenList
           <div className="space-y-2">
             {paginatedBalances.map(balance => (
               <div
-                key={balance.denom}
-                aria-label={balance.denom}
+                key={balance.display}
+                aria-label={balance.display}
                 className="flex flex-row justify-between gap-4 items-center p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px] cursor-pointer hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] transition-colors"
                 onClick={() => {
-                  setSelectedDenom(balance?.denom);
+                  setSelectedDenomBase(balance?.base);
                   setOpenDenomInfoModal(true);
                 }}
               >
@@ -125,28 +110,38 @@ export const TokenList = React.memo(function TokenList(props: Readonly<TokenList
                   </p>
                 </div>
                 <div className="flex flex-row gap-2">
-                  <button
-                    aria-label={`info-${balance?.denom}`}
-                    onClick={e => {
-                      e.stopPropagation();
-                      setSelectedDenom(balance?.denom);
-                      setOpenDenomInfoModal(true);
-                    }}
-                    className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+                  <div
+                    className="tooltip tooltip-left tooltip-primary hover:after:delay-1000 hover:before:delay-1000"
+                    data-tip="Token Details"
                   >
-                    <QuestionIcon className="w-7 h-7 text-current" />
-                  </button>
-                  <button
-                    aria-label={`send-${balance?.denom}`}
-                    onClick={e => {
-                      e.stopPropagation();
-                      setSelectedDenom(balance?.denom);
-                      setIsSendModalOpen(true);
-                    }}
-                    className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+                    <button
+                      aria-label={`info-${balance?.display}`}
+                      onClick={e => {
+                        e.stopPropagation();
+                        setSelectedDenomBase(balance?.base);
+                        setOpenDenomInfoModal(true);
+                      }}
+                      className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+                    >
+                      <QuestionIcon className="w-7 h-7 text-current" />
+                    </button>
+                  </div>
+                  <div
+                    className="tooltip tooltip-left tooltip-primary hover:after:delay-1000 hover:before:delay-1000"
+                    data-tip="Send Tokens"
                   >
-                    <SendTxIcon className="w-7 h-7 text-current" />
-                  </button>
+                    <button
+                      aria-label={`send-${balance?.display}`}
+                      onClick={e => {
+                        e.stopPropagation();
+                        setSelectedDenomBase(balance?.base);
+                        setIsSendModalOpen(true);
+                      }}
+                      className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+                    >
+                      <SendTxIcon className="w-7 h-7 text-current" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -213,7 +208,7 @@ export const TokenList = React.memo(function TokenList(props: Readonly<TokenList
       )}
 
       <DenomInfoModal
-        denom={filteredBalances.find(b => b.denom === selectedDenom)?.metadata ?? null}
+        denom={filteredBalances.find(b => b.base === selectedDenomBase)?.metadata ?? null}
         modalId="denom-info-modal"
         openDenomInfoModal={openDenomInfoModal}
         setOpenDenomInfoModal={setOpenDenomInfoModal}
@@ -222,14 +217,11 @@ export const TokenList = React.memo(function TokenList(props: Readonly<TokenList
         address={address}
         balances={balances ?? ([] as CombinedBalanceInfo[])}
         isBalancesLoading={isLoading}
-        refetchBalances={refetchBalances}
-        refetchHistory={refetchHistory}
-        selectedDenom={selectedDenom}
+        selectedDenom={selectedDenomBase}
         isOpen={isSendModalOpen}
         setOpen={setIsSendModalOpen}
         isGroup={isGroup}
         admin={admin}
-        refetchProposals={refetchProposals}
       />
     </div>
   );

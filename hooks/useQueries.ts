@@ -1,22 +1,25 @@
-import { useEffect, useState } from 'react';
-import { useQueries, useQuery } from '@tanstack/react-query';
 import { QueryGroupsByMemberResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
-
-import { useLcdQueryClient, useOsmosisLcdQueryClient } from './useLcdQueryClient';
-import { usePoaLcdQueryClient } from './usePoaLcdQueryClient';
-import { getLogoUrls, normalizeIBCDenom } from '@/utils';
-
-import { useManifestLcdQueryClient } from './useManifestLcdQueryClient';
-
-import axios from 'axios';
 import {
   GroupMemberSDKType,
   GroupPolicyInfoSDKType,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { UseQueryResult, keepPreviousData, useQueries, useQuery } from '@tanstack/react-query';
+import { useDebounce } from '@uidotdev/usehooks';
+import axios from 'axios';
+import { QueryProposalsByGroupPolicyResponse } from 'cosmjs-types/cosmos/group/v1/query';
 import { Octokit } from 'octokit';
+import { useEffect, useState } from 'react';
 
-import { useOsmosisRpcQueryClient } from '@/hooks/useOsmosisRpcQueryClient';
 import { TxMessage } from '@/components/bank/types';
+import { useOsmosisRpcQueryClient } from '@/hooks/useOsmosisRpcQueryClient';
+import { getLogoUrls, normalizeIBCDenom } from '@/utils';
+
+import { useLcdQueryClient, useOsmosisLcdQueryClient } from './useLcdQueryClient';
+import { useManifestLcdQueryClient } from './useManifestLcdQueryClient';
+import { usePoaLcdQueryClient } from './usePoaLcdQueryClient';
+
+const DEBOUNCE_TIME = 1000;
+const PAGE_DEBOUNCE_TIME = 30;
 
 export type ExtendedGroupType = QueryGroupsByMemberResponseSDKType['groups'][0] & {
   policies: GroupPolicyInfoSDKType[];
@@ -109,10 +112,9 @@ export const useGroupsByMember = (address: string) => {
   const [error, setError] = useState<Error | null>(null);
 
   const groupQuery = useQuery({
-    queryKey: ['groupInfo', address],
+    queryKey: ['groupInfoByMember', address],
     queryFn: () => lcdQueryClient?.cosmos.group.v1.groupsByMember({ address }),
     enabled: !!lcdQueryClient && !!address,
-    staleTime: Infinity,
   });
 
   useEffect(() => {
@@ -170,10 +172,9 @@ export const useGroupsByAdmin = (admin: string) => {
   const [error, setError] = useState<Error | null>(null);
 
   const groupQuery = useQuery({
-    queryKey: ['groupInfo', admin],
+    queryKey: ['groupInfoByAdmin', admin],
     queryFn: () => lcdQueryClient?.cosmos.group.v1.groupsByAdmin({ admin }),
     enabled: !!lcdQueryClient && !!admin,
-    staleTime: Infinity,
   });
 
   useEffect(() => {
@@ -244,6 +245,7 @@ export const useCurrentPlan = () => {
     refetchPlan: currentPlanQuery.refetch,
   };
 };
+
 export const useProposalsByPolicyAccount = (policyAccount: string) => {
   const { lcdQueryClient } = useLcdQueryClient();
 
@@ -256,11 +258,13 @@ export const useProposalsByPolicyAccount = (policyAccount: string) => {
     });
   };
 
+  const debounced = useDebounce(policyAccount, DEBOUNCE_TIME);
   const proposalQuery = useQuery({
-    queryKey: ['proposalInfo', policyAccount],
+    queryKey: ['proposalInfo', debounced],
     queryFn: fetchGroupInfo,
     enabled: !!lcdQueryClient && !!policyAccount,
-    staleTime: Infinity,
+    staleTime: DEBOUNCE_TIME,
+    placeholderData: keepPreviousData,
   });
 
   return {
@@ -268,6 +272,38 @@ export const useProposalsByPolicyAccount = (policyAccount: string) => {
     isProposalsLoading: proposalQuery.isLoading,
     isProposalsError: proposalQuery.isError,
     refetchProposals: proposalQuery.refetch,
+  };
+};
+
+interface UseProposalByIdOptions {
+  refetchInterval?: number | false;
+}
+
+export const useProposalById = (proposalId: bigint, options: UseProposalByIdOptions = {}) => {
+  const { lcdQueryClient } = useLcdQueryClient();
+
+  const fetchProposalInfo = async () => {
+    if (!lcdQueryClient) {
+      throw new Error('LCD Client not ready');
+    }
+    return await lcdQueryClient.cosmos.group.v1.proposal({ proposalId: proposalId });
+  };
+
+  const debounced = useDebounce(proposalId.toString(), DEBOUNCE_TIME);
+  const proposalQuery = useQuery({
+    queryKey: ['proposalInfoById', debounced],
+    queryFn: fetchProposalInfo,
+    enabled: !!lcdQueryClient && !!proposalId,
+    staleTime: DEBOUNCE_TIME,
+    placeholderData: keepPreviousData,
+    refetchInterval: options.refetchInterval,
+  });
+
+  return {
+    proposal: proposalQuery.data?.proposal,
+    isProposalLoading: proposalQuery.isLoading,
+    isProposalError: proposalQuery.isError,
+    refetchProposal: proposalQuery.refetch,
   };
 };
 
@@ -283,12 +319,13 @@ export const useProposalsByPolicyAccountAll = (policyAccounts: string[]) => {
     });
   };
 
-  const proposalQueries = useQueries({
+  const proposalQueries: UseQueryResult<QueryProposalsByGroupPolicyResponse, Error>[] = useQueries({
     queries: policyAccounts.map(policyAccount => ({
-      queryKey: ['proposalInfo', policyAccount],
+      queryKey: ['proposalInfoAll', policyAccount],
       queryFn: () => fetchGroupInfo(policyAccount),
       enabled: !!lcdQueryClient && !!policyAccount,
-      staleTime: Infinity,
+      staleTime: DEBOUNCE_TIME,
+      placeholderData: keepPreviousData,
     })),
   });
 
@@ -318,11 +355,13 @@ export const useTallyCount = (proposalId: bigint) => {
     });
   };
 
+  const debounced = useDebounce(proposalId.toString(), DEBOUNCE_TIME);
   const tallyQuery = useQuery({
-    queryKey: ['tallyInfo', proposalId.toString()],
+    queryKey: ['tallyInfo', debounced],
     queryFn: fetchGroupInfo,
-    enabled: !!lcdQueryClient && !!proposalId,
-    staleTime: Infinity,
+    enabled: !!lcdQueryClient && proposalId !== undefined,
+    staleTime: DEBOUNCE_TIME,
+    placeholderData: keepPreviousData,
   });
 
   return {
@@ -336,7 +375,7 @@ export const useTallyCount = (proposalId: bigint) => {
 export const useVotesByProposal = (proposalId: bigint) => {
   const { lcdQueryClient } = useLcdQueryClient();
 
-  const fetchGroupInfo = async () => {
+  const fetchVoteInfo = async () => {
     if (!lcdQueryClient) {
       throw new Error('LCD Client not ready');
     }
@@ -345,11 +384,12 @@ export const useVotesByProposal = (proposalId: bigint) => {
     });
   };
 
+  const debounced = useDebounce(proposalId.toString(), DEBOUNCE_TIME);
   const voteQuery = useQuery({
-    queryKey: ['voteInfo', proposalId.toString()],
-    queryFn: fetchGroupInfo,
-    enabled: !!lcdQueryClient && !!proposalId,
-    staleTime: Infinity,
+    queryKey: ['voteInfo', debounced],
+    queryFn: fetchVoteInfo,
+    enabled: !!lcdQueryClient && proposalId !== undefined,
+    staleTime: DEBOUNCE_TIME,
   });
 
   return {
@@ -556,13 +596,13 @@ export const useTokenFactoryDenomsFromAdmin = (address: string) => {
     });
   };
 
+  const debounced = useDebounce(address, DEBOUNCE_TIME);
   const denomsQuery = useQuery({
-    queryKey: [address + 'denoms'],
+    queryKey: ['denoms', debounced],
     queryFn: fetchDenoms,
     enabled: !!lcdQueryClient && !!address,
-    staleTime: 0,
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
+    staleTime: DEBOUNCE_TIME,
+    placeholderData: keepPreviousData,
   });
 
   return {
@@ -590,13 +630,13 @@ export const useDenomAuthorityMetadata = (denom: string) => {
     });
   };
 
+  const debounced = useDebounce(denom, DEBOUNCE_TIME);
   const denomsQuery = useQuery({
-    queryKey: ['authority', denom],
+    queryKey: ['authority', debounced],
     queryFn: fetchAuthority,
     enabled: !!rpcQueryClient && !!denom,
-    staleTime: 0,
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
+    staleTime: DEBOUNCE_TIME,
+    placeholderData: keepPreviousData,
   });
   return {
     denomAuthority: denomsQuery.data?.authorityMetadata,
@@ -769,111 +809,22 @@ export const useOsmosisTokenBalancesResolved = (address: string) => {
     refetchBalances: balancesQuery.refetch,
   };
 };
-
-interface TransactionAmount {
-  amount: string;
-  denom: string;
-}
-export enum HistoryTxType {
-  SEND,
-  MINT,
-  BURN,
-  PAYOUT,
-  BURN_HELD_BALANCE,
-}
-
-const _formatMessage = (
-  message: any,
-  address: string
-): {
-  data: {
-    tx_type: HistoryTxType;
-    from_address: string;
-    to_address: string;
-    amount: { amount: string; denom: string }[];
-  };
-}[] => {
-  switch (message['@type']) {
-    case `/cosmos.bank.v1beta1.MsgSend`:
-      return [
-        {
-          data: {
-            tx_type: HistoryTxType.SEND,
-            from_address: message.fromAddress,
-            to_address: message.toAddress,
-            amount: message.amount.map((amt: TransactionAmount) => ({
-              amount: amt.amount,
-              denom: amt.denom,
-            })),
-          },
-        },
-      ];
-    case `/osmosis.tokenfactory.v1beta1.MsgMint`:
-      return [
-        {
-          data: {
-            tx_type: HistoryTxType.MINT,
-            from_address: message.sender,
-            to_address: message.mintToAddress,
-            amount: [message.amount],
-          },
-        },
-      ];
-    case `/osmosis.tokenfactory.v1beta1.MsgBurn`:
-      return [
-        {
-          data: {
-            tx_type: HistoryTxType.BURN,
-            from_address: message.sender,
-            to_address: message.burnFromAddress,
-            amount: [message.amount],
-          },
-        },
-      ];
-    case `/liftedinit.manifest.v1.MsgPayout`:
-      return message.payoutPairs
-        .map((pair: { coin: TransactionAmount; address: string }) => {
-          if (message.authority === address || pair.address === address) {
-            return {
-              data: {
-                tx_type: HistoryTxType.PAYOUT,
-                from_address: message.authority,
-                to_address: pair.address,
-                amount: [{ amount: pair.coin.amount, denom: pair.coin.denom }],
-              },
-            };
-          }
-          return null;
-        })
-        .filter((msg: any) => msg !== null);
-    case `/lifted.init.manifest.v1.MsgBurnHeldBalance`:
-      return [
-        {
-          data: {
-            tx_type: HistoryTxType.BURN_HELD_BALANCE,
-            from_address: message.authority,
-            to_address: message.authority,
-            amount: message.burnCoins,
-          },
-        },
-      ];
-    default:
-      return [];
-  }
-};
-
 export const useGetMessagesFromAddress = (
   indexerUrl: string,
   address: string,
   page: number = 1,
   pageSize: number = 10
 ) => {
+  const debouncedAddress = useDebounce(address, DEBOUNCE_TIME);
+  const debouncedPage = useDebounce(page, PAGE_DEBOUNCE_TIME);
+  const debouncedPageSize = useDebounce(pageSize, PAGE_DEBOUNCE_TIME);
+
   const fetchMessages = async () => {
-    const baseUrl = `${indexerUrl}/rpc/get_messages_for_address?_address=${address}`;
+    const baseUrl = `${indexerUrl}/rpc/get_messages_for_address?_address=${debouncedAddress}`;
 
     // Update order parameter to sort by timestamp instead of height
-    const offset = (page - 1) * pageSize;
-    const paginationParams = `&limit=${pageSize}&offset=${offset}`;
+    const offset = (debouncedPage - 1) * debouncedPageSize;
+    const paginationParams = `&limit=${debouncedPageSize}&offset=${offset}`;
     const orderParam = `&order=timestamp.desc`;
 
     const finalUrl = `${baseUrl}${orderParam}${paginationParams}`;
@@ -895,7 +846,7 @@ export const useGetMessagesFromAddress = (
       const dataResponse = await axios.get(finalUrl, {
         headers: {
           'Range-Unit': 'items',
-          Range: `${offset}-${offset + pageSize - 1}`,
+          Range: `${offset}-${offset + debouncedPageSize - 1}`,
         },
       });
 
@@ -913,7 +864,7 @@ export const useGetMessagesFromAddress = (
       return {
         transactions,
         totalCount,
-        totalPages: Math.ceil(totalCount / pageSize),
+        totalPages: Math.ceil(totalCount / debouncedPageSize),
       };
     } catch (error) {
       console.error('Error fetching transactions:', error);
@@ -922,9 +873,12 @@ export const useGetMessagesFromAddress = (
   };
 
   const sendQuery = useQuery({
-    queryKey: ['getMessagesForAddress', address, page, pageSize],
+    queryKey: ['getMessagesForAddress', debouncedAddress, debouncedPage, debouncedPageSize],
     queryFn: fetchMessages,
-    enabled: !!address,
+    enabled: !!debouncedAddress,
+    staleTime: DEBOUNCE_TIME,
+    refetchInterval: 2000,
+    placeholderData: keepPreviousData,
   });
 
   return {

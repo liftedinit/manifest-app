@@ -1,11 +1,7 @@
 import { Chain } from '@chain-registry/types';
-import {
-  BondStatus,
-  ParamsSDKType,
-} from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
-import { ExtendedValidatorSDKType, TransactionGroup } from '@/components';
-import { CombinedBalanceInfo } from '@/utils/types';
-import { ExtendedGroupType } from '@/hooks';
+import { cosmos } from '@liftedinit/manifestjs';
+import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
 import {
   MemberSDKType,
   ProposalExecutorResult,
@@ -13,20 +9,23 @@ import {
   ProposalStatus,
   VoteOption,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
-import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
-import { FormData, ProposalFormData } from '@/helpers';
-import { cosmos } from '@liftedinit/manifestjs';
+import { BondStatus } from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
-import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
-import {
-  MsgBurn,
-  MsgMint,
-} from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
 import {
   MsgBurnHeldBalance,
   MsgPayout,
 } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
+import {
+  MsgBurn,
+  MsgMint,
+} from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+
+import { ExtendedValidatorSDKType } from '@/components';
 import { TxMessage } from '@/components/bank/types';
+import { FormData, ProposalFormData } from '@/helpers';
+import { ExtendedGroupType } from '@/hooks';
+import { MFX_TOKEN_BASE, unsafeConvertTokenBase } from '@/utils';
+import { CombinedBalanceInfo, ExtendedMetadataSDKType } from '@/utils/types';
 
 export const manifestAddr1 = 'manifest1hj5fveer5cjtn4wd6wstzugjfdxzl0xp8ws9ct';
 export const manifestAddr2 = 'manifest1efd63aw40lxf3n4mhf7dzhjkr453axurm6rp3z';
@@ -61,14 +60,14 @@ export const mockDenomMeta2: MetadataSDKType = {
 
 export const mockBalances: CombinedBalanceInfo[] = [
   {
-    denom: 'token1',
-    coreDenom: 'utoken1',
+    display: 'token1',
+    base: unsafeConvertTokenBase('utoken1'),
     amount: '1000',
     metadata: mockDenomMeta1,
   },
   {
-    denom: 'token2',
-    coreDenom: 'utoken2',
+    display: 'token2',
+    base: unsafeConvertTokenBase('utoken2'),
     amount: '2000',
     metadata: mockDenomMeta2,
   },
@@ -404,11 +403,60 @@ export const mockTransactions: TxMessage[] = [
   },
 ];
 
+export const mockMultiDenomTransactions: TxMessage[] = [
+  {
+    id: '11',
+    message_index: 1,
+    type: MsgSend.typeUrl,
+    sender: 'address3',
+    mentions: [],
+    metadata: {
+      amount: [
+        { amount: '123123123123123', denom: 'utoken' },
+        { amount: '12345678', denom: 'ufoobar' },
+      ],
+      toAddress: 'address4',
+    },
+    fee: { amount: [{ amount: '1', denom: 'denom1' }], gas: '1' },
+    memo: '',
+    height: 11,
+    timestamp: '2023-05-10T12:00:00Z',
+    error: '',
+    proposal_ids: [],
+  },
+  {
+    id: '12',
+    message_index: 2,
+    type: MsgSend.typeUrl,
+    sender: 'address3',
+    mentions: [],
+    metadata: {
+      amount: [
+        { amount: '5000000', denom: 'utoken' },
+        { amount: '6000000', denom: 'ufoobar' },
+        { amount: '121212', denom: 'umore' },
+      ],
+      toAddress: 'address4',
+    },
+    fee: { amount: [{ amount: '1', denom: 'denom1' }], gas: '1' },
+    memo: '',
+    height: 11,
+    timestamp: '2023-05-10T12:00:00Z',
+    error: '',
+    proposal_ids: [],
+  },
+];
+
 export const mockGroup: ExtendedGroupType = {
   id: 1n,
   admin: 'admin1',
-  metadata:
-    '{"title": "title1", "summary": "summary1", "details": "details1", "authors": ["author1, author2"], "voteOptionContext": "context1"}',
+  metadata: JSON.stringify({
+    title: 'title1',
+    summary: 'summary1',
+    details: 'details1 at least 20 characters',
+    authors: [manifestAddr1, manifestAddr2],
+    voteOptionContext: 'context1',
+  }),
   version: 1n,
   created_at: new Date(),
   total_weight: '10',
@@ -510,14 +558,27 @@ export const mockDenom2 = {
   symbol: 'TST2',
 };
 
-export const mockMfxDenom = {
+export const mockMfxDenom: ExtendedMetadataSDKType = {
   base: 'umfx',
   display: 'MFX',
+  description: 'MFX',
+  name: 'MFX',
   denom_units: [
     { denom: 'umfx', exponent: 0, aliases: ['umfx'] },
     { denom: 'mfx', exponent: 6, aliases: ['mfx'] },
   ],
   symbol: 'umfx',
+  uri: 'www.someuri.com',
+  uri_hash: 's0m3h4sh',
+  balance: '2000000',
+  totalSupply: '2000000000',
+};
+
+export const mockMfxBalance: CombinedBalanceInfo = {
+  display: 'mfx',
+  base: MFX_TOKEN_BASE,
+  amount: '2000000',
+  metadata: mockMfxDenom,
 };
 
 export const mockFakeMfxDenom = {

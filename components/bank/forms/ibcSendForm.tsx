@@ -1,39 +1,33 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { useFeeEstimation, useTx } from '@/hooks';
-import { cosmos, ibc } from '@liftedinit/manifestjs';
-import { MsgTransfer } from '@liftedinit/manifestjs/dist/codegen/ibc/applications/transfer/v1/tx';
-import { getIbcInfo, parseNumberToBigInt, shiftDigits, truncateString, getIbcDenom } from '@/utils';
-import { PiCaretDownBold } from 'react-icons/pi';
-import { MdContacts } from 'react-icons/md';
-import { CombinedBalanceInfo } from '@/utils/types';
-import { DenomDisplay } from '@/components/factory';
-import { Formik, Form } from 'formik';
-import Yup from '@/utils/yupExtensions';
-import { TextInput } from '@/components/react/inputs';
-
-import Image from 'next/image';
-import { SearchIcon } from '@/components/icons';
-
-import { TailwindModal } from '@/components/react/modal';
-import env from '@/config/env';
-
-import { useSkipClient } from '@/contexts/skipGoContext';
-
-import { IbcChain } from '@/components';
-
 import { useChain } from '@cosmos-kit/react';
-import { useToast } from '@/contexts';
-
+import { cosmos, ibc } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
+import { MsgTransfer } from '@liftedinit/manifestjs/dist/codegen/ibc/applications/transfer/v1/tx';
+import { useQueryClient } from '@tanstack/react-query';
+import { Form, Formik } from 'formik';
+import Image from 'next/image';
+import React, { useEffect, useMemo, useState } from 'react';
+import { PiCaretDownBold } from 'react-icons/pi';
+
+import { IbcChain, MaxButton } from '@/components';
+import { AmountInput } from '@/components';
+import { DenomDisplay } from '@/components/factory';
+import { SearchIcon } from '@/components/icons';
+import { TextInput } from '@/components/react/inputs';
+import { AddressInput } from '@/components/react/inputs/AddressInput';
+import env from '@/config/env';
+import { useToast } from '@/contexts';
+import { useSkipClient } from '@/contexts/skipGoContext';
+import { useFeeEstimation, useTx } from '@/hooks';
+import { sendForm } from '@/schemas';
+import { getIbcDenom, getIbcInfo, parseNumberToBigInt, shiftDigits, truncateString } from '@/utils';
+import { CombinedBalanceInfo } from '@/utils/types';
+import Yup from '@/utils/yupExtensions';
 
 //TODO: switch to main-net names
 export default function IbcSendForm({
   address,
-  destinationChain,
   balances,
   isBalancesLoading,
-  refetchBalances,
-  refetchHistory,
   isIbcTransfer,
   ibcChains,
   selectedFromChain,
@@ -42,16 +36,12 @@ export default function IbcSendForm({
   setSelectedToChain,
   selectedDenom,
   isGroup,
-  refetchProposals,
   admin,
   availableToChains,
 }: Readonly<{
   address: string;
-  destinationChain: IbcChain;
   balances: CombinedBalanceInfo[];
   isBalancesLoading: boolean;
-  refetchBalances: () => void;
-  refetchHistory: () => void;
   isIbcTransfer: boolean;
   ibcChains: IbcChain[];
   isGroup?: boolean;
@@ -60,23 +50,19 @@ export default function IbcSendForm({
   selectedToChain: IbcChain;
   setSelectedToChain: (selectedChain: IbcChain) => void;
   selectedDenom?: string;
-  refetchProposals?: () => void;
   admin?: string;
   availableToChains: IbcChain[];
 }>) {
   // State management
-  const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [feeWarning, setFeeWarning] = useState('');
-  const [isContactsOpen, setIsContactsOpen] = useState(false);
 
   // Hooks and context
   const { getOfflineSignerAmino } = useChain(env.chain);
-  const { tx } = useTx(env.chain);
-  const { estimateFee } = useFeeEstimation(env.chain);
+  const { isSigning, tx } = useTx(env.chain);
   const { setToastMessage } = useToast();
+  const { estimateFee } = useFeeEstimation(env.chain);
   const skipClient = useSkipClient({ getCosmosSigner: async () => getOfflineSignerAmino() });
-
+  const queryClient = useQueryClient();
   // Constants
   const explorerUrl =
     selectedFromChain.id === env.osmosisChain ? env.osmosisExplorerUrl : env.explorerUrl;
@@ -93,14 +79,14 @@ export default function IbcSendForm({
   // Memoized filtered balances based on search term
   const filteredBalances = useMemo(() => {
     return balances?.filter(token => {
-      const displayName = token.metadata?.display ?? token.denom;
+      const displayName = token.metadata?.display ?? token.display;
       return displayName.toLowerCase().includes(searchTerm.toLowerCase());
     });
   }, [balances, searchTerm]);
 
   // Initial token selection logic
   const initialSelectedToken = useMemo(() => {
-    return balances?.find(token => token.coreDenom === selectedDenom) || balances?.[0] || null;
+    return balances?.find(token => token.base === selectedDenom) || balances?.[0] || null;
   }, [balances, selectedDenom]);
 
   // Loading state checks
@@ -108,8 +94,9 @@ export default function IbcSendForm({
     return null;
   }
 
-  // Form validation schema
-  const validationSchema = Yup.object().shape({
+  // Form validation schema, same as sendForm but the recipient field
+  // must have the prefix of the target chain.
+  const validationSchema = sendForm.schema.shape({
     recipient: Yup.string()
       .required('Recipient is required')
       .manifestAddress()
@@ -125,73 +112,31 @@ export default function IbcSendForm({
               : value.startsWith('manifest');
         }
       ),
-    amount: Yup.number()
-      .required('Amount is required')
-      .positive('Amount must be positive')
-      .test('sufficient-balance', 'Amount exceeds balance', function (value) {
-        const { selectedToken } = this.parent;
-        if (!selectedToken || !value) return true;
-
-        const exponent = selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-        const balance = parseFloat(selectedToken.amount) / Math.pow(10, exponent);
-        return value <= balance;
-      })
-      .test('leave-for-fees', '', function (value) {
-        const { selectedToken } = this.parent;
-        if (!selectedToken || !value || selectedToken.denom !== 'umfx') return true;
-
-        const exponent = selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-        const balance = parseFloat(selectedToken.amount) / Math.pow(10, exponent);
-
-        const MIN_FEE_BUFFER = 0.09;
-        const hasInsufficientBuffer = value > balance - MIN_FEE_BUFFER;
-
-        if (hasInsufficientBuffer) {
-          setFeeWarning('Remember to leave tokens for fees!');
-        } else {
-          setFeeWarning('');
-        }
-
-        return !hasInsufficientBuffer;
-      }),
-    selectedToken: Yup.object().required('Please select a token'),
-    memo: Yup.string().max(255, 'Memo must be less than 255 characters'),
   });
 
-  // Helper function to format amount with proper decimals
-  const formatAmount = (amount: number, decimals: number) => {
-    return amount.toFixed(decimals).replace(/\.?0+$/, '');
-  };
-
   // Main form submission handler
-  const handleSend = async (values: {
-    recipient: string;
-    amount: string;
-    selectedToken: CombinedBalanceInfo;
-    memo: string;
-  }) => {
-    setIsSending(true);
+  const handleSend = async (values: sendForm.SendForm) => {
     try {
       // Convert amount to base units
       const exponent = values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-      const amountInBaseUnits = parseNumberToBigInt(values.amount, exponent).toString();
+      const amountInBaseUnits = parseNumberToBigInt(values.amount.toString(), exponent).toString();
 
       // Get IBC channel info
       const { source_port, source_channel } = getIbcInfo(selectedFromChain.id, selectedToChain.id);
 
       // Setup token and timeout
       const token = {
-        denom: values.selectedToken.coreDenom,
+        denom: values.selectedToken.base,
         amount: amountInBaseUnits,
       };
       const timeoutInNanos = (Date.now() + 1.2e6) * 1e6;
 
       // Get IBC denom for destination chain
-      const ibcDenom = getIbcDenom(selectedToChain.id, values.selectedToken.coreDenom);
-
+      const ibcDenom = getIbcDenom(selectedToChain.id, values.selectedToken.base);
+      console.log(selectedFromChain.chainID, selectedToChain.chainID);
       // Setup skip protocol route
       const route = await skipClient.route({
-        sourceAssetDenom: values.selectedToken.coreDenom,
+        sourceAssetDenom: values.selectedToken.base,
         sourceAssetChainID: selectedFromChain.chainID,
         destAssetChainID: selectedToChain.chainID,
         destAssetDenom: ibcDenom ?? '',
@@ -248,7 +193,9 @@ export default function IbcSendForm({
             },
             onTransactionCompleted: async (chainID, txHash, status) => {
               if (status.state === 'STATE_COMPLETED_SUCCESS') {
-                await Promise.all([refetchBalances(), refetchHistory()]);
+                queryClient.invalidateQueries({ queryKey: ['balances'] });
+                queryClient.invalidateQueries({ queryKey: ['balances-resolved'] });
+                queryClient.invalidateQueries({ queryKey: ['getMessagesForAddress'] });
               }
 
               setToastMessage({
@@ -283,9 +230,6 @@ export default function IbcSendForm({
           });
         } catch (error) {
           console.error('Error during sending:', error);
-          setIsSending(false);
-        } finally {
-          setIsSending(false);
         }
       } else {
         const transferMsg = transfer({
@@ -316,24 +260,26 @@ export default function IbcSendForm({
           exec: 0,
         });
 
-        const fee = await estimateFee(address ?? '', [msg]);
-
         await tx([msg], {
           memo: values.memo,
-          fee,
+          fee: () => estimateFee(address ?? '', [msg]),
           onSuccess: () => {
-            refetchBalances();
-            refetchHistory();
-            refetchProposals?.();
+            queryClient.invalidateQueries({ queryKey: ['balances'] });
+            queryClient.invalidateQueries({ queryKey: ['balances-resolved'] });
+            queryClient.invalidateQueries({ queryKey: ['getMessagesForAddress'] });
+            queryClient.invalidateQueries({ queryKey: ['proposalInfo'] });
           },
         });
       }
     } catch (error) {
       console.error('Error during sending:', error);
-      setIsSending(false);
-    } finally {
-      setIsSending(false);
     }
+  };
+  const initialValue: sendForm.SendForm = {
+    recipient: '',
+    amount: '',
+    selectedToken: initialSelectedToken,
+    memo: '',
   };
 
   return (
@@ -342,12 +288,7 @@ export default function IbcSendForm({
       className="text-sm bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] p-6 w-full h-full animate-fadeIn duration-400"
     >
       <Formik
-        initialValues={{
-          recipient: '',
-          amount: '',
-          selectedToken: initialSelectedToken,
-          memo: '',
-        }}
+        initialValues={initialValue}
         enableReinitialize={false}
         validationSchema={validationSchema}
         onSubmit={handleSend}
@@ -355,7 +296,7 @@ export default function IbcSendForm({
         {({ isValid, dirty, setFieldValue, values, errors }) => {
           // Use direct calculation instead of useMemo
           const selectedTokenBalance = values?.selectedToken
-            ? balances?.find(token => token.coreDenom === values.selectedToken.coreDenom)
+            ? balances?.find(token => token.base === values.selectedToken.base)
             : null;
 
           return (
@@ -521,21 +462,13 @@ export default function IbcSendForm({
                     </span>
                   </label>
                   <div className="relative">
-                    <input
-                      type="text"
-                      inputMode="decimal"
-                      pattern="[0-9]*[.]?[0-9]*"
+                    <AmountInput
                       name="amount"
-                      placeholder="0.00"
+                      className="pr-[11rem]"
                       value={values.amount}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        const value = e.target.value;
-                        if (value === '' || /^\d*\.?\d*$/.test(value)) {
-                          setFieldValue('amount', e.target.value);
-                        }
+                      onValueChange={value => {
+                        setFieldValue('amount', value?.toFixed());
                       }}
-                      style={{ borderRadius: '12px' }}
-                      className="input input-md border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full pr-24 dark:text-[#FFFFFF] text-[#161616]"
                     />
                     <div className="absolute inset-y-1 right-1 flex items-center">
                       <div className="dropdown dropdown-end h-full">
@@ -547,7 +480,8 @@ export default function IbcSendForm({
                           <DenomDisplay
                             withBackground={false}
                             denom={
-                              values.selectedToken?.metadata?.display ?? values.selectedToken?.denom
+                              values.selectedToken?.metadata?.display ??
+                              values.selectedToken?.display
                             }
                             metadata={values.selectedToken?.metadata}
                           />
@@ -576,7 +510,7 @@ export default function IbcSendForm({
                           ) : (
                             filteredBalances?.map(token => (
                               <li
-                                key={token.coreDenom}
+                                key={token.base}
                                 onClick={() => {
                                   setFieldValue('selectedToken', token);
                                   if (document.activeElement instanceof HTMLElement) {
@@ -584,11 +518,11 @@ export default function IbcSendForm({
                                   }
                                 }}
                                 className="hover:bg-[#E0E0FF33] dark:hover:bg-[#FFFFFF0F] cursor-pointer rounded-lg"
-                                aria-label={token.metadata?.display ?? token.denom}
+                                aria-label={token.metadata?.display ?? token.display}
                               >
                                 <a className="flex flex-row items-center gap-2 px-2 py-2">
                                   <DenomDisplay
-                                    denom={token.metadata?.display ?? token.denom}
+                                    denom={token.metadata?.display ?? token.display}
                                     metadata={token.metadata}
                                     withBackground={false}
                                   />
@@ -620,7 +554,7 @@ export default function IbcSendForm({
                         {(() => {
                           const tokenDisplayName =
                             values.selectedToken?.metadata?.display ??
-                            values.selectedToken?.denom ??
+                            values.selectedToken?.display ??
                             'Select';
 
                           return tokenDisplayName.startsWith('factory')
@@ -630,40 +564,19 @@ export default function IbcSendForm({
                               : truncateString(tokenDisplayName, 10).toUpperCase();
                         })()}
                       </span>
-                      <button
-                        type="button"
-                        className="text-xs text-primary"
-                        onClick={() => {
-                          if (!values.selectedToken) return;
-
-                          const exponent =
-                            values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-                          const maxAmount =
-                            Number(values.selectedToken.amount) / Math.pow(10, exponent);
-
-                          let adjustedMaxAmount = maxAmount;
-                          if (values.selectedToken.denom === 'umfx') {
-                            adjustedMaxAmount = Math.max(0, maxAmount - 0.1);
-                          }
-
-                          const decimals =
-                            values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-                          const formattedAmount = formatAmount(adjustedMaxAmount, decimals);
-
-                          setFieldValue('amount', formattedAmount);
-                        }}
-                      >
-                        MAX
-                      </button>
+                      <MaxButton
+                        token={values.selectedToken}
+                        setTokenAmount={(amount: string) => setFieldValue('amount', amount)}
+                      />
                     </div>
                     {errors.amount && <div className="text-red-500 text-xs">{errors.amount}</div>}
-                    {feeWarning && !errors.amount && (
-                      <div className="text-yellow-500 text-xs">{feeWarning}</div>
+                    {errors.feeWarning && !errors.amount && (
+                      <div className="text-yellow-500 text-xs">{errors.feeWarning}</div>
                     )}
                   </div>
                 </div>
 
-                <TextInput
+                <AddressInput
                   label="Send To"
                   name="recipient"
                   placeholder="Enter address"
@@ -673,16 +586,6 @@ export default function IbcSendForm({
                   }}
                   className="input-md w-full"
                   style={{ borderRadius: '12px' }}
-                  rightElement={
-                    <button
-                      type="button"
-                      aria-label="contacts-btn"
-                      onClick={() => setIsContactsOpen(true)}
-                      className="btn btn-primary btn-sm text-white"
-                    >
-                      <MdContacts className="w-5 h-5" />
-                    </button>
-                  }
                 />
 
                 <TextInput
@@ -702,21 +605,12 @@ export default function IbcSendForm({
                 <button
                   type="submit"
                   className="btn btn-gradient w-full text-white"
-                  disabled={isSending || !isValid || !dirty}
+                  disabled={isSigning || !isValid || !dirty}
                   aria-label="send-btn"
                 >
-                  {isSending ? <span className="loading loading-dots loading-xs"></span> : 'Send'}
+                  {isSigning ? <span className="loading loading-dots loading-xs"></span> : 'Send'}
                 </button>
               </div>
-              <TailwindModal
-                isOpen={isContactsOpen}
-                setOpen={setIsContactsOpen}
-                showContacts={true}
-                currentAddress={address}
-                onSelect={(selectedAddress: string) => {
-                  setFieldValue('recipient', selectedAddress);
-                }}
-              />
             </Form>
           );
         }}

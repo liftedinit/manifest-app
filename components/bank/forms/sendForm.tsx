@@ -1,57 +1,53 @@
-import React, { useMemo, useState } from 'react';
-import { useFeeEstimation, useTx } from '@/hooks';
 import { cosmos } from '@liftedinit/manifestjs';
+import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
+import { useQueryClient } from '@tanstack/react-query';
+import { Any } from 'cosmjs-types/google/protobuf/any';
+import { Form, Formik } from 'formik';
+import React, { useMemo, useState } from 'react';
 import { PiCaretDownBold } from 'react-icons/pi';
+
+import { AmountInput, MaxButton } from '@/components';
+import { DenomDisplay } from '@/components/factory';
+import { SearchIcon } from '@/components/icons';
+import { TextInput } from '@/components/react/inputs';
+import { AddressInput } from '@/components/react/inputs/AddressInput';
+import env from '@/config/env';
+import { useFeeEstimation, useTx } from '@/hooks';
+import { sendForm } from '@/schemas';
 import { parseNumberToBigInt, shiftDigits, truncateString } from '@/utils';
 import { CombinedBalanceInfo } from '@/utils/types';
-import { DenomDisplay } from '@/components/factory';
-import { Formik, Form } from 'formik';
-import Yup from '@/utils/yupExtensions';
-import { TextInput } from '@/components/react/inputs';
-import { SearchIcon } from '@/components/icons';
-import { TailwindModal } from '@/components/react/modal';
-import { MdContacts } from 'react-icons/md';
-import env from '@/config/env';
-import { Any } from 'cosmjs-types/google/protobuf/any';
-import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
 
 export default function SendForm({
   address,
   balances,
   isBalancesLoading,
-  refetchBalances,
-  refetchHistory,
   selectedDenom,
   isGroup,
   admin,
-  refetchProposals,
 }: Readonly<{
   address: string;
   balances: CombinedBalanceInfo[];
   isBalancesLoading: boolean;
-  refetchBalances: () => void;
-  refetchHistory: () => void;
   selectedDenom?: string;
   isGroup?: boolean;
   admin?: string;
-  refetchProposals?: () => void;
 }>) {
-  const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [feeWarning, setFeeWarning] = useState('');
-  const { tx } = useTx(env.chain);
+
+  const queryClient = useQueryClient();
+
+  const { isSigning, tx } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
   const { send } = cosmos.bank.v1beta1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
-  const [isContactsOpen, setIsContactsOpen] = useState(false);
 
-  const filteredBalances = balances?.filter(token => {
-    const displayName = token.metadata?.display ?? token.denom;
+  const filteredBalances = balances.filter(token => {
+    const displayName = token.metadata?.display ?? token.display;
     return displayName.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   const initialSelectedToken = useMemo(() => {
-    return balances?.find(token => token.coreDenom === selectedDenom) || balances?.[0] || null;
+    return balances?.find(token => token.base === selectedDenom) || balances?.[0] || null;
   }, [balances, selectedDenom]);
 
   // Loading state checks
@@ -59,66 +55,12 @@ export default function SendForm({
     return null;
   }
 
-  const validationSchema = Yup.object().shape({
-    recipient: Yup.string()
-      .required('Recipient is required')
-      .manifestAddress()
-      .test(
-        'recipient-has-prefix',
-        'Recipient prefix must match recipient chain',
-        function (value) {
-          if (!value) return true;
-          return value.startsWith('manifest');
-        }
-      ),
-    amount: Yup.number()
-      .required('Amount is required')
-      .positive('Amount must be positive')
-      .test('sufficient-balance', 'Amount exceeds balance', function (value) {
-        const { selectedToken } = this.parent;
-        if (!selectedToken || !value) return true;
+  const validationSchema = sendForm.schema;
 
-        const exponent = selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-        const balance = parseFloat(selectedToken.amount) / Math.pow(10, exponent);
-
-        return value <= balance;
-      })
-      .test('leave-for-fees', '', function (value) {
-        const { selectedToken } = this.parent;
-        if (!selectedToken || !value || selectedToken.denom !== 'umfx') return true;
-
-        const exponent = selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-        const balance = parseFloat(selectedToken.amount) / Math.pow(10, exponent);
-
-        const MIN_FEE_BUFFER = 0.09;
-        const hasInsufficientBuffer = value > balance - MIN_FEE_BUFFER;
-
-        if (hasInsufficientBuffer) {
-          setFeeWarning('Remember to leave tokens for fees!');
-        } else {
-          setFeeWarning('');
-        }
-
-        return !hasInsufficientBuffer;
-      }),
-    selectedToken: Yup.object().required('Please select a token'),
-    memo: Yup.string().max(255, 'Memo must be less than 255 characters'),
-  });
-
-  const formatAmount = (amount: number, decimals: number) => {
-    return amount.toFixed(decimals).replace(/\.?0+$/, '');
-  };
-
-  const handleSend = async (values: {
-    recipient: string;
-    amount: string;
-    selectedToken: CombinedBalanceInfo;
-    memo: string;
-  }) => {
-    setIsSending(true);
+  const handleSend = async (values: sendForm.SendForm) => {
     try {
       const exponent = values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-      const amountInBaseUnits = parseNumberToBigInt(values.amount, exponent).toString();
+      const amountInBaseUnits = parseNumberToBigInt(values.amount.toString(), exponent).toString();
 
       const msg = isGroup
         ? submitProposal({
@@ -130,7 +72,7 @@ export default function SendForm({
                   send({
                     fromAddress: admin!,
                     toAddress: values.recipient,
-                    amount: [{ denom: values.selectedToken.coreDenom, amount: amountInBaseUnits }],
+                    amount: [{ denom: values.selectedToken.base, amount: amountInBaseUnits }],
                   }).value
                 ).finish(),
               }),
@@ -144,25 +86,29 @@ export default function SendForm({
         : send({
             fromAddress: address,
             toAddress: values.recipient,
-            amount: [{ denom: values.selectedToken.coreDenom, amount: amountInBaseUnits }],
+            amount: [{ denom: values.selectedToken.base, amount: amountInBaseUnits }],
           });
 
-      const fee = await estimateFee(address, [msg]);
-
-      let txResult = await tx([msg], {
+      await tx([msg], {
         memo: values.memo,
-        fee,
+        fee: () => estimateFee(address, [msg]),
         onSuccess: () => {
-          refetchBalances();
-          refetchHistory();
-          refetchProposals?.();
+          queryClient.invalidateQueries({ queryKey: ['balances'] });
+          queryClient.invalidateQueries({ queryKey: ['balances-resolved'] });
+          queryClient.invalidateQueries({ queryKey: ['getMessagesForAddress'] });
+          queryClient.invalidateQueries({ queryKey: ['proposalInfo'] });
         },
       });
     } catch (error) {
       console.error('Error during sending:', error);
-    } finally {
-      setIsSending(false);
     }
+  };
+
+  const initialValues: sendForm.SendForm = {
+    recipient: '',
+    amount: '',
+    selectedToken: initialSelectedToken,
+    memo: '',
   };
 
   return (
@@ -171,20 +117,14 @@ export default function SendForm({
       className="text-sm bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] px-6 pb-6 pt-4 w-full h-full animate-fadeIn duration-400"
     >
       <Formik
-        initialValues={{
-          recipient: '',
-          amount: '',
-          selectedToken: initialSelectedToken,
-          memo: '',
-        }}
-        enableReinitialize={false}
+        initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={handleSend}
       >
-        {({ isValid, dirty, setFieldValue, values, errors }) => {
+        {({ isValid, dirty, setFieldValue, values, errors, handleChange }) => {
           // Use direct calculation instead of useMemo
           const selectedTokenBalance = values?.selectedToken
-            ? balances?.find(token => token.coreDenom === values.selectedToken.coreDenom)
+            ? balances?.find(token => token.base === values.selectedToken.base)
             : null;
 
           return (
@@ -197,24 +137,12 @@ export default function SendForm({
                     </span>
                   </label>
                   <div className="relative">
-                    <input
-                      className="input input-md border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full pr-24 dark:text-[#FFFFFF] text-[#161616]"
+                    <AmountInput
                       name="amount"
-                      inputMode="decimal"
-                      pattern="[0-9]*[.]?[0-9]*"
-                      placeholder="0.00"
-                      style={{ borderRadius: '12px' }}
+                      className="pr-[11rem]"
                       value={values.amount}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        const value = e.target.value;
-                        if (/^\d*\.?\d*$/.test(value) && parseFloat(value) >= 0) {
-                          setFieldValue('amount', value);
-                        }
-                      }}
-                      onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                        if (!/[\d.]/.test(e.key)) {
-                          e.preventDefault();
-                        }
+                      onValueChange={value => {
+                        setFieldValue('amount', value?.toFixed());
                       }}
                     />
 
@@ -228,7 +156,8 @@ export default function SendForm({
                           <DenomDisplay
                             withBackground={false}
                             denom={
-                              values.selectedToken?.metadata?.display ?? values.selectedToken?.denom
+                              values.selectedToken?.metadata?.display ??
+                              values.selectedToken?.display
                             }
                             metadata={values.selectedToken?.metadata}
                           />
@@ -259,7 +188,7 @@ export default function SendForm({
                           ) : (
                             filteredBalances?.map(token => (
                               <li
-                                key={token.coreDenom}
+                                key={token.base}
                                 onClick={() => {
                                   setFieldValue('selectedToken', token);
                                   if (document.activeElement instanceof HTMLElement) {
@@ -297,7 +226,6 @@ export default function SendForm({
                               )
                             ).toLocaleString()}
                       </span>
-
                       <span className="">
                         {values.selectedToken?.metadata?.display?.startsWith('factory')
                           ? values.selectedToken?.metadata?.display?.split('/').pop()?.toUpperCase()
@@ -306,59 +234,28 @@ export default function SendForm({
                               10
                             ).toUpperCase()}
                       </span>
-                      <button
-                        type="button"
-                        className="text-xs text-primary"
-                        onClick={() => {
-                          if (!values.selectedToken) return;
 
-                          const exponent =
-                            values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-                          const maxAmount =
-                            Number(values.selectedToken.amount) / Math.pow(10, exponent);
-
-                          let adjustedMaxAmount = maxAmount;
-                          if (values.selectedToken.denom === 'umfx') {
-                            adjustedMaxAmount = Math.max(0, maxAmount - 0.1);
-                          }
-
-                          const decimals =
-                            values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
-                          const formattedAmount = formatAmount(adjustedMaxAmount, decimals);
-
-                          setFieldValue('amount', formattedAmount);
-                        }}
-                      >
-                        MAX
-                      </button>
+                      <MaxButton
+                        token={values.selectedToken}
+                        setTokenAmount={(amount: string) => setFieldValue('amount', amount)}
+                        disabled={isSigning}
+                      />
                     </div>
                     {errors.amount && <div className="text-red-500 text-xs">{errors.amount}</div>}
-                    {feeWarning && !errors.amount && (
-                      <div className="text-yellow-500 text-xs">{feeWarning}</div>
+                    {errors.feeWarning && !errors.amount && (
+                      <div className="text-yellow-500 text-xs">{errors.feeWarning}</div>
                     )}
                   </div>
                 </div>
 
-                <TextInput
-                  label="Send To"
+                <AddressInput
                   name="recipient"
+                  label="Send To"
                   placeholder="Enter address"
                   value={values.recipient}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    setFieldValue('recipient', e.target.value);
-                  }}
+                  onChange={handleChange}
                   className="input-md w-full"
                   style={{ borderRadius: '12px' }}
-                  rightElement={
-                    <button
-                      type="button"
-                      aria-label="contacts-btn"
-                      onClick={() => setIsContactsOpen(true)}
-                      className="btn btn-primary btn-sm text-white"
-                    >
-                      <MdContacts className="w-5 h-5" />
-                    </button>
-                  }
                 />
                 <TextInput
                   label="Memo (optional)"
@@ -366,9 +263,7 @@ export default function SendForm({
                   placeholder="Memo"
                   style={{ borderRadius: '12px' }}
                   value={values.memo}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    setFieldValue('memo', e.target.value);
-                  }}
+                  onChange={handleChange}
                   className="input-md w-full"
                 />
               </div>
@@ -377,21 +272,12 @@ export default function SendForm({
                 <button
                   type="submit"
                   className="btn btn-gradient w-full text-white"
-                  disabled={isSending || !isValid || !dirty}
+                  disabled={isSigning || !isValid || !dirty}
                   aria-label="send-btn"
                 >
-                  {isSending ? <span className="loading loading-dots loading-xs"></span> : 'Send'}
+                  {isSigning ? <span className="loading loading-dots loading-xs"></span> : 'Send'}
                 </button>
               </div>
-              <TailwindModal
-                isOpen={isContactsOpen}
-                setOpen={setIsContactsOpen}
-                showContacts={true}
-                currentAddress={address}
-                onSelect={(selectedAddress: string) => {
-                  setFieldValue('recipient', selectedAddress);
-                }}
-              />
             </Form>
           );
         }}

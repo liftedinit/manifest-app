@@ -1,24 +1,24 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { createPortal } from 'react-dom';
-import { cosmos } from '@liftedinit/manifestjs';
-import { useTx, useFeeEstimation, useGitHubReleases, GitHubRelease, useBlockHeight } from '@/hooks';
-import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
-import { MsgSoftwareUpgrade } from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
-import { Formik, Form } from 'formik';
-import Yup from '@/utils/yupExtensions';
-import { TextInput } from '@/components/react/inputs';
-import { PiCaretDownBold } from 'react-icons/pi';
-import { SearchIcon } from '@/components/icons';
-import env from '@/config/env';
 import { Dialog } from '@headlessui/react';
-import { SignModal } from '@/components/react';
+import { cosmos } from '@liftedinit/manifestjs';
+import { MsgSoftwareUpgrade } from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
+import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
+import { useQueryClient } from '@tanstack/react-query';
+import { Form, Formik } from 'formik';
+import React, { useMemo, useState } from 'react';
+import { PiCaretDownBold } from 'react-icons/pi';
+
+import { SigningModalDialog } from '@/components';
+import { SearchIcon } from '@/components/icons';
+import { TextInput } from '@/components/react/inputs';
+import env from '@/config/env';
+import { GitHubRelease, useBlockHeight, useFeeEstimation, useGitHubReleases, useTx } from '@/hooks';
+import Yup from '@/utils/yupExtensions';
 
 interface BaseModalProps {
   isOpen: boolean;
   onClose: () => void;
   admin: string;
   address: string;
-  refetchPlan: () => void;
 }
 
 interface UpgradeInfo {
@@ -72,10 +72,10 @@ const UpgradeSchema = Yup.object().shape({
     ),
 });
 
-export function UpgradeModal({ isOpen, onClose, admin, address, refetchPlan }: BaseModalProps) {
+export function UpgradeModal({ isOpen, onClose, admin, address }: BaseModalProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const { releases, isReleasesLoading } = useGitHubReleases();
-
+  const queryClient = useQueryClient();
   const { blockHeight } = useBlockHeight();
 
   // Filter releases that are upgradeable
@@ -129,7 +129,7 @@ export function UpgradeModal({ isOpen, onClose, admin, address, refetchPlan }: B
       plan: {
         name: values.name,
         height: BigInt(values.height),
-        time: new Date(0),
+        time: new Date('0001-01-01T00:00:00Z'),
         info: JSON.stringify(infoObject),
       },
       authority: admin,
@@ -150,11 +150,10 @@ export function UpgradeModal({ isOpen, onClose, admin, address, refetchPlan }: B
       exec: 0,
     });
 
-    const fee = await estimateFee(address ?? '', [groupProposalMsg]);
     await tx([groupProposalMsg], {
-      fee,
+      fee: () => estimateFee(address ?? '', [groupProposalMsg]),
       onSuccess: () => {
-        refetchPlan();
+        queryClient.invalidateQueries({ queryKey: ['currentPlan'] });
       },
     });
   };
@@ -177,19 +176,12 @@ export function UpgradeModal({ isOpen, onClose, admin, address, refetchPlan }: B
   if (!isOpen) return null;
 
   return (
-    <Dialog
-      className={`modal ${isOpen ? 'modal-open' : ''} fixed flex p-0 m-0`}
-      open
+    <SigningModalDialog
+      open={isOpen}
       onClose={onClose}
-      style={{
-        height: '100vh',
-        width: '100vw',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
+      title="Chain Upgrade"
+      panelClassName="max-w-4xl"
     >
-      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-
       <Formik
         initialValues={initialValues}
         validationSchema={UpgradeSchema}
@@ -215,23 +207,7 @@ export function UpgradeModal({ isOpen, onClose, admin, address, refetchPlan }: B
         validateOnBlur={true}
       >
         {({ isValid, dirty, values, handleChange, handleSubmit, setFieldValue, resetForm }) => (
-          <Dialog.Panel className="modal-box max-w-4xl mx-auto min-h-[30vh] max-h-[70vh] rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg overflow-y-auto">
-            <form method="dialog">
-              <button
-                type="button"
-                className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]"
-                onClick={() => {
-                  onClose();
-                  resetForm();
-                }}
-              >
-                ✕
-              </button>
-            </form>
-            <h3 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">
-              Chain Upgrade
-            </h3>
-
+          <>
             <Form className="py-4 space-y-6">
               <div className="grid gap-6">
                 <div className="w-full">
@@ -362,11 +338,9 @@ export function UpgradeModal({ isOpen, onClose, admin, address, refetchPlan }: B
                 </button>
               </div>
             </Form>
-
-            <SignModal />
-          </Dialog.Panel>
+          </>
         )}
       </Formik>
-    </Dialog>
+    </SigningModalDialog>
   );
 }

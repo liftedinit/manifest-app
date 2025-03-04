@@ -1,8 +1,9 @@
+import Link from 'next/link';
+
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { FormData } from '@/helpers';
-import Link from 'next/link';
-import { secondsToHumanReadable } from '@/utils/string';
 import { useGroupsByMember } from '@/hooks';
+import { secondsToHumanReadable } from '@/utils/string';
 
 export default function Success({
   formData,
@@ -53,7 +54,7 @@ export default function Success({
           </p>
           <div className="text-md text-gray-500 dark:text-gray-400 mb-6 flex-col flex gap-2 ">
             <span>Remember to fund your group by sending tokens to the policy address </span>
-            <TruncatedAddressWithCopy address={recentGroup?.policies[0].address} slice={24} />
+            <TruncatedAddressWithCopy address={recentGroup?.policies[0].address} />
           </div>
 
           {/* Group Information */}

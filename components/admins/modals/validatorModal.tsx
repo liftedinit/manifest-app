@@ -1,22 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
-import { ExtendedValidatorSDKType } from '@/components';
-import ProfileAvatar from '@/utils/identicon';
-import { BsThreeDots } from 'react-icons/bs';
-import { DescriptionModal } from './descriptionModal';
-import { useTx, useFeeEstimation } from '@/hooks';
-import { strangelove_ventures, cosmos } from '@liftedinit/manifestjs';
 import { useChain } from '@cosmos-kit/react';
+import { cosmos, strangelove_ventures } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgSetPower } from '@liftedinit/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
-import { Formik, Field, FieldProps } from 'formik';
-import * as Yup from 'yup';
-import { calculateIsUnsafe } from '@/utils/maths';
-import { TextInput } from '@/components/react';
-import env from '@/config/env';
-import { Dialog } from '@headlessui/react';
-import { SignModal } from '@/components/react';
+import { Field, FieldProps, Formik } from 'formik';
 import Image from 'next/image';
+import React, { useState } from 'react';
+import { BsThreeDots } from 'react-icons/bs';
+import * as Yup from 'yup';
+
+import { ExtendedValidatorSDKType, SigningModalDialog } from '@/components';
+import { TextInput } from '@/components/react';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import env from '@/config/env';
+import { useFeeEstimation, useTx } from '@/hooks';
+import ProfileAvatar from '@/utils/identicon';
+import { calculateIsUnsafe } from '@/utils/maths';
+
+import { DescriptionModal } from './descriptionModal';
 
 const PowerUpdateSchema = Yup.object().shape({
   power: Yup.number()
@@ -28,7 +28,6 @@ const PowerUpdateSchema = Yup.object().shape({
 
 export function ValidatorDetailsModal({
   validator,
-  modalId,
   admin,
   totalvp,
   validatorVPArray,
@@ -36,7 +35,6 @@ export function ValidatorDetailsModal({
   setOpenValidatorModal,
 }: Readonly<{
   validator: ExtendedValidatorSDKType | null;
-  modalId: string;
   admin: string;
   totalvp: string;
   validatorVPArray: { vp: bigint; moniker: string }[];
@@ -91,25 +89,14 @@ export function ValidatorDetailsModal({
       exec: 0,
     });
 
-    const fee = await estimateFee(userAddress ?? '', [groupProposalMsg]);
     await tx([groupProposalMsg], {
-      fee,
+      fee: () => estimateFee(userAddress ?? '', [groupProposalMsg]),
       onSuccess: () => {},
     });
   };
 
   return (
-    <Dialog
-      open={openValidatorModal}
-      className="modal modal-open fixed flex p-0 m-0"
-      onClose={() => setOpenValidatorModal(false)}
-      style={{
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-
+    <SigningModalDialog open={openValidatorModal} onClose={() => setOpenValidatorModal(false)}>
       <Formik
         initialValues={{ power: power, totalvp, validatorVPArray }}
         validationSchema={PowerUpdateSchema}
@@ -117,14 +104,7 @@ export function ValidatorDetailsModal({
         enableReinitialize
       >
         {({ isValid }) => (
-          <Dialog.Panel className="modal-box relative max-w-4xl min-h-96 flex flex-col md:flex-row md:ml-20 -mt-12 rounded-[24px] shadow-lg dark:bg-[#1D192D] bg-[#FFFFFF] transition-all duration-300">
-            <button
-              className="btn btn-sm btn-circle text-black dark:text-white btn-ghost absolute right-2 top-2"
-              onClick={() => setOpenValidatorModal(false)}
-              type="button"
-            >
-              ✕
-            </button>
+          <>
             <div className="flex flex-col flex-grow w-full p-6 space-y-6">
               <h3 className="text-2xl font-bold text-black dark:text-white">Validator Details</h3>
               <div className="flex flex-col justify-start items-start gap-4">
@@ -245,16 +225,12 @@ export function ValidatorDetailsModal({
             <DescriptionModal
               type="validator"
               open={description !== undefined}
-              onClose={() => {
-                setDescription(undefined);
-              }}
+              onClose={() => setDescription(undefined)}
               details={validator?.description.details ?? 'No Details'}
             />
-
-            <SignModal />
-          </Dialog.Panel>
+          </>
         )}
       </Formik>
-    </Dialog>
+    </SigningModalDialog>
   );
 }

@@ -1,18 +1,20 @@
-import { ArrowUpIcon } from '@/components/icons/ArrowUpIcon';
-import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
-import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
 import { MsgSoftwareUpgrade } from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
 import { format } from 'react-string-format';
+
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { ArrowUpIcon } from '@/components/icons/ArrowUpIcon';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+
+import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 
 const createMessage = (template: string, planName: string, planHeight: string, sender?: string) => {
   const message = format(
     template,
     planName,
     planHeight,
-    sender ? <TruncatedAddressWithCopy address={sender} slice={24} /> : 'an unknown address'
+    sender ? <TruncatedAddressWithCopy address={sender} /> : 'an unknown address'
   );
-  return <span className="flex gap-1">{message}</span>;
+  return <span className="flex flex-wrap gap-1">{message}</span>;
 };
 
 export const MsgSoftwareUpgradeHandler = createSenderReceiverHandler({

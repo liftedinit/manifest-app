@@ -1,9 +1,11 @@
-import { test, expect, afterEach, describe, mock, jest } from 'bun:test';
+import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
 import React from 'react';
-import { fireEvent, screen, cleanup, within, waitFor } from '@testing-library/react';
+
 import { TokenList } from '@/components/bank/components/tokenList';
-import { CombinedBalanceInfo } from '@/utils/types';
 import { renderWithChainProvider } from '@/tests/render';
+import { unsafeConvertTokenBase } from '@/utils';
+import { CombinedBalanceInfo } from '@/utils/types';
 
 // Mock next/router
 mock.module('next/router', () => ({
@@ -15,9 +17,9 @@ mock.module('next/router', () => ({
 
 const mockBalances: CombinedBalanceInfo[] = [
   {
-    denom: 'utoken1',
+    display: 'utoken1',
     amount: '1000',
-    coreDenom: 'token1',
+    base: unsafeConvertTokenBase('token1'),
     metadata: {
       name: 'Token 1',
       uri: 'https://token1.com',
@@ -33,9 +35,9 @@ const mockBalances: CombinedBalanceInfo[] = [
     },
   },
   {
-    denom: 'utoken2',
+    display: 'utoken2',
     amount: '2000',
-    coreDenom: 'token2',
+    base: unsafeConvertTokenBase('token2'),
     metadata: {
       name: 'Token 2',
       uri: 'https://token2.com',

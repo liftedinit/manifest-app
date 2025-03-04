@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { ValidatorDetailsModal } from '../modals/validatorModal';
-import { WarningModal } from '../modals/warningModal';
 import { ValidatorSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
-import ProfileAvatar from '@/utils/identicon';
 import Image from 'next/image';
-import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import React, { useMemo, useState } from 'react';
+
+import { ValidatorDetailsModal, WarningModal } from '@/components';
 import { SearchIcon, TrashIcon } from '@/components/icons';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import useIsMobile from '@/hooks/useIsMobile';
+import ProfileAvatar from '@/utils/identicon';
 
 export interface ExtendedValidatorSDKType extends ValidatorSDKType {
   consensus_power?: bigint;
@@ -29,7 +29,6 @@ export default function ValidatorList({
   const [active, setActive] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedValidator, setSelectedValidator] = useState<ExtendedValidatorSDKType | null>(null);
-  const [modalId, setModalId] = useState<string | null>(null);
   const [openWarningModal, setOpenWarningModal] = useState(false);
   const [openValidatorModal, setOpenValidatorModal] = useState(false);
 
@@ -76,7 +75,6 @@ export default function ValidatorList({
   const handleRowClick = (validator: ExtendedValidatorSDKType) => {
     setSelectedValidator(validator);
     setModalKey(prevKey => prevKey + 1);
-    setModalId(`validator-modal-${validator.operator_address}-${Date.now()}`);
     setOpenValidatorModal(true);
   };
 
@@ -226,7 +224,7 @@ export default function ValidatorList({
                       </td>
 
                       <td className="py-4 bg-secondary group-hover:bg-base-300 hidden lg:table-cell">
-                        <TruncatedAddressWithCopy slice={24} address={validator.operator_address} />
+                        <TruncatedAddressWithCopy address={validator.operator_address} />
                       </td>
                       <td className="py-4 bg-secondary group-hover:bg-base-300 hidden md:table-cell">
                         {validator.consensus_power?.toString() ?? 'N/A'}
@@ -256,7 +254,6 @@ export default function ValidatorList({
       <ValidatorDetailsModal
         key={modalKey}
         validator={selectedValidator}
-        modalId={modalId || ''}
         admin={admin}
         totalvp={totalvp.toString()}
         validatorVPArray={validatorVPArray}

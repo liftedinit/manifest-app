@@ -1,11 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
-
+import { ChainWalletBase, ExpiredError, State } from '@cosmos-kit/core';
 import { Dialog } from '@headlessui/react';
-import { XMarkIcon } from '@heroicons/react/24/outline';
 import { ChevronLeftIcon } from '@heroicons/react/20/solid';
-
+import { XMarkIcon } from '@heroicons/react/24/outline';
 import React, { Suspense, useEffect, useMemo, useState } from 'react';
-import { ChainWalletBase, State, ExpiredError } from '@cosmos-kit/core';
 
 // Lazy load the QR code component
 const QRCode = React.lazy(() => import('../qrCode').then(module => ({ default: module.QRCode })));

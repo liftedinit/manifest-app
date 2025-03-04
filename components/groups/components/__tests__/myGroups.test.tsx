@@ -1,9 +1,10 @@
-import { describe, test, afterEach, expect, jest, mock, beforeEach } from 'bun:test';
+import { cleanup, fireEvent, screen } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, jest, mock, test } from 'bun:test';
 import React from 'react';
-import { screen, fireEvent, cleanup } from '@testing-library/react';
-import { YourGroups } from '@/components/groups/components/myGroups';
-import { renderWithChainProvider } from '@/tests/render';
+
+import YourGroups from '@/components/groups/components/myGroups';
 import { mockGroup, mockGroup2 } from '@/tests/mock';
+import { renderWithChainProvider } from '@/tests/render';
 
 // Mock next/router
 mock.module('next/router', () => ({
@@ -46,7 +47,7 @@ const mockProps = {
       {
         id: '1',
         metadata:
-          '{"title":"title1","authors":"author1","summary":"summary1","details":"details1"}',
+          '{"title":"title1","authors":"author1","summary":"summary1","details":"details1 at least 20 characters"}',
         policies: [{ address: 'policy1', decision_policy: { threshold: '1' } }],
         admin: 'admin1',
         members: [{ member: { address: 'member1' } }],
@@ -105,14 +106,14 @@ describe('Groups Component', () => {
     const searchInput = screen.getByPlaceholderText('Search for a group...');
     fireEvent.change(searchInput, { target: { value: 'title1' } });
     // Use getAllByRole to find the specific row with the aria-label
-    const groupRows = screen.getAllByRole('button', { name: /Select title1 group/i });
+    const groupRows = screen.getAllByRole('button', { name: 'row-title1' });
     expect(groupRows).toHaveLength(1);
   });
 
   test('group selection works correctly', () => {
     renderWithChainProvider(<YourGroups {...mockProps} />);
     // Use getAllByRole to find the specific row with the aria-label
-    const groupRow = screen.getAllByRole('button', { name: /Select title1 group/i })[0];
+    const groupRow = screen.getAllByRole('button', { name: 'row-title1' })[0];
     fireEvent.click(groupRow);
     // Verify that router.push was called with the correct arguments
     const router = require('next/router').useRouter();
@@ -127,30 +128,36 @@ describe('Groups Component', () => {
     test('renders pagination controls when there are more items than page size', () => {
       renderWithChainProvider(<YourGroups {...mockPropsWithManyGroups} />);
 
-      expect(screen.getByRole('navigation', { name: /pagination/i })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /next page/i })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /previous page/i })).toBeInTheDocument();
+      expect(screen.getByRole('navigation', { name: 'pagination' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'btn-next-page' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'btn-previous-page' })).toBeInTheDocument();
     });
 
     test('pagination controls navigate between pages correctly', () => {
       renderWithChainProvider(<YourGroups {...mockPropsWithManyGroups} />);
 
       // Should start with page 1
-      expect(screen.getByRole('button', { name: 'Page 1', current: 'page' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'btn-page-1', current: 'page' })
+      ).toBeInTheDocument();
 
       // Click next page
-      fireEvent.click(screen.getByRole('button', { name: /next page/i }));
-      expect(screen.getByRole('button', { name: 'Page 2', current: 'page' })).toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: 'btn-next-page' }));
+      expect(
+        screen.getByRole('button', { name: 'btn-page-2', current: 'page' })
+      ).toBeInTheDocument();
 
       // Click previous page
-      fireEvent.click(screen.getByRole('button', { name: /previous page/i }));
-      expect(screen.getByRole('button', { name: 'Page 1', current: 'page' })).toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: 'btn-previous-page' }));
+      expect(
+        screen.getByRole('button', { name: 'btn-page-1', current: 'page' })
+      ).toBeInTheDocument();
     });
 
     test('previous button is disabled on first page', () => {
       renderWithChainProvider(<YourGroups {...mockPropsWithManyGroups} />);
 
-      const prevButton = screen.getByRole('button', { name: /previous page/i });
+      const prevButton = screen.getByRole('button', { name: 'btn-previous-page' });
       expect(prevButton).toBeDisabled();
     });
 
@@ -160,10 +167,10 @@ describe('Groups Component', () => {
       // Navigate to last page
       const totalPages = Math.ceil(mockPropsWithManyGroups.groups.groups.length / 8);
       for (let i = 1; i < totalPages; i++) {
-        fireEvent.click(screen.getByRole('button', { name: /next page/i }));
+        fireEvent.click(screen.getByRole('button', { name: 'btn-next-page' }));
       }
 
-      const nextButton = screen.getByRole('button', { name: /next page/i });
+      const nextButton = screen.getByRole('button', { name: 'btn-next-page' });
       expect(nextButton).toBeDisabled();
     });
 
@@ -171,16 +178,18 @@ describe('Groups Component', () => {
       renderWithChainProvider(<YourGroups {...mockPropsWithManyGroups} />);
 
       // Click page 2 button
-      fireEvent.click(screen.getByRole('button', { name: 'Page 2' }));
-      expect(screen.getByRole('button', { name: 'Page 2', current: 'page' })).toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: 'btn-page-2' }));
+      expect(
+        screen.getByRole('button', { name: 'btn-page-2', current: 'page' })
+      ).toBeInTheDocument();
     });
 
     test('shows correct number of items per page', () => {
       renderWithChainProvider(<YourGroups {...mockPropsWithManyGroups} />);
 
       // On desktop (non-mobile), should show 8 items per page
-      const groupRows = screen.getAllByRole('button', { name: /Select .+? group/i });
-      expect(groupRows).toHaveLength(8);
+      const groupRows = screen.getAllByRole('button', { name: /row-.+?/i });
+      expect(groupRows).toHaveLength(10);
     });
   });
 });

@@ -1,9 +1,10 @@
-import { describe, test, afterEach, expect, jest, mock } from 'bun:test';
+import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
 import React from 'react';
-import { screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
+
 import MemberInfoForm from '@/components/groups/forms/groups/MemberInfoForm';
-import { renderWithChainProvider } from '@/tests/render';
 import { mockGroupFormData } from '@/tests/mock';
+import { renderWithChainProvider } from '@/tests/render';
 
 // Mock next/router
 const m = jest.fn();
@@ -32,7 +33,6 @@ describe('MemberInfoForm Component', () => {
     expect(screen.getByText('Member Info')).toBeTruthy();
     expect(screen.getAllByLabelText('Address')[0]).toBeTruthy();
     expect(screen.getAllByLabelText('Name')[0]).toBeTruthy();
-    expect(screen.getAllByLabelText('Weight')[0]).toBeTruthy();
   });
 
   test('updates form fields correctly', async () => {
@@ -56,17 +56,6 @@ describe('MemberInfoForm Component', () => {
         index: 0,
         field: 'name',
         value: 'New Name',
-      });
-    });
-
-    const weightInput = screen.getAllByLabelText('Weight')[0] as HTMLInputElement;
-    fireEvent.change(weightInput, { target: { value: '3' } });
-    await waitFor(() => {
-      expect(mockProps.dispatch).toHaveBeenCalledWith({
-        type: 'UPDATE_MEMBER',
-        index: 0,
-        field: 'weight',
-        value: '3',
       });
     });
   });

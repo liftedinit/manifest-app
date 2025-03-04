@@ -1,6 +1,23 @@
+import { useChain } from '@cosmos-kit/react';
+import {
+  ProposalSDKType,
+  ThresholdDecisionPolicySDKType,
+} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { useQueryClient } from '@tanstack/react-query';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import React, { useEffect, useMemo, useState } from 'react';
+import { PiInfo } from 'react-icons/pi';
+
+import { GroupInfo, MemberManagementModal } from '@/components';
+import { MemberIcon, SearchIcon } from '@/components/icons';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import env from '@/config/env';
+import useIsMobile from '@/hooks/useIsMobile';
 import {
   ExtendedGroupType,
   ExtendedQueryGroupsByMemberResponseSDKType,
+  useBalance,
   useGetMessagesFromAddress,
   useTokenBalances,
   useTokenBalancesResolved,
@@ -8,34 +25,21 @@ import {
   useTokenFactoryDenomsMetadata,
   useTotalSupply,
 } from '@/hooks/useQueries';
-import ProfileAvatar from '@/utils/identicon';
+import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
+import { group as groupSchema } from '@/schemas';
 import {
   CombinedBalanceInfo,
-  denomToAsset,
   ExtendedMetadataSDKType,
+  MFX_TOKEN_BASE,
   MFX_TOKEN_DATA,
+  denomToAsset,
+  shiftDigits,
   truncateString,
+  unsafeConvertTokenBase,
 } from '@/utils';
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import {
-  ProposalSDKType,
-  ThresholdDecisionPolicySDKType,
-} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import ProfileAvatar from '@/utils/identicon';
+
 import GroupControls from './groupControls';
-import { useBalance } from '@/hooks/useQueries';
-import { shiftDigits } from '@/utils';
-import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
-import { SearchIcon } from '@/components/icons';
-import { MemberIcon } from '@/components/icons';
-import { PiInfo } from 'react-icons/pi';
-import { GroupInfo } from '../modals/groupInfo';
-import { MemberManagementModal } from '../modals/memberManagementModal';
-import { useChain } from '@cosmos-kit/react';
-import useIsMobile from '@/hooks/useIsMobile';
-import env from '@/config/env';
-import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
 
 // Add this interface outside the component
 interface PageSizeConfig {
@@ -45,16 +49,14 @@ interface PageSizeConfig {
   skeleton: number;
 }
 
-export function YourGroups({
+export default React.memo(function YourGroups({
   groups,
   proposals,
   isLoading,
-  refetch,
 }: {
   groups: ExtendedQueryGroupsByMemberResponseSDKType;
   proposals: { [policyAddress: string]: ProposalSDKType[] };
   isLoading: boolean;
-  refetch: () => void;
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -74,23 +76,26 @@ export function YourGroups({
     {
       height: 1000,
       width: 800,
-      sizes: { groupInfo: 7, groupEntries: 5, history: 7, skeleton: 7 },
+      sizes: { groupInfo: 7, groupEntries: 6, history: 7, skeleton: 7 },
     },
     {
       height: 1000,
       width: Infinity,
-      sizes: { groupInfo: 8, groupEntries: 8, history: 8, skeleton: 8 },
+      sizes: { groupInfo: 7, groupEntries: 6, history: 5, skeleton: 7 },
     },
     {
       height: 1300,
       width: Infinity,
-      sizes: { groupInfo: 8, groupEntries: 8, history: 8, skeleton: 8 },
+      sizes: { groupInfo: 9, groupEntries: 9, history: 7, skeleton: 9 },
     },
   ];
 
-  const defaultSizes = { groupInfo: 8, groupEntries: 8, history: 8, skeleton: 8 };
+  const defaultSizes = { groupInfo: 10, groupEntries: 10, history: 10, skeleton: 10 };
+  const responsivePageSize = useResponsivePageSize(sizeLookup, defaultSizes);
 
-  const pageSize = useResponsivePageSize(sizeLookup, defaultSizes);
+  const pageSize = isMobile
+    ? { groupInfo: 4, groupEntries: 4, history: 3, skeleton: 4 }
+    : responsivePageSize;
 
   const pageSizeGroupInfo = pageSize.groupInfo;
   const pageSizeHistory = pageSize.history;
@@ -125,9 +130,7 @@ export function YourGroups({
     // Check if there's a policy address in the URL on component mount
     const { policyAddress } = router.query;
     if (policyAddress && typeof policyAddress === 'string') {
-      const group = groups.groups.find(
-        g => g.policies && g.policies.length > 0 && g.policies[0]?.address === policyAddress
-      );
+      const group = groups.groups.find(g => g.policies?.[0]?.address === policyAddress);
       if (group) {
         let groupName = 'Untitled Group';
         try {
@@ -140,9 +143,13 @@ export function YourGroups({
 
         setSelectedGroupName(groupName);
         setSelectedGroup(group);
+      } else {
+        // Group not found, reset selected group.
+        setSelectedGroup(null);
+        router.push('/groups', undefined, { shallow: true });
       }
     }
-  }, [router.query, groups.groups]);
+  }, [groups.groups, router]);
 
   useEffect(() => {
     // Scroll to top when a group is selected
@@ -154,11 +161,11 @@ export function YourGroups({
   const handleSelectGroup = (group: ExtendedGroupType) => {
     let groupName = 'Untitled Group';
     try {
-      const metadata = group.metadata ? JSON.parse(group.metadata) : null;
+      const metadata = groupSchema.metadataFromJson(group.metadata, false);
       groupName = metadata?.title ?? 'Untitled Group';
     } catch (e) {
       // If JSON parsing fails, fall back to default name
-      // console.warn('Failed to parse group metadata:', e);
+      console.warn('Failed to parse group metadata:', e);
     }
     setSelectedGroupName(groupName);
     setSelectedGroup(group);
@@ -173,14 +180,13 @@ export function YourGroups({
     router.push('/groups', undefined, { shallow: true });
   };
 
-  const { balances, isBalancesLoading, refetchBalances } = useTokenBalances(
+  const { balances, isBalancesLoading } = useTokenBalances(
     selectedGroup?.policies[0]?.address ?? ''
   );
-  const {
-    balances: resolvedBalances,
-    isBalancesLoading: resolvedLoading,
-    refetchBalances: resolveRefetch,
-  } = useTokenBalancesResolved(address ?? '');
+
+  // console.log(`${selectedGroup?.policies[0]?.address} balances`, balances);
+  const { balances: resolvedBalances, isBalancesLoading: resolvedLoading } =
+    useTokenBalancesResolved(address ?? '');
 
   const { metadatas, isMetadatasLoading, isMetadatasError, refetchMetadatas } =
     useTokenFactoryDenomsMetadata();
@@ -191,7 +197,6 @@ export function YourGroups({
     totalPages: totalPagesGroupInfo,
     isLoading: txLoading,
     isError,
-    refetch: refetchHistory,
   } = useGetMessagesFromAddress(
     env.indexerUrl,
     selectedGroup?.policies[0]?.address ?? '',
@@ -199,17 +204,10 @@ export function YourGroups({
     pageSizeHistory
   );
 
-  const { denoms, isDenomsLoading, isDenomsError, denomError, refetchDenoms } =
-    useTokenFactoryDenomsFromAdmin(selectedGroup?.policies[0]?.address ?? '');
-  const { totalSupply, isTotalSupplyLoading, isTotalSupplyError, refetchTotalSupply } =
-    useTotalSupply();
-
-  const refetchData = () => {
-    refetchDenoms();
-    refetchMetadatas();
-    refetchBalances();
-    refetchTotalSupply();
-  };
+  const { denoms, isDenomsLoading } = useTokenFactoryDenomsFromAdmin(
+    selectedGroup?.policies[0]?.address ?? ''
+  );
+  const { totalSupply, isTotalSupplyLoading } = useTotalSupply();
 
   const combinedData = useMemo(() => {
     if (denoms?.denoms && metadatas?.metadatas && balances && totalSupply) {
@@ -233,20 +231,19 @@ export function YourGroups({
     }
     return [];
   }, [denoms, metadatas, balances, totalSupply]);
-  const isDataReady = combinedData.length > 0;
 
   const combinedBalances = useMemo(() => {
     if (!balances || !resolvedBalances || !metadatas) return [];
 
     // Find 'umfx' balance (mfx token)
     const mfxCoreBalance = balances.find(b => b.denom === 'umfx');
-    const mfxResolvedBalance = resolvedBalances.find(rb => rb.denom === 'mfx');
+    const mfxResolvedBalance = resolvedBalances.find(rb => rb.denom === 'umfx');
 
     // Create combined balance for 'mfx'
     const mfxCombinedBalance: CombinedBalanceInfo | null = mfxCoreBalance
       ? {
-          denom: mfxResolvedBalance?.denom || 'mfx',
-          coreDenom: 'umfx',
+          display: mfxResolvedBalance?.denom || 'mfx',
+          base: MFX_TOKEN_BASE,
           amount: mfxCoreBalance.amount,
           metadata: MFX_TOKEN_DATA,
         }
@@ -270,8 +267,8 @@ export function YourGroups({
           }
 
           return {
-            denom: baseDenom ?? '', // normalized denom (e.g., 'umfx')
-            coreDenom: coreBalance.denom, // full IBC trace
+            display: baseDenom ?? '', // normalized denom (e.g., 'umfx')
+            base: unsafeConvertTokenBase(coreBalance.denom), // full IBC trace
             amount: coreBalance.amount,
             metadata: {
               description: assetInfo?.description ?? '',
@@ -290,9 +287,10 @@ export function YourGroups({
           };
         }
 
+        // TODO: move this code to a `CombinedBalanceInfo` factory function.
         return {
-          denom: resolvedBalance?.denom || coreBalance.denom,
-          coreDenom: coreBalance.denom,
+          display: resolvedBalance?.denom || coreBalance.denom,
+          base: unsafeConvertTokenBase(metadata?.base ?? coreBalance.denom),
           amount: coreBalance.amount,
           metadata: metadata || null,
         };
@@ -308,9 +306,6 @@ export function YourGroups({
     isMetadatasLoading ||
     isDenomsLoading ||
     isTotalSupplyLoading;
-
-  const [activeInfoModalId, setActiveInfoModalId] = useState<string | null>(null);
-  const [activeMemberModalId, setActiveMemberModalId] = useState<string | null>(null);
 
   return (
     <div className="relative w-full h-screen overflow-x-hidden scrollbar-hide ">
@@ -335,7 +330,7 @@ export function YourGroups({
                   className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
-                  aria-label="Search groups"
+                  aria-label="input-search-term"
                 />
                 <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               </div>
@@ -345,7 +340,7 @@ export function YourGroups({
             <div className="max-w-8xl mx-auto">
               <table
                 className="table w-full border-separate border-spacing-y-3"
-                aria-label="Your groups"
+                aria-label="table-proposals"
               >
                 <thead className="sticky top-0 bg-background-color">
                   <tr className="text-sm font-medium">
@@ -401,6 +396,7 @@ export function YourGroups({
                         ))
                     : paginatedGroupEntries.map((group, index) => (
                         <GroupRow
+                          address={address}
                           key={index}
                           group={group}
                           proposals={
@@ -411,10 +407,6 @@ export function YourGroups({
                               : []
                           }
                           onSelectGroup={handleSelectGroup}
-                          activeMemberModalId={activeMemberModalId}
-                          setActiveMemberModalId={setActiveMemberModalId}
-                          activeInfoModalId={activeInfoModalId}
-                          setActiveInfoModalId={setActiveInfoModalId}
                         />
                       ))}
                 </tbody>
@@ -422,7 +414,7 @@ export function YourGroups({
             </div>
           </div>
           <div className="flex item-center justify-between">
-            <Link href="/groups/create" passHref aria-label="Create new group">
+            <Link href="/groups/create" passHref aria-label="btn-create-new-group">
               <button className="btn btn-gradient w-[224px] h-[52px] hidden md:block text-white rounded-[12px] focus:outline-none focus-visible:ring-1 focus-visible:ring-primary">
                 Create New Group
               </button>
@@ -432,7 +424,7 @@ export function YourGroups({
                 className="flex items-center justify-end gap-2"
                 onClick={e => e.stopPropagation()}
                 role="navigation"
-                aria-label="Pagination"
+                aria-label="pagination"
               >
                 <button
                   onClick={e => {
@@ -440,8 +432,7 @@ export function YourGroups({
                     setCurrentPage(prev => Math.max(1, prev - 1));
                   }}
                   disabled={currentPage === 1 || isLoading}
-                  className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  aria-label="Previous page"
+                  aria-label="btn-previous-page"
                 >
                   ‹
                 </button>
@@ -462,7 +453,7 @@ export function YourGroups({
                         }}
                         className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors text-black dark:text-white
                             ${currentPage === pageNum ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A]' : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A]'}`}
-                        aria-label={`Page ${pageNum}`}
+                        aria-label={`btn-page-${pageNum}`}
                         aria-current={currentPage === pageNum ? 'page' : undefined}
                       >
                         {pageNum}
@@ -485,7 +476,7 @@ export function YourGroups({
                   }}
                   disabled={currentPage === totalPages || isLoading}
                   className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  aria-label="Next page"
+                  aria-label="btn-next-page"
                 >
                   ›
                 </button>
@@ -526,79 +517,30 @@ export function YourGroups({
             isError={isError}
             balances={combinedBalances}
             denoms={combinedData}
-            denomLoading={isDenomsLoading}
-            isDenomError={isDenomsError}
-            refetchBalances={resolveRefetch}
-            refetchHistory={refetchHistory}
-            refetchDenoms={refetchData}
-            refetchGroupInfo={refetch}
             pageSize={pageSizeGroupInfo}
             skeletonGroupCount={skeletonGroupCount}
             skeletonTxCount={skeletonTxCount}
-            group={selectedGroup}
           />
         )}
       </div>
-
-      {/* Render modals outside table structure */}
-      {filteredGroups.map((group, index) => (
-        <React.Fragment key={`modals-${index}`}>
-          <GroupInfo
-            modalId={`group-info-modal-${group.id}`}
-            group={group}
-            address={address ?? ''}
-            policyAddress={group.policies[0]?.address ?? ''}
-            onUpdate={refetch}
-            showInfoModal={activeInfoModalId === group.id.toString()}
-            setShowInfoModal={show => setActiveInfoModalId(show ? group.id.toString() : null)}
-          />
-          <MemberManagementModal
-            modalId={`member-management-modal-${group.id}`}
-            members={group.members.map(member => ({
-              ...member.member,
-              address: member?.member?.address || '',
-              weight: member?.member?.weight || '0',
-              metadata: member?.member?.metadata || '',
-              added_at: member?.member?.added_at || new Date(),
-              isCoreMember: true,
-              isActive: true,
-              isAdmin: member?.member?.address === group.admin,
-              isPolicyAdmin: member?.member?.address === group.policies[0]?.admin,
-            }))}
-            groupId={group.id.toString()}
-            groupAdmin={group.admin}
-            policyAddress={group.policies[0]?.address ?? ''}
-            address={address ?? ''}
-            onUpdate={refetch}
-            setShowMemberManagementModal={show =>
-              setActiveMemberModalId(show ? group.id.toString() : null)
-            }
-            showMemberManagementModal={activeMemberModalId === group.id.toString()}
-          />
-        </React.Fragment>
-      ))}
     </div>
   );
-}
+});
 
-function GroupRow({
+const GroupRow = React.memo(function GroupRow({
+  address,
   group,
   proposals,
   onSelectGroup,
-  activeMemberModalId,
-  setActiveMemberModalId,
-  activeInfoModalId,
-  setActiveInfoModalId,
 }: {
+  address: string | undefined;
   group: ExtendedQueryGroupsByMemberResponseSDKType['groups'][0];
   proposals: ProposalSDKType[];
   onSelectGroup: (group: ExtendedGroupType) => void;
-
-  activeMemberModalId: string | null;
-  setActiveMemberModalId: (id: string | null) => void;
-  activeInfoModalId: string | null;
-  setActiveInfoModalId: (id: string | null) => void;
 }) {
+  const [showInfo, setShowInfo] = useState(false);
+  const [showMembers, setShowMembers] = useState(false);
+  const queryClient = useQueryClient();
   const policyAddress = (group.policies && group.policies[0]?.address) || '';
   let groupName = 'Untitled Group';
   try {
@@ -620,72 +562,123 @@ function GroupRow({
 
   const openInfoModal = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setActiveInfoModalId(group.id ? group.id.toString() : null);
+    setShowInfo(true);
   };
 
   const openMemberModal = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setActiveMemberModalId(group.id ? group.id.toString() : null);
+    setShowMembers(true);
+  };
+
+  const refetch = () => {
+    queryClient.invalidateQueries({ queryKey: ['groupInfoByMember'] });
+    queryClient.invalidateQueries({ queryKey: ['proposalsByPolicyAccountAll'] });
   };
 
   return (
-    <tr
-      className="group text-black dark:text-white rounded-lg cursor-pointer"
-      onClick={() => onSelectGroup(group)}
-      tabIndex={0}
-      role="button"
-      aria-label={`Select ${groupName} group`}
-    >
-      <td className="bg-secondary group-hover:bg-base-300 rounded-l-[12px] w-1/6">
-        <div className="items-center space-x-3 hidden xs:flex">
-          <ProfileAvatar walletAddress={policyAddress} />
-          <span className="font-medium">{truncateString(groupName, 24)}</span>
-        </div>
-        <div className="items-center flex xs:hidden block">
-          <ProfileAvatar walletAddress={policyAddress} />
-        </div>
-      </td>
-      <td className="bg-secondary group-hover:bg-base-300 hidden xl:table-cell w-1/6">
-        {activeProposals.length > 0 ? (
-          <span className="badge badge-primary badge-sm text-neutral-content">
-            {activeProposals.length}
-          </span>
-        ) : (
-          '-'
+    <>
+      <tr
+        className="group text-black dark:text-white rounded-lg cursor-pointer"
+        onClick={() => onSelectGroup(group)}
+        tabIndex={0}
+        role="button"
+        aria-label={`row-${groupName}`}
+      >
+        <td className="bg-secondary group-hover:bg-base-300 rounded-l-[12px] w-1/6">
+          <div className="items-center space-x-3 hidden xs:flex">
+            <ProfileAvatar walletAddress={policyAddress} />
+            <span className="font-medium">{truncateString(groupName, 24)}</span>
+          </div>
+          <div className="items-center flex xs:hidden block">
+            <ProfileAvatar walletAddress={policyAddress} />
+          </div>
+        </td>
+        <td className="bg-secondary group-hover:bg-base-300 hidden xl:table-cell w-1/6">
+          {activeProposals.length > 0 ? (
+            <span className="badge badge-primary badge-sm text-neutral-content">
+              {activeProposals.length}
+            </span>
+          ) : (
+            '-'
+          )}
+        </td>
+        <td className="bg-secondary group-hover:bg-base-300 hidden sm:table-cell w-1/6">
+          {Number(shiftDigits(balance?.amount ?? '0', -6)).toLocaleString(undefined, {
+            maximumFractionDigits: 6,
+          })}{' '}
+          MFX
+        </td>
+        <td className="bg-secondary group-hover:bg-base-300 hidden xl:table-cell w-1/6">
+          {`${(group.policies?.[0]?.decision_policy as ThresholdDecisionPolicySDKType)?.threshold ?? '0'} / ${group.total_weight ?? '0'}`}
+        </td>
+        <td className="bg-secondary group-hover:bg-base-300 hidden lg:table-cell w-1/6">
+          <div onClick={e => e.stopPropagation()}>
+            <TruncatedAddressWithCopy address={policyAddress} />
+          </div>
+        </td>
+        <td className="bg-secondary group-hover:bg-base-300 rounded-r-[12px] sm:rounded-l-none w-1/6">
+          <div className="flex space-x-2 justify-end">
+            <div
+              className="tooltip tooltip-left tooltip-primary hover:after:delay-1000 hover:before:delay-1000"
+              data-tip="Group Details"
+            >
+              <button
+                className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+                onClick={openInfoModal}
+                aria-label="btn-group-details"
+              >
+                <PiInfo className="w-7 h-7 text-current" />
+              </button>
+            </div>
+            <div
+              className="tooltip tooltip-left tooltip-primary hover:after:delay-1000 hover:before:delay-1000"
+              data-tip="Manage Members"
+            >
+              <button
+                className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+                onClick={openMemberModal}
+                aria-label="btn-group-members"
+              >
+                <MemberIcon className="w-7 h-7 text-current" />
+              </button>
+            </div>
+          </div>
+        </td>
+
+        {showInfo && (
+          <GroupInfo
+            group={group}
+            address={address ?? ''}
+            policyAddress={group.policies[0]?.address ?? ''}
+            onUpdate={() => refetch()}
+            showInfoModal={showInfo}
+            setShowInfoModal={show => setShowInfo(show)}
+          />
         )}
-      </td>
-      <td className="bg-secondary group-hover:bg-base-300 hidden sm:table-cell w-1/6">
-        {Number(shiftDigits(balance?.amount ?? '0', -6)).toLocaleString(undefined, {
-          maximumFractionDigits: 6,
-        })}{' '}
-        MFX
-      </td>
-      <td className="bg-secondary group-hover:bg-base-300 hidden xl:table-cell w-1/6">
-        {`${(group.policies?.[0]?.decision_policy as ThresholdDecisionPolicySDKType)?.threshold ?? '0'} / ${group.total_weight ?? '0'}`}
-      </td>
-      <td className="bg-secondary group-hover:bg-base-300 hidden lg:table-cell w-1/6">
-        <div onClick={e => e.stopPropagation()}>
-          <TruncatedAddressWithCopy address={policyAddress} slice={24} />
-        </div>
-      </td>
-      <td className="bg-secondary group-hover:bg-base-300 rounded-r-[12px] sm:rounded-l-none w-1/6">
-        <div className="flex space-x-2 justify-end">
-          <button
-            className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
-            onClick={openInfoModal}
-            aria-label={`View info for ${groupName}`}
-          >
-            <PiInfo className="w-7 h-7 text-current" />
-          </button>
-          <button
-            className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
-            onClick={openMemberModal}
-            aria-label={`Manage members for ${groupName}`}
-          >
-            <MemberIcon className="w-7 h-7 text-current" />
-          </button>
-        </div>
-      </td>
-    </tr>
+
+        {showMembers && (
+          <MemberManagementModal
+            members={group.members.map(member => ({
+              ...member.member,
+              address: member?.member?.address || '',
+              weight: member?.member?.weight || '0',
+              metadata: member?.member?.metadata || '',
+              added_at: member?.member?.added_at || new Date(),
+              isCoreMember: true,
+              isActive: true,
+              isAdmin: member?.member?.address === group.admin,
+              isPolicyAdmin: member?.member?.address === group.policies[0]?.admin,
+            }))}
+            groupId={group.id.toString()}
+            groupAdmin={group.admin}
+            policyAddress={group.policies[0]?.address ?? ''}
+            address={address ?? ''}
+            onUpdate={() => refetch()}
+            setShowMemberManagementModal={show => setShowMembers(show)}
+            showMemberManagementModal={showMembers}
+          />
+        )}
+      </tr>
+    </>
   );
-}
+});

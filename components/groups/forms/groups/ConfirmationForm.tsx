@@ -1,13 +1,17 @@
-import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
-import { FormData } from '@/helpers/formReducer';
-import { useFeeEstimation } from '@/hooks/useFeeEstimation';
-import { useTx } from '@/hooks/useTx';
 import { cosmos } from '@liftedinit/manifestjs';
 import { ThresholdDecisionPolicy } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { Duration } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/duration';
-import { secondsToHumanReadable } from '@/utils/string';
-import env from '@/config/env';
+import { useQueryClient } from '@tanstack/react-query';
+
 import { SignModal } from '@/components/react';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import env from '@/config/env';
+import { FormData } from '@/helpers/formReducer';
+import { useGroupsByMember } from '@/hooks';
+import { useFeeEstimation } from '@/hooks/useFeeEstimation';
+import { useTx } from '@/hooks/useTx';
+import { secondsToHumanReadable } from '@/utils/string';
+
 export default function ConfirmationForm({
   nextStep,
   prevStep,
@@ -38,7 +42,7 @@ export default function ConfirmationForm({
   }
   const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
-
+  const queryClient = useQueryClient();
   const minExecutionPeriod: Duration = {
     seconds: BigInt(0),
     nanos: 0,
@@ -64,7 +68,7 @@ export default function ConfirmationForm({
         admin: address ?? '',
         members: formData.members.map(member => ({
           address: member.address,
-          weight: member.weight,
+          weight: '1',
           metadata: member.name,
           added_at: new Date(),
         })),
@@ -78,10 +82,10 @@ export default function ConfirmationForm({
           typeUrl: typeUrl,
         },
       });
-      const fee = await estimateFee(address ?? '', [msg]);
       await tx([msg], {
-        fee,
+        fee: () => estimateFee(address ?? '', [msg]),
         onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ['groupInfoByMember'] });
           nextStep();
         },
       });

@@ -1,7 +1,8 @@
+import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import React from 'react';
+
 import { DenomImage, VerifiedIcon } from '@/components';
 import { formatTokenDisplay } from '@/utils';
-import React from 'react';
-import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 
 export const DenomVerifiedBadge = ({
   base,

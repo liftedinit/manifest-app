@@ -1,6 +1,6 @@
 import { GlobalRegistrator } from '@happy-dom/global-registrator';
-import { expect } from 'bun:test';
 import matchers from '@testing-library/jest-dom/matchers';
+import { expect } from 'bun:test';
 import { config } from 'dotenv';
 
 GlobalRegistrator.register();

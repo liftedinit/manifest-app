@@ -1,7 +1,10 @@
-import { afterEach, describe, expect, test, jest } from 'bun:test';
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, jest, test } from 'bun:test';
 import React from 'react';
-import { screen, cleanup, render } from '@testing-library/react';
+
 import CountdownTimer from '@/components/groups/components/CountdownTimer';
+
+const refetch = jest.fn();
 
 describe('CountdownTimer', () => {
   afterEach(cleanup);
@@ -16,7 +19,7 @@ describe('CountdownTimer', () => {
 
     // Now + 2 days - 1 hour - 2 minutes - 1 second
     const endTime = new Date(Date.now() + 2 * oneDay - oneHour - 2 * oneMinute - oneSecond);
-    render(<CountdownTimer endTime={endTime} />);
+    render(<CountdownTimer endTime={endTime} onTimerEnd={refetch} />);
 
     expect(screen.getByText('days')).toBeInTheDocument();
     const daysSpan = screen.getByLabelText('days');
@@ -39,7 +42,7 @@ describe('CountdownTimer', () => {
 
   test('shows zero values when countdown is complete', () => {
     const endTime = new Date(Date.now() - 1000); // 1 second ago
-    render(<CountdownTimer endTime={endTime} />);
+    render(<CountdownTimer endTime={endTime} onTimerEnd={refetch} />);
 
     expect(screen.getByText('days')).toBeInTheDocument();
     const daysSpan = screen.getByLabelText('days');
@@ -56,5 +59,16 @@ describe('CountdownTimer', () => {
     expect(screen.getByText('sec')).toBeInTheDocument();
     const secSpan = screen.getByLabelText('secs');
     expect(secSpan).toHaveStyle('--value: 0');
+  });
+
+  test('calls onTimerEnd when countdown completes', () => {
+    jest.useFakeTimers();
+    const endTime = new Date(Date.now() + 1000); // 1 second from now
+    render(<CountdownTimer endTime={endTime} onTimerEnd={refetch} />);
+
+    jest.setSystemTime(endTime);
+    expect(refetch.mock.calls.length).toBeGreaterThanOrEqual(1);
+
+    jest.useRealTimers();
   });
 });

@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import SendForm from '../forms/sendForm';
-import IbcSendForm from '../forms/ibcSendForm';
+import React from 'react';
+
 import env from '@/config/env';
 import { CombinedBalanceInfo } from '@/utils/types';
-import { ChainContext } from '@cosmos-kit/core';
-import React from 'react';
+
+import IbcSendForm from '../forms/ibcSendForm';
+import SendForm from '../forms/sendForm';
 
 export interface IbcChain {
   id: string;
@@ -18,19 +19,13 @@ export default React.memo(function SendBox({
   address,
   balances,
   isBalancesLoading,
-  refetchBalances,
-  refetchHistory,
   selectedDenom,
   isGroup,
   admin,
-  refetchProposals,
 }: {
   address: string;
   balances: CombinedBalanceInfo[];
   isBalancesLoading: boolean;
-  refetchBalances: () => void;
-  refetchHistory: () => void;
-  refetchProposals?: () => void;
   selectedDenom?: string;
   isGroup?: boolean;
   admin?: string;
@@ -129,15 +124,11 @@ export default React.memo(function SendBox({
                 selectedToChain={selectedToChain}
                 setSelectedToChain={setSelectedToChain}
                 address={address}
-                destinationChain={selectedToChain}
                 balances={balances}
                 isBalancesLoading={isBalancesLoading}
-                refetchBalances={refetchBalances}
-                refetchHistory={refetchHistory}
                 selectedDenom={selectedDenom}
                 isGroup={isGroup}
                 admin={admin}
-                refetchProposals={refetchProposals}
                 availableToChains={getAvailableToChains}
               />
             ) : (
@@ -145,12 +136,9 @@ export default React.memo(function SendBox({
                 address={address}
                 balances={balances}
                 isBalancesLoading={isBalancesLoading}
-                refetchBalances={refetchBalances}
-                refetchHistory={refetchHistory}
                 selectedDenom={selectedDenom}
                 isGroup={isGroup}
                 admin={admin}
-                refetchProposals={refetchProposals}
               />
             )}
           </div>

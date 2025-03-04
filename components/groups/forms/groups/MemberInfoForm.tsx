@@ -1,17 +1,15 @@
+import { Field, FieldArray, FieldProps, Form, Formik, useFormikContext } from 'formik';
 import React, { useState } from 'react';
-import { Formik, Form, Field, FieldArray, useFormikContext, FieldProps } from 'formik';
-import { MdContacts } from 'react-icons/md';
-import Yup from '@/utils/yupExtensions';
 
+import { PlusIcon, TrashIcon } from '@/components/icons';
+import { TextInput } from '@/components/react';
+import { AddressInput } from '@/components/react/inputs/AddressInput';
 import { Action, FormData } from '@/helpers/formReducer';
-import { TrashIcon, PlusIcon } from '@/components/icons';
-import { NumberInput, TextInput } from '@/components/react';
-import { TailwindModal } from '@/components/react/modal';
+import Yup from '@/utils/yupExtensions';
 
 const MemberSchema = Yup.object().shape({
   address: Yup.string().manifestAddress().required('Required'),
   name: Yup.string().required('Required').noProfanity('Profanity is not allowed'),
-  weight: Yup.number().min(1, 'Must be at least 1').required('Required'),
 });
 
 const MemberInfoSchema = Yup.object().shape({
@@ -28,21 +26,14 @@ const MemberInfoSchema = Yup.object().shape({
 
 function MemberInfoFormFields({
   dispatch,
-  isContactsOpen,
-  setIsContactsOpen,
-  activeMemberIndex,
-  setActiveMemberIndex,
-  address,
 }: Readonly<{
   dispatch: (action: Action) => void;
-  isContactsOpen: boolean;
-  setIsContactsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   activeMemberIndex: number | null;
   setActiveMemberIndex: React.Dispatch<React.SetStateAction<number | null>>;
   address: string;
 }>) {
-  const { values, isValid, setFieldValue } = useFormikContext<{
-    members: { address: string; name: string; weight: string }[];
+  const { values } = useFormikContext<{
+    members: { address: string; name: string }[];
   }>();
 
   return (
@@ -62,7 +53,7 @@ function MemberInfoFormFields({
                     <Field name={`members.${index}.address`}>
                       {({ field, meta }: FieldProps) => (
                         <div className="relative">
-                          <TextInput
+                          <AddressInput
                             showError={false}
                             label="Address"
                             {...field}
@@ -71,20 +62,6 @@ function MemberInfoFormFields({
                             className={`input input-bordered w-full ${
                               meta.touched && meta.error ? 'input-error' : ''
                             }`}
-                            rightElement={
-                              <button
-                                type="button"
-                                aria-label="Select contact from address book"
-                                title="Select contact from address book"
-                                onClick={() => {
-                                  setActiveMemberIndex(index);
-                                  setIsContactsOpen(true);
-                                }}
-                                className="btn btn-primary btn-sm text-white"
-                              >
-                                <MdContacts className="w-5 h-5" />
-                              </button>
-                            }
                             onChange={e => {
                               field.onChange(e);
                               dispatch({
@@ -146,52 +123,6 @@ function MemberInfoFormFields({
                     </Field>
                   </div>
 
-                  <div className="flex-grow relative">
-                    <Field name={`members.${index}.weight`}>
-                      {({ field, meta }: FieldProps) => (
-                        <div className="relative">
-                          <NumberInput
-                            showError={false}
-                            label="Weight"
-                            {...field}
-                            type="number"
-                            min="1"
-                            step="1"
-                            onKeyDown={e => {
-                              // Prevent negative signs and decimals
-                              if (e.key === '-' || e.key === '.' || e.key === 'e') {
-                                e.preventDefault();
-                              }
-                            }}
-                            placeholder="1"
-                            className={`input input-bordered w-full ${
-                              meta.touched && meta.error ? 'input-error' : ''
-                            }`}
-                            onChange={e => {
-                              const value = Math.max(1, parseInt(e.target.value) || 1);
-                              field.onChange(e);
-                              setFieldValue(`members.${index}.weight`, value.toString());
-                              dispatch({
-                                type: 'UPDATE_MEMBER',
-                                index,
-                                field: 'weight',
-                                value: value.toString(),
-                              });
-                            }}
-                          />
-                          {meta.touched && meta.error && (
-                            <div
-                              className="tooltip tooltip-bottom tooltip-open tooltip-error bottom-0 absolute left-1/2 transform -translate-x-1/2 translate-y-full mt-1 z-50 text-white text-xs"
-                              data-tip={meta.error}
-                            >
-                              <div className="w-0 h-0"></div>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </Field>
-                  </div>
-
                   {index > 0 && (
                     <button
                       type="button"
@@ -211,10 +142,10 @@ function MemberInfoFormFields({
                 type="button"
                 className="btn btn-gradient w-full"
                 onClick={() => {
-                  push({ address: '', name: '', weight: '1' });
+                  push({ address: '', name: '' });
                   dispatch({
                     type: 'ADD_MEMBER',
-                    member: { address: '', name: '', weight: '1' },
+                    member: { address: '', name: '' },
                   });
                 }}
               >
@@ -225,25 +156,6 @@ function MemberInfoFormFields({
           )}
         </FieldArray>
       </div>
-
-      <TailwindModal
-        isOpen={isContactsOpen}
-        setOpen={setIsContactsOpen}
-        showContacts={true}
-        currentAddress={address}
-        onSelect={(selectedAddress: string) => {
-          if (activeMemberIndex !== null) {
-            setFieldValue(`members.${activeMemberIndex}.address`, selectedAddress);
-            dispatch({
-              type: 'UPDATE_MEMBER',
-              index: activeMemberIndex,
-              field: 'address',
-              value: selectedAddress,
-            });
-            setActiveMemberIndex(null);
-          }
-        }}
-      />
     </Form>
   );
 }
@@ -262,7 +174,6 @@ export default function MemberInfoForm({
   address: string;
 }>) {
   // Local states needed by the form fields
-  const [isContactsOpen, setIsContactsOpen] = useState(false);
   const [activeMemberIndex, setActiveMemberIndex] = useState<number | null>(null);
 
   return (
@@ -290,8 +201,6 @@ export default function MemberInfoForm({
 
                     <MemberInfoFormFields
                       dispatch={dispatch}
-                      isContactsOpen={isContactsOpen}
-                      setIsContactsOpen={setIsContactsOpen}
                       activeMemberIndex={activeMemberIndex}
                       setActiveMemberIndex={setActiveMemberIndex}
                       address={address}

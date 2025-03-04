@@ -1,7 +1,7 @@
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Suspense, useRef, useMemo, useEffect } from 'react';
-import { Mesh, Vector3, BufferAttribute, BufferGeometry } from 'three';
 import { Environment } from '@react-three/drei';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Suspense, useEffect, useMemo, useRef } from 'react';
+import { BufferAttribute, BufferGeometry, Mesh, Vector3 } from 'three';
 import * as THREE from 'three';
 
 function createExtrudedGeometry(extrusion: number) {
@@ -113,11 +113,9 @@ function createExtrudedGeometry(extrusion: number) {
 function AnimatedMesh({
   scaleFactor,
   extrusionMultiplier,
-  onLoad,
 }: {
   scaleFactor: number;
   extrusionMultiplier: number;
-  onLoad?: () => void;
 }) {
   const meshRef = useRef<Mesh>(null);
   const extrusionAmountRef = useRef(0);
@@ -167,13 +165,6 @@ function AnimatedMesh({
     }
   });
 
-  useEffect(() => {
-    if (meshRef.current) {
-      // Mesh is loaded
-      onLoad?.();
-    }
-  }, [onLoad]);
-
   return <mesh ref={meshRef} geometry={geometry} material={material} />;
 }
 
@@ -194,12 +185,7 @@ export default function AnimatedAsterisk({ onLoad }: { onLoad?: () => void }) {
     const extrusionMultiplier = 2 / Math.pow(2, i); // Halve the multiplier at each level
 
     meshes.push(
-      <AnimatedMesh
-        key={i}
-        scaleFactor={scaleFactor}
-        extrusionMultiplier={extrusionMultiplier}
-        onLoad={handleMeshLoad}
-      />
+      <AnimatedMesh key={i} scaleFactor={scaleFactor} extrusionMultiplier={extrusionMultiplier} />
     );
   }
 
@@ -208,10 +194,8 @@ export default function AnimatedAsterisk({ onLoad }: { onLoad?: () => void }) {
       style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
       camera={{ position: [0, 0, 10] }}
     >
-      <Suspense fallback={null}>
-        {meshes}
-        <Environment files="/rosendal_park_sunset_puresky_1k.hdr" background={false} />
-      </Suspense>
+      {meshes}
+      <Environment files="/rosendal_park_sunset_puresky_1k.hdr" background={false} />
     </Canvas>
   );
 }

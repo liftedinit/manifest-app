@@ -1,19 +1,21 @@
-import { GroupsIcon } from '@/components/icons/GroupsIcon';
-import { formatVote } from '@/utils';
-import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
-import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
 import { MsgVote } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
-import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { format } from 'react-string-format';
+
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { GroupsIcon } from '@/components/icons/GroupsIcon';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+import { formatVote } from '@/utils';
+
+import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 
 const createMessage = (template: string, vote: string, ids: string, sender?: string) => {
   const message = format(
     template,
     formatVote(vote),
     ids,
-    sender ? <TruncatedAddressWithCopy address={sender} slice={24} /> : 'an unknown address'
+    sender ? <TruncatedAddressWithCopy address={sender} /> : 'an unknown address'
   );
-  return <span className="flex gap-1">{message}</span>;
+  return <span className="flex flex-wrap gap-1">{message}</span>;
 };
 
 export const MsgVoteHandler = createSenderReceiverHandler({

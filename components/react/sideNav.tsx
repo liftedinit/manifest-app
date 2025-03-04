@@ -1,27 +1,28 @@
-import { useState } from 'react';
+import { useChain } from '@cosmos-kit/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { IconWallet, WalletSection } from '../wallet';
-import { useTheme } from '@/contexts/theme';
-import { TailwindModal } from './modal';
-import packageInfo from '../../package.json';
+import { useState } from 'react';
+import { MdContacts } from 'react-icons/md';
 
 import {
   AdminsIcon,
   BankIcon,
+  DarkIcon,
   FactoryIcon,
   GroupsIcon,
-  DarkIcon,
   LightIcon,
+  QuestionIcon,
 } from '@/components/icons';
-
-import { MdContacts } from 'react-icons/md';
-import { getRealLogo } from '@/utils';
 import env from '@/config/env';
+import { useTheme } from '@/contexts';
 import { useGroupsByAdmin } from '@/hooks';
 import { usePoaGetAdmin } from '@/hooks';
-import { useChain } from '@cosmos-kit/react';
+import { getRealLogo } from '@/utils';
+
+import packageInfo from '../../package.json';
+import { IconWallet, WalletSection } from '../wallet';
+import { TailwindModal } from './modal';
 
 interface SideNavProps {
   isDrawerVisible: boolean;
@@ -48,13 +49,16 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
   const NavItem: React.FC<{
     Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
     href: string;
-  }> = ({ Icon, href }) => {
+    tooltip?: string;
+  }> = ({ Icon, href, tooltip }) => {
     const { pathname } = useRouter();
     const isActive = pathname === href;
-    const tooltipText = href.split('/')[1] || href;
 
     return (
-      <li className="relative group w-full flex justify-center mb-5">
+      <li
+        className="relative w-full flex justify-center mb-5 tooltip tooltip-primary tooltip-bottom hover:after:delay-1000 hover:before:delay-1000"
+        data-tip={tooltip}
+      >
         <Link href={href} passHref legacyBehavior>
           <a
             className={`group active:scale-95 hover:ring-2  hover:ring-primary flex justify-center p-3 items-center rounded-lg transition-all duration-300 ease-in-out w-18
@@ -65,11 +69,6 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
             >
               <Icon className="w-full h-full " />
             </div>
-            {!isActive && (
-              <span className="tooltip fixed z-[9999] left-[6.8rem] px-3 py-2 bg-primary text-white text-sm font-medium rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-in-out whitespace-nowrap">
-                {tooltipText}
-              </span>
-            )}
           </a>
         </Link>
       </li>
@@ -84,35 +83,54 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
         </a>
       </Link>
       <ul className="flex flex-col items-center flex-grow mt-8">
-        <NavItem Icon={BankIcon} href="/bank" />
-        <NavItem Icon={GroupsIcon} href="/groups" />
-        {isMember && <NavItem Icon={AdminsIcon} href="/admins" />}
-
-        <NavItem Icon={FactoryIcon} href="/factory" />
+        <NavItem Icon={BankIcon} href="/bank" tooltip="Bank" />
+        <NavItem Icon={GroupsIcon} href="/groups" tooltip="Groups" />
+        {isMember && <NavItem Icon={AdminsIcon} href="/admins" tooltip="Admin" />}
+        <NavItem Icon={FactoryIcon} href="/factory" tooltip="Token Factory" />
       </ul>
       <div className="mt-auto flex flex-col items-center space-y-6 dark:bg-[#FFFFFF0F] bg-[#0000000A] rounded-lg p-4 w-[75%]">
-        <button
-          onClick={() => setContactsOpen(true)}
-          className="relative group flex justify-center w-full text-[#00000066] dark:text-[#FFFFFF66] hover:text-primary dark:hover:text-primary transition-all duration-300 ease-in-out"
+        <div
+          className="tooltip tooltip-primary tooltip-top hover:after:delay-1000 hover:before:delay-1000"
+          data-tip="Contacts"
         >
-          <MdContacts className="w-8 h-8" />
-          <span className="tooltip fixed z-[9999] left-[6.8rem] px-3 py-2 bg-primary text-white text-sm font-medium rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-in-out whitespace-nowrap">
-            Contacts
-          </span>
-        </button>
-        <div className="flex justify-center w-full text-[#00000066] dark:text-[#FFFFFF66]">
-          <IconWallet chainName={env.chain} />
+          <button
+            onClick={() => setContactsOpen(true)}
+            className="relative group flex justify-center w-full text-[#00000066] dark:text-[#FFFFFF66] hover:text-primary dark:hover:text-primary transition-all duration-300 ease-in-out"
+          >
+            <MdContacts className="w-8 h-8" />
+          </button>
+        </div>
+        <div
+          className="tooltip tooltip-top tooltip-primary hover:after:delay-1000 hover:before:delay-1000"
+          data-tip="Wallet"
+        >
+          <div className="flex justify-center w-full text-[#00000066] dark:text-[#FFFFFF66]">
+            <IconWallet chainName={env.chain} />
+          </div>
         </div>
         <label className="swap swap-rotate text-[#00000066] dark:text-[#FFFFFF66] hover:text-primary dark:hover:text-primary transition-all duration-300 ease-in-out">
           <input
             type="checkbox"
             className="theme-controller hidden"
+            value="dark"
             checked={theme === 'dark'}
-            onChange={toggleTheme}
+            onChange={() => toggleTheme()}
           />
-          <LightIcon className="swap-on fill-current w-9 h-9 duration-300" />
-          <DarkIcon className="swap-off fill-current w-9 h-9 duration-300" />
+          <DarkIcon className="swap-on fill-current w-9 h-9 duration-300" />
+          <LightIcon className="swap-off fill-current w-9 h-9 duration-300" />
         </label>
+        <div
+          className="tooltip tooltip-top tooltip-primary hover:after:delay-1000 hover:before:delay-1000"
+          data-tip="Help Guide"
+        >
+          <div className="flex justify-center w-full text-[#00000066] dark:text-[#FFFFFF66]">
+            <Link href="https://docs.manifestai.org/" target="_blank">
+              <QuestionIcon
+                className={`w-8 h-8 rounded-xl text-[#00000066] dark:text-[#FFFFFF66] hover:text-primary dark:hover:text-primary transition-all duration-300 ease-in-out`}
+              />
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -121,12 +139,16 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
     Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
     href: string;
     label: string;
-  }> = ({ Icon, href, label }) => {
+    tooltip?: string;
+  }> = ({ Icon, href, label, tooltip }) => {
     const { pathname } = useRouter();
     const isActive = pathname === href;
 
     return (
-      <li className="w-full mb-5">
+      <li
+        className="w-full mb-5 group tooltip tooltip-primary tooltip-bottom hover:after:delay-1000 hover:before:delay-1000"
+        data-tip={tooltip}
+      >
         <Link href={href} legacyBehavior>
           <a
             className={`flex items-center p-2 text-base font-normal rounded-lg transition duration-300 ease-in-out ${
@@ -157,20 +179,37 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
         </div>
       </div>
       <ul className="flex-grow mt-8 p-1">
-        <NavDrawer Icon={BankIcon} href="/bank" label="Bank" />
-        <NavDrawer Icon={GroupsIcon} href="/groups" label="Groups" />
-        {isMember && <NavDrawer Icon={AdminsIcon} href="/admins" label="Admins" />}
-        <NavDrawer Icon={FactoryIcon} href="/factory" label="Factory" />
+        <NavDrawer Icon={BankIcon} href="/bank" label="Bank" tooltip="Manage your assets" />
+        <NavDrawer
+          Icon={GroupsIcon}
+          href="/groups"
+          label="Groups"
+          tooltip="Create and manage groups"
+        />
+        {isMember && (
+          <NavDrawer Icon={AdminsIcon} href="/admins" label="Admins" tooltip="Manage the network" />
+        )}
+        <NavDrawer
+          Icon={FactoryIcon}
+          href="/factory"
+          label="Factory"
+          tooltip="Create and manage tokens"
+        />
       </ul>
-      <div className="mt-auto">
-        <div className="flex flex-col space-y-2 mb-4">
-          <button
-            onClick={() => setContactsOpen(true)}
-            className="flex items-center p-2 text-base font-normal rounded-lg text-[#00000066] dark:text-[#FFFFFF66] hover:bg-[#0000000A] hover:text-primary dark:hover:text-primary dark:hover:bg-base-300 transition duration-300 ease-in-out"
-          >
-            <MdContacts className="w-8 h-8 mr-6" />
-            <span className="text-xl">Contacts</span>
-          </button>
+      <div className="mt-auto w-full">
+        <div
+          className="w-full tooltip tooltip-primary tooltip-top hover:after:delay-1000 hover:before:delay-1000"
+          data-tip="Manage your contacts"
+        >
+          <div className="w-full flex flex-col space-y-2 mb-4">
+            <button
+              onClick={() => setContactsOpen(true)}
+              className="flex w-full items-center p-2 text-base font-normal rounded-lg text-[#00000066] dark:text-[#FFFFFF66] hover:bg-[#0000000A] hover:text-primary dark:hover:text-primary dark:hover:bg-base-300 transition duration-300 ease-in-out"
+            >
+              <MdContacts className="w-8 h-8 mr-6" />
+              <span className="text-xl">Contacts</span>
+            </button>
+          </div>
         </div>
 
         <div className="flex items-center justify-between mb-2">
@@ -179,9 +218,10 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
             <label className="flex items-center justify-between w-full h-full cursor-pointer">
               <input
                 type="checkbox"
-                className="sr-only peer"
+                className="theme-controller hidden"
+                value="dark"
                 checked={theme === 'dark'}
-                onChange={toggleTheme}
+                onChange={() => toggleTheme()}
               />
               <div className="flex items-center justify-center w-1/2 h-full z-10">
                 <LightIcon
@@ -208,20 +248,42 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
           </div>
         </ul>
         <div className="flex flex-row justify-between items-center">
-          <Link href="https://github.com/liftedinit/manifest-app" target="_blank">
-            <p className="text-sm text-gray-500">v{version}</p>
-          </Link>
           <div className="flex flex-row justify-between items-center gap-3">
-            <Link href="https://discord.gg/ndYMdRmFpG" target="_blank">
+            <Link href="https://github.com/liftedinit/manifest-app" target="_blank">
+              <p className="text-sm text-gray-500">v{version}</p>
+            </Link>
+            <Link
+              href="https://docs.manifestai.org/"
+              target="_blank"
+              className="tooltip tooltip-primary tooltip-top hover:after:delay-1000 hover:before:delay-1000"
+              data-tip="Help Guide"
+            >
+              <QuestionIcon
+                className={`w-4 h-4 rounded-xl text-black dark:text-white transition-colors duration-300`}
+              />
+            </Link>
+          </div>
+          <div className="flex flex-row justify-between items-center gap-3">
+            <Link
+              href="https://discord.gg/manifestai"
+              target="_blank"
+              className="tooltip tooltip-primary tooltip-top hover:after:delay-1000 hover:before:delay-1000"
+              data-tip="Discord"
+            >
               <Image
                 src={getRealLogo('/discord', theme === 'dark')}
-                alt={'Discord'}
+                alt={'Manifest Discord'}
                 width={12}
                 height={12}
                 className="w-4 h-4 rounded-xl"
               />
             </Link>
-            <Link href="https://x.com/ManifestAIs" target="_blank">
+            <Link
+              href="https://x.com/ManifestAIs"
+              target="_blank"
+              className="tooltip tooltip-primary tooltip-top hover:after:delay-1000 hover:before:delay-1000"
+              data-tip="X"
+            >
               <Image
                 src={getRealLogo('/x', theme === 'dark')}
                 alt={'Twitter'}

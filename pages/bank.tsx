@@ -1,26 +1,22 @@
-import { WalletNotConnected, HistoryBox, SearchIcon } from '@/components';
+import { useChain, useChains } from '@cosmos-kit/react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+
+import { HistoryBox, SearchIcon, WalletNotConnected } from '@/components';
+import { SEO } from '@/components';
 import { TokenList } from '@/components/bank/components/tokenList';
+import { BankIcon } from '@/components/icons';
+import env from '@/config/env';
 import {
   useGetMessagesFromAddress,
   useIsMobile,
-  useOsmosisTokenBalancesResolved,
-  useOsmosisTokenFactoryDenomsMetadata,
   useTokenBalances,
-  useTokenBalancesOsmosis,
   useTokenBalancesResolved,
   useTokenFactoryDenomsMetadata,
 } from '@/hooks';
-import { useChain, useChains } from '@cosmos-kit/react';
-
-import React, { useMemo, useState, useCallback, useEffect } from 'react';
-import { BankIcon } from '@/components/icons';
-import { CombinedBalanceInfo } from '@/utils/types';
-import { MFX_TOKEN_DATA, OSMOSIS_TOKEN_DATA } from '@/utils/constants';
-import env from '@/config/env';
-import { SEO } from '@/components';
 import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
-import Link from 'next/link';
-import { denomToAsset } from '@/utils';
+import { MFX_TOKEN_BASE, denomToAsset, unsafeConvertTokenBase } from '@/utils';
+import { MFX_TOKEN_DATA } from '@/utils/constants';
+import { CombinedBalanceInfo } from '@/utils/types';
 
 interface PageSizeConfig {
   tokenList: number;
@@ -30,13 +26,11 @@ interface PageSizeConfig {
 
 export default function Bank() {
   const { isWalletConnected, address } = useChain(env.chain);
+  const isMobile = useIsMobile();
 
-  const { balances, isBalancesLoading, refetchBalances } = useTokenBalances(address ?? '');
-  const {
-    balances: resolvedBalances,
-    isBalancesLoading: resolvedLoading,
-    refetchBalances: resolveRefetch,
-  } = useTokenBalancesResolved(address ?? '');
+  const { balances, isBalancesLoading } = useTokenBalances(address ?? '');
+  const { balances: resolvedBalances, isBalancesLoading: resolvedLoading } =
+    useTokenBalancesResolved(address ?? '');
 
   const { metadatas, isMetadatasLoading } = useTokenFactoryDenomsMetadata();
   const [currentPage, setCurrentPage] = useState(1);
@@ -46,33 +40,34 @@ export default function Bank() {
     {
       height: 700,
       width: Infinity,
-      sizes: { tokenList: 5, history: 4, skeleton: 5 },
+      sizes: { tokenList: 4, history: 2, skeleton: 4 },
     },
     {
       height: 800,
       width: Infinity,
-      sizes: { tokenList: 6, history: 6, skeleton: 7 },
+      sizes: { tokenList: 5, history: 3, skeleton: 5 },
     },
     {
       height: 1000,
       width: 800,
-      sizes: { tokenList: 7, history: 7, skeleton: 7 },
+      sizes: { tokenList: 6, history: 4, skeleton: 6 },
     },
     {
       height: 1000,
       width: Infinity,
-      sizes: { tokenList: 8, history: 8, skeleton: 8 },
+      sizes: { tokenList: 6, history: 5, skeleton: 6 },
     },
     {
       height: 1300,
       width: Infinity,
-      sizes: { tokenList: 9, history: 9, skeleton: 9 },
+      sizes: { tokenList: 9, history: 7, skeleton: 9 },
     },
   ];
 
-  const defaultSizes = { tokenList: 10, history: 10, skeleton: 10 };
+  const defaultSizes = { tokenList: 10, history: 8, skeleton: 10 };
 
-  const pageSize = useResponsivePageSize(sizeLookup, defaultSizes);
+  const responsivePageSize = useResponsivePageSize(sizeLookup, defaultSizes);
+  const pageSize = isMobile ? { tokenList: 5, history: 3, skeleton: 5 } : responsivePageSize;
 
   const skeletonGroupCount = 1;
   const skeletonTxCount = pageSize.skeleton;
@@ -84,8 +79,6 @@ export default function Bank() {
     totalPages,
     isLoading: txLoading,
     isError,
-    refetch: refetchHistory,
-    totalCount,
   } = useGetMessagesFromAddress(env.indexerUrl, address ?? '', currentPage, historyPageSize);
 
   const combinedBalances = useMemo(() => {
@@ -93,13 +86,13 @@ export default function Bank() {
 
     // Find 'umfx' balance (mfx token)
     const mfxCoreBalance = balances.find(b => b.denom === 'umfx');
-    const mfxResolvedBalance = resolvedBalances.find(rb => rb.denom === 'mfx');
+    const mfxResolvedBalance = resolvedBalances.find(rb => rb.denom === 'umfx');
 
     // Create combined balance for 'mfx'
     const mfxCombinedBalance: CombinedBalanceInfo | null = mfxCoreBalance
       ? {
-          denom: mfxResolvedBalance?.denom || 'mfx',
-          coreDenom: 'umfx',
+          display: mfxResolvedBalance?.denom || 'mfx',
+          base: MFX_TOKEN_BASE,
           amount: mfxCoreBalance.amount,
           metadata: MFX_TOKEN_DATA,
         }
@@ -120,8 +113,8 @@ export default function Bank() {
           const baseDenom = assetInfo?.traces?.[1]?.counterparty?.base_denom;
 
           return {
-            denom: baseDenom ?? '', // normalized denom (e.g., 'umfx')
-            coreDenom: coreBalance.denom, // full IBC trace
+            display: baseDenom ?? '', // normalized denom (e.g., 'umfx')
+            base: unsafeConvertTokenBase(coreBalance.denom), // full IBC trace
             amount: coreBalance.amount,
             metadata: {
               description: assetInfo?.description ?? '',
@@ -140,9 +133,10 @@ export default function Bank() {
           };
         }
 
+        // TODO: move this code to a `CombinedBalanceInfo` factory function.
         return {
-          denom: resolvedBalance?.denom || coreBalance.denom,
-          coreDenom: coreBalance.denom,
+          display: resolvedBalance?.denom || coreBalance.denom,
+          base: unsafeConvertTokenBase(coreBalance.denom),
           amount: coreBalance.amount,
           metadata: metadata || null,
         };
@@ -223,10 +217,8 @@ export default function Bank() {
                       <NoAssetsFound />
                     ) : (
                       <TokenList
-                        refetchBalances={refetchBalances || resolveRefetch}
                         isLoading={isLoading}
                         balances={combinedBalances}
-                        refetchHistory={refetchHistory}
                         address={address ?? ''}
                         pageSize={tokenListPageSize}
                         searchTerm={searchTerm}
@@ -245,7 +237,6 @@ export default function Bank() {
                         totalPages={totalPages}
                         txLoading={txLoading}
                         isError={isError}
-                        refetch={refetchHistory}
                         skeletonGroupCount={skeletonGroupCount}
                         skeletonTxCount={skeletonTxCount}
                       />

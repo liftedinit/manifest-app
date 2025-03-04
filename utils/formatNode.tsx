@@ -3,6 +3,7 @@
  * This file is intended as a TSX addendum to `./format.ts`.
  */
 import { ReactNode } from 'react';
+
 import { DenomVerifiedBadge } from '@/components';
 import { formatDenom } from '@/utils/format';
 

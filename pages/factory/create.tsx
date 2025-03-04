@@ -1,15 +1,16 @@
-import React, { useState, useReducer, useEffect } from 'react';
-import { tokenFormDataReducer, TokenFormData } from '@/helpers/formReducer';
-import ConfirmationForm from '@/components/factory/forms/ConfirmationForm';
-import TokenDetails from '@/components/factory/forms/TokenDetailsForm';
-import StepIndicator from '@/components/react/StepIndicator';
 import { useChain } from '@cosmos-kit/react';
-import { WalletNotConnected, SEO } from '@/components';
-import Success from '@/components/factory/forms/Success';
-import CreateDenom from '@/components/factory/forms/CreateDenom';
-import { FactoryIcon } from '@/components/icons';
-import env from '@/config/env';
 import { useRouter } from 'next/router';
+import React, { useEffect, useReducer, useState } from 'react';
+
+import { SEO, WalletNotConnected } from '@/components';
+import ConfirmationForm from '@/components/factory/forms/ConfirmationForm';
+import CreateDenom from '@/components/factory/forms/CreateDenom';
+import Success from '@/components/factory/forms/Success';
+import TokenDetails from '@/components/factory/forms/TokenDetailsForm';
+import { FactoryIcon } from '@/components/icons';
+import StepIndicator from '@/components/react/StepIndicator';
+import env from '@/config/env';
+import { TokenFormData, tokenFormDataReducer } from '@/helpers/formReducer';
 
 const initialFormData: TokenFormData = {
   subdenom: '',

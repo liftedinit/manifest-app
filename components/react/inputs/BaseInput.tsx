@@ -1,7 +1,9 @@
-import React from 'react';
 import { useField } from 'formik';
+import React from 'react';
+
 import { QuestionIcon } from '@/components/icons';
-interface BaseInputProps {
+
+export interface BaseInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   name: string;
   className?: string;
@@ -11,7 +13,7 @@ interface BaseInputProps {
   helperText?: string;
 }
 
-export const BaseInput: React.FC<BaseInputProps & React.InputHTMLAttributes<HTMLInputElement>> = ({
+export const BaseInput: React.FC<BaseInputProps> = ({
   label,
   rightElement,
   leftElement,

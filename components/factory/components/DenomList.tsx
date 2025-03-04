@@ -1,23 +1,23 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useRouter } from 'next/router';
-import { DenomImage } from './DenomImage';
-import { DenomDisplay } from './DenomDisplay';
+import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
-import { truncateString, ExtendedMetadataSDKType, shiftDigits, formatTokenDisplay } from '@/utils';
-import { MintIcon, BurnIcon, TransferIcon } from '@/components/icons';
-import { DenomInfoModal } from '@/components/factory/modals/denomInfo';
-import MintModal from '@/components/factory/modals/MintModal';
-import BurnModal from '@/components/factory/modals/BurnModal';
-import UpdateDenomMetadataModal from '@/components/factory/modals/updateDenomMetadata';
+import { useRouter } from 'next/router';
+import { useEffect, useMemo, useState } from 'react';
 import { PiInfo } from 'react-icons/pi';
-import useIsMobile from '@/hooks/useIsMobile';
+
+import BurnModal from '@/components/factory/modals/BurnModal';
+import MintModal from '@/components/factory/modals/MintModal';
 import TransferModal from '@/components/factory/modals/TransferModal';
+import { DenomInfoModal } from '@/components/factory/modals/denomInfo';
+import UpdateDenomMetadataModal from '@/components/factory/modals/updateDenomMetadata';
+import { BurnIcon, MintIcon, TransferIcon } from '@/components/icons';
+import useIsMobile from '@/hooks/useIsMobile';
+import { ExtendedMetadataSDKType, formatTokenDisplay, shiftDigits, truncateString } from '@/utils';
+
+import { DenomDisplay } from './DenomDisplay';
 
 type DenomListProps = {
   denoms: ExtendedMetadataSDKType[];
   isLoading: boolean;
-  refetchDenoms: () => void;
-  refetchProposals?: () => void;
   address: string;
   pageSize: number;
   isGroup?: boolean;
@@ -28,8 +28,6 @@ type DenomListProps = {
 export default function DenomList({
   denoms,
   isLoading,
-  refetchDenoms,
-  refetchProposals,
   address,
   pageSize,
   isGroup = false,
@@ -38,18 +36,18 @@ export default function DenomList({
 }: Readonly<DenomListProps>) {
   const [currentPage, setCurrentPage] = useState(1);
   const [openUpdateDenomMetadataModal, setOpenUpdateDenomMetadataModal] = useState(false);
-  const [openTransferDenomModal, setOpenTransferDenomModal] = useState(false);
-  const isMobile = useIsMobile();
 
+  const isMobile = useIsMobile();
+  const queryClient = useQueryClient();
   const router = useRouter();
   const [selectedDenom, setSelectedDenom] = useState<ExtendedMetadataSDKType | null>(null);
   const [modalType, setModalType] = useState<
     'mint' | 'burn' | 'multimint' | 'multiburn' | 'update' | 'info' | 'transfer' | null
   >(null);
 
-  const filteredDenoms = useMemo(() => {
-    return denoms.filter(denom => denom?.display.toLowerCase().includes(searchTerm.toLowerCase()));
-  }, [denoms, searchTerm]);
+  const filteredDenoms = denoms.filter(denom =>
+    denom?.display.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const totalPages = Math.ceil(filteredDenoms.length / pageSize);
   const paginatedDenoms = filteredDenoms.slice(
@@ -57,15 +55,7 @@ export default function DenomList({
     currentPage * pageSize
   );
 
-  const getBaseUrl = () => {
-    if (isGroup) {
-      return `/groups?policyAddress=${admin}&tab=tokens`;
-    }
-    return '/factory';
-  };
-
   const updateUrlWithModal = (action: string, denomBase?: string) => {
-    const baseUrl = getBaseUrl();
     const query: Record<string, string> = isGroup ? { policyAddress: admin, tab: 'tokens' } : {};
 
     if (action) query.action = action;
@@ -86,13 +76,6 @@ export default function DenomList({
       setSelectedDenom(denom);
       setModalType('info');
       updateUrlWithModal('info', denom.base);
-    }
-  };
-
-  const refetch = () => {
-    refetchDenoms();
-    if (refetchProposals) {
-      refetchProposals();
     }
   };
 
@@ -118,9 +101,6 @@ export default function DenomList({
           if (action === 'update') {
             setOpenUpdateDenomMetadataModal(true);
           }
-          if (action === 'transfer') {
-            setOpenTransferDenomModal(true);
-          }
         } else {
           setModalType('info');
         }
@@ -135,22 +115,14 @@ export default function DenomList({
     setSelectedDenom(null);
     setModalType(null);
     setOpenUpdateDenomMetadataModal(false);
-    setOpenTransferDenomModal(false);
     updateUrlWithModal('');
   };
 
   const handleUpdateModalClose = () => {
     setSelectedDenom(null);
     setOpenUpdateDenomMetadataModal(false);
-    setOpenTransferDenomModal(false);
     setModalType(null);
     updateUrlWithModal('');
-  };
-
-  const handleUpdateModal = (denom: ExtendedMetadataSDKType) => {
-    setSelectedDenom(denom);
-    setOpenUpdateDenomMetadataModal(true);
-    updateUrlWithModal('update', denom.base);
   };
 
   const handleTransferModal = (denom: ExtendedMetadataSDKType, e: React.MouseEvent) => {
@@ -158,7 +130,6 @@ export default function DenomList({
     e.stopPropagation();
     setSelectedDenom(denom);
     setModalType('transfer');
-    setOpenTransferDenomModal(true);
     updateUrlWithModal('transfer', denom.base);
   };
 
@@ -196,6 +167,38 @@ export default function DenomList({
     updateUrlWithModal('update', denom.base);
   };
 
+  const queryInvalidations = ({
+    all = false,
+    metadata = false,
+    amount = false,
+    proposal = false,
+  }: {
+    all?: boolean;
+    metadata?: boolean;
+    amount?: boolean;
+    proposal?: boolean;
+  }) => {
+    const queryKeys = new Set<string>();
+
+    if (all || metadata) {
+      queryKeys.add('allMetadatas');
+      queryKeys.add('denoms');
+    }
+
+    if (all || amount) {
+      queryKeys.add('balances');
+      queryKeys.add('totalSupply');
+    }
+
+    if (all || proposal) {
+      queryKeys.add('proposalInfo');
+    }
+
+    queryKeys.forEach(key => {
+      queryClient.invalidateQueries({ queryKey: [key] });
+    });
+  };
+
   return (
     <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
       <div className="flex flex-col gap-4 mb-4">
@@ -212,7 +215,7 @@ export default function DenomList({
               </thead>
               <tbody className="space-y-4">
                 {isLoading
-                  ? Array(isMobile ? 5 : 8)
+                  ? Array(isMobile ? 4 : 8)
                       .fill(0)
                       .map((_, index) => (
                         <tr key={index}>
@@ -389,7 +392,6 @@ export default function DenomList({
         openDenomInfoModal={modalType === 'info'}
         setOpenDenomInfoModal={open => {
           if (!open) {
-            refetch();
             handleCloseModal();
           }
         }}
@@ -400,8 +402,7 @@ export default function DenomList({
         admin={admin}
         denom={modalType === 'mint' ? selectedDenom : null}
         address={address}
-        refetch={refetch}
-        balance={selectedDenom?.balance ?? '0'}
+        refetch={() => queryInvalidations({ all: true })}
         totalSupply={selectedDenom?.totalSupply ?? '0'}
         isOpen={modalType === 'mint'}
         onClose={handleCloseModal}
@@ -411,30 +412,29 @@ export default function DenomList({
         admin={admin}
         denom={selectedDenom}
         address={address}
-        refetch={refetch}
         balance={selectedDenom?.balance ?? '0'}
         totalSupply={selectedDenom?.totalSupply ?? '0'}
         isOpen={modalType === 'burn'}
         onClose={handleCloseModal}
         isGroup={isGroup}
+        refetch={() => queryInvalidations({ all: true })}
       />
       <UpdateDenomMetadataModal
         isOpen={openUpdateDenomMetadataModal}
         onClose={handleUpdateModalClose}
         denom={selectedDenom}
         address={address}
-        modalId="update-denom-metadata-modal"
-        onSuccess={refetchDenoms}
         admin={admin}
         isGroup={isGroup}
+        refetch={() => queryInvalidations({ metadata: true, proposal: true })}
       />
       <TransferModal
         denom={selectedDenom}
         address={address}
         isOpen={modalType === 'transfer'}
         onClose={handleModalClose}
-        onSuccess={() => {
-          refetch();
+        refetch={() => {
+          queryInvalidations({ metadata: true, proposal: true });
           handleModalClose();
         }}
         admin={admin}
@@ -499,36 +499,56 @@ function TokenRow({
         onClick={e => e.stopPropagation()}
       >
         <div className="flex space-x-2">
-          <button
-            className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
-            onClick={onMint}
+          <div
+            className="tooltip tooltip-left tooltip-primary hover:after:delay-1000 hover:before:delay-1000"
+            data-tip="Mint Token"
           >
-            <MintIcon className="w-7 h-7 text-current" />
-          </button>
+            <button
+              className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+              onClick={onMint}
+            >
+              <MintIcon className="w-4 h-4 sm:w-7 sm:h-7 text-current" />
+            </button>
+          </div>
 
-          <button
-            disabled={denom.base === 'umfx'}
-            className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
-            onClick={onBurn}
+          <div
+            className="tooltip tooltip-left tooltip-primary hover:after:delay-1000 hover:before:delay-1000"
+            data-tip="Burn Token"
           >
-            <BurnIcon className="w-7 h-7 text-current" />
-          </button>
+            <button
+              disabled={denom.base === 'umfx'}
+              className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+              onClick={onBurn}
+            >
+              <BurnIcon className="w-4 h-4 sm:w-7 sm:h-7 text-current" />
+            </button>
+          </div>
 
-          <button
-            disabled={denom.base === 'umfx'}
-            className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
-            onClick={onTransfer}
+          <div
+            className="tooltip tooltip-left tooltip-primary hover:after:delay-1000 hover:before:delay-1000"
+            data-tip="Transfer Token Ownership"
           >
-            <TransferIcon className="w-7 h-7 text-current" />
-          </button>
+            <button
+              disabled={denom.base === 'umfx'}
+              className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+              onClick={onTransfer}
+            >
+              <TransferIcon className="w-4 h-4 sm:w-7 sm:h-7 text-current" />
+            </button>
+          </div>
 
-          <button
-            disabled={denom.base === 'umfx'}
-            className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
-            onClick={onUpdate}
+          <div
+            className="tooltip tooltip-left tooltip-primary hover:after:delay-1000 hover:before:delay-1000"
+            data-tip="Token Details"
           >
-            <PiInfo className="w-7 h-7 text-current" />
-          </button>
+            <button
+              disabled={denom.base === 'umfx'}
+              className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+              onClick={onUpdate}
+            >
+              <PiInfo className="w-4 h-4 sm:w-7 sm:h-7 text-current" />
+            </button>
+          </div>
         </div>
       </td>
     </tr>

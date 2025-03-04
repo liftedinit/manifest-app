@@ -1,18 +1,18 @@
+import { cosmos, osmosis } from '@liftedinit/manifestjs';
+import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
+import { MsgSetDenomMetadata } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+import { useQueryClient } from '@tanstack/react-query';
+import { Form, Formik } from 'formik';
+import React from 'react';
+
+import { SigningModalDialog } from '@/components';
+import { TextArea, TextInput } from '@/components/react/inputs';
+import env from '@/config/env';
 import { TokenFormData } from '@/helpers/formReducer';
 import { useFeeEstimation } from '@/hooks/useFeeEstimation';
 import { useTx } from '@/hooks/useTx';
-import { cosmos, osmosis } from '@liftedinit/manifestjs';
-import { Formik, Form } from 'formik';
+import { ExtendedMetadataSDKType, truncateString } from '@/utils';
 import Yup from '@/utils/yupExtensions';
-import { TextInput, TextArea } from '@/components/react/inputs';
-import { truncateString, ExtendedMetadataSDKType } from '@/utils';
-import React from 'react';
-import env from '@/config/env';
-import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
-import { MsgSetDenomMetadata } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
-import { useProposalsByPolicyAccount } from '@/hooks/useQueries';
-import { Dialog } from '@headlessui/react';
-import { SignModal } from '@/components/react';
 
 const TokenDetailsSchema = (context: { subdenom: string }) =>
   Yup.object().shape({
@@ -34,22 +34,18 @@ export default function UpdateDenomMetadataModal({
   onClose,
   denom,
   address,
-  modalId,
-  onSuccess,
   admin,
+  refetch,
   isGroup,
 }: {
   isOpen: boolean;
   onClose: () => void;
   denom: ExtendedMetadataSDKType | null;
   address: string;
-  modalId: string;
-  onSuccess: () => void;
   admin: string;
   isGroup?: boolean;
+  refetch: () => void;
 }) {
-  const { refetchProposals } = useProposalsByPolicyAccount(admin);
-
   const baseDenom = denom?.base?.split('/').pop() || '';
   const fullDenom = `factory/${address}/${baseDenom}`;
   const symbol = baseDenom.slice(1).toUpperCase();
@@ -73,7 +69,7 @@ export default function UpdateDenomMetadataModal({
   const { estimateFee } = useFeeEstimation(env.chain);
   const { setDenomMetadata } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
-
+  const queryClient = useQueryClient();
   const handleUpdate = async (values: TokenFormData, resetForm: () => void) => {
     const symbol = values.display.toUpperCase();
     try {
@@ -124,14 +120,10 @@ export default function UpdateDenomMetadataModal({
             },
           });
 
-      const fee = await estimateFee(address, [msg]);
       await tx([msg], {
-        fee,
+        fee: () => estimateFee(address, [msg]),
         onSuccess: () => {
-          if (isGroup) {
-            refetchProposals();
-          }
-          onSuccess();
+          refetch();
           onClose();
         },
       });
@@ -143,19 +135,7 @@ export default function UpdateDenomMetadataModal({
   if (!isOpen) return null;
 
   return (
-    <Dialog
-      open
-      onClose={onClose}
-      className={`modal modal-open fixed flex p-0 m-0`}
-      style={{
-        height: '100vh',
-        width: '100vw',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-
+    <SigningModalDialog open={isOpen} onClose={onClose}>
       <Formik
         initialValues={formData}
         validationSchema={() => TokenDetailsSchema({ subdenom: baseDenom })}
@@ -163,17 +143,8 @@ export default function UpdateDenomMetadataModal({
         validateOnChange={true}
         validateOnBlur={true}
       >
-        {({ isValid, dirty, values, handleChange, handleSubmit, resetForm }) => (
-          <Dialog.Panel className="modal-box max-w-4xl mx-auto p-6 bg-[#F4F4FF] dark:bg-[#1D192D] rounded-[24px] shadow-lg relative">
-            <form method="dialog">
-              <button
-                type="button"
-                className="btn btn-sm btn-circle btn-ghost absolute right-4 top-4 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]"
-                onClick={() => onClose()}
-              >
-                ✕
-              </button>
-            </form>
+        {({ isValid, dirty, values, handleChange, handleSubmit }) => (
+          <>
             <h3 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">
               Update Metadata for{' '}
               <span className="font-light text-primary">
@@ -228,7 +199,8 @@ export default function UpdateDenomMetadataModal({
             <div className="mt-4 flex flex-row justify-center gap-2 w-full">
               <button
                 type="button"
-                className="btn w-1/2  focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A] dark:text-white text-black"
+                className="btn w-[calc(50%-8px)] btn-md focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
+                disabled={isSigning}
                 onClick={() => onClose()}
               >
                 Cancel
@@ -242,11 +214,9 @@ export default function UpdateDenomMetadataModal({
                 {isSigning ? <span className="loading loading-dots"></span> : 'Update'}
               </button>
             </div>
-
-            <SignModal />
-          </Dialog.Panel>
+          </>
         )}
       </Formik>
-    </Dialog>
+    </SigningModalDialog>
   );
 }

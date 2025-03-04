@@ -1,4 +1,5 @@
 import env from '@/config/env';
+
 import { WalletSection } from '../wallet';
 
 export default function Header() {

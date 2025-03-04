@@ -1,8 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { ChainWalletBase } from 'cosmos-kit';
-import { getRealLogo } from '@/utils';
+
 import { useDeviceDetect } from '@/hooks';
+import { getRealLogo } from '@/utils';
 
 export const WalletList = ({
   onClose,
@@ -15,20 +16,30 @@ export const WalletList = ({
 }) => {
   const isDarkMode = document.documentElement.classList.contains('dark');
 
-  const social = wallets.filter(wallet =>
-    ['Google', 'Twitter', 'Apple', 'Discord', 'GitHub', 'Reddit', 'Email', 'SMS'].includes(
-      wallet.walletInfo.prettyName
-    )
-  );
-  const browser = wallets.filter(wallet =>
-    ['Keplr', 'Cosmostation', 'Leap', 'Cosmos MetaMask Extension', 'Ledger'].includes(
-      wallet.walletInfo.prettyName
-    )
-  );
+  const socialOrder = ['Google', 'Twitter', 'Apple', 'Discord', 'GitHub', 'Reddit', 'Email', 'SMS'];
+  const browserOrder = ['Leap', 'Keplr', 'Cosmostation', 'Cosmos MetaMask Extension', 'Ledger'];
+  const mobileOrder = ['Wallet Connect', 'Leap Mobile', 'Keplr Mobile'];
 
-  const mobile = wallets.filter(wallet =>
-    ['Wallet Connect', 'Keplr Mobile', 'Leap Mobile'].includes(wallet.walletInfo.prettyName)
-  );
+  const social = wallets
+    .filter(wallet => socialOrder.includes(wallet.walletInfo.prettyName))
+    .sort(
+      (a, b) =>
+        socialOrder.indexOf(a.walletInfo.prettyName) - socialOrder.indexOf(b.walletInfo.prettyName)
+    );
+  const browser = wallets
+    .filter(wallet => browserOrder.includes(wallet.walletInfo.prettyName))
+    .sort(
+      (a, b) =>
+        browserOrder.indexOf(a.walletInfo.prettyName) -
+        browserOrder.indexOf(b.walletInfo.prettyName)
+    );
+
+  const mobile = wallets
+    .filter(wallet => mobileOrder.includes(wallet.walletInfo.prettyName))
+    .sort(
+      (a, b) =>
+        mobileOrder.indexOf(a.walletInfo.prettyName) - mobileOrder.indexOf(b.walletInfo.prettyName)
+    );
 
   const { isMobile } = useDeviceDetect();
   const hasMobileVersion = (prettyName: string) => {

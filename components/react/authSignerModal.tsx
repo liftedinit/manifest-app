@@ -1,38 +1,42 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { SignData } from '@cosmos-kit/web3auth';
-import { TxBody, AuthInfo } from '@liftedinit/manifestjs/dist/codegen/cosmos/tx/v1beta1/tx';
 import { decodePubkey } from '@cosmjs/proto-signing';
-import { useWallet, useChain } from '@cosmos-kit/react';
-import { getRealLogo } from '@/utils';
-import { useTheme } from '@/contexts';
-import env from '@/config/env';
-import { ArrowRightIcon } from '../icons';
-import { objectSyntax } from '@/components';
+import { useChain, useWallet } from '@cosmos-kit/react';
+import { SignData } from '@cosmos-kit/web3auth';
+import { Dialog } from '@headlessui/react';
 import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
 import {
   MsgCreateGroupWithPolicy,
   MsgSubmitProposal,
   MsgUpdateGroupMembers,
-  MsgUpdateGroupPolicyMetadata,
-  MsgUpdateGroupPolicyDecisionPolicy,
   MsgUpdateGroupMetadata,
+  MsgUpdateGroupPolicyDecisionPolicy,
+  MsgUpdateGroupPolicyMetadata,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
+import { AuthInfo, TxBody } from '@liftedinit/manifestjs/dist/codegen/cosmos/tx/v1beta1/tx';
 import {
   MsgCancelUpgrade,
   MsgSoftwareUpgrade,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
-import { MsgSetPower } from '@liftedinit/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
 import {
-  MsgPayout,
   MsgBurnHeldBalance,
+  MsgPayout,
 } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
 import {
-  MsgSetDenomMetadata,
   MsgCreateDenom,
+  MsgSetDenomMetadata,
 } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
-import { Dialog } from '@headlessui/react';
-import { Web3AuthContext } from '@/contexts/web3AuthContext';
+import { MsgSetPower } from '@liftedinit/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
 import Image from 'next/image';
+import React, { useContext, useEffect, useState } from 'react';
+import { PrismAsyncLight as SyntaxHighlighter } from 'react-syntax-highlighter';
+import oneDark from 'react-syntax-highlighter/dist/esm/styles/prism/one-dark';
+import oneLight from 'react-syntax-highlighter/dist/esm/styles/prism/one-light';
+
+import env from '@/config/env';
+import { useTheme } from '@/contexts';
+import { Web3AuthContext } from '@/contexts/web3AuthContext';
+import { getRealLogo } from '@/utils';
+
+import { ArrowRightIcon } from '../icons';
 
 type DisplayDataToSignProps = {
   data: SignData;
@@ -187,22 +191,27 @@ const DisplayDataToSign = ({
       return Buffer.from(value).toString('base64');
     }
     if (typeof value === 'object' && value !== null) {
+      let v = value;
       if ('bodyBytes' in value && 'authInfoBytes' in value) {
-        const decodedValue = {
+        v = {
           ...value,
           bodyBytes: decodeBodyBytes(value.bodyBytes),
           authInfoBytes: decodeAuthInfoBytes(value.authInfoBytes),
         };
-        return objectSyntax(
-          JSON.parse(
-            JSON.stringify(decodedValue, (_, v) => (typeof v === 'bigint' ? v.toString() : v))
-          ),
-          theme
-        );
       }
-      return objectSyntax(
-        JSON.parse(JSON.stringify(value, (_, v) => (typeof v === 'bigint' ? v.toString() : v))),
-        theme
+
+      return (
+        <SyntaxHighlighter
+          language="json"
+          style={theme === 'dark' ? oneDark : oneLight}
+          customStyle={{
+            backgroundColor: 'transparent',
+            padding: '1rem',
+            borderRadius: '0.5rem',
+          }}
+        >
+          {JSON.stringify(v, (_, v) => (typeof v === 'bigint' ? v.toString() : v), 2)}
+        </SyntaxHighlighter>
       );
     }
     return String(value);
@@ -245,11 +254,13 @@ const DisplayDataToSign = ({
  * when a sign request is received.
  * @constructor
  */
-export const SignModal = ({ id }: { id?: string }) => {
+export const SignModal = ({ id, testing }: { id?: string; testing?: boolean }) => {
   const { wallet } = useWallet();
   const { prompt, promptId, isSigning } = useContext(Web3AuthContext);
   const [visible, setVisible] = useState(false);
   const [data, setData] = useState<SignData | undefined>(undefined);
+
+  const isLedgerWallet = wallet?.mode === 'ledger';
 
   useEffect(() => {
     if (promptId === id && prompt !== undefined) {
@@ -260,16 +271,14 @@ export const SignModal = ({ id }: { id?: string }) => {
     }
   }, [promptId, id, prompt]);
 
-  if (!isSigning || !wallet) {
+  if (!isSigning || !visible) {
     return null;
   }
-
-  const showLedgerMessage = wallet.mode === 'ledger';
 
   const approve = () => prompt?.resolve(true);
   const reject = () => prompt?.resolve(false);
 
-  if (showLedgerMessage) {
+  if (isLedgerWallet) {
     return <LedgerSignModalInner onClose={() => {}} />;
   } else {
     return (
@@ -346,6 +355,7 @@ export const PromptSignModalInner: React.FC<SignModalInnerProps> = ({
     reject?.();
     onClose();
   }
+
   function handleApprove() {
     approve?.();
     onClose();
@@ -385,12 +395,19 @@ export const PromptSignModalInner: React.FC<SignModalInnerProps> = ({
 
         <div className="modal-action mt-6 flex justify-between gap-4">
           <button
+            role="button"
+            aria-label="Reject"
             className="btn btn-error flex-1 rounded-[12px] focus:outline-none"
             onClick={handleReject}
           >
             Reject
           </button>
-          <button className="btn btn-gradient flex-1 rounded-[12px]" onClick={handleApprove}>
+          <button
+            role="button"
+            aria-label="Approve"
+            className="btn btn-gradient flex-1 rounded-[12px]"
+            onClick={handleApprove}
+          >
             Approve
           </button>
         </div>

@@ -1,7 +1,8 @@
-import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
 import { MsgUpdateGroupAdmin } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
 import { format } from 'react-string-format';
+
 import { createSenderReceiverHandler } from '@/components/bank/handlers/createSenderReceiverHandler';
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
 import { GroupsIcon } from '@/components/icons/GroupsIcon';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 
@@ -9,9 +10,9 @@ const createMessage = (template: string, groupId: number, newAdmin: string) => {
   const message = format(
     template,
     groupId,
-    newAdmin ? <TruncatedAddressWithCopy address={newAdmin} slice={24} /> : 'an unknown address'
+    newAdmin ? <TruncatedAddressWithCopy address={newAdmin} /> : 'an unknown address'
   );
-  return <span className="flex gap-1">{message}</span>;
+  return <span className="flex flex-wrap gap-1">{message}</span>;
 };
 
 export const MsgUpdateGroupAdminHandler = createSenderReceiverHandler({

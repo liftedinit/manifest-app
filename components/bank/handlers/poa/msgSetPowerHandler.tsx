@@ -1,22 +1,20 @@
-import { AdminsIcon } from '@/components/icons/AdminsIcon';
-import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
-import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
 import { MsgSetPower } from '@liftedinit/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
-import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import { format } from 'react-string-format';
+
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { AdminsIcon } from '@/components/icons/AdminsIcon';
+import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+
+import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 
 const createMessage = (template: string, validatorAddress: string, power: number) => {
   const realPower = power / 1000000;
   const message = format(
     template,
-    validatorAddress ? (
-      <TruncatedAddressWithCopy address={validatorAddress} slice={24} />
-    ) : (
-      'unknown'
-    ),
+    validatorAddress ? <TruncatedAddressWithCopy address={validatorAddress} /> : 'unknown',
     realPower
   );
-  return <span className="flex gap-1">{message}</span>;
+  return <span className="flex flex-wrap gap-1">{message}</span>;
 };
 export const MsgSetPowerHandler = createSenderReceiverHandler({
   iconSender: AdminsIcon,

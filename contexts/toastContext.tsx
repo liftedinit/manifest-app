@@ -1,7 +1,9 @@
 // ToastContext.tsx
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import { Toast, ToastMessage } from '@/components/toast';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+
+import { Toast, ToastMessage } from '@/components/toast';
+
 interface ToastContextType {
   toastMessage: ToastMessage | null;
   setToastMessage: (message: ToastMessage | null) => void;

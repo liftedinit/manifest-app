@@ -1,21 +1,20 @@
-import { WalletNotConnected, FactoryIcon, SearchIcon } from '@/components';
+import { useChain } from '@cosmos-kit/react';
+import Link from 'next/link';
+import React, { useMemo, useState } from 'react';
+
+import { FactoryIcon, SearchIcon, WalletNotConnected } from '@/components';
+import { SEO } from '@/components';
 import DenomList from '@/components/factory/components/DenomList';
+import env from '@/config/env';
 import {
   useTokenBalances,
   useTokenFactoryDenomsFromAdmin,
   useTokenFactoryDenomsMetadata,
   useTotalSupply,
 } from '@/hooks';
-
-import { useChain } from '@cosmos-kit/react';
-
-import React, { useMemo, useState, useCallback, useEffect } from 'react';
-import { ExtendedMetadataSDKType } from '@/utils';
-import { SEO } from '@/components';
-import env from '@/config/env';
-
+import useIsMobile from '@/hooks/useIsMobile';
 import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
-import Link from 'next/link';
+import { ExtendedMetadataSDKType } from '@/utils';
 
 interface PageSizeConfig {
   denomList: number;
@@ -24,16 +23,11 @@ interface PageSizeConfig {
 
 export default function Factory() {
   const { address, isWalletConnected } = useChain(env.chain);
-  const { denoms, isDenomsLoading, isDenomsError, refetchDenoms } = useTokenFactoryDenomsFromAdmin(
-    address ?? ''
-  );
-  const { metadatas, isMetadatasLoading, isMetadatasError, refetchMetadatas } =
-    useTokenFactoryDenomsMetadata();
-  const { balances, isBalancesLoading, isBalancesError, refetchBalances } = useTokenBalances(
-    address ?? ''
-  );
-  const { totalSupply, isTotalSupplyLoading, isTotalSupplyError, refetchTotalSupply } =
-    useTotalSupply();
+  const isMobile = useIsMobile();
+  const { denoms, isDenomsLoading, isDenomsError } = useTokenFactoryDenomsFromAdmin(address ?? '');
+  const { metadatas, isMetadatasLoading, isMetadatasError } = useTokenFactoryDenomsMetadata();
+  const { balances, isBalancesLoading, isBalancesError } = useTokenBalances(address ?? '');
+  const { totalSupply, isTotalSupplyLoading, isTotalSupplyError } = useTotalSupply();
 
   const sizeLookup: Array<{ height: number; width: number; sizes: PageSizeConfig }> = [
     {
@@ -54,31 +48,24 @@ export default function Factory() {
     {
       height: 1000,
       width: Infinity,
-      sizes: { denomList: 8, skeleton: 8 },
+      sizes: { denomList: 6, skeleton: 6 },
     },
     {
       height: 1200,
       width: Infinity,
-      sizes: { denomList: 11, skeleton: 11 },
+      sizes: { denomList: 8, skeleton: 8 },
     },
   ];
 
-  const defaultSizes = { denomList: 8, skeleton: 9 };
-
-  const pageSize = useResponsivePageSize(sizeLookup, defaultSizes);
+  const defaultSizes = { denomList: 10, skeleton: 10 };
+  const responsivePageSize = useResponsivePageSize(sizeLookup, defaultSizes);
+  const pageSize = isMobile ? { denomList: 4, skeleton: 4 } : responsivePageSize;
 
   const denomListPageSize = pageSize.denomList;
 
   const isLoading =
     isDenomsLoading || isMetadatasLoading || isBalancesLoading || isTotalSupplyLoading;
   const isError = isDenomsError || isMetadatasError || isBalancesError || isTotalSupplyError;
-
-  const refetchData = () => {
-    refetchDenoms();
-    refetchMetadatas();
-    refetchBalances();
-    refetchTotalSupply();
-  };
 
   const combinedData = useMemo(() => {
     if (denoms?.denoms && metadatas?.metadatas && balances && totalSupply) {
@@ -103,7 +90,6 @@ export default function Factory() {
     return [];
   }, [denoms, metadatas, balances, totalSupply]);
 
-  const isDataReady = combinedData.length > 0;
   const [searchTerm, setSearchTerm] = useState('');
 
   return (
@@ -151,7 +137,6 @@ export default function Factory() {
                     <DenomList
                       denoms={combinedData}
                       isLoading={isLoading}
-                      refetchDenoms={refetchData}
                       pageSize={denomListPageSize}
                       address={address ?? ''}
                       admin={address ?? ''}

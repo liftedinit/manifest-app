@@ -1,29 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import {
-  useProposalsByPolicyAccount,
-  useTallyCount,
-  useVotesByProposal,
-  useMultipleTallyCounts,
-  ExtendedGroupType,
-} from '@/hooks/useQueries';
-import { ProposalSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { useChain } from '@cosmos-kit/react';
 import { QueryTallyResultResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
-
+import {
+  ProposalSDKType,
+  ProposalStatus,
+  proposalStatusToJSON,
+} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import {
+  ProposalExecutorResult,
+  proposalExecutorResultToJSON,
+} from 'cosmjs-types/cosmos/group/v1/types';
 import { useRouter } from 'next/router';
+import React, { useEffect, useState } from 'react';
 
-import VoteDetailsModal from '@/components/groups/modals/voteDetailsModal';
-import { useGroupsByMember } from '@/hooks/useQueries';
-import { useChain, useChains } from '@cosmos-kit/react';
-import { MemberSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
-import { ArrowRightIcon } from '@/components/icons';
-import ProfileAvatar from '@/utils/identicon';
-import { HistoryBox } from '@/components';
-import { TokenList } from '@/components';
-import { CombinedBalanceInfo, ExtendedMetadataSDKType } from '@/utils';
-import DenomList from '@/components/factory/components/DenomList';
-import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
-import env from '@/config/env';
+import { HistoryBox, TokenList } from '@/components';
 import { TxMessage } from '@/components/bank/types';
+import DenomList from '@/components/factory/components/DenomList';
+import VoteDetailsModal from '@/components/groups/modals/voteDetailsModal';
+import { ArrowRightIcon } from '@/components/icons';
+import env from '@/config/env';
+import useIsMobile from '@/hooks/useIsMobile';
+import { useMultipleTallyCounts, useProposalsByPolicyAccount } from '@/hooks/useQueries';
+import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
+import { CombinedBalanceInfo, ExtendedMetadataSDKType } from '@/utils';
+import ProfileAvatar from '@/utils/identicon';
 
 type GroupControlsProps = {
   policyAddress: string;
@@ -39,16 +38,9 @@ type GroupControlsProps = {
   isError: boolean;
   balances: CombinedBalanceInfo[];
   denoms: ExtendedMetadataSDKType[];
-  denomLoading: boolean;
-  isDenomError: boolean;
-  refetchBalances: () => void;
-  refetchHistory: () => Promise<unknown>;
-  refetchDenoms: () => void;
-  refetchGroupInfo: () => void;
   pageSize: number;
   skeletonGroupCount: number;
   skeletonTxCount: number;
-  group: ExtendedGroupType;
   proposalPageSize?: number;
 };
 
@@ -66,40 +58,29 @@ export default function GroupControls({
   isError,
   balances,
   denoms,
-  denomLoading,
-  isDenomError,
-  refetchBalances,
-  refetchHistory,
-  refetchDenoms,
-  refetchGroupInfo,
   pageSize,
   skeletonGroupCount,
   skeletonTxCount,
-  group,
   proposalPageSize = 10,
 }: GroupControlsProps) {
-  const { proposals, isProposalsLoading, isProposalsError, refetchProposals } =
+  const isMobile = useIsMobile();
+  const { proposals, isProposalsLoading, isProposalsError } =
     useProposalsByPolicyAccount(policyAddress);
 
-  const [selectedProposal, setSelectedProposal] = useState<ProposalSDKType | null>(null);
-  const [members, setMembers] = useState<MemberSDKType[]>([]);
+  const [selectedProposalId, setSelectedProposalId] = useState<bigint | undefined>(undefined);
   const [showVoteModal, setShowVoteModal] = useState(false);
   const [activeTab, setActiveTab] = useState('proposals');
 
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Convert proposalId to string before passing it to the hooks
-  const proposalId = selectedProposal?.id ?? 0n;
-
-  // Use the string version of the proposalId
-  const { tally, refetchTally } = useTallyCount(proposalId);
-  const { votes, refetchVotes } = useVotesByProposal(proposalId);
-
+  // We need to compare strings here
   const filterProposals = (proposals: ProposalSDKType[]) => {
     return proposals.filter(
       proposal =>
-        proposal.status.toString() !== 'PROPOSAL_STATUS_REJECTED' &&
-        proposal.status.toString() !== 'PROPOSAL_STATUS_WITHDRAWN'
+        proposal.status.toString() !==
+          proposalStatusToJSON(ProposalStatus.PROPOSAL_STATUS_REJECTED) &&
+        proposal.status.toString() !==
+          proposalStatusToJSON(ProposalStatus.PROPOSAL_STATUS_WITHDRAWN)
     );
   };
 
@@ -122,7 +103,7 @@ export default function GroupControls({
     if (proposalId && typeof proposalId === 'string' && proposals.length > 0) {
       const proposalToOpen = proposals.find(p => p.id.toString() === proposalId);
       if (proposalToOpen) {
-        setSelectedProposal(proposalToOpen);
+        setSelectedProposalId(proposalToOpen.id);
         setShowVoteModal(true);
       } else {
         console.warn(`Proposal with ID ${proposalId} not found`);
@@ -134,7 +115,7 @@ export default function GroupControls({
   }, [router.query, proposals, policyAddress]);
 
   const handleRowClick = (proposal: ProposalSDKType) => {
-    setSelectedProposal(proposal);
+    setSelectedProposalId(proposal.id);
     setShowVoteModal(true);
     // Update URL without navigating
     router.push(`/groups?policyAddress=${policyAddress}&proposalId=${proposal.id}`, undefined, {
@@ -143,7 +124,7 @@ export default function GroupControls({
   };
 
   const handleCloseVoteModal = () => {
-    setSelectedProposal(null);
+    setSelectedProposalId(undefined);
     setShowVoteModal(false);
     // Remove proposalId from URL when closing the modal
     router.push(`/groups?policyAddress=${policyAddress}`, undefined, { shallow: true });
@@ -179,48 +160,7 @@ export default function GroupControls({
     };
   }
 
-  type ChainMessageType =
-    | '/cosmos.bank.v1beta1.MsgSend'
-    | '/strangelove_ventures.poa.v1.MsgSetPower'
-    | '/cosmos.group.v1.MsgCreateGroup'
-    | '/cosmos.group.v1.MsgUpdateGroupMembers'
-    | '/cosmos.group.v1.MsgUpdateGroupAdmin'
-    | '/cosmos.group.v1.MsgUpdateGroupMetadata'
-    | '/cosmos.group.v1.MsgCreateGroupPolicy'
-    | '/cosmos.group.v1.MsgCreateGroupWithPolicy'
-    | '/cosmos.group.v1.MsgSubmitProposal'
-    | '/cosmos.group.v1.MsgVote'
-    | '/cosmos.group.v1.MsgExec'
-    | '/cosmos.group.v1.MsgLeaveGroup'
-    | '/manifest.v1.MsgUpdateParams'
-    | '/manifest.v1.MsgPayout'
-    | '/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade'
-    | '/cosmos.upgrade.v1beta1.MsgCancelUpgrade';
-
-  const typeRegistry: Record<ChainMessageType, string> = {
-    '/cosmos.bank.v1beta1.MsgSend': 'Send',
-    '/strangelove_ventures.poa.v1.MsgSetPower': 'Set Power',
-    '/cosmos.group.v1.MsgCreateGroup': 'Create Group',
-    '/cosmos.group.v1.MsgUpdateGroupMembers': 'Update Group Members',
-    '/cosmos.group.v1.MsgUpdateGroupAdmin': 'Update Group Admin',
-    '/cosmos.group.v1.MsgUpdateGroupMetadata': 'Update Group Metadata',
-    '/cosmos.group.v1.MsgCreateGroupPolicy': 'Create Group Policy',
-    '/cosmos.group.v1.MsgCreateGroupWithPolicy': 'Create Group With Policy',
-    '/cosmos.group.v1.MsgSubmitProposal': 'Submit Proposal',
-    '/cosmos.group.v1.MsgVote': 'Vote',
-    '/cosmos.group.v1.MsgExec': 'Execute Proposal',
-    '/cosmos.group.v1.MsgLeaveGroup': 'Leave Group',
-    '/manifest.v1.MsgUpdateParams': 'Update Manifest Params',
-    '/manifest.v1.MsgPayout': 'Payout',
-    '/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade': 'Software Upgrade',
-    '/cosmos.upgrade.v1beta1.MsgCancelUpgrade': 'Cancel Upgrade',
-  };
-
   function getHumanReadableType(type: string): string {
-    const registeredType = typeRegistry[type as ChainMessageType];
-    if (registeredType) {
-      return registeredType;
-    }
     const parts = type.split('.');
     const lastPart = parts[parts.length - 1];
     return lastPart
@@ -230,31 +170,6 @@ export default function GroupControls({
   }
 
   const { address } = useChain(env.chain);
-  const chains = useChains([env.chain, env.osmosisChain, env.axelarChain]);
-  const { groupByMemberData } = useGroupsByMember(address ?? '');
-
-  useEffect(() => {
-    if (groupByMemberData && policyAddress) {
-      const group = groupByMemberData.groups.find(
-        g => g.policies.length > 0 && g.policies[0]?.address === policyAddress
-      );
-      if (group) {
-        setMembers(
-          group.members.map(member => ({
-            ...member.member,
-            address: member?.member?.address || '',
-            weight: member?.member?.weight || '0',
-            metadata: member?.member?.metadata || '',
-            added_at: member?.member?.added_at || new Date(),
-            isCoreMember: true,
-            isActive: true,
-            isAdmin: member?.member?.address === group.admin,
-            isPolicyAdmin: member?.member?.address === group.policies[0]?.admin,
-          }))
-        );
-      }
-    }
-  }, [groupByMemberData, policyAddress]);
 
   const filteredProposals = filterProposals(proposals).filter(proposal =>
     proposal.title.toLowerCase().includes(searchTerm.toLowerCase())
@@ -291,7 +206,7 @@ export default function GroupControls({
     {
       height: 1000,
       width: Infinity,
-      sizes: { proposals: 10 },
+      sizes: { proposals: 8 },
     },
     {
       height: 1300,
@@ -301,16 +216,27 @@ export default function GroupControls({
   ];
 
   const defaultSizes = { proposals: proposalPageSize };
-  const proposalPageSizes = useResponsivePageSize(sizeLookup, defaultSizes);
+  const responsivePageSize = useResponsivePageSize(sizeLookup, defaultSizes);
+  const proposalPageSizes = isMobile ? { proposals: 7 } : responsivePageSize;
 
   // Calculate total pages for proposals
-  const totalProposalPages = Math.ceil(filteredProposals.length / proposalPageSizes.proposals);
+  const totalProposalPages = Math.max(
+    1,
+    Math.ceil(filteredProposals.length / proposalPageSizes.proposals)
+  );
 
   // Get current page proposals
   const currentProposals = filteredProposals.slice(
     (proposalCurrentPage - 1) * proposalPageSizes.proposals,
     proposalCurrentPage * proposalPageSizes.proposals
   );
+
+  useEffect(() => {
+    // Adjust the current page if the number of proposals changes
+    if (proposalCurrentPage > totalProposalPages) {
+      setProposalCurrentPage(totalProposalPages);
+    }
+  }, [filteredProposals.length, totalProposalPages, proposalCurrentPage]);
 
   return (
     <div className="">
@@ -468,14 +394,19 @@ export default function GroupControls({
                     const proposalTally = tallies.find(t => t.proposalId === proposal.id)?.tally;
 
                     let status = 'Pending';
+                    // We need to compare strings here
                     if (
-                      proposal.executor_result.toString() === 'PROPOSAL_EXECUTOR_RESULT_FAILURE'
+                      proposal.executor_result.toString() ===
+                      proposalExecutorResultToJSON(
+                        ProposalExecutorResult.PROPOSAL_EXECUTOR_RESULT_FAILURE
+                      )
                     ) {
                       status = 'Failure';
-                    } else if (proposal.status.toString() === 'PROPOSAL_STATUS_ACCEPTED') {
+                    } else if (
+                      proposal.status.toString() ===
+                      proposalStatusToJSON(ProposalStatus.PROPOSAL_STATUS_ACCEPTED)
+                    ) {
                       status = 'Execute';
-                    } else if (proposal.status.toString() === 'PROPOSAL_STATUS_CLOSED') {
-                      status = 'Executed';
                     } else if (proposalTally) {
                       const { isPassing, isThresholdReached, isTie } =
                         isProposalPassing(proposalTally);
@@ -487,6 +418,7 @@ export default function GroupControls({
                         }
                       }
                     }
+
                     return (
                       <tr
                         key={proposal.id.toString()}
@@ -597,13 +529,10 @@ export default function GroupControls({
             <TokenList
               balances={balances}
               isLoading={isLoading}
-              refetchBalances={refetchBalances}
-              refetchHistory={refetchHistory}
               address={address ?? ''}
               pageSize={pageSize}
               isGroup={true}
               admin={policyAddress}
-              refetchProposals={refetchProposals}
             />
           )}
         </div>
@@ -624,10 +553,8 @@ export default function GroupControls({
               totalPages={totalPages}
               txLoading={txLoading}
               isError={isError}
-              refetch={refetchHistory}
               skeletonGroupCount={skeletonGroupCount}
               skeletonTxCount={skeletonTxCount}
-              isGroup={true}
             />
           )}
         </div>
@@ -643,8 +570,6 @@ export default function GroupControls({
               <DenomList
                 denoms={denoms}
                 isLoading={isLoading}
-                refetchDenoms={refetchDenoms}
-                refetchProposals={refetchProposals}
                 address={address ?? ''}
                 admin={policyAddress}
                 pageSize={pageSize - 1}
@@ -654,20 +579,13 @@ export default function GroupControls({
           )}
         </div>
       </div>
-      {selectedProposal && (
+      {selectedProposalId !== undefined && (
         <VoteDetailsModal
-          tallies={tally ?? ({} as QueryTallyResultResponseSDKType)}
-          votes={votes}
-          members={members}
-          proposal={selectedProposal}
+          policyAddress={policyAddress}
+          proposals={proposals}
+          proposalId={selectedProposalId}
           onClose={handleCloseVoteModal}
           showVoteModal={showVoteModal}
-          refetchVotes={refetchVotes}
-          refetchTally={refetchTally}
-          refetchProposals={refetchProposals}
-          refetchGroupInfo={refetchGroupInfo}
-          refetchDenoms={refetchDenoms}
-          group={group}
         />
       )}
     </div>

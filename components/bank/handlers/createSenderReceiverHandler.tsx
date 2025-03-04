@@ -1,6 +1,8 @@
-import React from 'react';
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import React from 'react';
+
 import { QuestionIcon } from '@/components/icons/QuestionIcon';
+
 import { TxMessage } from '../types';
 
 export function createSenderReceiverHandler({

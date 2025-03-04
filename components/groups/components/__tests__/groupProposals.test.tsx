@@ -1,9 +1,10 @@
-import { describe, test, afterEach, expect, jest, mock, beforeEach } from 'bun:test';
+import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, jest, mock, test } from 'bun:test';
 import React from 'react';
-import { screen, fireEvent, cleanup, waitFor } from '@testing-library/react';
+
 import GroupProposals from '@/components/groups/components/groupControls';
+import { mockGroup, mockGroup2, mockProposals } from '@/tests/mock';
 import { renderWithChainProvider } from '@/tests/render';
-import { mockProposals, mockGroup, mockGroup2 } from '@/tests/mock';
 
 // Mock next/router
 mock.module('next/router', () => ({
@@ -53,10 +54,6 @@ mock.module('@/hooks/useQueries', () => ({
     votes: [],
     refetchVotes: jest.fn(),
   }),
-}));
-
-mock.module('react-apexcharts', () => ({
-  default: jest.fn(),
 }));
 
 const mockProps = {

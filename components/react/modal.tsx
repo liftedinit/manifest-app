@@ -1,5 +1,4 @@
 /* eslint-disable @next/next/no-img-element */
-
 /**
  * TailwindModal
  *
@@ -15,26 +14,27 @@
  * The code below is refactored for better readability and composability, especially around
  * the onWalletClicked() function (which is the main handler for selecting / connecting to wallets).
  */
+import { State } from '@cosmos-kit/core';
+import { Web3AuthClient, Web3AuthWallet } from '@cosmos-kit/web3auth';
+import { Dialog, Portal, Transition } from '@headlessui/react';
 import type { ChainWalletBase, WalletModalProps } from 'cosmos-kit';
 import { WalletStatus } from 'cosmos-kit';
-import React, { useCallback, Fragment, useState, useMemo, useEffect } from 'react';
-import { Dialog, Transition, Portal } from '@headlessui/react';
+import React, { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
+
+import { ToastProvider } from '@/contexts/toastContext';
+import { useDeviceDetect } from '@/hooks';
+
 import {
   Connected,
   Connecting,
+  Contacts,
+  EmailInput,
   Error,
   NotExist,
   QRCodeView,
-  WalletList,
-  Contacts,
-  EmailInput,
   SMSInput,
+  WalletList,
 } from './views';
-
-import { ToastProvider } from '@/contexts/toastContext';
-import { Web3AuthClient, Web3AuthWallet } from '@cosmos-kit/web3auth';
-import { useDeviceDetect } from '@/hooks';
-import { State } from '@cosmos-kit/core';
 
 export enum ModalView {
   WalletList,
@@ -180,7 +180,7 @@ export const TailwindModal: React.FC<
    * Helper to handle a metamask extension that doesn't fully register as 'NotExist'
    * in the standard wallet flow. We force set the view to NotExist if we detect the error message.
    */
-  const handleMetamaskErrorCheck = useCallback((wallet: ChainWalletBase) => {
+  const handleMetamaskErrorCheck = (wallet: ChainWalletBase) => {
     if (
       wallet?.walletInfo.name === 'cosmos-extension-metamask' &&
       wallet.message?.includes("Cannot read properties of undefined (reading 'request')")
@@ -197,7 +197,7 @@ export const TailwindModal: React.FC<
     }
 
     return false;
-  }, []);
+  };
 
   /**
    * Connect with a wallet that has 'wallet-connect' mode.
@@ -243,8 +243,6 @@ export const TailwindModal: React.FC<
             setCurrentView(ModalView.Error);
           }
         });
-
-      // Remove the timeout and handle errors through the catch block
     },
     [isMobile, walletRepo]
   );
@@ -314,24 +312,18 @@ export const TailwindModal: React.FC<
         if (handleMetamaskErrorCheck(wallet)) {
           return;
         }
-      }, 1);
 
-      // Step 3: If the wallet is "wallet-connect" style, handle phone vs. desktop flows
-      if (wallet?.walletInfo.mode === 'wallet-connect') {
-        handleWalletConnectFlow(wallet, name);
-        return;
-      }
+        // Step 3: If the wallet is "wallet-connect" style, handle phone vs. desktop flows
+        if (wallet?.walletInfo.mode === 'wallet-connect') {
+          handleWalletConnectFlow(wallet, name);
+          return;
+        }
 
-      // Step 4: Otherwise, handle standard extension or browser-based wallet
-      handleStandardWalletFlow(wallet, name);
+        // Step 4: Otherwise, handle standard extension or browser-based wallet
+        handleStandardWalletFlow(wallet, name);
+      }, 0);
     },
-    [
-      walletRepo,
-      handleEmailOrSmsIfNeeded,
-      handleMetamaskErrorCheck,
-      handleWalletConnectFlow,
-      handleStandardWalletFlow,
-    ]
+    [walletRepo, handleEmailOrSmsIfNeeded, handleWalletConnectFlow, handleStandardWalletFlow]
   );
 
   /**

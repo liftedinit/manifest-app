@@ -1,41 +1,38 @@
-import React, { useState } from 'react';
-import { useFeeEstimation, useTx } from '@/hooks';
 import { cosmos, osmosis } from '@liftedinit/manifestjs';
-
-import { parseNumberToBigInt, shiftDigits, ExtendedMetadataSDKType, truncateString } from '@/utils';
+import { MsgMint } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+import { useQueryClient } from '@tanstack/react-query';
+import { Any } from 'cosmjs-types/google/protobuf/any';
+import { Form, Formik } from 'formik';
+import React, { useState } from 'react';
 import { MdContacts } from 'react-icons/md';
 
-import { Formik, Form } from 'formik';
-import Yup from '@/utils/yupExtensions';
 import { NumberInput, TextInput } from '@/components/react/inputs';
-import { TailwindModal } from '@/components/react/modal';
+import { AddressInput } from '@/components/react/inputs/AddressInput';
 import env from '@/config/env';
-import { Any } from 'cosmjs-types/google/protobuf/any';
-import { MsgMint } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+import { useFeeEstimation, useTx } from '@/hooks';
+import { ExtendedMetadataSDKType, parseNumberToBigInt, shiftDigits, truncateString } from '@/utils';
+import Yup from '@/utils/yupExtensions';
 
 export default function MintForm({
   isAdmin,
   denom,
   address,
-  refetch,
-  balance,
   totalSupply,
   isGroup,
+  refetch,
   admin,
 }: Readonly<{
   isAdmin: boolean;
   denom: ExtendedMetadataSDKType;
   address: string;
-  refetch: () => void;
-  balance: string;
   totalSupply: string;
   isGroup?: boolean;
   admin?: string;
+  refetch: () => void;
 }>) {
   const [amount, setAmount] = useState('');
   const [recipient, setRecipient] = useState(address || '');
-  const [isContactsOpen, setIsContactsOpen] = useState(false);
-
+  const queryClient = useQueryClient();
   const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
   const { mint } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
@@ -90,9 +87,8 @@ export default function MintForm({
             mintToAddress: recipient,
           });
 
-      const fee = await estimateFee(address ?? '', [msg]);
       await tx([msg], {
-        fee,
+        fee: () => estimateFee(address ?? '', [msg]),
         onSuccess: () => {
           setAmount('');
           refetch();
@@ -175,7 +171,7 @@ export default function MintForm({
                         )}
                       </div>
                       <div className="flex-grow relative">
-                        <TextInput
+                        <AddressInput
                           showError={false}
                           label="RECIPIENT"
                           name="recipient"
@@ -188,16 +184,6 @@ export default function MintForm({
                           className={`input input-bordered w-full transition-none ${
                             touched.recipient && errors.recipient ? 'input-error' : ''
                           }`}
-                          rightElement={
-                            <button
-                              type="button"
-                              aria-label="contacts-btn"
-                              onClick={() => setIsContactsOpen(true)}
-                              className="btn btn-primary btn-sm text-white"
-                            >
-                              <MdContacts className="w-5 h-5" />
-                            </button>
-                          }
                         />
                         {touched.recipient && errors.recipient && (
                           <div
@@ -229,16 +215,6 @@ export default function MintForm({
                         </button>
                       )}
                     </div>
-                    <TailwindModal
-                      isOpen={isContactsOpen}
-                      setOpen={setIsContactsOpen}
-                      showContacts={true}
-                      currentAddress={address}
-                      onSelect={(selectedAddress: string) => {
-                        setRecipient(selectedAddress);
-                        setFieldValue('recipient', selectedAddress);
-                      }}
-                    />
                   </Form>
                 )}
               </Formik>
