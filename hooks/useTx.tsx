@@ -81,7 +81,7 @@ export const useTx = (chainName: string) => {
       if (options.fee) {
         fee = typeof options.fee === 'function' ? await options.fee() : options.fee;
       } else {
-        fee = fee ?? (await estimateFee(msgs));
+        fee = await estimateFee(msgs);
       }
 
       if (!fee) {
@@ -92,6 +92,7 @@ export const useTx = (chainName: string) => {
       }
 
       const signed = await client.sign(address, msgs, fee, options.memo || '');
+      setIsSigning(false);
 
       setToastMessage({
         type: 'alert-info',
@@ -99,14 +100,12 @@ export const useTx = (chainName: string) => {
         description: 'Transaction is signed and is being broadcasted...',
         bgColor: '#3498db',
       });
-      setIsSigning(true);
       const res: DeliverTxResponse = await client.broadcastTx(
         Uint8Array.from(TxRaw.encode(signed).finish())
       );
 
       if (isDeliverTxSuccess(res)) {
         if (options.onSuccess) options.onSuccess();
-        setIsSigning(false);
 
         if (msgs.filter(msg => msg.typeUrl === '/cosmos.group.v1.MsgSubmitProposal').length > 0) {
           const submitProposalEvent = res.events.find(
