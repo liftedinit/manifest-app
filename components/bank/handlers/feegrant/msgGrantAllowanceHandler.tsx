@@ -1,9 +1,11 @@
 import { MsgGrantAllowance } from '@liftedinit/manifestjs/dist/codegen/cosmos/feegrant/v1beta1/tx';
-import { MemberIcon } from '@/components/icons/MemberIcon';
-import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
-import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
 import { format } from 'react-string-format';
+
+import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
+import { MemberIcon } from '@/components/icons/MemberIcon';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
+
+import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 
 const createMessage = (template: string, addr: string) => {
   const message = format(
