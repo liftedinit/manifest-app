@@ -5,7 +5,6 @@ import { MdContacts } from 'react-icons/md';
 
 import { Contacts, TextInput } from '@/components';
 import { BaseInputProps } from '@/components/react/inputs/BaseInput';
-import { useTx } from '@/hooks';
 
 import env from '../../../config/env';
 
@@ -27,7 +26,6 @@ export const AddressInput: React.FC<AddressInputProps> = ({
   const [value, setValue] = React.useState(initialValue);
   const [showContacts, setShowContacts] = React.useState(false);
   const { address } = useChain(env.chain);
-  const { isSigning } = useTx(env.chain);
 
   return (
     <>
@@ -45,7 +43,6 @@ export const AddressInput: React.FC<AddressInputProps> = ({
               <button
                 type="button"
                 onClick={() => setShowContacts(true)}
-                disabled={isSigning}
                 className={`btn btn-primary text-white ${small ? 'btn-xs' : 'btn-sm'}`}
               >
                 <MdContacts className={small ? 'w-4 h-4' : 'w-5 h-5'} />
