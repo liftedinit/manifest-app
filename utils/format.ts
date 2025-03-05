@@ -22,9 +22,6 @@ export function formatLargeNumber(num: number): string {
   if (num >= SUFFIXES[0][0]) {
     return `${num.toExponential(6).replace(/\.?0*e\+?/, 'e')}`;
   }
-  if (num < SUFFIXES[SUFFIXES.length - 1][0]) {
-    return `${num.toExponential(6).replace(/\.?0*e-?/, 'e-')}`;
-  }
 
   for (const [value, suffix, maximumFractionDigits] of SUFFIXES) {
     if (num >= value) {
@@ -36,7 +33,7 @@ export function formatLargeNumber(num: number): string {
     }
   }
 
-  throw new Error('Unreachable');
+  return num.toLocaleString();
 }
 
 export function formatDenom(denom: string): string {
