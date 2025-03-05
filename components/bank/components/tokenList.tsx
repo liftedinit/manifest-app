@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
+import { TokenBalance } from '@/components';
 import SendModal from '@/components/bank/modals/sendModal';
 import { DenomDisplay, DenomInfoModal } from '@/components/factory';
 import { QuestionIcon, SendTxIcon } from '@/components/icons';
@@ -96,18 +97,8 @@ export const TokenList = React.memo(function TokenList(props: Readonly<TokenList
                 <div className="flex flex-row gap-4 items-center justify-start">
                   <DenomDisplay metadata={balance.metadata} />
                 </div>
-                <div className="text-center hidden sm:block md:block lg:hidden xl:block">
-                  <p className="font-semibold text-[#161616] dark:text-white">
-                    {Number(
-                      shiftDigits(
-                        balance.amount,
-                        -(balance.metadata?.denom_units[1]?.exponent ?? 6)
-                      )
-                    ).toLocaleString(undefined, {
-                      maximumFractionDigits: balance.metadata?.denom_units[1]?.exponent ?? 6,
-                    })}{' '}
-                    <span>{truncateString(balance.metadata?.display ?? '', 12).toUpperCase()}</span>
-                  </p>
+                <div className="text-center hidden sm:block md:block lg:block xl:block">
+                  <TokenBalance token={balance} />
                 </div>
                 <div className="flex flex-row gap-2">
                   <div
