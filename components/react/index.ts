@@ -5,3 +5,4 @@ export * from './settingsModal';
 export * from './inputs';
 export { SignModal } from './authSignerModal';
 export * from './ModalDialog';
+export * from './TokenBalance';

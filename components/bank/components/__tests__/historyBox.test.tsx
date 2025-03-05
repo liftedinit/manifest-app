@@ -130,11 +130,11 @@ describe('HistoryBox', () => {
         totalPages={2}
       />
     );
-    expect(screen.queryByText('1.00QT TOKEN')).toBeInTheDocument(); // Send
-    expect(screen.queryByText('2.00Q TOKEN')).toBeInTheDocument(); // Receive
-    expect(screen.queryByText('3.00T TOKEN')).toBeInTheDocument(); // Mint
-    expect(screen.queryByText('1.20B TOKEN')).toBeInTheDocument(); // Burn
-    expect(screen.queryByText('5.00M TOKEN')).toBeInTheDocument(); // Payout
+    expect(screen.queryByText('1QT TOKEN')).toBeInTheDocument(); // Send
+    expect(screen.queryByText('2Q TOKEN')).toBeInTheDocument(); // Receive
+    expect(screen.queryByText('3T TOKEN')).toBeInTheDocument(); // Mint
+    expect(screen.queryByText('1.2B TOKEN')).toBeInTheDocument(); // Burn
+    expect(screen.queryByText('5M TOKEN')).toBeInTheDocument(); // Payout
     expect(screen.queryByText('2.1 TOKEN')).toBeInTheDocument(); // Burn held balance
     expect(screen.queryByText('2.3 TOKEN')).toBeInTheDocument(); // Payout
     expect(screen.queryByText('2.4 TOKEN')).toBeInTheDocument(); // Payout
