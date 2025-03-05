@@ -5,6 +5,11 @@ import { shiftDigits } from '@/utils/maths';
 
 import { denomToAsset } from './ibc';
 
+/**
+ * Format configuration for large numbers
+ * [threshold value, suffix string, maximum fraction digits]
+ * Ordered from largest to smallest threshold
+ */
 const SUFFIXES: [number, string, number][] = [
   [1e24, '_', 0], // Special case. No suffix for >= 1e24, just scientific notation.
   [1e18, 'QT', 2],
@@ -13,8 +18,13 @@ const SUFFIXES: [number, string, number][] = [
   [1e9, 'B', 2],
   [1e6, 'M', 2],
   [0, '', 6],
+  // Cannot be negative.
 ];
 
+/**
+ * Format a large number to a human-readable string.
+ * @param num The number to format.
+ */
 export function formatLargeNumber(num: number): string {
   if (!Number.isFinite(num)) return 'Invalid number';
   if (num <= 0) return '0';
