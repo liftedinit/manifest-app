@@ -4,7 +4,7 @@ import { TokenBalance } from '@/components';
 import SendModal from '@/components/bank/modals/sendModal';
 import { DenomDisplay, DenomInfoModal } from '@/components/factory';
 import { QuestionIcon, SendTxIcon } from '@/components/icons';
-import { shiftDigits, truncateString } from '@/utils';
+import { truncateString } from '@/utils';
 import { CombinedBalanceInfo } from '@/utils/types';
 
 interface TokenListProps {
@@ -98,7 +98,10 @@ export const TokenList = React.memo(function TokenList(props: Readonly<TokenList
                   <DenomDisplay metadata={balance.metadata} />
                 </div>
                 <div className="text-center hidden sm:block md:block lg:block xl:block">
-                  <TokenBalance token={balance} />
+                  <TokenBalance
+                    token={balance}
+                    denom={balance.metadata && truncateString(balance.metadata?.display, 12)}
+                  />
                 </div>
                 <div className="flex flex-row gap-2">
                   <div
