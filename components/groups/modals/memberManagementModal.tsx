@@ -224,7 +224,7 @@ export function MemberManagementModal({
                               <input
                                 {...field}
                                 type="text"
-                                className={`input input-sm focus:outline-none input-ghost  bg-transparent w-full max-w-xs  ${
+                                className={`input input-sm focus:outline-hidden input-ghost  bg-transparent w-full max-w-xs  ${
                                   meta.touched && meta.error ? 'input-error' : ''
                                 }`}
                                 placeholder="member name"
@@ -247,10 +247,10 @@ export function MemberManagementModal({
                       <div className="w-[45%] flex items-center relative">
                         <Field name={`members.${index}.address`}>
                           {({ field, meta }: FieldProps) => (
-                            <div className="flex-grow relative">
+                            <div className="grow relative">
                               <AddressInput
                                 {...field}
-                                className={`input input-sm focus:outline-none disabled:bg-transparent disabled:border-none bg-transparent input-ghost w-full ${
+                                className={`input input-sm focus:outline-hidden disabled:bg-transparent disabled:border-none bg-transparent input-ghost w-full ${
                                   meta.touched && meta.error ? 'input-error' : ''
                                 }`}
                                 placeholder="manifest1..."
@@ -291,7 +291,7 @@ export function MemberManagementModal({
                 <div className="mt-4 gap-6 flex justify-center w-full">
                   <button
                     type="button"
-                    className="btn w-[calc(50%-8px)] btn-md focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
+                    className="btn w-[calc(50%-8px)] btn-md focus:outline-hidden dark:bg-[#FFFFFF0F] bg-[#0000000A]"
                     disabled={isSigning}
                     onClick={() => setShowMemberManagementModal(false)}
                   >

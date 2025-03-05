@@ -94,7 +94,7 @@ export function CancelUpgradeModal({ isOpen, onClose, admin, address, plan }: Ba
       <div className="mt-4 flex flex-row justify-center gap-2 w-full">
         <button
           type="button"
-          className="btn w-1/2 focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A] dark:text-white text-black"
+          className="btn w-1/2 focus:outline-hidden dark:bg-[#FFFFFF0F] bg-[#0000000A] dark:text-white text-black"
           onClick={() => {
             onClose();
           }}

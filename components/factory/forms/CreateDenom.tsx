@@ -110,7 +110,7 @@ export default function CreateDenom({
                         {tokenExponents.map(item => (
                           <div
                             key={item.exponent}
-                            className="dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] hover:bg-[#F5F5F5] dark:hover:bg-[#FFFFFF1A] transition-colors rounded-lg shadow p-4"
+                            className="dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] hover:bg-[#F5F5F5] dark:hover:bg-[#FFFFFF1A] transition-colors rounded-lg shadow-sm p-4"
                           >
                             <div className="flex justify-between items-center mb-2">
                               <h3 className="text-lg font-semibold">

@@ -172,7 +172,7 @@ export const Contacts = ({
                 <button
                   type="button"
                   onClick={() => setIsAdding(false)}
-                  className="btn rounded-[12px] focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A] mr-2"
+                  className="btn rounded-[12px] focus:outline-hidden dark:bg-[#FFFFFF0F] bg-[#0000000A] mr-2"
                 >
                   Cancel
                 </button>
@@ -239,7 +239,7 @@ export const Contacts = ({
         <input
           type="text"
           placeholder="Search contacts..."
-          className="input input-md w-full pr-8 bg-[#0000000A] dark:bg-[#FFFFFF0F] text-[#161616] dark:text-white placeholder-[#00000099] dark:placeholder-[#FFFFFF99] focus:outline-none focus:ring-0"
+          className="input input-md w-full pr-8 bg-[#0000000A] dark:bg-[#FFFFFF0F] text-[#161616] dark:text-white placeholder-[#00000099] dark:placeholder-[#FFFFFF99] focus:outline-hidden focus:ring-0"
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
           style={{ borderRadius: '12px' }}
@@ -279,7 +279,7 @@ export const Contacts = ({
                         <button
                           type="button"
                           onClick={() => setEditingIndex(null)}
-                          className="btn  focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A] btn-xs mr-2"
+                          className="btn  focus:outline-hidden dark:bg-[#FFFFFF0F] bg-[#0000000A] btn-xs mr-2"
                         >
                           Cancel
                         </button>

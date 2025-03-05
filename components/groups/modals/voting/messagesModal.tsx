@@ -27,9 +27,9 @@ export function MessagesModal({
     <Dialog
       open={opened}
       onClose={onClose}
-      className="modal modal-open fixed flex p-0 m-0 top-0 right-0 z-[9999]"
+      className="modal modal-open fixed flex p-0 m-0 top-0 right-0 z-9999"
     >
-      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+      <div className="fixed inset-0 bg-black/30 " aria-hidden="true" />
 
       <Dialog.Panel
         className="modal-box max-w-4xl m-auto bg-secondary"

@@ -27,9 +27,9 @@ export default function Admins() {
   const isMember = group?.members?.some(member => member?.member?.address === address);
 
   return (
-    <div className="min-h-screen relative lg:py-0 py-4 px-2 mx-auto text-white ">
+    <div className="relative mx-auto text-white ">
       <SEO title="Admins - Alberto" />
-      <div className="flex-grow h-full animate-fadeIn transition-all duration-300">
+      <div className="grow h-full animate-fadeIn transition-all duration-300">
         <div className="w-full mx-auto">
           {!isWalletConnected ? (
             <WalletNotConnected

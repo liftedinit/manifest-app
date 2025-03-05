@@ -314,8 +314,8 @@ export default React.memo(function YourGroups({
           selectedGroup ? '-translate-x-full' : 'translate-x-0'
         }`}
       >
-        <div className="h-full flex flex-col gap-4 mb-4 p-1">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+        <div className="h-full flex flex-col gap-4 ">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center  gap-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
               <h1
                 className="text-secondary-content"
@@ -327,7 +327,7 @@ export default React.memo(function YourGroups({
                 <input
                   type="text"
                   placeholder="Search for a group..."
-                  className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+                  className="input input-bordered w-full h-[40px] rounded-[12px] border-none  dark:bg-secondar bg-secondary text-secondary-content pl-10 focus:outline-hidden focus-visible:ring-1 focus-visible:ring-primary"
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                   aria-label="input-search-term"
@@ -415,7 +415,7 @@ export default React.memo(function YourGroups({
           </div>
           <div className="flex item-center justify-between">
             <Link href="/groups/create" passHref aria-label="btn-create-new-group">
-              <button className="btn btn-gradient w-[224px] h-[52px] hidden md:block text-white rounded-[12px] focus:outline-none focus-visible:ring-1 focus-visible:ring-primary">
+              <button className="btn btn-gradient w-[224px] h-[52px] hidden md:block text-white rounded-[12px] focus:outline-hidden focus-visible:ring-1 focus-visible:ring-primary">
                 Create New Group
               </button>
             </Link>
@@ -623,7 +623,7 @@ const GroupRow = React.memo(function GroupRow({
               data-tip="Group Details"
             >
               <button
-                className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+                className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-hidden"
                 onClick={openInfoModal}
                 aria-label="btn-group-details"
               >
@@ -635,7 +635,7 @@ const GroupRow = React.memo(function GroupRow({
               data-tip="Manage Members"
             >
               <button
-                className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+                className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-hidden"
                 onClick={openMemberModal}
                 aria-label="btn-group-members"
               >

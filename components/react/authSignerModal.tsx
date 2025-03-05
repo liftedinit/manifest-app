@@ -305,8 +305,8 @@ export interface LedgerSignModalInnerProps {
  */
 export const LedgerSignModalInner: React.FC<LedgerSignModalInnerProps> = ({ onClose }) => {
   return (
-    <Dialog open onClose={onClose} className="modal modal-open top-0 right-0 z-[9999]">
-      <div className="fixed inset-0 backdrop-blur-sm bg-black/30" aria-hidden="true" />
+    <Dialog open onClose={onClose} className="modal modal-open top-0 right-0 z-9999">
+      <div className="fixed inset-0  bg-black/30" aria-hidden="true" />
 
       <Dialog.Panel className="modal-box max-w-lg w-full dark:bg-[#1D192D] bg-[#FFFFFF] rounded-lg shadow-xl">
         <h3 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">Ledger HSM</h3>
@@ -363,8 +363,8 @@ export const PromptSignModalInner: React.FC<SignModalInnerProps> = ({
 
   if (!visible) return null;
   return (
-    <Dialog open onClose={onClose} className="modal modal-open top-0 right-0 z-[9999]">
-      <div className="fixed inset-0 backdrop-blur-sm bg-black/30" aria-hidden="true" />
+    <Dialog open onClose={onClose} className="modal modal-open top-0 right-0 z-9999">
+      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
 
       <Dialog.Panel className="modal-box max-w-lg w-full dark:bg-[#1D192D] bg-[#FFFFFF] rounded-lg shadow-xl">
         <div className="flex justify-between items-center pb-4">
@@ -397,7 +397,7 @@ export const PromptSignModalInner: React.FC<SignModalInnerProps> = ({
           <button
             role="button"
             aria-label="Reject"
-            className="btn btn-error flex-1 rounded-[12px] focus:outline-none"
+            className="btn btn-error flex-1 rounded-[12px] focus:outline-hidden"
             onClick={handleReject}
           >
             Reject

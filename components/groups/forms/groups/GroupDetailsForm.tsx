@@ -114,7 +114,7 @@ function GroupDetailsFormFields({
                           setFieldValue('authors', newAuthors);
                           updateField('authors', newAuthors);
                         }}
-                        className="flex-grow"
+                        className="grow"
                         rightElement={
                           values.authors.length > 1 &&
                           index !== 0 && (

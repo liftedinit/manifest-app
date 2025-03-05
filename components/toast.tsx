@@ -160,7 +160,7 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
               />
             )}
 
-            <div className="flex-grow overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 pr-2">
+            <div className="grow overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 pr-2">
               {(toastMessage.link || toastMessage.explorerLink) && (
                 <div className="flex flex-row items-center gap-2 justify-between">
                   {toastMessage.link && (

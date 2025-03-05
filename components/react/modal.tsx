@@ -548,7 +548,7 @@ export const TailwindModal: React.FC<
   return (
     <Portal>
       <Transition.Root show={isOpen}>
-        <Dialog as="div" className="relative z-[9999]" onClose={onCloseModal}>
+        <Dialog as="div" className="relative z-9999" onClose={onCloseModal}>
           <div className="fixed inset-0">
             <Transition.Child
               as={Fragment}
@@ -559,7 +559,7 @@ export const TailwindModal: React.FC<
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity" />
+              <Dialog.Overlay className="fixed inset-0 bg-black/40  transition-opacity" />
             </Transition.Child>
 
             <div className="fixed inset-0 overflow-y-auto">

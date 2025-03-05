@@ -46,7 +46,7 @@ export const Error = ({
         </button>
       </div>
       <div className="flex flex-col w-full h-full py-6 mt-4 sm:px-8">
-        <div className="p-3 border rounded-full border-red-600 mx-auto aspect-1 flex-shrink-0">
+        <div className="p-3 border rounded-full border-red-600 mx-auto aspect-1 shrink-0">
           <Image
             src={
               currentWalletName === 'Cosmos MetaMask Extension'
@@ -54,7 +54,7 @@ export const Error = ({
                 : getRealLogo(logo, isDarkMode)
             }
             alt="Wallet type logo"
-            className="flex-shrink-0 w-16 h-16 aspect-1"
+            className="shrink-0 w-16 h-16 aspect-1"
             width={16}
             height={16}
           />
@@ -67,7 +67,7 @@ export const Error = ({
           className="rounded-lg w-[180px] btn btn-error  inline-flex justify-center items-center py-2.5 font-medium mt-4 bg-mint mx-auto text-black dark:text-white"
           onClick={onReconnect}
         >
-          <ArrowPathIcon className="flex-shrink-0 w-5 h-5 mr-2 " />
+          <ArrowPathIcon className="shrink-0 w-5 h-5 mr-2 " />
           Reconnect
         </button>
       </div>

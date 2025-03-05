@@ -33,7 +33,7 @@ export const DenomInfoModal: React.FC<{
         justifyContent: 'center',
       }}
     >
-      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+      <div className="fixed inset-0 bg-black/30 " aria-hidden="true" />
 
       <Dialog.Panel className="modal-box max-w-4xl mx-auto rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg">
         <form method="dialog" onSubmit={handleClose}>
@@ -112,7 +112,7 @@ function InfoItem({
   return (
     <div className={`mb-4 flex flex-col ${className}`}>
       <p className="text-sm font-semibold text-[#00000099] dark:text-[#FFFFFF99] mb-2">{label}</p>
-      <div className="bg-base-300 rounded-[16px] p-4 flex-grow h-full">
+      <div className="dark:bg-[#FFFFFF0F] bg-[#0000000A] rounded-[16px] p-4 grow h-full">
         {isAddress ? (
           <div className="flex items-center">
             <TruncatedAddressWithCopy address={value} slice={17} />

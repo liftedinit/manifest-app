@@ -65,7 +65,7 @@ export function HistoryBox({
   }
 
   return (
-    <div className="w-full mx-auto rounded-[24px] h-full flex flex-col px-2 sm:px-4 overflow-x-hidden">
+    <div className="w-full mx-auto  h-full flex flex-col  overflow-x-hidden">
       {isLoading ? (
         <div className="flex-1 overflow-hidden h-full">
           <div aria-label="skeleton" className="space-y-2">
@@ -113,11 +113,11 @@ export function HistoryBox({
               </p>
             </div>
           ) : (
-            <div className="h-full overflow-y-auto space-y-2 mt-2">
+            <div className="h-full w-full overflow-y-auto space-y-2">
               {sendTxs?.slice(0, skeletonTxCount).map((tx, index) => (
                 <div
                   key={`${tx.id}-${index}`}
-                  className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 min-h-[105px] 
+                  className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 
                     ${
                       tx.error
                         ? 'bg-[#E5393522] dark:bg-[#E5393533] hover:bg-[#E5393544] dark:hover:bg-[#E5393555]'

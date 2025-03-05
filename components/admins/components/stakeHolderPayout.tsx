@@ -22,12 +22,12 @@ export const StakeHolderPayout = ({ admin, address }: StakeHolderPayoutProps) =>
       </div>
 
       <div className="flex flex-row w-full justify-between gap-4 mt-4">
-        <button onClick={() => setIsOpenMint(true)} className="btn btn-primary flex-1">
+        <button onClick={() => setIsOpenMint(true)} className="btn btn-primary flex-1 text-white">
           Mint MFX
         </button>
         <button
           onClick={() => setIsOpenBurn(true)}
-          className="btn btn-error flex-1 dark:text-white text-black"
+          className="btn btn-error flex-1 dark:text-white text-white"
         >
           Burn MFX
         </button>

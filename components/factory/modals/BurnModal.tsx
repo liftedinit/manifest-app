@@ -44,6 +44,7 @@ export default function BurnModal({
     <SigningModalDialog
       open={isOpen}
       onClose={onClose}
+      panelClassName="max-w-4xl"
       title={
         <>
           Burn <span className="font-light text-primary">{tokenName}</span>

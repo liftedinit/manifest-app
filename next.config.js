@@ -3,7 +3,6 @@ const nextConfig = {
   output: 'standalone',
   transpilePackages: ['@cosmos-kit/web3auth', 'react-syntax-highlighter', 'troika-three-text'],
   reactStrictMode: true,
-  swcMinify: true,
   images: {
     domains: [
       'imgur.com',

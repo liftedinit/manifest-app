@@ -96,7 +96,7 @@ export default function Home() {
                         Manifest blockchain in the Cosmos ecosystem.
                       </p>
                       <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
-                        <div className="rounded-md shadow">
+                        <div className="rounded-md shadow-sm">
                           <ScrollLink
                             to="how-it-works"
                             smooth={true}
@@ -139,11 +139,11 @@ export default function Home() {
                     {/* box row */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
                       {/* First Box */}
-                      <div className="group relative text-center p-4 rounded-2xl shadow-lg overflow-hidden transition-all duration-300 ease-in-out hover:bg-gradient-to-br hover:from-white/80 hover:to-transparent dark:hover:from-base-300/80 dark:hover:to-transparent backdrop-blur-sm bg-white/60 dark:bg-base-300/60 hover:scale-105">
+                      <div className="group relative text-center p-4 rounded-2xl shadow-lg overflow-hidden transition-all duration-300 ease-in-out hover:bg-linear-to-br hover:from-white/80 hover:to-transparent dark:hover:from-base-300/80 dark:hover:to-transparent backdrop-blur-xs bg-white/60 dark:bg-base-300/60 hover:scale-105">
                         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0">
                           {!isMobile && <AnimatedAsterisk />}
                         </div>
-                        <div className="w-full h-full p-4 rounded-2xl backdrop-blur-sm pointer-events-none ">
+                        <div className="w-full h-full p-4 rounded-2xl backdrop-blur-xs pointer-events-none ">
                           <div className="relative z-10 pointer-events-none">
                             <Image
                               src={'/3dPOA.svg'}
@@ -165,11 +165,11 @@ export default function Home() {
                       </div>
 
                       {/* Second Box */}
-                      <div className="group relative text-center p-4 rounded-2xl shadow-lg overflow-hidden transition-all duration-300 ease-in-out hover:bg-gradient-to-br hover:from-white/80 hover:to-transparent dark:hover:from-base-300/80 dark:hover:to-transparent backdrop-blur-sm bg-white/60 dark:bg-base-300/60 hover:scale-105">
+                      <div className="group relative text-center p-4 rounded-2xl shadow-lg overflow-hidden transition-all duration-300 ease-in-out hover:bg-linear-to-br hover:from-white/80 hover:to-transparent dark:hover:from-base-300/80 dark:hover:to-transparent backdrop-blur-xs bg-white/60 dark:bg-base-300/60 hover:scale-105">
                         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0">
                           {!isMobile && <AnimatedAsterisk />}
                         </div>
-                        <div className="w-full h-full p-4 rounded-2xl backdrop-blur-sm pointer-events-none ">
+                        <div className="w-full h-full p-4 rounded-2xl backdrop-blur-xs pointer-events-none ">
                           <div className="relative z-10 pointer-events-none">
                             <Image
                               src={'/3dGroup.svg'}
@@ -192,11 +192,11 @@ export default function Home() {
                       </div>
 
                       {/* Third Box */}
-                      <div className="group relative text-center p-4 rounded-2xl shadow-lg overflow-hidden transition-all duration-300 ease-in-out hover:bg-gradient-to-br hover:from-white/80 hover:to-transparent dark:hover:from-base-300/80 dark:hover:to-transparent backdrop-blur-sm bg-white/60 dark:bg-base-300/60 hover:scale-105">
+                      <div className="group relative text-center p-4 rounded-2xl shadow-lg overflow-hidden transition-all duration-300 ease-in-out hover:bg-linear-to-br hover:from-white/80 hover:to-transparent dark:hover:from-base-300/80 dark:hover:to-transparent backdrop-blur-xs bg-white/60 dark:bg-base-300/60 hover:scale-105">
                         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0">
                           {!isMobile && <AnimatedAsterisk />}
                         </div>
-                        <div className="w-full h-full p-4 rounded-2xl backdrop-blur-sm pointer-events-none ">
+                        <div className="w-full h-full p-4 rounded-2xl backdrop-blur-xs pointer-events-none ">
                           <div className="relative z-10 pointer-events-none">
                             <Image
                               src={'/3dWallet.svg'}
@@ -227,7 +227,7 @@ export default function Home() {
               <section className="relative min-h-screen py-20 sm:py-24 md:py-28 lg:py-32">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div className="bg-white/60 dark:bg-base-300/60 backdrop-blur-sm p-6 sm:p-8 rounded-lg shadow-lg">
+                    <div className="bg-white/60 dark:bg-base-300/60 backdrop-blur-xs p-6 sm:p-8 rounded-lg shadow-lg">
                       <div className="h-32 sm:h-40 relative mb-4 sm:mb-6">
                         <div className="absolute top-0 left-0 w-16 sm:w-20 h-16 sm:h-20 bg-primary rounded-full"></div>
                         <div className="absolute top-8 sm:top-10 right-8 sm:right-10 w-12 sm:w-16 h-12 sm:h-16 bg-gray-200 rounded-full"></div>
@@ -250,7 +250,7 @@ export default function Home() {
                         Explore the POA Technical Overview &gt;
                       </a>
                     </div>
-                    <div className="bg-white/60 dark:bg-base-300/60 backdrop-blur-sm p-6 sm:p-8 rounded-lg shadow-lg">
+                    <div className="bg-white/60 dark:bg-base-300/60 backdrop-blur-xs p-6 sm:p-8 rounded-lg shadow-lg">
                       <div className="h-32 sm:h-40 relative mb-4 sm:mb-6">
                         <div className="absolute right-0 bottom-0 w-24 sm:w-32 h-24 sm:h-32 bg-gray-200 rounded-tl-full"></div>
                         <div className="absolute right-6 sm:right-8 bottom-6 sm:bottom-8 w-18 sm:w-24 h-18 sm:h-24 bg-white rounded-tl-full"></div>
@@ -275,7 +275,7 @@ export default function Home() {
                   </div>
 
                   {/* Navigation Explanation */}
-                  <div className="mt-8 bg-white/60 dark:bg-base-300/60 backdrop-blur-sm p-8 rounded-lg shadow-lg">
+                  <div className="mt-8 bg-white/60 dark:bg-base-300/60 backdrop-blur-xs p-8 rounded-lg shadow-lg">
                     <div className="grid grid-cols-1 gap-y-12 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-4 lg:gap-x-8">
                       {[
                         {

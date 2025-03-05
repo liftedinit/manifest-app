@@ -129,7 +129,7 @@ export const SMSInput = ({
                             <ChevronDownIcon className="h-4 w-4" />
                           </button>
                           {isDropdownOpen && (
-                            <ul className="dropdown-content z-50 menu p-2 max-h-32 shadow bg-base-300 rounded-lg mt-1 w-80 overflow-y-auto dark:text-[#FFFFFF] text-[#161616]">
+                            <ul className="dropdown-content z-50 menu p-2 max-h-32 shadow-sm bg-base-300 rounded-lg mt-1 w-80 overflow-y-auto dark:text-[#FFFFFF] text-[#161616]">
                               {countryCodes.map(({ code, FlagComponent, country }) => (
                                 <li key={code}>
                                   <button

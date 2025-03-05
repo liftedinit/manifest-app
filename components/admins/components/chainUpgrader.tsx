@@ -40,14 +40,14 @@ export const ChainUpgrader = ({ admin, address }: { admin: string; address: stri
         <button
           disabled={!!plan}
           onClick={() => setIsOpen(true)}
-          className="btn btn-primary flex-1"
+          className="btn btn-primary flex-1 text-white"
         >
           Upgrade Chain
         </button>
         <button
           disabled={!plan}
           onClick={() => setIsCancelOpen(true)}
-          className="btn btn-error flex-1 dark:text-white text-black"
+          className="btn btn-error flex-1 dark:text-white text-white"
         >
           Cancel Upgrade
         </button>

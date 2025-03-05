@@ -59,7 +59,7 @@ export default function FourOhFour() {
           >
             {links.map((link, linkIdx) => (
               <li key={linkIdx} className="relative flex gap-x-6 py-6">
-                <div className="flex h-10 w-10 flex-none items-center justify-center rounded-lg shadow-sm ring-1 ring-primary bg-base-200">
+                <div className="flex h-10 w-10 flex-none items-center justify-center rounded-lg shadow-xs ring-1 ring-primary bg-base-200">
                   <link.icon className="h-6 w-6 text-primary" aria-hidden="true" />
                 </div>
                 <div className="flex-auto">

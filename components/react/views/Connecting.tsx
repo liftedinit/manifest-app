@@ -49,7 +49,7 @@ export const Connecting = ({
             name === 'Cosmos MetaMask Extension' ? '/metamask.svg' : getRealLogo(logo, isDarkMode)
           }
           alt={name}
-          className="flex-shrink-0 w-20 h-20 mx-auto aspect-1"
+          className="shrink-0 w-20 h-20 mx-auto aspect-1"
         />
         <p className="mt-3 font-medium ">{title}</p>
         <p className="mt-1 text-sm text-gray-500 dark:text-white/75">{subtitle}</p>

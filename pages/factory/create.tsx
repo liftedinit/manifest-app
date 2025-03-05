@@ -64,7 +64,7 @@ export default function CreateToken() {
   ];
 
   return (
-    <div className="flex flex-col items-center min-h-screen w-full">
+    <div className="flex flex-col items-center  w-full">
       <SEO title="Create a token - Alberto" />
       {!isWalletConnected ? (
         <WalletNotConnected
@@ -72,7 +72,7 @@ export default function CreateToken() {
           icon={<FactoryIcon className="h-60 w-60 text-primary" />}
         />
       ) : (
-        <div className="w-full justify-between space-y-8 min-h-screen items-center animate-fadeIn mt-4 overflow-hidden">
+        <div className="w-full justify-between space-y-8  items-center animate-fadeIn mt-4 overflow-hidden">
           {currentStep != 4 && <StepIndicator steps={steps} currentStep={currentStep} />}
 
           {currentStep === 1 && (

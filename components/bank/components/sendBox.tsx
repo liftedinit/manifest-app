@@ -117,7 +117,7 @@ export default React.memo(function SendBox({
         ) : (
           <div
             className={`transition-all duration-300 ease-in-out ${
-              activeTab === 'cross-chain' ? 'h-[630px]' : 'h-[450px]'
+              activeTab === 'cross-chain' ? 'h-[635px]' : 'h-[430px]'
             }`}
           >
             {activeTab === 'cross-chain' && env.chainTier === 'testnet' ? (

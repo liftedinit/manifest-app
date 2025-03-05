@@ -117,7 +117,7 @@ export default function BurnForm({
             <div className="grid grid-cols-2 gap-6">
               <div>
                 <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">NAME</p>
-                <div className="bg-base-300 p-4 rounded-md">
+                <div className="dark:bg-[#FFFFFF0F] bg-[#0000000A] p-4 rounded-md">
                   <p className="font-semibold text-md max-w-[20ch] truncate text-black dark:text-white">
                     {denom.name}
                   </p>
@@ -125,7 +125,7 @@ export default function BurnForm({
               </div>
               <div>
                 <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">BALANCE</p>
-                <div className="bg-base-300 p-4 rounded-md">
+                <div className="dark:bg-[#FFFFFF0F] bg-[#0000000A] p-4 rounded-md">
                   <p className="font-semibold text-md text-black truncate dark:text-white">
                     {Number(shiftDigits(balance, -exponent)).toLocaleString(undefined, {
                       maximumFractionDigits: exponent,
@@ -149,7 +149,7 @@ export default function BurnForm({
                 {({ isValid, dirty, setFieldValue, errors, touched }) => (
                   <Form>
                     <div className="flex space-x-4 mt-8">
-                      <div className="flex-grow relative">
+                      <div className="grow relative">
                         <NumberInput
                           showError={false}
                           label="AMOUNT"
@@ -173,7 +173,7 @@ export default function BurnForm({
                           </div>
                         )}
                       </div>
-                      <div className="flex-grow relative">
+                      <div className="grow relative">
                         <AddressInput
                           showError={false}
                           label="TARGET"
@@ -203,7 +203,7 @@ export default function BurnForm({
                       <button
                         type="submit"
                         aria-label={`burn-btn-${denom.base}`}
-                        className="btn btn-error disabled:bg-error/40 disabled:text-white/40 btn-md flex-grow text-white"
+                        className="btn btn-error disabled:bg-error/40 disabled:text-white/40 btn-md grow text-white"
                         disabled={isSigning || !isValid || !dirty}
                       >
                         {isSigning ? (

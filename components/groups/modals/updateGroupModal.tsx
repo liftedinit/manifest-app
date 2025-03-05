@@ -241,7 +241,7 @@ export const UpdateGroupForm: React.FC<UpdateGroupFormProps> = ({
           <div className="mt-4 gap-6 flex justify-center w-full">
             <button
               type="button"
-              className="btn w-[calc(50%-8px)] btn-md focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A]"
+              className="btn w-[calc(50%-8px)] btn-md focus:outline-hidden dark:bg-[#FFFFFF0F] bg-[#0000000A]"
               disabled={isSigning}
               onClick={() => setShowUpdateModal(false)}
             >

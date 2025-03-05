@@ -2,14 +2,14 @@ import { useChain } from '@cosmos-kit/react';
 import Link from 'next/link';
 import React from 'react';
 
-import { GroupsIcon, IfWalletConnected, WalletNotConnected } from '@/components';
+import { GroupsIcon, WalletNotConnected } from '@/components';
 import { SEO } from '@/components';
 import YourGroups from '@/components/groups/components/myGroups';
 import env from '@/config/env';
 import { useGroupsByMember, useProposalsByPolicyAccountAll } from '@/hooks';
 
 export default function Groups() {
-  const { address } = useChain(env.chain);
+  const { address, isWalletConnected } = useChain(env.chain);
   const { groupByMemberData, isGroupByMemberLoading, isGroupByMemberError } = useGroupsByMember(
     address ?? ''
   );
@@ -24,30 +24,32 @@ export default function Groups() {
   const isError = isGroupByMemberError || isProposalsError;
 
   return (
-    <div className="min-h-screen relative lg:py-0 py-4 px-2 mx-auto text-white ">
+    <div className="relative mx-auto">
       <SEO title="Groups - Alberto" />
-
-      <div className="flex-grow h-full animate-fadeIn transition-all duration-300">
+      <div className="grow h-full animate-fadeIn transition-all duration-300">
         <div className="w-full mx-auto">
-          <IfWalletConnected icon={GroupsIcon} message="start interacting with your groups">
-            {isLoading ? (
-              <YourGroups
-                groups={groupByMemberData ?? { groups: [] }}
-                proposals={proposalsByPolicyAccount}
-                isLoading={isLoading}
-              />
-            ) : isError ? (
-              <div className="text-center text-error">Error loading groups or proposals</div>
-            ) : groupByMemberData?.groups.length === 0 ? (
-              <NoGroupsFound />
-            ) : (
-              <YourGroups
-                groups={groupByMemberData ?? { groups: [] }}
-                proposals={proposalsByPolicyAccount}
-                isLoading={isLoading}
-              />
-            )}
-          </IfWalletConnected>
+          {!isWalletConnected ? (
+            <WalletNotConnected
+              description="Use the button below to connect your wallet and start interacting with your groups."
+              icon={<GroupsIcon className="h-60 w-60 text-primary" />}
+            />
+          ) : isLoading ? (
+            <YourGroups
+              groups={groupByMemberData ?? { groups: [] }}
+              proposals={proposalsByPolicyAccount}
+              isLoading={isLoading}
+            />
+          ) : isError ? (
+            <div className="text-center text-error">Error loading groups or proposals</div>
+          ) : groupByMemberData?.groups.length === 0 ? (
+            <NoGroupsFound />
+          ) : (
+            <YourGroups
+              groups={groupByMemberData ?? { groups: [] }}
+              proposals={proposalsByPolicyAccount}
+              isLoading={isLoading}
+            />
+          )}
         </div>
       </div>
     </div>

@@ -109,7 +109,7 @@ export const IbcTransferProgress: React.FC<IbcTransferProgressProps> = ({
       </div>
 
       {/* Arrow indicating transfer direction */}
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <svg
           className={`w-5 h-5 ${
             // Arrow color changes based on transfer status

@@ -46,7 +46,7 @@ export default function CreateGroup() {
   ];
 
   return (
-    <div className="flex flex-col items-center min-h-screen w-full ">
+    <div className="flex flex-col items-center w-full ">
       <SEO title="Create a group - Alberto" />
       {!isWalletConnected ? (
         <WalletNotConnected
@@ -54,7 +54,7 @@ export default function CreateGroup() {
           icon={<GroupsIcon className="h-60 w-60 text-primary" />}
         />
       ) : (
-        <div className="w-full justify-between space-y-8 min-h-screen items-center animate-fadeIn mt-4 overflow-hidden">
+        <div className="w-full justify-between space-y-8  items-center animate-fadeIn mt-4 overflow-hidden">
           {currentStep != 5 && <StepIndicator steps={steps} currentStep={currentStep} />}
 
           {currentStep === 1 && (

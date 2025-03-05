@@ -20,13 +20,13 @@ export function DescriptionModal({
     <Dialog
       open={open}
       onClose={onClose}
-      className="modal modal-open mx-auto fixed flex p-0 m-0 top-0 z-[9999]"
+      className="modal modal-open mx-auto fixed flex p-0 m-0 top-0 z-9999"
       style={{
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
-      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+      <div className="fixed inset-0 bg-black/30 " aria-hidden="true" />
 
       <Dialog.Panel>
         <form method="dialog" className="modal-box ">
