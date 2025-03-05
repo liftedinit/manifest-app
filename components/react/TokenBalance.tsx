@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js';
 import React from 'react';
 
 import { DenomDisplay } from '@/components';
@@ -20,13 +21,21 @@ export const TokenBalance = ({ token, denom }: TokenBalanceProps) => {
   const exponent = denomUnit?.exponent ?? 6;
   denom = (denom ?? denomUnit?.denom ?? token.display).toUpperCase();
 
-  const balance = formatLargeNumber(Number(shiftDigits(Number(token.amount ?? 0), -exponent)));
+  const [balance, tooltipAmount] = React.useMemo(() => {
+    const amount = shiftDigits(token.amount ?? 0, -exponent);
+    const amountBN = new BigNumber(amount);
+    const balance = formatLargeNumber(Number(amount));
+
+    const int = BigInt(amountBN.integerValue(BigNumber.ROUND_DOWN).toFixed(0));
+    const dec = amountBN.minus(int.toString()).toNumber();
+    const tooltipAmount = `${int.toLocaleString()}${dec ? ('' + dec).replace(/^0\./, '.') : ''}`;
+
+    return [balance, tooltipAmount];
+  }, [token.amount, exponent]);
 
   return (
-    <>
-      <span className="inline-block">
-        {balance} <DenomDisplay image={false} denom={denom} />
-      </span>
-    </>
+    <span className="inline-block tooltip token-amount" data-tip={tooltipAmount + ' ' + denom}>
+      {balance} <DenomDisplay image={false} denom={denom} />
+    </span>
   );
 };
