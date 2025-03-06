@@ -144,7 +144,6 @@ export default function TransferModal({
                     value={values.subdenom}
                     onChange={handleChange}
                     disabled={true}
-                    helperText="This field cannot be modified"
                   />
                   <TextInput
                     name="currentAdmin"
@@ -152,7 +151,6 @@ export default function TransferModal({
                     value={values.currentAdmin}
                     onChange={handleChange}
                     disabled={true}
-                    helperText="This field cannot be modified"
                   />
                   <TextInput
                     name="newAdmin"
