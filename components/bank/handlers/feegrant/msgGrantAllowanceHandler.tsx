@@ -7,7 +7,7 @@ import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 
 import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 
-const createMessage = (template: string, addr: string): JSX.Element => {
+const createMessage = (template: string, addr: string): React.ReactNode => {
   const message = format(
     template,
     addr ? <TruncatedAddressWithCopy address={addr} slice={24} /> : 'an unknown address'
