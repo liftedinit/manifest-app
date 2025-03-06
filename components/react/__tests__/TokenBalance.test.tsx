@@ -22,6 +22,7 @@ describe('TokenBalance', () => {
 
     expect(screen.getByText('1T')).toBeInTheDocument();
     expect(screen.getByText('TOKEN1')).toBeInTheDocument();
+    expect(document.querySelector('.tooltip')).toBeInTheDocument();
   });
 
   test('should render the token balance for small amounts', () => {
@@ -38,5 +39,20 @@ describe('TokenBalance', () => {
 
     expect(screen.getByText('1.234567')).toBeInTheDocument();
     expect(screen.getByText('TOKEN1')).toBeInTheDocument();
+  });
+
+  test('should not render the tooltip if balance is the same as tooltip', () => {
+    const mockup = render(
+      <TokenBalance
+        token={{
+          amount: '1234567',
+          metadata: mockDenomMeta1,
+          display: mockDenomMeta1.display,
+          base: unsafeConvertTokenBase(mockDenomMeta1.base),
+        }}
+      />
+    );
+
+    expect(document.querySelector('.tooltip')).not.toBeInTheDocument();
   });
 });

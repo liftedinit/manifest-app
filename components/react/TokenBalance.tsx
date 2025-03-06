@@ -33,8 +33,10 @@ export const TokenBalance = ({ token, denom }: TokenBalanceProps) => {
     return [balance, tooltipAmount];
   }, [token.amount, exponent]);
 
+  // Only show tooltip if the balance is not the same as the tooltip amount.
+  const tooltip = balance !== tooltipAmount && `${tooltipAmount} ${denom}`;
   return (
-    <span className="inline-block tooltip token-amount" data-tip={tooltipAmount + ' ' + denom}>
+    <span className={`inline-block ${tooltip ? 'tooltip' : ''} token-amount`} data-tip={tooltip}>
       {balance} <DenomDisplay image={false} denom={denom} />
     </span>
   );

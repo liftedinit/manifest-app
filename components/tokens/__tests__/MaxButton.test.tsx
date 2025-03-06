@@ -20,6 +20,7 @@ describe('MaxButton', () => {
     expect(screen.getByText('MAX')).toBeInTheDocument();
     screen.getByText('MAX').click();
     expect(amount).toBe(0.001);
+    expect(document.querySelector('.tooltip')).not.toBeInTheDocument();
   });
 
   test('works for MFX', () => {
@@ -34,5 +35,6 @@ describe('MaxButton', () => {
     expect(screen.getByText('MAX')).toBeInTheDocument();
     screen.getByText('MAX').click();
     expect(amount).toBe(1.9);
+    expect(document.querySelector('.tooltip')).toBeInTheDocument();
   });
 });
