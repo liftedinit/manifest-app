@@ -8,7 +8,7 @@ import Image from 'next/image';
 import React, { useEffect, useMemo, useState } from 'react';
 import { PiCaretDownBold } from 'react-icons/pi';
 
-import { IbcChain, MaxButton } from '@/components';
+import { IbcChain, MaxButton, TokenBalance } from '@/components';
 import { AmountInput } from '@/components';
 import { DenomDisplay } from '@/components/factory';
 import { SearchIcon } from '@/components/icons';
@@ -536,34 +536,7 @@ export default function IbcSendForm({
                   </div>
                   <div className="text-xs mt-1 flex  justify-between text-[#00000099] dark:text-[#FFFFFF99]">
                     <div className="flex flex-row gap-1">
-                      <span>
-                        Balance:{' '}
-                        {values.selectedToken
-                          ? Number(
-                              shiftDigits(
-                                Number(selectedTokenBalance?.amount ?? values.selectedToken.amount),
-                                -(values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6)
-                              )
-                            ).toLocaleString(undefined, {
-                              maximumFractionDigits:
-                                values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6,
-                            })
-                          : '0'}
-                      </span>
-                      <span>
-                        {(() => {
-                          const tokenDisplayName =
-                            values.selectedToken?.metadata?.display ??
-                            values.selectedToken?.display ??
-                            'Select';
-
-                          return tokenDisplayName.startsWith('factory')
-                            ? tokenDisplayName.split('/').pop()?.toUpperCase()
-                            : tokenDisplayName.startsWith('u')
-                              ? tokenDisplayName.slice(1).toUpperCase()
-                              : truncateString(tokenDisplayName, 10).toUpperCase();
-                        })()}
-                      </span>
+                      Balance: <TokenBalance token={selectedTokenBalance ?? values.selectedToken} />
                       <MaxButton
                         token={values.selectedToken}
                         setTokenAmount={(amount: string) => setFieldValue('amount', amount)}

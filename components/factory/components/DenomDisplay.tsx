@@ -13,29 +13,37 @@ export const DenomVerifiedBadge = ({
   return verified ? <VerifiedIcon {...props} /> : <></>;
 };
 
+export interface DenomDisplayProps {
+  denom?: string;
+  metadata?: MetadataSDKType | null;
+  withBackground?: boolean;
+  image?: boolean;
+}
+
 export const DenomDisplay = ({
   denom,
   metadata,
   withBackground,
-}: {
-  metadata?: MetadataSDKType | null;
-  denom?: string;
-  withBackground?: boolean;
-}) => {
+  image = true,
+}: DenomDisplayProps) => {
   const name = formatTokenDisplay(denom ?? metadata?.display ?? '?').toUpperCase();
 
   return (
     <>
-      <div className="flex items-center justify-center">
-        <DenomImage withBackground={withBackground} denom={metadata} />
-      </div>
-      <p className="align-middle font-semibold text-[#161616] dark:text-white">
+      {image && (
+        <div className="flex items-center justify-center">
+          <DenomImage withBackground={withBackground} denom={metadata} />
+        </div>
+      )}
+      <span>
         {name}
-        <DenomVerifiedBadge
-          base={metadata?.base}
-          className="w-4 mx-1 inline relative bottom-1 text-primary"
-        />
-      </p>
+        {metadata?.base && (
+          <DenomVerifiedBadge
+            base={metadata?.base}
+            className="w-4 mx-1 inline relative bottom-1 text-primary"
+          />
+        )}
+      </span>
     </>
   );
 };

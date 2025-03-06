@@ -97,6 +97,9 @@ module.exports = {
           color: '#FFFFFF',
           textColor: '#FFFFFF',
         },
+        '.token-amount.tooltip:before': {
+          'max-width': 'none',
+        },
       };
       const errorButton = {
         '.btn-error': {

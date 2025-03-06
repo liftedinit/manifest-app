@@ -6,7 +6,7 @@ import { Form, Formik } from 'formik';
 import React, { useMemo, useState } from 'react';
 import { PiCaretDownBold } from 'react-icons/pi';
 
-import { AmountInput, MaxButton } from '@/components';
+import { AmountInput, MaxButton, TokenBalance } from '@/components';
 import { DenomDisplay } from '@/components/factory';
 import { SearchIcon } from '@/components/icons';
 import { TextInput } from '@/components/react/inputs';
@@ -14,7 +14,7 @@ import { AddressInput } from '@/components/react/inputs/AddressInput';
 import env from '@/config/env';
 import { useFeeEstimation, useTx } from '@/hooks';
 import { sendForm } from '@/schemas';
-import { parseNumberToBigInt, shiftDigits, truncateString } from '@/utils';
+import { parseNumberToBigInt } from '@/utils';
 import { CombinedBalanceInfo } from '@/utils/types';
 
 export default function SendForm({
@@ -210,38 +210,16 @@ export default function SendForm({
                   </div>
                   <div className="text-xs mt-1 flex justify-between text-[#00000099] dark:text-[#FFFFFF99]">
                     <div className="flex flex-row gap-1 ml-1">
-                      <span>
-                        Balance:{'  '}
-                        {selectedTokenBalance
-                          ? Number(
-                              shiftDigits(
-                                Number(selectedTokenBalance.amount),
-                                -(selectedTokenBalance.metadata?.denom_units[1]?.exponent ?? 6)
-                              )
-                            ).toLocaleString()
-                          : Number(
-                              shiftDigits(
-                                Number(values.selectedToken?.amount ?? 0),
-                                -(values.selectedToken?.metadata?.denom_units[1]?.exponent ?? 6)
-                              )
-                            ).toLocaleString()}
-                      </span>
-                      <span className="">
-                        {values.selectedToken?.metadata?.display?.startsWith('factory')
-                          ? values.selectedToken?.metadata?.display?.split('/').pop()?.toUpperCase()
-                          : truncateString(
-                              values.selectedToken?.metadata?.display ?? '',
-                              10
-                            ).toUpperCase()}
-                      </span>
-
+                      Balance: <TokenBalance token={selectedTokenBalance ?? values.selectedToken} />
                       <MaxButton
                         token={values.selectedToken}
                         setTokenAmount={(amount: string) => setFieldValue('amount', amount)}
                         disabled={isSigning}
                       />
                     </div>
-                    {errors.amount && <div className="text-red-500 text-xs">{errors.amount}</div>}
+                    {errors.amount && (
+                      <div className="text-red-500 text-xs text-right">{errors.amount}</div>
+                    )}
                     {errors.feeWarning && !errors.amount && (
                       <div className="text-yellow-500 text-xs">{errors.feeWarning}</div>
                     )}

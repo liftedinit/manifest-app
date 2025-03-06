@@ -5,32 +5,45 @@ import { shiftDigits } from '@/utils/maths';
 
 import { denomToAsset } from './ibc';
 
+/**
+ * Format configuration for large numbers
+ * [threshold value, suffix string, maximum fraction digits]
+ * Ordered from largest to smallest threshold
+ */
+const SUFFIXES: [number, string, number][] = [
+  [1e24, '_', 0], // Special case. No suffix for >= 1e24, just scientific notation.
+  [1e18, 'QT', 2],
+  [1e15, 'Q', 2],
+  [1e12, 'T', 2],
+  [1e9, 'B', 2],
+  [1e6, 'M', 2],
+  [0, '', 6],
+  // Cannot be negative.
+];
+
+/**
+ * Format a large number to a human-readable string.
+ * @param num The number to format.
+ */
 export function formatLargeNumber(num: number): string {
   if (!Number.isFinite(num)) return 'Invalid number';
-  if (num === 0) return '0';
+  if (num <= 0) return '0';
 
-  const quintillion = 1e18;
-  const quadrillion = 1e15;
-  const trillion = 1e12;
-  const billion = 1e9;
-  const million = 1e6;
-
-  if (num < million) {
-    return num.toString();
+  if (num >= SUFFIXES[0][0]) {
+    return `${num.toExponential(6).replace(/\.?0*e\+?/, 'e')}`;
   }
 
-  if (num >= quintillion) {
-    return `${(num / quintillion).toFixed(2)}QT`;
-  } else if (num >= quadrillion) {
-    return `${(num / quadrillion).toFixed(2)}Q`;
-  } else if (num >= trillion) {
-    return `${(num / trillion).toFixed(2)}T`;
-  } else if (num >= billion) {
-    return `${(num / billion).toFixed(2)}B`;
-  } else if (num >= million) {
-    return `${(num / million).toFixed(2)}M`;
+  for (const [value, suffix, maximumFractionDigits] of SUFFIXES) {
+    if (num >= value) {
+      let s = (suffix ? num / value : num).toLocaleString(undefined, {
+        maximumFractionDigits,
+      });
+
+      return `${s}${suffix}`;
+    }
   }
-  return num.toFixed(6);
+
+  return num.toLocaleString();
 }
 
 export function formatDenom(denom: string): string {

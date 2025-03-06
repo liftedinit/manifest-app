@@ -62,14 +62,7 @@ describe('TokenList', () => {
 
   test('renders correctly', () => {
     renderWithChainProvider(
-      <TokenList
-        balances={mockBalances}
-        isLoading={false}
-        refetchBalances={jest.fn()}
-        refetchHistory={jest.fn()}
-        address={''}
-        pageSize={1}
-      />
+      <TokenList balances={mockBalances} isLoading={false} address={''} pageSize={1} />
     );
     const token1Row = screen.getByLabelText('utoken1');
     expect(token1Row).toBeInTheDocument();
