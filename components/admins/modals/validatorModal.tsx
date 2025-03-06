@@ -97,7 +97,7 @@ export function ValidatorDetailsModal({
 
   return (
     <SigningModalDialog
-      panelClassName="max-w-4xl"
+      panelClassName="max-w-3xl"
       open={openValidatorModal}
       onClose={() => setOpenValidatorModal(false)}
     >
@@ -109,7 +109,7 @@ export function ValidatorDetailsModal({
       >
         {({ isValid }) => (
           <>
-            <div className="flex flex-col grow w-full p-6 space-y-6">
+            <div className="flex flex-col grow w-full space-y-6">
               <h3 className="text-2xl font-bold text-black dark:text-white">Validator Details</h3>
               <div className="flex flex-col justify-start items-start gap-4">
                 <span className="text-sm text-gray-500 dark:text-gray-400">VALIDATOR</span>
