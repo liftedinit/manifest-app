@@ -110,17 +110,17 @@ export const ManifestAppProviders = ({ children }: { children: ReactNode }) => {
   return (
     <QueryClientProvider client={client}>
       <ReactQueryDevtools />
-      <Web3AuthProvider>
-        <ManifestChainProvider>
-          <SkipProvider>
-            <ThemeProvider>
-              <ToastProvider>
-                <ContactsProvider>{children}</ContactsProvider>
-              </ToastProvider>
-            </ThemeProvider>
-          </SkipProvider>
-        </ManifestChainProvider>
-      </Web3AuthProvider>
+      <ContactsProvider>
+        <Web3AuthProvider>
+          <ManifestChainProvider>
+            <SkipProvider>
+              <ThemeProvider>
+                <ToastProvider>{children}</ToastProvider>
+              </ThemeProvider>
+            </SkipProvider>
+          </ManifestChainProvider>
+        </Web3AuthProvider>
+      </ContactsProvider>
     </QueryClientProvider>
   );
 };

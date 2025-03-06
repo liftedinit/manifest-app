@@ -2,17 +2,16 @@ import { Dialog } from '@headlessui/react';
 import { ChevronLeftIcon, PencilIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { saveAs } from 'file-saver';
 import { Form, Formik } from 'formik';
-import { useCallback, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { MdContacts } from 'react-icons/md';
 
+import { ModalDialog, TruncatedAddressWithCopy } from '@/components';
 import { SearchIcon } from '@/components/icons';
 import { TextInput } from '@/components/react/inputs';
 import { useToast } from '@/contexts/toastContext';
 import { useContacts } from '@/hooks/useContacts';
 import { Contact } from '@/utils/types';
 import Yup from '@/utils/yupExtensions';
-
-import { TruncatedAddressWithCopy } from '../addressCopy';
 
 export const Contacts = ({
   onClose,
@@ -139,13 +138,6 @@ export const Contacts = ({
           <Dialog.Title as="h3" className="text-md font-semibold">
             Add Contact
           </Dialog.Title>
-          <button
-            type="button"
-            className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-[#00000033]"
-            onClick={onClose}
-          >
-            <XMarkIcon className="w-5 h-5" aria-hidden="true" />
-          </button>
         </div>
         <Formik
           initialValues={{ name: '', address: '' }}
@@ -190,33 +182,6 @@ export const Contacts = ({
   // Main contacts view with search bar and contacts list
   return (
     <div className="p-2 w-full mx-auto pt-4">
-      <div className="flex justify-between items-center -mt-4 mb-6">
-        {onReturn ? (
-          <button
-            type="button"
-            className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-[#00000033]"
-            onClick={onReturn}
-          >
-            <ChevronLeftIcon className="w-5 h-5" aria-hidden="true" />
-          </button>
-        ) : (
-          <div className="w-9 h-9" />
-        )}
-        <div className="flex flex-row gap-2 items-center">
-          <MdContacts className="w-8 h-8 text-primary" />
-          <Dialog.Title as="h3" className="text-md font-semibold">
-            {selectionMode ? 'Select Contact' : 'Contacts'}
-          </Dialog.Title>
-        </div>
-        <button
-          type="button"
-          className="p-2 text-primary bg-neutral rounded-full hover:bg-gray-200 dark:hover:bg-[#00000033]"
-          onClick={onClose}
-        >
-          <XMarkIcon className="w-5 h-5" aria-hidden="true" />
-        </button>
-      </div>
-
       {selectionMode && currentAddress && (
         <button
           onClick={() => {
@@ -398,5 +363,41 @@ export const Contacts = ({
         </>
       )}
     </div>
+  );
+};
+
+export interface ContactsModalProps {
+  address?: string;
+  open: boolean;
+  onClose: () => void;
+  onSelect?: (address: string) => void;
+  className?: string;
+  selectionMode?: boolean;
+}
+
+export const ContactsModal = ({
+  open,
+  onClose,
+  onSelect,
+  address,
+  className,
+  selectionMode = true,
+}: ContactsModalProps) => {
+  return (
+    <ModalDialog
+      onClose={onClose}
+      open={open}
+      className={className}
+      panelClassName="max-w-2xl"
+      icon={MdContacts}
+      title={selectionMode ? 'Select Contact' : 'Contacts'}
+    >
+      <Contacts
+        onClose={onClose}
+        currentAddress={address ?? ''}
+        onSelect={address => onSelect?.(address)}
+        selectionMode={selectionMode}
+      />
+    </ModalDialog>
   );
 };

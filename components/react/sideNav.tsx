@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { MdContacts } from 'react-icons/md';
 
+import { ContactsModal } from '@/components';
 import {
   AdminsIcon,
   BankIcon,
@@ -22,7 +23,6 @@ import { getRealLogo } from '@/utils';
 
 import packageInfo from '../../package.json';
 import { IconWallet, WalletSection } from '../wallet';
-import { TailwindModal } from './modal';
 
 interface SideNavProps {
   isDrawerVisible: boolean;
@@ -204,7 +204,7 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
           <div className="w-full flex flex-col space-y-2 mb-4">
             <button
               onClick={() => setContactsOpen(true)}
-              className="flex w-full items-center p-2 text-base font-normal rounded-lg text-[#00000066] dark:text-[#FFFFFF66] hover:bg-[#0000000A] hover:text-primary dark:hover:text-primary dark:hover:bg-base-300 transition duration-300 ease-in-out"
+              className="flex w-full items-center p-2 text-base font-normal rounded-lg text-[#00000066] dark:text-[#FFFFFF66] hover:bg-[#0000000A] hover:text-primary dark:hover:text-primary dark:hover:bg-base-300 transition duration-300 ease-in-out cursor-pointer"
             >
               <MdContacts className="w-8 h-8 mr-6" />
               <span className="text-xl">Contacts</span>
@@ -337,11 +337,11 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
           ></path>
         </svg>
       </button>
-      <TailwindModal
-        isOpen={isContactsOpen}
-        setOpen={setContactsOpen}
-        showContacts={true}
-        onSelect={undefined}
+
+      <ContactsModal
+        open={isContactsOpen}
+        onClose={() => setContactsOpen(false)}
+        selectionMode={false}
       />
     </>
   );

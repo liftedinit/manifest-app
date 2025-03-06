@@ -27,7 +27,6 @@ import { useDeviceDetect } from '@/hooks';
 import {
   Connected,
   Connecting,
-  Contacts,
   EmailInput,
   Error,
   NotExist,
@@ -43,7 +42,6 @@ export enum ModalView {
   Connected,
   Error,
   NotExist,
-  Contacts,
   EmailInput,
   SMSInput,
 }
@@ -69,22 +67,10 @@ const isWalletConnectionError = (message?: string): boolean => {
 
 export const TailwindModal: React.FC<
   WalletModalProps & {
-    showContacts?: boolean;
-    onSelect?: (address: string) => void;
-    currentAddress?: string;
     showMemberManagementModal?: boolean;
     showMessageEditModal?: boolean;
   }
-> = ({
-  isOpen,
-  setOpen,
-  walletRepo,
-  showContacts = false,
-  onSelect,
-  currentAddress,
-  showMemberManagementModal = false,
-  showMessageEditModal = false,
-}) => {
+> = ({ isOpen, setOpen, walletRepo, showMessageEditModal = false }) => {
   const [currentView, setCurrentView] = useState<ModalView>(ModalView.WalletList);
   const [qrWallet, setQRWallet] = useState<ChainWalletBase | undefined>();
   const [selectedWallet, setSelectedWallet] = useState<ChainWalletBase | undefined>();
@@ -99,36 +85,32 @@ export const TailwindModal: React.FC<
 
   useEffect(() => {
     if (isOpen) {
-      if (showContacts) {
-        setCurrentView(ModalView.Contacts);
-      } else {
-        switch (walletStatus) {
-          case WalletStatus.Disconnected:
-            setCurrentView(ModalView.WalletList);
-            break;
-          case WalletStatus.Connecting:
-            if (current?.walletInfo.mode === 'wallet-connect' && !isMobile) {
-              setCurrentView(ModalView.QRCode);
-            } else {
-              setCurrentView(ModalView.Connecting);
-            }
-            break;
-          case WalletStatus.Connected:
-            setCurrentView(ModalView.Connected);
-            break;
-          case WalletStatus.Error:
-            setCurrentView(ModalView.Error);
-            break;
-          case WalletStatus.Rejected:
-            setCurrentView(ModalView.Error);
-            break;
-          case WalletStatus.NotExist:
-            setCurrentView(ModalView.NotExist);
-            break;
-        }
+      switch (walletStatus) {
+        case WalletStatus.Disconnected:
+          setCurrentView(ModalView.WalletList);
+          break;
+        case WalletStatus.Connecting:
+          if (current?.walletInfo.mode === 'wallet-connect' && !isMobile) {
+            setCurrentView(ModalView.QRCode);
+          } else {
+            setCurrentView(ModalView.Connecting);
+          }
+          break;
+        case WalletStatus.Connected:
+          setCurrentView(ModalView.Connected);
+          break;
+        case WalletStatus.Error:
+          setCurrentView(ModalView.Error);
+          break;
+        case WalletStatus.Rejected:
+          setCurrentView(ModalView.Error);
+          break;
+        case WalletStatus.NotExist:
+          setCurrentView(ModalView.NotExist);
+          break;
       }
     }
-  }, [isOpen, walletStatus, currentWalletName, showContacts, current?.walletInfo.mode, isMobile]);
+  }, [isOpen, walletStatus, currentWalletName, current?.walletInfo.mode, isMobile]);
 
   /**
    * Handle the lifecycle for QR Code actions.
@@ -373,7 +355,6 @@ export const TailwindModal: React.FC<
    *  - Connected, Connecting
    *  - QRCode
    *  - Error, NotExist
-   *  - Contacts (an address book / contact list view)
    */
   const _render = useMemo(
     () => {
@@ -495,18 +476,6 @@ export const TailwindModal: React.FC<
             />
           );
 
-        case ModalView.Contacts:
-          return (
-            <Contacts
-              onClose={onCloseModal}
-              onReturn={walletRepo ? () => setCurrentView(ModalView.WalletList) : undefined}
-              selectionMode={Boolean(onSelect)}
-              onSelect={onSelect}
-              currentAddress={currentAddress}
-              showMessageEditModal={showMessageEditModal}
-            />
-          );
-
         default:
           // A fallback if we are syncing or re-connecting
           return (
@@ -529,8 +498,6 @@ export const TailwindModal: React.FC<
       walletRepo,
       currentWalletData,
       current,
-      onSelect,
-      currentAddress,
       showMessageEditModal,
       selectedWallet,
       qrState,
@@ -548,7 +515,7 @@ export const TailwindModal: React.FC<
   return (
     <Portal>
       <Transition.Root show={isOpen}>
-        <Dialog as="div" className="relative z-9999" onClose={onCloseModal}>
+        <Dialog as="div" className="relative z-50" onClose={onCloseModal}>
           <div className="fixed inset-0">
             <Transition.Child
               as={Fragment}

@@ -1,9 +1,8 @@
 import { useChain } from '@cosmos-kit/react';
-import { Dialog } from '@headlessui/react';
 import React from 'react';
 import { MdContacts } from 'react-icons/md';
 
-import { Contacts, TextInput } from '@/components';
+import { ContactsModal, TextInput } from '@/components';
 import { BaseInputProps } from '@/components/react/inputs/BaseInput';
 
 import env from '../../../config/env';
@@ -55,30 +54,15 @@ export const AddressInput: React.FC<AddressInputProps> = ({
       />
 
       {!disabled && showContacts && (
-        <Dialog
-          className={`modal modal-open fixed flex p-0 m-0 z-999`}
-          style={{
-            height: '100vh',
-            width: '100vw',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-          onClose={() => setShowContacts(false)}
+        <ContactsModal
           open={showContacts}
-        >
-          <div className="fixed inset-0  " aria-hidden="true" />
-          <Dialog.Panel className="modal-box bg-secondary max-w-xl rounded-[24px] p-6">
-            <Contacts
-              onClose={() => setShowContacts(false)}
-              currentAddress={address ?? ''}
-              onSelect={address => {
-                setValue(address);
-                onChange?.({ target: { name, value: address } } as any);
-              }}
-              selectionMode
-            />
-          </Dialog.Panel>
-        </Dialog>
+          onClose={() => setShowContacts(false)}
+          onSelect={address => {
+            setValue(address);
+            setShowContacts(false);
+          }}
+          address={address}
+        />
       )}
     </>
   );

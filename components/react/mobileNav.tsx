@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { MdContacts } from 'react-icons/md';
 import { RiMenuUnfoldFill } from 'react-icons/ri';
 
+import { ContactsModal } from '@/components';
 import {
   AdminsIcon,
   ArrowRightIcon,
@@ -21,7 +22,6 @@ import { usePoaGetAdmin } from '@/hooks';
 import { useGroupsByAdmin } from '@/hooks';
 
 import { WalletSection } from '../wallet';
-import { TailwindModal } from './modal';
 
 export default function MobileNav() {
   const { address } = useChain(env.chain);
@@ -146,11 +146,11 @@ export default function MobileNav() {
           </ul>
         </div>
       </div>
-      <TailwindModal
-        isOpen={isContactsOpen}
-        setOpen={setContactsOpen}
-        showContacts={true}
-        onSelect={undefined}
+
+      <ContactsModal
+        open={isContactsOpen}
+        onClose={() => setContactsOpen(false)}
+        selectionMode={false}
       />
     </>
   );
