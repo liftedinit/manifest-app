@@ -47,7 +47,7 @@ export const NotExist = ({
             name === 'Cosmos MetaMask Extension' ? '/metamask.svg' : getRealLogo(logo, isDarkMode)
           }
           alt={name}
-          className="flex-shrink-0 w-16 h-16 mx-auto aspect-1"
+          className="shrink-0 w-16 h-16 mx-auto aspect-1"
         />
         <p className="mt-3 font-medium text-black dark:text-white">
           Install {name === 'Cosmos MetaMask Extension' ? 'Metamask' : name}
@@ -60,7 +60,7 @@ export const NotExist = ({
           className={`rounded-lg btn-primary btn btn-md ${name.length >= 12 ? 'w-1/2' : 'w-1/3'} mx-auto inline-flex justify-center items-center py-2.5 font-medium mt-4 text-white`}
           onClick={onInstall}
         >
-          <ArrowDownTrayIcon className="flex-shrink-0 w-5 h-5 mr-2 text-white" />
+          <ArrowDownTrayIcon className="shrink-0 w-5 h-5 mr-2 text-white" />
           Install {name === 'Cosmos MetaMask Extension' ? 'Metamask' : name}
         </button>
       </div>

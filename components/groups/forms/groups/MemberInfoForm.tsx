@@ -49,7 +49,7 @@ function MemberInfoFormFields({
                 >
                   {index > 0 && <div className="absolute -top-2 left-2 text-xs">#{index + 1}</div>}
 
-                  <div className="flex-grow relative">
+                  <div className="grow relative">
                     <Field name={`members.${index}.address`}>
                       {({ field, meta }: FieldProps) => (
                         <div className="relative">
@@ -87,7 +87,7 @@ function MemberInfoFormFields({
                     </Field>
                   </div>
 
-                  <div className="flex-grow relative">
+                  <div className="grow relative">
                     <Field name={`members.${index}.name`}>
                       {({ field, meta }: FieldProps) => (
                         <div className="relative">

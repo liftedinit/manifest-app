@@ -111,7 +111,7 @@ export default function MintForm({
             <div className="grid grid-cols-2 gap-6">
               <div>
                 <p className="text-sm font-light text-gray-500 dark:text-gray-400 mb-2">NAME</p>
-                <div className="bg-base-300 p-4 rounded-md">
+                <div className="dark:bg-[#FFFFFF0F] bg-[#0000000A] p-4 rounded-md">
                   <p className="font-semibold text-md  truncate text-black dark:text-white">
                     {denom.name}
                   </p>
@@ -122,7 +122,7 @@ export default function MintForm({
                 <p className="text-sm font-light text-gray-500 truncate dark:text-gray-400 mb-2">
                   CIRCULATING SUPPLY
                 </p>
-                <div className="bg-base-300 p-4 rounded-md">
+                <div className="dark:bg-[#FFFFFF0F] bg-[#0000000A] p-4 rounded-md">
                   <p className="font-semibold text-md truncate text-black dark:text-white">
                     {Number(shiftDigits(totalSupply, -6)).toLocaleString(undefined, {
                       maximumFractionDigits: 6,
@@ -146,7 +146,7 @@ export default function MintForm({
                 {({ isValid, dirty, setFieldValue, errors, touched }) => (
                   <Form>
                     <div className="flex space-x-4 mt-8">
-                      <div className="flex-grow relative">
+                      <div className="grow relative">
                         <NumberInput
                           showError={false}
                           label="AMOUNT"
@@ -170,7 +170,7 @@ export default function MintForm({
                           </div>
                         )}
                       </div>
-                      <div className="flex-grow relative">
+                      <div className="grow relative">
                         <AddressInput
                           showError={false}
                           label="RECIPIENT"
@@ -200,7 +200,7 @@ export default function MintForm({
                         <button
                           type="submit"
                           aria-label={`mint-btn-${denom.display}`}
-                          className="btn btn-gradient btn-md flex-grow text-white"
+                          className="btn btn-gradient btn-md grow text-white"
                           disabled={isSigning || !isValid || !dirty}
                         >
                           {isSigning ? (

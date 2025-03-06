@@ -1,12 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: 'class',
-  content: [
-    'components/**/*.{js,jsx,ts,tsx}',
-    'pages/**/*.{js,jsx,ts,tsx}',
-    'node_modules/daisyui/dist/**/*.js',
-    'node_modules/react-daisyui/dist/**/*.js',
-  ],
+  content: ['components/**/*.{js,jsx,ts,tsx}', 'pages/**/*.{js,jsx,ts,tsx}'],
   theme: {
     extend: {
       screens: {
@@ -74,69 +69,12 @@ module.exports = {
       backgroundImage: ['hover', 'focus'],
     },
   },
-  daisyui: {
-    themes: [
-      {
-        light: {
-          primary: '#A087FF',
-          'primary-content': '#161616',
-          secondary: '#FBFBFF',
-          'secondary-content': '#161616',
-          accent: '#30DB5B',
-          'accent-content': '#161616',
-          neutral: '#FFFFFF',
-          'button-gradient': 'linear-gradient(to right, #A087FF, #380CC5)',
-          'neutral-content': '#FFFFFF',
-          'base-100': '#FFFFFF',
-          'base-200': '#F0F0FF',
-          'base-300': '#F5F5F5',
-          'base-content': '#161616',
-          'tooltip-color': '#ffffff',
-          'background-color': '#F0F0FF',
-          info: '#3F51B5',
-          success: '#4CAF50',
-          warning: '#FFB300',
-          error: '#E53935',
-          '--shadow-color-light': 'rgba(0, 0, 0, 0.1)',
-        },
-        dark: {
-          primary: '#A087FF',
-          'primary-content': '#FFFFFF',
-          secondary: '#1D192D',
-          'secondary-content': '#FFFFFF',
-          accent: '#30DB5B',
-          'accent-content': '#FFFFFF',
-          neutral: '#1D192D',
-          'button-gradient': 'linear-gradient(to right, #A087FF, #380CC5)',
-          'neutral-content': '#FFFFFF',
-          'base-100': '#161616',
-          'base-200': '#1D192D',
-          'base-300': '#272336',
-          'base-content': '#FFFFFF',
-          'tooltip-color': '#ffffff',
-          'background-color': '#0E0A1F',
-          info: '#3F51B5',
-          success: '#4CAF50',
-          warning: '#FFB300',
-          error: '#E53935',
-          '--shadow-color-dark': 'rgba(255, 255, 255, 0.1)',
-        },
-      },
-    ],
-    darkTheme: 'dark',
-    base: true,
-    styled: true,
-    utils: true,
-    prefix: '',
-    logs: false,
-    themeRoot: ':root',
-  },
+
   plugins: [
     require('@tailwindcss/typography'),
     require('@tailwindcss/aspect-ratio'),
     require('@tailwindcss/forms'),
-    require('tailwind-scrollbar-hide'),
-    require('daisyui'),
+
     function ({ addUtilities }) {
       const disconnectButton = {
         '.btn-disconnect-gradient': {
@@ -149,6 +87,7 @@ module.exports = {
             opacity: '0.5',
             cursor: 'not-allowed',
             border: 'none',
+            backgroundImage: 'linear-gradient(98.22deg, #FF8787 -51.92%, #C50C87 103.12%)',
             boxShadow: 'none',
           },
         },
@@ -195,6 +134,7 @@ module.exports = {
             cursor: 'not-allowed',
             border: 'none',
             boxShadow: 'none',
+            backgroundImage: 'linear-gradient(98.22deg, #A087FF -51.92%, #380CC5 103.12%)',
             color: '#fffcfc',
             cursor: 'not-allowed',
           },

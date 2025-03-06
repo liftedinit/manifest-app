@@ -115,7 +115,7 @@ export const TokenList = React.memo(function TokenList(props: Readonly<TokenList
                         setSelectedDenomBase(balance?.base);
                         setOpenDenomInfoModal(true);
                       }}
-                      className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+                      className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-hidden"
                     >
                       <QuestionIcon className="w-7 h-7 text-current" />
                     </button>
@@ -131,7 +131,7 @@ export const TokenList = React.memo(function TokenList(props: Readonly<TokenList
                         setSelectedDenomBase(balance?.base);
                         setIsSendModalOpen(true);
                       }}
-                      className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-none"
+                      className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-hidden"
                     >
                       <SendTxIcon className="w-7 h-7 text-current" />
                     </button>

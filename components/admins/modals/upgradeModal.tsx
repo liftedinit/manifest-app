@@ -231,14 +231,14 @@ export function UpgradeModal({ isOpen, onClose, admin, address }: BaseModalProps
                         tabIndex={0}
                         role="listbox"
                         aria-label="Version selection"
-                        className="dropdown-content z-20 p-2 shadow bg-base-300 rounded-lg w-full mt-1 max-h-72 overflow-y-auto dark:text-[#FFFFFF] text-[#161616]"
+                        className="dropdown-content z-20 p-2 shadow-sm bg-base-300 rounded-lg w-full mt-1 max-h-72 overflow-y-auto dark:text-[#FFFFFF] text-[#161616]"
                       >
                         <li className="bg-base-300 z-30 hover:bg-transparent h-full mb-2">
                           <div className="px-2 py-1 relative">
                             <input
                               type="text"
                               placeholder="Search versions..."
-                              className="input input-sm w-full pr-8 focus:outline-none focus:ring-0 border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A]"
+                              className="input input-sm w-full pr-8 focus:outline-hidden focus:ring-0 border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A]"
                               onChange={e => setSearchTerm(e.target.value)}
                               style={{ boxShadow: 'none', borderRadius: '8px' }}
                             />
@@ -320,7 +320,7 @@ export function UpgradeModal({ isOpen, onClose, admin, address }: BaseModalProps
               <div className="mt-4 flex flex-row justify-center gap-2 w-full">
                 <button
                   type="button"
-                  className="btn w-1/2 focus:outline-none dark:bg-[#FFFFFF0F] bg-[#0000000A] dark:text-white text-black"
+                  className="btn w-1/2 focus:outline-hidden dark:bg-[#FFFFFF0F] bg-[#0000000A] dark:text-white text-black"
                   onClick={() => {
                     onClose();
                     resetForm();

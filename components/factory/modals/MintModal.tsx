@@ -44,6 +44,7 @@ export default function MintModal({
     <SigningModalDialog
       open={isOpen}
       onClose={onClose}
+      panelClassName="max-w-4xl"
       style={{
         height: '100vh',
         width: '100vw',

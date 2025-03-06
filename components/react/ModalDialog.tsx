@@ -102,7 +102,7 @@ export const ModalDialog = ({
         ...style,
       }}
     >
-      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+      <div className="fixed inset-0 bg-black/30 " aria-hidden="true" />
 
       <Dialog.Panel
         className={`${panelClassName} modal-box mx-auto rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg relative`}

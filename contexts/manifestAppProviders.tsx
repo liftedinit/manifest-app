@@ -80,7 +80,6 @@ const ManifestChainProvider = ({ children }: { children: ReactNode }) => {
     <ChainProvider
       chains={[manifestChain, osmosisChain, axelarChain]}
       assetLists={[manifestAssets, osmosisAssets, axelarAssets]}
-      defaultChain={manifestChain}
       wallets={combinedWallets}
       logLevel={env.production ? 'NONE' : 'INFO'}
       endpointOptions={endpointOptions}

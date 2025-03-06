@@ -82,7 +82,7 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
           <Image src={'/logo.svg'} className="h-16 w-16" alt="Logo" height={264} width={264} />
         </a>
       </Link>
-      <ul className="flex flex-col items-center flex-grow mt-8">
+      <ul className="flex flex-col items-center grow mt-8">
         <NavItem Icon={BankIcon} href="/bank" tooltip="Bank" />
         <NavItem Icon={GroupsIcon} href="/groups" tooltip="Groups" />
         {isMember && <NavItem Icon={AdminsIcon} href="/admins" tooltip="Admin" />}
@@ -178,7 +178,7 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
           )}
         </div>
       </div>
-      <ul className="flex-grow mt-8 p-1">
+      <ul className="grow mt-8 p-1">
         <NavDrawer Icon={BankIcon} href="/bank" label="Bank" tooltip="Manage your assets" />
         <NavDrawer
           Icon={GroupsIcon}

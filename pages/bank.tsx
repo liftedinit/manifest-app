@@ -6,6 +6,7 @@ import { SEO } from '@/components';
 import { TokenList } from '@/components/bank/components/tokenList';
 import { BankIcon } from '@/components/icons';
 import env from '@/config/env';
+import { useTheme } from '@/contexts/useTheme';
 import {
   useGetMessagesFromAddress,
   useIsMobile,
@@ -27,6 +28,7 @@ interface PageSizeConfig {
 export default function Bank() {
   const { isWalletConnected, address } = useChain(env.chain);
   const isMobile = useIsMobile();
+  const { theme } = useTheme();
 
   const { balances, isBalancesLoading } = useTokenBalances(address ?? '');
   const { balances: resolvedBalances, isBalancesLoading: resolvedLoading } =
@@ -150,10 +152,10 @@ export default function Bank() {
   const [searchTerm, setSearchTerm] = useState('');
 
   return (
-    <div className="min-h-screen relative px-2 lg:py-0 py-4 mx-auto text-white">
+    <div className="relative  mx-auto">
       <SEO title="Bank - Alberto" />
 
-      <div className="flex-grow h-full animate-fadeIn transition-all duration-300">
+      <div className="grow h-full animate-fadeIn transition-all duration-300">
         <div className="w-full mx-auto">
           {!isWalletConnected ? (
             <WalletNotConnected
@@ -161,7 +163,7 @@ export default function Bank() {
               icon={<BankIcon className="h-60 w-60 text-primary" />}
             />
           ) : (
-            <div className="relative w-full h-full overflow-hidden scrollbar-hide p-1">
+            <div className="relative w-full h-full overflow-hidden scrollbar-hide">
               <div className="h-full flex flex-col">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
@@ -176,17 +178,17 @@ export default function Bank() {
                       <input
                         type="text"
                         placeholder="Search for an asset ..."
-                        className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+                        className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-hidden focus-visible:ring-1 focus-visible:ring-primary"
                         value={searchTerm}
                         onChange={e => setSearchTerm(e.target.value)}
                       />
-                      <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-content/50" />
                     </div>
                   </div>
                 </div>
                 <div
                   role="tablist"
-                  className="tabs tabs-bordered tabs-lg flex flex-row"
+                  className="tabs tabs-border tabs-lg flex flex-row"
                   aria-label="Bank sections"
                 >
                   <button
@@ -256,10 +258,10 @@ function NoAssetsFound() {
     <section className="transition-opacity duration-300 h-auto mt-12 ease-in-out animate-fadeIn w-full flex items-center justify-center">
       <div className="grid max-w-4xl bg-base-300 p-12 rounded-md w-full mx-auto gap-8 lg:grid-cols-12">
         <div className="mr-auto place-self-center lg:col-span-7">
-          <h1 className="max-w-2xl mb-4 text-2xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white text-black">
+          <h1 className="max-w-2xl mb-4 text-2xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl text-base-content">
             No Assets Found
           </h1>
-          <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl">
+          <p className="max-w-2xl mb-6 font-light text-base-content/70 lg:mb-8 md:text-lg lg:text-xl">
             You do not have any assets yet.
           </p>
         </div>
@@ -276,10 +278,10 @@ function NoActivityFound() {
     <section className="transition-opacity duration-300 h-auto mt-12 ease-in-out animate-fadeIn w-full flex items-center justify-center">
       <div className="grid max-w-4xl bg-base-300 p-12 rounded-md w-full mx-auto gap-8 lg:grid-cols-12">
         <div className="mr-auto place-self-center lg:col-span-7">
-          <h1 className="max-w-2xl mb-4 text-2xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl dark:text-white text-black">
+          <h1 className="max-w-2xl mb-4 text-2xl font-extrabold tracking-tight leading-none md:text-3xl xl:text-4xl text-base-content">
             No Activity Found
           </h1>
-          <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl">
+          <p className="max-w-2xl mb-6 font-light text-base-content/70 lg:mb-8 md:text-lg lg:text-xl">
             You do not have any activity yet. Submit a transaction and revisit this page to view
             your history!
           </p>
