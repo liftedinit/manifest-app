@@ -36,7 +36,7 @@ describe('ContactsModal', () => {
 
     const mockup = renderWithChainProvider(
       <ContactsContext.Provider value={contacts}>
-        <ContactsModal onSelect={onSelect} open onClose={() => {}} />
+        <ContactsModal onSelect={onSelect} open onClose={onClose} />
       </ContactsContext.Provider>
     );
 
@@ -44,6 +44,6 @@ describe('ContactsModal', () => {
     expect(mockup.getByText('Bob')).toBeInTheDocument();
     fireEvent.click(mockup.getByText('Alice'));
     expect(onSelect).toHaveBeenCalledWith('0x123');
-    expect(onClose).not.toHaveBeenCalledWith();
+    expect(onClose).toHaveBeenCalledWith();
   });
 });
