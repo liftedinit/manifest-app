@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { HelpIcon } from '@/components';
 import { MFX_FEES_CONSTANT, useEstimateMaxTokenAmount } from '@/hooks';
 import { CombinedBalanceInfo, isMfxToken } from '@/utils';
 
@@ -14,6 +15,7 @@ export const MaxButton = ({ token, setTokenAmount, disabled }: MaxButtonProps) =
 
   return (
     <button
+      className="text-xs text-primary cursor-pointer"
       disabled={disabled}
       type="button"
       onClick={async () => {
@@ -26,16 +28,14 @@ export const MaxButton = ({ token, setTokenAmount, disabled }: MaxButtonProps) =
         setTokenAmount(formattedAmount);
       }}
     >
-      <div className="tooltip tooltip-primary">
-        <span className="text-xs text-primary">MAX</span>
-      </div>
+      MAX
       {token && isMfxToken(token.base) && (
-        <div
-          className="tooltip tooltip-primary"
-          data-tip="The fees are an estimate and calculated when sending"
+        <span
+          className="tooltip tooltip-primary align-baseline"
+          data-tip={`-${MFX_FEES_CONSTANT} MFX fees estimated`}
         >
-          <span className="text-xs text-primary">(-{MFX_FEES_CONSTANT} MFX fees estimated)</span>
-        </div>
+          <HelpIcon role="contentinfo" aria-label="info" className="w-3 h-3 ml-1 text-primary" />
+        </span>
       )}
     </button>
   );
