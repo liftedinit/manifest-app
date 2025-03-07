@@ -5,7 +5,7 @@ import { MsgTransfer } from '@liftedinit/manifestjs/dist/codegen/ibc/application
 import { useQueryClient } from '@tanstack/react-query';
 import { Form, Formik } from 'formik';
 import Image from 'next/image';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { PiCaretDownBold } from 'react-icons/pi';
 
 import { IbcChain, MaxButton, TokenBalance } from '@/components';
@@ -17,6 +17,7 @@ import { AddressInput } from '@/components/react/inputs/AddressInput';
 import env from '@/config/env';
 import { useToast } from '@/contexts';
 import { useSkipClient } from '@/contexts/skipGoContext';
+import { Web3AuthContext } from '@/contexts/web3AuthContext';
 import { useFeeEstimation, useTx } from '@/hooks';
 import { sendForm } from '@/schemas';
 import { getIbcDenom, getIbcInfo, parseNumberToBigInt, shiftDigits, truncateString } from '@/utils';
@@ -59,6 +60,7 @@ export default function IbcSendForm({
   // Hooks and context
   const { getOfflineSignerAmino } = useChain(env.chain);
   const { isSigning, tx } = useTx(env.chain);
+  const { setIsSigning } = useContext(Web3AuthContext);
   const { setToastMessage } = useToast();
   const { estimateFee } = useFeeEstimation(env.chain);
   const skipClient = useSkipClient({ getCosmosSigner: async () => getOfflineSignerAmino() });
@@ -117,6 +119,7 @@ export default function IbcSendForm({
   // Main form submission handler
   const handleSend = async (values: sendForm.SendForm) => {
     try {
+      setIsSigning(true);
       // Convert amount to base units
       const exponent = values.selectedToken.metadata?.denom_units[1]?.exponent ?? 6;
       const amountInBaseUnits = parseNumberToBigInt(values.amount.toString(), exponent).toString();
@@ -192,6 +195,7 @@ export default function IbcSendForm({
               });
             },
             onTransactionCompleted: async (chainID, txHash, status) => {
+              setIsSigning(false);
               if (status.state === 'STATE_COMPLETED_SUCCESS') {
                 queryClient.invalidateQueries({ queryKey: ['balances'] });
                 queryClient.invalidateQueries({ queryKey: ['balances-resolved'] });
@@ -229,6 +233,7 @@ export default function IbcSendForm({
             },
           });
         } catch (error) {
+          setIsSigning(false);
           console.error('Error during sending:', error);
         }
       } else {
