@@ -33,22 +33,23 @@ export const AddressInput: React.FC<AddressInputProps> = ({
           setValue(e.target.value);
           onChange?.(e);
         }}
+        className="pr-4"
         name={name}
         value={value}
         disabled={disabled}
         rightElement={
-          <div className="">
+          <>
             {!disabled && (
               <button
                 type="button"
                 onClick={() => setShowContacts(true)}
-                className={`btn btn-primary  text-white ${small ? 'btn-xs' : 'btn-sm'}`}
+                className={`btn btn-primary text-white ${small ? 'btn-xs' : 'btn-sm'}`}
               >
                 <MdContacts className={small ? 'w-4 h-4' : 'w-5 h-5'} />
               </button>
             )}
             {rightElement}
-          </div>
+          </>
         }
         {...props}
       />
@@ -57,8 +58,9 @@ export const AddressInput: React.FC<AddressInputProps> = ({
         <ContactsModal
           open={showContacts}
           onClose={() => setShowContacts(false)}
-          onSelect={address => {
-            setValue(address);
+          onSelect={value => {
+            setValue(value);
+            onChange?.({ target: { name, value } } as React.ChangeEvent<HTMLInputElement>);
             setShowContacts(false);
           }}
           address={address}

@@ -42,7 +42,7 @@ function MemberInfoFormFields({
         <FieldArray name="members">
           {({ remove, push }) => (
             <>
-              {values.members.map((member, index) => (
+              {values.members.map((_member, index) => (
                 <div
                   key={index}
                   className="flex relative flex-row bg-base-300 p-4 gap-2 mb-4 rounded-lg items-end"
