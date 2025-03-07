@@ -92,7 +92,6 @@ export const useTx = (chainName: string) => {
       }
 
       const signed = await client.sign(address, msgs, fee, options.memo || '');
-      setIsSigning(false);
 
       setToastMessage({
         type: 'alert-info',
