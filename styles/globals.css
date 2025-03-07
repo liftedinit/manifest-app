@@ -372,3 +372,17 @@
     @apply text-base-content;
   }
 }
+
+/* Default 1000ms delay for all tooltips */
+.tooltip.tooltip-open > .tooltip-content,
+.tooltip[data-tip]:hover:before,
+.tooltip:hover > .tooltip-content,
+.tooltip:has(:focus-visible) > .tooltip-content,
+.tooltip.tooltip-open:after,
+.tooltip[data-tip]:hover:after,
+.tooltip:hover:after,
+.tooltip:has(:focus-visible):after {
+  transition:
+    opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1) 1000ms,
+    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) 1000ms;
+}

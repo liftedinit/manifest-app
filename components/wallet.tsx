@@ -231,7 +231,7 @@ export const IconWallet: React.FC<WalletSectionProps> = ({ chainName }) => {
     <div className="relative group">
       <button
         onClick={onClick}
-        className={`flex justify-center items-center w-8 h-8 hover:text-primary  duration-200 ease-in-out`}
+        className={`flex justify-center items-center w-8 h-8 hover:text-primary cursor-pointer duration-200 ease-in-out`}
       >
         <buttonData.icon className="w-8 h-8" />
       </button>

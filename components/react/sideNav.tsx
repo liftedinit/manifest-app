@@ -90,12 +90,12 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
       </ul>
       <div className="mt-auto flex flex-col items-center space-y-6 dark:bg-[#FFFFFF0F] bg-[#0000000A] rounded-lg p-4 w-[75%]">
         <div
-          className="tooltip tooltip-primary tooltip-top hover:after:delay-1000 hover:before:delay-1000"
+          className="tooltip tooltip-primary tooltip-top hover:after:delay-700 hover:before:delay-700"
           data-tip="Contacts"
         >
           <button
             onClick={() => setContactsOpen(true)}
-            className="relative group flex justify-center w-full text-[#00000066] dark:text-[#FFFFFF66] hover:text-primary dark:hover:text-primary transition-all duration-300 ease-in-out"
+            className="relative group flex justify-center w-full text-[#00000066] dark:text-[#FFFFFF66] hover:text-primary dark:hover:text-primary transition-all duration-300 ease-in-out cursor-pointer"
           >
             <MdContacts className="w-8 h-8" />
           </button>
