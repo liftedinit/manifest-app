@@ -1,9 +1,8 @@
 import { useChain } from '@cosmos-kit/react';
-import { Dialog } from '@headlessui/react';
 import React from 'react';
 import { MdContacts } from 'react-icons/md';
 
-import { Contacts, TextInput } from '@/components';
+import { ContactsModal, TextInput } from '@/components';
 import { BaseInputProps } from '@/components/react/inputs/BaseInput';
 
 import env from '../../../config/env';
@@ -34,51 +33,38 @@ export const AddressInput: React.FC<AddressInputProps> = ({
           setValue(e.target.value);
           onChange?.(e);
         }}
+        className="pr-4"
         name={name}
         value={value}
         disabled={disabled}
         rightElement={
-          <div className="">
+          <>
             {!disabled && (
               <button
                 type="button"
                 onClick={() => setShowContacts(true)}
-                className={`btn btn-primary  text-white ${small ? 'btn-xs' : 'btn-sm'}`}
+                className={`btn btn-primary text-white ${small ? 'btn-xs' : 'btn-sm'}`}
               >
                 <MdContacts className={small ? 'w-4 h-4' : 'w-5 h-5'} />
               </button>
             )}
             {rightElement}
-          </div>
+          </>
         }
         {...props}
       />
 
       {!disabled && showContacts && (
-        <Dialog
-          className={`modal modal-open fixed flex p-0 m-0 z-999`}
-          style={{
-            height: '100vh',
-            width: '100vw',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-          onClose={() => setShowContacts(false)}
+        <ContactsModal
           open={showContacts}
-        >
-          <div className="fixed inset-0  " aria-hidden="true" />
-          <Dialog.Panel className="modal-box bg-secondary max-w-xl rounded-[24px] p-6">
-            <Contacts
-              onClose={() => setShowContacts(false)}
-              currentAddress={address ?? ''}
-              onSelect={address => {
-                setValue(address);
-                onChange?.({ target: { name, value: address } } as any);
-              }}
-              selectionMode
-            />
-          </Dialog.Panel>
-        </Dialog>
+          onClose={() => setShowContacts(false)}
+          onSelect={value => {
+            setValue(value);
+            onChange?.({ target: { name, value } } as React.ChangeEvent<HTMLInputElement>);
+            setShowContacts(false);
+          }}
+          address={address}
+        />
       )}
     </>
   );

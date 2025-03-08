@@ -15,6 +15,7 @@ export interface ModalDialogProps extends React.PropsWithChildren {
   panelClassName?: string;
   title?: React.ReactNode;
   disabled?: boolean;
+  icon?: React.ComponentType<{ className: string }>;
 }
 
 export interface SigningModalDialogProps extends ModalDialogProps {}
@@ -75,6 +76,7 @@ export const ModalDialog = ({
   style,
   className,
   children,
+  icon: Icon,
 }: ModalDialogProps) => {
   const [opened, setOpened] = React.useState(open);
   if (open && !opened) {
@@ -123,8 +125,9 @@ export const ModalDialog = ({
           <h3
             role="heading"
             aria-label="Title"
-            className="text-xl font-semibold text-[#161616] dark:text-white mb-6"
+            className="flex flex-row gap-2 items-center text-xl font-semibold text-[#161616] dark:text-white mb-6"
           >
+            {Icon ? <Icon className="w-8 h-8 text-primary" /> : undefined}
             {title}
           </h3>
         )}

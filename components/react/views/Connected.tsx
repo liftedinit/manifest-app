@@ -11,7 +11,7 @@ import { useBalance } from '@/hooks/useQueries';
 import { getRealLogo, shiftDigits, truncateAddress } from '@/utils';
 import ProfileAvatar from '@/utils/identicon';
 
-import { Contacts } from './Contacts';
+import { ContactsModal } from './Contacts';
 
 export const Connected = ({
   onClose,
@@ -42,10 +42,6 @@ export const Connected = ({
       setTimeout(() => setCopied(false), 2000);
     }
   };
-
-  if (showContacts) {
-    return <Contacts onClose={onClose} onReturn={() => setShowContacts(false)} />;
-  }
 
   return (
     <div className="p-2 w-full mx-auto pt-4">
@@ -107,6 +103,13 @@ export const Connected = ({
         >
           <MdContacts className="w-8 h-8 text-primary" />
         </button>
+
+        <ContactsModal
+          className="z-[9999]"
+          open={showContacts}
+          onClose={() => setShowContacts(false)}
+          selectionMode={false}
+        />
       </div>
       <div className="bg-base-300 dark:bg-base-300 rounded-lg py-3 px-2 mb-4">
         <p className="text-sm leading-4 tracking-wider text-gray-500 dark:text-gray-400 mb-1 ml-2">

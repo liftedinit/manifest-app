@@ -1,15 +1,11 @@
-import matchers from '@testing-library/jest-dom/matchers';
-import { cleanup, render, waitFor } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, jest, test } from 'bun:test';
-import { ErrorBoundary } from 'next/dist/client/components/error-boundary';
-import React, { useContext } from 'react';
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, spyOn, test } from 'bun:test';
+import React from 'react';
 
-import { ContactsContext, ContactsContextType, ContactsProvider, useContacts } from '@/hooks';
-
-expect.extend({ ...matchers });
+import { ContactsProvider, useContacts } from '@/hooks';
 
 function TestComponent() {
-  const { contacts, addContact, removeContact, updateContact } = useContacts();
+  const { contacts, addContact, removeContact } = useContacts();
 
   return (
     <>
@@ -75,10 +71,10 @@ describe('useContacts', () => {
     );
     expect(wrapper.getByTestId('contact-count')).toHaveTextContent('0');
 
-    wrapper.getByTestId('contact-name').value = 'Alice';
-    wrapper.getByTestId('contact-address').value =
+    (wrapper.getByTestId('contact-name') as HTMLInputElement).value = 'Alice';
+    (wrapper.getByTestId('contact-address') as HTMLInputElement).value =
       'manifest1aucdev30u9505dx9t6q5fkcm70sjg4rh7rn5nf';
-    wrapper.getByTestId('contact-add').click();
+    fireEvent.click(wrapper.getByTestId('contact-add'));
 
     wrapper.rerender(
       <ContactsProvider>
@@ -94,8 +90,8 @@ describe('useContacts', () => {
       );
     });
 
-    wrapper.getByTestId('contact-name').value = 'Bob';
-    wrapper.getByTestId('contact-address').value =
+    (wrapper.getByTestId('contact-name') as HTMLInputElement).value = 'Bob';
+    (wrapper.getByTestId('contact-address') as HTMLInputElement).value =
       'manifest1hj5fveer5cjtn4wd6wstzugjfdxzl0xp8ws9ct';
     wrapper.getByTestId('contact-add').click();
 
@@ -110,7 +106,7 @@ describe('useContacts', () => {
 
   test('only allows valid Bech32 addresses', async () => {
     // Disable console.error
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    spyOn(console, 'error');
 
     const wrapper = render(
       <ContactsProvider>
@@ -119,8 +115,8 @@ describe('useContacts', () => {
     );
     expect(wrapper.getByTestId('contact-count')).toHaveTextContent('0');
 
-    wrapper.getByTestId('contact-name').value = 'Alice';
-    wrapper.getByTestId('contact-address').value = 'invalid Bech32';
+    (wrapper.getByTestId('contact-name') as HTMLInputElement).value = 'Alice';
+    (wrapper.getByTestId('contact-address') as HTMLInputElement).value = 'invalid Bech32';
 
     wrapper.getByTestId('contact-add').click();
 
@@ -143,8 +139,8 @@ describe('useContacts', () => {
     );
     expect(wrapper.getByTestId('contact-count')).toHaveTextContent('0');
 
-    wrapper.getByTestId('contact-name').value = 'Alice';
-    wrapper.getByTestId('contact-address').value =
+    (wrapper.getByTestId('contact-name') as HTMLInputElement).value = 'Alice';
+    (wrapper.getByTestId('contact-address') as HTMLInputElement).value =
       'manifest1aucdev30u9505dx9t6q5fkcm70sjg4rh7rn5nf';
     wrapper.getByTestId('contact-add').click();
 
@@ -179,8 +175,8 @@ describe('useContacts', () => {
     );
     expect(wrapper.getByTestId('contact-count')).toHaveTextContent('0');
 
-    wrapper.getByTestId('contact-name').value = 'Alice';
-    wrapper.getByTestId('contact-address').value =
+    (wrapper.getByTestId('contact-name') as HTMLInputElement).value = 'Alice';
+    (wrapper.getByTestId('contact-address') as HTMLInputElement).value =
       'manifest1aucdev30u9505dx9t6q5fkcm70sjg4rh7rn5nf';
     wrapper.getByTestId('contact-add').click();
 
@@ -198,8 +194,8 @@ describe('useContacts', () => {
       );
     });
 
-    wrapper.getByTestId('contact-name').value = 'Not Alice';
-    wrapper.getByTestId('contact-address').value =
+    (wrapper.getByTestId('contact-name') as HTMLInputElement).value = 'Not Alice';
+    (wrapper.getByTestId('contact-address') as HTMLInputElement).value =
       'manifest1aucdev30u9505dx9t6q5fkcm70sjg4rh7rn5nf';
     wrapper.getByTestId('contact-add').click();
 

@@ -19,6 +19,7 @@ export const BaseInput: React.FC<BaseInputProps> = ({
   leftElement,
   helperText,
   showError = true,
+  className,
   ...props
 }) => {
   const [field, meta] = useField(props);
@@ -47,13 +48,13 @@ export const BaseInput: React.FC<BaseInputProps> = ({
           className={`dark:text-[#FFFFFF99] text-[#161616] input border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full 
             autofill:bg-[#E0E0FF0A] dark:autofill:bg-[#E0E0FF0A]
             focus:bg-[#E0E0FF0A] dark:focus:bg-[#E0E0FF0A]
-            ${props.className}`}
+            ${className}`}
         />
         {rightElement && (
-          <div className="absolute inset-y-0 right-0 flex items-center pr-3">{rightElement}</div>
+          <div className="absolute inset-y-0 right-0 flex items-center pr-1">{rightElement}</div>
         )}
         {leftElement && (
-          <div className="absolute inset-y-0 left-0 flex items-center pl-3">{leftElement}</div>
+          <div className="absolute inset-y-0 left-0 flex items-center pl-1">{leftElement}</div>
         )}
       </div>
       {meta.touched && meta.error && showError ? (
