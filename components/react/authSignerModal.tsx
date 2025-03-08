@@ -254,22 +254,22 @@ const DisplayDataToSign = ({
  * when a sign request is received.
  * @constructor
  */
-export const SignModal = ({ id, testing }: { id?: string; testing?: boolean }) => {
+export const SignModal = () => {
   const { wallet } = useWallet();
-  const { prompt, promptId, isSigning } = useContext(Web3AuthContext);
+  const { prompt, isSigning } = useContext(Web3AuthContext);
   const [visible, setVisible] = useState(false);
   const [data, setData] = useState<SignData | undefined>(undefined);
 
   const isLedgerWallet = wallet?.mode === 'ledger';
 
   useEffect(() => {
-    if (promptId === id && prompt !== undefined) {
+    if (prompt !== undefined) {
       setVisible(true);
       setData(prompt.signData);
     } else {
       setVisible(false);
     }
-  }, [promptId, id, prompt]);
+  }, [prompt]);
 
   if (!isSigning || !visible) {
     return null;

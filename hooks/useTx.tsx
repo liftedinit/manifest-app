@@ -31,12 +31,12 @@ const extractSimulationErrorMessage = (errorMessage: string): string => {
 };
 
 export const useTx = (chainName: string) => {
-  const { setPromptId, isSigning, setIsSigning } = useContext(Web3AuthContext);
+  const { isSigning, setIsSigning } = useContext(Web3AuthContext);
   const { address, getSigningStargateClient, estimateFee } = useChain(chainName);
   const { setToastMessage } = useToast();
   const explorerUrl = chainName === env.osmosisChain ? env.osmosisExplorerUrl : env.explorerUrl;
 
-  const tx = async (msgs: Msg[], options: TxOptions, id?: string) => {
+  const tx = async (msgs: Msg[], options: TxOptions) => {
     if (!address) {
       setToastMessage({
         type: 'alert-error',
@@ -47,7 +47,6 @@ export const useTx = (chainName: string) => {
       return options.returnError ? { error: 'Wallet not connected' } : undefined;
     }
 
-    setPromptId(id);
     setIsSigning(true);
 
     try {
@@ -86,7 +85,6 @@ export const useTx = (chainName: string) => {
 
       if (!fee) {
         setIsSigning(false);
-        setPromptId(undefined);
         // Return early since estimateFee already showed an error toast
         return options.returnError ? { error: 'Fee estimation failed' } : undefined;
       }
@@ -154,7 +152,6 @@ export const useTx = (chainName: string) => {
       });
       return options.returnError ? { error: errorMessage } : undefined;
     } finally {
-      setPromptId(undefined);
       setIsSigning(false);
     }
   };

@@ -12,8 +12,6 @@ export interface Web3AuthContextType {
     signData: SignData;
     resolve: (approved: boolean) => void;
   };
-  promptId?: string;
-  setPromptId: (id: string | undefined) => void;
   wallets: (MainWalletBase | Web3AuthWallet)[];
   isSigning: boolean;
   setIsSigning: (isSigning: boolean) => void;
@@ -22,8 +20,6 @@ export interface Web3AuthContextType {
 export const Web3AuthContext = createContext<Web3AuthContextType>({
   prompt: undefined,
   wallets: [],
-  promptId: undefined,
-  setPromptId: () => {},
   isSigning: false,
   setIsSigning: () => {},
 });
@@ -39,9 +35,27 @@ export const Web3AuthProvider = ({ children }: { children: ReactNode }) => {
   >();
 
   // A shared signing state for all nodes.
-  const [isSigning, setIsSigning] = useState(false);
+  const [isSigning, setIsSigningInternal] = useState(false);
+  const [signingCount, setSigningCount] = useState(0);
 
-  const [promptId, setPromptId] = useState<string | undefined>();
+  function setIsSigning(isSigning: boolean) {
+    if (isSigning) {
+      setSigningCount(prev => prev + 1);
+      setIsSigningInternal(true);
+    } else {
+      setSigningCount(prev => {
+        const newCount = prev - 1;
+        if (newCount < 0) {
+          console.error('signingCount is negative, this should not happen');
+          return 0;
+        }
+        if (newCount === 0) {
+          setIsSigningInternal(false);
+        }
+        return newCount;
+      });
+    }
+  }
 
   const web3AuthWallets = useMemo(
     () =>
@@ -115,9 +129,7 @@ export const Web3AuthProvider = ({ children }: { children: ReactNode }) => {
   ];
 
   return (
-    <Web3AuthContext.Provider
-      value={{ prompt, wallets, promptId, setPromptId, isSigning, setIsSigning }}
-    >
+    <Web3AuthContext.Provider value={{ prompt, wallets, isSigning, setIsSigning }}>
       {children}
     </Web3AuthContext.Provider>
   );
