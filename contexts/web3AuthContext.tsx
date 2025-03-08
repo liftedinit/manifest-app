@@ -36,17 +36,25 @@ export const Web3AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // A shared signing state for all nodes.
   const [isSigning, setIsSigningInternal] = useState(false);
-  let signingCount = 0;
+  const [signingCount, setSigningCount] = useState(0);
+
   function setIsSigning(isSigning: boolean) {
     if (isSigning) {
-      signingCount++;
+      setSigningCount(prev => prev + 1);
+      setIsSigningInternal(true);
     } else {
-      signingCount--;
-      if (signingCount < 0) {
-        console.error('signingCount is negative, this should not happen');
-      }
+      setSigningCount(prev => {
+        const newCount = prev - 1;
+        if (newCount < 0) {
+          console.error('signingCount is negative, this should not happen');
+          return 0;
+        }
+        if (newCount === 0) {
+          setIsSigningInternal(false);
+        }
+        return newCount;
+      });
     }
-    setIsSigningInternal(signingCount > 0);
   }
 
   const web3AuthWallets = useMemo(
