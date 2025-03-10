@@ -1,8 +1,8 @@
 import { RenderResult, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, jest, mock, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, jest, test } from 'bun:test';
 
 import { ModalDialog, SigningModalDialog } from '@/components';
-import { formatComponent } from '@/tests';
+import { clearAllMocks, formatComponent, mockRouter } from '@/tests';
 import { renderWithWeb3AuthProvider } from '@/tests/render';
 
 /**
@@ -86,17 +86,13 @@ describe('ModalDialog', () => {
 
 describe('SigningModalDialog', () => {
   beforeEach(() => {
-    // Mock next/router
-    const m = jest.fn();
-    mock.module('next/router', () => ({
-      useRouter: m.mockReturnValue({
-        query: {},
-        push: jest.fn(),
-      }),
-    }));
+    mockRouter();
   });
 
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+    clearAllMocks();
+  });
 
   test('render the SignModal component', async () => {
     const resolve = jest.fn();

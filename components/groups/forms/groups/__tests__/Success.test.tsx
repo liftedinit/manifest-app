@@ -1,8 +1,9 @@
 import { cleanup, getDefaultNormalizer, screen } from '@testing-library/react';
-import { afterEach, describe, expect, jest, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, jest, test } from 'bun:test';
 import React from 'react';
 
 import Success from '@/components/groups/forms/groups/Success';
+import { clearAllMocks, mockRouter } from '@/tests';
 import { mockGroupFormData } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
 
@@ -12,7 +13,14 @@ const mockProps = {
 };
 
 describe('Success Component', () => {
-  afterEach(cleanup);
+  beforeEach(() => {
+    mockRouter();
+  });
+
+  afterEach(() => {
+    cleanup();
+    clearAllMocks();
+  });
 
   test('renders component with correct details', () => {
     renderWithChainProvider(<Success {...mockProps} />);

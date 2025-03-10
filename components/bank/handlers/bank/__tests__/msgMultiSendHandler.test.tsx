@@ -1,22 +1,14 @@
 import { Input, Output } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { MsgMultiSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
 import { cleanup, screen } from '@testing-library/react';
-import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test';
 
 import { HistoryBox } from '@/components/bank/components/historyBox';
 import { TxMessage } from '@/components/bank/types';
+import { clearAllMocks, mockRouter } from '@/tests';
 import { renderWithChainProvider } from '@/tests/render';
 
 import { MsgMultiSendHandler } from '../msgMultiSendHandler';
-
-// Mock next/router
-const m = jest.fn();
-mock.module('next/router', () => ({
-  useRouter: m.mockReturnValue({
-    query: {},
-    push: jest.fn(),
-  }),
-}));
 
 const createTx = (inputs: Input[], outputs: Output[], error?: string) => [
   {
@@ -44,9 +36,12 @@ const render = (tx: TxMessage[]) => {
 };
 
 describe('MsgMultiSendHandler', () => {
+  beforeEach(() => {
+    mockRouter();
+  });
   afterEach(() => {
     cleanup();
-    mock.restore();
+    clearAllMocks();
   });
 
   test('send success', () => {

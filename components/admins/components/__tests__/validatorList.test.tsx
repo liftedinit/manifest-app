@@ -1,19 +1,11 @@
 import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import React from 'react';
 
 import ValidatorList from '@/components/admins/components/validatorList';
+import { clearAllMocks, mockRouter } from '@/tests';
 import { mockActiveValidators, mockPendingValidators } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
-
-// Mock next/router
-const m = jest.fn();
-mock.module('next/router', () => ({
-  useRouter: m.mockReturnValue({
-    query: {},
-    push: jest.fn(),
-  }),
-}));
 
 const renderWithProps = (props = {}) => {
   const defaultProps = {
@@ -26,7 +18,13 @@ const renderWithProps = (props = {}) => {
 };
 
 describe('ValidatorList', () => {
-  afterEach(cleanup);
+  beforeEach(() => {
+    mockRouter();
+  });
+  afterEach(() => {
+    cleanup();
+    clearAllMocks();
+  });
 
   test('renders correctly', () => {
     renderWithProps();

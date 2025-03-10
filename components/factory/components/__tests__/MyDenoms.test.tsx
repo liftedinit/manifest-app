@@ -24,14 +24,14 @@ const allDenoms = [mockDenom, mockDenom2];
 
 describe('MyDenoms', () => {
   beforeEach(async () => {
-    await mockRouter();
+    mockRouter();
 
     // TODO: Mock DenomImage until we can fix the URL parsing issue
-    await mockModule('@/components/factory/components/DenomImage', () => ({
+    mockModule('@/components/factory/components/DenomImage', () => ({
       DenomImage: () => <div>DenomImage</div>,
     }));
 
-    await mockModule('@/hooks/useQueries', () => ({
+    mockModule('@/hooks/useQueries', () => ({
       usePoaGetAdmin: jest.fn().mockReturnValue({
         poaAdmin: '',
         isPoaAdminLoading: false,

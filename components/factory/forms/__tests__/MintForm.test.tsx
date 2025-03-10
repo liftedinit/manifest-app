@@ -1,19 +1,11 @@
 import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, jest, test } from 'bun:test';
 import React from 'react';
 
 import MintForm from '@/components/factory/forms/MintForm';
+import { clearAllMocks, mockRouter } from '@/tests';
 import { mockDenomMeta1, mockFakeMfxDenom, mockMfxDenom } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
-
-// Mock next/router
-const m = jest.fn();
-mock.module('next/router', () => ({
-  useRouter: m.mockReturnValue({
-    query: {},
-    push: jest.fn(),
-  }),
-}));
 
 const mockProps = {
   isAdmin: true,
@@ -34,7 +26,13 @@ function renderWithProps(props = {}) {
 }
 
 describe('MintForm Component', () => {
-  afterEach(cleanup);
+  beforeEach(() => {
+    mockRouter();
+  });
+  afterEach(() => {
+    cleanup();
+    clearAllMocks();
+  });
 
   test('renders form with correct details', () => {
     renderWithProps();

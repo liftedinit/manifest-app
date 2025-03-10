@@ -1,8 +1,9 @@
 import { cleanup, screen } from '@testing-library/react';
-import { afterEach, describe, expect, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import React from 'react';
 
 import Success from '@/components/factory/forms/Success';
+import { clearAllMocks, mockRouter } from '@/tests';
 import { mockTokenFormData } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
 
@@ -12,7 +13,13 @@ const mockProps = {
 };
 
 describe('Success Component', () => {
-  afterEach(cleanup);
+  beforeEach(() => {
+    mockRouter();
+  });
+  afterEach(() => {
+    clearAllMocks();
+    cleanup();
+  });
 
   test('renders component with correct details', () => {
     renderWithChainProvider(<Success {...mockProps} />);

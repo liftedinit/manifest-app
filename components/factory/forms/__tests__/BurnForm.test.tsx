@@ -1,26 +1,11 @@
 import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, jest, test } from 'bun:test';
 import React from 'react';
 
 import BurnForm from '@/components/factory/forms/BurnForm';
+import { clearAllMocks, mockModule, mockRouter } from '@/tests';
 import { manifestAddr1, mockDenomMeta1, mockFakeMfxDenom, mockMfxDenom } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
-
-// Mock next/router
-const m = jest.fn();
-mock.module('next/router', () => ({
-  useRouter: m.mockReturnValue({
-    query: {},
-    push: jest.fn(),
-  }),
-}));
-
-mock.module('@/hooks/useQueries', () => ({
-  useTokenFactoryBalance: jest.fn().mockReturnValue({
-    balance: '1000000',
-    refetch: jest.fn(),
-  }),
-}));
 
 const mockProps = {
   isAdmin: true,
@@ -37,7 +22,19 @@ function renderWithProps(props = {}) {
 }
 
 describe('BurnForm Component', () => {
-  afterEach(cleanup);
+  beforeEach(() => {
+    mockRouter();
+    mockModule('@/hooks/useQueries', () => ({
+      useTokenFactoryBalance: jest.fn().mockReturnValue({
+        balance: '1000000',
+        refetch: jest.fn(),
+      }),
+    }));
+  });
+  afterEach(() => {
+    cleanup();
+    clearAllMocks();
+  });
 
   test('renders form with correct details', () => {
     renderWithProps();

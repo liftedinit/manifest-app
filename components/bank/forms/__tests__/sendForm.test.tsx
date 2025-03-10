@@ -1,17 +1,11 @@
-import { cleanup, fireEvent, screen, within } from '@testing-library/react';
-import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
+import { cleanup, fireEvent, screen } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, jest, test } from 'bun:test';
 import React from 'react';
 
 import SendForm from '@/components/bank/forms/sendForm';
+import { clearAllMocks, mockModule, mockRouter } from '@/tests';
 import { mockBalances } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
-
-mock.module('next/router', () => ({
-  useRouter: jest.fn().mockReturnValue({
-    query: {},
-    push: jest.fn(),
-  }),
-}));
 
 function renderWithProps(props = {}) {
   const defaultProps = {
@@ -33,9 +27,12 @@ function renderWithProps(props = {}) {
 }
 
 describe('SendForm Component', () => {
+  beforeEach(() => {
+    mockRouter();
+  });
   afterEach(() => {
     cleanup();
-    mock.restore();
+    clearAllMocks();
   });
 
   test('renders form with correct details', () => {

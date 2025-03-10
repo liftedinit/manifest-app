@@ -1,8 +1,9 @@
 import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, jest, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, jest, test } from 'bun:test';
 import React from 'react';
 
 import TokenDetailsForm from '@/components/factory/forms/TokenDetailsForm';
+import { clearAllMocks, mockRouter } from '@/tests';
 import { mockTokenFormData } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
 
@@ -15,7 +16,13 @@ const mockProps = {
 };
 
 describe('TokenDetailsForm Component', () => {
-  afterEach(cleanup);
+  beforeEach(() => {
+    mockRouter();
+  });
+  afterEach(() => {
+    clearAllMocks();
+    cleanup();
+  });
 
   test('renders form with correct details', () => {
     renderWithChainProvider(<TokenDetailsForm {...mockProps} />);

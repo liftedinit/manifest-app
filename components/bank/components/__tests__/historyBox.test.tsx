@@ -1,58 +1,52 @@
 import { cleanup, fireEvent, screen } from '@testing-library/react';
-import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 
+import { clearAllMocks, mockModule, mockRouter } from '@/tests';
 import { mockMultiDenomTransactions, mockTransactions } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
 
 import { HistoryBox } from '../historyBox';
 
-// Mock next/router
-const m = jest.fn();
-mock.module('next/router', () => ({
-  useRouter: m.mockReturnValue({
-    query: {},
-    push: jest.fn(),
-  }),
-}));
-
-// Mock the hooks
-mock.module('@/hooks', () => ({
-  useTokenFactoryDenomsMetadata: () => ({
-    metadatas: {
-      metadatas: [
-        {
-          base: 'utoken',
-          display: 'TOKEN',
-          denom_units: [
-            { denom: 'utoken', exponent: 0 },
-            { denom: 'token', exponent: 6 },
-          ],
-        },
-        {
-          base: 'ufoobar',
-          display: 'FOOBAR',
-          denom_units: [
-            { denom: 'ufoobar', exponent: 0 },
-            { denom: 'foobar', exponent: 6 },
-          ],
-        },
-        {
-          base: 'umore',
-          display: 'MORE',
-          denom_units: [
-            { denom: 'umore', exponent: 0 },
-            { denom: 'more', exponent: 6 },
-          ],
-        },
-      ],
-    },
-  }),
-}));
-
 describe('HistoryBox', () => {
+  beforeEach(() => {
+    mockRouter();
+
+    mockModule('@/hooks', () => ({
+      useTokenFactoryDenomsMetadata: () => ({
+        metadatas: {
+          metadatas: [
+            {
+              base: 'utoken',
+              display: 'TOKEN',
+              denom_units: [
+                { denom: 'utoken', exponent: 0 },
+                { denom: 'token', exponent: 6 },
+              ],
+            },
+            {
+              base: 'ufoobar',
+              display: 'FOOBAR',
+              denom_units: [
+                { denom: 'ufoobar', exponent: 0 },
+                { denom: 'foobar', exponent: 6 },
+              ],
+            },
+            {
+              base: 'umore',
+              display: 'MORE',
+              denom_units: [
+                { denom: 'umore', exponent: 0 },
+                { denom: 'more', exponent: 6 },
+              ],
+            },
+          ],
+        },
+      }),
+    }));
+  });
   afterEach(() => {
     cleanup();
-    mock.restore();
+    clearAllMocks();
   });
 
   test('renders correctly', () => {

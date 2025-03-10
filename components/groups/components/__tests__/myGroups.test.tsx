@@ -3,43 +3,9 @@ import { afterEach, beforeEach, describe, expect, jest, mock, test } from 'bun:t
 import React from 'react';
 
 import YourGroups from '@/components/groups/components/myGroups';
+import { clearAllMocks, mockModule, mockRouter } from '@/tests';
 import { mockGroup, mockGroup2 } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
-
-// Mock next/router
-mock.module('next/router', () => ({
-  useRouter: jest.fn().mockReturnValue({
-    query: {},
-    push: jest.fn(),
-  }),
-}));
-
-// Mock useQueries hooks
-mock.module('@/hooks/useQueries', () => ({
-  useGroupsByMember: jest.fn().mockReturnValue({
-    groupByMemberData: { groups: [mockGroup, mockGroup2] },
-    isGroupByMemberLoading: false,
-    isGroupByMemberError: false,
-    refetchGroupByMember: jest.fn(),
-  }),
-  useBalance: jest.fn().mockReturnValue({
-    balance: { amount: '1000000' },
-    isBalanceLoading: false,
-    isBalanceError: false,
-  }),
-  useGetMessagesFromAddress: jest.fn().mockReturnValue({
-    sendTxs: [],
-    totalPages: 1,
-    isLoading: false,
-    isError: false,
-    refetch: jest.fn(),
-  }),
-}));
-
-mock.module('@/hooks/useIsMobile', () => ({
-  __esModule: true,
-  default: jest.fn().mockReturnValue(false),
-}));
 
 const mockProps = {
   groups: {
@@ -77,16 +43,47 @@ const mockPropsWithManyGroups = {
 };
 
 describe('Groups Component', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    mockRouter();
+
+    // Mock useQueries hooks
+    mockModule('@/hooks/useQueries', () => ({
+      useGroupsByMember: jest.fn().mockReturnValue({
+        groupByMemberData: { groups: [mockGroup, mockGroup2] },
+        isGroupByMemberLoading: false,
+        isGroupByMemberError: false,
+        refetchGroupByMember: jest.fn(),
+      }),
+      useBalance: jest.fn().mockReturnValue({
+        balance: { amount: '1000000' },
+        isBalanceLoading: false,
+        isBalanceError: false,
+      }),
+      useGetMessagesFromAddress: jest.fn().mockReturnValue({
+        sendTxs: [],
+        totalPages: 1,
+        isLoading: false,
+        isError: false,
+        refetch: jest.fn(),
+      }),
+    }));
+
+    mockModule('@/hooks/useIsMobile', () => ({
+      __esModule: true,
+      default: jest.fn().mockReturnValue(false),
+    }));
+
     // Mock window.innerWidth and window.innerHeight to simulate desktop view
     // Required for pagination tests
-    window.innerWidth = 1300;
-    window.innerHeight = 1300;
+    window['innerWidth'] = 1300;
+    window['innerHeight'] = 1300;
 
     fireEvent(window, new Event('resize'));
   });
 
   afterEach(() => {
+    jest.clearAllMocks();
+    clearAllMocks();
     mock.restore();
     cleanup();
   });

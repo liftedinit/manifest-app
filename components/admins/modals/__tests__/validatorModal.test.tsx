@@ -1,20 +1,13 @@
 import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
-import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import React from 'react';
 
 import { ValidatorDetailsModal } from '@/components/admins/modals/validatorModal';
+import { clearAllMocks, mockRouter } from '@/tests';
 import { mockActiveValidators } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
 
-mock.module('next/router', () => ({
-  useRouter: jest.fn().mockReturnValue({
-    query: {},
-    push: jest.fn(),
-  }),
-}));
-
 const validator = mockActiveValidators[0];
-const modalId = 'test-modal';
 const admin = 'manifest1adminaddress';
 const totalvp = '10000';
 const validatorVPArray = [{ vp: BigInt(1000), moniker: 'Validator One' }];
@@ -25,7 +18,6 @@ function renderWithProps(props = {}) {
       openValidatorModal={true}
       setOpenValidatorModal={() => {}}
       validator={validator}
-      modalId={modalId}
       admin={admin}
       totalvp={totalvp}
       validatorVPArray={validatorVPArray}
@@ -35,7 +27,13 @@ function renderWithProps(props = {}) {
 }
 
 describe('ValidatorDetailsModal Component', () => {
-  afterEach(cleanup);
+  beforeEach(() => {
+    mockRouter();
+  });
+  afterEach(() => {
+    cleanup();
+    clearAllMocks();
+  });
 
   test('renders modal with correct details', () => {
     renderWithProps();
@@ -83,7 +81,8 @@ describe('ValidatorDetailsModal Component', () => {
     fireEvent.blur(input);
     await waitFor(() => {
       const errorMessage = screen.getByText(
-        (content, element) => element.dataset.tip === 'Power must be a non-negative number'
+        (_content, element) =>
+          (element as HTMLElement)?.dataset?.tip === 'Power must be a non-negative number'
       );
       expect(errorMessage).toBeInTheDocument();
     });

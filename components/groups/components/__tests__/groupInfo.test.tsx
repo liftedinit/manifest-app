@@ -1,25 +1,11 @@
 import { cleanup, fireEvent, screen } from '@testing-library/react';
-import { afterAll, afterEach, beforeAll, describe, expect, jest, mock, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, jest, test } from 'bun:test';
 import React from 'react';
 
 import { GroupInfo } from '@/components/groups/modals/groupInfo';
+import { clearAllMocks, mockModule, mockRouter } from '@/tests';
 import { manifestAddr1, manifestAddr2, mockGroup } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
-
-// Mock the useBalance hook
-const m = jest.fn();
-mock.module('@/hooks/useQueries', () => ({
-  useBalance: m,
-}));
-
-// Mock next/router
-const n = jest.fn();
-mock.module('next/router', () => ({
-  useRouter: n.mockReturnValue({
-    query: {},
-    push: jest.fn(),
-  }),
-}));
 
 const defaultProps = {
   showInfoModal: true,
@@ -40,12 +26,18 @@ const renderWithProps = (props = {}) => {
 };
 
 describe('GroupInfo', () => {
-  beforeAll(() => {
-    m.mockReturnValue({ balance: { amount: '1000000' } });
+  beforeEach(() => {
+    // Mock the useBalance hook
+    mockModule('@/hooks/useQueries', () => ({
+      useBalance: jest.fn().mockReturnValue({ balance: { amount: '1000000' } }),
+    }));
+
+    // Mock next/router
+    mockRouter();
   });
-  afterEach(cleanup);
-  afterAll(() => {
-    mock.restore();
+  afterEach(() => {
+    cleanup();
+    clearAllMocks();
   });
 
   test('renders initial state correctly', () => {

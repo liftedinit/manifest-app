@@ -1,19 +1,11 @@
 import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, jest, test } from 'bun:test';
 import React from 'react';
 
 import MemberInfoForm from '@/components/groups/forms/groups/MemberInfoForm';
+import { clearAllMocks, mockRouter } from '@/tests';
 import { mockGroupFormData } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
-
-// Mock next/router
-const m = jest.fn();
-mock.module('next/router', () => ({
-  useRouter: m.mockReturnValue({
-    query: {},
-    push: jest.fn(),
-  }),
-}));
 
 const mockProps = {
   nextStep: jest.fn(),
@@ -24,8 +16,12 @@ const mockProps = {
 };
 
 describe('MemberInfoForm Component', () => {
+  beforeEach(async () => {
+    mockRouter();
+  });
   afterEach(() => {
     cleanup();
+    clearAllMocks();
     jest.clearAllMocks();
   });
   test('renders component with correct details', () => {

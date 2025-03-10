@@ -1,16 +1,10 @@
 import { cleanup, screen } from '@testing-library/react';
-import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import React from 'react';
 
 import { WarningModal } from '@/components/admins/modals/warningModal';
+import { clearAllMocks, mockRouter } from '@/tests';
 import { renderWithChainProvider } from '@/tests/render';
-
-mock.module('next/router', () => ({
-  useRouter: jest.fn().mockReturnValue({
-    query: {},
-    push: jest.fn(),
-  }),
-}));
 
 const admin = 'manifest1adminaddress';
 const address = 'manifest1validatoraddress';
@@ -33,7 +27,13 @@ function renderWithProps(props = {}) {
 }
 
 describe('WarningModal Component', () => {
-  afterEach(cleanup);
+  beforeEach(() => {
+    mockRouter();
+  });
+  afterEach(() => {
+    clearAllMocks();
+    cleanup();
+  });
 
   test('renders modal with correct details', () => {
     renderWithProps();
