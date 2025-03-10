@@ -6,6 +6,7 @@ import { PlusIcon, TrashIcon } from '@/components/icons';
 import { TextArea, TextInput } from '@/components/react/inputs';
 import { AddressInput } from '@/components/react/inputs/AddressInput';
 import { Action, FormData } from '@/helpers/formReducer';
+import { MAXIMUM_GROUP_DETAILS_LENGTH } from '@/schemas/group';
 import { isValidManifestAddress } from '@/utils/string';
 import Yup from '@/utils/yupExtensions';
 
@@ -48,7 +49,10 @@ const GroupSchema = Yup.object().shape({
   description: Yup.string()
     .required('Description is required')
     .min(20, 'Description must be at least 20 characters')
-    .max(10000, 'Description must not exceed 10000 characters')
+    .max(
+      MAXIMUM_GROUP_DETAILS_LENGTH,
+      `Description must not exceed ${MAXIMUM_GROUP_DETAILS_LENGTH} characters`
+    )
     .noProfanity('Profanity is not allowed'),
 });
 

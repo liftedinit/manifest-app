@@ -4,7 +4,8 @@ import Yup from '@/utils/yupExtensions';
 /**
  * The maximum length of the group metadata JSON string, in bytes.
  */
-export const MAXIMUM_GROUP_METADATA_JSON_LENGTH = 100_000;
+export const MAXIMUM_GROUP_METADATA_JSON_LENGTH = 2048;
+export const MAXIMUM_GROUP_DETAILS_LENGTH = Math.floor(MAXIMUM_GROUP_METADATA_JSON_LENGTH * 0.6);
 
 /**
  * Converts and validates a JSON string as a group metadata object.
@@ -54,13 +55,16 @@ export const metadataSchema = Yup.object()
     details: Yup.string()
       .required('Details is required')
       .min(20, 'Details must be at least 20 characters')
-      .max(10_000, 'Details must not exceed 10000 characters')
+      .max(
+        MAXIMUM_GROUP_DETAILS_LENGTH,
+        `Details must not exceed ${MAXIMUM_GROUP_DETAILS_LENGTH} characters`
+      )
       .noProfanity(),
     voteOptionContext: Yup.string().optional(),
   })
   .test(
     'metadata-total-length',
-    'Total metadata length must not exceed 100000 characters',
+    `Total metadata length must not exceed ${MAXIMUM_GROUP_DETAILS_LENGTH} characters`,
     function (values) {
       return JSON.stringify(values).length <= MAXIMUM_GROUP_METADATA_JSON_LENGTH;
     }
