@@ -5,6 +5,7 @@ import { Form, Formik } from 'formik';
 import React from 'react';
 
 import { AmountInput } from '@/components/react/inputs';
+import { formatComponent } from '@/tests';
 
 const TestForm = ({ children }: { children: React.ReactNode }) => (
   <Formik initialValues={{ test: '' }} onSubmit={() => {}}>
@@ -21,7 +22,7 @@ describe('AmountInput', () => {
     const value = '42';
     const onValueChange = jest.fn();
 
-    render(
+    const mockup = render(
       <TestForm>
         <AmountInput name="test" value={value} onValueChange={onValueChange} />
       </TestForm>
@@ -31,6 +32,8 @@ describe('AmountInput', () => {
     expect(input).toBeInTheDocument();
     expect(input.tagName.toLowerCase()).toBe('input');
     expect(input).toHaveAttribute('type', 'text');
+
+    expect(formatComponent(mockup.asFragment())).toMatchSnapshot();
   });
 
   test('calls onValueChange with the new value', () => {

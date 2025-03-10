@@ -13,7 +13,7 @@ import { TextInput } from '@/components/react';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import env from '@/config/env';
 import { useFeeEstimation, useTx } from '@/hooks';
-import ProfileAvatar from '@/utils/identicon';
+import { ProfileAvatar } from '@/utils/identicon';
 import { calculateIsUnsafe } from '@/utils/maths';
 
 import { DescriptionModal } from './descriptionModal';

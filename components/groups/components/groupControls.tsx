@@ -22,7 +22,7 @@ import useIsMobile from '@/hooks/useIsMobile';
 import { useMultipleTallyCounts, useProposalsByPolicyAccount } from '@/hooks/useQueries';
 import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
 import { CombinedBalanceInfo, ExtendedMetadataSDKType } from '@/utils';
-import ProfileAvatar from '@/utils/identicon';
+import { ProfileAvatar } from '@/utils/identicon';
 
 type GroupControlsProps = {
   policyAddress: string;
