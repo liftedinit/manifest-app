@@ -64,7 +64,7 @@ export const metadataSchema = Yup.object()
   })
   .test(
     'metadata-total-length',
-    `Total metadata length must not exceed ${MAXIMUM_GROUP_DETAILS_LENGTH} characters`,
+    `Total metadata length must not exceed ${MAXIMUM_GROUP_METADATA_JSON_LENGTH} characters`,
     function (values) {
       return JSON.stringify(values).length <= MAXIMUM_GROUP_METADATA_JSON_LENGTH;
     }
