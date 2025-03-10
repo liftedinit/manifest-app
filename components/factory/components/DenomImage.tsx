@@ -2,7 +2,7 @@ import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
-import ProfileAvatar from '@/utils/identicon';
+import { ProfileAvatar } from '@/utils/identicon';
 
 export const supportedDomains = [
   'imgur.com',
@@ -111,7 +111,7 @@ export const DenomImage = ({
           height={44}
           src={denom?.base === 'umfx' ? '/logo.svg' : '/osmosis.svg'}
           alt="MFX Token Icon"
-          className="w-full h-full "
+          className="w-full h-full"
         />
       </div>
     );

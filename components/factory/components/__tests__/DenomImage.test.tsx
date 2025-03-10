@@ -1,9 +1,19 @@
-import { cleanup, screen, waitFor } from '@testing-library/react';
-import { afterAll, afterEach, describe, expect, mock, test } from 'bun:test';
-import React from 'react';
+import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import {
+  Mock,
+  afterAll,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  mock,
+  spyOn,
+  test,
+} from 'bun:test';
 
 import { DenomImage } from '@/components/factory/components/DenomImage';
-import { renderWithChainProvider } from '@/tests/render';
+import { formatComponent } from '@/tests';
 
 // A cute little candle gif
 const uri =
@@ -14,7 +24,7 @@ mock.module('next/image', () => ({
   __esModule: true,
   default: (props: any) => {
     // eslint-disable-next-line @next/next/no-img-element,jsx-a11y/alt-text
-    return <img {...props} />;
+    return <img {...props} alt="" />;
   },
 }));
 
@@ -23,42 +33,55 @@ const renderWithProps = (props = {}) => {
     denom: {
       base: 'umfx',
       uri: uri,
-    },
+    } as MetadataSDKType,
   };
-  return renderWithChainProvider(<DenomImage {...defaultProps} {...props} />);
+  return render(<DenomImage {...defaultProps} {...props} />);
 };
 
-describe.skip('DenomImage', () => {
-  afterEach(cleanup);
+describe('DenomImage', () => {
+  let $setTimeout: Mock<typeof setTimeout>;
+
+  beforeEach(() => {
+    $setTimeout = spyOn(global, 'setTimeout');
+  });
+  afterEach(() => {
+    cleanup();
+    $setTimeout.mockClear();
+  });
   afterAll(() => {
     mock.restore();
   });
 
   test('renders loading state correctly', () => {
-    renderWithProps();
+    const mockup = renderWithProps();
     expect(screen.getByLabelText('denom image skeleton')).toBeInTheDocument();
+
+    expect(formatComponent(mockup.asFragment())).toMatchSnapshot();
   });
 
   test('renders MFX token image correctly', async () => {
-    renderWithProps();
-    await waitFor(() => expect(screen.getByAltText('MFX Token Icon')).toBeInTheDocument(), {
-      timeout: 2000,
-    });
+    const mockup = renderWithProps();
+    expect($setTimeout).toHaveBeenCalledTimes(1);
+    $setTimeout.mock.calls[0][0]();
+    await waitFor(() => expect(document.querySelector('[src=/logo.svg]')).toBeInTheDocument());
+    expect(formatComponent(mockup.asFragment())).toMatchSnapshot();
   });
 
   test('renders ProfileAvatar for unsupported URL', async () => {
-    renderWithProps({
+    const mockup = renderWithProps({
       denom: { base: 'unsupported', uri: 'https://unsupported.com/token.png' },
     });
-    await waitFor(() => expect(screen.getByAltText('Profile Avatar')).toBeInTheDocument(), {
-      timeout: 2000,
-    });
+    expect($setTimeout).toHaveBeenCalledTimes(1);
+    $setTimeout.mock.calls[0][0]();
+    await waitFor(() => expect(screen.getByAltText('Profile Avatar')).toBeInTheDocument());
+    expect(formatComponent(mockup.asFragment())).toMatchSnapshot();
   });
 
   test('renders image from supported URL', async () => {
-    renderWithProps({ denom: { base: 'supported', uri: uri } });
-    await waitFor(() => expect(screen.getByAltText('Token Icon')).toBeInTheDocument(), {
-      timeout: 2000,
-    });
+    const mockup = renderWithProps({ denom: { base: 'supported', uri: uri } });
+    expect($setTimeout).toHaveBeenCalledTimes(1);
+    $setTimeout.mock.calls[0][0]();
+    await waitFor(() => expect(document.querySelector(`[src="${uri}"]`)).toBeInTheDocument());
+    expect(formatComponent(mockup.asFragment())).toMatchSnapshot();
   });
 });

@@ -6,7 +6,7 @@ import { ValidatorDetailsModal, WarningModal } from '@/components';
 import { SearchIcon, TrashIcon } from '@/components/icons';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import useIsMobile from '@/hooks/useIsMobile';
-import ProfileAvatar from '@/utils/identicon';
+import { ProfileAvatar } from '@/utils/identicon';
 
 export interface ExtendedValidatorSDKType extends ValidatorSDKType {
   consensus_power?: bigint;

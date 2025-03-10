@@ -1,0 +1,118 @@
+// Bun Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TruncatedAddressWithCopy should render 1`] = `
+"<DocumentFragment>
+  <span
+    class="flex items-center hover:text-primary dark:hover:text-primary space-x-2 text-[#00000099] dark:text-[#FFFFFF99]"
+    style="cursor: pointer;"
+  >
+    <span
+      class="truncate"
+    >
+      manifest1234567890123456...
+    </span>
+    <svg
+      data-icon="copy"
+      fill="none"
+      height="16"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      viewBox="0 0 24 24"
+      width="16"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <rect
+        height="13"
+        rx="2"
+        ry="2"
+        width="13"
+        x="9"
+        y="9"
+      />
+      <path
+        d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+      />
+    </svg>
+  </span>
+</DocumentFragment>"
+`;
+
+exports[`TruncatedAddressWithCopy should show name and address 1`] = `
+"<DocumentFragment>
+  <span
+    class="flex items-center hover:text-primary dark:hover:text-primary space-x-2 text-[#00000099] dark:text-[#FFFFFF99]"
+    style="cursor: pointer;"
+  >
+    <span
+      class="truncate"
+    >
+      Test Contact (manifest1234567890123456... 
+    </span>
+    <svg
+      data-icon="copy"
+      fill="none"
+      height="16"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      viewBox="0 0 24 24"
+      width="16"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <rect
+        height="13"
+        rx="2"
+        ry="2"
+        width="13"
+        x="9"
+        y="9"
+      />
+      <path
+        d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+      />
+    </svg>
+  </span>
+</DocumentFragment>"
+`;
+
+exports[`TruncatedAddressWithCopy should not show name when showName is false 1`] = `
+"<DocumentFragment>
+  <span
+    class="flex items-center hover:text-primary dark:hover:text-primary space-x-2 text-[#00000099] dark:text-[#FFFFFF99]"
+    style="cursor: pointer;"
+  >
+    <span
+      class="truncate"
+    >
+      manifest1234567890123456...
+    </span>
+    <svg
+      data-icon="copy"
+      fill="none"
+      height="16"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      viewBox="0 0 24 24"
+      width="16"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <rect
+        height="13"
+        rx="2"
+        ry="2"
+        width="13"
+        x="9"
+        y="9"
+      />
+      <path
+        d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+      />
+    </svg>
+  </span>
+</DocumentFragment>"
+`;

@@ -1,9 +1,10 @@
-import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
-import { afterAll, afterEach, describe, expect, jest, mock, test } from 'bun:test';
+import { cleanup, screen, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
 import React from 'react';
 
 import DenomList from '@/components/factory/components/DenomList';
-import { mockDenom, mockDenom2, mockMfxDenom } from '@/tests/mock';
+import { formatComponent } from '@/tests';
+import { mockDenom, mockDenom2 } from '@/tests/mock';
 import { renderWithChainProvider } from '@/tests/render';
 
 // Mock next/router
@@ -39,6 +40,7 @@ const renderWithProps = (props = {}) => {
     refetchDenoms: jest.fn(),
     address: '',
     pageSize: 2,
+    admin: '',
   };
   return renderWithChainProvider(<DenomList {...defaultProps} {...props} />);
 };
@@ -52,13 +54,15 @@ describe('MyDenoms', () => {
   });
 
   test('renders loading skeleton when isLoading is true', () => {
-    renderWithProps({ isLoading: true });
+    const mockup = renderWithProps({ isLoading: true });
 
     // Check for presence of skeleton elements for first row
     expect(screen.getByLabelText('skeleton-0-avatar')).toBeInTheDocument();
     expect(screen.getByLabelText('skeleton-0-name')).toBeInTheDocument();
     expect(screen.getByLabelText('skeleton-0-symbol')).toBeInTheDocument();
     expect(screen.getByLabelText('skeleton-0-supply')).toBeInTheDocument();
+
+    expect(formatComponent(mockup.asFragment())).toMatchSnapshot();
   });
 
   test('renders denoms correctly', () => {

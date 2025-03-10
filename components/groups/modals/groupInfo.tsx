@@ -10,7 +10,7 @@ import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import env from '@/config/env';
 import { useFeeEstimation, useTx } from '@/hooks';
 import { ExtendedGroupType } from '@/hooks/useQueries';
-import ProfileAvatar from '@/utils/identicon';
+import { ProfileAvatar } from '@/utils/identicon';
 
 interface GroupInfoProps {
   group: ExtendedGroupType | null;
