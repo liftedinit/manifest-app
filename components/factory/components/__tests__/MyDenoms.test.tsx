@@ -1,36 +1,11 @@
 import { cleanup, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, jest, mock, test } from 'bun:test';
 import React from 'react';
 
 import DenomList from '@/components/factory/components/DenomList';
-import { formatComponent } from '@/tests';
+import { clearAllMocks, formatComponent, mockModule, mockRouter } from '@/tests';
 import { mockDenom, mockDenom2 } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
-
-// Mock next/router
-const m = jest.fn();
-mock.module('next/router', () => ({
-  useRouter: m.mockReturnValue({
-    query: {},
-    push: jest.fn(),
-  }),
-}));
-
-// TODO: Mock DenomImage until we can fix the URL parsing issue
-mock.module('@/components/factory/components/DenomImage', () => ({
-  DenomImage: () => <div>DenomImage</div>,
-}));
-
-mock.module('@/hooks/useQueries', () => ({
-  usePoaGetAdmin: jest.fn().mockReturnValue({
-    poaAdmin: '',
-    isPoaAdminLoading: false,
-  }),
-  useDenomAuthorityMetadata: jest.fn().mockReturnValue({
-    denomAuthority: '',
-    isDenomAuthorityLoading: false,
-  }),
-}));
 
 const renderWithProps = (props = {}) => {
   const defaultProps = {
@@ -48,11 +23,29 @@ const renderWithProps = (props = {}) => {
 const allDenoms = [mockDenom, mockDenom2];
 
 describe('MyDenoms', () => {
-  afterEach(() => {
-    mock.restore();
-    cleanup();
+  beforeEach(async () => {
+    await mockRouter();
 
-    console.log('afterEach');
+    // TODO: Mock DenomImage until we can fix the URL parsing issue
+    await mockModule('@/components/factory/components/DenomImage', () => ({
+      DenomImage: () => <div>DenomImage</div>,
+    }));
+
+    await mockModule('@/hooks/useQueries', () => ({
+      usePoaGetAdmin: jest.fn().mockReturnValue({
+        poaAdmin: '',
+        isPoaAdminLoading: false,
+      }),
+      useDenomAuthorityMetadata: jest.fn().mockReturnValue({
+        denomAuthority: '',
+        isDenomAuthorityLoading: false,
+      }),
+    }));
+  });
+
+  afterEach(() => {
+    clearAllMocks();
+    cleanup();
   });
 
   test('renders loading skeleton when isLoading is true', () => {

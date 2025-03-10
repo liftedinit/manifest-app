@@ -1,32 +1,13 @@
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
-import {
-  Mock,
-  afterAll,
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  mock,
-  spyOn,
-  test,
-} from 'bun:test';
+import { Mock, afterEach, beforeEach, describe, expect, mock, spyOn, test } from 'bun:test';
 
 import { DenomImage } from '@/components/factory/components/DenomImage';
-import { formatComponent } from '@/tests';
+import { clearAllMocks, formatComponent, mockModule } from '@/tests';
 
 // A cute little candle gif
 const uri =
   'https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdHg1aHVqa3NoMG45bzYwbHR5ODk3b2JqbHhnemlmcXpjOXB0enExMSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/zHcirZSkw8RSDhawFl/giphy.gif';
-
-// Mock next/image
-mock.module('next/image', () => ({
-  __esModule: true,
-  default: (props: any) => {
-    // eslint-disable-next-line @next/next/no-img-element,jsx-a11y/alt-text
-    return <img {...props} />;
-  },
-}));
 
 const renderWithProps = (props = {}) => {
   const defaultProps = {
@@ -43,9 +24,19 @@ describe('DenomImage', () => {
 
   beforeEach(() => {
     $setTimeout = spyOn(global, 'setTimeout');
+
+    mockModule('next/image', () => ({
+      __esModule: true,
+      default: (props: any) => {
+        // eslint-disable-next-line @next/next/no-img-element,jsx-a11y/alt-text
+        return <img alt="" {...props} />;
+      },
+    }));
   });
+
   afterEach(() => {
     $setTimeout.mockClear();
+    clearAllMocks();
     cleanup();
   });
 
