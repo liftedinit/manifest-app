@@ -3,7 +3,7 @@ import { afterEach, describe, expect, jest, test } from 'bun:test';
 import React from 'react';
 
 import Success from '@/components/groups/forms/groups/Success';
-import { mockGroupFormData } from '@/tests/mock';
+import { mockGroupFormData } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
 
 const mockProps = {

@@ -3,7 +3,7 @@ import { afterEach, describe, expect, test } from 'bun:test';
 
 import { TokenBalance } from '@/components';
 import { formatComponent } from '@/tests';
-import { mockDenomMeta1 } from '@/tests/mock';
+import { mockDenomMeta1 } from '@/tests/data';
 import { unsafeConvertTokenBase } from '@/utils';
 
 describe('TokenBalance', () => {

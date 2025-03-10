@@ -3,7 +3,7 @@ import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
 import React from 'react';
 
 import SendForm from '@/components/bank/forms/sendForm';
-import { mockBalances } from '@/tests/mock';
+import { mockBalances } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
 
 mock.module('next/router', () => ({

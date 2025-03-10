@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, jest, mock, test } from 'bun:t
 import React from 'react';
 
 import GroupProposals from '@/components/groups/components/groupControls';
-import { mockGroup, mockGroup2, mockProposals } from '@/tests/mock';
+import { mockGroup, mockGroup2, mockProposals } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
 
 // Mock next/router

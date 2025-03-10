@@ -6,7 +6,7 @@ import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, jest, mock, spyOn, test } from 'bun:test';
 import React from 'react';
 
-import { mockMembers, mockProposals, mockTally, mockVotes } from '@/tests/mock';
+import { mockMembers, mockProposals, mockTally, mockVotes } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
 
 import VoteDetailsModal from '../voteDetailsModal';

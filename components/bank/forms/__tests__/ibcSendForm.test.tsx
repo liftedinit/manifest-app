@@ -3,7 +3,7 @@ import { afterEach, beforeAll, describe, expect, jest, mock, test } from 'bun:te
 import React from 'react';
 
 import IbcSendForm from '@/components/bank/forms/ibcSendForm';
-import { mockBalances } from '@/tests/mock';
+import { mockBalances } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
 
 // Mock next/router

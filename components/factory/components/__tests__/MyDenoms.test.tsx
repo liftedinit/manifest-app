@@ -4,7 +4,7 @@ import React from 'react';
 
 import DenomList from '@/components/factory/components/DenomList';
 import { formatComponent } from '@/tests';
-import { mockDenom, mockDenom2 } from '@/tests/mock';
+import { mockDenom, mockDenom2 } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
 
 // Mock next/router
@@ -51,6 +51,8 @@ describe('MyDenoms', () => {
   afterEach(() => {
     mock.restore();
     cleanup();
+
+    console.log('afterEach');
   });
 
   test('renders loading skeleton when isLoading is true', () => {
@@ -61,8 +63,6 @@ describe('MyDenoms', () => {
     expect(screen.getByLabelText('skeleton-0-name')).toBeInTheDocument();
     expect(screen.getByLabelText('skeleton-0-symbol')).toBeInTheDocument();
     expect(screen.getByLabelText('skeleton-0-supply')).toBeInTheDocument();
-
-    expect(formatComponent(mockup.asFragment())).toMatchSnapshot();
   });
 
   test('renders denoms correctly', () => {

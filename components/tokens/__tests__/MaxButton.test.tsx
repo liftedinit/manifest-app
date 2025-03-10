@@ -4,7 +4,7 @@ import React from 'react';
 
 import { MaxButton } from '@/components';
 import { formatComponent } from '@/tests';
-import { mockBalances, mockMfxBalance } from '@/tests/mock';
+import { mockBalances, mockMfxBalance } from '@/tests/data';
 
 describe('MaxButton', () => {
   afterEach(cleanup);

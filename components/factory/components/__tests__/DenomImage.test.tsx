@@ -45,11 +45,8 @@ describe('DenomImage', () => {
     $setTimeout = spyOn(global, 'setTimeout');
   });
   afterEach(() => {
-    cleanup();
     $setTimeout.mockClear();
-  });
-  afterAll(() => {
-    mock.restore();
+    cleanup();
   });
 
   test('renders loading state correctly', () => {

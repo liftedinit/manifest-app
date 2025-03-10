@@ -3,7 +3,7 @@ import { afterEach, describe, expect, test } from 'bun:test';
 import React from 'react';
 
 import Success from '@/components/factory/forms/Success';
-import { mockTokenFormData } from '@/tests/mock';
+import { mockTokenFormData } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
 
 const mockProps = {

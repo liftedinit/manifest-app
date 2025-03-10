@@ -3,7 +3,7 @@ import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
 import React from 'react';
 
 import BurnForm from '@/components/factory/forms/BurnForm';
-import { manifestAddr1, mockDenomMeta1, mockFakeMfxDenom, mockMfxDenom } from '@/tests/mock';
+import { manifestAddr1, mockDenomMeta1, mockFakeMfxDenom, mockMfxDenom } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
 
 // Mock next/router

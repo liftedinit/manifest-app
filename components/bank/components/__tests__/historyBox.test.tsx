@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, screen } from '@testing-library/react';
 import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
 
-import { mockMultiDenomTransactions, mockTransactions } from '@/tests/mock';
+import { mockMultiDenomTransactions, mockTransactions } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
 
 import { HistoryBox } from '../historyBox';

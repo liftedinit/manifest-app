@@ -3,7 +3,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, jest, mock, test } fr
 import React from 'react';
 
 import { GroupInfo } from '@/components/groups/modals/groupInfo';
-import { manifestAddr1, manifestAddr2, mockGroup } from '@/tests/mock';
+import { manifestAddr1, manifestAddr2, mockGroup } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
 
 // Mock the useBalance hook

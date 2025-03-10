@@ -3,7 +3,7 @@ import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
 import React from 'react';
 
 import MemberInfoForm from '@/components/groups/forms/groups/MemberInfoForm';
-import { mockGroupFormData } from '@/tests/mock';
+import { mockGroupFormData } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
 
 // Mock next/router

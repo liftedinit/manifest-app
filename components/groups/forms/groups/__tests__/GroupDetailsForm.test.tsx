@@ -4,7 +4,7 @@ import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
 import React from 'react';
 
 import GroupDetails from '@/components/groups/forms/groups/GroupDetailsForm';
-import { manifestAddr1, mockGroupFormData } from '@/tests/mock';
+import { manifestAddr1, mockGroupFormData } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
 
 // Mock next/router

@@ -3,7 +3,7 @@ import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
 import React from 'react';
 
 import ValidatorList from '@/components/admins/components/validatorList';
-import { mockActiveValidators, mockPendingValidators } from '@/tests/mock';
+import { mockActiveValidators, mockPendingValidators } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
 
 // Mock next/router
