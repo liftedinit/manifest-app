@@ -31,7 +31,9 @@ export function mockModule(
     if (force) {
       maybeMockedModule.mocks = { ...maybeMockedModule.mocks, ...renderMocks() };
     } else {
-      throw new Error(`Module ${name} is already mocked. Use force=true to overwrite.`);
+      throw new Error(
+        `Module ${JSON.stringify(name)} is already mocked. Use force=true to overwrite.`
+      );
     }
   } else {
     const mockedModule = {
