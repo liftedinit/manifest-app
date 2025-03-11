@@ -56,6 +56,7 @@
         "react-icons": "^5.5.0",
         "react-intersection-observer": "^9.16.0",
         "react-scroll": "^1.9.3",
+        "react-shadow-scope": "1.0.10",
         "react-string-format": "^1.2.0",
         "react-syntax-highlighter": "^15.6.1",
         "sharp": "^0.33.5",
@@ -2664,7 +2665,7 @@
 
     "react-scroll": ["react-scroll@1.9.3", "", { "dependencies": { "lodash.throttle": "^4.1.1", "prop-types": "^15.7.2" }, "peerDependencies": { "react": "^15.5.4 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0", "react-dom": "^15.5.4 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-xv7FXqF3k63aSLNu4/NjFvRNI0ge7DmmmsbeGarP7LZVAlJMSjUuW3dTtLxp1Afijyv0lS2qwC0GiFHvx1KBHQ=="],
 
-    "react-shadow-scope": ["react-shadow-scope@1.0.11", "", { "peerDependencies": { "react": "^16.8.3 || ^18", "react-dom": "^16.14.0 || ^18" } }, "sha512-dvmY0NMCVqZmMCfAISxQLeu9xQv6eGPMEZ2POstfO/qkEL6C/+Ln+uzEDlj9+6pC1pmDTcW4yPWXezaA2tPcpw=="],
+    "react-shadow-scope": ["react-shadow-scope@1.0.10", "", { "peerDependencies": { "react": "^16.8.3 || ^18", "react-dom": "^16.14.0 || ^18" } }, "sha512-xefabEqlXtpT2h/Z4JVwGptJZbyK0hYHiNaHJNBFTCSSRm81EIShnQJdzKy5izPSc7RIaOqhrl0S5yOzpP/bug=="],
 
     "react-stately": ["react-stately@3.35.0", "", { "dependencies": { "@react-stately/calendar": "^3.7.0", "@react-stately/checkbox": "^3.6.11", "@react-stately/collections": "^3.12.1", "@react-stately/color": "^3.8.2", "@react-stately/combobox": "^3.10.2", "@react-stately/data": "^3.12.1", "@react-stately/datepicker": "^3.12.0", "@react-stately/disclosure": "^3.0.1", "@react-stately/dnd": "^3.5.1", "@react-stately/form": "^3.1.1", "@react-stately/list": "^3.11.2", "@react-stately/menu": "^3.9.1", "@react-stately/numberfield": "^3.9.9", "@react-stately/overlays": "^3.6.13", "@react-stately/radio": "^3.10.10", "@react-stately/searchfield": "^3.5.9", "@react-stately/select": "^3.6.10", "@react-stately/selection": "^3.19.0", "@react-stately/slider": "^3.6.1", "@react-stately/table": "^3.13.1", "@react-stately/tabs": "^3.7.1", "@react-stately/toggle": "^3.8.1", "@react-stately/tooltip": "^3.5.1", "@react-stately/tree": "^3.8.7", "@react-types/shared": "^3.27.0" }, "peerDependencies": { "react": "^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1" } }, "sha512-1BH21J/TOHpyZe7c+f1BU2bnRWaBDTjLH0WdBuzNfPOXu7RBG3ebPIRvqd7UkPaVfIcol2QJnxe8S0a314JWKA=="],
 
