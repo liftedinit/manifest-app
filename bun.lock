@@ -4,7 +4,7 @@
     "": {
       "name": "@liftedinit/manifest-app",
       "dependencies": {
-        "@chain-registry/assets": "^1.70.144",
+        "@chain-registry/assets": "^1.70.149",
         "@cosmjs/cosmwasm-stargate": "0.32.4",
         "@cosmjs/stargate": "npm:@liftedinit/stargate@0.32.4-ll.3",
         "@cosmos-kit/cosmos-extension-metamask": "^0.12.7",
@@ -31,7 +31,7 @@
         "autoprefixer": "^10.4.20",
         "babel-plugin-glsl": "^1.0.0",
         "bech32": "^2.0.0",
-        "chain-registry": "^1.69.145",
+        "chain-registry": "^1.69.149",
         "cosmjs-types": "^0.9.0",
         "cosmos-kit": "2.23.9",
         "country-flag-icons": "^1.5.18",
@@ -128,7 +128,7 @@
 
     "@babel/types": ["@babel/types@7.26.9", "", { "dependencies": { "@babel/helper-string-parser": "^7.25.9", "@babel/helper-validator-identifier": "^7.25.9" } }, "sha512-Y3IR1cRnOxOCDvMmNiym7XpXQ93iGDDPHx+Zj+NM+rg0fBaShfQLkg+hKPaZCEvg5N/LeCo4+Rj/i3FuJsIQaw=="],
 
-    "@chain-registry/assets": ["@chain-registry/assets@1.70.144", "", { "dependencies": { "@chain-registry/types": "^0.50.88" } }, "sha512-hENDzTw3nqDbue12DY2/99bSYILff742CqxTC8lhfmHR//qclBueJTUXt+DBfLMLeV1yp57bniorzmZmMjvjbg=="],
+    "@chain-registry/assets": ["@chain-registry/assets@1.70.149", "", { "dependencies": { "@chain-registry/types": "^0.50.91" } }, "sha512-Y/G0bKQ9cTj+osd7IUPG6V09AlbZPcu4nZNNfi0bCLkoFqFvdwBI0Kbwnf3C+th8l9HSQO6eELUfiJ9oYH0sBg=="],
 
     "@chain-registry/client": ["@chain-registry/client@1.53.71", "", { "dependencies": { "@chain-registry/types": "^0.50.71", "@chain-registry/utils": "^1.51.71", "bfs-path": "^1.0.2", "cross-fetch": "^3.1.5" } }, "sha512-ZIMhSCMXiQCd5kZNW2tlOxKWhLH8zop6o3vK3J/Jen/rN5KBXC2Ytk5P7W8UDoYapRciS/jYOYYujBr/olKGLQ=="],
 
@@ -1306,7 +1306,7 @@
 
     "cardinal": ["cardinal@2.1.1", "", { "dependencies": { "ansicolors": "~0.3.2", "redeyed": "~2.1.0" }, "bin": { "cdl": "./bin/cdl.js" } }, "sha512-JSr5eOgoEymtYHBjNWyjrMqet9Am2miJhlfKNdqLp6zoeAh0KN5dRAcxlecj5mAJrmQomgiOBj35xHLrFjqBpw=="],
 
-    "chain-registry": ["chain-registry@1.69.145", "", { "dependencies": { "@chain-registry/types": "^0.50.89" } }, "sha512-9IM/oGzgE44fOJmpK/jwDF513jgFm0S6oFNAzCCr745bWcEuPMPs9t57yFOAuDhQ2d4C11oKo/3FsC79O0BrqA=="],
+    "chain-registry": ["chain-registry@1.69.149", "", { "dependencies": { "@chain-registry/types": "^0.50.91" } }, "sha512-aILn3hqCERkCKkJdBa0a89nxoNX5j9w0ad+0HrVjk23vUtJKq3Qc0RN8//jJQf2VPYZGCdN8zQLK6hDUaQ7YRw=="],
 
     "chalk": ["chalk@3.0.0", "", { "dependencies": { "ansi-styles": "^4.1.0", "supports-color": "^7.1.0" } }, "sha512-4D3B6Wf41KOYRFdszmDqMCGq5VV/uMAB273JILmO+3jAlh8X4qDtdtgCR3fxtbLEMzSx22QdhnDcJvu2u1fVwg=="],
 
