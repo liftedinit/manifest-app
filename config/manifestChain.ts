@@ -9,12 +9,12 @@ let manifestModule: {
   ibc?: IBCInfo[];
 };
 
-// TODO: Add mainnet manifest when it's available
-
 if (buildType === 'qa') {
   manifestModule = require('chain-registry/devnet/manifestdevnet');
-} else {
+} else if (buildType === 'testnet') {
   manifestModule = require('chain-registry/testnet/manifesttestnet');
+} else {
+  manifestModule = require('chain-registry/mainnet/manifest');
 }
 
 let manifestAssets: AssetList, manifestChain: Chain, manifestIbc: IBCInfo[];
@@ -24,11 +24,16 @@ if (buildType === 'qa') {
   manifestAssets = assets;
   manifestChain = chain;
   manifestIbc = []; // Default value since devnet doesn't include ibc
-} else {
+} else if (buildType === 'testnet') {
   const { assets, chain, ibc } = manifestModule;
   manifestAssets = assets;
   manifestChain = chain;
   manifestIbc = ibc!;
+} else {
+  const { assets, chain } = manifestModule;
+  manifestAssets = assets;
+  manifestChain = chain;
+  manifestIbc = []; // TODO: Update IBC info when available
 }
 
 export { manifestAssets, manifestChain, manifestIbc };
