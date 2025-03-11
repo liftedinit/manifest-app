@@ -1,7 +1,6 @@
-import { Dialog } from '@headlessui/react';
 import React from 'react';
 
-import { SigningModalDialog } from '@/components';
+import { ModalDialog, SigningModalDialog } from '@/components';
 import { CombinedBalanceInfo } from '@/utils/types';
 
 import SendBox from '../components/sendBox';
@@ -29,7 +28,12 @@ export default function SendModal({
   admin,
 }: SendModalProps) {
   return (
-    <SigningModalDialog open={isOpen} onClose={() => setOpen?.(false)} title="Send Assets">
+    <ModalDialog
+      open={isOpen}
+      onClose={() => setOpen?.(false)}
+      title="Send Assets"
+      className="z-10"
+    >
       <SendBox
         address={address}
         balances={balances}
@@ -38,6 +42,6 @@ export default function SendModal({
         isGroup={isGroup}
         admin={admin}
       />
-    </SigningModalDialog>
+    </ModalDialog>
   );
 }

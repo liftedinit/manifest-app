@@ -31,51 +31,51 @@ export default React.memo(function SendBox({
   isGroup?: boolean;
   admin?: string;
 }) {
-  const ibcChains = useMemo<IbcChain[]>(
-    () => [
-      {
-        id: env.chain,
-        name: 'Manifest',
-        icon: '/logo.svg',
-        prefix: 'manifest',
-        chainID: env.chainId,
-      },
-      {
-        id: env.osmosisChain,
-        name: 'Osmosis',
-        icon: '/osmosis.svg',
-        prefix: 'osmo',
-        chainID: env.osmosisChainId,
-      },
-      {
-        id: env.axelarChain,
-        name: 'Axelar',
-        icon: 'https://github.com/cosmos/chain-registry/raw/refs/heads/master/axelar/images/axl.svg',
-        prefix: 'axelar',
-        chainID: env.axelarChainId,
-      },
-    ],
-    []
-  );
+  // const ibcChains = useMemo<IbcChain[]>(
+  //   () => [
+  //     {
+  //       id: env.chain,
+  //       name: 'Manifest',
+  //       icon: '/logo.svg',
+  //       prefix: 'manifest',
+  //       chainID: env.chainId,
+  //     },
+  //     {
+  //       id: env.osmosisChain,
+  //       name: 'Osmosis',
+  //       icon: '/osmosis.svg',
+  //       prefix: 'osmo',
+  //       chainID: env.osmosisChainId,
+  //     },
+  //     {
+  //       id: env.axelarChain,
+  //       name: 'Axelar',
+  //       icon: 'https://github.com/cosmos/chain-registry/raw/refs/heads/master/axelar/images/axl.svg',
+  //       prefix: 'axelar',
+  //       chainID: env.axelarChainId,
+  //     },
+  //   ],
+  //   []
+  // );
   const [activeTab, setActiveTab] = useState<'send' | 'cross-chain'>('send');
-  const [selectedFromChain, setSelectedFromChain] = useState<IbcChain>(ibcChains[0]);
-  const [selectedToChain, setSelectedToChain] = useState<IbcChain>(ibcChains[1]);
+  // const [selectedFromChain, setSelectedFromChain] = useState<IbcChain>(ibcChains[0]);
+  // const [selectedToChain, setSelectedToChain] = useState<IbcChain>(ibcChains[1]);
 
   const { isSigning } = useTx(env.chain);
 
-  useEffect(() => {
-    if (selectedFromChain && selectedToChain && selectedFromChain.id === selectedToChain.id) {
-      // If chains match, switch the destination chain to the other available chain
-      const otherChain = ibcChains.find(chain => chain.id !== selectedFromChain.id);
-      if (otherChain) {
-        setSelectedToChain(otherChain);
-      }
-    }
-  }, [selectedFromChain, selectedToChain, ibcChains]);
+  // useEffect(() => {
+  //   if (selectedFromChain && selectedToChain && selectedFromChain.id === selectedToChain.id) {
+  //     // If chains match, switch the destination chain to the other available chain
+  //     const otherChain = ibcChains.find(chain => chain.id !== selectedFromChain.id);
+  //     if (otherChain) {
+  //       setSelectedToChain(otherChain);
+  //     }
+  //   }
+  // }, [selectedFromChain, selectedToChain, ibcChains]);
 
-  const getAvailableToChains = useMemo(() => {
-    return ibcChains.filter(chain => chain.id !== selectedFromChain.id);
-  }, [ibcChains, selectedFromChain]);
+  // const getAvailableToChains = useMemo(() => {
+  //   return ibcChains.filter(chain => chain.id !== selectedFromChain.id);
+  // }, [ibcChains, selectedFromChain]);
 
   return (
     <div className="rounded-2xl w-full">
@@ -89,7 +89,7 @@ export default React.memo(function SendBox({
         />
         <button
           aria-label="send-tab"
-          className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl transition-colors relative z-10 ${
+          className={`flex-1 py-2 cursor-pointer px-4 text-sm font-medium hover:text-[#161616] dark:hover:text-white rounded-xl transition-colors relative z-10 ${
             activeTab === 'send' ? 'text-[#161616] dark:text-white' : 'text-[#808080]'
           }`}
           disabled={isSigning}
@@ -100,7 +100,7 @@ export default React.memo(function SendBox({
         {env.chainTier === 'testnet' && (
           <button
             aria-label="cross-chain-transfer-tab"
-            className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl transition-colors relative z-10 ${
+            className={`flex-1 py-2 px-4 cursor-pointer text-sm font-medium hover:text-[#161616] dark:hover:text-white rounded-xl transition-colors relative z-10 ${
               activeTab === 'cross-chain' ? 'text-[#161616] dark:text-white' : 'text-[#808080]'
             }`}
             disabled={isSigning}
@@ -117,26 +117,28 @@ export default React.memo(function SendBox({
         ) : (
           <div
             className={`transition-all duration-300 ease-in-out ${
-              activeTab === 'cross-chain' ? 'h-[635px]' : 'h-[430px]'
+              activeTab === 'cross-chain' ? 'h-[380px]' : 'h-[430px]'
             }`}
           >
             {activeTab === 'cross-chain' && env.chainTier === 'testnet' ? (
-              <IbcSendForm
-                isIbcTransfer={true}
-                ibcChains={ibcChains}
-                selectedFromChain={selectedFromChain}
-                setSelectedFromChain={setSelectedFromChain}
-                selectedToChain={selectedToChain}
-                setSelectedToChain={setSelectedToChain}
-                address={address}
-                balances={balances}
-                isBalancesLoading={isBalancesLoading}
-                selectedDenom={selectedDenom}
-                isGroup={isGroup}
-                admin={admin}
-                availableToChains={getAvailableToChains}
-              />
+              <IbcSendForm token={selectedDenom ?? 'umfx'} />
             ) : (
+              // <IbcSendForm
+              //   isIbcTransfer={true}
+              //   ibcChains={ibcChains}
+              //   selectedFromChain={selectedFromChain}
+              //   setSelectedFromChain={setSelectedFromChain}
+              //   selectedToChain={selectedToChain}
+              //   setSelectedToChain={setSelectedToChain}
+              //   address={address}
+              //   balances={balances}
+              //   isBalancesLoading={isBalancesLoading}
+              //   selectedDenom={selectedDenom}
+              //   isGroup={isGroup}
+              //   admin={admin}
+              //   availableToChains={getAvailableToChains}
+              // />
+
               <SendForm
                 address={address}
                 balances={balances}

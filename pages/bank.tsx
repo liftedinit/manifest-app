@@ -1,12 +1,11 @@
-import { useChain, useChains } from '@cosmos-kit/react';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useChain } from '@cosmos-kit/react';
+import React, { useMemo, useState } from 'react';
 
 import { HistoryBox, SearchIcon, WalletNotConnected } from '@/components';
 import { SEO } from '@/components';
 import { TokenList } from '@/components/bank/components/tokenList';
 import { BankIcon } from '@/components/icons';
 import env from '@/config/env';
-import { useTheme } from '@/contexts/useTheme';
 import {
   useGetMessagesFromAddress,
   useIsMobile,
@@ -28,7 +27,6 @@ interface PageSizeConfig {
 export default function Bank() {
   const { isWalletConnected, address } = useChain(env.chain);
   const isMobile = useIsMobile();
-  const { theme } = useTheme();
 
   const { balances, isBalancesLoading } = useTokenBalances(address ?? '');
   const { balances: resolvedBalances, isBalancesLoading: resolvedLoading } =
