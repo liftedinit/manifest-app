@@ -2,7 +2,8 @@ import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, spyOn, test } from 'bun:test';
 import React from 'react';
 
-import { ContactsProvider, useContacts } from '@/hooks';
+import { ContactsProvider, STORAGE_KEY, useContacts } from '@/hooks';
+import { formatComponent } from '@/tests';
 
 function TestComponent() {
   const { contacts, addContact, removeContact } = useContacts();
@@ -102,6 +103,9 @@ describe('useContacts', () => {
     );
 
     await waitFor(() => expect(wrapper.getByTestId('contact-count')).toHaveTextContent('2'));
+
+    expect(formatComponent(wrapper.asFragment())).toMatchSnapshot();
+    expect(JSON.parse(window.localStorage.getItem(STORAGE_KEY)!)).toMatchSnapshot();
   });
 
   test('only allows valid Bech32 addresses', async () => {

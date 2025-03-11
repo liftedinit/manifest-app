@@ -1,0 +1,92 @@
+// Bun Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`useContacts works 1`] = `
+"<DocumentFragment>
+  <div>
+    <div
+      data-testid="contact-count"
+    >
+      2
+    </div>
+    <div
+      data-testid="contact-list"
+    >
+      <div>
+        <div
+          data-testid="contact-name-0"
+        >
+          Alice
+        </div>
+        <div
+          data-testid="contact-address-0"
+        >
+          manifest1aucdev30u9505dx9t6q5fkcm70sjg4rh7rn5nf
+        </div>
+        <div>
+          <button
+            data-testid="contact-remove1-0"
+          >
+            Remove by index
+          </button>
+          <button
+            data-testid="contact-remove2-0"
+          >
+            Remove by name
+          </button>
+        </div>
+      </div>
+      <div>
+        <div
+          data-testid="contact-name-1"
+        >
+          Bob
+        </div>
+        <div
+          data-testid="contact-address-1"
+        >
+          manifest1hj5fveer5cjtn4wd6wstzugjfdxzl0xp8ws9ct
+        </div>
+        <div>
+          <button
+            data-testid="contact-remove1-1"
+          >
+            Remove by index
+          </button>
+          <button
+            data-testid="contact-remove2-1"
+          >
+            Remove by name
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div>
+    <input
+      data-testid="contact-name"
+    />
+    <input
+      data-testid="contact-address"
+    />
+    <button
+      data-testid="contact-add"
+    >
+      Add
+    </button>
+  </div>
+  )
+</DocumentFragment>"
+`;
+
+exports[`useContacts works 2`] = `
+[
+  {
+    "address": "manifest1aucdev30u9505dx9t6q5fkcm70sjg4rh7rn5nf",
+    "name": "Alice",
+  },
+  {
+    "address": "manifest1hj5fveer5cjtn4wd6wstzugjfdxzl0xp8ws9ct",
+    "name": "Bob",
+  },
+]
+`;

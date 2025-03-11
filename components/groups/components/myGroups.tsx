@@ -37,7 +37,7 @@ import {
   truncateString,
   unsafeConvertTokenBase,
 } from '@/utils';
-import ProfileAvatar from '@/utils/identicon';
+import { ProfileAvatar } from '@/utils/identicon';
 
 import GroupControls from './groupControls';
 

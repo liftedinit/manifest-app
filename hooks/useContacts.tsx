@@ -4,7 +4,7 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { Contact } from '@/utils/types';
 import Yup from '@/utils/yupExtensions';
 
-const STORAGE_KEY = 'manifest.contacts';
+export const STORAGE_KEY = 'manifest.contacts';
 
 const ContactSchema = Yup.object().shape({
   name: Yup.string().required('Name is required').noProfanity(),

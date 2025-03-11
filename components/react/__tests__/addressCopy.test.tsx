@@ -4,6 +4,7 @@ import React from 'react';
 
 import { Contacts, TruncatedAddressWithCopy } from '@/components';
 import { ContactsContext, ContactsContextType } from '@/hooks';
+import { formatComponent } from '@/tests';
 
 describe('TruncatedAddressWithCopy', () => {
   afterEach(cleanup);
@@ -13,6 +14,8 @@ describe('TruncatedAddressWithCopy', () => {
       <TruncatedAddressWithCopy address="manifest123456789012345678901234567890" />
     );
     expect(screen.getByText('manifest1234567890123456...')).toBeInTheDocument();
+
+    expect(formatComponent(wrapper.asFragment())).toMatchSnapshot();
   });
 
   test('should show name and address', () => {
@@ -31,6 +34,7 @@ describe('TruncatedAddressWithCopy', () => {
       </ContactsContext.Provider>
     );
     expect(screen.getByText(/^Test Contact \(manifest1234567890123456\.\.\./)).toBeInTheDocument();
+    expect(formatComponent(wrapper.asFragment())).toMatchSnapshot();
   });
 
   test('should not show name when showName is false', () => {
@@ -53,6 +57,7 @@ describe('TruncatedAddressWithCopy', () => {
     );
     expect(screen.getByText(/manifest1234567890123456\.\.\./)).toBeInTheDocument();
     expect(screen.queryByText(/Test Contact/)).not.toBeInTheDocument();
+    expect(formatComponent(wrapper.asFragment())).toMatchSnapshot();
   });
 
   test('should allow to copy address', async () => {

@@ -1,21 +1,19 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import React from 'react';
 
+import { LedgerSignModalInner, PromptSignModalInner } from '@/components';
+import { clearAllMocks, formatComponent, mockRouter } from '@/tests';
 import { renderWithChainProvider } from '@/tests/render';
 
-import { LedgerSignModalInner, PromptSignModalInner } from './authSignerModal';
-
-mock.module('next/router', () => ({
-  useRouter: jest.fn().mockReturnValue({
-    query: {},
-    push: jest.fn(),
-  }),
-}));
-
 describe('PromptSignModalInner', () => {
+  beforeEach(() => {
+    mockRouter();
+  });
+
   afterEach(() => {
     cleanup();
+    clearAllMocks();
   });
 
   test('should render', () => {
@@ -25,6 +23,8 @@ describe('PromptSignModalInner', () => {
     expect(screen.getByText('Approve')).toBeInTheDocument();
     const dialog = screen.getByRole('dialog');
     expect(dialog).toBeVisible();
+
+    expect(formatComponent(wrapper.asFragment())).toMatchSnapshot();
   });
 
   test('should not be visible initially when visible prop is false', () => {
@@ -33,6 +33,8 @@ describe('PromptSignModalInner', () => {
     );
     const dialog = screen.queryAllByRole('dialog');
     expect(dialog.length).toBe(0);
+
+    expect(formatComponent(wrapper.asFragment())).toMatchSnapshot();
   });
 
   test('should close on clicking buttons', () => {

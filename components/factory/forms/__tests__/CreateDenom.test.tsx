@@ -1,9 +1,10 @@
 import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, jest, mock, test } from 'bun:test';
 import React from 'react';
 
 import CreateDenom from '@/components/factory/forms/CreateDenom';
-import { mockTokenFormData } from '@/tests/mock';
+import { clearAllMocks, mockModule, mockRouter } from '@/tests';
+import { mockTokenFormData } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
 
 const mockProps = {
@@ -13,14 +14,19 @@ const mockProps = {
   address: 'cosmos1address',
 };
 
-mock.module('@/utils/transactionUtils', () => ({
-  useSimulateDenomCreation: jest.fn().mockReturnValue({
-    simulateDenomCreation: jest.fn().mockReturnValue(true),
-  }),
-}));
-
 describe('CreateDenom Component', () => {
-  afterEach(cleanup);
+  beforeEach(() => {
+    mockRouter();
+    mockModule('@/utils/transactionUtils', () => ({
+      useSimulateDenomCreation: jest.fn().mockReturnValue({
+        simulateDenomCreation: jest.fn().mockReturnValue(true),
+      }),
+    }));
+  });
+  afterEach(() => {
+    clearAllMocks();
+    cleanup();
+  });
 
   test('renders form with correct details', () => {
     renderWithChainProvider(<CreateDenom {...mockProps} />);

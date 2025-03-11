@@ -1,9 +1,10 @@
 import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, jest, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, jest, test } from 'bun:test';
 import React from 'react';
 
 import GroupPolicyForm from '@/components/groups/forms/groups/GroupPolicyForm';
-import { mockGroupFormData } from '@/tests/mock';
+import { clearAllMocks, mockRouter } from '@/tests';
+import { mockGroupFormData } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
 
 const mockProps = {
@@ -14,8 +15,13 @@ const mockProps = {
 };
 
 describe('GroupPolicyForm Component', () => {
+  beforeEach(() => {
+    mockRouter();
+  });
+
   afterEach(() => {
     cleanup();
+    clearAllMocks();
     jest.clearAllMocks();
   });
 

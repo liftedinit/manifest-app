@@ -1,20 +1,12 @@
 import { Duration } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/duration';
 import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, jest, test } from 'bun:test';
 import React from 'react';
 
 import GroupDetails from '@/components/groups/forms/groups/GroupDetailsForm';
-import { manifestAddr1, mockGroupFormData } from '@/tests/mock';
+import { clearAllMocks, mockRouter } from '@/tests';
+import { manifestAddr1, mockGroupFormData } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
-
-// Mock next/router
-const m = jest.fn();
-mock.module('next/router', () => ({
-  useRouter: m.mockReturnValue({
-    query: {},
-    push: jest.fn(),
-  }),
-}));
 
 const mockProps = {
   nextStep: jest.fn(),
@@ -24,8 +16,12 @@ const mockProps = {
 };
 
 describe('GroupDetails Component', () => {
+  beforeEach(() => {
+    mockRouter();
+  });
   afterEach(() => {
     cleanup();
+    clearAllMocks();
     jest.clearAllMocks();
   });
 

@@ -1,0 +1,53 @@
+// Bun Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DenomImage renders loading state correctly 1`] = `
+"<DocumentFragment>
+  <div
+    aria-label="denom image skeleton"
+    class="skeleton w-11 h-11 rounded-md animate-pulse bg-gray-300"
+  />
+</DocumentFragment>"
+`;
+
+exports[`DenomImage renders MFX token image correctly 1`] = `
+"<DocumentFragment>
+  <div
+    class="w-11 h-11 p-2 rounded-md dark:bg-[#ffffff0f] bg-[#0000000a]"
+  >
+    <img
+      alt="MFX Token Icon"
+      class="w-full h-full"
+      height="44"
+      src="/logo.svg"
+      width="44"
+    />
+  </div>
+</DocumentFragment>"
+`;
+
+exports[`DenomImage renders ProfileAvatar for unsupported URL 1`] = `
+"<DocumentFragment>
+  <img
+    alt="Profile Avatar"
+    class="rounded-md dark:bg-[#FFFFFF0F] bg-[#0000000A]"
+    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPSc3MDAnIGhlaWdodD0nNzAwJyBzdHlsZT0nYmFja2dyb3VuZC1jb2xvcjpyZ2JhKDI1NSwyNTUsMjU1LDApOyc+PGcgc3R5bGU9J2ZpbGw6cmdiYSg4OCwyMTgsMjEwLDEpOyBzdHJva2U6cmdiYSg4OCwyMTgsMjEwLDEpOyBzdHJva2Utd2lkdGg6My41Oyc+PHJlY3QgIHg9JzMwOScgeT0nMTQ3JyB3aWR0aD0nODEnIGhlaWdodD0nODEnLz48cmVjdCAgeD0nMzA5JyB5PScyMjgnIHdpZHRoPSc4MScgaGVpZ2h0PSc4MScvPjxyZWN0ICB4PSczMDknIHk9JzM5MCcgd2lkdGg9JzgxJyBoZWlnaHQ9JzgxJy8+PHJlY3QgIHg9JzIyOCcgeT0nMjI4JyB3aWR0aD0nODEnIGhlaWdodD0nODEnLz48cmVjdCAgeD0nMzkwJyB5PScyMjgnIHdpZHRoPSc4MScgaGVpZ2h0PSc4MScvPjxyZWN0ICB4PScxNDcnIHk9JzMwOScgd2lkdGg9JzgxJyBoZWlnaHQ9JzgxJy8+PHJlY3QgIHg9JzQ3MScgeT0nMzA5JyB3aWR0aD0nODEnIGhlaWdodD0nODEnLz48cmVjdCAgeD0nMTQ3JyB5PSczOTAnIHdpZHRoPSc4MScgaGVpZ2h0PSc4MScvPjxyZWN0ICB4PSc0NzEnIHk9JzM5MCcgd2lkdGg9JzgxJyBoZWlnaHQ9JzgxJy8+PC9nPjwvc3ZnPg=="
+    style="height: 44px; width: 44px;"
+  />
+</DocumentFragment>"
+`;
+
+exports[`DenomImage renders image from supported URL 1`] = `
+"<DocumentFragment>
+  <div
+    class="w-11 h-11 p-2 rounded-md dark:bg-[#ffffff0f] bg-[#0000000A]"
+  >
+    <img
+      alt="Token Icon"
+      class="rounded-md w-full h-full"
+      height="44"
+      src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdHg1aHVqa3NoMG45bzYwbHR5ODk3b2JqbHhnemlmcXpjOXB0enExMSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/zHcirZSkw8RSDhawFl/giphy.gif"
+      width="44"
+    />
+  </div>
+</DocumentFragment>"
+`;

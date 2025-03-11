@@ -1,9 +1,10 @@
 import { cleanup, fireEvent } from '@testing-library/react';
-import { afterEach, describe, expect, jest, mock, spyOn, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, jest, test } from 'bun:test';
 import React from 'react';
 
 import { ContactsModal } from '@/components';
 import { ContactsContext, ContactsContextType } from '@/hooks';
+import { clearAllMocks, mockRouter } from '@/tests';
 import { renderWithChainProvider } from '@/tests/render';
 
 const contacts: ContactsContextType = {
@@ -18,17 +19,15 @@ const contacts: ContactsContextType = {
   removeContact: jest.fn(),
 };
 
-// TODO: this test suite should not need to mock the router, but somehow it does.
-const m = jest.fn();
-mock.module('next/router', () => ({
-  useRouter: m.mockReturnValue({
-    query: {},
-    push: jest.fn(),
-  }),
-}));
-
 describe('ContactsModal', () => {
-  afterEach(cleanup);
+  beforeEach(() => {
+    mockRouter();
+  });
+
+  afterEach(() => {
+    cleanup();
+    clearAllMocks();
+  });
 
   test('works', () => {
     const onSelect = jest.fn();

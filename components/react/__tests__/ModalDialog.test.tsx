@@ -1,19 +1,44 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, jest, mock, test } from 'bun:test';
+import { RenderResult, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, jest, test } from 'bun:test';
 
 import { ModalDialog, SigningModalDialog } from '@/components';
+import { clearAllMocks, formatComponent, mockRouter } from '@/tests';
 import { renderWithWeb3AuthProvider } from '@/tests/render';
+
+/**
+ * Match the snapshot of the dialog component. Because <Dialog /> is a portal, we need to
+ * format the portal itself to get the correct snapshot.
+ * @param name
+ */
+function snapshot(mockup: RenderResult, name?: string) {
+  name = name ? name + ' - ' : '';
+  expect(formatComponent(mockup.asFragment())).toMatchSnapshot(`${name}standin`);
+
+  // This will show the portal itself.
+  expect(formatComponent(screen.queryByRole('dialog'))).toMatchSnapshot(`${name}portal`);
+}
 
 describe('ModalDialog', () => {
   afterEach(cleanup);
 
   test('renders correctly', () => {
-    const mockup = render(<ModalDialog open={true} onClose={jest.fn()} />);
+    const mockup = render(
+      <ModalDialog open={true} onClose={jest.fn()}>
+        Hello World
+      </ModalDialog>
+    );
 
     expect(document.querySelector('[inert]')).toBeInTheDocument();
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Title' })).not.toBeInTheDocument();
+    snapshot(mockup);
+  });
+
+  test('renders to nothing if not visible', () => {
+    const mockup = render(<ModalDialog open={false} onClose={jest.fn()} />);
+    expect(mockup.container).toBeEmptyDOMElement();
+    snapshot(mockup);
   });
 
   test('renders correctly when closed', () => {
@@ -61,17 +86,13 @@ describe('ModalDialog', () => {
 
 describe('SigningModalDialog', () => {
   beforeEach(() => {
-    // Mock next/router
-    const m = jest.fn();
-    mock.module('next/router', () => ({
-      useRouter: m.mockReturnValue({
-        query: {},
-        push: jest.fn(),
-      }),
-    }));
+    mockRouter();
   });
 
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+    clearAllMocks();
+  });
 
   test('render the SignModal component', async () => {
     const resolve = jest.fn();
