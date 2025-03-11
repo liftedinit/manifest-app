@@ -74,31 +74,13 @@ export const DenomImage = ({
   withBackground?: boolean;
 }) => {
   const [imageError, setImageError] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [isSupported, setIsSupported] = useState(false);
 
   useEffect(() => {
-    const checkUri = () => {
-      if (denom?.uri) {
-        setIsSupported(isUrlSupported(denom?.uri));
-        // Simulate a delay to show the loading state
-        setTimeout(() => setIsLoading(false), 1000);
-      } else {
-        setIsLoading(false);
-      }
-    };
-
-    checkUri();
+    if (denom?.uri) {
+      setIsSupported(isUrlSupported(denom.uri));
+    }
   }, [denom?.uri]);
-
-  if (isLoading) {
-    return (
-      <div
-        className="skeleton w-11 h-11 rounded-md animate-pulse bg-gray-300"
-        aria-label="denom image skeleton"
-      ></div>
-    );
-  }
 
   // Check for MFX token first
   if (denom?.base === 'umfx' || denom?.base?.includes('uosmo')) {
@@ -111,7 +93,7 @@ export const DenomImage = ({
           height={44}
           src={denom?.base === 'umfx' ? '/logo.svg' : '/osmosis.svg'}
           alt="MFX Token Icon"
-          className="w-full h-full"
+          className="w-full h-full data-[loaded=false]:animate-pulse data-[loaded=false]:skeleton data-[loaded=false]:bg-gray-300"
         />
       </div>
     );
@@ -133,7 +115,7 @@ export const DenomImage = ({
         src={denom?.uri}
         alt="Token Icon"
         onError={() => setImageError(true)}
-        className="rounded-md w-full h-full"
+        className="rounded-md w-full h-full data-[loaded=false]:animate-pulse data-[loaded=false]:skeleton data-[loaded=false]:bg-gray-300"
       />
     </div>
   );
