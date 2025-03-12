@@ -118,7 +118,7 @@ export const ModalDialog = ({
           <button
             role="button"
             aria-label="Close"
-            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]"
+            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A] disabled:cursor-not-allowed"
             disabled={disabled}
           >
             ✕
@@ -131,7 +131,7 @@ export const ModalDialog = ({
             aria-label="Title"
             className="flex flex-row gap-2 items-center text-xl font-semibold text-[#161616] dark:text-white mb-6"
           >
-            {Icon ? <Icon className="w-8 h-8 text-primary" /> : undefined}
+            {Icon && <Icon className="w-8 h-8 text-primary" />}
             {title}
           </h3>
         )}
