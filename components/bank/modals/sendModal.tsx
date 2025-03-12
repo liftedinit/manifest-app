@@ -1,7 +1,6 @@
-import { Dialog } from '@headlessui/react';
 import React from 'react';
 
-import { SigningModalDialog } from '@/components';
+import { ModalDialog } from '@/components';
 import { CombinedBalanceInfo } from '@/utils/types';
 
 import SendBox from '../components/sendBox';
@@ -29,7 +28,26 @@ export default function SendModal({
   admin,
 }: SendModalProps) {
   return (
-    <SigningModalDialog open={isOpen} onClose={() => setOpen?.(false)} title="Send Assets">
+    <ModalDialog
+      open={isOpen}
+      onClose={() => {
+        // skip-go/widget does not have a lot of useful props/events so we kind of
+        // have to hack our way around it.
+        const allInputs = [...document.querySelectorAll('react-shadow-scope')].map(s =>
+          s.shadowRoot?.querySelector('div[open]')
+        );
+        const isSkipGoDialogOpened = allInputs.filter(Boolean).length > 0;
+
+        // Check that we don't have the widget dialog opened, and prevent closing if we do.
+        if (document.querySelector('wcm-modal') !== null && isSkipGoDialogOpened) {
+          return;
+        }
+
+        setOpen?.(false);
+      }}
+      title="Send Assets"
+      className="z-10"
+    >
       <SendBox
         address={address}
         balances={balances}
@@ -38,6 +56,6 @@ export default function SendModal({
         isGroup={isGroup}
         admin={admin}
       />
-    </SigningModalDialog>
+    </ModalDialog>
   );
 }

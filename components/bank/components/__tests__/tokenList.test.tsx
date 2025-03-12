@@ -62,7 +62,7 @@ describe('TokenList', () => {
     renderWithChainProvider(
       <TokenList balances={mockBalances} isLoading={false} address={''} pageSize={1} />
     );
-    const token1Row = screen.getByLabelText('utoken1');
+    const token1Row = screen.getByLabelText('token1');
     expect(token1Row).toBeInTheDocument();
 
     const ticker = within(token1Row).getAllByText('TOKEN 1');
@@ -96,8 +96,8 @@ describe('TokenList', () => {
         searchTerm={'Token 1'}
       />
     );
-    const token1Row = screen.getByLabelText('utoken1');
-    const token2Row = screen.queryByLabelText('utoken2');
+    const token1Row = screen.getByLabelText('token1');
+    const token2Row = screen.queryByLabelText('token2');
     expect(token1Row).toBeInTheDocument();
     expect(token2Row).not.toBeInTheDocument();
   });
@@ -106,7 +106,7 @@ describe('TokenList', () => {
     renderWithChainProvider(
       <TokenList balances={mockBalances} isLoading={false} address={''} pageSize={1} />
     );
-    const token1Container = screen.getByLabelText('utoken1');
+    const token1Container = screen.getByLabelText('token1');
     const button = within(token1Container).getByLabelText('info-utoken1');
     fireEvent.click(button);
 

@@ -86,8 +86,8 @@ export const TokenList = React.memo(function TokenList(props: Readonly<TokenList
           <div className="space-y-2">
             {paginatedBalances.map(balance => (
               <div
-                key={balance.display}
-                aria-label={balance.display}
+                key={balance.base}
+                aria-label={balance.base}
                 className="flex flex-row justify-between gap-4 items-center p-4 bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] rounded-[16px] cursor-pointer hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A] transition-colors"
                 onClick={() => {
                   setSelectedDenomBase(balance?.base);
