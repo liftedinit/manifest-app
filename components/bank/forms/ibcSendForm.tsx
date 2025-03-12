@@ -42,20 +42,20 @@ function IbcSendForm({ token }: { token: string }) {
         );
 
       if (isBackdropClick) {
-        // Find all open dialogs in shadow DOM
+        // Find all open dialogs in shadow DOM using the same selector strategy as in sendModal.tsx
         const allInputs = [...document.querySelectorAll('react-shadow-scope')].map(s =>
           s.shadowRoot?.querySelector('div[open]')
         );
 
-        if (allInputs.filter(Boolean).length > 0) {
+        const isSkipGoDialogOpened = allInputs.filter(Boolean).length > 0;
+
+        if (isSkipGoDialogOpened) {
           // Get all the buttons and other interactive elements inside the modal
-          const modalContent = document.querySelector('.rc-virtual-list-holder-inner');
-          const searchInput = document.querySelector('input[placeholder="Search for an asset"]');
+          const modalContent = document.querySelector('wcm-modal');
 
           // Check if the click was directly on the backdrop and not on any content
           const isClickOnContent =
             (modalContent && modalContent.contains(event.target as Node)) ||
-            (searchInput && searchInput.contains(event.target as Node)) ||
             path.some(
               el =>
                 el instanceof HTMLElement &&
