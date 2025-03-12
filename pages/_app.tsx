@@ -2,7 +2,6 @@ import '@fontsource/manrope';
 import '@interchain-ui/react/styles';
 import type { AppProps } from 'next/app';
 
-import IbcSendForm from '@/components/bank/forms/ibcSendForm';
 import MobileNav from '@/components/react/mobileNav';
 import { ManifestAppProviders } from '@/contexts/manifestAppProviders';
 import { useTheme } from '@/contexts/useTheme';

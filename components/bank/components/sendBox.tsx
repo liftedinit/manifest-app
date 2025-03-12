@@ -82,9 +82,11 @@ export default React.memo(function SendBox({
       <div className="flex mb-4 md:mb-6 w-full h-[3.5rem] rounded-xl p-1 bg-[#0000000A] dark:bg-[#FFFFFF0F] relative">
         <div
           className={`absolute transition-all duration-200 ease-in-out h-[calc(100%-8px)] top-1 rounded-xl bg-white dark:bg-[#FFFFFF1F] ${
-            activeTab === 'send'
-              ? 'left-1 w-[calc(50%-4px)]'
-              : 'left-[calc(50%+1px)] w-[calc(50%-4px)]'
+            isGroup || env.chainTier != 'testnet'
+              ? 'left-1 w-[calc(100%-8px)]'
+              : activeTab === 'send'
+                ? 'left-1 w-[calc(50%-4px)]'
+                : 'left-[calc(50%+1px)] w-[calc(50%-4px)]'
           }`}
         />
         <button
@@ -97,7 +99,7 @@ export default React.memo(function SendBox({
         >
           Send
         </button>
-        {env.chainTier === 'testnet' && (
+        {env.chainTier === 'testnet' && !isGroup && (
           <button
             aria-label="cross-chain-transfer-tab"
             className={`flex-1 py-2 px-4 cursor-pointer text-sm font-medium hover:text-[#161616] dark:hover:text-white rounded-xl transition-colors relative z-10 ${
@@ -120,7 +122,7 @@ export default React.memo(function SendBox({
               activeTab === 'cross-chain' ? 'h-[380px]' : 'h-[430px]'
             }`}
           >
-            {activeTab === 'cross-chain' && env.chainTier === 'testnet' ? (
+            {activeTab === 'cross-chain' && env.chainTier === 'testnet' && !isGroup ? (
               <IbcSendForm token={selectedDenom ?? 'umfx'} />
             ) : (
               // <IbcSendForm

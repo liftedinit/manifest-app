@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ModalDialog, SigningModalDialog } from '@/components';
+import { ModalDialog } from '@/components';
 import { CombinedBalanceInfo } from '@/utils/types';
 
 import SendBox from '../components/sendBox';

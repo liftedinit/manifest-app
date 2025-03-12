@@ -30,7 +30,6 @@ const getAllAssets = (chainName: string) => {
 
 export const denomToAsset = (chainName: string, denom: string) => {
   const allAssets = getAllAssets(chainName);
-
   // Only handle IBC hashes
   if (denom.startsWith('ibc/')) {
     // Find the asset that has this IBC hash as its base
