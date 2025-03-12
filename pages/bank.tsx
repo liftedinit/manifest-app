@@ -190,10 +190,10 @@ export default function Bank() {
                     aria-label="Bank Sections"
                     className="flex flex-row tabs tabs-border tabs-lg"
                   >
-                    <Tab className="font-bold tab ui-selected:tab-active focus:outline-1 focus:outline-primary">
+                    <Tab className="font-bold tab ui-selected:tab-active focus:outline-1 focus:outline-primary focus:-outline-offset-1">
                       Assets
                     </Tab>
-                    <Tab className="font-bold tab ui-selected:tab-active focus:outline-1 focus:outline-primary">
+                    <Tab className="font-bold tab ui-selected:tab-active focus:outline-1 focus:outline-primary focus:-outline-offset-1">
                       Activity
                     </Tab>
                   </Tab.List>
