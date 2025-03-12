@@ -1,22 +1,14 @@
 import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
 import { CoinSDKType } from '@liftedinit/manifestjs/src/codegen/cosmos/base/v1beta1/coin';
 import { cleanup, screen } from '@testing-library/react';
-import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, jest, mock, test } from 'bun:test';
 
 import { HistoryBox } from '@/components/bank/components/historyBox';
 import { TxMessage } from '@/components/bank/types';
+import { clearAllMocks, mockRouter } from '@/tests';
 import { renderWithChainProvider } from '@/tests/render';
 
 import { MsgSendHandler } from '../msgSendHandler';
-
-// Mock next/router
-const m = jest.fn();
-mock.module('next/router', () => ({
-  useRouter: m.mockReturnValue({
-    query: {},
-    push: jest.fn(),
-  }),
-}));
 
 const createTx = (sender: string, amount: CoinSDKType[], toAddress: string, error?: string) => [
   {
@@ -45,9 +37,13 @@ const render = (tx: TxMessage[]) => {
 };
 
 describe('MsgSendHandler', () => {
+  beforeEach(() => {
+    mockRouter();
+  });
+
   afterEach(() => {
     cleanup();
-    mock.restore();
+    clearAllMocks();
   });
 
   test('send success', () => {

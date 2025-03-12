@@ -1,21 +1,13 @@
 import { RenderResult, cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, jest, mock, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, jest, test } from 'bun:test';
 import React from 'react';
 
 import { UpdateFormValues, UpdateGroupForm, UpdateGroupModal } from '@/components';
 import { env } from '@/config';
 import { ExtendedGroupType } from '@/hooks';
 import { duration } from '@/schemas';
+import { clearAllMocks, mockRouter } from '@/tests';
 import { renderWithChainProvider } from '@/tests/render';
-
-// Mock next/router
-const m = jest.fn();
-mock.module('next/router', () => ({
-  useRouter: m.mockReturnValue({
-    query: {},
-    push: jest.fn(),
-  }),
-}));
 
 const mockGroup: ExtendedGroupType = {
   id: 1n,
@@ -71,6 +63,7 @@ const mockProps = {
 
 describe('UpdateGroupModal Component Input State Changes', () => {
   beforeEach(() => {
+    mockRouter();
     renderWithChainProvider(<UpdateGroupModal {...mockProps} />);
 
     // Programmatically open the modal
@@ -80,7 +73,10 @@ describe('UpdateGroupModal Component Input State Changes', () => {
     }
   });
 
-  afterEach(cleanup);
+  afterEach(() => {
+    clearAllMocks();
+    cleanup();
+  });
 
   test('updates input fields correctly', async () => {
     // Test name input
@@ -127,6 +123,15 @@ const mockValues: UpdateFormValues = {
 };
 
 describe('UpdateGroupForm', () => {
+  beforeEach(() => {
+    mockRouter();
+  });
+
+  afterEach(() => {
+    cleanup();
+    clearAllMocks();
+  });
+
   function changeField(field: HTMLElement, value: string) {
     field.focus();
     fireEvent.change(field, { target: { value } });

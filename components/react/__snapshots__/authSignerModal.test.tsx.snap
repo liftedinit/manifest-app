@@ -1,0 +1,27 @@
+// Bun Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PromptSignModalInner should render 1`] = `
+"<DocumentFragment>
+  <div
+    class="_14der0i88"
+    data-interchain-ui-provider="true"
+    data-is-controlled="false"
+    style="visibility: visible;"
+  />
+  <div
+    hidden=""
+    style="position: fixed; top: 1px; left: 1px; width: 1px; height: 0px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0px; display: none;"
+  />
+</DocumentFragment>"
+`;
+
+exports[`PromptSignModalInner should not be visible initially when visible prop is false 1`] = `
+"<DocumentFragment>
+  <div
+    class="_14der0i88"
+    data-interchain-ui-provider="true"
+    data-is-controlled="false"
+    style="visibility: visible;"
+  />
+</DocumentFragment>"
+`;

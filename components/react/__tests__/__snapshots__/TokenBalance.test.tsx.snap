@@ -1,0 +1,15 @@
+// Bun Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TokenBalance should render the token balance 1`] = `
+"<DocumentFragment>
+  <span
+    class="inline-block tooltip token-amount"
+    data-tip="1,000,000,000,000 TOKEN1"
+  >
+    1T 
+    <span>
+      TOKEN1
+    </span>
+  </span>
+</DocumentFragment>"
+`;

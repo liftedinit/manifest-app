@@ -1,27 +1,11 @@
 import { act, cleanup, fireEvent, screen } from '@testing-library/react';
-import { afterEach, beforeAll, describe, expect, jest, mock, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, jest, test } from 'bun:test';
 import React from 'react';
 
 import IbcSendForm from '@/components/bank/forms/ibcSendForm';
-import { mockBalances } from '@/tests/mock';
+import { clearAllMocks, mockModule, mockRouter } from '@/tests';
+import { mockBalances } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
-
-// Mock next/router
-mock.module('next/router', () => ({
-  useRouter: jest.fn().mockReturnValue({
-    query: {},
-    push: jest.fn(),
-  }),
-}));
-
-// Add this mock before the tests
-mock.module('next/image', () => ({
-  default: (props: any) => {
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img {...props} alt={props.alt || ''} />;
-  },
-  __esModule: true,
-}));
 
 function renderWithProps(props = {}) {
   const defaultChains = [
@@ -85,9 +69,21 @@ function renderWithProps(props = {}) {
 }
 
 describe('IbcSendForm Component', () => {
+  beforeEach(() => {
+    mockRouter();
+
+    mockModule('next/image', () => ({
+      default: (props: any) => {
+        // eslint-disable-next-line @next/next/no-img-element
+        return <img {...props} alt={props.alt || ''} />;
+      },
+      __esModule: true,
+    }));
+  });
+
   afterEach(() => {
     cleanup();
-    mock.restore();
+    clearAllMocks();
   });
 
   test.skip('renders form with correct details', async () => {

@@ -3,29 +3,14 @@ import {
   ProposalStatus,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, jest, mock, spyOn, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, jest, mock, spyOn, test } from 'bun:test';
 import React from 'react';
 
-import { mockMembers, mockProposals, mockTally, mockVotes } from '@/tests/mock';
+import { clearAllMocks, mockModule, mockRouter } from '@/tests';
+import { mockProposals, mockTally, mockVotes } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
 
 import VoteDetailsModal from '../voteDetailsModal';
-
-// Mock next/router
-const m = jest.fn();
-mock.module('next/router', () => ({
-  useRouter: m.mockReturnValue({
-    query: {},
-    push: jest.fn(),
-  }),
-}));
-
-mock.module('@cosmos-kit/react', () => ({
-  useChain: jest.fn().mockReturnValue({
-    address: mockProposals['test_policy_address'][0].proposers[0],
-    chain: { fees: null },
-  }),
-}));
 
 const defaultUseProposalById = {
   proposal: mockProposals['test_policy_address'][0],
@@ -48,12 +33,6 @@ const defaultUseVotesByProposal = {
   refetch: jest.fn(),
 };
 
-mock.module('@/hooks', () => ({
-  useProposalById: jest.fn().mockReturnValue(defaultUseProposalById),
-  useTallyCount: jest.fn().mockReturnValue(defaultUseTallyCount),
-  useVotesByProposal: jest.fn().mockReturnValue(defaultUseVotesByProposal),
-}));
-
 const mockProposal = mockProposals['test_policy_address'][0];
 
 describe('VoteDetailsModal', () => {
@@ -65,7 +44,25 @@ describe('VoteDetailsModal', () => {
     onClose: jest.fn(),
   };
 
+  beforeEach(() => {
+    mockRouter();
+
+    mockModule('@cosmos-kit/react', () => ({
+      useChain: jest.fn().mockReturnValue({
+        address: mockProposals['test_policy_address'][0].proposers[0],
+        chain: { fees: null },
+      }),
+    }));
+
+    mockModule('@/hooks', () => ({
+      useProposalById: jest.fn().mockReturnValue(defaultUseProposalById),
+      useTallyCount: jest.fn().mockReturnValue(defaultUseTallyCount),
+      useVotesByProposal: jest.fn().mockReturnValue(defaultUseVotesByProposal),
+    }));
+  });
+
   afterEach(() => {
+    clearAllMocks();
     mock.restore();
     cleanup();
   });

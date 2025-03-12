@@ -1,35 +1,11 @@
-import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
-import { afterAll, afterEach, describe, expect, jest, mock, test } from 'bun:test';
+import { cleanup, screen, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, jest, mock, test } from 'bun:test';
 import React from 'react';
 
 import DenomList from '@/components/factory/components/DenomList';
-import { mockDenom, mockDenom2, mockMfxDenom } from '@/tests/mock';
+import { clearAllMocks, formatComponent, mockModule, mockRouter } from '@/tests';
+import { mockDenom, mockDenom2 } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
-
-// Mock next/router
-const m = jest.fn();
-mock.module('next/router', () => ({
-  useRouter: m.mockReturnValue({
-    query: {},
-    push: jest.fn(),
-  }),
-}));
-
-// TODO: Mock DenomImage until we can fix the URL parsing issue
-mock.module('@/components/factory/components/DenomImage', () => ({
-  DenomImage: () => <div>DenomImage</div>,
-}));
-
-mock.module('@/hooks/useQueries', () => ({
-  usePoaGetAdmin: jest.fn().mockReturnValue({
-    poaAdmin: '',
-    isPoaAdminLoading: false,
-  }),
-  useDenomAuthorityMetadata: jest.fn().mockReturnValue({
-    denomAuthority: '',
-    isDenomAuthorityLoading: false,
-  }),
-}));
 
 const renderWithProps = (props = {}) => {
   const defaultProps = {
@@ -39,6 +15,7 @@ const renderWithProps = (props = {}) => {
     refetchDenoms: jest.fn(),
     address: '',
     pageSize: 2,
+    admin: '',
   };
   return renderWithChainProvider(<DenomList {...defaultProps} {...props} />);
 };
@@ -46,13 +23,33 @@ const renderWithProps = (props = {}) => {
 const allDenoms = [mockDenom, mockDenom2];
 
 describe('MyDenoms', () => {
+  beforeEach(async () => {
+    mockRouter();
+
+    // TODO: Mock DenomImage until we can fix the URL parsing issue
+    mockModule('@/components/factory/components/DenomImage', () => ({
+      DenomImage: () => <div>DenomImage</div>,
+    }));
+
+    mockModule('@/hooks/useQueries', () => ({
+      usePoaGetAdmin: jest.fn().mockReturnValue({
+        poaAdmin: '',
+        isPoaAdminLoading: false,
+      }),
+      useDenomAuthorityMetadata: jest.fn().mockReturnValue({
+        denomAuthority: '',
+        isDenomAuthorityLoading: false,
+      }),
+    }));
+  });
+
   afterEach(() => {
-    mock.restore();
+    clearAllMocks();
     cleanup();
   });
 
   test('renders loading skeleton when isLoading is true', () => {
-    renderWithProps({ isLoading: true });
+    const mockup = renderWithProps({ isLoading: true });
 
     // Check for presence of skeleton elements for first row
     expect(screen.getByLabelText('skeleton-0-avatar')).toBeInTheDocument();

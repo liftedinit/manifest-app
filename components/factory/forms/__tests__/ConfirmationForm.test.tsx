@@ -1,9 +1,10 @@
 import { cleanup, fireEvent, screen } from '@testing-library/react';
-import { afterEach, describe, expect, jest, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, jest, test } from 'bun:test';
 import React from 'react';
 
 import ConfirmationForm from '@/components/factory/forms/ConfirmationForm';
-import { mockTokenFormData } from '@/tests/mock';
+import { clearAllMocks, mockRouter } from '@/tests';
+import { mockTokenFormData } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
 
 function renderWithProps(props = {}) {
@@ -18,7 +19,14 @@ function renderWithProps(props = {}) {
 }
 
 describe('ConfirmationForm Component', () => {
-  afterEach(cleanup);
+  beforeEach(() => {
+    mockRouter();
+  });
+
+  afterEach(() => {
+    cleanup();
+    clearAllMocks();
+  });
 
   test('renders form with correct details', () => {
     renderWithProps();

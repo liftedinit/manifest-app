@@ -81,12 +81,17 @@ export const ModalDialog = ({
   if (open && !opened) {
     setOpened(true);
   }
+
   function handleClose(value: any) {
     if (onClose && onClose() === false) {
       setOpened(true);
       return;
     }
     setOpened(false);
+  }
+
+  if (!opened) {
+    return null;
   }
 
   return (

@@ -1,0 +1,16 @@
+// Bun Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AmountInput renders correctly 1`] = `
+"<DocumentFragment>
+  bound HTMLFormElement {
+    "0": <input
+      class="input input-md border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full pr-24 dark:text-[#FFFFFF] text-[#161616] rounded-xl undefined"
+      min="0"
+      name="test"
+      placeholder="0.00"
+      type="text"
+      value="42"
+    />,
+  }
+</DocumentFragment>"
+`;

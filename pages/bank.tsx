@@ -1,4 +1,5 @@
 import { useChain } from '@cosmos-kit/react';
+import { Tab } from '@headlessui/react';
 import React, { useMemo, useState } from 'react';
 
 import { HistoryBox, SearchIcon, WalletNotConnected } from '@/components';
@@ -34,7 +35,6 @@ export default function Bank() {
 
   const { metadatas, isMetadatasLoading } = useTokenFactoryDenomsMetadata();
   const [currentPage, setCurrentPage] = useState(1);
-  const [activeTab, setActiveTab] = useState('assets');
 
   const sizeLookup: Array<{ height: number; width: number; sizes: PageSizeConfig }> = [
     {
@@ -184,64 +184,54 @@ export default function Bank() {
                     </div>
                   </div>
                 </div>
-                <div
-                  role="tablist"
-                  className="tabs tabs-border tabs-lg flex flex-row"
-                  aria-label="Bank sections"
-                >
-                  <button
-                    role="tab"
-                    id="assets-tab"
-                    aria-controls="assets-panel"
-                    aria-selected={activeTab === 'assets'}
-                    className={`font-bold tab ${activeTab === 'assets' ? 'tab-active' : ''}`}
-                    onClick={() => setActiveTab('assets')}
-                  >
-                    Assets
-                  </button>
-                  <button
-                    role="tab"
-                    id="history-tab"
-                    aria-controls="history-panel"
-                    aria-selected={activeTab === 'history'}
-                    className={`font-bold tab ${activeTab === 'history' ? 'tab-active' : ''}`}
-                    onClick={() => setActiveTab('history')}
-                  >
-                    Activity
-                  </button>
-                </div>
 
-                <div className="flex flex-col w-full mt-4">
-                  {activeTab === 'assets' &&
-                    (combinedBalances.length === 0 && !isLoading ? (
-                      <NoAssetsFound />
-                    ) : (
-                      <TokenList
-                        isLoading={isLoading}
-                        balances={combinedBalances}
-                        address={address ?? ''}
-                        pageSize={tokenListPageSize}
-                        searchTerm={searchTerm}
-                      />
-                    ))}
-                  {activeTab === 'history' &&
-                    (totalPages === 0 ? (
-                      <NoActivityFound />
-                    ) : (
-                      <HistoryBox
-                        currentPage={currentPage}
-                        setCurrentPage={setCurrentPage}
-                        address={address ?? ''}
-                        isLoading={isLoading}
-                        sendTxs={sendTxs}
-                        totalPages={totalPages}
-                        txLoading={txLoading}
-                        isError={isError}
-                        skeletonGroupCount={skeletonGroupCount}
-                        skeletonTxCount={skeletonTxCount}
-                      />
-                    ))}
-                </div>
+                <Tab.Group>
+                  <Tab.List
+                    aria-label="Bank Sections"
+                    className="flex flex-row tabs tabs-border tabs-lg"
+                  >
+                    <Tab className="font-bold tab ui-selected:tab-active focus:outline-1 focus:outline-primary focus:-outline-offset-1">
+                      Assets
+                    </Tab>
+                    <Tab className="font-bold tab ui-selected:tab-active focus:outline-1 focus:outline-primary focus:-outline-offset-1">
+                      Activity
+                    </Tab>
+                  </Tab.List>
+
+                  <Tab.Panels className="w-full mt-4">
+                    <Tab.Panel>
+                      {combinedBalances.length === 0 && !isLoading ? (
+                        <NoAssetsFound />
+                      ) : (
+                        <TokenList
+                          isLoading={isLoading}
+                          balances={combinedBalances}
+                          address={address ?? ''}
+                          pageSize={tokenListPageSize}
+                          searchTerm={searchTerm}
+                        />
+                      )}
+                    </Tab.Panel>
+                    <Tab.Panel>
+                      {totalPages === 0 ? (
+                        <NoActivityFound />
+                      ) : (
+                        <HistoryBox
+                          currentPage={currentPage}
+                          setCurrentPage={setCurrentPage}
+                          address={address ?? ''}
+                          isLoading={isLoading}
+                          sendTxs={sendTxs}
+                          totalPages={totalPages}
+                          txLoading={txLoading}
+                          isError={isError}
+                          skeletonGroupCount={skeletonGroupCount}
+                          skeletonTxCount={skeletonTxCount}
+                        />
+                      )}
+                    </Tab.Panel>
+                  </Tab.Panels>
+                </Tab.Group>
               </div>
             </div>
           )}

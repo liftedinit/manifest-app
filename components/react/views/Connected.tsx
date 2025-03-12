@@ -9,7 +9,7 @@ import { CopyIcon } from '@/components/icons';
 import { Username } from '@/components/username';
 import { useBalance } from '@/hooks/useQueries';
 import { getRealLogo, shiftDigits, truncateAddress } from '@/utils';
-import ProfileAvatar from '@/utils/identicon';
+import { ProfileAvatar } from '@/utils/identicon';
 
 import { ContactsModal } from './Contacts';
 

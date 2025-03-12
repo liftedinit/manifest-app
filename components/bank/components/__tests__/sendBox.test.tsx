@@ -1,27 +1,11 @@
-import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
-import { afterEach, describe, expect, jest, mock, test } from 'bun:test';
+import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import React from 'react';
 
 import SendBox from '@/components/bank/components/sendBox';
-import { mockBalances } from '@/tests/mock';
+import { clearAllMocks, mockModule, mockRouter } from '@/tests';
+import { mockBalances } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
-
-// Mock next/router
-const m = jest.fn();
-mock.module('next/router', () => ({
-  useRouter: m.mockReturnValue({
-    query: {},
-    push: jest.fn(),
-  }),
-}));
-
-// Add this mock before your tests
-mock.module('next/image', () => ({
-  default: (props: any) => {
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img {...props} alt={props.alt || ''} />;
-  },
-}));
 
 const renderWithProps = (props = {}) => {
   const defaultProps = {
@@ -39,9 +23,19 @@ const renderWithProps = (props = {}) => {
 };
 
 describe('SendBox', () => {
+  beforeEach(() => {
+    mockRouter();
+    // Add this mock before your tests
+    mockModule('next/image', () => ({
+      default: (props: any) => {
+        // eslint-disable-next-line @next/next/no-img-element
+        return <img {...props} alt={props.alt || ''} />;
+      },
+    }));
+  });
   afterEach(() => {
     cleanup();
-    mock.restore();
+    clearAllMocks();
   });
 
   test('renders correctly', () => {
