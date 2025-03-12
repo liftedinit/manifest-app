@@ -64,7 +64,7 @@ describe('TokenList', () => {
     renderWithChainProvider(
       <TokenList balances={mockBalances} isLoading={false} address={''} pageSize={1} />
     );
-    const token1Row = screen.getByLabelText('utoken1');
+    const token1Row = screen.getByLabelText('token1');
     expect(token1Row).toBeInTheDocument();
 
     const ticker = within(token1Row).getAllByText('TOKEN 1');
@@ -76,28 +76,14 @@ describe('TokenList', () => {
 
   test('displays loading skeleton when isLoading is true', () => {
     renderWithChainProvider(
-      <TokenList
-        balances={undefined}
-        isLoading={true}
-        refetchBalances={jest.fn()}
-        refetchHistory={jest.fn()}
-        address={''}
-        pageSize={1}
-      />
+      <TokenList balances={undefined} isLoading={true} address={''} pageSize={1} />
     );
     expect(screen.getByLabelText('skeleton-loader')).toBeInTheDocument();
   });
 
   test('displays empty state when there are no balances', () => {
     renderWithChainProvider(
-      <TokenList
-        balances={[]}
-        isLoading={false}
-        refetchBalances={jest.fn()}
-        refetchHistory={jest.fn()}
-        address={''}
-        pageSize={1}
-      />
+      <TokenList balances={[]} isLoading={false} address={''} pageSize={1} />
     );
     expect(screen.getByText('No tokens found!')).toBeInTheDocument();
   });
@@ -107,31 +93,22 @@ describe('TokenList', () => {
       <TokenList
         balances={mockBalances}
         isLoading={false}
-        refetchBalances={jest.fn()}
-        refetchHistory={jest.fn()}
         address={''}
         pageSize={1}
         searchTerm={'Token 1'}
       />
     );
-    const token1Row = screen.getByLabelText('utoken1');
-    const token2Row = screen.queryByLabelText('utoken2');
+    const token1Row = screen.getByLabelText('token1');
+    const token2Row = screen.queryByLabelText('token2');
     expect(token1Row).toBeInTheDocument();
     expect(token2Row).not.toBeInTheDocument();
   });
 
   test('opens modal with correct denomination information', async () => {
     renderWithChainProvider(
-      <TokenList
-        balances={mockBalances}
-        isLoading={false}
-        refetchBalances={jest.fn()}
-        refetchHistory={jest.fn()}
-        address={''}
-        pageSize={1}
-      />
+      <TokenList balances={mockBalances} isLoading={false} address={''} pageSize={1} />
     );
-    const token1Container = screen.getByLabelText('utoken1');
+    const token1Container = screen.getByLabelText('token1');
     const button = within(token1Container).getByLabelText('info-utoken1');
     fireEvent.click(button);
 
@@ -145,14 +122,7 @@ describe('TokenList', () => {
 
   test('displays correct balance for each token', () => {
     renderWithChainProvider(
-      <TokenList
-        balances={mockBalances}
-        isLoading={false}
-        refetchBalances={jest.fn()}
-        refetchHistory={jest.fn()}
-        address={''}
-        pageSize={2}
-      />
+      <TokenList balances={mockBalances} isLoading={false} address={''} pageSize={2} />
     );
     expect(screen.getByText('0.001')).toBeInTheDocument();
     expect(screen.getByText('0.002')).toBeInTheDocument();

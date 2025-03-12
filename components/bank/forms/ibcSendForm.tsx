@@ -141,7 +141,11 @@ function IbcSendForm({ token }: { token: string }) {
     .map(asset => asset.base);
 
   return (
-    <div ref={containerRef} className="w-[100%] max-w-[500px] px-2 box-border relative">
+    <div
+      aria-label="ibc-send-form"
+      ref={containerRef}
+      className="w-[100%] max-w-[500px] px-2 box-border relative"
+    >
       <ShadowScopeConfigProvider config={{ dsd: 'off' }}>
         <Widget
           filter={{
