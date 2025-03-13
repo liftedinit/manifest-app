@@ -31,7 +31,7 @@ exports[`ModalDialog renders correctly: portal 1`] = `
     bound HTMLFormElement {
       "0": <button
         aria-label="Close"
-        class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]"
+        class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A] disabled:cursor-not-allowed"
         role="button"
       >
         ✕

@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { Tab } from '@headlessui/react';
+import { Fragment, useState } from 'react';
 import React from 'react';
 
 import env from '@/config/env';
@@ -31,128 +32,61 @@ export default React.memo(function SendBox({
   isGroup?: boolean;
   admin?: string;
 }) {
-  // const ibcChains = useMemo<IbcChain[]>(
-  //   () => [
-  //     {
-  //       id: env.chain,
-  //       name: 'Manifest',
-  //       icon: '/logo.svg',
-  //       prefix: 'manifest',
-  //       chainID: env.chainId,
-  //     },
-  //     {
-  //       id: env.osmosisChain,
-  //       name: 'Osmosis',
-  //       icon: '/osmosis.svg',
-  //       prefix: 'osmo',
-  //       chainID: env.osmosisChainId,
-  //     },
-  //     {
-  //       id: env.axelarChain,
-  //       name: 'Axelar',
-  //       icon: 'https://github.com/cosmos/chain-registry/raw/refs/heads/master/axelar/images/axl.svg',
-  //       prefix: 'axelar',
-  //       chainID: env.axelarChainId,
-  //     },
-  //   ],
-  //   []
-  // );
-  const [activeTab, setActiveTab] = useState<'send' | 'cross-chain'>('send');
-  // const [selectedFromChain, setSelectedFromChain] = useState<IbcChain>(ibcChains[0]);
-  // const [selectedToChain, setSelectedToChain] = useState<IbcChain>(ibcChains[1]);
-
+  const [activeTab, setActiveTab] = useState(0);
   const { isSigning } = useTx(env.chain);
-
-  // useEffect(() => {
-  //   if (selectedFromChain && selectedToChain && selectedFromChain.id === selectedToChain.id) {
-  //     // If chains match, switch the destination chain to the other available chain
-  //     const otherChain = ibcChains.find(chain => chain.id !== selectedFromChain.id);
-  //     if (otherChain) {
-  //       setSelectedToChain(otherChain);
-  //     }
-  //   }
-  // }, [selectedFromChain, selectedToChain, ibcChains]);
-
-  // const getAvailableToChains = useMemo(() => {
-  //   return ibcChains.filter(chain => chain.id !== selectedFromChain.id);
-  // }, [ibcChains, selectedFromChain]);
+  const allowCrossChainTransfer = !isGroup && env.chainTier === 'testnet';
 
   return (
-    <div className="rounded-2xl w-full">
-      <div className="flex mb-4 md:mb-6 w-full h-[3.5rem] rounded-xl p-1 bg-[#0000000A] dark:bg-[#FFFFFF0F] relative">
-        <div
-          className={`absolute transition-all duration-200 ease-in-out h-[calc(100%-8px)] top-1 rounded-xl bg-white dark:bg-[#FFFFFF1F] ${
-            isGroup || env.chainTier != 'testnet'
-              ? 'left-1 w-[calc(100%-8px)]'
-              : activeTab === 'send'
-                ? 'left-1 w-[calc(50%-4px)]'
-                : 'left-[calc(50%+1px)] w-[calc(50%-4px)]'
-          }`}
-        />
-        <button
-          aria-label="send-tab"
-          className={`flex-1 py-2 cursor-pointer px-4 text-sm font-medium hover:text-[#161616] dark:hover:text-white rounded-xl transition-colors relative z-10 ${
-            activeTab === 'send' ? 'text-[#161616] dark:text-white' : 'text-[#808080]'
-          }`}
+    <Tab.Group as="div" defaultIndex={activeTab} onChange={setActiveTab}>
+      <Tab.List className="relative flex p-3 h-[3.5rem] w-full space-x-1 mb-4 md:mb-6 rounded-2xl bg-[#0000000A] dark:bg-[#FFFFFF0F]">
+        {
+          <div
+            className={`absolute transition-all duration-200 ease-in-out h-[calc(100%-8px)] w-[calc(50%-4px)] top-1 rounded-xl bg-white dark:bg-[#FFFFFF1F] ${
+              activeTab === 0 ? 'left-1' : 'left-[calc(50%+1px)]'
+            }`}
+          />
+        }
+
+        <Tab
+          aria-label="Send tab"
           disabled={isSigning}
-          onClick={() => setActiveTab('send')}
+          className="absolute flex-1 top-1 left-1 text-sm font-medium rounded-xl z-10
+                h-[calc(100%-8px)] w-[calc(50%-4px)]
+                transition-colors ui-selected:text-[#161616] ui-selected:dark:text-white
+                ui-not-selected:text-[#808080]
+                disabled:text-[#404040] disabled:cursor-not-allowed"
         >
           Send
-        </button>
-        {env.chainTier === 'testnet' && !isGroup && (
-          <button
-            aria-label="cross-chain-transfer-tab"
-            className={`flex-1 py-2 px-4 cursor-pointer text-sm font-medium hover:text-[#161616] dark:hover:text-white rounded-xl transition-colors relative z-10 ${
-              activeTab === 'cross-chain' ? 'text-[#161616] dark:text-white' : 'text-[#808080]'
-            }`}
-            disabled={isSigning}
-            onClick={() => setActiveTab('cross-chain')}
-          >
-            Cross-Chain Transfer
-          </button>
-        )}
-      </div>
+        </Tab>
+        <Tab
+          aria-label="Cross chain transfer tab"
+          disabled={!allowCrossChainTransfer || isSigning}
+          className="absolute flex-1 top-1 right-1 text-sm font-medium rounded-xl z-10
+                h-[calc(100%-8px)] w-[calc(50%-4px)]
+                transition-colors ui-selected:text-[#161616] ui-selected:dark:text-white
+                ui-not-selected:text-[#808080]
+                disabled:text-[#404040] disabled:cursor-not-allowed"
+        >
+          Cross-Chain Transfer
+        </Tab>
+      </Tab.List>
 
-      <div className="transition-[height] duration-300 ease-in-out h-auto">
-        {isBalancesLoading || !balances ? (
-          <div className="skeleton h-[300px] w-full"></div>
-        ) : (
-          <div
-            className={`transition-all duration-300 ease-in-out ${
-              activeTab === 'cross-chain' ? 'h-[380px]' : 'h-[430px]'
-            }`}
-          >
-            {activeTab === 'cross-chain' && env.chainTier === 'testnet' && !isGroup ? (
-              <IbcSendForm token={selectedDenom ?? 'umfx'} />
-            ) : (
-              // <IbcSendForm
-              //   isIbcTransfer={true}
-              //   ibcChains={ibcChains}
-              //   selectedFromChain={selectedFromChain}
-              //   setSelectedFromChain={setSelectedFromChain}
-              //   selectedToChain={selectedToChain}
-              //   setSelectedToChain={setSelectedToChain}
-              //   address={address}
-              //   balances={balances}
-              //   isBalancesLoading={isBalancesLoading}
-              //   selectedDenom={selectedDenom}
-              //   isGroup={isGroup}
-              //   admin={admin}
-              //   availableToChains={getAvailableToChains}
-              // />
+      <Tab.Panels>
+        <Tab.Panel>
+          <SendForm
+            address={address}
+            balances={balances}
+            isBalancesLoading={isBalancesLoading}
+            selectedDenom={selectedDenom}
+            isGroup={isGroup}
+            admin={admin}
+          />
+        </Tab.Panel>
 
-              <SendForm
-                address={address}
-                balances={balances}
-                isBalancesLoading={isBalancesLoading}
-                selectedDenom={selectedDenom}
-                isGroup={isGroup}
-                admin={admin}
-              />
-            )}
-          </div>
-        )}
-      </div>
-    </div>
+        <Tab.Panel>
+          {allowCrossChainTransfer && <IbcSendForm token={selectedDenom ?? 'umfx'} />}
+        </Tab.Panel>
+      </Tab.Panels>
+    </Tab.Group>
   );
 });

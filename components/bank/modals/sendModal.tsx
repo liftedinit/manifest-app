@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ModalDialog } from '@/components';
+import { SigningModalDialog } from '@/components';
 import { CombinedBalanceInfo } from '@/utils/types';
 
 import SendBox from '../components/sendBox';
@@ -28,7 +28,7 @@ export default function SendModal({
   admin,
 }: SendModalProps) {
   return (
-    <ModalDialog
+    <SigningModalDialog
       open={isOpen}
       onClose={() => {
         // skip-go/widget does not have a lot of useful props/events so we kind of
@@ -56,6 +56,6 @@ export default function SendModal({
         isGroup={isGroup}
         admin={admin}
       />
-    </ModalDialog>
+    </SigningModalDialog>
   );
 }

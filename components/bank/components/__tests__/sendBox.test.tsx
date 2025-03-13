@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import React from 'react';
 
 import SendBox from '@/components/bank/components/sendBox';
-import { clearAllMocks, mockModule, mockRouter } from '@/tests';
+import { clearAllMocks, formatComponent, mockModule, mockRouter } from '@/tests';
 import { mockBalances } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
 
@@ -39,29 +39,34 @@ describe('SendBox', () => {
   });
 
   test('renders correctly', () => {
-    renderWithProps();
-    expect(screen.getByLabelText('send-tab')).toBeInTheDocument();
-    expect(screen.getByLabelText('cross-chain-transfer-tab')).toBeInTheDocument();
+    const mockup = renderWithProps();
+    expect(screen.getByLabelText('Send tab')).toBeInTheDocument();
+    expect(screen.getByLabelText('Cross chain transfer tab')).toBeInTheDocument();
+
+    expect(formatComponent(mockup.asFragment())).toMatchSnapshot();
   });
 
   test.skip('toggles between Send and Cross-Chain Transfer', async () => {
-    renderWithProps();
+    const mockup = renderWithProps();
+
     // Check initial send form
     expect(screen.getByPlaceholderText('0.00')).toBeInTheDocument();
     expect(screen.queryByLabelText('to-chain-selector')).not.toBeInTheDocument();
 
     // Switch to cross-chain transfer
-    fireEvent.click(screen.getByLabelText('cross-chain-transfer-tab'));
+    fireEvent.click(screen.getByLabelText('Cross chain transfer tab'));
 
     // Verify cross-chain elements are present
     await waitFor(() => {
       expect(screen.getAllByLabelText('ibc-send-form')).toBeInTheDocument();
     });
+
+    expect(formatComponent(mockup.asFragment())).toMatchSnapshot();
   });
 
   test.skip('displays chain selection dropdowns in Cross-Chain Transfer mode', async () => {
     renderWithProps();
-    fireEvent.click(screen.getByLabelText('cross-chain-transfer-tab'));
+    fireEvent.click(screen.getByLabelText('Cross chain transfer tab'));
 
     await waitFor(() => {
       expect(screen.getByLabelText('to-chain-selector')).toBeInTheDocument();
