@@ -8,7 +8,16 @@ import { mockGroup, mockGroup2, mockProposals } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
 
 const mockProps = {
-  policyAddress: 'test_policy_address',
+  group: {
+    policies: [
+      {
+        address: 'test_policy_address',
+        title: 'Test Policy',
+        description: 'Test Policy Description',
+      },
+    ],
+  },
+  isLoading: false,
 };
 
 describe('ProposalsForPolicy Component', () => {
