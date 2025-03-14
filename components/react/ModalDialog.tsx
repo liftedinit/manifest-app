@@ -21,6 +21,19 @@ export interface ModalDialogProps extends React.PropsWithChildren {
 export interface SigningModalDialogProps extends ModalDialogProps {}
 
 /**
+ * Context to discover if multiple signing modals are nested within each others.
+ * This will throw an exception if the nested signing dialog does not have a
+ * signId, which would lead to UX issues.
+ *
+ * If you ended up here trying to figure out what you did wrong, you need to do
+ * 2 things:
+ *   1. the nested <SigningModalDialog /> needs to have a unique `signId` property.
+ *   2. the `useTx()` call to sign your transactions need to have the same signId
+ *      passed as the second argument.
+ */
+const IsNestedContext = React.createContext(false);
+
+/**
  * A modal dialog that is used for signing transactions. This dialog will
  * not be closable while a transaction is being signed.
  * @param isOpen  Whether the modal is open.
@@ -36,6 +49,11 @@ export const SigningModalDialog = ({
   ...props
 }: SigningModalDialogProps) => {
   const { isSigning } = useTx(env.chain);
+  const isNested = React.useContext(IsNestedContext);
+
+  if (isNested && !signId) {
+    throw new Error('SigningModalDialog cannot be nested without a signId');
+  }
 
   const handleClose = () => {
     if (!isSigning) {
@@ -47,7 +65,7 @@ export const SigningModalDialog = ({
 
   return (
     <ModalDialog open={open} onClose={handleClose} disabled={isSigning} {...props}>
-      {children}
+      <IsNestedContext.Provider value={true}>{children}</IsNestedContext.Provider>
 
       <SignModal id={signId} />
     </ModalDialog>
