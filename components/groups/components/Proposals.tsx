@@ -5,6 +5,7 @@ import {
   ThresholdDecisionPolicySDKType,
   proposalStatusToJSON,
 } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { TallyResultSDKType } from '@liftedinit/manifestjs/src/codegen/cosmos/gov/v1/gov';
 import {
   ProposalExecutorResult,
   proposalExecutorResultToJSON,
@@ -15,11 +16,11 @@ import React, { useEffect, useState } from 'react';
 import VoteDetailsModal from '@/components/groups/modals/voteDetailsModal';
 import { ExtendedGroupType, useMultipleTallyCounts } from '@/hooks';
 
-function isProposalPassing(tally: QueryTallyResultResponseSDKType, policyThreshold: number) {
-  const yesCount = BigInt(tally?.tally?.yes_count ?? '0');
-  const noCount = BigInt(tally?.tally?.no_count ?? '0');
-  const noWithVetoCount = BigInt(tally?.tally?.no_with_veto_count ?? '0');
-  const abstainCount = BigInt(tally?.tally?.abstain_count ?? '0');
+export function isProposalPassing(tally: TallyResultSDKType | undefined, policyThreshold: number) {
+  const yesCount = BigInt(tally?.yes_count ?? '0');
+  const noCount = BigInt(tally?.no_count ?? '0');
+  const noWithVetoCount = BigInt(tally?.no_with_veto_count ?? '0');
+  const abstainCount = BigInt(tally?.abstain_count ?? '0');
 
   const totalVotes = yesCount + noCount + noWithVetoCount + abstainCount;
   const totalNoVotes = noCount + noWithVetoCount;
@@ -113,7 +114,7 @@ const ProposalRow = ({
   proposal,
   tally,
 }: {
-  group: ExtendedGroupType;
+  group?: ExtendedGroupType;
   proposal: ProposalSDKType;
   tally?: QueryTallyResultResponseSDKType;
 }) => {
@@ -127,9 +128,9 @@ const ProposalRow = ({
     }
   }, [router.query, proposal]);
 
-  const policyAddress = group.policies[0]?.address ?? '';
+  const policyAddress = group?.policies[0]?.address ?? '';
   const policyThreshold =
-    (group.policies[0]?.decision_policy as ThresholdDecisionPolicySDKType)?.threshold ?? '0';
+    (group?.policies[0]?.decision_policy as ThresholdDecisionPolicySDKType)?.threshold ?? '0';
 
   const endTime = new Date(proposal?.voting_period_end);
   const now = new Date();
@@ -169,7 +170,7 @@ const ProposalRow = ({
     status = 'Execute';
   } else if (tally) {
     const { isPassing, isThresholdReached, isTie } = isProposalPassing(
-      tally,
+      tally?.tally,
       Number.parseInt(policyThreshold) || 0
     );
     if (isThresholdReached) {
@@ -189,7 +190,10 @@ const ProposalRow = ({
           setShowVoteModal(true);
           // Update URL without navigating
           router.push(
-            `/groups?policyAddress=${policyAddress}&proposalId=${proposal.id}`,
+            {
+              pathname: router.pathname,
+              query: { ...router.query, proposalId: proposal.id.toString() },
+            },
             undefined,
             {
               shallow: true,

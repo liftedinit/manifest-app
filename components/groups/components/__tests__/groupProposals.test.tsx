@@ -1,5 +1,5 @@
-import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, jest, mock, test } from 'bun:test';
+import { cleanup, screen } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, jest, test } from 'bun:test';
 import React from 'react';
 
 import GroupProposals from '@/components/groups/components/groupControls';
@@ -14,10 +14,22 @@ const mockProps = {
         address: 'test_policy_address',
         title: 'Test Policy',
         description: 'Test Policy Description',
-      },
+      } as any,
     ],
-  },
+  } as any,
   isLoading: false,
+  txLoading: false,
+  onBack: jest.fn(),
+  currentPage: 0,
+  setCurrentPage: jest.fn(),
+  totalPages: 1,
+  sendTxs: [],
+  isError: false,
+  balances: [],
+  denoms: [],
+  pageSize: 6,
+  skeletonGroupCount: 0,
+  skeletonTxCount: 0,
 };
 
 describe('ProposalsForPolicy Component', () => {

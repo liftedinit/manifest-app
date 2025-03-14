@@ -149,9 +149,16 @@ export const YourGroups = ({
 
   const handleSelectGroup = (group: ExtendedGroupType) => {
     setSelectedGroup(group);
-    router.push(`/groups?policyAddress=${group.policies[0]?.address}`, undefined, {
-      shallow: true,
-    });
+    router.push(
+      {
+        pathname: router.pathname,
+        query: { ...router.query, policyAddress: group.policies[0]?.address },
+      },
+      undefined,
+      {
+        shallow: true,
+      }
+    );
   };
 
   const handleBack = () => {
@@ -167,8 +174,7 @@ export const YourGroups = ({
   const { balances: resolvedBalances, isBalancesLoading: resolvedLoading } =
     useTokenBalancesResolved(address ?? '');
 
-  const { metadatas, isMetadatasLoading, isMetadatasError, refetchMetadatas } =
-    useTokenFactoryDenomsMetadata();
+  const { metadatas, isMetadatasLoading } = useTokenFactoryDenomsMetadata();
   const [currentPageGroupInfo, setCurrentPageGroupInfo] = useState(1);
 
   const {
@@ -561,7 +567,7 @@ const GroupRow = React.memo(function GroupRow({
             <ProfileAvatar walletAddress={policyAddress} />
             <span className="font-medium">{truncateString(groupName, 24)}</span>
           </div>
-          <div className="items-center flex xs:hidden block">
+          <div className="items-center flex xs:hidden">
             <ProfileAvatar walletAddress={policyAddress} />
           </div>
         </td>
