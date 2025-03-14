@@ -60,8 +60,22 @@ export interface GroupProposalsProps {
   proposals: ProposalSDKType[];
 }
 
+/**
+ * GroupProposals component displays a list of proposals for a group in a table.
+ * @param group The group to display proposals for.
+ * @param proposals The list of proposals to display.
+ * @constructor
+ */
 export const GroupProposals = ({ group, proposals }: GroupProposalsProps) => {
   const { tallies } = useMultipleTallyCounts(proposals.map(p => p.id));
+
+  // This is O(n^2), even if we don't expect a lot of proposals, let's memoize it.
+  const proposalTallies = React.useMemo(() => {
+    return proposals.map(proposal => ({
+      proposal,
+      tally: tallies.find(t => t.proposalId === proposal.id)?.tally,
+    }));
+  }, [proposals, tallies]);
 
   return (
     <>
@@ -95,12 +109,12 @@ export const GroupProposals = ({ group, proposals }: GroupProposalsProps) => {
           </tr>
         </thead>
         <tbody className="space-y-4">
-          {proposals.map(proposal => (
+          {proposalTallies.map(({ proposal, tally }) => (
             <ProposalRow
               key={`proposal-${proposal.id}`}
               group={group}
               proposal={proposal}
-              tally={tallies.find(t => t.proposalId === proposal.id)?.tally}
+              tally={tally}
             />
           ))}
         </tbody>
