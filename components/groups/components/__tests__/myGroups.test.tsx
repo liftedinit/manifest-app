@@ -2,7 +2,7 @@ import { cleanup, fireEvent, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, jest, mock, test } from 'bun:test';
 import React from 'react';
 
-import YourGroups from '@/components/groups/components/myGroups';
+import { YourGroups } from '@/components';
 import { clearAllMocks, mockModule, mockRouter } from '@/tests';
 import { mockGroup, mockGroup2 } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
@@ -18,7 +18,7 @@ const mockProps = {
         admin: 'admin1',
         members: [{ member: { address: 'member1' } }],
         total_weight: '1',
-      },
+      } as any,
     ],
   },
   proposals: { policy1: [] },
@@ -29,14 +29,17 @@ const mockPropsWithManyGroups = {
   groups: {
     groups: Array(12)
       .fill(null)
-      .map((_, index) => ({
-        id: `${index + 1}`,
-        metadata: `{"title":"title${index + 1}","authors":"author${index + 1}","summary":"summary${index + 1}","details":"details${index + 1}"}`,
-        policies: [{ address: `policy${index + 1}`, decision_policy: { threshold: '1' } }],
-        admin: `admin${index + 1}`,
-        members: [{ member: { address: `member${index + 1}` } }],
-        total_weight: '1',
-      })),
+      .map(
+        (_, index) =>
+          ({
+            id: `${index + 1}`,
+            metadata: `{"title":"title${index + 1}","authors":"author${index + 1}","summary":"summary${index + 1}","details":"details${index + 1}"}`,
+            policies: [{ address: `policy${index + 1}`, decision_policy: { threshold: '1' } }],
+            admin: `admin${index + 1}`,
+            members: [{ member: { address: `member${index + 1}` } }],
+            total_weight: '1',
+          }) as any
+      ),
   },
   proposals: {},
   isLoading: false,
@@ -115,7 +118,7 @@ describe('Groups Component', () => {
     // Verify that router.push was called with the correct arguments
     const router = require('next/router').useRouter();
     expect(router.push).toHaveBeenCalledWith(
-      expect.stringContaining('/groups?policyAddress=policy1'),
+      expect.objectContaining({ query: { policyAddress: 'policy1' } }),
       undefined,
       { shallow: true }
     );

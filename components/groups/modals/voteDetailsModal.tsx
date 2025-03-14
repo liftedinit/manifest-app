@@ -3,7 +3,6 @@ import { CheckIcon } from '@heroicons/react/24/outline';
 import { cosmos } from '@liftedinit/manifestjs';
 import { QueryTallyResultResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
 import {
-  ProposalSDKType,
   ProposalStatus,
   VoteOption,
   proposalStatusToJSON,
@@ -26,7 +25,6 @@ import VotingPopup from './voteModal';
 
 interface VoteDetailsModalProps {
   policyAddress: string;
-  proposals: ProposalSDKType[];
   proposalId: bigint;
   showVoteModal: boolean;
   onClose: () => void;

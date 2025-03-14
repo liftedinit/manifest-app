@@ -2,24 +2,28 @@ import BigNumber from 'bignumber.js';
 import React from 'react';
 
 import { DenomDisplay } from '@/components';
-import { CombinedBalanceInfo, formatLargeNumber, shiftDigits, truncateString } from '@/utils';
+import { CombinedBalanceInfo, formatLargeNumber, shiftDigits } from '@/utils';
 
+/**
+ * Props for the TokenBalance component.
+ * @param token The token balance information. This should include amount and denomination,
+ *              as well as metadata if available. If amount is missing, it is assumed to be 0.
+ * @param denom The denomination to display. If not provided, the token's display name is used.
+ */
 export interface TokenBalanceProps {
-  token: CombinedBalanceInfo;
+  token: Partial<CombinedBalanceInfo>;
   denom?: string | null;
 }
 
 /**
  * Display the token balance, handling very large amounts of tokens.
- * @param token
- * @param denom
  * @constructor
  */
 export const TokenBalance = ({ token, denom }: TokenBalanceProps) => {
   const units = token.metadata?.denom_units;
   const denomUnit = units?.[units.length - 1];
   const exponent = denomUnit?.exponent ?? 6;
-  denom = (denom ?? denomUnit?.denom ?? token.display).toUpperCase();
+  denom = (denom ?? denomUnit?.denom ?? token.display ?? '<unknown>').toUpperCase();
 
   const [balance, tooltipAmount] = React.useMemo(() => {
     const amount = shiftDigits(token.amount ?? 0, -exponent);

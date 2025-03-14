@@ -200,6 +200,7 @@ export default function ConfirmationForm({
         <button
           onClick={prevStep}
           className="btn btn-neutral dark:text-white text-black w-[calc(50%-12px)]"
+          disabled={isSigning}
         >
           Back: Token Metadata
         </button>

@@ -2,9 +2,7 @@ import { useChain } from '@cosmos-kit/react';
 import Link from 'next/link';
 import React from 'react';
 
-import { GroupsIcon, WalletNotConnected } from '@/components';
-import { SEO } from '@/components';
-import YourGroups from '@/components/groups/components/myGroups';
+import { GroupsIcon, IfWalletConnected, SEO, WalletNotConnected, YourGroups } from '@/components';
 import env from '@/config/env';
 import { useGroupsByMember, useProposalsByPolicyAccountAll } from '@/hooks';
 
@@ -28,28 +26,24 @@ export default function Groups() {
       <SEO title="Groups - Alberto" />
       <div className="grow h-full animate-fadeIn transition-all duration-300">
         <div className="w-full mx-auto">
-          {!isWalletConnected ? (
-            <WalletNotConnected
-              description="Use the button below to connect your wallet and start interacting with your groups."
-              icon={<GroupsIcon className="h-60 w-60 text-primary" />}
-            />
-          ) : isLoading ? (
-            <YourGroups
-              groups={groupByMemberData ?? { groups: [] }}
-              proposals={proposalsByPolicyAccount}
-              isLoading={isLoading}
-            />
-          ) : isError ? (
-            <div className="text-center text-error">Error loading groups or proposals</div>
-          ) : groupByMemberData?.groups.length === 0 ? (
-            <NoGroupsFound />
-          ) : (
-            <YourGroups
-              groups={groupByMemberData ?? { groups: [] }}
-              proposals={proposalsByPolicyAccount}
-              isLoading={isLoading}
-            />
-          )}
+          <IfWalletConnected
+            icon={GroupsIcon}
+            message="Use the button below to connect your wallet and start interacting with your groups."
+          >
+            {isLoading ? (
+              <YourGroups groups={{ groups: [] }} proposals={{}} isLoading={true} />
+            ) : isError ? (
+              <div className="text-center text-error">Error loading groups or proposals</div>
+            ) : groupByMemberData?.groups.length === 0 ? (
+              <NoGroupsFound />
+            ) : (
+              <YourGroups
+                groups={groupByMemberData ?? { groups: [] }}
+                proposals={proposalsByPolicyAccount}
+                isLoading={isLoading}
+              />
+            )}
+          </IfWalletConnected>
         </div>
       </div>
     </div>
