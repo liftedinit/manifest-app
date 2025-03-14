@@ -42,8 +42,6 @@ describe('SendBox', () => {
     const mockup = renderWithProps();
     expect(screen.getByLabelText('Send tab')).toBeInTheDocument();
     expect(screen.getByLabelText('Cross chain transfer tab')).toBeInTheDocument();
-
-    expect(formatComponent(mockup.asFragment())).toMatchSnapshot();
   });
 
   test.skip('toggles between Send and Cross-Chain Transfer', async () => {

@@ -31,6 +31,7 @@ import { PrismAsyncLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import oneDark from 'react-syntax-highlighter/dist/esm/styles/prism/one-dark';
 import oneLight from 'react-syntax-highlighter/dist/esm/styles/prism/one-light';
 
+import { ModalDialog } from '@/components';
 import env from '@/config/env';
 import { useTheme } from '@/contexts';
 import { Web3AuthContext } from '@/contexts/web3AuthContext';
@@ -229,7 +230,7 @@ const DisplayDataToSign = ({
       <div className="flex flex-col gap-2">
         <button
           onClick={() => setIsTxInfoExpanded(!isTxInfoExpanded)}
-          className="flex items-center gap-2 text-sm font-medium"
+          className="flex items-center gap-2 text-sm font-medium cursor-pointer"
         >
           <div className="flex items-center gap-2 flex-row justify-between">
             <span>Transaction Details</span>
@@ -254,22 +255,22 @@ const DisplayDataToSign = ({
  * when a sign request is received.
  * @constructor
  */
-export const SignModal = () => {
+export const SignModal = ({ id }: { id?: string }) => {
   const { wallet } = useWallet();
-  const { prompt, isSigning } = useContext(Web3AuthContext);
+  const { prompt, isSigning, promptId } = useContext(Web3AuthContext);
   const [visible, setVisible] = useState(false);
   const [data, setData] = useState<SignData | undefined>(undefined);
 
   const isLedgerWallet = wallet?.mode === 'ledger';
 
   useEffect(() => {
-    if (prompt !== undefined) {
+    if (prompt !== undefined && id === promptId) {
       setVisible(true);
       setData(prompt.signData);
     } else {
       setVisible(false);
     }
-  }, [prompt]);
+  }, [id, prompt, promptId]);
 
   if (!isSigning || !visible) {
     return null;
@@ -363,55 +364,48 @@ export const PromptSignModalInner: React.FC<SignModalInnerProps> = ({
 
   if (!visible) return null;
   return (
-    <Dialog open onClose={onClose} className="modal modal-open top-0 right-0 z-9999">
-      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+    <ModalDialog
+      open
+      onClose={onClose}
+      className="z-9999"
+      title="Approve transaction?"
+      icon={
+        walletIconString && (
+          <Image
+            src={getRealLogo(walletIconString, theme === 'dark')}
+            alt="Wallet type logo"
+            width={32}
+            height={32}
+          />
+        )
+      }
+    >
+      <DisplayDataToSign
+        data={data ?? ({} as SignData)}
+        address={address ?? ''}
+        theme={theme}
+        className="space-y-4"
+        txInfoClassName="p-3 rounded-md text-sm overflow-auto h-[32rem] dark:bg-[#E0E0FF0A] bg-[#E0E0FF0A] dark:border-[#FFFFFF33] border-[#00000033] border"
+      />
 
-      <Dialog.Panel className="modal-box max-w-lg w-full dark:bg-[#1D192D] bg-[#FFFFFF] rounded-lg shadow-xl">
-        <div className="flex justify-between items-center pb-4">
-          <div className="flex items-center gap-3">
-            {walletIconString && (
-              <Image
-                src={getRealLogo(walletIconString, theme === 'dark')}
-                alt="Wallet type logo"
-                className="w-8 h-8"
-                width={32}
-                height={32}
-              />
-            )}
-            <h3 className="text-xl font-semibold">Approve transaction?</h3>
-          </div>
-          <button className="btn btn-sm btn-circle btn-ghost" onClick={onClose}>
-            ✕
-          </button>
-        </div>
-
-        <DisplayDataToSign
-          data={data ?? ({} as SignData)}
-          address={address ?? ''}
-          theme={theme}
-          className="space-y-4"
-          txInfoClassName="p-3 rounded-md text-sm overflow-auto h-[32rem] dark:bg-[#E0E0FF0A] bg-[#E0E0FF0A] dark:border-[#FFFFFF33] border-[#00000033] border"
-        />
-
-        <div className="modal-action mt-6 flex justify-between gap-4">
-          <button
-            role="button"
-            aria-label="Reject"
-            className="btn btn-error flex-1 rounded-[12px] focus:outline-hidden"
-            onClick={handleReject}
-          >
-            Reject
-          </button>
-          <button
-            role="button"
-            aria-label="Approve"
-            className="btn btn-gradient flex-1 rounded-[12px]"
-            onClick={handleApprove}
-          >
-            Approve
-          </button>
-        </div>
-      </Dialog.Panel>
-    </Dialog>
+      <div className="modal-action mt-6 flex justify-between gap-4">
+        <button
+          role="button"
+          aria-label="Reject"
+          className="btn btn-error flex-1 rounded-[12px] outline-white"
+          onClick={handleReject}
+        >
+          Reject
+        </button>
+        <button
+          role="button"
+          aria-label="Approve"
+          className="btn btn-gradient flex-1 rounded-[12px]"
+          onClick={handleApprove}
+        >
+          Approve
+        </button>
+      </div>
+    </ModalDialog>
   );
 };

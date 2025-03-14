@@ -57,7 +57,7 @@ export function UpdateGroupModal({
   showUpdateModal: boolean;
   setShowUpdateModal: (show: boolean) => void;
 }) {
-  const { tx, isSigning } = useTx(env.chain);
+  const { tx, isSigning } = useTx(env.chain, 'group-update');
   const { estimateFee } = useFeeEstimation(env.chain);
 
   let maybeMetadata: groupSchema.GroupMetadata;
@@ -189,7 +189,11 @@ export function UpdateGroupModal({
   }
 
   return (
-    <SigningModalDialog open={showUpdateModal} onClose={() => setShowUpdateModal(false)}>
+    <SigningModalDialog
+      open={showUpdateModal}
+      onClose={() => setShowUpdateModal(false)}
+      signId="group-update"
+    >
       <UpdateGroupForm
         initialValues={{
           title,

@@ -12,6 +12,8 @@ export interface Web3AuthContextType {
     signData: SignData;
     resolve: (approved: boolean) => void;
   };
+  promptId?: string;
+  setPromptId: React.Dispatch<React.SetStateAction<string | undefined>>;
   wallets: (MainWalletBase | Web3AuthWallet)[];
   isSigning: boolean;
   setIsSigning: (isSigning: boolean) => void;
@@ -19,6 +21,8 @@ export interface Web3AuthContextType {
 
 export const Web3AuthContext = createContext<Web3AuthContextType>({
   prompt: undefined,
+  promptId: undefined,
+  setPromptId: () => {},
   wallets: [],
   isSigning: false,
   setIsSigning: () => {},
@@ -33,10 +37,11 @@ export const Web3AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     | undefined
   >();
+  const [promptId, setPromptId] = useState<string>();
 
   // A shared signing state for all nodes.
   const [isSigning, setIsSigningInternal] = useState(false);
-  const [signingCount, setSigningCount] = useState(0);
+  const [_, setSigningCount] = useState(0);
 
   function setIsSigning(isSigning: boolean) {
     if (isSigning) {
@@ -129,7 +134,9 @@ export const Web3AuthProvider = ({ children }: { children: ReactNode }) => {
   ];
 
   return (
-    <Web3AuthContext.Provider value={{ prompt, wallets, isSigning, setIsSigning }}>
+    <Web3AuthContext.Provider
+      value={{ prompt, promptId, setPromptId, wallets, isSigning, setIsSigning }}
+    >
       {children}
     </Web3AuthContext.Provider>
   );
