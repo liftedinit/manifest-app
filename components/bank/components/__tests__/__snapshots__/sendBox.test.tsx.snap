@@ -1,0 +1,159 @@
+// Bun Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SendBox renders correctly 1`] = `
+"<DocumentFragment>
+  <div
+    class="_14der0i88"
+    data-interchain-ui-provider="true"
+    data-is-controlled="false"
+    style="visibility: visible;"
+  />
+  <div>
+    <div
+      aria-orientation="horizontal"
+      class="relative flex p-3 h-[3.5rem] w-full space-x-1 mb-4 md:mb-6 rounded-2xl bg-[#0000000A] dark:bg-[#FFFFFF0F]"
+      role="tablist"
+    >
+      <div
+        class="absolute transition-all duration-200 ease-in-out h-[calc(100%-8px)] w-[calc(50%-4px)] top-1 rounded-xl bg-white dark:bg-[#FFFFFF1F] left-1"
+      />
+      <button
+        aria-controls="headlessui-tabs-panel-:r41:"
+        aria-label="Send tab"
+        aria-selected="true"
+        class="absolute flex-1 top-1 left-1 text-sm font-medium rounded-xl z-10
+                h-[calc(100%-8px)] w-[calc(50%-4px)]
+                transition-colors ui-selected:text-[#161616] ui-selected:dark:text-white
+                ui-not-selected:text-[#808080]
+                disabled:text-[#404040] disabled:cursor-not-allowed"
+        data-headlessui-state="selected"
+        id="headlessui-tabs-tab-:r3v:"
+        role="tab"
+        tabindex="0"
+        type="button"
+      >
+        Send
+      </button>
+      <button
+        aria-controls="headlessui-tabs-panel-:r42:"
+        aria-label="Cross chain transfer tab"
+        aria-selected="false"
+        class="absolute flex-1 top-1 right-1 text-sm font-medium rounded-xl z-10
+                h-[calc(100%-8px)] w-[calc(50%-4px)]
+                transition-colors ui-selected:text-[#161616] ui-selected:dark:text-white
+                ui-not-selected:text-[#808080]
+                disabled:text-[#404040] disabled:cursor-not-allowed"
+        data-headlessui-state=""
+        id="headlessui-tabs-tab-:r40:"
+        role="tab"
+        tabindex="-1"
+        type="button"
+      >
+        Cross-Chain Transfer
+      </button>
+    </div>
+    <div>
+      <div
+        aria-labelledby="headlessui-tabs-tab-:r3v:"
+        data-headlessui-state="selected"
+        id="headlessui-tabs-panel-:r41:"
+        role="tabpanel"
+        tabindex="0"
+      >
+        <div
+          class="text-sm bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] px-6 pb-6 pt-4 w-full h-full animate-fadeIn duration-400"
+          style="border-radius: 24px;"
+        >
+          bound HTMLFormElement {
+            "0": <input
+              class="input input-md border border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full pr-24 dark:text-[#FFFFFF] text-[#161616] rounded-xl pr-[11rem]"
+              min="0"
+              name="amount"
+              placeholder="0.00"
+              type="text"
+              value=""
+            />,
+            "1": <input
+              class="input input-sm w-full pr-8 focus:outline-hidden focus:ring-0 border  border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A]"
+              placeholder="Search tokens..."
+              style="box-shadow: none; border-radius: 8px;"
+              type="text"
+            />,
+            "2": <button
+              class="text-xs text-primary cursor-pointer"
+              type="button"
+            >
+              MAX
+            </button>,
+            "3": <input
+              class="dark:text-[#FFFFFF99] text-[#161616] input border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full 
+            autofill:bg-[#E0E0FF0A] dark:autofill:bg-[#E0E0FF0A]
+            focus:bg-[#E0E0FF0A] dark:focus:bg-[#E0E0FF0A]
+            input-md w-full"
+              data-1p-ignore="true"
+              id="recipient"
+              name="recipient"
+              placeholder="Enter address"
+              style="border-radius: 12px;"
+              type="text"
+              value=""
+            />,
+            "4": <button
+              class="btn btn-primary text-white btn-sm"
+              type="button"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="currentColor"
+                height="1em"
+                stroke="currentColor"
+                stroke-width="0"
+                viewBox="0 0 24 24"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M0 0h24v24H0zm0 0h24v24H0zm0 0h24v24H0z"
+                  fill="none"
+                />
+                <path
+                  d="M20 0H4v2h16V0zM4 24h16v-2H4v2zM20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 2.75c1.24 0 2.25 1.01 2.25 2.25s-1.01 2.25-2.25 2.25S9.75 10.24 9.75 9 10.76 6.75 12 6.75zM17 17H7v-1.5c0-1.67 3.33-2.5 5-2.5s5 .83 5 2.5V17z"
+                />
+              </svg>
+            </button>,
+            "5": <input
+              class="dark:text-[#FFFFFF99] text-[#161616] input border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full 
+            autofill:bg-[#E0E0FF0A] dark:autofill:bg-[#E0E0FF0A]
+            focus:bg-[#E0E0FF0A] dark:focus:bg-[#E0E0FF0A]
+            input-md w-full"
+              data-1p-ignore="true"
+              id="memo"
+              name="memo"
+              placeholder="Memo"
+              style="border-radius: 12px;"
+              type="text"
+              value=""
+            />,
+            "6": <button
+              aria-label="send-btn"
+              class="btn btn-gradient w-full text-white"
+              disabled=""
+              type="submit"
+            >
+              Send
+            </button>,
+          }
+        </div>
+      </div>
+      <span
+        aria-hidden="true"
+        aria-labelledby="headlessui-tabs-tab-:r40:"
+        id="headlessui-tabs-panel-:r42:"
+        role="tabpanel"
+        style="position: fixed; top: 1px; left: 1px; width: 1px; height: 0px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0px;"
+        tabindex="-1"
+      />
+    </div>
+  </div>
+</DocumentFragment>"
+`;
