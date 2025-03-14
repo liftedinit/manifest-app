@@ -225,16 +225,8 @@ const ProposalRow = ({
                 proposalId={proposal.id}
                 onClose={() => {
                   setShowVoteModal(false);
-                  const query = { ...router.query };
-                  delete query.proposalId;
-                  router.push(
-                    {
-                      pathname: router.pathname,
-                      query,
-                    },
-                    undefined,
-                    { shallow: true }
-                  );
+                  const { proposalId: _, ...query } = router.query;
+                  router.push({ pathname: router.pathname, query }, undefined, { shallow: true });
                 }}
                 showVoteModal={showVoteModal}
               />

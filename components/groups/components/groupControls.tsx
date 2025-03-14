@@ -58,7 +58,7 @@ export default function GroupControls({
   skeletonTxCount,
   proposalPageSize = 10,
 }: GroupControlsProps) {
-  const policyAddress = group.policies?.[0]?.address ?? '';
+  const policyAddress = group?.policies?.[0]?.address ?? '';
 
   const isMobile = useIsMobile();
   const { proposals, isProposalsLoading, isProposalsError } =

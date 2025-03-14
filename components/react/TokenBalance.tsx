@@ -4,6 +4,12 @@ import React from 'react';
 import { DenomDisplay } from '@/components';
 import { CombinedBalanceInfo, formatLargeNumber, shiftDigits } from '@/utils';
 
+/**
+ * Props for the TokenBalance component.
+ * @param token The token balance information. This should include amount and denomination,
+ *              as well as metadata if available. If amount is missing, it is assumed to be 0.
+ * @param denom The denomination to display. If not provided, the token's display name is used.
+ */
 export interface TokenBalanceProps {
   token: Partial<CombinedBalanceInfo>;
   denom?: string | null;
@@ -11,8 +17,6 @@ export interface TokenBalanceProps {
 
 /**
  * Display the token balance, handling very large amounts of tokens.
- * @param token
- * @param denom
  * @constructor
  */
 export const TokenBalance = ({ token, denom }: TokenBalanceProps) => {
