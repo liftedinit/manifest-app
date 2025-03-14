@@ -46,24 +46,24 @@ export default function UpdateDenomMetadataModal({
   isGroup?: boolean;
   refetch: () => void;
 }) {
-  const baseDenom = denom?.base?.split('/').pop() || '';
-  const fullDenom = `factory/${address}/${baseDenom}`;
-  const symbol = baseDenom.slice(1).toUpperCase();
+  const baseDenom = denom?.base || '';
+  const subdenom = denom?.base?.split('/').pop() || '';
+  const symbol = subdenom.slice(1).toUpperCase();
   const formData = {
     name: denom?.name || '',
     symbol: denom?.display || '',
     description: denom?.description || '',
     display: denom?.display || '',
-    base: fullDenom || '',
+    base: baseDenom,
     denomUnits: denom?.denom_units || [
-      { denom: fullDenom, exponent: 0, aliases: [symbol] },
-      { denom: symbol, exponent: 6, aliases: [fullDenom] },
+      { denom: baseDenom, exponent: 0, aliases: [symbol] },
+      { denom: symbol, exponent: 6, aliases: [baseDenom] },
     ],
     uri: denom?.uri || '',
     uriHash: denom?.uri_hash || '',
-    subdenom: baseDenom || '',
+    subdenom: subdenom || '',
     exponent: '6',
-    label: fullDenom || '',
+    label: baseDenom,
   };
   const { tx, isSigning } = useTx(env.chain);
   const { estimateFee } = useFeeEstimation(env.chain);
@@ -84,10 +84,10 @@ export default function UpdateDenomMetadataModal({
                   metadata: {
                     description: values.description || formData.description,
                     denomUnits: [
-                      { denom: fullDenom, exponent: 0, aliases: [symbol] },
-                      { denom: symbol, exponent: 6, aliases: [fullDenom] },
+                      { denom: baseDenom, exponent: 0, aliases: [symbol] },
+                      { denom: symbol, exponent: 6, aliases: [baseDenom] },
                     ],
-                    base: fullDenom,
+                    base: baseDenom,
                     display: symbol,
                     name: values.name || formData.name,
                     symbol: symbol,
@@ -108,10 +108,10 @@ export default function UpdateDenomMetadataModal({
             metadata: {
               description: values.description || formData.description,
               denomUnits: [
-                { denom: fullDenom, exponent: 0, aliases: [symbol] },
-                { denom: symbol, exponent: 6, aliases: [fullDenom] },
+                { denom: baseDenom, exponent: 0, aliases: [symbol] },
+                { denom: symbol, exponent: 6, aliases: [baseDenom] },
               ],
-              base: fullDenom,
+              base: baseDenom,
               display: symbol,
               name: values.name || formData.name,
               symbol: symbol,
@@ -138,7 +138,7 @@ export default function UpdateDenomMetadataModal({
     <SigningModalDialog panelClassName="max-w-4xl" open={isOpen} onClose={onClose}>
       <Formik
         initialValues={formData}
-        validationSchema={() => TokenDetailsSchema({ subdenom: baseDenom })}
+        validationSchema={() => TokenDetailsSchema({ subdenom: subdenom })}
         onSubmit={(values, { resetForm }) => handleUpdate(values, resetForm)}
         validateOnChange={true}
         validateOnBlur={true}
@@ -160,8 +160,8 @@ export default function UpdateDenomMetadataModal({
                 <TextInput
                   label="SUBDENOM"
                   name="subdenom"
-                  value={fullDenom}
-                  title={fullDenom}
+                  value={baseDenom}
+                  title={baseDenom}
                   disabled={true}
                   helperText="This field cannot be modified"
                 />

@@ -661,7 +661,6 @@ export const useTokenFactoryDenomsMetadata = () => {
     queryKey: ['allMetadatas'],
     queryFn: fetchDenoms,
     enabled: !!lcdQueryClient,
-    staleTime: Infinity,
   });
 
   return {
