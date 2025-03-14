@@ -30,8 +30,8 @@ const extractSimulationErrorMessage = (errorMessage: string): string => {
   return 'An error occurred during simulation';
 };
 
-export const useTx = (chainName: string) => {
-  const { isSigning, setIsSigning } = useContext(Web3AuthContext);
+export const useTx = (chainName: string, promptId?: string) => {
+  const { isSigning, setIsSigning, setPromptId } = useContext(Web3AuthContext);
   const { address, getSigningStargateClient, estimateFee } = useChain(chainName);
   const { setToastMessage } = useToast();
   const explorerUrl = chainName === env.osmosisChain ? env.osmosisExplorerUrl : env.explorerUrl;
@@ -48,6 +48,7 @@ export const useTx = (chainName: string) => {
     }
 
     setIsSigning(true);
+    setPromptId(promptId);
 
     try {
       const client = await getSigningStargateClient();
@@ -84,7 +85,6 @@ export const useTx = (chainName: string) => {
       }
 
       if (!fee) {
-        setIsSigning(false);
         // Return early since estimateFee already showed an error toast
         return options.returnError ? { error: 'Fee estimation failed' } : undefined;
       }
@@ -131,7 +131,6 @@ export const useTx = (chainName: string) => {
         }
         return options.returnError ? { error: null } : undefined;
       } else {
-        setIsSigning(false);
         setToastMessage({
           type: 'alert-error',
           title: 'Transaction Failed',
@@ -142,7 +141,6 @@ export const useTx = (chainName: string) => {
       }
     } catch (e: any) {
       console.error('Failed to broadcast or simulate: ', e);
-      setIsSigning(false);
       const errorMessage = options.simulate ? extractSimulationErrorMessage(e.message) : e.message;
       setToastMessage({
         type: 'alert-error',
@@ -153,6 +151,7 @@ export const useTx = (chainName: string) => {
       return options.returnError ? { error: errorMessage } : undefined;
     } finally {
       setIsSigning(false);
+      setPromptId(undefined);
     }
   };
 

@@ -14,7 +14,8 @@ export interface ModalDialogProps extends React.PropsWithChildren {
   panelClassName?: string;
   title?: React.ReactNode;
   disabled?: boolean;
-  icon?: React.ComponentType<{ className: string }>;
+  signId?: string;
+  icon?: React.ComponentType<{ className: string }> | React.ReactNode;
 }
 
 export interface SigningModalDialogProps extends ModalDialogProps {}
@@ -31,6 +32,7 @@ export const SigningModalDialog = ({
   open,
   children,
   onClose,
+  signId,
   ...props
 }: SigningModalDialogProps) => {
   const { isSigning } = useTx(env.chain);
@@ -47,7 +49,7 @@ export const SigningModalDialog = ({
     <ModalDialog open={open} onClose={handleClose} disabled={isSigning} {...props}>
       {children}
 
-      <SignModal />
+      <SignModal id={signId} />
     </ModalDialog>
   );
 };
@@ -131,7 +133,7 @@ export const ModalDialog = ({
             aria-label="Title"
             className="flex flex-row gap-2 items-center text-xl font-semibold text-[#161616] dark:text-white mb-6"
           >
-            {Icon && <Icon className="w-8 h-8 text-primary" />}
+            {Icon instanceof Function ? <Icon className="w-8 h-8 text-primary" /> : Icon}
             {title}
           </h3>
         )}
