@@ -16,24 +16,19 @@ export default function CreateDenom({
   formData: TokenFormData;
   dispatch: React.Dispatch<TokenAction>;
 }>) {
-  const [isSimulating, setIsSimulating] = React.useState(false);
-  const { simulateDenomCreation } = useSimulateDenomCreation();
+  const { simulateDenomCreation, isSimulating } = useSimulateDenomCreation();
 
   const DenomSchema = Yup.object().shape({
     subdenom: Yup.string()
       .required('Subdenom is required')
       .min(3, 'Subdenom must be at least 3 characters')
       .max(44, 'Subdenom must not exceed 44 characters')
-      .noProfanity('Profanity is not allowed')
-      .simulateDenomCreation(async () => {
-        setIsSimulating(true);
-        try {
-          return await simulateDenomCreation(`u${formData.subdenom}`);
-        } finally {
-          setIsSimulating(false);
-        }
-      }, `The denom ${formData.subdenom} already exists`),
+      .noProfanity('Profanity is not allowed'),
   });
+
+  async function validateDenomOnChain() {
+    return await simulateDenomCreation(`u${formData.subdenom}`);
+  }
 
   return (
     <section>
@@ -43,8 +38,14 @@ export default function CreateDenom({
           validationSchema={DenomSchema}
           onSubmit={async (values, { setSubmitting, setErrors }) => {
             try {
-              await DenomSchema.validate(values, { abortEarly: false });
-              nextStep();
+              // Validate the form data sync, first.
+              await DenomSchema.validate(values);
+              // Then send the request to the server, if the other things were okay.
+              if (!(await validateDenomOnChain())) {
+                setErrors({ subdenom: 'Simulation failed' });
+              } else {
+                nextStep();
+              }
             } catch (err) {
               if (err instanceof Yup.ValidationError) {
                 const errors = err.inner.reduce(
@@ -55,16 +56,15 @@ export default function CreateDenom({
                   {}
                 );
                 setErrors(errors);
+              } else if (typeof err === 'string') {
+                setErrors({ subdenom: `Simulation failed: ${err}` });
               } else {
-                console.error('Unexpected error:', err);
-                setErrors({ subdenom: 'An unexpected error occurred' });
+                setErrors({ subdenom: 'An error occurred during simulation' });
               }
             } finally {
               setSubmitting(false);
             }
           }}
-          validateOnChange={false}
-          validateOnBlur={false}
         >
           {({ setFieldValue, isValid, isSubmitting, isValidating, handleSubmit, setErrors }) => (
             <>
