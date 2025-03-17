@@ -32,7 +32,6 @@ export const useSimulateDenomCreation = () => {
       const result = await tx([msg], {
         simulate: true,
         returnError: true,
-        showToastOnErrors: false,
       });
 
       if (result === undefined) {

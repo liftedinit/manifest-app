@@ -56,8 +56,6 @@ export default function CreateDenom({
                   {}
                 );
                 setErrors(errors);
-              } else if (typeof err === 'string') {
-                setErrors({ subdenom: `Simulation failed: ${err}` });
               } else {
                 setErrors({ subdenom: 'An error occurred during simulation' });
               }
