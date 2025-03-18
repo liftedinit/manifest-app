@@ -617,41 +617,41 @@ const GroupRow = React.memo(function GroupRow({
               </button>
             </div>
           </div>
+
+          {showInfo && (
+            <GroupInfo
+              group={group}
+              address={address ?? ''}
+              policyAddress={group.policies[0]?.address ?? ''}
+              onUpdate={() => refetch()}
+              showInfoModal={showInfo}
+              setShowInfoModal={show => setShowInfo(show)}
+            />
+          )}
+
+          {showMembers && (
+            <MemberManagementModal
+              members={group.members.map(member => ({
+                ...member.member,
+                address: member?.member?.address || '',
+                weight: member?.member?.weight || '0',
+                metadata: member?.member?.metadata || '',
+                added_at: member?.member?.added_at || new Date(),
+                isCoreMember: true,
+                isActive: true,
+                isAdmin: member?.member?.address === group.admin,
+                isPolicyAdmin: member?.member?.address === group.policies[0]?.admin,
+              }))}
+              groupId={group.id.toString()}
+              groupAdmin={group.admin}
+              policyAddress={group.policies[0]?.address ?? ''}
+              address={address ?? ''}
+              onUpdate={() => refetch()}
+              setShowMemberManagementModal={show => setShowMembers(show)}
+              showMemberManagementModal={showMembers}
+            />
+          )}
         </td>
-
-        {showInfo && (
-          <GroupInfo
-            group={group}
-            address={address ?? ''}
-            policyAddress={group.policies[0]?.address ?? ''}
-            onUpdate={() => refetch()}
-            showInfoModal={showInfo}
-            setShowInfoModal={show => setShowInfo(show)}
-          />
-        )}
-
-        {showMembers && (
-          <MemberManagementModal
-            members={group.members.map(member => ({
-              ...member.member,
-              address: member?.member?.address || '',
-              weight: member?.member?.weight || '0',
-              metadata: member?.member?.metadata || '',
-              added_at: member?.member?.added_at || new Date(),
-              isCoreMember: true,
-              isActive: true,
-              isAdmin: member?.member?.address === group.admin,
-              isPolicyAdmin: member?.member?.address === group.policies[0]?.admin,
-            }))}
-            groupId={group.id.toString()}
-            groupAdmin={group.admin}
-            policyAddress={group.policies[0]?.address ?? ''}
-            address={address ?? ''}
-            onUpdate={() => refetch()}
-            setShowMemberManagementModal={show => setShowMembers(show)}
-            showMemberManagementModal={showMembers}
-          />
-        )}
       </tr>
     </>
   );

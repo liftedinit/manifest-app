@@ -116,7 +116,7 @@ export default function ValidatorList({
             role="tab"
             aria-selected={active}
             aria-controls="active-validators"
-            className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl focus:outline-hidden  relative z-10 ${
+            className={`flex-1 py-2 px-4 text-sm font-medium cursor-pointer rounded-xl hover:text-[#161616] dark:hover:text-white focus:outline-hidden  relative z-10 ${
               active ? 'text-[#161616] dark:text-white' : 'text-[#808080]'
             }`}
           >
@@ -127,7 +127,7 @@ export default function ValidatorList({
             role="tab"
             aria-selected={!active}
             aria-controls="pending-validators"
-            className={`flex-1 py-2 px-4 text-sm font-medium rounded-xl focus:outline-hidden  relative z-10 ${
+            className={`flex-1 py-2 px-4 text-sm font-medium cursor-pointer rounded-xl hover:text-[#161616] dark:hover:text-white focus:outline-hidden  relative z-10 ${
               !active ? 'text-[#161616] dark:text-white' : 'text-[#808080]'
             }`}
           >

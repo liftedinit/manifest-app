@@ -6,6 +6,9 @@ import { useState } from 'react';
 import env from '@/config/env';
 import { useTx } from '@/hooks/useTx';
 
+/**
+ * A custom hook that provides functionality to simulate the creation of a denomination.
+ */
 export const useSimulateDenomCreation = () => {
   const [isSimulating, setIsSimulating] = useState(false);
   const { tx } = useTx(env.chain);
@@ -26,7 +29,10 @@ export const useSimulateDenomCreation = () => {
     });
 
     try {
-      const result = await tx([msg], { simulate: true, returnError: true });
+      const result = await tx([msg], {
+        simulate: true,
+        returnError: true,
+      });
 
       if (result === undefined) {
         console.error('Simulation result is undefined');
@@ -34,14 +40,10 @@ export const useSimulateDenomCreation = () => {
       }
 
       if ('error' in result) {
-        console.error('Simulation error:', result.error);
-        return false;
+        throw result.error;
       }
 
-      return true;
-    } catch (error) {
-      console.error('Unexpected error during simulation:', error);
-      return false;
+      return result.success;
     } finally {
       setIsSimulating(false);
     }

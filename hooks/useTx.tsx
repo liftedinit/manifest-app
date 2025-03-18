@@ -18,6 +18,10 @@ export interface TxOptions {
   onSuccess?: () => void;
   returnError?: boolean;
   simulate?: boolean;
+  /**
+   * Show toast on errors. Defaults to true.
+   */
+  showToastOnErrors?: boolean;
 }
 
 const extractSimulationErrorMessage = (errorMessage: string): string => {
@@ -26,12 +30,18 @@ const extractSimulationErrorMessage = (errorMessage: string): string => {
   if (match && match[1]) {
     return match[1].trim();
   }
+
+  // Check to see if the error is that the account does not exist on chain. If so, return that.
+  if (errorMessage.match(/^Account '.*' does not exist on chain/)) {
+    return errorMessage;
+  }
+
   // If no match is found, return a generic error message
   return 'An error occurred during simulation';
 };
 
-export const useTx = (chainName: string) => {
-  const { isSigning, setIsSigning } = useContext(Web3AuthContext);
+export const useTx = (chainName: string, promptId?: string) => {
+  const { isSigning, setIsSigning, setPromptId } = useContext(Web3AuthContext);
   const { address, getSigningStargateClient, estimateFee } = useChain(chainName);
   const { setToastMessage } = useToast();
   const explorerUrl = chainName === env.osmosisChain ? env.osmosisExplorerUrl : env.explorerUrl;
@@ -48,6 +58,7 @@ export const useTx = (chainName: string) => {
     }
 
     setIsSigning(true);
+    setPromptId(promptId);
 
     try {
       const client = await getSigningStargateClient();
@@ -62,12 +73,14 @@ export const useTx = (chainName: string) => {
         } catch (simError: any) {
           const cleanErrorMessage = extractSimulationErrorMessage(simError.message);
           console.error('Simulation error:', simError.message); // Log full error
-          setToastMessage({
-            type: 'alert-error',
-            title: 'Simulation Failed',
-            description: cleanErrorMessage,
-            bgColor: '#e74c3c',
-          });
+          if (options.showToastOnErrors !== false) {
+            setToastMessage({
+              type: 'alert-error',
+              title: 'Simulation Failed',
+              description: cleanErrorMessage,
+              bgColor: '#e74c3c',
+            });
+          }
           return {
             success: false,
             error: cleanErrorMessage, // Return clean error for UI
@@ -76,7 +89,7 @@ export const useTx = (chainName: string) => {
       }
 
       // Get fee first and exit early if it fails
-      let fee = undefined;
+      let fee;
       if (options.fee) {
         fee = typeof options.fee === 'function' ? await options.fee() : options.fee;
       } else {
@@ -84,7 +97,6 @@ export const useTx = (chainName: string) => {
       }
 
       if (!fee) {
-        setIsSigning(false);
         // Return early since estimateFee already showed an error toast
         return options.returnError ? { error: 'Fee estimation failed' } : undefined;
       }
@@ -131,28 +143,31 @@ export const useTx = (chainName: string) => {
         }
         return options.returnError ? { error: null } : undefined;
       } else {
-        setIsSigning(false);
-        setToastMessage({
-          type: 'alert-error',
-          title: 'Transaction Failed',
-          description: res?.rawLog || 'Unknown error',
-          bgColor: '#e74c3c',
-        });
+        if (options.showToastOnErrors !== false) {
+          setToastMessage({
+            type: 'alert-error',
+            title: 'Transaction Failed',
+            description: res?.rawLog || 'Unknown error',
+            bgColor: '#e74c3c',
+          });
+        }
         return options.returnError ? { error: res?.rawLog || 'Unknown error' } : undefined;
       }
     } catch (e: any) {
       console.error('Failed to broadcast or simulate: ', e);
-      setIsSigning(false);
       const errorMessage = options.simulate ? extractSimulationErrorMessage(e.message) : e.message;
-      setToastMessage({
-        type: 'alert-error',
-        title: options.simulate ? 'Simulation Failed' : 'Transaction Failed',
-        description: errorMessage,
-        bgColor: '#e74c3c',
-      });
+      if (options.showToastOnErrors !== false) {
+        setToastMessage({
+          type: 'alert-error',
+          title: options.simulate ? 'Simulation Failed' : 'Transaction Failed',
+          description: errorMessage,
+          bgColor: '#e74c3c',
+        });
+      }
       return options.returnError ? { error: errorMessage } : undefined;
     } finally {
       setIsSigning(false);
+      setPromptId(undefined);
     }
   };
 

@@ -9,16 +9,29 @@ import env from '../../config/env';
 export interface ModalDialogProps extends React.PropsWithChildren {
   open: boolean;
   onClose?: () => boolean | void;
-
   style?: React.CSSProperties;
   className?: string;
   panelClassName?: string;
   title?: React.ReactNode;
   disabled?: boolean;
-  icon?: React.ComponentType<{ className: string }>;
+  signId?: string;
+  icon?: React.ComponentType<{ className: string }> | React.ReactNode;
 }
 
 export interface SigningModalDialogProps extends ModalDialogProps {}
+
+/**
+ * Context to discover if multiple signing modals are nested within each others.
+ * This will throw an exception if the nested signing dialog does not have a
+ * signId, which would lead to UX issues.
+ *
+ * If you ended up here trying to figure out what you did wrong, you need to do
+ * 2 things:
+ *   1. the nested <SigningModalDialog /> needs to have a unique `signId` property.
+ *   2. the `useTx()` call to sign your transactions need to have the same signId
+ *      passed as the second argument.
+ */
+const IsNestedContext = React.createContext(false);
 
 /**
  * A modal dialog that is used for signing transactions. This dialog will
@@ -32,9 +45,15 @@ export const SigningModalDialog = ({
   open,
   children,
   onClose,
+  signId,
   ...props
 }: SigningModalDialogProps) => {
   const { isSigning } = useTx(env.chain);
+  const isNested = React.useContext(IsNestedContext);
+
+  if (isNested && !signId) {
+    throw new Error('SigningModalDialog cannot be nested without a signId');
+  }
 
   const handleClose = () => {
     if (!isSigning) {
@@ -46,9 +65,9 @@ export const SigningModalDialog = ({
 
   return (
     <ModalDialog open={open} onClose={handleClose} disabled={isSigning} {...props}>
-      {children}
+      <IsNestedContext.Provider value={true}>{children}</IsNestedContext.Provider>
 
-      <SignModal />
+      <SignModal id={signId} />
     </ModalDialog>
   );
 };
@@ -119,7 +138,7 @@ export const ModalDialog = ({
           <button
             role="button"
             aria-label="Close"
-            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A]"
+            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-[#00000099] dark:text-[#FFFFFF99] hover:bg-[#0000000A] dark:hover:bg-[#FFFFFF1A] disabled:cursor-not-allowed"
             disabled={disabled}
           >
             ✕
@@ -132,7 +151,7 @@ export const ModalDialog = ({
             aria-label="Title"
             className="flex flex-row gap-2 items-center text-xl font-semibold text-[#161616] dark:text-white mb-6"
           >
-            {Icon ? <Icon className="w-8 h-8 text-primary" /> : undefined}
+            {Icon instanceof Function ? <Icon className="w-8 h-8 text-primary" /> : Icon}
             {title}
           </h3>
         )}

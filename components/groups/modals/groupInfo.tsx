@@ -1,11 +1,8 @@
-import { Dialog } from '@headlessui/react';
 import { cosmos } from '@liftedinit/manifestjs';
 import { ThresholdDecisionPolicySDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import React, { useState } from 'react';
-import { createPortal } from 'react-dom';
 
 import { SigningModalDialog, UpdateGroupModal } from '@/components';
-import { SignModal } from '@/components/react';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import env from '@/config/env';
 import { useFeeEstimation, useTx } from '@/hooks';
