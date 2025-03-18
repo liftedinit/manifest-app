@@ -4,7 +4,7 @@
     "": {
       "name": "@liftedinit/manifest-app",
       "dependencies": {
-        "@chain-registry/assets": "^1.70.149",
+        "@chain-registry/assets": "^1.70.156",
         "@cosmjs/cosmwasm-stargate": "0.32.4",
         "@cosmjs/stargate": "npm:@liftedinit/stargate@0.32.4-ll.3",
         "@cosmos-kit/cosmos-extension-metamask": "^0.12.7",
@@ -33,7 +33,7 @@
         "autoprefixer": "^10.4.20",
         "babel-plugin-glsl": "^1.0.0",
         "bech32": "^2.0.0",
-        "chain-registry": "^1.69.149",
+        "chain-registry": "^1.69.156",
         "cosmjs-types": "^0.9.0",
         "cosmos-kit": "2.23.9",
         "country-flag-icons": "^1.5.18",
@@ -153,7 +153,7 @@
 
     "@celo/utils": ["@celo/utils@3.2.0", "", { "dependencies": { "@celo/base": "3.2.0", "@types/bn.js": "^5.1.0", "@types/elliptic": "^6.4.9", "@types/ethereumjs-util": "^5.2.0", "@types/node": "^10.12.18", "bignumber.js": "^9.0.0", "elliptic": "^6.5.4", "ethereumjs-util": "^5.2.0", "io-ts": "2.0.1", "web3-eth-abi": "1.3.6", "web3-utils": "1.3.6" } }, "sha512-Om1mTzwsdV6FVPvraafcJeRnzz7Xv/lyGmyZaoEZ9fErRadu9ZrOsuDQniYe+lD78DQ0NATxJL04WjhEKVkn+A=="],
 
-    "@chain-registry/assets": ["@chain-registry/assets@1.70.150", "", { "dependencies": { "@chain-registry/types": "^0.50.92" } }, "sha512-cfswRHoqFF8v7ZkxXIUpvn13blq2/SfHKx6ZqbMBAb+3bUrhWWjALDfwMDokuklgKPcTYn1kPfsqubNwRbjHMQ=="],
+    "@chain-registry/assets": ["@chain-registry/assets@1.70.156", "", { "dependencies": { "@chain-registry/types": "^0.50.95" } }, "sha512-Qx4pfMT8WJFNtLs1t7FBQh7H4tFvWrKOuz43yGcRaHwNJsDRmyHPBByAdh4h4iDzuvsyRqnG5GcHwTkkD/pazg=="],
 
     "@chain-registry/client": ["@chain-registry/client@1.53.92", "", { "dependencies": { "@chain-registry/types": "^0.50.92", "@chain-registry/utils": "^1.51.92", "bfs-path": "^1.0.2", "cross-fetch": "^3.1.5" } }, "sha512-lif6OtvsOdXxPwwednmCrxKyyavjrM15GYMVZb3/ya4crh+JLez3Zui7bGKbqgLMF41TikPIymW3qaKppWIjMw=="],
 
@@ -1607,7 +1607,7 @@
 
     "cbw-sdk": ["@coinbase/wallet-sdk@3.9.3", "", { "dependencies": { "bn.js": "^5.2.1", "buffer": "^6.0.3", "clsx": "^1.2.1", "eth-block-tracker": "^7.1.0", "eth-json-rpc-filters": "^6.0.0", "eventemitter3": "^5.0.1", "keccak": "^3.0.3", "preact": "^10.16.0", "sha.js": "^2.4.11" } }, "sha512-N/A2DRIf0Y3PHc1XAMvbBUu4zisna6qAdqABMZwBMNEfWrXpAwx16pZGkYCLGE+Rvv1edbcB2LYDRnACNcmCiw=="],
 
-    "chain-registry": ["chain-registry@1.69.150", "", { "dependencies": { "@chain-registry/types": "^0.50.92" } }, "sha512-+IPl4uyhVYBYSqmn5rtEUMrZMkdFAHpfj6eX2WNM0gP0m6L3ka0pjrrkEMbVdTV0e2DYqF8LBADUM8lN+UXLog=="],
+    "chain-registry": ["chain-registry@1.69.156", "", { "dependencies": { "@chain-registry/types": "^0.50.95" } }, "sha512-T4UFcMhyxtdH+h9nkX2rRr15Tt/TFqFZUi0RYmZwZmBsGHscF70e0XjYyURtNGswOioJHmFc+6Gpqh5c7p1iOQ=="],
 
     "chalk": ["chalk@3.0.0", "", { "dependencies": { "ansi-styles": "^4.1.0", "supports-color": "^7.1.0" } }, "sha512-4D3B6Wf41KOYRFdszmDqMCGq5VV/uMAB273JILmO+3jAlh8X4qDtdtgCR3fxtbLEMzSx22QdhnDcJvu2u1fVwg=="],
 
