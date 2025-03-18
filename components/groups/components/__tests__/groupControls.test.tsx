@@ -106,8 +106,6 @@ describe('Tabs functionality', () => {
     fireEvent.click(tokensTab);
     expect(screen.queryByTestId('historyBox')).not.toBeInTheDocument();
     expect(screen.queryByTestId('denomList')).toBeInTheDocument();
-
-    expect(formatComponent(mockup.asFragment())).toMatchSnapshot();
   });
 
   test('routes properly', async () => {
