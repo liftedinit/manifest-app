@@ -2,7 +2,7 @@ import { cleanup, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, jest, test } from 'bun:test';
 import React from 'react';
 
-import GroupProposals from '@/components/groups/components/groupControls';
+import { GroupControls } from '@/components/groups/components';
 import { clearAllMocks, mockModule, mockRouter } from '@/tests';
 import { mockGroup, mockGroup2, mockProposals } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
@@ -17,6 +17,7 @@ const mockProps = {
       } as any,
     ],
   } as any,
+  proposals: [],
   isLoading: false,
   txLoading: false,
   onBack: jest.fn(),
@@ -92,7 +93,7 @@ describe('ProposalsForPolicy Component', () => {
         refetchProposals: jest.fn(),
       }),
     }));
-    renderWithChainProvider(<GroupProposals {...mockProps} />);
+    renderWithChainProvider(<GroupControls {...mockProps} />);
     expect(screen.getByRole('status')).toBeInTheDocument();
   });
 
@@ -105,7 +106,7 @@ describe('ProposalsForPolicy Component', () => {
         refetchProposals: jest.fn(),
       }),
     }));
-    renderWithChainProvider(<GroupProposals {...mockProps} />);
+    renderWithChainProvider(<GroupControls {...mockProps} />);
     expect(screen.getByText('Error loading proposals')).toBeInTheDocument();
   });
 
@@ -118,7 +119,7 @@ describe('ProposalsForPolicy Component', () => {
         refetchProposals: jest.fn(),
       }),
     }));
-    renderWithChainProvider(<GroupProposals {...mockProps} />);
+    renderWithChainProvider(<GroupControls {...mockProps} />);
     expect(screen.getByText('No proposal was found.')).toBeInTheDocument();
   });
 
@@ -131,7 +132,7 @@ describe('ProposalsForPolicy Component', () => {
         refetchProposals: jest.fn(),
       }),
     }));
-    renderWithChainProvider(<GroupProposals {...mockProps} />);
+    renderWithChainProvider(<GroupControls {...mockProps} />);
     expect(screen.getByText('Proposals')).toBeInTheDocument();
     const proposals = mockProposals['test_policy_address'];
     proposals.forEach(proposal => {

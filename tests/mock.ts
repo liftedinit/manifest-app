@@ -67,11 +67,12 @@ export function mockModule(
 mockModule.force = (name: string, renderMocks: () => Record<string, any>) =>
   mockModule(name, renderMocks, true);
 
-export function mockRouter(): MockedModule {
+export function mockRouter(routerConfig: Record<string, any> = {}): MockedModule {
   return mockModule('next/router', () => ({
     useRouter: jest.fn().mockReturnValue({
       query: {},
       push: jest.fn(),
+      ...routerConfig,
     }),
   }));
 }

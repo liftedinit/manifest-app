@@ -10,6 +10,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { PiInfo } from 'react-icons/pi';
 
 import { GroupInfo, MemberManagementModal, TokenBalance } from '@/components';
+import { GroupControls } from '@/components';
 import { MemberIcon, SearchIcon } from '@/components/icons';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import env from '@/config/env';
@@ -36,8 +37,6 @@ import {
   unsafeConvertTokenBase,
 } from '@/utils';
 import { ProfileAvatar } from '@/utils/identicon';
-
-import GroupControls from './groupControls';
 
 // Add this interface outside the component
 interface PageSizeConfig {

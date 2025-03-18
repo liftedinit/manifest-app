@@ -72,7 +72,7 @@ export const TokenList = React.memo(function TokenList(props: Readonly<TokenList
   );
 
   return (
-    <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
+    <div className="w-full mx-auto rounded-[24px] h-full flex flex-col" data-testid="tokenList">
       <div className="flex-1 overflow-y-auto">
         {isLoading ? (
           <div className="space-y-2" aria-label="skeleton-loader">

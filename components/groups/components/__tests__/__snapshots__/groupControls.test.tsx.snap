@@ -1,0 +1,242 @@
+// Bun Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Tabs functionality renders all tab options and switches between tabs correctly 1`] = `
+"<DocumentFragment>
+  <div
+    class="_14der0i88"
+    data-interchain-ui-provider="true"
+    data-is-controlled="false"
+    style="visibility: visible;"
+  />
+  <div
+    class=""
+  >
+    <div
+      class="flex w-full h-full md:flex-row flex-col md:gap-8"
+    >
+      <div
+        class="flex flex-col w-full md:w-[48%] h-full"
+      >
+        <div
+          class="flex items-center justify-between mb-4"
+        >
+          <div
+            class="flex items-center space-x-4"
+          >
+            <button
+              aria-label="Go back to groups list"
+              class="btn btn-circle rounded-[12px] bg-secondary btn-md focus:outline-hidden focus-visible:ring-1 focus-visible:ring-primary"
+            >
+              <svg
+                class="text-primary"
+                fill="none"
+                height="24"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M15.0898 4.0798L8.56984 10.5998C7.79984 11.3698 7.79984 12.6298 8.56984 13.3998L15.0898 19.9198"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-miterlimit="10"
+                  stroke-width="2.25"
+                />
+              </svg>
+            </button>
+            <h1
+              class="text-2xl font-bold text-primary-content truncate"
+            >
+              Untitled Group
+            </h1>
+            <div
+              class=""
+            >
+              <img
+                alt="Profile Avatar"
+                class="rounded-md dark:bg-[#FFFFFF0F] bg-[#0000000A]"
+                src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPSc0MCcgaGVpZ2h0PSc0MCcgc3R5bGU9J2JhY2tncm91bmQtY29sb3I6cmdiYSgyNTUsMjU1LDI1NSwwKTsnPjxnIHN0eWxlPSdmaWxsOnJnYmEoNTYsMTIsMTk3LDEpOyBzdHJva2U6cmdiYSg1NiwxMiwxOTcsMSk7IHN0cm9rZS13aWR0aDowLjI7Jz48cmVjdCAgeD0nMTgnIHk9JzEwJyB3aWR0aD0nNCcgaGVpZ2h0PSc0Jy8+PHJlY3QgIHg9JzE4JyB5PScxNCcgd2lkdGg9JzQnIGhlaWdodD0nNCcvPjxyZWN0ICB4PScxOCcgeT0nMjInIHdpZHRoPSc0JyBoZWlnaHQ9JzQnLz48cmVjdCAgeD0nMTgnIHk9JzI2JyB3aWR0aD0nNCcgaGVpZ2h0PSc0Jy8+PHJlY3QgIHg9JzE0JyB5PScxMCcgd2lkdGg9JzQnIGhlaWdodD0nNCcvPjxyZWN0ICB4PScyMicgeT0nMTAnIHdpZHRoPSc0JyBoZWlnaHQ9JzQnLz48cmVjdCAgeD0nMTQnIHk9JzE0JyB3aWR0aD0nNCcgaGVpZ2h0PSc0Jy8+PHJlY3QgIHg9JzIyJyB5PScxNCcgd2lkdGg9JzQnIGhlaWdodD0nNCcvPjxyZWN0ICB4PScxNCcgeT0nMTgnIHdpZHRoPSc0JyBoZWlnaHQ9JzQnLz48cmVjdCAgeD0nMjInIHk9JzE4JyB3aWR0aD0nNCcgaGVpZ2h0PSc0Jy8+PHJlY3QgIHg9JzE0JyB5PScyMicgd2lkdGg9JzQnIGhlaWdodD0nNCcvPjxyZWN0ICB4PScyMicgeT0nMjInIHdpZHRoPSc0JyBoZWlnaHQ9JzQnLz48cmVjdCAgeD0nMTQnIHk9JzI2JyB3aWR0aD0nNCcgaGVpZ2h0PSc0Jy8+PHJlY3QgIHg9JzIyJyB5PScyNicgd2lkdGg9JzQnIGhlaWdodD0nNCcvPjxyZWN0ICB4PScxMCcgeT0nMjYnIHdpZHRoPSc0JyBoZWlnaHQ9JzQnLz48cmVjdCAgeD0nMjYnIHk9JzI2JyB3aWR0aD0nNCcgaGVpZ2h0PSc0Jy8+PC9nPjwvc3ZnPg=="
+                style="height: 40px; width: 40px;"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      aria-orientation="horizontal"
+      class="flex flex-row tabs tabs-border tabs-lg"
+      role="tablist"
+    >
+      <button
+        aria-controls="headlessui-tabs-panel-:ree:"
+        aria-selected="false"
+        class="font-bold tab ui-selected:tab-active focus:outline-1 focus:outline-primary focus:-outline-offset-1"
+        data-headlessui-state=""
+        id="headlessui-tabs-tab-:rea:"
+        role="tab"
+        tabindex="-1"
+        type="button"
+      >
+        Proposals
+      </button>
+      <button
+        aria-controls="headlessui-tabs-panel-:ref:"
+        aria-selected="false"
+        class="font-bold tab ui-selected:tab-active focus:outline-1 focus:outline-primary focus:-outline-offset-1"
+        data-headlessui-state=""
+        id="headlessui-tabs-tab-:reb:"
+        role="tab"
+        tabindex="-1"
+        type="button"
+      >
+        Assets
+      </button>
+      <button
+        aria-controls="headlessui-tabs-panel-:reg:"
+        aria-selected="false"
+        class="font-bold tab ui-selected:tab-active focus:outline-1 focus:outline-primary focus:-outline-offset-1"
+        data-headlessui-state=""
+        id="headlessui-tabs-tab-:rec:"
+        role="tab"
+        tabindex="-1"
+        type="button"
+      >
+        Activity
+      </button>
+      <button
+        aria-controls="headlessui-tabs-panel-:reh:"
+        aria-selected="true"
+        class="font-bold tab ui-selected:tab-active focus:outline-1 focus:outline-primary focus:-outline-offset-1"
+        data-headlessui-state="selected"
+        id="headlessui-tabs-tab-:red:"
+        role="tab"
+        tabindex="0"
+        type="button"
+      >
+        Tokens
+      </button>
+    </div>
+    <div
+      class="mt-4"
+    >
+      <span
+        aria-hidden="true"
+        aria-labelledby="headlessui-tabs-tab-:rea:"
+        id="headlessui-tabs-panel-:ree:"
+        role="tabpanel"
+        style="position: fixed; top: 1px; left: 1px; width: 1px; height: 0px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0px;"
+        tabindex="-1"
+      />
+      <span
+        aria-hidden="true"
+        aria-labelledby="headlessui-tabs-tab-:reb:"
+        id="headlessui-tabs-panel-:ref:"
+        role="tabpanel"
+        style="position: fixed; top: 1px; left: 1px; width: 1px; height: 0px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0px;"
+        tabindex="-1"
+      />
+      <span
+        aria-hidden="true"
+        aria-labelledby="headlessui-tabs-tab-:rec:"
+        id="headlessui-tabs-panel-:reg:"
+        role="tabpanel"
+        style="position: fixed; top: 1px; left: 1px; width: 1px; height: 0px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0px;"
+        tabindex="-1"
+      />
+      <div
+        aria-labelledby="headlessui-tabs-tab-:red:"
+        class="-mt-7"
+        data-headlessui-state="selected"
+        id="headlessui-tabs-panel-:reh:"
+        role="tabpanel"
+        tabindex="0"
+      >
+        <div
+          class="w-full mx-auto rounded-[24px] h-full flex flex-col"
+          data-testid="denomList"
+        >
+          <div
+            class="flex flex-col gap-4 mb-4"
+          >
+            <div
+              class="overflow-auto"
+            >
+              <div
+                class="max-w-8xl mx-auto"
+              >
+                <table
+                  class="table w-full border-separate border-spacing-y-3"
+                >
+                  <thead
+                    class="sticky top-0 bg-[#F0F0FF] dark:bg-[#0E0A1F]"
+                  >
+                    <tr
+                      class="text-sm font-medium"
+                    >
+                      <th
+                        class="bg-transparent w-1/4"
+                      >
+                        Token
+                      </th>
+                      <th
+                        class="bg-transparent w-2/5 xl:table-cell hidden"
+                      >
+                        Name
+                      </th>
+                      <th
+                        class="bg-transparent w-2/5  md:table-cell hidden"
+                      >
+                        Total Supply
+                      </th>
+                      <th
+                        class="bg-transparent w-1/4"
+                      >
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody
+                    class="space-y-4"
+                  />
+                </table>
+              </div>
+            </div>
+          </div>
+          <div
+            class="flex items-center justify-between"
+          >
+            <a
+              href="/factory/create?isGroup=true&groupPolicyAddress=test_policy_address"
+            >
+              <button
+                class="btn btn-gradient w-[224px] h-[52px] hidden md:block text-white rounded-[12px] focus:outline-hidden focus-visible:ring-1 focus-visible:ring-primary"
+              >
+                Create New Token
+              </button>
+            </a>
+          </div>
+          <div
+            class="mt-6  w-full justify-center md:hidden block"
+          >
+            <a
+              href="/factory/create?isGroup=true&groupPolicyAddress=test_policy_address"
+            >
+              <button
+                class="btn btn-gradient w-full h-[52px] text-white rounded-[12px]"
+              >
+                Create New Token
+              </button>
+            </a>
+          </div>
+          <div
+            hidden=""
+            style="position: fixed; top: 1px; left: 1px; width: 1px; height: 0px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0px; display: none;"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</DocumentFragment>"
+`;

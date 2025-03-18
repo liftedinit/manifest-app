@@ -82,6 +82,7 @@ export const GroupProposals = ({ group, proposals }: GroupProposalsProps) => {
       <table
         className="table w-full border-separate border-spacing-y-3 -mt-6"
         aria-label="Group proposals"
+        data-testid="proposals"
       >
         <thead>
           <tr className="text-sm font-medium">

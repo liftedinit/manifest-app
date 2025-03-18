@@ -21,7 +21,7 @@ import { group as groupSchema } from '@/schemas';
 import { CombinedBalanceInfo, ExtendedMetadataSDKType } from '@/utils';
 import { ProfileAvatar } from '@/utils/identicon';
 
-type GroupControlsProps = {
+export type GroupControlsProps = {
   group: ExtendedGroupType;
   onBack: () => void;
   isLoading: boolean;
@@ -41,7 +41,7 @@ type GroupControlsProps = {
 
 const TAB_SLUGS = ['proposals', 'assets', 'activity', 'tokens'];
 
-export default function GroupControls({
+export function GroupControls({
   group,
   onBack,
   isLoading,
@@ -182,7 +182,7 @@ export default function GroupControls({
         </div>
       </div>
 
-      <Tab.Group defaultIndex={activeTab} onChange={tab => setActiveTab(tab)}>
+      <Tab.Group selectedIndex={activeTab} onChange={tab => setActiveTab(tab)}>
         <Tab.List className="flex flex-row tabs tabs-border tabs-lg">
           <Tab className="font-bold tab ui-selected:tab-active focus:outline-1 focus:outline-primary focus:-outline-offset-1">
             Proposals
