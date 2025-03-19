@@ -17,6 +17,7 @@ function IbcSendForm({ token }: { token: string }) {
   const ibcDenom = getIbcDenom(env.chainId, token);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const { getOfflineSignerAmino } = useChain(env.chain);
   // Determine if dark mode is active
   const isDark = theme === 'dark';
 
@@ -141,7 +142,7 @@ function IbcSendForm({ token }: { token: string }) {
       )
     )
     .map(asset => asset.base);
-
+  console.log();
   return (
     <div
       aria-label="ibc-send-form"
@@ -176,6 +177,7 @@ function IbcSendForm({ token }: { token: string }) {
           }}
           brandColor={'#a087ff'}
           onlyTestnet={true}
+          getCosmosSigner={(chainID: string) => Promise.resolve(getOfflineSignerAmino())}
           connectedAddresses={{
             [env.chainId]: address,
           }}
