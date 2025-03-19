@@ -79,7 +79,7 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
     <div className="overflow-y-auto z-30 py-5 px-3 w-32 bg-[#FFFFFF3D] dark:bg-[#FFFFFF0F] flex flex-col items-center h-full transition-transform duration-300 ease-in-out">
       <Link href={'/#'} passHref legacyBehavior>
         <a href="#" className="mb-12">
-          <Image src={'/logo.svg'} className="h-16 w-16" alt="Logo" height={264} width={264} />
+          <Image src={'/logo.svg'} className="h-20 w-20" alt="Logo" height={264} width={264} />
         </a>
       </Link>
       <ul className="flex flex-col items-center grow mt-8">
@@ -169,7 +169,7 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
     <div className="overflow-y-auto flex flex-col h-full bg-[#F4F4FF] dark:bg-[#1D192D]  w-64 p-4">
       <div className="flex flex-row gap-2 justify-start ml-2 mt-2 items-center mb-12 space-x-2">
         <Link href={'/#'} passHref legacyBehavior>
-          <Image src={'/logo.svg'} alt="logo" width={48} height={48} className="cursor-pointer" />
+          <Image src={'/logo.svg'} alt="logo" width={75} height={75} className="cursor-pointer" />
         </Link>
         <div className="flex flex-col">
           <p className="text-4xl font-bold">Alberto</p>
