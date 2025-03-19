@@ -200,7 +200,7 @@ export default function DenomList({
   };
 
   return (
-    <div className="w-full mx-auto rounded-[24px] h-full flex flex-col">
+    <div className="w-full mx-auto rounded-[24px] h-full flex flex-col" data-testid="denomList">
       <div className="flex flex-col gap-4 mb-4">
         <div className="overflow-auto">
           <div className="max-w-8xl mx-auto">

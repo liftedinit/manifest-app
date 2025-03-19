@@ -9,7 +9,8 @@ import { useRouter } from 'next/router';
 import React, { useEffect, useMemo, useState } from 'react';
 import { PiInfo } from 'react-icons/pi';
 
-import { GroupInfo, MemberManagementModal } from '@/components';
+import { GroupInfo, MemberManagementModal, TokenBalance } from '@/components';
+import { GroupControls } from '@/components';
 import { MemberIcon, SearchIcon } from '@/components/icons';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import env from '@/config/env';
@@ -26,20 +27,16 @@ import {
   useTotalSupply,
 } from '@/hooks/useQueries';
 import { useResponsivePageSize } from '@/hooks/useResponsivePageSize';
-import { group as groupSchema } from '@/schemas';
 import {
   CombinedBalanceInfo,
   ExtendedMetadataSDKType,
   MFX_TOKEN_BASE,
   MFX_TOKEN_DATA,
   denomToAsset,
-  shiftDigits,
   truncateString,
   unsafeConvertTokenBase,
 } from '@/utils';
 import { ProfileAvatar } from '@/utils/identicon';
-
-import GroupControls from './groupControls';
 
 // Add this interface outside the component
 interface PageSizeConfig {
@@ -49,7 +46,7 @@ interface PageSizeConfig {
   skeleton: number;
 }
 
-export default React.memo(function YourGroups({
+export const YourGroups = ({
   groups,
   proposals,
   isLoading,
@@ -57,7 +54,7 @@ export default React.memo(function YourGroups({
   groups: ExtendedQueryGroupsByMemberResponseSDKType;
   proposals: { [policyAddress: string]: ProposalSDKType[] };
   isLoading: boolean;
-}) {
+}) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const isMobile = useIsMobile();
@@ -103,7 +100,6 @@ export default React.memo(function YourGroups({
   const skeletonTxCount = pageSize.skeleton;
 
   const [selectedGroup, setSelectedGroup] = useState<ExtendedGroupType | null>(null);
-  const [selectedGroupName, setSelectedGroupName] = useState<string>('Untitled Group');
 
   const router = useRouter();
   const { address } = useChain(env.chain);
@@ -132,24 +128,16 @@ export default React.memo(function YourGroups({
     if (policyAddress && typeof policyAddress === 'string') {
       const group = groups.groups.find(g => g.policies?.[0]?.address === policyAddress);
       if (group) {
-        let groupName = 'Untitled Group';
-        try {
-          const metadata = group.metadata ? JSON.parse(group.metadata) : null;
-          groupName = metadata?.title ?? 'Untitled Group';
-        } catch (e) {
-          // If JSON parsing fails, fall back to default name
-          // console.warn('Failed to parse group metadata:', e);
-        }
-
-        setSelectedGroupName(groupName);
         setSelectedGroup(group);
       } else {
         // Group not found, reset selected group.
         setSelectedGroup(null);
-        router.push('/groups', undefined, { shallow: true });
+        if (!isLoading) {
+          router.push('/groups', undefined, { shallow: true });
+        }
       }
     }
-  }, [groups.groups, router]);
+  }, [groups.groups, router, isLoading]);
 
   useEffect(() => {
     // Scroll to top when a group is selected
@@ -159,23 +147,20 @@ export default React.memo(function YourGroups({
   }, [selectedGroup]);
 
   const handleSelectGroup = (group: ExtendedGroupType) => {
-    let groupName = 'Untitled Group';
-    try {
-      const metadata = groupSchema.metadataFromJson(group.metadata, false);
-      groupName = metadata?.title ?? 'Untitled Group';
-    } catch (e) {
-      // If JSON parsing fails, fall back to default name
-      console.warn('Failed to parse group metadata:', e);
-    }
-    setSelectedGroupName(groupName);
     setSelectedGroup(group);
-    router.push(`/groups?policyAddress=${group.policies[0]?.address}`, undefined, {
-      shallow: true,
-    });
+    router.push(
+      {
+        pathname: router.pathname,
+        query: { ...router.query, policyAddress: group.policies[0]?.address },
+      },
+      undefined,
+      {
+        shallow: true,
+      }
+    );
   };
 
   const handleBack = () => {
-    setSelectedGroupName('Untitled Group');
     setSelectedGroup(null);
     router.push('/groups', undefined, { shallow: true });
   };
@@ -188,8 +173,7 @@ export default React.memo(function YourGroups({
   const { balances: resolvedBalances, isBalancesLoading: resolvedLoading } =
     useTokenBalancesResolved(address ?? '');
 
-  const { metadatas, isMetadatasLoading, isMetadatasError, refetchMetadatas } =
-    useTokenFactoryDenomsMetadata();
+  const { metadatas, isMetadatasLoading } = useTokenFactoryDenomsMetadata();
   const [currentPageGroupInfo, setCurrentPageGroupInfo] = useState(1);
 
   const {
@@ -356,44 +340,7 @@ export default React.memo(function YourGroups({
                   {isLoading
                     ? Array(isMobile ? 6 : 8)
                         .fill(0)
-                        .map((_, index) => (
-                          <tr key={index} data-testid="skeleton-row">
-                            <td className="bg-secondary rounded-l-[12px] ">
-                              <div className="flex items-center space-x-3">
-                                <div className="skeleton w-11 h-11 rounded-md shrink-0"></div>
-                                <div className="skeleton h-3 w-24"></div>
-                              </div>
-                            </td>
-                            <td className="bg-secondary hidden xl:table-cell">
-                              <div className="skeleton h-2 w-8"></div>
-                            </td>
-                            <td className="bg-secondary hidden sm:table-cell ">
-                              <div className="skeleton h-2 w-16"></div>
-                            </td>
-                            <td className="bg-secondary hidden xl:table-cell">
-                              <div className="skeleton h-2 w-20"></div>
-                            </td>
-                            <td className="bg-secondary hidden lg:table-cell">
-                              <div className="skeleton h-2 w-32"></div>
-                            </td>
-                            <td className="bg-secondary rounded-r-[12px] w-1/6 hidden xs:table-cell">
-                              <div className="flex space-x-2 justify-end">
-                                <button
-                                  className="btn btn-md btn-outline btn-square btn-info"
-                                  disabled
-                                >
-                                  <PiInfo className="w-7 h-7 text-current opacity-50" />
-                                </button>
-                                <button
-                                  className="btn btn-md btn-outline btn-square btn-primary"
-                                  disabled
-                                >
-                                  <MemberIcon className="w-7 h-7 text-current opacity-50" />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))
+                        .map((_, index) => <LoadingGroupRow key={index} />)
                     : paginatedGroupEntries.map((group, index) => (
                         <GroupRow
                           address={address}
@@ -501,13 +448,8 @@ export default React.memo(function YourGroups({
       >
         {selectedGroup && (
           <GroupControls
-            policyAddress={selectedGroup.policies[0]?.address ?? ''}
-            groupName={selectedGroupName}
+            group={selectedGroup}
             onBack={handleBack}
-            policyThreshold={
-              (selectedGroup.policies[0]?.decision_policy as ThresholdDecisionPolicySDKType)
-                ?.threshold ?? '0'
-            }
             isLoading={isLoadingGroupInfo}
             currentPage={currentPageGroupInfo}
             setCurrentPage={setCurrentPageGroupInfo}
@@ -525,7 +467,42 @@ export default React.memo(function YourGroups({
       </div>
     </div>
   );
-});
+};
+
+const LoadingGroupRow = () => {
+  return (
+    <tr data-testid="skeleton-row">
+      <td className="bg-secondary rounded-l-[12px] ">
+        <div className="flex items-center space-x-3">
+          <div className="skeleton w-11 h-11 rounded-md shrink-0"></div>
+          <div className="skeleton h-3 w-24"></div>
+        </div>
+      </td>
+      <td className="bg-secondary hidden xl:table-cell">
+        <div className="skeleton h-2 w-8"></div>
+      </td>
+      <td className="bg-secondary hidden sm:table-cell ">
+        <div className="skeleton h-2 w-16"></div>
+      </td>
+      <td className="bg-secondary hidden xl:table-cell">
+        <div className="skeleton h-2 w-20"></div>
+      </td>
+      <td className="bg-secondary hidden lg:table-cell">
+        <div className="skeleton h-2 w-32"></div>
+      </td>
+      <td className="bg-secondary rounded-r-[12px] w-1/6 hidden xs:table-cell">
+        <div className="flex space-x-2 justify-end">
+          <button className="btn btn-md btn-outline btn-square btn-info" disabled>
+            <PiInfo className="w-7 h-7 text-current opacity-50" />
+          </button>
+          <button className="btn btn-md btn-outline btn-square btn-primary" disabled>
+            <MemberIcon className="w-7 h-7 text-current opacity-50" />
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+};
 
 const GroupRow = React.memo(function GroupRow({
   address,
@@ -589,7 +566,7 @@ const GroupRow = React.memo(function GroupRow({
             <ProfileAvatar walletAddress={policyAddress} />
             <span className="font-medium">{truncateString(groupName, 24)}</span>
           </div>
-          <div className="items-center flex xs:hidden block">
+          <div className="items-center flex xs:hidden">
             <ProfileAvatar walletAddress={policyAddress} />
           </div>
         </td>
@@ -603,10 +580,7 @@ const GroupRow = React.memo(function GroupRow({
           )}
         </td>
         <td className="bg-secondary group-hover:bg-base-300 hidden sm:table-cell w-1/6">
-          {Number(shiftDigits(balance?.amount ?? '0', -6)).toLocaleString(undefined, {
-            maximumFractionDigits: 6,
-          })}{' '}
-          MFX
+          <TokenBalance token={{ amount: balance?.amount, display: 'MFX' }} />
         </td>
         <td className="bg-secondary group-hover:bg-base-300 hidden xl:table-cell w-1/6">
           {`${(group.policies?.[0]?.decision_policy as ThresholdDecisionPolicySDKType)?.threshold ?? '0'} / ${group.total_weight ?? '0'}`}

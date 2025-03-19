@@ -65,7 +65,10 @@ export function HistoryBox({
   }
 
   return (
-    <div className="w-full mx-auto  h-full flex flex-col  overflow-x-hidden">
+    <div
+      className="w-full mx-auto  h-full flex flex-col  overflow-x-hidden"
+      data-testid="historyBox"
+    >
       {isLoading ? (
         <div className="flex-1 overflow-hidden h-full">
           <div aria-label="skeleton" className="space-y-2">

@@ -1,14 +1,36 @@
-import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, jest, mock, test } from 'bun:test';
+import { cleanup, screen } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, jest, test } from 'bun:test';
 import React from 'react';
 
-import GroupProposals from '@/components/groups/components/groupControls';
+import { GroupControls } from '@/components/groups/components';
 import { clearAllMocks, mockModule, mockRouter } from '@/tests';
 import { mockGroup, mockGroup2, mockProposals } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
 
 const mockProps = {
-  policyAddress: 'test_policy_address',
+  group: {
+    policies: [
+      {
+        address: 'test_policy_address',
+        title: 'Test Policy',
+        description: 'Test Policy Description',
+      } as any,
+    ],
+  } as any,
+  proposals: [],
+  isLoading: false,
+  txLoading: false,
+  onBack: jest.fn(),
+  currentPage: 0,
+  setCurrentPage: jest.fn(),
+  totalPages: 1,
+  sendTxs: [],
+  isError: false,
+  balances: [],
+  denoms: [],
+  pageSize: 6,
+  skeletonGroupCount: 0,
+  skeletonTxCount: 0,
 };
 
 describe('ProposalsForPolicy Component', () => {
@@ -71,7 +93,7 @@ describe('ProposalsForPolicy Component', () => {
         refetchProposals: jest.fn(),
       }),
     }));
-    renderWithChainProvider(<GroupProposals {...mockProps} />);
+    renderWithChainProvider(<GroupControls {...mockProps} />);
     expect(screen.getByRole('status')).toBeInTheDocument();
   });
 
@@ -84,7 +106,7 @@ describe('ProposalsForPolicy Component', () => {
         refetchProposals: jest.fn(),
       }),
     }));
-    renderWithChainProvider(<GroupProposals {...mockProps} />);
+    renderWithChainProvider(<GroupControls {...mockProps} />);
     expect(screen.getByText('Error loading proposals')).toBeInTheDocument();
   });
 
@@ -97,7 +119,7 @@ describe('ProposalsForPolicy Component', () => {
         refetchProposals: jest.fn(),
       }),
     }));
-    renderWithChainProvider(<GroupProposals {...mockProps} />);
+    renderWithChainProvider(<GroupControls {...mockProps} />);
     expect(screen.getByText('No proposal was found.')).toBeInTheDocument();
   });
 
@@ -110,7 +132,7 @@ describe('ProposalsForPolicy Component', () => {
         refetchProposals: jest.fn(),
       }),
     }));
-    renderWithChainProvider(<GroupProposals {...mockProps} />);
+    renderWithChainProvider(<GroupControls {...mockProps} />);
     expect(screen.getByText('Proposals')).toBeInTheDocument();
     const proposals = mockProposals['test_policy_address'];
     proposals.forEach(proposal => {
