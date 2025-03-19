@@ -1,6 +1,7 @@
 import React, { createContext } from 'react';
 
-export interface PaginationProps<T> {
+export interface PaginationProps<T>
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children' | 'onChange'> {
   pageSize: number;
   defaultPage?: number;
   selectedPage?: number;
@@ -69,9 +70,9 @@ export function Pagination<T>({
   dataset,
   onChange,
   children,
+  ...props
 }: PaginationProps<T>) {
   const [pageInner, setPageInner] = React.useState(defaultPage);
-  const pages = createArrayOfPageIndex(dataset.length, pageSize, pageInner);
   const nbPages: number = Math.ceil(dataset.length / pageSize);
 
   React.useEffect(() => {
@@ -80,29 +81,18 @@ export function Pagination<T>({
     }
   }, [selectedPage]);
 
-  function callOnChange() {
+  // Call onChange whenever pageInner changes
+  React.useEffect(() => {
     onChange?.(dataset.slice(pageInner * pageSize, (pageInner + 1) * pageSize), pageInner);
-  }
+  }, [pageInner, pageSize, dataset, onChange]);
 
-  function previous() {
-    setPageInner(page => Math.max(0, page - 1));
-    callOnChange();
-  }
-
-  function next() {
-    setPageInner(page => Math.min(nbPages - 1, page + 1));
-    callOnChange();
-  }
-
-  function setPage(page: number) {
-    setPageInner(page);
-    callOnChange();
+  function update(v: React.SetStateAction<number>) {
+    setPageInner(v);
   }
 
   const data = dataset.slice(pageInner * pageSize, (pageInner + 1) * pageSize);
-
   return (
-    <>
+    <div {...props}>
       {children instanceof Function ? (
         children(data, pageInner)
       ) : (
@@ -111,58 +101,82 @@ export function Pagination<T>({
         </Pagination.Index.Provider>
       )}
 
-      <div className="flex items-center justify-end gap-2 mt-4">
-        <button
-          onClick={previous}
-          disabled={pageInner == 0}
-          aria-label="Previous page"
-          className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          ‹
-        </button>
+      {nbPages > 1 && (
+        <Navigator
+          pages={createArrayOfPageIndex(dataset.length, pageSize, pageInner)}
+          page={pageInner}
+          totalPages={nbPages}
+          onNext={() => update(p => Math.min(nbPages - 1, p + 1))}
+          onPrevious={() => update(p => Math.max(0, p - 1))}
+          onSet={update}
+        />
+      )}
+    </div>
+  );
+}
 
-        {pages.map((p, i) => {
-          if (p === '...') {
-            return (
-              <span key={`ellipsis-${i}`} className="text-black dark:text-white">
-                ...
-              </span>
-            );
-          } else if (p === pageInner) {
-            return (
-              <button
-                key={`page-${p}`}
-                aria-label={`Page ${p}`}
-                aria-current="page"
-                className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors bg-[#0000001A] dark:bg-[#FFFFFF1A] text-black dark:text-white"
-              >
-                {p + 1}
-              </button>
-            );
-          } else {
-            return (
-              <button
-                key={`page-${p}`}
-                onClick={() => setPage(p)}
-                aria-label={`Page ${p}`}
-                className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white"
-              >
-                {p + 1}
-              </button>
-            );
-          }
-        })}
+interface NavigatorProps {
+  pages: (number | '...')[];
+  page: number;
+  totalPages: number;
+  onNext: () => void;
+  onPrevious: () => void;
+  onSet: (p: number) => void;
+}
 
-        <button
-          onClick={next}
-          disabled={pageInner === nbPages - 1}
-          aria-label="Next page"
-          className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          ›
-        </button>
-      </div>
-    </>
+function Navigator({ pages, page, totalPages, onNext, onPrevious, onSet }: NavigatorProps) {
+  return (
+    <nav className="flex items-center justify-end gap-2 mt-4">
+      <button
+        onClick={onPrevious}
+        disabled={page == 0}
+        aria-label="Previous page"
+        className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        ‹
+      </button>
+
+      {pages.map((p, i) => {
+        if (p === '...') {
+          return (
+            <span key={`ellipsis-${i}`} className="text-black dark:text-white">
+              ...
+            </span>
+          );
+        } else if (p === page) {
+          return (
+            <button
+              key={`page-${p}`}
+              aria-label={`Page ${p}`}
+              aria-current="page"
+              className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors bg-[#0000001A] dark:bg-[#FFFFFF1A] text-black dark:text-white"
+            >
+              {p + 1}
+            </button>
+          );
+        } else {
+          return (
+            <button
+              key={`page-${p}`}
+              onClick={() => onSet(p)}
+              aria-label={`Page ${p}`}
+              className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white"
+            >
+              {p + 1}
+            </button>
+          );
+        }
+      })}
+
+      <button
+        onClick={onNext}
+        disabled={page === totalPages - 1}
+        aria-label="Next page"
+        className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        ›
+      </button>
+    </nav>
   );
 }
 

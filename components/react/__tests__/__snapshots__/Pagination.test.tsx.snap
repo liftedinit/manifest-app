@@ -2,125 +2,131 @@
 
 exports[`Pagination works for small dataset: start 1`] = `
 "<DocumentFragment>
-  0["a","b","c","d","e"]
-  <div
-    class="flex items-center justify-end gap-2 mt-4"
-  >
-    <button
-      aria-label="Previous page"
-      class="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-      disabled=""
+  <div>
+    0["a","b","c","d","e"]
+    <nav
+      class="flex items-center justify-end gap-2 mt-4"
     >
-      ‹
-    </button>
-    <button
-      aria-current="page"
-      aria-label="Page 0"
-      class="w-8 h-8 flex items-center justify-center rounded-lg transition-colors bg-[#0000001A] dark:bg-[#FFFFFF1A] text-black dark:text-white"
-    >
-      1
-    </button>
-    <button
-      aria-label="Page 1"
-      class="w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white"
-    >
-      2
-    </button>
-    <button
-      aria-label="Page 2"
-      class="w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white"
-    >
-      3
-    </button>
-    <button
-      aria-label="Next page"
-      class="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      ›
-    </button>
+      <button
+        aria-label="Previous page"
+        class="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled=""
+      >
+        ‹
+      </button>
+      <button
+        aria-current="page"
+        aria-label="Page 0"
+        class="w-8 h-8 flex items-center justify-center rounded-lg transition-colors bg-[#0000001A] dark:bg-[#FFFFFF1A] text-black dark:text-white"
+      >
+        1
+      </button>
+      <button
+        aria-label="Page 1"
+        class="w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white"
+      >
+        2
+      </button>
+      <button
+        aria-label="Page 2"
+        class="w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white"
+      >
+        3
+      </button>
+      <button
+        aria-label="Next page"
+        class="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        ›
+      </button>
+    </nav>
   </div>
 </DocumentFragment>"
 `;
 
 exports[`Pagination works for small dataset: middle 1`] = `
 "<DocumentFragment>
-  1["f","g","h","i","j"]
-  <div
-    class="flex items-center justify-end gap-2 mt-4"
-  >
-    <button
-      aria-label="Previous page"
-      class="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+  <div>
+    1["f","g","h","i","j"]
+    <nav
+      class="flex items-center justify-end gap-2 mt-4"
     >
-      ‹
-    </button>
-    <button
-      aria-label="Page 0"
-      class="w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white"
-    >
-      1
-    </button>
-    <button
-      aria-current="page"
-      aria-label="Page 1"
-      class="w-8 h-8 flex items-center justify-center rounded-lg transition-colors bg-[#0000001A] dark:bg-[#FFFFFF1A] text-black dark:text-white"
-    >
-      2
-    </button>
-    <button
-      aria-label="Page 2"
-      class="w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white"
-    >
-      3
-    </button>
-    <button
-      aria-label="Next page"
-      class="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      ›
-    </button>
+      <button
+        aria-label="Previous page"
+        class="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        ‹
+      </button>
+      <button
+        aria-label="Page 0"
+        class="w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white"
+      >
+        1
+      </button>
+      <button
+        aria-current="page"
+        aria-label="Page 1"
+        class="w-8 h-8 flex items-center justify-center rounded-lg transition-colors bg-[#0000001A] dark:bg-[#FFFFFF1A] text-black dark:text-white"
+      >
+        2
+      </button>
+      <button
+        aria-label="Page 2"
+        class="w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white"
+      >
+        3
+      </button>
+      <button
+        aria-label="Next page"
+        class="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        ›
+      </button>
+    </nav>
   </div>
 </DocumentFragment>"
 `;
 
 exports[`Pagination works for small dataset: end 1`] = `
 "<DocumentFragment>
-  2["k"]
-  <div
-    class="flex items-center justify-end gap-2 mt-4"
-  >
-    <button
-      aria-label="Previous page"
-      class="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+  <div>
+    2["k"]
+    <nav
+      class="flex items-center justify-end gap-2 mt-4"
     >
-      ‹
-    </button>
-    <button
-      aria-label="Page 0"
-      class="w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white"
-    >
-      1
-    </button>
-    <button
-      aria-label="Page 1"
-      class="w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white"
-    >
-      2
-    </button>
-    <button
-      aria-current="page"
-      aria-label="Page 2"
-      class="w-8 h-8 flex items-center justify-center rounded-lg transition-colors bg-[#0000001A] dark:bg-[#FFFFFF1A] text-black dark:text-white"
-    >
-      3
-    </button>
-    <button
-      aria-label="Next page"
-      class="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-      disabled=""
-    >
-      ›
-    </button>
+      <button
+        aria-label="Previous page"
+        class="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        ‹
+      </button>
+      <button
+        aria-label="Page 0"
+        class="w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white"
+      >
+        1
+      </button>
+      <button
+        aria-label="Page 1"
+        class="w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white"
+      >
+        2
+      </button>
+      <button
+        aria-current="page"
+        aria-label="Page 2"
+        class="w-8 h-8 flex items-center justify-center rounded-lg transition-colors bg-[#0000001A] dark:bg-[#FFFFFF1A] text-black dark:text-white"
+      >
+        3
+      </button>
+      <button
+        aria-label="Next page"
+        class="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled=""
+      >
+        ›
+      </button>
+    </nav>
   </div>
 </DocumentFragment>"
 `;
