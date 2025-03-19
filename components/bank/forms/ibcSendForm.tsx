@@ -1,11 +1,14 @@
 'use client';
 
 import { OfflineAminoSigner } from '@cosmjs/amino';
+import { StdSignDoc } from '@cosmjs/amino';
 import { OfflineDirectSigner } from '@cosmjs/proto-signing';
 import { useChain } from '@cosmos-kit/react';
 import { Widget } from '@skip-go/widget';
+import { useQueryClient } from '@tanstack/react-query';
 import { assets as axelarAssets } from 'chain-registry/testnet/axelartestnet';
 import { assets as osmosisAssets } from 'chain-registry/testnet/osmosistestnet';
+import { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { useContext, useEffect, useRef } from 'react';
 import { ShadowScopeConfigProvider } from 'react-shadow-scope';
 
@@ -19,7 +22,7 @@ function IbcSendForm({ token }: { token: string }) {
   const { address, getSigningStargateClient } = useChain(env.chain);
   const ibcDenom = getIbcDenom(env.chainId, token);
   const containerRef = useRef<HTMLDivElement>(null);
-
+  const queryClient = useQueryClient();
   const { setIsSigning } = useContext(Web3AuthContext);
 
   async function getCosmosSigner(): Promise<OfflineAminoSigner | OfflineDirectSigner> {
@@ -27,14 +30,14 @@ function IbcSendForm({ token }: { token: string }) {
     if (!('signer' in client)) {
       throw new Error('No cosmos stargate client.');
     }
-    const signer: any = (client as any).signer;
+    const signer: OfflineAminoSigner | OfflineDirectSigner = (client as any).signer;
 
     // Find out which type of signer we have from the Stargate client,
     // then declare the right sign function which also set isSigning.
     if ('signAmino' in signer) {
       return {
         getAccounts: signer.getAccounts.bind(signer),
-        signAmino: async (address: string, doc: any) => {
+        signAmino: async (address: string, doc: StdSignDoc) => {
           setIsSigning(true);
 
           try {
@@ -47,7 +50,7 @@ function IbcSendForm({ token }: { token: string }) {
     } else if ('signDirect' in signer) {
       return {
         getAccounts: signer.getAccounts.bind(signer),
-        signDirect: async (address: string, doc: any) => {
+        signDirect: async (address: string, doc: SignDoc) => {
           setIsSigning(true);
 
           try {
@@ -224,6 +227,11 @@ function IbcSendForm({ token }: { token: string }) {
           getCosmosSigner={getCosmosSigner}
           connectedAddresses={{
             [env.chainId]: address,
+          }}
+          onTransactionComplete={() => {
+            queryClient.invalidateQueries({ queryKey: ['balances'] });
+            queryClient.invalidateQueries({ queryKey: ['balances-resolved'] });
+            queryClient.invalidateQueries({ queryKey: ['getMessagesForAddress'] });
           }}
           theme={themeColors}
         />
