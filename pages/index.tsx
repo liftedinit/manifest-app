@@ -1,14 +1,18 @@
+import { useChain } from '@cosmos-kit/react';
 import { useProgress } from '@react-three/drei';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Suspense } from 'react';
+import React, { Suspense } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { Element, Link as ScrollLink } from 'react-scroll';
 
+import { WalletSection } from '@/components';
 import { AdminsIcon, BankIcon, FactoryIcon, GroupsIcon } from '@/components/icons';
 import { useIsMobile } from '@/hooks';
+
+import env from '../config/env';
 
 const PenroseTriangleScene = dynamic(() => import('@/components/3js/pennRoseTriangleScene'), {
   ssr: false,
@@ -58,6 +62,7 @@ function Loader({ progress }: { progress: number }) {
 export default function Home() {
   const isMobile = useIsMobile();
   const { progress } = useProgress();
+  const { isWalletConnected } = useChain(env.chain);
 
   return (
     <>
@@ -87,23 +92,38 @@ export default function Home() {
                   <main className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
                     <div className="sm:text-center lg:text-left">
                       <h1 className="text-4xl tracking-tight font-extrabold sm:text-5xl md:text-6xl">
-                        <span className="block xl:inline">Connect to the AI infrastructure</span>{' '}
-                        <span className="block xl:inline">for</span>{' '}
-                        <span className="block text-primary xl:inline"> DePIN</span>
+                        <span className="block xl:inline">Connect to your</span>{' '}
+                        <span className="block text-primary xl:inline">Enterprise-Ready</span>{' '}
+                        <span className="block xl:inline">Wallet.</span>{' '}
                       </h1>
                       <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-                        Alberto is a secure wallet that gives you access to your assets on the
-                        Manifest blockchain in the Cosmos ecosystem.
+                        Securely manage your assets, create, and shape a future owned by its users
+                        with the first chain to use audited POA.
                       </p>
                       <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
-                        <div className="rounded-md shadow-sm">
+                        <div className="flex flex-col sm:flex-row items-center gap-8">
+                          {!isWalletConnected && (
+                            <div className="w-full sm:w-48">
+                              <WalletSection chainName={env.chain} />
+                            </div>
+                          )}
+
                           <ScrollLink
                             to="how-it-works"
                             smooth={true}
                             duration={500}
-                            className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-dark md:py-4 md:text-lg md:px-10 cursor-pointer"
+                            className="btn btn-gradient rounded-md flex items-center justify-center text-white w-full sm:w-48"
                           >
-                            Get Started
+                            Why POA?
+                          </ScrollLink>
+
+                          <ScrollLink
+                            to="resources"
+                            smooth={true}
+                            duration={500}
+                            className="btn btn-gradient rounded-md flex items-center justify-center text-white w-full sm:w-48"
+                          >
+                            Modules
                           </ScrollLink>
                         </div>
                       </div>
@@ -126,93 +146,67 @@ export default function Home() {
 
           <FadeInSection>
             <Element name="how-it-works" id="how-it-works">
-              <section className="min-h-screen py-20 sm:py-24 md:py-28 lg:py-32 relative overflow-hidden">
+              <section className="min-h-screen py-20 sm:py-24 md:py-28 lg:py-32 relative overflow-hidden flex items-center justify-center">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                  <div>
-                    <h2 className="text-3xl font-extrabold text-center mb-8">
-                      Alberto leverages cutting-edge modules
-                    </h2>
-                    <h3 className="text-5xl font-bold text-center text-primary mb-16">
-                      Innovative governance & enhanced accessibility
-                    </h3>
-
-                    {/* box row */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-                      {/* First Box */}
-                      <div className="group relative text-center p-4 rounded-2xl shadow-lg overflow-hidden transition-all duration-300 ease-in-out hover:bg-linear-to-br hover:from-white/80 hover:to-transparent dark:hover:from-base-300/80 dark:hover:to-transparent backdrop-blur-xs bg-white/60 dark:bg-base-300/60 hover:scale-105">
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0">
-                          {!isMobile && <AnimatedAsterisk />}
-                        </div>
-                        <div className="w-full h-full p-4 rounded-2xl backdrop-blur-xs pointer-events-none ">
-                          <div className="relative z-10 pointer-events-none">
-                            <Image
-                              src={'/3dPOA.svg'}
-                              alt="Proof of Authority"
-                              width={0}
-                              height={0}
-                              className="w-32 h-32 mx-auto mb-2 rounded-full"
-                            />
-                            <h4 className="text-xl md:text-lg font-semibold mb-2">
-                              Proof-of-Authority
-                            </h4>
-                            <h5 className="text-2xl font-bold mb-4">Pioneering Implementation</h5>
-                            <p className="text-gray-400 group-hover:text-black dark:group-hover:text-white">
-                              Alberto uses a Proof-of-Authority model, replacing Proof-of-Stake with
-                              administrator controlled validator selection.
-                            </p>
-                          </div>
+                  <div className="grid grid-cols-4 gap-20 items-center">
+                    <div className="order-1 col-span-4 hidden lg:block lg:col-span-1">
+                      <div className="flex flex-col items-center mb-12">
+                        <div className="w-full flex justify-center">
+                          <Image
+                            src="/logo.svg" // Replace with your actual image path
+                            alt="Manifest Logo"
+                            width={200}
+                            height={200}
+                            className="object-contain"
+                          />
                         </div>
                       </div>
+                      <h2 className="text-2xl font-bold mt-4 font-mono text-right">
+                        ENHANCED SECURITY
+                      </h2>
+                      <h2 className="text-2xl font-bold mt-4 font-mono text-right">
+                        NETWORK EFFICIENCY
+                      </h2>
+                      <h2 className="text-2xl font-bold mt-4 font-mono text-right">SCALABILITY</h2>
+                      <h2 className="text-2xl font-bold mt-4 font-mono text-right">
+                        ENERGY EFFICIENCY
+                      </h2>
+                    </div>
 
-                      {/* Second Box */}
-                      <div className="group relative text-center p-4 rounded-2xl shadow-lg overflow-hidden transition-all duration-300 ease-in-out hover:bg-linear-to-br hover:from-white/80 hover:to-transparent dark:hover:from-base-300/80 dark:hover:to-transparent backdrop-blur-xs bg-white/60 dark:bg-base-300/60 hover:scale-105">
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0">
-                          {!isMobile && <AnimatedAsterisk />}
-                        </div>
-                        <div className="w-full h-full p-4 rounded-2xl backdrop-blur-xs pointer-events-none ">
-                          <div className="relative z-10 pointer-events-none">
-                            <Image
-                              src={'/3dGroup.svg'}
-                              alt="Groups Module"
-                              width={0}
-                              height={0}
-                              className="w-32 h-32 mx-auto mb-2 rounded-full"
-                            />
-                            <h4 className="text-xl font-semibold mb-2">Groups Module</h4>
-                            <h5 className="text-2xl font-bold mb-4">
-                              Flexible DAO-like Structures
-                            </h5>
-                            <p className="text-gray-400 group-hover:text-black dark:group-hover:text-white">
-                              Alberto facilitates the creation and management of multi-member groups
-                              capable of submitting any type of transaction, enabling DAO-like
-                              governance.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
+                    <div className="order-2 col-span-4 lg:col-span-3">
+                      <h1 className="text-2xl tracking-tight font-extrabold smV:text-5xl md:text-6xl">
+                        <span className="block">Proof-of-Authority (POA):</span>
+                        <span className="block">Securing the Network</span>
+                        <span className="block">with Trusted Validators</span>
+                      </h1>
+                      <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
+                        The Manifest Network is the first chain to utilize the Audited
+                        Proof-of-Authority Module. Proof of Authority (PoA) is a consensus mechanism
+                        that relies on trusted validators to secure the network.
+                      </p>
 
-                      {/* Third Box */}
-                      <div className="group relative text-center p-4 rounded-2xl shadow-lg overflow-hidden transition-all duration-300 ease-in-out hover:bg-linear-to-br hover:from-white/80 hover:to-transparent dark:hover:from-base-300/80 dark:hover:to-transparent backdrop-blur-xs bg-white/60 dark:bg-base-300/60 hover:scale-105">
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0">
-                          {!isMobile && <AnimatedAsterisk />}
-                        </div>
-                        <div className="w-full h-full p-4 rounded-2xl backdrop-blur-xs pointer-events-none ">
-                          <div className="relative z-10 pointer-events-none">
-                            <Image
-                              src={'/3dWallet.svg'}
-                              alt="Wallet Support"
-                              width={0}
-                              height={0}
-                              className="w-32 h-32 mx-auto mb-2 rounded-full"
-                            />
-                            <h4 className="text-xl font-semibold mb-2">Diverse Wallet Support</h4>
-                            <h5 className="text-2xl font-bold mb-4">Accessible to All</h5>
-                            <p className="text-gray-400 group-hover:text-black dark:group-hover:text-white">
-                              Alberto gives you access to your tokens in multiple ways. Connect with
-                              your Cosmos wallets, your Ledger, your social media or by email/SMS.
-                            </p>
+                      <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
+                        These validators are carefully selected based on their reputation and
+                        commitment to the network&#39;s success. With PoA, you can trust that the
+                        network is in good hands, allowing you to focus on building and innovating
+                        on the decentralized web.
+                      </p>
+
+                      <div className="flex flex-row items-center gap-8 mt-5">
+                        {!isWalletConnected && (
+                          <div className="w-32 sm:w-48">
+                            <WalletSection chainName={env.chain} />
                           </div>
-                        </div>
+                        )}
+
+                        <ScrollLink
+                          to="resources"
+                          smooth={true}
+                          duration={500}
+                          className="btn btn-gradient rounded-md flex items-center justify-center text-white w-32 sm:w-48"
+                        >
+                          Modules
+                        </ScrollLink>
                       </div>
                     </div>
                   </div>
@@ -221,101 +215,123 @@ export default function Home() {
             </Element>
           </FadeInSection>
 
-          {/* Resources */}
+          {/*/!* Resources *!/*/}
           <FadeInSection>
             <Element name="resources" id="resources" className="pt-20 sm:pt-24 md:pt-28 lg:pt-32">
-              <section className="relative min-h-screen py-20 sm:py-24 md:py-28 lg:py-32">
+              <section className="min-h-screen py-20 sm:py-24 md:py-28 lg:py-32 relative overflow-hidden flex items-center justify-center">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div className="bg-white/60 dark:bg-base-300/60 backdrop-blur-xs p-6 sm:p-8 rounded-lg shadow-lg">
-                      <div className="h-32 sm:h-40 relative mb-4 sm:mb-6">
-                        <div className="absolute top-0 left-0 w-16 sm:w-20 h-16 sm:h-20 bg-primary rounded-full"></div>
-                        <div className="absolute top-8 sm:top-10 right-8 sm:right-10 w-12 sm:w-16 h-12 sm:h-16 bg-gray-200 rounded-full"></div>
-                        <div className="absolute bottom-0 left-16 sm:left-20 w-10 sm:w-12 h-10 sm:h-12 bg-gray-300 rounded-full"></div>
-                      </div>
-                      <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">
-                        The first chain to use the audited
-                        <br />
-                        Proof-of-Authority module
-                      </h3>
-                      <p className="text-gray-600 dark:text-gray-400 mb-4 sm:mb-6 text-sm sm:text-base">
-                        Learn how our implementation of POA module secures the network while
-                        enabling fast, efficient consensus. A first of its kind in the Cosmos
-                        ecosystem.
-                      </p>
-                      <a
-                        href="#"
-                        className="text-primary font-semibold hover:underline text-sm sm:text-base"
-                      >
-                        Explore the POA Technical Overview &gt;
-                      </a>
+                  <div className="flex flex-row justify-between items-center mb-8">
+                    <div className="hidden lg:block">
+                      {!isWalletConnected && (
+                        <div className="w-32 sm:w-48">
+                          <WalletSection chainName={env.chain} />
+                        </div>
+                      )}
                     </div>
-                    <div className="bg-white/60 dark:bg-base-300/60 backdrop-blur-xs p-6 sm:p-8 rounded-lg shadow-lg">
-                      <div className="h-32 sm:h-40 relative mb-4 sm:mb-6">
-                        <div className="absolute right-0 bottom-0 w-24 sm:w-32 h-24 sm:h-32 bg-gray-200 rounded-tl-full"></div>
-                        <div className="absolute right-6 sm:right-8 bottom-6 sm:bottom-8 w-18 sm:w-24 h-18 sm:h-24 bg-white rounded-tl-full"></div>
-                        <div className="absolute right-12 sm:right-16 bottom-0 w-12 sm:w-16 h-12 sm:h-16 bg-primary rounded-full"></div>
-                      </div>
-                      <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">
-                        Lifted Initiative: Pioneering
-                        <br />
-                        decentralized AI infrastructure
-                      </h3>
-                      <p className="text-gray-600 dark:text-gray-400 mb-4 sm:mb-6 text-sm sm:text-base">
-                        Explore how our parent company, Lifted Initiative, is pushing the boundaries
-                        of open, decentralized compute and AI agents, with Alberto at the forefront.
-                      </p>
-                      <a
-                        href="#"
-                        className="text-primary font-semibold hover:underline text-sm sm:text-base"
-                      >
-                        Learn about Lifted Initiative &gt;
-                      </a>
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                      <h1 className="text-2xl tracking-tight font-extrabold smV:text-5xl md:text-6xl text-right">
+                        <span className="block">Own, Govern, and Build with</span>
+                        <span className="block">robust security measures to</span>
+                        <span className="block">protect your assets and data.</span>
+                      </h1>
                     </div>
                   </div>
+                  <div className="block lg:hidden">
+                    {!isWalletConnected && (
+                      <div className="w-full">
+                        <WalletSection chainName={env.chain} />
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-base text-gray-500 mt-8">
+                    Built on the Manifest Blockchain, The Manifest Wallet is the gateway to the
+                    robust infrastructure that is powering The Manifest Network. These initial
+                    modules is the first step in beginning your journey to access enterprise-grade
+                    compute for Ai, DePIN and DeFi projects.
+                  </p>
 
-                  {/* Navigation Explanation */}
-                  <div className="mt-8 bg-white/60 dark:bg-base-300/60 backdrop-blur-xs p-8 rounded-lg shadow-lg">
-                    <div className="grid grid-cols-1 gap-y-12 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-4 lg:gap-x-8">
-                      {[
-                        {
-                          name: 'Bank',
-                          Icon: BankIcon,
-                          href: '/bank',
-                          description: 'Interact with all your tokens on the Manifest network',
-                        },
-                        {
-                          name: 'Groups',
-                          Icon: GroupsIcon,
-                          href: '/groups',
-                          description: 'Create a group and invite members to start a DAO',
-                        },
-                        {
-                          name: 'Admins',
-                          Icon: AdminsIcon,
-                          href: '/admins',
-                          description: 'For the administrators of the network to ensure security',
-                        },
-                        {
-                          name: 'Factory',
-                          Icon: FactoryIcon,
-                          href: '/factory',
-                          description:
-                            'The token factory allows you to create new tokens on the network',
-                        },
-                      ].map(({ name, Icon, href, description }) => (
-                        <Link key={name} href={href} legacyBehavior>
-                          <div className="group cursor-pointer transition-all duration-300 ease-in-out hover:bg-white/20 dark:hover:bg-base-200/20 rounded-lg p-4">
-                            <Icon className="h-16 w-auto text-[#00000066] dark:text-white transition-colors duration-300 ease-in-out group-hover:text-primary dark:group-hover:text-primary" />
-                            <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100 group-hover:text-primary transition-colors duration-300 ease-in-out">
-                              {name}
-                            </h3>
-                            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors duration-300 ease-in-out">
-                              {description}
-                            </p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mt-8">
+                    {/* First Box */}
+                    <div className="group relative text-center rounded-2xl shadow-lg overflow-hidden transition-all duration-300 ease-in-out hover:bg-linear-to-br hover:from-white/80 hover:to-transparent dark:hover:from-base-300/80 dark:hover:to-transparent backdrop-blur-xs bg-white/60 dark:bg-base-300/60 hover:scale-105">
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0">
+                        {!isMobile && <AnimatedAsterisk />}
+                      </div>
+                      <div className="w-full h-full p-8 rounded-2xl backdrop-blur-xs pointer-events-none ">
+                        <div className="relative z-10 pointer-events-none">
+                          <h4 className="text-2l md:text-lg font-bold text-mono mb-2">
+                            <span className="block">SECURE</span>
+                            <span className="block">INTEROPERABLE</span>
+                            <span className="block">WALLET</span>
+                          </h4>
+                          <div className="mt-4 pointer-events-auto">
+                            <Link
+                              href="/bank"
+                              className="btn btn-gradient rounded-md text-white w-full mx-auto"
+                            >
+                              <BankIcon className="w-5 h-5" /> Bank
+                            </Link>
                           </div>
-                        </Link>
-                      ))}
+                          <p className="text-gray-400 group-hover:text-black dark:group-hover:text-white mt-4">
+                            Securely manage your assets, seamlessly transfer value across the
+                            Manifest Network and unlock the power of interoperability with different
+                            blockchains.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="group relative text-center rounded-2xl shadow-lg overflow-hidden transition-all duration-300 ease-in-out hover:bg-linear-to-br hover:from-white/80 hover:to-transparent dark:hover:from-base-300/80 dark:hover:to-transparent backdrop-blur-xs bg-white/60 dark:bg-base-300/60 hover:scale-105">
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0">
+                        {!isMobile && <AnimatedAsterisk />}
+                      </div>
+                      <div className="w-full h-full p-8 rounded-2xl backdrop-blur-xs pointer-events-none ">
+                        <div className="relative z-10 pointer-events-none">
+                          <h4 className="text-2l md:text-lg font-bold text-mono mb-2">
+                            <span className="block">FLEXIBLE</span>
+                            <span className="block">DAO-LIKE</span>
+                            <span className="block">STRUCTURES</span>
+                          </h4>
+                          <div className="mt-4 pointer-events-auto">
+                            <Link
+                              href="/groups"
+                              className="btn btn-gradient rounded-md text-white w-full mx-auto"
+                            >
+                              <GroupsIcon className="w-5 h-5" /> Groups
+                            </Link>
+                          </div>
+                          <p className="text-gray-400 group-hover:text-black dark:group-hover:text-white mt-4">
+                            Join or create organizations to collaborate with others. Pool resources,
+                            make collective decisions, and unlock new possibilities together.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="group relative text-center rounded-2xl shadow-lg overflow-hidden transition-all duration-300 ease-in-out hover:bg-linear-to-br hover:from-white/80 hover:to-transparent dark:hover:from-base-300/80 dark:hover:to-transparent backdrop-blur-xs bg-white/60 dark:bg-base-300/60 hover:scale-105">
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0">
+                        {!isMobile && <AnimatedAsterisk />}
+                      </div>
+                      <div className="w-full h-full p-8 rounded-2xl backdrop-blur-xs pointer-events-none ">
+                        <div className="relative z-10 pointer-events-none">
+                          <h4 className="text-2l md:text-lg font-bold text-mono mb-2">
+                            <span className="block">TOKEN CREATION</span>
+                            <span className="block">AND</span>
+                            <span className="block">MANAGEMENT</span>
+                          </h4>
+                          <div className="mt-4 pointer-events-auto">
+                            <Link
+                              href="/factory"
+                              className="btn btn-gradient rounded-md text-white w-full mx-auto"
+                            >
+                              <FactoryIcon className="w-5 h-5" /> Token Factory
+                            </Link>
+                          </div>
+                          <p className="text-gray-400 group-hover:text-black dark:group-hover:text-white mt-4">
+                            Easily create your own tokens on the Manifest Network. Mint, burn, and
+                            manage your tokens with ease.
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
