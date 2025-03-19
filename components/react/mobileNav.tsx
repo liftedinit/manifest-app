@@ -67,7 +67,7 @@ export default function MobileNav() {
   return (
     <>
       <div className="fixed top-0 left-0 right-0 z-40 p-3 bg-base-300 flex lg:hidden flex-row justify-between items-center">
-        <Image src="/logo.svg" height={38} width={38} alt="manifest" />
+        <Image src="/logo.svg" height={55} width={55} alt="manifest" />
         <label htmlFor="my-drawer" className="btn btn-sm btn-primary drawer-button">
           <RiMenuUnfoldFill fontSize={'24px'} />
         </label>
@@ -80,7 +80,7 @@ export default function MobileNav() {
           <ul className="menu p-4 w-80 min-h-full bg-[#F4F4FF] dark:bg-[#1D192D] space-y-3 text-base-content flex flex-col">
             <div className="flex flex-row justify-between items-center">
               <div className="flex flex-row gap-4 justify-between items-center">
-                <Image src={'/logo.svg'} alt="logo" width={42} height={42} />
+                <Image src={'/logo.svg'} alt="logo" width={55} height={55} />
                 <div className="flex flex-col">
                   <p className="text-2xl leading-tight text-balance">Alberto</p>
                   {env.chainTier === 'mainnet' ? null : (
