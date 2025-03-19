@@ -1,3 +1,5 @@
+'use client';
+
 import { useChain } from '@cosmos-kit/react';
 import { Widget } from '@skip-go/widget';
 import { assets as axelarAssets } from 'chain-registry/testnet/axelartestnet';
