@@ -221,14 +221,14 @@ export default function Home() {
               <section className="min-h-screen py-20 sm:py-24 md:py-28 lg:py-32 relative overflow-hidden flex items-center justify-center">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                   <div className="flex flex-row justify-between items-center mb-8">
-                    <div className="hidden lg:block">
-                      {!isWalletConnected && (
+                    {!isWalletConnected && (
+                      <div className="hidden lg:block">
                         <div className="w-32 sm:w-48">
                           <WalletSection chainName={env.chain} />
                         </div>
-                      )}
-                    </div>
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                      </div>
+                    )}
+                    <div className="max-w-7xl mx-auto w-full relative z-10">
                       <h1 className="text-2xl tracking-tight font-extrabold smV:text-5xl md:text-6xl text-right">
                         <span className="block">Own, Govern, and Build with</span>
                         <span className="block">robust security measures to</span>
