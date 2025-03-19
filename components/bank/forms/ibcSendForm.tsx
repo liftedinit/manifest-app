@@ -1,23 +1,67 @@
 'use client';
 
+import { OfflineAminoSigner } from '@cosmjs/amino';
+import { OfflineDirectSigner } from '@cosmjs/proto-signing';
 import { useChain } from '@cosmos-kit/react';
 import { Widget } from '@skip-go/widget';
 import { assets as axelarAssets } from 'chain-registry/testnet/axelartestnet';
 import { assets as osmosisAssets } from 'chain-registry/testnet/osmosistestnet';
-import { useEffect, useRef } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { ShadowScopeConfigProvider } from 'react-shadow-scope';
 
 import env from '@/config/env';
 import { useTheme } from '@/contexts';
+import { Web3AuthContext } from '@/contexts/web3AuthContext';
 import { getIbcDenom } from '@/utils/ibc';
 
 function IbcSendForm({ token }: { token: string }) {
   const { theme } = useTheme();
-  const { address } = useChain(env.chain);
+  const { address, getSigningStargateClient } = useChain(env.chain);
   const ibcDenom = getIbcDenom(env.chainId, token);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const { getOfflineSignerAmino } = useChain(env.chain);
+  const { setIsSigning } = useContext(Web3AuthContext);
+
+  async function getCosmosSigner(): Promise<OfflineAminoSigner | OfflineDirectSigner> {
+    const client = await getSigningStargateClient();
+    if (!('signer' in client)) {
+      throw new Error('No cosmos stargate client.');
+    }
+    const signer: any = (client as any).signer;
+
+    // Find out which type of signer we have from the Stargate client,
+    // then declare the right sign function which also set isSigning.
+    if ('signAmino' in signer) {
+      return {
+        getAccounts: signer.getAccounts.bind(signer),
+        signAmino: async (address: string, doc: any) => {
+          setIsSigning(true);
+
+          try {
+            return await signer.signAmino(address, doc);
+          } finally {
+            setIsSigning(false);
+          }
+        },
+      };
+    } else if ('signDirect' in signer) {
+      return {
+        getAccounts: signer.getAccounts.bind(signer),
+        signDirect: async (address: string, doc: any) => {
+          setIsSigning(true);
+
+          try {
+            return await signer.signDirect(address, doc);
+          } finally {
+            setIsSigning(false);
+          }
+        },
+      };
+    } else {
+      throw new Error('Invalid signer from stargate client.');
+    }
+  }
+
   // Determine if dark mode is active
   const isDark = theme === 'dark';
 
@@ -177,7 +221,7 @@ function IbcSendForm({ token }: { token: string }) {
           }}
           brandColor={'#a087ff'}
           onlyTestnet={true}
-          getCosmosSigner={(chainID: string) => Promise.resolve(getOfflineSignerAmino())}
+          getCosmosSigner={getCosmosSigner}
           connectedAddresses={{
             [env.chainId]: address,
           }}
