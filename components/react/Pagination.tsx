@@ -151,7 +151,11 @@ export const Navigator: React.FC<NavigatorProps> = ({
   const pages = createArrayOfPageIndex(nbPages, page);
 
   return (
-    <nav className="flex items-center justify-end gap-2 mt-4" aria-label="Pagination">
+    <nav
+      className="flex items-center justify-end gap-2 mt-4"
+      aria-label="Pagination"
+      role="navigation"
+    >
       <button
         onClick={() => onChange(Math.max(0, page - 1))}
         disabled={page == 0}
