@@ -150,49 +150,51 @@ function ProposalTable({ group, pageSize, proposals }: ProposalTableProps) {
 
   return (
     <Pagination dataset={proposals} pageSize={pageSize} selectedPage={defaultPage}>
-      {(rows: ProposalWithTally[]) => (
-        <table
-          className="table w-full border-separate border-spacing-y-3 -mt-6"
-          aria-label="Group proposals"
-          data-testid="proposals"
-        >
-          <thead>
-            <tr className="text-sm font-medium">
-              <th className="bg-transparent px-4 py-2 w-[25%]" scope="col">
-                ID
-              </th>
-              <th className="bg-transparent px-4 py-2 w-[25%]" scope="col">
-                Title
-              </th>
-              <th className="bg-transparent px-4 py-2 w-[25%] hidden xl:table-cell" scope="col">
-                Time Left
-              </th>
-              <th
-                className="bg-transparent px-4 py-2 w-[25%] sm:table-cell md:hidden hidden xl:table-cell"
-                scope="col"
-              >
-                Type
-              </th>
-              <th
-                className="bg-transparent px-4 py-2 w-[25%] sm:table-cell xxs:hidden hidden 2xl:table-cell"
-                scope="col"
-              >
-                Status
-              </th>
-            </tr>
-          </thead>
-          <tbody className="space-y-4">
-            {rows.map(({ proposal, tally }) => (
-              <ProposalRow
-                key={`proposal-${proposal.id}`}
-                group={group}
-                proposal={proposal}
-                tally={tally}
-              />
-            ))}
-          </tbody>
-        </table>
-      )}
+      <table
+        className="table w-full border-separate border-spacing-y-3 -mt-6"
+        aria-label="Group proposals"
+        data-testid="proposals"
+      >
+        <thead>
+          <tr className="text-sm font-medium">
+            <th className="bg-transparent px-4 py-2 w-[25%]" scope="col">
+              ID
+            </th>
+            <th className="bg-transparent px-4 py-2 w-[25%]" scope="col">
+              Title
+            </th>
+            <th className="bg-transparent px-4 py-2 w-[25%] hidden xl:table-cell" scope="col">
+              Time Left
+            </th>
+            <th
+              className="bg-transparent px-4 py-2 w-[25%] sm:table-cell md:hidden hidden xl:table-cell"
+              scope="col"
+            >
+              Type
+            </th>
+            <th
+              className="bg-transparent px-4 py-2 w-[25%] sm:table-cell xxs:hidden hidden 2xl:table-cell"
+              scope="col"
+            >
+              Status
+            </th>
+          </tr>
+        </thead>
+        <tbody className="space-y-4">
+          <Pagination.Data.Consumer>
+            {rows =>
+              rows.map(({ proposal, tally }) => (
+                <ProposalRow
+                  key={`proposal-${proposal.id}`}
+                  group={group}
+                  proposal={proposal}
+                  tally={tally}
+                />
+              ))
+            }
+          </Pagination.Data.Consumer>
+        </tbody>
+      </table>
     </Pagination>
   );
 }
