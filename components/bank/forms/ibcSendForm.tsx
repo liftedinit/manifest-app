@@ -223,7 +223,7 @@ function IbcSendForm({ token }: { token: string }) {
             allowSwaps: true,
           }}
           brandColor={'#a087ff'}
-          onlyTestnet={true}
+          onlyTestnet={env.chainTier !== 'mainnet'}
           getCosmosSigner={getCosmosSigner}
           connectedAddresses={{
             [env.chainId]: address,
