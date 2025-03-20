@@ -38,12 +38,6 @@ export const TokenList = ({
         balance.metadata?.display.toLowerCase().includes(searchTerm.toLowerCase())
       );
 
-  filteredBalances = [...filteredBalances, ...filteredBalances, ...filteredBalances];
-  filteredBalances = [...filteredBalances, ...filteredBalances, ...filteredBalances];
-  filteredBalances = [...filteredBalances, ...filteredBalances, ...filteredBalances];
-  filteredBalances = [...filteredBalances, ...filteredBalances, ...filteredBalances];
-  filteredBalances = [...filteredBalances, ...filteredBalances, ...filteredBalances];
-
   useEffect(() => {
     setCurrentPage(0);
   }, [searchTerm]);
