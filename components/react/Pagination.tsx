@@ -1,5 +1,18 @@
 import React, { createContext } from 'react';
 
+/**
+ * Validates whether the provided value is an integer. Throws an error if the value is not an integer.
+ *
+ * @param value - The value to validate as an integer.
+ * @param field - The name of the field being validated.
+ * @throws An error if the value is invalid.
+ */
+function validateIsInteger(value: number, field: string) {
+  if (!Number.isInteger(value)) {
+    throw new Error(`${field} must be a finite integer, but got ${value}`);
+  }
+}
+
 export interface PaginationProps<T>
   extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children' | 'onChange'> {
   pageSize: number;
@@ -16,23 +29,20 @@ export interface PaginationProps<T>
  * size, current page, and maximum number of visible pages. The array may
  * include the string '...' to represent skipped page ranges.
  *
- * @param total - The total number of items across all pages.
- * @param pageSize - The number of items per page.
+ * @param nbPages - The total number pages.
  * @param [current=0] - The current page index (zero-based). Default is 0.
  * @param [max=8] - The maximum number of visible page indices. Default is 8.
  * @return An array of page indices (zero-based) and/or '...' to represent
  *         skipped pages.
  */
-export function createArrayOfPageIndex(
-  total: number,
-  pageSize: number,
-  current = 0,
-  max = 8
-): (number | '...')[] {
+export function createArrayOfPageIndex(nbPages: number, current = 0, max = 8): (number | '...')[] {
+  validateIsInteger(nbPages, 'nbPages');
+  validateIsInteger(current, 'current');
+  validateIsInteger(max, 'max');
   if (max <= 4) {
     throw new Error('max cannot be less than 5');
   }
-  const nbPages = Math.ceil(total / pageSize);
+
   current = Math.max(Math.min(nbPages - 1, current), 0);
 
   const toShow = Math.min(nbPages, max);
@@ -98,8 +108,7 @@ export function Pagination<T>({
 
       {dataset.length > pageSize && (
         <Navigator
-          nbItems={dataset.length}
-          pageSize={pageSize}
+          nbPages={Math.ceil(dataset.length / pageSize)}
           page={pageInner}
           onChange={setPageInner}
         />
@@ -110,19 +119,14 @@ export function Pagination<T>({
 
 interface NavigatorProps {
   /**
-   * Total number of items. Necessary to create the list of pages.
+   * Total number of pages.
    */
-  nbItems: number;
-
-  /**
-   * Page size, necessary to create the list of pages.
-   */
-  pageSize: number;
+  nbPages: number;
 
   /**
    * Current page.
    */
-  page: number;
+  page?: number;
 
   /**
    * Called when the page changes.
@@ -132,13 +136,19 @@ interface NavigatorProps {
 }
 
 export const Navigator: React.FC<NavigatorProps> = ({
-  nbItems,
-  pageSize,
-  page,
+  nbPages,
+  page = 0,
   onChange,
 }: NavigatorProps) => {
-  const pages = createArrayOfPageIndex(nbItems, pageSize, page);
-  const totalPages: number = Math.ceil(nbItems / pageSize);
+  validateIsInteger(nbPages, 'nbPages');
+  validateIsInteger(page, 'page');
+
+  if (nbPages < 0) {
+    throw new Error('nbItems cannot be less than 5');
+  }
+
+  page = Math.min(Math.max(page, 0), nbPages);
+  const pages = createArrayOfPageIndex(nbPages, page);
 
   return (
     <nav className="flex items-center justify-end gap-2 mt-4" aria-label="Pagination">
@@ -184,8 +194,8 @@ export const Navigator: React.FC<NavigatorProps> = ({
       })}
 
       <button
-        onClick={() => onChange(Math.min(totalPages - 1, page + 1))}
-        disabled={page === totalPages - 1}
+        onClick={() => onChange(Math.min(nbPages - 1, page + 1))}
+        disabled={page === nbPages - 1}
         aria-label="Next page"
         className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >

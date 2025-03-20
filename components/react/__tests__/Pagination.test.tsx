@@ -6,15 +6,16 @@ import { formatComponent } from '@/tests';
 
 describe('createArrayOfPageIndex', () => {
   test('works for small current', () => {
-    expect(createArrayOfPageIndex(10, 2)).toEqual([0, 1, 2, 3, 4]);
-    expect(createArrayOfPageIndex(10, 4)).toEqual([0, 1, 2]);
+    expect(createArrayOfPageIndex(5, 1)).toEqual([0, 1, 2, 3, 4]);
+    expect(createArrayOfPageIndex(3, 2)).toEqual([0, 1, 2]);
+    expect(createArrayOfPageIndex(3, 3)).toEqual([0, 1, 2]);
   });
 
   test('ellipsis works', () => {
-    expect(createArrayOfPageIndex(20, 2, 0)).toEqual([0, 1, 2, 3, 4, 5, '...', 9]);
-    expect(createArrayOfPageIndex(20, 2, 10)).toEqual([0, '...', 4, 5, 6, 7, 8, 9]);
-    expect(createArrayOfPageIndex(40, 2, 8)).toEqual([0, '...', 6, 7, 8, 9, 10, '...', 19]);
-    expect(createArrayOfPageIndex(40, 2, 9)).toEqual([0, '...', 7, 8, 9, 10, 11, '...', 19]);
+    expect(createArrayOfPageIndex(10, 0)).toEqual([0, 1, 2, 3, 4, 5, '...', 9]);
+    expect(createArrayOfPageIndex(10, 10)).toEqual([0, '...', 4, 5, 6, 7, 8, 9]);
+    expect(createArrayOfPageIndex(20, 8)).toEqual([0, '...', 6, 7, 8, 9, 10, '...', 19]);
+    expect(createArrayOfPageIndex(20, 9)).toEqual([0, '...', 7, 8, 9, 10, 11, '...', 19]);
   });
 });
 
@@ -59,7 +60,7 @@ describe('Navigator', () => {
 
   test('works for single page', () => {
     const onChange = jest.fn();
-    const mockup = render(<Navigator nbItems={5} pageSize={8} page={0} onChange={onChange} />);
+    const mockup = render(<Navigator nbPages={1} page={0} onChange={onChange} />);
 
     expect(mockup.queryByLabelText(/pagination/i)).toBeInTheDocument();
     expect(mockup.queryByText('1')).toBeInTheDocument();
@@ -68,7 +69,7 @@ describe('Navigator', () => {
 
   test('works for lots of pages', () => {
     const onChange = jest.fn();
-    const mockup = render(<Navigator nbItems={100} pageSize={8} page={7} onChange={onChange} />);
+    const mockup = render(<Navigator nbPages={13} page={7} onChange={onChange} />);
 
     expect(mockup.queryByLabelText(/pagination/i)).toBeInTheDocument();
     expect(mockup.queryByLabelText('Page 1')).toBeInTheDocument();
