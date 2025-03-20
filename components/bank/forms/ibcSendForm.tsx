@@ -196,46 +196,45 @@ function IbcSendForm({ token }: { token: string }) {
       ref={containerRef}
       className="w-[100%] max-w-[500px] px-2 box-border relative"
     >
-      <ShadowScopeConfigProvider config={{ dsd: 'off' }}>
-        <Widget
-          filter={{
-            source: {
-              [env.chainId]: undefined,
-              [env.osmosisChainId]: [...manifestAssetsOnOsmosis, 'uosmo'],
-              [env.axelarChainId]: [...manifestAssetsOnAxelar, 'uaxl'],
-            },
-            destination: {
-              [env.chainId]: undefined,
-              [env.osmosisChainId]: [...manifestAssetsOnOsmosis, 'uosmo'],
-              [env.axelarChainId]: [...manifestAssetsOnAxelar, 'uaxl'],
-            },
-          }}
-          defaultRoute={{
-            srcAssetDenom: token,
-            srcChainId: env.chainId,
-            destChainId: env.osmosisChainId,
-            destAssetDenom: ibcDenom,
-            amountIn: 1,
-            amountOut: 1,
-          }}
-          routeConfig={{
-            allowUnsafe: true,
-            allowSwaps: true,
-          }}
-          brandColor={'#a087ff'}
-          onlyTestnet={true}
-          getCosmosSigner={getCosmosSigner}
-          connectedAddresses={{
-            [env.chainId]: address,
-          }}
-          onTransactionComplete={() => {
-            queryClient.invalidateQueries({ queryKey: ['balances'] });
-            queryClient.invalidateQueries({ queryKey: ['balances-resolved'] });
-            queryClient.invalidateQueries({ queryKey: ['getMessagesForAddress'] });
-          }}
-          theme={themeColors}
-        />
-      </ShadowScopeConfigProvider>
+      <Widget
+        filter={{
+          source: {
+            [env.chainId]: undefined,
+            [env.osmosisChainId]: [...manifestAssetsOnOsmosis, 'uosmo'],
+            [env.axelarChainId]: [...manifestAssetsOnAxelar, 'uaxl'],
+          },
+          destination: {
+            [env.chainId]: undefined,
+            [env.osmosisChainId]: [...manifestAssetsOnOsmosis, 'uosmo'],
+            [env.axelarChainId]: [...manifestAssetsOnAxelar, 'uaxl'],
+          },
+        }}
+        defaultRoute={{
+          srcAssetDenom: token,
+          srcChainId: env.chainId,
+          destChainId: env.osmosisChainId,
+          destAssetDenom: ibcDenom,
+          amountIn: 1,
+          amountOut: 1,
+        }}
+        routeConfig={{
+          allowUnsafe: true,
+          allowSwaps: true,
+        }}
+        brandColor={'#a087ff'}
+        onlyTestnet={true}
+        getCosmosSigner={getCosmosSigner}
+        connectedAddresses={{
+          [env.chainId]: address,
+        }}
+        onTransactionComplete={() => {
+          queryClient.invalidateQueries({ queryKey: ['balances'] });
+          queryClient.invalidateQueries({ queryKey: ['balances-resolved'] });
+          queryClient.invalidateQueries({ queryKey: ['getMessagesForAddress'] });
+        }}
+        theme={themeColors}
+        disableShadowDom={true}
+      />
     </div>
   );
 }
