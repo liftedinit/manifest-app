@@ -1,8 +1,7 @@
-import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, test } from 'bun:test';
-import { useContext } from 'react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, jest, test } from 'bun:test';
 
-import { Pagination, createArrayOfPageIndex } from '@/components/react/Pagination';
+import { Navigator, Pagination, createArrayOfPageIndex } from '@/components/react/Pagination';
 import { formatComponent } from '@/tests';
 
 describe('createArrayOfPageIndex', () => {
@@ -20,17 +19,11 @@ describe('createArrayOfPageIndex', () => {
 });
 
 describe('Pagination', () => {
-  test('works for small dataset', () => {
-    function PageContent() {
-      const i = useContext(Pagination.Index);
-      const d = useContext(Pagination.Data);
-      return (
-        <>
-          {i} {d.join()}
-        </>
-      );
-    }
+  afterEach(() => {
+    cleanup();
+  });
 
+  test('works for small dataset', () => {
     const mockup = render(
       <Pagination pageSize={5} dataset={['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k']}>
         <Pagination.Index.Consumer>{i => i}</Pagination.Index.Consumer>
@@ -43,5 +36,59 @@ describe('Pagination', () => {
     expect(formatComponent(mockup.asFragment())).toMatchSnapshot('middle');
     fireEvent.click(screen.getByLabelText(/Next page/i));
     expect(formatComponent(mockup.asFragment())).toMatchSnapshot('end');
+    fireEvent.click(screen.getByLabelText(/Previous page/i));
+    expect(formatComponent(mockup.asFragment())).toMatchSnapshot('middle');
+    fireEvent.click(screen.getByLabelText(/Previous page/i));
+    expect(formatComponent(mockup.asFragment())).toMatchSnapshot('start');
+  });
+
+  test('does not show navigation if single page', () => {
+    const mockup = render(
+      <Pagination pageSize={5} dataset={[1, 2, 3]}>
+        <Pagination.Data.Consumer>{d => JSON.stringify(d)}</Pagination.Data.Consumer>
+      </Pagination>
+    );
+    expect(mockup.queryByLabelText(/pagination/i)).not.toBeInTheDocument();
+  });
+});
+
+describe('Navigator', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  test('works for single page', () => {
+    const onChange = jest.fn();
+    const mockup = render(<Navigator nbItems={5} pageSize={8} page={0} onChange={onChange} />);
+
+    expect(mockup.queryByLabelText(/pagination/i)).toBeInTheDocument();
+    expect(mockup.queryByText('1')).toBeInTheDocument();
+    expect(formatComponent(mockup.asFragment())).toMatchSnapshot();
+  });
+
+  test('works for lots of pages', () => {
+    const onChange = jest.fn();
+    const mockup = render(<Navigator nbItems={100} pageSize={8} page={7} onChange={onChange} />);
+
+    expect(mockup.queryByLabelText(/pagination/i)).toBeInTheDocument();
+    expect(mockup.queryByLabelText('Page 1')).toBeInTheDocument();
+    expect(mockup.queryByText('1')).toBeInTheDocument();
+    expect(mockup.queryByText('2')).not.toBeInTheDocument();
+    expect(mockup.queryByText('3')).not.toBeInTheDocument();
+    expect(mockup.queryByText('4')).not.toBeInTheDocument();
+    expect(mockup.queryByText('5')).not.toBeInTheDocument();
+    expect(mockup.queryByLabelText('Page 6')).toBeInTheDocument();
+    expect(mockup.queryByText('6')).toBeInTheDocument();
+    expect(mockup.queryByText('7')).toBeInTheDocument();
+    expect(mockup.queryByText('8')).toBeInTheDocument();
+    expect(mockup.queryByText('9')).toBeInTheDocument();
+    expect(mockup.queryByLabelText('Page 10')).toBeInTheDocument();
+    expect(mockup.queryByText('10')).toBeInTheDocument();
+    expect(mockup.queryByText('11')).not.toBeInTheDocument();
+    expect(mockup.queryByText('12')).not.toBeInTheDocument();
+    expect(mockup.queryByLabelText('Page 13')).toBeInTheDocument();
+    expect(mockup.queryByText('13')).toBeInTheDocument();
+
+    expect(formatComponent(mockup.asFragment())).toMatchSnapshot();
   });
 });

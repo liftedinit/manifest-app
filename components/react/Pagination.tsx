@@ -73,7 +73,6 @@ export function Pagination<T>({
   ...props
 }: PaginationProps<T>) {
   const [pageInner, setPageInner] = React.useState(defaultPage);
-  const nbPages: number = Math.ceil(dataset.length / pageSize);
 
   React.useEffect(() => {
     if (selectedPage !== undefined) {
@@ -86,10 +85,6 @@ export function Pagination<T>({
     onChange?.(dataset.slice(pageInner * pageSize, (pageInner + 1) * pageSize), pageInner);
   }, [pageInner, pageSize, dataset, onChange]);
 
-  function update(v: React.SetStateAction<number>) {
-    setPageInner(v);
-  }
-
   const data = dataset.slice(pageInner * pageSize, (pageInner + 1) * pageSize);
   return (
     <div {...props}>
@@ -101,14 +96,12 @@ export function Pagination<T>({
         </Pagination.Index.Provider>
       )}
 
-      {nbPages > 1 && (
+      {dataset.length > pageSize && (
         <Navigator
-          pages={createArrayOfPageIndex(dataset.length, pageSize, pageInner)}
+          nbItems={dataset.length}
+          pageSize={pageSize}
           page={pageInner}
-          totalPages={nbPages}
-          onNext={() => update(p => Math.min(nbPages - 1, p + 1))}
-          onPrevious={() => update(p => Math.max(0, p - 1))}
-          onSet={update}
+          onChange={setPageInner}
         />
       )}
     </div>
@@ -116,19 +109,41 @@ export function Pagination<T>({
 }
 
 interface NavigatorProps {
-  pages: (number | '...')[];
+  /**
+   * Total number of items. Necessary to create the list of pages.
+   */
+  nbItems: number;
+
+  /**
+   * Page size, necessary to create the list of pages.
+   */
+  pageSize: number;
+
+  /**
+   * Current page.
+   */
   page: number;
-  totalPages: number;
-  onNext: () => void;
-  onPrevious: () => void;
-  onSet: (p: number) => void;
+
+  /**
+   * Called when the page changes.
+   * @param p
+   */
+  onChange: (p: number) => void;
 }
 
-function Navigator({ pages, page, totalPages, onNext, onPrevious, onSet }: NavigatorProps) {
+export const Navigator: React.FC<NavigatorProps> = ({
+  nbItems,
+  pageSize,
+  page,
+  onChange,
+}: NavigatorProps) => {
+  const pages = createArrayOfPageIndex(nbItems, pageSize, page);
+  const totalPages: number = Math.ceil(nbItems / pageSize);
+
   return (
-    <nav className="flex items-center justify-end gap-2 mt-4">
+    <nav className="flex items-center justify-end gap-2 mt-4" aria-label="Pagination">
       <button
-        onClick={onPrevious}
+        onClick={() => onChange(Math.max(0, page - 1))}
         disabled={page == 0}
         aria-label="Previous page"
         className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -147,7 +162,7 @@ function Navigator({ pages, page, totalPages, onNext, onPrevious, onSet }: Navig
           return (
             <button
               key={`page-${p}`}
-              aria-label={`Page ${p}`}
+              aria-label={`Page ${p + 1}`}
               aria-current="page"
               className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors bg-[#0000001A] dark:bg-[#FFFFFF1A] text-black dark:text-white"
             >
@@ -158,8 +173,8 @@ function Navigator({ pages, page, totalPages, onNext, onPrevious, onSet }: Navig
           return (
             <button
               key={`page-${p}`}
-              onClick={() => onSet(p)}
-              aria-label={`Page ${p}`}
+              onClick={() => onChange(p)}
+              aria-label={`Page ${p + 1}`}
               className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white"
             >
               {p + 1}
@@ -169,7 +184,7 @@ function Navigator({ pages, page, totalPages, onNext, onPrevious, onSet }: Navig
       })}
 
       <button
-        onClick={onNext}
+        onClick={() => onChange(Math.min(totalPages - 1, page + 1))}
         disabled={page === totalPages - 1}
         aria-label="Next page"
         className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -178,7 +193,7 @@ function Navigator({ pages, page, totalPages, onNext, onPrevious, onSet }: Navig
       </button>
     </nav>
   );
-}
+};
 
 Pagination.Index = createContext<number>(-1);
 // Unfortunately, we cannot set the type of the context for Data to T, as T is
