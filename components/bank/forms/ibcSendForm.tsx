@@ -172,20 +172,20 @@ function IbcSendForm({ token }: { token: string }) {
     },
   };
 
-  // filter osmosis tokens that are on manifesttestnet
+  // filter osmosis tokens that are on manifest chain
   const manifestAssetsOnOsmosis = osmosisAssets.assets
     .filter(asset =>
       asset?.traces?.some(
-        trace => trace.type === 'ibc' && trace.counterparty.chain_name === 'manifesttestnet'
+        trace => trace.type === 'ibc' && trace.counterparty.chain_name === env.chain
       )
     )
     .map(asset => asset.base);
 
-  // filter axelar tokens that are on manifesttestnet
+  // filter axelar tokens that are on manifest chain
   const manifestAssetsOnAxelar = axelarAssets.assets
     .filter(asset =>
       asset?.traces?.some(
-        trace => trace.type === 'ibc' && trace.counterparty.chain_name === 'manifesttestnet'
+        trace => trace.type === 'ibc' && trace.counterparty.chain_name === env.chain
       )
     )
     .map(asset => asset.base);
