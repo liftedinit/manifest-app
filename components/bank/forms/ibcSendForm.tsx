@@ -68,6 +68,129 @@ function IbcSendForm({ token }: { token: string }) {
   // Determine if dark mode is active
   const isDark = theme === 'dark';
 
+  // Add effect to handle input focus in shadow DOM
+  useEffect(() => {
+    // Track if we've already focused the input to avoid redundant attempts
+    let hasSuccessfullyFocused = false;
+
+    // Function to scan the entire shadow DOM for the warning text and input
+    const scanForWarningAndFocusInput = () => {
+      if (hasSuccessfullyFocused) {
+        return false; // Don't try again if we've already succeeded
+      }
+
+      // Get all elements in all shadow roots
+      const shadowRoots = Array.from(document.querySelectorAll('react-shadow-scope'))
+        .map(scope => scope.shadowRoot)
+        .filter(Boolean) as ShadowRoot[];
+
+      // Search each shadow root for the warning text first
+      for (const root of shadowRoots) {
+        // Look for all text content in this shadow root
+        let hasFoundWarningText = false;
+
+        // Check all text nodes for our warning message
+        const textNodes = [];
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+
+        let node;
+        while ((node = walker.nextNode())) {
+          textNodes.push(node);
+
+          if (
+            node.textContent?.includes('Avoid transfers to centralized exchanges') ||
+            node.textContent?.includes('Your assets may be lost') ||
+            node.textContent?.includes('exchanges')
+          ) {
+            hasFoundWarningText = true;
+            break;
+          }
+        }
+
+        if (!hasFoundWarningText) {
+          continue; // Skip to next shadow root if warning not found
+        }
+
+        // If we get here, we found the warning text, so look for the input
+        const inputs = root.querySelectorAll('input');
+
+        // Try to find the specific input using various criteria
+        let targetInput: HTMLInputElement | null = null;
+
+        // First check by placeholder text
+        for (const input of Array.from(inputs)) {
+          const placeholder = input.getAttribute('placeholder');
+          if (placeholder && (placeholder.includes('manifest1') || placeholder.includes('osmo1'))) {
+            targetInput = input as HTMLInputElement;
+            break;
+          }
+        }
+
+        // If we found an input, focus it
+        if (targetInput) {
+          // First try a tab event to navigate to it
+          if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+          }
+
+          // Function to attempt focusing the input
+          const focusInput = () => {
+            targetInput?.focus();
+            targetInput?.click();
+
+            // Check if we succeeded
+            if (document.activeElement === targetInput) {
+              hasSuccessfullyFocused = true;
+            }
+          };
+
+          // Try focusing immediately and with delays
+          focusInput();
+          setTimeout(focusInput, 50);
+          setTimeout(focusInput, 200);
+
+          // Also try simulating a Tab key press
+          setTimeout(() => {
+            const tabEvent = new KeyboardEvent('keydown', {
+              key: 'Tab',
+              code: 'Tab',
+              keyCode: 9,
+              which: 9,
+              bubbles: true,
+              cancelable: true,
+            });
+            document.dispatchEvent(tabEvent);
+
+            // And focus again after tab
+            setTimeout(focusInput, 50);
+          }, 100);
+
+          // We found and tried to focus the input, no need to check other shadow roots
+          return true;
+        }
+      }
+
+      // If we get here, we didn't find the warning text or the input
+      return false;
+    };
+
+    // Create a continuous checking mechanism
+    // This ensures we'll catch the modal whenever it appears
+    const checkInterval = setInterval(() => {
+      if (hasSuccessfullyFocused) {
+        clearInterval(checkInterval);
+        return;
+      }
+
+      scanForWarningAndFocusInput();
+    }, 300);
+
+    // Cleanup function
+    return () => {
+      clearInterval(checkInterval);
+    };
+  }, []);
+
   // Add effect to handle overlay click events
   useEffect(() => {
     // Function to handle clicks on the document
@@ -189,7 +312,7 @@ function IbcSendForm({ token }: { token: string }) {
       )
     )
     .map(asset => asset.base);
-  console.log();
+
   return (
     <div
       aria-label="ibc-send-form"
