@@ -83,7 +83,7 @@ const ManifestChainProvider = ({ children }: { children: ReactNode }) => {
       wallets={combinedWallets}
       logLevel={env.production ? 'NONE' : 'INFO'}
       endpointOptions={endpointOptions}
-      sessionOptions={{ duration: 60 * 60 * 24 }} // 1 day
+      sessionOptions={{ duration: 60 * 60 * 24 * 30 }} // 1 month
       walletConnectOptions={{
         signClient: {
           projectId: env.walletConnectKey,
