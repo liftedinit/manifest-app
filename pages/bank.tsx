@@ -153,7 +153,7 @@ export default function Bank() {
     <div className="relative  mx-auto">
       <SEO title="Bank - Alberto" />
 
-      <div className="grow h-full animate-fadeIn transition-all duration-300">
+      <div className="grow h-full animate-fadeIn transition-all duration-300 mt-8 lg:mt-0">
         <div className="w-full mx-auto">
           {!isWalletConnected ? (
             <WalletNotConnected
