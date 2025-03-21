@@ -12,7 +12,7 @@ interface SendModalProps {
   isBalancesLoading: boolean;
   isOpen: boolean;
   selectedDenom?: string;
-  setOpen?: (isOpen: boolean) => void;
+  onClose?: () => void;
   isGroup?: boolean;
   admin?: string;
 }
@@ -23,7 +23,7 @@ export default function SendModal({
   isBalancesLoading,
   selectedDenom,
   isOpen,
-  setOpen,
+  onClose,
   isGroup,
   admin,
 }: SendModalProps) {
@@ -43,7 +43,7 @@ export default function SendModal({
           return;
         }
 
-        setOpen?.(false);
+        onClose?.();
       }}
       title="Send Assets"
       className="z-10"

@@ -111,7 +111,7 @@ describe('TokenList', () => {
     fireEvent.click(button);
 
     await waitFor(() => {
-      expect(screen.getByLabelText('Close modal')).toBeInTheDocument();
+      expect(screen.getByLabelText('Close')).toBeInTheDocument();
       expect(screen.getByText('Name')).toBeInTheDocument();
       expect(screen.getByText('Ticker')).toBeInTheDocument();
       expect(screen.getByText('Description')).toBeInTheDocument();

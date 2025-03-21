@@ -12,6 +12,7 @@ import { PiInfo } from 'react-icons/pi';
 import { GroupInfo, MemberManagementModal, TokenBalance } from '@/components';
 import { GroupControls } from '@/components';
 import { MemberIcon, SearchIcon } from '@/components/icons';
+import { Navigator } from '@/components/react/Pagination';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import env from '@/config/env';
 import useIsMobile from '@/hooks/useIsMobile';
@@ -169,7 +170,6 @@ export const YourGroups = ({
     selectedGroup?.policies[0]?.address ?? ''
   );
 
-  // console.log(`${selectedGroup?.policies[0]?.address} balances`, balances);
   const { balances: resolvedBalances, isBalancesLoading: resolvedLoading } =
     useTokenBalancesResolved(address ?? '');
 
@@ -366,69 +366,12 @@ export const YourGroups = ({
                 Create New Group
               </button>
             </Link>
-            {totalPages > 1 && (
-              <div
-                className="flex items-center justify-end gap-2"
-                onClick={e => e.stopPropagation()}
-                role="navigation"
-                aria-label="pagination"
-              >
-                <button
-                  onClick={e => {
-                    e.stopPropagation();
-                    setCurrentPage(prev => Math.max(1, prev - 1));
-                  }}
-                  disabled={currentPage === 1 || isLoading}
-                  aria-label="btn-previous-page"
-                >
-                  ‹
-                </button>
 
-                {[...Array(totalPages)].map((_, index) => {
-                  const pageNum = index + 1;
-                  if (
-                    pageNum === 1 ||
-                    pageNum === totalPages ||
-                    (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
-                  ) {
-                    return (
-                      <button
-                        key={pageNum}
-                        onClick={e => {
-                          e.stopPropagation();
-                          setCurrentPage(pageNum);
-                        }}
-                        className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors text-black dark:text-white
-                            ${currentPage === pageNum ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A]' : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A]'}`}
-                        aria-label={`btn-page-${pageNum}`}
-                        aria-current={currentPage === pageNum ? 'page' : undefined}
-                      >
-                        {pageNum}
-                      </button>
-                    );
-                  } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
-                    return (
-                      <span key={pageNum} aria-hidden="true">
-                        ...
-                      </span>
-                    );
-                  }
-                  return null;
-                })}
-
-                <button
-                  onClick={e => {
-                    e.stopPropagation();
-                    setCurrentPage(prev => Math.min(totalPages, prev + 1));
-                  }}
-                  disabled={currentPage === totalPages || isLoading}
-                  className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  aria-label="btn-next-page"
-                >
-                  ›
-                </button>
-              </div>
-            )}
+            <Navigator
+              nbPages={totalPages}
+              onChange={p => setCurrentPage(Math.max(1, p + 1))}
+              page={currentPage - 1}
+            />
           </div>
           <div className="mt-6 w-full justify-center md:hidden block">
             <Link href="/groups/create" passHref>
@@ -597,7 +540,7 @@ const GroupRow = React.memo(function GroupRow({
               data-tip="Group Details"
             >
               <button
-                className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-hidden"
+                className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline-primary hover:outline-1 outline-hidden"
                 onClick={openInfoModal}
                 aria-label="btn-group-details"
               >
@@ -609,7 +552,7 @@ const GroupRow = React.memo(function GroupRow({
               data-tip="Manage Members"
             >
               <button
-                className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-hidden"
+                className="btn btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline-primary hover:outline-1 outline-hidden"
                 onClick={openMemberModal}
                 aria-label="btn-group-members"
               >

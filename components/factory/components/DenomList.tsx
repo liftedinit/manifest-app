@@ -1,19 +1,19 @@
 import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PiInfo } from 'react-icons/pi';
 
+import { DenomDisplay, TokenBalance } from '@/components';
 import BurnModal from '@/components/factory/modals/BurnModal';
 import MintModal from '@/components/factory/modals/MintModal';
 import TransferModal from '@/components/factory/modals/TransferModal';
 import { DenomInfoModal } from '@/components/factory/modals/denomInfo';
 import UpdateDenomMetadataModal from '@/components/factory/modals/updateDenomMetadata';
 import { BurnIcon, MintIcon, TransferIcon } from '@/components/icons';
+import { Pagination } from '@/components/react/Pagination';
 import useIsMobile from '@/hooks/useIsMobile';
-import { ExtendedMetadataSDKType, formatTokenDisplay, shiftDigits, truncateString } from '@/utils';
-
-import { DenomDisplay } from './DenomDisplay';
+import { ExtendedMetadataSDKType, truncateString } from '@/utils';
 
 type DenomListProps = {
   denoms: ExtendedMetadataSDKType[];
@@ -45,14 +45,8 @@ export default function DenomList({
     'mint' | 'burn' | 'multimint' | 'multiburn' | 'update' | 'info' | 'transfer' | null
   >(null);
 
-  const filteredDenoms = denoms.filter(denom =>
+  let filteredDenoms = denoms.filter(denom =>
     denom?.display.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const totalPages = Math.ceil(filteredDenoms.length / pageSize);
-  const paginatedDenoms = filteredDenoms.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
   );
 
   const updateUrlWithModal = (action: string, denomBase?: string) => {
@@ -82,8 +76,7 @@ export default function DenomList({
   useEffect(() => {
     const { denom, action } = router.query;
     if (denom && typeof denom === 'string') {
-      const decodedDenom = decodeURIComponent(denom);
-      const metadata = denoms.find(d => d.base === decodedDenom);
+      const metadata = denoms.find(d => d.base === denom);
       if (metadata) {
         setSelectedDenom(metadata);
         if (
@@ -200,101 +193,62 @@ export default function DenomList({
   };
 
   return (
-    <div className="w-full mx-auto rounded-[24px] h-full flex flex-col" data-testid="denomList">
-      <div className="flex flex-col gap-4 mb-4">
-        <div className="overflow-auto">
-          <div className="max-w-8xl mx-auto">
-            <table className="table w-full border-separate border-spacing-y-3">
-              <thead className="sticky top-0 bg-[#F0F0FF] dark:bg-[#0E0A1F]">
-                <tr className="text-sm font-medium">
-                  <th className="bg-transparent w-1/4">Token</th>
-                  <th className="bg-transparent w-2/5 xl:table-cell hidden">Name</th>
-                  <th className="bg-transparent w-2/5  md:table-cell hidden">Total Supply</th>
-                  <th className="bg-transparent w-1/4">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="space-y-4">
-                {isLoading
-                  ? Array(isMobile ? 4 : 8)
-                      .fill(0)
-                      .map((_, index) => (
-                        <tr key={index}>
-                          <td className="bg-secondary rounded-l-[12px] w-1/4">
-                            <div className="flex items-center space-x-3">
-                              <div
-                                className="skeleton w-10 h-10 rounded-full shrink-0"
-                                aria-label={`skeleton-${index}-avatar`}
-                              />
-                              <div>
-                                <div
-                                  className="skeleton h-4 w-20 mb-1"
-                                  aria-label={`skeleton-${index}-ticker`}
-                                />
-                                <div
-                                  className="skeleton h-3 w-16 xxs:max-xs:hidden"
-                                  aria-label={`skeleton-${index}-symbol`}
-                                />
-                              </div>
-                            </div>
-                          </td>
-                          <td className="bg-secondary w-2/5 xl:table-cell hidden">
-                            <div
-                              className="skeleton h-4 w-32"
-                              aria-label={`skeleton-${index}-name`}
-                            />
-                          </td>
-                          <td className="bg-secondary w-2/5 md:table-cell hidden">
-                            <div
-                              className="skeleton h-4 w-28"
-                              aria-label={`skeleton-${index}-supply`}
-                            />
-                          </td>
-                          <td className="bg-secondary rounded-r-[12px] w-1/4">
-                            <div className="flex space-x-2">
-                              <button
-                                className="btn btn-md btn-outline btn-square btn-primary"
-                                disabled
-                              >
-                                <MintIcon className="w-7 h-7 text-current opacity-50" />
-                              </button>
-                              <button
-                                className="btn btn-md btn-outline btn-square btn-primary"
-                                disabled
-                              >
-                                <BurnIcon className="w-7 h-7 text-current opacity-50" />
-                              </button>
-                              <button
-                                className="btn btn-md btn-outline btn-square btn-info"
-                                disabled
-                              >
-                                <TransferIcon className="w-7 h-7 text-current opacity-50" />
-                              </button>
-                              <button
-                                className="btn btn-md btn-outline btn-square btn-info"
-                                disabled
-                              >
-                                <PiInfo className="w-7 h-7 text-current opacity-50" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                  : paginatedDenoms.map(denom => (
-                      <TokenRow
-                        key={denom.base}
-                        denom={denom}
-                        onSelectDenom={() => handleDenomSelect(denom)}
-                        onMint={e => handleMint(denom, e)}
-                        onBurn={e => handleBurn(denom, e)}
-                        onTransfer={e => handleTransferModal(denom, e)}
-                        onUpdate={() => handleUpdate(denom)}
-                      />
-                    ))}
-              </tbody>
-            </table>
-          </div>
+    <>
+      <Pagination
+        pageSize={pageSize}
+        selectedPage={0}
+        dataset={filteredDenoms ?? []}
+        data-testid="denomList"
+      >
+        <table className="table w-full border-separate border-spacing-y-3">
+          <thead className="sticky top-0 bg-[#F0F0FF] dark:bg-[#0E0A1F]">
+            <tr className="text-sm font-medium">
+              <th className="bg-transparent w-1/4">Token</th>
+              <th className="bg-transparent w-2/5 xl:table-cell hidden">Name</th>
+              <th className="bg-transparent w-2/5  md:table-cell hidden">Total Supply</th>
+              <th className="bg-transparent w-1/4">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="space-y-4">
+            {isLoading ? (
+              Array(isMobile ? 4 : 8)
+                .fill(0)
+                .map((_, index) => <SkeletonRow key={index} index={index} />)
+            ) : (
+              <Pagination.Data.Consumer>
+                {data =>
+                  data.map(denom => (
+                    <TokenRow
+                      key={denom.base}
+                      denom={denom}
+                      onSelectDenom={() => handleDenomSelect(denom)}
+                      onMint={e => handleMint(denom, e)}
+                      onBurn={e => handleBurn(denom, e)}
+                      onTransfer={e => handleTransferModal(denom, e)}
+                      onUpdate={() => handleUpdate(denom)}
+                    />
+                  ))
+                }
+              </Pagination.Data.Consumer>
+            )}
+          </tbody>
+        </table>
+        <div className="mt-6  w-full justify-center md:hidden block">
+          <Link
+            href={
+              isGroup
+                ? `/factory/create?isGroup=${isGroup}&groupPolicyAddress=${admin}`
+                : '/factory/create'
+            }
+            passHref
+          >
+            <button className="btn btn-gradient w-full h-[52px] text-white rounded-[12px]">
+              Create New Token
+            </button>
+          </Link>
         </div>
-      </div>
+      </Pagination>
+
       <div className="flex items-center justify-between">
         <Link
           href={
@@ -308,95 +262,12 @@ export default function DenomList({
             Create New Token
           </button>
         </Link>
-        {totalPages > 1 && (
-          <div
-            className="flex items-center justify-center gap-2"
-            onClick={e => e.stopPropagation()}
-            role="navigation"
-            aria-label="Pagination"
-          >
-            <button
-              onClick={e => {
-                e.stopPropagation();
-                setCurrentPage(prev => Math.max(1, prev - 1));
-              }}
-              disabled={currentPage === 1 || isLoading}
-              className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="Previous page"
-            >
-              ‹
-            </button>
-
-            {[...Array(totalPages)].map((_, index) => {
-              const pageNum = index + 1;
-              if (
-                pageNum === 1 ||
-                pageNum === totalPages ||
-                (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
-              ) {
-                return (
-                  <button
-                    key={pageNum}
-                    onClick={e => {
-                      e.stopPropagation();
-                      setCurrentPage(pageNum);
-                    }}
-                    className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors text-black dark:text-white 
-                          ${currentPage === pageNum ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A]' : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A]'}`}
-                    aria-label={`Page ${pageNum}`}
-                    aria-current={currentPage === pageNum ? 'page' : undefined}
-                  >
-                    {pageNum}
-                  </button>
-                );
-              } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
-                return (
-                  <span key={pageNum} aria-hidden="true">
-                    ...
-                  </span>
-                );
-              }
-              return null;
-            })}
-
-            <button
-              onClick={e => {
-                e.stopPropagation();
-                setCurrentPage(prev => Math.min(totalPages, prev + 1));
-              }}
-              disabled={currentPage === totalPages || isLoading}
-              className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="Next page"
-            >
-              ›
-            </button>
-          </div>
-        )}
-      </div>
-      <div className="mt-6  w-full justify-center md:hidden block">
-        <Link
-          href={
-            isGroup
-              ? `/factory/create?isGroup=${isGroup}&groupPolicyAddress=${admin}`
-              : '/factory/create'
-          }
-          passHref
-        >
-          <button className="btn btn-gradient w-full h-[52px] text-white rounded-[12px]">
-            Create New Token
-          </button>
-        </Link>
       </div>
 
       <DenomInfoModal
-        openDenomInfoModal={modalType === 'info'}
-        setOpenDenomInfoModal={open => {
-          if (!open) {
-            handleCloseModal();
-          }
-        }}
+        open={modalType === 'info'}
+        onClose={handleCloseModal}
         denom={selectedDenom}
-        modalId="denom-info-modal"
       />
       <MintModal
         admin={admin}
@@ -440,7 +311,51 @@ export default function DenomList({
         admin={admin}
         isGroup={isGroup}
       />
-    </div>
+    </>
+  );
+}
+
+function SkeletonRow({ index }: { index: number }) {
+  return (
+    <tr>
+      <td className="bg-secondary rounded-l-[12px] w-1/4">
+        <div className="flex items-center space-x-3">
+          <div
+            className="skeleton w-10 h-10 rounded-full shrink-0"
+            aria-label={`skeleton-${index}-avatar`}
+          />
+          <div>
+            <div className="skeleton h-4 w-20 mb-1" aria-label={`skeleton-${index}-ticker`} />
+            <div
+              className="skeleton h-3 w-16 xxs:max-xs:hidden"
+              aria-label={`skeleton-${index}-symbol`}
+            />
+          </div>
+        </div>
+      </td>
+      <td className="bg-secondary w-2/5 xl:table-cell hidden">
+        <div className="skeleton h-4 w-32" aria-label={`skeleton-${index}-name`} />
+      </td>
+      <td className="bg-secondary w-2/5 md:table-cell hidden">
+        <div className="skeleton h-4 w-28" aria-label={`skeleton-${index}-supply`} />
+      </td>
+      <td className="bg-secondary rounded-r-[12px] w-1/4">
+        <div className="flex space-x-2">
+          <button className="btn btn-md btn-outline btn-square btn-primary" disabled>
+            <MintIcon className="w-7 h-7 text-current opacity-50" />
+          </button>
+          <button className="btn btn-md btn-outline btn-square btn-primary" disabled>
+            <BurnIcon className="w-7 h-7 text-current opacity-50" />
+          </button>
+          <button className="btn btn-md btn-outline btn-square btn-info" disabled>
+            <TransferIcon className="w-7 h-7 text-current opacity-50" />
+          </button>
+          <button className="btn btn-md btn-outline btn-square btn-info" disabled>
+            <PiInfo className="w-7 h-7 text-current opacity-50" />
+          </button>
+        </div>
+      </td>
+    </tr>
   );
 }
 
@@ -463,18 +378,6 @@ function TokenRow({
   const exponent = denom?.denom_units?.[1]?.exponent ?? 0;
   const totalSupply = denom?.totalSupply ?? '0';
 
-  // Format numbers safely
-  const formatAmount = (amount: string) => {
-    try {
-      return Number(shiftDigits(amount, -exponent)).toLocaleString(undefined, {
-        maximumFractionDigits: exponent,
-      });
-    } catch (error) {
-      console.warn('Error formatting amount:', error);
-      return '0';
-    }
-  };
-
   return (
     <tr
       className="group text-black dark:text-white rounded-lg cursor-pointer transition-colors"
@@ -489,10 +392,7 @@ function TokenRow({
         {truncateString(denom?.name ?? 'No name provided', 20)}
       </td>
       <td className="bg-secondary group-hover:bg-base-300 w-2/5 md:table-cell hidden sm:w-1/4">
-        <div className="flex flex-col sm:flex-row sm:items-center ">
-          <span className="sm:mr-2">{formatAmount(totalSupply)}</span>
-          <span className="font-extralight">{formatTokenDisplay(denom.display)}</span>
-        </div>
+        <TokenBalance token={{ amount: totalSupply, metadata: denom }} />
       </td>
       <td
         className="bg-secondary group-hover:bg-base-300 rounded-r-[12px] w-1/4"
@@ -504,7 +404,7 @@ function TokenRow({
             data-tip="Mint Token"
           >
             <button
-              className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-hidden"
+              className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline-primary hover:outline-1 outline-hidden"
               onClick={onMint}
             >
               <MintIcon className="w-4 h-4 sm:w-7 sm:h-7 text-current" />
@@ -517,7 +417,7 @@ function TokenRow({
           >
             <button
               disabled={denom.base === 'umfx'}
-              className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-hidden"
+              className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline-primary hover:outline-1 outline-hidden"
               onClick={onBurn}
             >
               <BurnIcon className="w-4 h-4 sm:w-7 sm:h-7 text-current" />
@@ -530,7 +430,7 @@ function TokenRow({
           >
             <button
               disabled={denom.base === 'umfx'}
-              className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-hidden"
+              className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline-primary hover:outline-1 outline-hidden"
               onClick={onTransfer}
             >
               <TransferIcon className="w-4 h-4 sm:w-7 sm:h-7 text-current" />
@@ -543,7 +443,7 @@ function TokenRow({
           >
             <button
               disabled={denom.base === 'umfx'}
-              className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline hover:outline-primary hover:outline-1 outline-hidden"
+              className="btn btn-sm sm:btn-md bg-base-300 text-primary btn-square group-hover:bg-secondary hover:outline-primary hover:outline-1 outline-hidden"
               onClick={onUpdate}
             >
               <PiInfo className="w-4 h-4 sm:w-7 sm:h-7 text-current" />

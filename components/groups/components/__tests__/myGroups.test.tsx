@@ -128,36 +128,30 @@ describe('Groups Component', () => {
     test('renders pagination controls when there are more items than page size', () => {
       renderWithChainProvider(<YourGroups {...mockPropsWithManyGroups} />);
 
-      expect(screen.getByRole('navigation', { name: 'pagination' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'btn-next-page' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'btn-previous-page' })).toBeInTheDocument();
+      expect(screen.getByRole('navigation', { name: 'Pagination' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Next page' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Previous page' })).toBeInTheDocument();
     });
 
     test('pagination controls navigate between pages correctly', () => {
       renderWithChainProvider(<YourGroups {...mockPropsWithManyGroups} />);
 
       // Should start with page 1
-      expect(
-        screen.getByRole('button', { name: 'btn-page-1', current: 'page' })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Page 1', current: 'page' })).toBeInTheDocument();
 
       // Click next page
-      fireEvent.click(screen.getByRole('button', { name: 'btn-next-page' }));
-      expect(
-        screen.getByRole('button', { name: 'btn-page-2', current: 'page' })
-      ).toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: 'Next page' }));
+      expect(screen.getByRole('button', { name: 'Page 2', current: 'page' })).toBeInTheDocument();
 
       // Click previous page
-      fireEvent.click(screen.getByRole('button', { name: 'btn-previous-page' }));
-      expect(
-        screen.getByRole('button', { name: 'btn-page-1', current: 'page' })
-      ).toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: 'Previous page' }));
+      expect(screen.getByRole('button', { name: 'Page 1', current: 'page' })).toBeInTheDocument();
     });
 
     test('previous button is disabled on first page', () => {
       renderWithChainProvider(<YourGroups {...mockPropsWithManyGroups} />);
 
-      const prevButton = screen.getByRole('button', { name: 'btn-previous-page' });
+      const prevButton = screen.getByRole('button', { name: 'Previous page' });
       expect(prevButton).toBeDisabled();
     });
 
@@ -167,10 +161,10 @@ describe('Groups Component', () => {
       // Navigate to last page
       const totalPages = Math.ceil(mockPropsWithManyGroups.groups.groups.length / 8);
       for (let i = 1; i < totalPages; i++) {
-        fireEvent.click(screen.getByRole('button', { name: 'btn-next-page' }));
+        fireEvent.click(screen.getByRole('button', { name: 'Next page' }));
       }
 
-      const nextButton = screen.getByRole('button', { name: 'btn-next-page' });
+      const nextButton = screen.getByRole('button', { name: 'Next page' });
       expect(nextButton).toBeDisabled();
     });
 
@@ -178,10 +172,8 @@ describe('Groups Component', () => {
       renderWithChainProvider(<YourGroups {...mockPropsWithManyGroups} />);
 
       // Click page 2 button
-      fireEvent.click(screen.getByRole('button', { name: 'btn-page-2' }));
-      expect(
-        screen.getByRole('button', { name: 'btn-page-2', current: 'page' })
-      ).toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: 'Page 2' }));
+      expect(screen.getByRole('button', { name: 'Page 2', current: 'page' })).toBeInTheDocument();
     });
 
     test('shows correct number of items per page', () => {

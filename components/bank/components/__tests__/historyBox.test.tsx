@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 
-import { clearAllMocks, mockModule, mockRouter } from '@/tests';
+import { clearAllMocks, formatComponent, mockModule, mockRouter } from '@/tests';
 import { mockMultiDenomTransactions, mockTransactions } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
 
