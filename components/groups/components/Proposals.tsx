@@ -14,7 +14,8 @@ import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 
 import VoteDetailsModal from '@/components/groups/modals/voteDetailsModal';
-import { ExtendedGroupType, useMultipleTallyCounts } from '@/hooks';
+import { Pagination } from '@/components/react/Pagination';
+import { ExtendedGroupType, useMultipleTallyCounts, useProposalsByPolicyAccount } from '@/hooks';
 
 export function isProposalPassing(tally: TallyResultSDKType | undefined, policyThreshold: number) {
   const yesCount = BigInt(tally?.yes_count ?? '0');
@@ -57,7 +58,12 @@ function getHumanReadableType(type: string): string {
 
 export interface GroupProposalsProps {
   group: ExtendedGroupType;
-  proposals: ProposalSDKType[];
+  pageSize?: number;
+}
+
+interface ProposalWithTally {
+  proposal: ProposalSDKType;
+  tally: QueryTallyResultResponseSDKType | undefined;
 }
 
 /**
@@ -66,63 +72,161 @@ export interface GroupProposalsProps {
  * @param proposals The list of proposals to display.
  * @constructor
  */
-export const GroupProposals = ({ group, proposals }: GroupProposalsProps) => {
+export const GroupProposals = ({ group, pageSize = 7 }: GroupProposalsProps) => {
+  const policyAddress = group?.policies?.[0]?.address ?? '';
+
+  const { proposals, isProposalsLoading, isProposalsError } =
+    useProposalsByPolicyAccount(policyAddress);
   const { tallies } = useMultipleTallyCounts(proposals.map(p => p.id));
 
   // This is O(n^2), even if we don't expect a lot of proposals, let's memoize it.
-  const proposalTallies = React.useMemo(() => {
-    return proposals.map(proposal => ({
-      proposal,
-      tally: tallies.find(t => t.proposalId === proposal.id)?.tally,
-    }));
+  const proposalWithTallies: ProposalWithTally[] = React.useMemo(() => {
+    return (
+      proposals
+        // Remove proposals that are rejected or expired.
+        .filter(
+          // We need to compare strings here
+          proposal =>
+            proposal.status.toString() !==
+              proposalStatusToJSON(ProposalStatus.PROPOSAL_STATUS_REJECTED) &&
+            proposal.status.toString() !==
+              proposalStatusToJSON(ProposalStatus.PROPOSAL_STATUS_WITHDRAWN)
+        )
+        .map(proposal => ({
+          proposal,
+          tally: tallies.find(t => t.proposalId === proposal.id)?.tally,
+        }))
+    );
   }, [proposals, tallies]);
 
-  return (
-    <>
-      <table
-        className="table w-full border-separate border-spacing-y-3 -mt-6"
-        aria-label="Group proposals"
-        data-testid="proposals"
+  if (isProposalsLoading) {
+    return (
+      <div
+        className="flex justify-center items-center h-64"
+        role="status"
+        aria-label="Loading proposals"
       >
-        <thead>
-          <tr className="text-sm font-medium">
-            <th className="bg-transparent px-4 py-2 w-[25%]" scope="col">
-              ID
-            </th>
-            <th className="bg-transparent px-4 py-2 w-[25%]" scope="col">
-              Title
-            </th>
-            <th className="bg-transparent px-4 py-2 w-[25%] hidden xl:table-cell" scope="col">
-              Time Left
-            </th>
-            <th
-              className="bg-transparent px-4 py-2 w-[25%] sm:table-cell md:hidden hidden xl:table-cell"
-              scope="col"
-            >
-              Type
-            </th>
-            <th
-              className="bg-transparent px-4 py-2 w-[25%] sm:table-cell xxs:hidden hidden 2xl:table-cell"
-              scope="col"
-            >
-              Status
-            </th>
-          </tr>
-        </thead>
-        <tbody className="space-y-4">
-          {proposalTallies.map(({ proposal, tally }) => (
-            <ProposalRow
-              key={`proposal-${proposal.id}`}
-              group={group}
-              proposal={proposal}
-              tally={tally}
-            />
-          ))}
-        </tbody>
-      </table>
-    </>
-  );
+        <span className="loading loading-spinner loading-lg" aria-hidden="true"></span>
+      </div>
+    );
+  } else if (isProposalsError) {
+    return (
+      <div className="text-center text-error" role="alert">
+        Error loading proposals
+      </div>
+    );
+  } else if (proposalWithTallies.length === 0) {
+    return (
+      <div className="text-center py-8 text-gray-500" role="status">
+        No proposal was found.
+      </div>
+    );
+  }
+
+  return <ProposalTable group={group} pageSize={pageSize} proposals={proposalWithTallies} />;
 };
+
+interface ProposalTableProps {
+  group: ExtendedGroupType;
+  pageSize: number;
+  proposals: ProposalWithTally[];
+}
+
+function ProposalTable({ group, pageSize, proposals }: ProposalTableProps) {
+  const [defaultPage, setDefaultPage] = useState(0);
+  const router = useRouter();
+
+  // Check if we're supposed to show a proposal, then go to its page.
+  useEffect(() => {
+    const { proposalId } = router.query;
+    const maybeProposalIndex = proposals.findIndex(
+      ({ proposal }) => proposal.id.toString() === proposalId
+    );
+
+    if (maybeProposalIndex >= 0) {
+      setDefaultPage(Math.floor(maybeProposalIndex / pageSize));
+    }
+  }, [pageSize, proposals, router.query]);
+
+  return (
+    <Pagination dataset={proposals} pageSize={pageSize} selectedPage={defaultPage}>
+      {(rows: ProposalWithTally[]) => (
+        <table
+          className="table w-full border-separate border-spacing-y-3 -mt-6"
+          aria-label="Group proposals"
+          data-testid="proposals"
+        >
+          <thead>
+            <tr className="text-sm font-medium">
+              <th className="bg-transparent px-4 py-2 w-[25%]" scope="col">
+                ID
+              </th>
+              <th className="bg-transparent px-4 py-2 w-[25%]" scope="col">
+                Title
+              </th>
+              <th className="bg-transparent px-4 py-2 w-[25%] hidden xl:table-cell" scope="col">
+                Time Left
+              </th>
+              <th
+                className="bg-transparent px-4 py-2 w-[25%] sm:table-cell md:hidden hidden xl:table-cell"
+                scope="col"
+              >
+                Type
+              </th>
+              <th
+                className="bg-transparent px-4 py-2 w-[25%] sm:table-cell xxs:hidden hidden 2xl:table-cell"
+                scope="col"
+              >
+                Status
+              </th>
+            </tr>
+          </thead>
+          <tbody className="space-y-4">
+            {rows.map(({ proposal, tally }) => (
+              <ProposalRow
+                key={`proposal-${proposal.id}`}
+                group={group}
+                proposal={proposal}
+                tally={tally}
+              />
+            ))}
+          </tbody>
+        </table>
+      )}
+    </Pagination>
+  );
+}
+
+/**
+ * Converts a future Date object into a human-readable duration string relative to the current time.
+ * The result is formatted as days, hours, minutes, or less than a minute based on the time difference.
+ *
+ * @param endTime - The future date and time to calculate the difference from the current time.
+ * @return A string representing the remaining duration in human-readable format
+ *         (e.g., "2 days", "1 hour", "15 minutes", or "less than a minute").
+ */
+export function humanReadableDuration(endTime: Date) {
+  const now = new Date();
+  const msPerMinute = 1000 * 60;
+  const msPerHour = msPerMinute * 60;
+  const msPerDay = msPerHour * 24;
+
+  const diff = endTime.getTime() - now.getTime();
+  if (diff <= 0) {
+    return 'none';
+  } else if (diff >= msPerDay) {
+    const days = Math.floor(diff / msPerDay);
+    return `${days} day${days === 1 ? '' : 's'}`;
+  } else if (diff >= msPerHour) {
+    const hours = Math.floor(diff / msPerHour);
+    return `${hours} hour${hours === 1 ? '' : 's'}`;
+  } else if (diff >= msPerMinute) {
+    const minutes = Math.floor(diff / msPerMinute);
+    return `${minutes} minute${minutes === 1 ? '' : 's'}`;
+  } else {
+    return 'less than a minute';
+  }
+}
 
 const ProposalRow = ({
   group,
@@ -148,29 +252,6 @@ const ProposalRow = ({
     (group?.policies[0]?.decision_policy as ThresholdDecisionPolicySDKType)?.threshold ?? '0';
 
   const endTime = new Date(proposal?.voting_period_end);
-  const now = new Date();
-  const msPerMinute = 1000 * 60;
-  const msPerHour = msPerMinute * 60;
-  const msPerDay = msPerHour * 24;
-
-  const diff = endTime.getTime() - now.getTime();
-
-  let timeLeft: string;
-
-  if (diff <= 0) {
-    timeLeft = 'none';
-  } else if (diff >= msPerDay) {
-    const days = Math.floor(diff / msPerDay);
-    timeLeft = `${days} day${days === 1 ? '' : 's'}`;
-  } else if (diff >= msPerHour) {
-    const hours = Math.floor(diff / msPerHour);
-    timeLeft = `${hours} hour${hours === 1 ? '' : 's'}`;
-  } else if (diff >= msPerMinute) {
-    const minutes = Math.floor(diff / msPerMinute);
-    timeLeft = `${minutes} minute${minutes === 1 ? '' : 's'}`;
-  } else {
-    timeLeft = 'less than a minute';
-  }
 
   let status = 'Pending';
   // We need to compare strings here
@@ -226,7 +307,7 @@ const ProposalRow = ({
           {proposal.title}
         </td>
         <td className="bg-secondary group-hover:bg-base-300 px-4 py-4 w-[25%] hidden xl:table-cell">
-          {timeLeft}
+          {humanReadableDuration(endTime)}
         </td>
         <td className="bg-secondary group-hover:bg-base-300 px-4 py-4 w-[25%] sm:table-cell md:hidden hidden xl:table-cell ">
           {proposal.messages.length > 0

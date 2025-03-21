@@ -61,21 +61,8 @@ export function GroupControls({
   const policyAddress = group?.policies?.[0]?.address ?? '';
 
   const isMobile = useIsMobile();
-  const { proposals, isProposalsLoading, isProposalsError } =
-    useProposalsByPolicyAccount(policyAddress);
 
   const [activeTab, setActiveTabInner] = useState(0);
-
-  // We need to compare strings here
-  const filterProposals = (proposals: ProposalSDKType[]) => {
-    return proposals.filter(
-      proposal =>
-        proposal.status.toString() !==
-          proposalStatusToJSON(ProposalStatus.PROPOSAL_STATUS_REJECTED) &&
-        proposal.status.toString() !==
-          proposalStatusToJSON(ProposalStatus.PROPOSAL_STATUS_WITHDRAWN)
-    );
-  };
 
   const router = useRouter();
 
@@ -110,10 +97,6 @@ export function GroupControls({
 
   const { address } = useChain(env.chain);
 
-  const filteredProposals = filterProposals(proposals);
-
-  const [proposalCurrentPage, setProposalCurrentPage] = useState(1);
-
   // Add responsive page size configuration
   const sizeLookup = [
     {
@@ -146,19 +129,6 @@ export function GroupControls({
   const defaultSizes = { proposals: proposalPageSize };
   const responsivePageSize = useResponsivePageSize(sizeLookup, defaultSizes);
   const proposalPageSizes = isMobile ? { proposals: 7 } : responsivePageSize;
-
-  // Calculate total pages for proposals
-  const totalProposalPages = Math.max(
-    1,
-    Math.ceil(filteredProposals.length / proposalPageSizes.proposals)
-  );
-
-  useEffect(() => {
-    // Adjust the current page if the number of proposals changes
-    if (proposalCurrentPage > totalProposalPages) {
-      setProposalCurrentPage(totalProposalPages);
-    }
-  }, [filteredProposals.length, totalProposalPages, proposalCurrentPage]);
 
   return (
     <div className="">
@@ -199,91 +169,8 @@ export function GroupControls({
         </Tab.List>
 
         <Tab.Panels className="mt-4">
-          <Tab.Panel>
-            {isProposalsLoading ? (
-              <div
-                className="flex justify-center items-center h-64"
-                role="status"
-                aria-label="Loading proposals"
-              >
-                <span className="loading loading-spinner loading-lg" aria-hidden="true"></span>
-              </div>
-            ) : isProposalsError ? (
-              <div className="text-center text-error" role="alert">
-                Error loading proposals
-              </div>
-            ) : filteredProposals.length > 0 ? (
-              <GroupProposals
-                group={group}
-                proposals={filteredProposals.slice(
-                  (proposalCurrentPage - 1) * proposalPageSizes.proposals,
-                  proposalCurrentPage * proposalPageSizes.proposals
-                )}
-              />
-            ) : (
-              <div className="text-center py-8 text-gray-500" role="status">
-                No proposal was found.
-              </div>
-            )}
-            {totalProposalPages > 1 && (
-              <div className="flex items-center justify-end gap-2 mt-4">
-                <button
-                  onClick={() => setProposalCurrentPage(prev => Math.max(1, prev - 1))}
-                  disabled={proposalCurrentPage === 1}
-                  aria-label="Previous page"
-                  className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  ‹
-                </button>
-
-                {[...Array(totalProposalPages)].map((_, index) => {
-                  const pageNum = index + 1;
-                  if (
-                    pageNum === 1 ||
-                    pageNum === totalProposalPages ||
-                    (pageNum >= proposalCurrentPage - 1 && pageNum <= proposalCurrentPage + 1)
-                  ) {
-                    return (
-                      <button
-                        key={pageNum}
-                        onClick={() => setProposalCurrentPage(pageNum)}
-                        aria-label={`Page ${pageNum}`}
-                        aria-current={proposalCurrentPage === pageNum ? 'page' : undefined}
-                        className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors  
-                        ${
-                          proposalCurrentPage === pageNum
-                            ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A] text-black dark:text-white'
-                            : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white'
-                        }`}
-                      >
-                        {pageNum}
-                      </button>
-                    );
-                  } else if (
-                    pageNum === proposalCurrentPage - 2 ||
-                    pageNum === proposalCurrentPage + 2
-                  ) {
-                    return (
-                      <span key={pageNum} className="text-black dark:text-white">
-                        ...
-                      </span>
-                    );
-                  }
-                  return null;
-                })}
-
-                <button
-                  onClick={() =>
-                    setProposalCurrentPage(prev => Math.min(totalProposalPages, prev + 1))
-                  }
-                  disabled={proposalCurrentPage === totalProposalPages}
-                  aria-label="Next page"
-                  className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  ›
-                </button>
-              </div>
-            )}
+          <Tab.Panel unmount={false}>
+            <GroupProposals group={group} pageSize={proposalPageSize} />
           </Tab.Panel>
 
           <Tab.Panel>
