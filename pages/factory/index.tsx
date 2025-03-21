@@ -95,7 +95,7 @@ export default function Factory() {
   return (
     <div className=" relative mx-auto text-white ">
       <SEO title="Factory - Alberto" />
-      <div className="grow animate-fadeIn transition-all duration-300">
+      <div className="grow animate-fadeIn transition-all duration-300  mt-8 lg:mt-0">
         <div className="w-full mx-auto">
           {!isWalletConnected ? (
             <WalletNotConnected

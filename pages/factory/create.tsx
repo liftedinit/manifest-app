@@ -64,7 +64,7 @@ export default function CreateToken() {
   ];
 
   return (
-    <div className="flex flex-col items-center  w-full">
+    <div className="flex flex-col items-center  w-full  mt-8 lg:mt-0">
       <SEO title="Create a token - Alberto" />
       {!isWalletConnected ? (
         <WalletNotConnected

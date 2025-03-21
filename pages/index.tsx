@@ -9,15 +9,10 @@ import { useInView } from 'react-intersection-observer';
 import { Element, Link as ScrollLink } from 'react-scroll';
 
 import { WalletSection } from '@/components';
-import { AdminsIcon, BankIcon, FactoryIcon, GroupsIcon } from '@/components/icons';
+import { BankIcon, FactoryIcon, GroupsIcon } from '@/components/icons';
 import { useIsMobile } from '@/hooks';
 
 import env from '../config/env';
-
-const PenroseTriangleScene = dynamic(() => import('@/components/3js/pennRoseTriangleScene'), {
-  ssr: false,
-  loading: () => null,
-});
 
 const AnimatedAsterisk = dynamic(() => import('@/components/3js/animatedAsterisk'), {
   ssr: false,
