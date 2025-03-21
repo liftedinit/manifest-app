@@ -7,6 +7,7 @@ exports[`Pagination works for small dataset: start 1`] = `
     <nav
       aria-label="Pagination"
       class="flex items-center justify-end gap-2 mt-4"
+      role="navigation"
     >
       <button
         aria-label="Previous page"
@@ -52,6 +53,7 @@ exports[`Pagination works for small dataset: middle 1`] = `
     <nav
       aria-label="Pagination"
       class="flex items-center justify-end gap-2 mt-4"
+      role="navigation"
     >
       <button
         aria-label="Previous page"
@@ -96,6 +98,7 @@ exports[`Pagination works for small dataset: end 1`] = `
     <nav
       aria-label="Pagination"
       class="flex items-center justify-end gap-2 mt-4"
+      role="navigation"
     >
       <button
         aria-label="Previous page"
@@ -141,6 +144,7 @@ exports[`Pagination works for small dataset: middle 2`] = `
     <nav
       aria-label="Pagination"
       class="flex items-center justify-end gap-2 mt-4"
+      role="navigation"
     >
       <button
         aria-label="Previous page"
@@ -185,6 +189,7 @@ exports[`Pagination works for small dataset: start 2`] = `
     <nav
       aria-label="Pagination"
       class="flex items-center justify-end gap-2 mt-4"
+      role="navigation"
     >
       <button
         aria-label="Previous page"
@@ -228,6 +233,7 @@ exports[`Navigator works for single page 1`] = `
   <nav
     aria-label="Pagination"
     class="flex items-center justify-end gap-2 mt-4"
+    role="navigation"
   >
     <button
       aria-label="Previous page"
@@ -259,6 +265,7 @@ exports[`Navigator works for lots of pages 1`] = `
   <nav
     aria-label="Pagination"
     class="flex items-center justify-end gap-2 mt-4"
+    role="navigation"
   >
     <button
       aria-label="Previous page"
