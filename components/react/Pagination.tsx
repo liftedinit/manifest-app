@@ -95,6 +95,11 @@ export function Pagination<T>({
     onChange?.(dataset.slice(pageInner * pageSize, (pageInner + 1) * pageSize), pageInner);
   }, [pageInner, pageSize, dataset, onChange]);
 
+  // If the dataset prop changes, reset the page to the first one.
+  React.useEffect(() => {
+    setPageInner(0);
+  }, [dataset]);
+
   const data = dataset.slice(pageInner * pageSize, (pageInner + 1) * pageSize);
   return (
     <div {...props}>

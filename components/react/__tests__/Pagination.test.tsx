@@ -1,5 +1,6 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, jest, test } from 'bun:test';
+import { useState } from 'react';
 
 import { Navigator, Pagination, createArrayOfPageIndex } from '@/components/react/Pagination';
 import { formatComponent } from '@/tests';
@@ -50,6 +51,44 @@ describe('Pagination', () => {
       </Pagination>
     );
     expect(mockup.queryByLabelText(/pagination/i)).not.toBeInTheDocument();
+  });
+
+  test('updates the page if the data changes', () => {
+    function TestComponent() {
+      const [data, setData] = useState([1, 2, 3, 4, 5, 6, 7, 8]);
+
+      return (
+        <>
+          <input
+            data-testid="data-input"
+            value={JSON.stringify(data)}
+            onChange={e => setData(JSON.parse(e.target.value))}
+          />
+          <Pagination pageSize={3} dataset={data}>
+            <Pagination.Index.Consumer>
+              {i => <div data-testid="index">{i}</div>}
+            </Pagination.Index.Consumer>
+            <Pagination.Data.Consumer>
+              {d => <div data-testid="data">{JSON.stringify(d)}</div>}
+            </Pagination.Data.Consumer>
+          </Pagination>
+        </>
+      );
+    }
+
+    const mockup = render(<TestComponent />);
+
+    expect(mockup.getByTestId('index')).toHaveTextContent('0');
+    fireEvent.click(screen.getByLabelText(/Next page/i));
+    expect(mockup.getByTestId('index')).toHaveTextContent('1');
+    fireEvent.change(screen.getByTestId('data-input'), { target: { value: '[1,2,3,4]' } });
+    expect(mockup.getByTestId('index')).toHaveTextContent('0');
+    fireEvent.click(screen.getByLabelText(/Next page/i));
+    expect(mockup.getByTestId('index')).toHaveTextContent('1');
+
+    fireEvent.change(screen.getByTestId('data-input'), { target: { value: '[1,2]' } });
+    expect(mockup.getByTestId('index')).toHaveTextContent('0');
+    expect(screen.queryByLabelText(/Next page/i)).not.toBeInTheDocument();
   });
 });
 
