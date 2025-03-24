@@ -24,7 +24,7 @@ export default function Groups() {
   return (
     <div className="relative mx-auto">
       <SEO title="Groups - Alberto" />
-      <div className="grow h-full animate-fadeIn transition-all duration-300">
+      <div className="grow h-full animate-fadeIn transition-all duration-300 mt-8 lg:mt-0">
         <div className="w-full mx-auto">
           <IfWalletConnected
             icon={GroupsIcon}

@@ -46,7 +46,7 @@ export default function CreateGroup() {
   ];
 
   return (
-    <div className="flex flex-col items-center w-full ">
+    <div className="flex flex-col items-center w-full  mt-8 lg:mt-0">
       <SEO title="Create a group - Alberto" />
       {!isWalletConnected ? (
         <WalletNotConnected
