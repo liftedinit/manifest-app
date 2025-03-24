@@ -2,10 +2,11 @@ import { useChain } from '@cosmos-kit/react';
 import { Tab } from '@headlessui/react';
 import React, { useMemo, useState } from 'react';
 
-import { HistoryBox, SearchIcon, WalletNotConnected } from '@/components';
+import { HistoryBox, WalletNotConnected } from '@/components';
 import { SEO } from '@/components';
 import { TokenList } from '@/components/bank/components/tokenList';
 import { BankIcon } from '@/components/icons';
+import { SearchInput, SearchProvider } from '@/components/react/SearchFilter';
 import env from '@/config/env';
 import {
   useGetMessagesFromAddress,
@@ -147,7 +148,6 @@ export default function Bank() {
   }, [balances, resolvedBalances, metadatas]);
 
   const isLoading = isBalancesLoading || resolvedLoading || isMetadatasLoading;
-  const [searchTerm, setSearchTerm] = useState('');
 
   return (
     <div className="relative  mx-auto">
@@ -161,79 +161,69 @@ export default function Bank() {
               icon={<BankIcon className="h-60 w-60 text-primary" />}
             />
           ) : (
-            <div className="relative w-full h-full overflow-hidden scrollbar-hide">
-              <div className="h-full flex flex-col">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
-                    <h1
-                      className="text-secondary-content"
-                      style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
-                    >
-                      Bank
-                    </h1>
+            <SearchProvider>
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
+                  <h1
+                    className="text-secondary-content"
+                    style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
+                  >
+                    Bank
+                  </h1>
 
-                    <div className="relative w-full sm:w-[224px]">
-                      <input
-                        type="text"
-                        placeholder="Search for an asset ..."
-                        className="input input-bordered w-full h-[40px] rounded-[12px] border-none bg-secondary text-secondary-content pl-10 focus:outline-hidden focus-visible:ring-1 focus-visible:ring-primary"
-                        value={searchTerm}
-                        onChange={e => setSearchTerm(e.target.value)}
-                      />
-                      <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-content/50" />
-                    </div>
+                  <div className="w-full sm:w-[224px]">
+                    <SearchInput placeholder="Search for an asset ..." />
                   </div>
                 </div>
-
-                <Tab.Group>
-                  <Tab.List
-                    aria-label="Bank Sections"
-                    className="flex flex-row tabs tabs-border tabs-lg"
-                  >
-                    <Tab className="font-bold tab ui-selected:tab-active focus:outline-1 focus:outline-primary focus:-outline-offset-1">
-                      Assets
-                    </Tab>
-                    <Tab className="font-bold tab ui-selected:tab-active focus:outline-1 focus:outline-primary focus:-outline-offset-1">
-                      Activity
-                    </Tab>
-                  </Tab.List>
-
-                  <Tab.Panels className="w-full mt-4">
-                    <Tab.Panel>
-                      {combinedBalances.length === 0 && !isLoading ? (
-                        <NoAssetsFound />
-                      ) : (
-                        <TokenList
-                          isLoading={isLoading}
-                          balances={combinedBalances}
-                          address={address ?? ''}
-                          pageSize={tokenListPageSize}
-                          searchTerm={searchTerm}
-                        />
-                      )}
-                    </Tab.Panel>
-                    <Tab.Panel>
-                      {totalPages === 0 ? (
-                        <NoActivityFound />
-                      ) : (
-                        <HistoryBox
-                          currentPage={currentPage}
-                          setCurrentPage={setCurrentPage}
-                          address={address ?? ''}
-                          isLoading={isLoading}
-                          sendTxs={sendTxs}
-                          totalPages={totalPages}
-                          txLoading={txLoading}
-                          isError={isError}
-                          skeletonGroupCount={skeletonGroupCount}
-                          skeletonTxCount={skeletonTxCount}
-                        />
-                      )}
-                    </Tab.Panel>
-                  </Tab.Panels>
-                </Tab.Group>
               </div>
-            </div>
+
+              <Tab.Group>
+                <Tab.List
+                  aria-label="Bank Sections"
+                  className="flex flex-row tabs tabs-border tabs-lg"
+                >
+                  <Tab className="font-bold tab ui-selected:tab-active focus:outline-1 focus:outline-primary focus:-outline-offset-1">
+                    Assets
+                  </Tab>
+                  <Tab className="font-bold tab ui-selected:tab-active focus:outline-1 focus:outline-primary focus:-outline-offset-1">
+                    Activity
+                  </Tab>
+                </Tab.List>
+
+                <Tab.Panels className="w-full mt-4">
+                  <Tab.Panel>
+                    {combinedBalances.length === 0 && !isLoading ? (
+                      <NoAssetsFound />
+                    ) : (
+                      <TokenList
+                        isLoading={isLoading}
+                        balances={combinedBalances}
+                        address={address ?? ''}
+                        pageSize={tokenListPageSize}
+                      />
+                    )}
+                  </Tab.Panel>
+                  <Tab.Panel>
+                    {totalPages === 0 ? (
+                      <NoActivityFound />
+                    ) : (
+                      <HistoryBox
+                        currentPage={currentPage}
+                        setCurrentPage={setCurrentPage}
+                        address={address ?? ''}
+                        isLoading={isLoading}
+                        sendTxs={sendTxs}
+                        totalPages={totalPages}
+                        txLoading={txLoading}
+                        isError={isError}
+                        skeletonGroupCount={skeletonGroupCount}
+                        skeletonTxCount={skeletonTxCount}
+                      />
+                    )}
+                  </Tab.Panel>
+                </Tab.Panels>
+              </Tab.Group>
+            </SearchProvider>
           )}
         </div>
       </div>
