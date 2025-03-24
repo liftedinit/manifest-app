@@ -150,11 +150,11 @@ export default function Bank() {
   const isLoading = isBalancesLoading || resolvedLoading || isMetadatasLoading;
 
   return (
-    <div className="relative  mx-auto">
+    <div className="relative mx-auto">
       <SEO title="Bank - Alberto" />
 
       <div className="grow h-full animate-fadeIn transition-all duration-300 mt-8 lg:mt-0">
-        <div className="w-full mx-auto">
+        <div className="w-full mx-auto relative z-100">
           {!isWalletConnected ? (
             <WalletNotConnected
               description="Use the button below to connect your wallet and start interacting with your tokens."
