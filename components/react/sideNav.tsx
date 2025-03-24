@@ -302,14 +302,14 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
     <>
       <aside
         id="sidebar-double"
-        className="fixed top-0 left-0 h-full z-30 hidden lg:flex transition-all duration-300 ease-in-out"
+        className="fixed top-0 left-0 h-full hidden lg:flex transition-all duration-300 ease-in-out"
         aria-label="Sidebar"
       >
         <SideNav />
       </aside>
       <aside
         id="sidebar-double"
-        className={`hidden lg:flex z-40 fixed top-0 left-0 h-full transform ${
+        className={`hidden lg:flex fixed top-0 left-0 h-full transform ${
           isDrawerVisible ? 'translate-x-0' : '-translate-x-full'
         } transition-transform duration-500 ease-in-out`}
         aria-label="Sidebar"
@@ -318,7 +318,7 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
       </aside>
       <button
         onClick={toggleDrawer}
-        className={`fixed top-1/2 transform -translate-y-1/2 z-50 hidden lg:block opacity-100 p-2 text-white rounded-full bg-[#C1C1CB] dark:bg-[#444151] hover:bg-primary dark:hover:bg-primary transition-all duration-500 ease-in-out ${
+        className={`fixed top-1/2 transform -translate-y-1/2 hidden lg:block opacity-100 p-2 text-white rounded-full bg-[#C1C1CB] dark:bg-[#444151] hover:bg-primary dark:hover:bg-primary transition-all duration-500 ease-in-out ${
           isDrawerVisible ? 'left-60' : 'left-[6.8rem]'
         }`}
       >
