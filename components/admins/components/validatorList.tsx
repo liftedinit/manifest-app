@@ -4,6 +4,7 @@ import React, { useMemo, useState } from 'react';
 
 import { ValidatorDetailsModal, WarningModal } from '@/components';
 import { SearchIcon, TrashIcon } from '@/components/icons';
+import { Pagination } from '@/components/react/Pagination';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import useIsMobile from '@/hooks/useIsMobile';
 import { ProfileAvatar } from '@/utils/identicon';
@@ -47,23 +48,16 @@ export default function ValidatorList({
       }))
     : [];
 
-  const [currentPage, setCurrentPage] = useState(1);
   const isMobile = useIsMobile();
 
   const pageSize = isMobile ? 4 : 5;
 
-  const filteredValidators = useMemo(() => {
+  let filteredValidators = useMemo(() => {
     const validators = active ? activeValidators : pendingValidators;
     return validators.filter(validator =>
       validator.description.moniker.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [active, activeValidators, pendingValidators, searchTerm]);
-
-  const totalPages = Math.ceil(filteredValidators.length / pageSize);
-  const paginatedValidators = filteredValidators.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
 
   const handleRemove = (validator: ExtendedValidatorSDKType) => {
     setValidatorToRemove(validator);
@@ -140,18 +134,14 @@ export default function ValidatorList({
               <table className="table w-full border-separate border-spacing-y-3">
                 <thead>
                   <tr className="text-sm font-medium text-[#808080]" role="row">
-                    <th className="bg-transparent text-left sticky top-0 bg-base-100 z-10">
-                      Moniker
-                    </th>
-                    <th className="hidden lg:table-cell bg-transparent text-left sticky top-0 bg-base-100 z-10">
+                    <th className="bg-transparent text-left sticky top-0 z-10">Moniker</th>
+                    <th className="hidden lg:table-cell bg-transparent text-left sticky top-0 z-10">
                       Address
                     </th>
-                    <th className="hidden md:table-cell bg-transparent text-left sticky top-0 bg-base-100 z-10">
+                    <th className="hidden md:table-cell bg-transparent text-left sticky top-0 z-10">
                       Consensus Power
                     </th>
-                    <th className="bg-transparent text-right sticky top-0 bg-base-100 z-10">
-                      Remove
-                    </th>
+                    <th className="bg-transparent text-right sticky top-0 z-10">Remove</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -183,77 +173,82 @@ export default function ValidatorList({
                 {active ? 'No active validators found' : 'No pending validators'}
               </div>
             ) : (
-              <table
-                className="table w-full border-separate border-spacing-y-3"
-                role="grid"
-                aria-label="Validators list"
-              >
-                <thead>
-                  <tr className="text-sm font-medium text-[#808080]" role="row">
-                    <th className="bg-transparent text-left sticky top-0 bg-base-100 z-10">
-                      Moniker
-                    </th>
-                    <th className=" hidden lg:table-cell bg-transparent text-left sticky top-0 bg-base-100 z-10">
-                      Address
-                    </th>
-                    <th className=" hidden md:table-cell bg-transparent text-left sticky top-0 bg-base-100 z-10">
-                      Consensus Power
-                    </th>
-                    <th className="bg-transparent text-right sticky top-0 bg-base-100 z-10">
-                      Remove
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paginatedValidators.map(validator => (
-                    <tr
-                      key={validator.operator_address}
-                      className="group text-black dark:text-white rounded-lg cursor-pointer focus:outline-hidden transition-colors"
-                      onClick={() => handleRowClick(validator)}
-                      tabIndex={0}
-                      role="row"
-                      aria-label={`Validator ${validator.description.moniker}`}
-                    >
-                      <td className="bg-secondary group-hover:bg-base-300 rounded-l-[12px] py-4">
-                        <div className="flex items-center space-x-3">
-                          {validator.logo_url ? (
-                            <Image
-                              height={32}
-                              width={32}
-                              src={validator.logo_url}
-                              alt=""
-                              className="w-8 h-8 rounded-full"
-                            />
-                          ) : (
-                            <ProfileAvatar walletAddress={validator.operator_address} size={32} />
-                          )}
-                          <span className="font-medium">{validator.description.moniker}</span>
-                        </div>
-                      </td>
-
-                      <td className="py-4 bg-secondary group-hover:bg-base-300 hidden lg:table-cell">
-                        <TruncatedAddressWithCopy address={validator.operator_address} />
-                      </td>
-                      <td className="py-4 bg-secondary group-hover:bg-base-300 hidden md:table-cell">
-                        {validator.consensus_power?.toString() ?? 'N/A'}
-                      </td>
-                      <td
-                        className="bg-secondary group-hover:bg-base-300 rounded-r-[12px] py-4 text-right"
-                        onClick={e => e.stopPropagation()}
-                      >
-                        <button
-                          onClick={() => handleRemove(validator)}
-                          className="btn btn-error btn-sm text-white"
-                          data-testid="remove-validator"
-                          aria-label={`Remove validator ${validator.description.moniker}`}
-                        >
-                          <TrashIcon className="w-5 h-5" />
-                        </button>
-                      </td>
+              <Pagination dataset={filteredValidators} pageSize={pageSize}>
+                <table
+                  className="table w-full border-separate border-spacing-y-3"
+                  role="grid"
+                  aria-label="Validators list"
+                >
+                  <thead>
+                    <tr className="text-sm font-medium text-[#808080]" role="row">
+                      <th className="bg-transparent text-left sticky top-0">Moniker</th>
+                      <th className="hidden lg:table-cell bg-transparent text-left sticky top-0">
+                        Address
+                      </th>
+                      <th className="hidden md:table-cell bg-transparent text-left sticky top-0">
+                        Consensus Power
+                      </th>
+                      <th className="bg-transparent text-right sticky top-0">Remove</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    <Pagination.Data.Consumer>
+                      {rows =>
+                        rows.map(validator => (
+                          <tr
+                            key={validator.operator_address}
+                            className="group text-black dark:text-white rounded-lg cursor-pointer focus:outline-hidden transition-colors"
+                            onClick={() => handleRowClick(validator)}
+                            tabIndex={0}
+                            role="row"
+                            aria-label={`Validator ${validator.description.moniker}`}
+                          >
+                            <td className="bg-secondary group-hover:bg-base-300 rounded-l-[12px] py-4">
+                              <div className="flex items-center space-x-3">
+                                {validator.logo_url ? (
+                                  <Image
+                                    height={32}
+                                    width={32}
+                                    src={validator.logo_url}
+                                    alt=""
+                                    className="w-8 h-8 rounded-full"
+                                  />
+                                ) : (
+                                  <ProfileAvatar
+                                    walletAddress={validator.operator_address}
+                                    size={32}
+                                  />
+                                )}
+                                <span className="font-medium">{validator.description.moniker}</span>
+                              </div>
+                            </td>
+
+                            <td className="py-4 bg-secondary group-hover:bg-base-300 hidden lg:table-cell">
+                              <TruncatedAddressWithCopy address={validator.operator_address} />
+                            </td>
+                            <td className="py-4 bg-secondary group-hover:bg-base-300 hidden md:table-cell">
+                              {validator.consensus_power?.toString() ?? 'N/A'}
+                            </td>
+                            <td
+                              className="bg-secondary group-hover:bg-base-300 rounded-r-[12px] py-4 text-right"
+                              onClick={e => e.stopPropagation()}
+                            >
+                              <button
+                                onClick={() => handleRemove(validator)}
+                                className="btn btn-error btn-sm text-white"
+                                data-testid="remove-validator"
+                                aria-label={`Remove validator ${validator.description.moniker}`}
+                              >
+                                <TrashIcon className="w-5 h-5" />
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      }
+                    </Pagination.Data.Consumer>
+                  </tbody>
+                </table>
+              </Pagination>
             )}
           </div>
         </div>
@@ -277,71 +272,6 @@ export default function ValidatorList({
         openWarningModal={openWarningModal}
         setOpenWarningModal={setOpenWarningModal}
       />
-
-      {totalPages > 1 && (
-        <div
-          className="flex items-center justify-center gap-2 mt-4"
-          onClick={e => e.stopPropagation()}
-          role="navigation"
-          aria-label="Pagination"
-        >
-          <button
-            onClick={e => {
-              e.stopPropagation();
-              setCurrentPage(prev => Math.max(1, prev - 1));
-            }}
-            disabled={currentPage === 1 || isLoading}
-            className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            aria-label="Previous page"
-          >
-            ‹
-          </button>
-
-          {[...Array(totalPages)].map((_, index) => {
-            const pageNum = index + 1;
-            if (
-              pageNum === 1 ||
-              pageNum === totalPages ||
-              (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
-            ) {
-              return (
-                <button
-                  key={pageNum}
-                  onClick={e => {
-                    e.stopPropagation();
-                    setCurrentPage(pageNum);
-                  }}
-                  className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors text-black dark:text-white
-                    ${currentPage === pageNum ? 'bg-[#0000001A] dark:bg-[#FFFFFF1A]' : 'hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A]'}`}
-                  aria-label={`Page ${pageNum}`}
-                  aria-current={currentPage === pageNum ? 'page' : undefined}
-                >
-                  {pageNum}
-                </button>
-              );
-            } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
-              return (
-                <span key={pageNum} aria-hidden="true">
-                  ...
-                </span>
-              );
-            }
-            return null;
-          })}
-
-          <button
-            onClick={e => {
-              e.stopPropagation();
-              setCurrentPage(prev => Math.min(totalPages, prev + 1));
-            }}
-            disabled={currentPage === totalPages || isLoading}
-            className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            aria-label="Next page"
-          >
-            ›
-          </button>
-        </div>
-      )}
     </div>
   );
 }

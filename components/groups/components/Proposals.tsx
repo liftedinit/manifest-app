@@ -150,78 +150,78 @@ function ProposalTable({ group, pageSize, proposals }: ProposalTableProps) {
 
   return (
     <Pagination dataset={proposals} pageSize={pageSize} selectedPage={defaultPage}>
-      {(rows: ProposalWithTally[]) => (
-        <table
-          className="table w-full border-separate border-spacing-y-3 -mt-6"
-          aria-label="Group proposals"
-          data-testid="proposals"
-        >
-          <thead>
-            <tr className="text-sm font-medium">
-              <th className="bg-transparent px-4 py-2 w-[25%]" scope="col">
-                ID
-              </th>
-              <th className="bg-transparent px-4 py-2 w-[25%]" scope="col">
-                Title
-              </th>
-              <th className="bg-transparent px-4 py-2 w-[25%] hidden xl:table-cell" scope="col">
-                Time Left
-              </th>
-              <th
-                className="bg-transparent px-4 py-2 w-[25%] sm:table-cell md:hidden hidden xl:table-cell"
-                scope="col"
-              >
-                Type
-              </th>
-              <th
-                className="bg-transparent px-4 py-2 w-[25%] sm:table-cell xxs:hidden hidden 2xl:table-cell"
-                scope="col"
-              >
-                Status
-              </th>
-            </tr>
-          </thead>
-          <tbody className="space-y-4">
-            {rows.map(({ proposal, tally }) => (
-              <ProposalRow
-                key={`proposal-${proposal.id}`}
-                group={group}
-                proposal={proposal}
-                tally={tally}
-              />
-            ))}
-          </tbody>
-        </table>
-      )}
+      <table
+        className="table w-full border-separate border-spacing-y-3 -mt-6"
+        aria-label="Group proposals"
+        data-testid="proposals"
+      >
+        <thead>
+          <tr className="text-sm font-medium">
+            <th className="bg-transparent px-4 py-2 w-[25%]" scope="col">
+              ID
+            </th>
+            <th className="bg-transparent px-4 py-2 w-[25%]" scope="col">
+              Title
+            </th>
+            <th className="bg-transparent px-4 py-2 w-[25%] hidden xl:table-cell" scope="col">
+              Time Left
+            </th>
+            <th
+              className="bg-transparent px-4 py-2 w-[25%] sm:table-cell md:hidden hidden xl:table-cell"
+              scope="col"
+            >
+              Type
+            </th>
+            <th
+              className="bg-transparent px-4 py-2 w-[25%] sm:table-cell xxs:hidden hidden 2xl:table-cell"
+              scope="col"
+            >
+              Status
+            </th>
+          </tr>
+        </thead>
+        <tbody className="space-y-4">
+          <Pagination.Data.Consumer>
+            {rows =>
+              rows.map(({ proposal, tally }) => (
+                <ProposalRow
+                  key={`proposal-${proposal.id}`}
+                  group={group}
+                  proposal={proposal}
+                  tally={tally}
+                />
+              ))
+            }
+          </Pagination.Data.Consumer>
+        </tbody>
+      </table>
     </Pagination>
   );
 }
 
 /**
- * Converts a future Date object into a human-readable duration string relative to the current time.
+ * Converts a number of seconds into a human-readable duration string relative to the current time.
  * The result is formatted as days, hours, minutes, or less than a minute based on the time difference.
  *
- * @param endTime - The future date and time to calculate the difference from the current time.
+ * @param diff - A number of seconds to transform into human readable time.
  * @return A string representing the remaining duration in human-readable format
  *         (e.g., "2 days", "1 hour", "15 minutes", or "less than a minute").
  */
-export function humanReadableDuration(endTime: Date) {
-  const now = new Date();
-  const msPerMinute = 1000 * 60;
-  const msPerHour = msPerMinute * 60;
-  const msPerDay = msPerHour * 24;
+export function humanReadableDuration(diff: number) {
+  const secsPerMinute = 60;
+  const secsPerHour = secsPerMinute * 60;
+  const secsPerDay = secsPerHour * 24;
 
-  const diff = endTime.getTime() - now.getTime();
   if (diff <= 0) {
     return 'none';
-  } else if (diff >= msPerDay) {
-    const days = Math.floor(diff / msPerDay);
+  } else if (diff >= secsPerDay) {
+    const days = Math.floor(diff / secsPerDay);
     return `${days} day${days === 1 ? '' : 's'}`;
-  } else if (diff >= msPerHour) {
-    const hours = Math.floor(diff / msPerHour);
+  } else if (diff >= secsPerHour) {
+    const hours = Math.floor(diff / secsPerHour);
     return `${hours} hour${hours === 1 ? '' : 's'}`;
-  } else if (diff >= msPerMinute) {
-    const minutes = Math.floor(diff / msPerMinute);
+  } else if (diff >= secsPerMinute) {
+    const minutes = Math.floor(diff / secsPerMinute);
     return `${minutes} minute${minutes === 1 ? '' : 's'}`;
   } else {
     return 'less than a minute';
@@ -307,7 +307,7 @@ const ProposalRow = ({
           {proposal.title}
         </td>
         <td className="bg-secondary group-hover:bg-base-300 px-4 py-4 w-[25%] hidden xl:table-cell">
-          {humanReadableDuration(endTime)}
+          {humanReadableDuration((endTime.getTime() - Date.now()) / 1000)}
         </td>
         <td className="bg-secondary group-hover:bg-base-300 px-4 py-4 w-[25%] sm:table-cell md:hidden hidden xl:table-cell ">
           {proposal.messages.length > 0

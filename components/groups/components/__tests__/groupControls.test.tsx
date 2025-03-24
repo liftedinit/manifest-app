@@ -94,7 +94,6 @@ describe('Tabs functionality', () => {
 
     // Switch to "Assets" tab and verify the change
     fireEvent.click(assetsTab);
-    expect(screen.queryByTestId('Group proposals')).not.toBeInTheDocument();
     expect(screen.queryByTestId('tokenList')).toBeInTheDocument();
 
     // Switch to "Activity" tab and verify the change

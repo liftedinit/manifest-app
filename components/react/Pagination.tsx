@@ -1,6 +1,20 @@
 import React, { createContext } from 'react';
 
-export interface PaginationProps<T> {
+/**
+ * Validates whether the provided value is an integer. Throws an error if the value is not an integer.
+ *
+ * @param value - The value to validate as an integer.
+ * @param field - The name of the field being validated.
+ * @throws An error if the value is invalid.
+ */
+function validateIsInteger(value: number, field: string) {
+  if (!Number.isInteger(value)) {
+    throw new Error(`${field} must be a finite integer, but got ${value}`);
+  }
+}
+
+export interface PaginationProps<T>
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children' | 'onChange'> {
   pageSize: number;
   defaultPage?: number;
   selectedPage?: number;
@@ -15,23 +29,20 @@ export interface PaginationProps<T> {
  * size, current page, and maximum number of visible pages. The array may
  * include the string '...' to represent skipped page ranges.
  *
- * @param total - The total number of items across all pages.
- * @param pageSize - The number of items per page.
+ * @param nbPages - The total number pages.
  * @param [current=0] - The current page index (zero-based). Default is 0.
  * @param [max=8] - The maximum number of visible page indices. Default is 8.
  * @return An array of page indices (zero-based) and/or '...' to represent
  *         skipped pages.
  */
-export function createArrayOfPageIndex(
-  total: number,
-  pageSize: number,
-  current = 0,
-  max = 8
-): (number | '...')[] {
+export function createArrayOfPageIndex(nbPages: number, current = 0, max = 8): (number | '...')[] {
+  validateIsInteger(nbPages, 'nbPages');
+  validateIsInteger(current, 'current');
+  validateIsInteger(max, 'max');
   if (max <= 4) {
     throw new Error('max cannot be less than 5');
   }
-  const nbPages = Math.ceil(total / pageSize);
+
   current = Math.max(Math.min(nbPages - 1, current), 0);
 
   const toShow = Math.min(nbPages, max);
@@ -69,10 +80,9 @@ export function Pagination<T>({
   dataset,
   onChange,
   children,
+  ...props
 }: PaginationProps<T>) {
   const [pageInner, setPageInner] = React.useState(defaultPage);
-  const pages = createArrayOfPageIndex(dataset.length, pageSize, pageInner);
-  const nbPages: number = Math.ceil(dataset.length / pageSize);
 
   React.useEffect(() => {
     if (selectedPage !== undefined) {
@@ -80,29 +90,14 @@ export function Pagination<T>({
     }
   }, [selectedPage]);
 
-  function callOnChange() {
+  // Call onChange whenever pageInner changes
+  React.useEffect(() => {
     onChange?.(dataset.slice(pageInner * pageSize, (pageInner + 1) * pageSize), pageInner);
-  }
-
-  function previous() {
-    setPageInner(page => Math.max(0, page - 1));
-    callOnChange();
-  }
-
-  function next() {
-    setPageInner(page => Math.min(nbPages - 1, page + 1));
-    callOnChange();
-  }
-
-  function setPage(page: number) {
-    setPageInner(page);
-    callOnChange();
-  }
+  }, [pageInner, pageSize, dataset, onChange]);
 
   const data = dataset.slice(pageInner * pageSize, (pageInner + 1) * pageSize);
-
   return (
-    <>
+    <div {...props}>
       {children instanceof Function ? (
         children(data, pageInner)
       ) : (
@@ -111,60 +106,108 @@ export function Pagination<T>({
         </Pagination.Index.Provider>
       )}
 
-      <div className="flex items-center justify-end gap-2 mt-4">
-        <button
-          onClick={previous}
-          disabled={pageInner == 0}
-          aria-label="Previous page"
-          className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          ‹
-        </button>
-
-        {pages.map((p, i) => {
-          if (p === '...') {
-            return (
-              <span key={`ellipsis-${i}`} className="text-black dark:text-white">
-                ...
-              </span>
-            );
-          } else if (p === pageInner) {
-            return (
-              <button
-                key={`page-${p}`}
-                aria-label={`Page ${p}`}
-                aria-current="page"
-                className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors bg-[#0000001A] dark:bg-[#FFFFFF1A] text-black dark:text-white"
-              >
-                {p + 1}
-              </button>
-            );
-          } else {
-            return (
-              <button
-                key={`page-${p}`}
-                onClick={() => setPage(p)}
-                aria-label={`Page ${p}`}
-                className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white"
-              >
-                {p + 1}
-              </button>
-            );
-          }
-        })}
-
-        <button
-          onClick={next}
-          disabled={pageInner === nbPages - 1}
-          aria-label="Next page"
-          className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          ›
-        </button>
-      </div>
-    </>
+      {dataset.length > pageSize && (
+        <Navigator
+          nbPages={Math.ceil(dataset.length / pageSize)}
+          page={pageInner}
+          onChange={setPageInner}
+        />
+      )}
+    </div>
   );
 }
+
+interface NavigatorProps {
+  /**
+   * Total number of pages.
+   */
+  nbPages: number;
+
+  /**
+   * Current page.
+   */
+  page?: number;
+
+  /**
+   * Called when the page changes.
+   * @param p
+   */
+  onChange: (p: number) => void;
+}
+
+export const Navigator: React.FC<NavigatorProps> = ({
+  nbPages,
+  page = 0,
+  onChange,
+}: NavigatorProps) => {
+  validateIsInteger(nbPages, 'nbPages');
+  validateIsInteger(page, 'page');
+
+  if (nbPages < 0) {
+    throw new Error('nbItems cannot be less than 5');
+  }
+
+  page = Math.min(Math.max(page, 0), nbPages);
+  const pages = createArrayOfPageIndex(nbPages, page);
+
+  return (
+    <nav
+      className="flex items-center justify-end gap-2 mt-4"
+      aria-label="Pagination"
+      role="navigation"
+    >
+      <button
+        onClick={() => onChange(Math.max(0, page - 1))}
+        disabled={page == 0}
+        aria-label="Previous page"
+        className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        ‹
+      </button>
+
+      {pages.map((p, i) => {
+        if (p === '...') {
+          return (
+            <span key={`ellipsis-${i}`} className="text-black dark:text-white">
+              ...
+            </span>
+          );
+        } else if (p === page) {
+          return (
+            <button
+              key={`page-${p}`}
+              aria-label={`Page ${p + 1}`}
+              aria-current="page"
+              className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors bg-[#0000001A] dark:bg-[#FFFFFF1A] text-black dark:text-white"
+            >
+              {p + 1}
+            </button>
+          );
+        } else {
+          return (
+            <button
+              key={`page-${p}`}
+              onClick={() => onChange(p)}
+              aria-label={`Page ${p + 1}`}
+              className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white"
+            >
+              {p + 1}
+            </button>
+          );
+        }
+      })}
+
+      <button
+        onClick={() => onChange(Math.min(nbPages - 1, page + 1))}
+        disabled={page === nbPages - 1}
+        aria-label="Next page"
+        className="p-2 hover:bg-[#0000001A] dark:hover:bg-[#FFFFFF1A] text-black dark:text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        ›
+      </button>
+    </nav>
+  );
+};
 
 Pagination.Index = createContext<number>(-1);
 // Unfortunately, we cannot set the type of the context for Data to T, as T is

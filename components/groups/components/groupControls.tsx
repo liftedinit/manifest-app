@@ -1,10 +1,5 @@
 import { useChain } from '@cosmos-kit/react';
 import { Tab } from '@headlessui/react';
-import {
-  ProposalSDKType,
-  ProposalStatus,
-  proposalStatusToJSON,
-} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
