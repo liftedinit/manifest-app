@@ -200,17 +200,15 @@ export const Contacts = ({
         </button>
       )}
 
-      <div className="mb-8 p-3 bg-[#0000000A] dark:bg-[#FFFFFF0F] rounded-xl">
-        <div className="flex items-center text-sm text-[#00000099] dark:text-[#FFFFFF99]">
-          <ExclamationTriangleIcon
-            className="h-5 w-5 text-primary flex-shrink-0 mr-2"
-            aria-hidden="true"
-          />
-          <span>
-            Export your contacts to prevent losing them when switching devices or clearing your
-            browser data.
-          </span>
-        </div>
+      <div className="mb-8 p-3 bg-[#0000000A] dark:bg-[#FFFFFF0F] rounded-xl flex items-center text-sm text-[#00000099] dark:text-[#FFFFFF99]">
+        <ExclamationTriangleIcon
+          className="h-5 w-5 text-primary flex-shrink-0 mr-2"
+          aria-hidden="true"
+        />
+        <span>
+          Export your contacts to prevent losing them when switching devices or clearing your
+          browser data.
+        </span>
       </div>
 
       {/* Search Input */}
