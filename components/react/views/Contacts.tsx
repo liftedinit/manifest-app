@@ -1,4 +1,5 @@
 import { Dialog } from '@headlessui/react';
+import { ExclamationTriangleIcon } from '@heroicons/react/16/solid';
 import { ChevronLeftIcon, PencilIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { saveAs } from 'file-saver';
 import { Form, Formik } from 'formik';
@@ -198,6 +199,17 @@ export const Contacts = ({
           Use My Address
         </button>
       )}
+
+      <div className="mb-8 p-3 bg-[#0000000A] dark:bg-[#FFFFFF0F] rounded-xl flex items-center text-sm text-[#00000099] dark:text-[#FFFFFF99]">
+        <ExclamationTriangleIcon
+          className="h-5 w-5 text-primary flex-shrink-0 mr-2"
+          aria-hidden="true"
+        />
+        <span>
+          Export your contacts to prevent losing them when switching devices or clearing your
+          browser data.
+        </span>
+      </div>
 
       {/* Search Input */}
       <div className="relative mb-4">
