@@ -201,7 +201,7 @@ export const Contacts = ({
       )}
 
       <div className="mb-8 p-3 bg-[#0000000A] dark:bg-[#FFFFFF0F] rounded-xl">
-        <p className="flex items-center text-sm text-[#00000099] dark:text-[#FFFFFF99]">
+        <div className="flex items-center text-sm text-[#00000099] dark:text-[#FFFFFF99]">
           <ExclamationTriangleIcon
             className="h-5 w-5 text-primary flex-shrink-0 mr-2"
             aria-hidden="true"
@@ -210,7 +210,7 @@ export const Contacts = ({
             Export your contacts to prevent losing them when switching devices or clearing your
             browser data.
           </span>
-        </p>
+        </div>
       </div>
 
       {/* Search Input */}
