@@ -1,6 +1,6 @@
-import { Environment, OrbitControls, useProgress } from '@react-three/drei';
+import { OrbitControls } from '@react-three/drei';
 import { Canvas, useFrame } from '@react-three/fiber';
-import React, { Suspense, useEffect, useMemo, useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { BufferAttribute, Mesh, Vector3 } from 'three';
 import * as THREE from 'three';
 
@@ -61,9 +61,9 @@ function AnimatedMesh({
   const material = useMemo(() => {
     const mat = new THREE.MeshStandardMaterial({
       color: '#A287FF',
-      metalness: 1,
-      roughness: 0.1,
-      envMapIntensity: 1,
+      metalness: 0.5,
+      roughness: 0.3,
+      envMapIntensity: 0,
     });
 
     mat.onBeforeCompile = shader => {
@@ -122,6 +122,19 @@ function AnimatedMesh({
   return <mesh ref={meshRef} geometry={geometry} material={material} />;
 }
 
+function EnvironmentLighting() {
+  return (
+    <>
+      <ambientLight intensity={1.0} color="#e0d8ff" />
+      <hemisphereLight color="#d8cfff" groundColor="#8691c5" intensity={2.0} />
+      <directionalLight position={[10, 5, 5]} intensity={3.5} color="#c4b5ff" castShadow />
+      <directionalLight position={[-10, 2, -5]} intensity={1.5} color="#a0b4ff" />
+      <directionalLight position={[0, 8, -10]} intensity={1.0} color="#f0e8ff" />
+      <directionalLight position={[0, -5, 0]} intensity={0.8} color="#7a6e9e" />
+    </>
+  );
+}
+
 export default function AnimatedShape({
   shape,
 }: {
@@ -153,9 +166,15 @@ export default function AnimatedShape({
     <Canvas
       style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
       camera={{ position: [0, 0, 10] }}
+      gl={{
+        toneMapping: THREE.ACESFilmicToneMapping,
+        toneMappingExposure: 1.2,
+        alpha: true,
+        antialias: true,
+      }}
     >
+      <EnvironmentLighting />
       {meshes}
-      <Environment files="/rosendal_park_sunset_puresky_1k.hdr" background={false} />
       <OrbitControls enablePan={false} enableZoom={false} />
     </Canvas>
   );
