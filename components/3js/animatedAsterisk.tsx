@@ -1,6 +1,6 @@
 import { Environment } from '@react-three/drei';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Suspense, useEffect, useMemo, useRef } from 'react';
+import React, { Suspense, useEffect, useMemo, useRef } from 'react';
 import { BufferAttribute, BufferGeometry, Mesh, Vector3 } from 'three';
 import * as THREE from 'three';
 
@@ -127,10 +127,10 @@ function AnimatedMesh({
   // Create material
   const material = useMemo(() => {
     return new THREE.MeshStandardMaterial({
-      color: '#A287FF',
-      metalness: 1,
-      roughness: 0.1,
-      envMapIntensity: 1,
+      color: '#b9c3ff',
+      metalness: 0.5,
+      roughness: 0.3,
+      envMapIntensity: 0,
       side: THREE.DoubleSide, // Ensure both sides are rendered
     });
   }, []);
@@ -168,18 +168,22 @@ function AnimatedMesh({
   return <mesh ref={meshRef} geometry={geometry} material={material} />;
 }
 
-export default function AnimatedAsterisk({ onLoad }: { onLoad?: () => void }) {
+function EnvironmentLighting() {
+  return (
+    <>
+      <ambientLight intensity={1.0} color="#d8e6ff" />
+      <hemisphereLight color="#c2dcff" groundColor="#7a8ebb" intensity={2.0} />
+      <directionalLight position={[10, 5, 5]} intensity={3.5} color="#a0c4ff" castShadow />
+      <directionalLight position={[-10, 2, -5]} intensity={1.5} color="#5c8cff" />
+      <directionalLight position={[0, 8, -10]} intensity={1.0} color="#e8f0ff" />
+      <directionalLight position={[0, -5, 0]} intensity={0.8} color="#6e7a9e" />
+    </>
+  );
+}
+
+export default function AnimatedAsterisk() {
   const levels = 3; // Number of nested icosahedrons
   const meshes = [];
-  const loadedMeshes = useRef(0);
-
-  const handleMeshLoad = () => {
-    loadedMeshes.current += 1;
-    if (loadedMeshes.current === levels) {
-      onLoad?.();
-    }
-  };
-
   for (let i = 0; i < levels; i++) {
     const scaleFactor = 1 - i * 0.2; // Adjust scale for each level
     const extrusionMultiplier = 2 / Math.pow(2, i); // Halve the multiplier at each level
@@ -193,9 +197,15 @@ export default function AnimatedAsterisk({ onLoad }: { onLoad?: () => void }) {
     <Canvas
       style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
       camera={{ position: [0, 0, 10] }}
+      gl={{
+        toneMapping: THREE.ACESFilmicToneMapping,
+        toneMappingExposure: 1.2,
+        alpha: true,
+        antialias: true,
+      }}
     >
+      <EnvironmentLighting />
       {meshes}
-      <Environment files="/rosendal_park_sunset_puresky_1k.hdr" background={false} />
     </Canvas>
   );
 }
