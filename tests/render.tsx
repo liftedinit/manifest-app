@@ -24,7 +24,7 @@ export const renderWithChainProvider = (ui: React.ReactElement, options = {}) =>
   const client = new QueryClient();
   return render(
     <QueryClientProvider client={client}>
-      <ChainProvider {...combinedOptions}>
+      <ChainProvider throwErrors={false} {...combinedOptions}>
         <SkipProvider>
           <ToastProvider>{ui}</ToastProvider>
         </SkipProvider>
