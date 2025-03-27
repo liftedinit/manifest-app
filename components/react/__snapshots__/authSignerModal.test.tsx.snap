@@ -8,10 +8,6 @@ exports[`PromptSignModalInner should render 1`] = `
     data-is-controlled="false"
     style="visibility: visible;"
   />
-  <div
-    hidden=""
-    style="position: fixed; top: 1px; left: 1px; width: 1px; height: 0px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0px; display: none;"
-  />
 </DocumentFragment>"
 `;
 
