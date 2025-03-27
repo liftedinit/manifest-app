@@ -65,7 +65,7 @@ export const TokenList = ({
   return (
     <div className="w-full mx-auto rounded-[24px] h-full flex flex-col" data-testid="tokenList">
       <div className="flex-1 overflow-y-auto">
-        <SearchFilter
+        <Filter
           dataset={balances ?? []}
           filterFn={(searchTerm, data) => {
             return data.filter(balance =>
@@ -163,7 +163,7 @@ export const TokenList = ({
               </>
             );
           }}
-        </SearchFilter>
+        </Filter>
       </div>
     </div>
   );

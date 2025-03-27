@@ -16,10 +16,10 @@ import {
   PageHeader,
   Pagination,
   SearchFilter,
+  SearchProvider,
   TokenBalance,
 } from '@/components';
 import { MemberIcon } from '@/components/icons';
-import { SearchProvider } from '@/components/react/SearchFilter';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import env from '@/config/env';
 import useIsMobile from '@/hooks/useIsMobile';
