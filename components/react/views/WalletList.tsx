@@ -5,6 +5,19 @@ import { ChainWalletBase } from 'cosmos-kit';
 import { useDeviceDetect } from '@/hooks';
 import { getRealLogo } from '@/utils';
 
+// Detect if we're in the Leap dApp browser
+const checkLeap = (): { isLeapExtension: boolean; isLeapMobile: boolean } => {
+  // Check if we're in a browser environment
+  if (typeof window === 'undefined') {
+    return { isLeapExtension: false, isLeapMobile: false };
+  }
+
+  const isLeapExtension = (window as any).leap !== undefined;
+  const isLeapMobile = window.navigator?.userAgent?.includes('LeapCosmos') || false;
+
+  return { isLeapExtension, isLeapMobile };
+};
+
 export const WalletList = ({
   onClose,
   onWalletClicked,
@@ -14,11 +27,18 @@ export const WalletList = ({
   onWalletClicked: (name: string, isMobileConnect?: boolean) => void;
   wallets: ChainWalletBase[];
 }) => {
+  const { isLeapExtension, isLeapMobile } = checkLeap();
   const isDarkMode = document.documentElement.classList.contains('dark');
+
+  // Prefer the Leap extention over the wallet connect extension in the Leap dApp browser
+  let leapWallet = 'Leap Mobile';
+  if (isLeapExtension && isLeapMobile) {
+    leapWallet = 'Leap';
+  }
 
   const socialOrder = ['Google', 'Twitter', 'Apple', 'Discord', 'GitHub', 'Reddit', 'Email', 'SMS'];
   const browserOrder = ['Leap', 'Keplr', 'Cosmostation', 'Cosmos MetaMask Extension', 'Ledger'];
-  const mobileOrder = ['Wallet Connect', 'Leap Mobile', 'Keplr Mobile'];
+  const mobileOrder = ['Wallet Connect', leapWallet, 'Keplr Mobile'];
 
   const social = wallets
     .filter(wallet => socialOrder.includes(wallet.walletInfo.prettyName))
