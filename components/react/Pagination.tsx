@@ -24,7 +24,7 @@ export interface PaginationProps<T>
   onChange?: (data: T[], page: number) => void;
   children?: React.ReactNode | ((data: T[], page: number) => React.ReactNode);
 
-  navigator?: boolean | React.RefObject<HTMLElement>;
+  navigator?: boolean | React.RefObject<HTMLElement | null>;
 }
 
 /**
