@@ -526,7 +526,7 @@ export const TailwindModal: React.FC<
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <Dialog.Overlay className="fixed inset-0 bg-black/40  transition-opacity" />
+              <div className="fixed inset-0 bg-black/40  transition-opacity" />
             </Transition.Child>
 
             <div className="fixed inset-0 overflow-y-auto">

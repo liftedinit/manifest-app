@@ -41,11 +41,11 @@ export default function MobileNav() {
     if (drawer) drawer.checked = false;
   };
 
-  const NavItem: React.FC<{ Icon: React.ElementType; href: string; label: string }> = ({
-    Icon,
-    href,
-    label,
-  }) => {
+  const NavItem: React.FC<{
+    Icon: React.ComponentType<{ className?: string }>;
+    href: string;
+    label: string;
+  }> = ({ Icon, href, label }) => {
     return (
       <li>
         <Link href={href} legacyBehavior>
