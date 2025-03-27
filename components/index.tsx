@@ -10,3 +10,5 @@ export * from './divider';
 export * from './seo';
 export * from './ibcTransferProgress';
 export * from './tokens';
+
+export * from './layout';

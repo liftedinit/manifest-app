@@ -6,3 +6,5 @@ export * from './inputs';
 export { SignModal } from './authSignerModal';
 export * from './ModalDialog';
 export * from './TokenBalance';
+export * from './Pagination';
+export * from './SearchFilter';

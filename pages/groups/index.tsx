@@ -2,7 +2,7 @@ import { useChain } from '@cosmos-kit/react';
 import Link from 'next/link';
 import React from 'react';
 
-import { GroupsIcon, IfWalletConnected, SEO, WalletNotConnected, YourGroups } from '@/components';
+import { GroupsIcon, IfWalletConnected, SEO, YourGroups } from '@/components';
 import env from '@/config/env';
 import { useGroupsByMember, useProposalsByPolicyAccountAll } from '@/hooks';
 
@@ -24,28 +24,25 @@ export default function Groups() {
   return (
     <div className="relative mx-auto">
       <SEO title="Groups - Alberto" />
-      <div className="grow h-full animate-fadeIn transition-all duration-300 mt-8 lg:mt-0">
-        <div className="w-full mx-auto">
-          <IfWalletConnected
-            icon={GroupsIcon}
-            message="Use the button below to connect your wallet and start interacting with your groups."
-          >
-            {isLoading ? (
-              <YourGroups groups={{ groups: [] }} proposals={{}} isLoading={true} />
-            ) : isError ? (
-              <div className="text-center text-error">Error loading groups or proposals</div>
-            ) : groupByMemberData?.groups.length === 0 ? (
-              <NoGroupsFound />
-            ) : (
-              <YourGroups
-                groups={groupByMemberData ?? { groups: [] }}
-                proposals={proposalsByPolicyAccount}
-                isLoading={isLoading}
-              />
-            )}
-          </IfWalletConnected>
-        </div>
-      </div>
+
+      <IfWalletConnected
+        icon={GroupsIcon}
+        message="Use the button below to connect your wallet and start interacting with your groups."
+      >
+        {isLoading ? (
+          <YourGroups groups={{ groups: [] }} proposals={{}} isLoading={true} />
+        ) : isError ? (
+          <div className="text-center text-error">Error loading groups or proposals</div>
+        ) : groupByMemberData?.groups.length === 0 ? (
+          <NoGroupsFound />
+        ) : (
+          <YourGroups
+            groups={groupByMemberData ?? { groups: [] }}
+            proposals={proposalsByPolicyAccount}
+            isLoading={isLoading}
+          />
+        )}
+      </IfWalletConnected>
     </div>
   );
 }

@@ -320,6 +320,6 @@ export const IfWalletConnected: React.FC<
       />
     );
   } else {
-    return <>{children}</>;
+    return children;
   }
 };

@@ -2,7 +2,7 @@ import { useChain } from '@cosmos-kit/react';
 import { Tab } from '@headlessui/react';
 import React, { useMemo, useState } from 'react';
 
-import { HistoryBox, WalletNotConnected } from '@/components';
+import { HistoryBox, IfWalletConnected, PageHeader } from '@/components';
 import { SEO } from '@/components';
 import { TokenList } from '@/components/bank/components/tokenList';
 import { BankIcon } from '@/components/icons';
@@ -155,27 +155,9 @@ export default function Bank() {
 
       <div className="grow h-full animate-fadeIn transition-all duration-300 mt-8 lg:mt-0">
         <div className="w-full mx-auto relative z-100">
-          {!isWalletConnected ? (
-            <WalletNotConnected
-              description="Use the button below to connect your wallet and start interacting with your tokens."
-              icon={<BankIcon className="h-60 w-60 text-primary" />}
-            />
-          ) : (
+          <IfWalletConnected icon={BankIcon} message="start interacting with your tokens">
             <SearchProvider>
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
-                  <h1
-                    className="text-secondary-content"
-                    style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
-                  >
-                    Bank
-                  </h1>
-
-                  <div className="w-full sm:w-[224px]">
-                    <SearchInput placeholder="Search for an asset ..." />
-                  </div>
-                </div>
-              </div>
+              <PageHeader search="Search for an asset..." title="Bank" />
 
               <Tab.Group>
                 <Tab.List
@@ -224,7 +206,7 @@ export default function Bank() {
                 </Tab.Panels>
               </Tab.Group>
             </SearchProvider>
-          )}
+          </IfWalletConnected>
         </div>
       </div>
     </div>

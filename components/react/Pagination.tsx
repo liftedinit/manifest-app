@@ -1,4 +1,5 @@
-import React, { createContext } from 'react';
+import React, { Fragment, createContext } from 'react';
+import { createPortal } from 'react-dom';
 
 /**
  * Validates whether the provided value is an integer. Throws an error if the value is not an integer.
@@ -22,6 +23,8 @@ export interface PaginationProps<T>
 
   onChange?: (data: T[], page: number) => void;
   children?: React.ReactNode | ((data: T[], page: number) => React.ReactNode);
+
+  navigator?: boolean | React.RefObject<HTMLElement>;
 }
 
 /**
@@ -80,6 +83,7 @@ export function Pagination<T>({
   dataset,
   onChange,
   children,
+  navigator = true,
   ...props
 }: PaginationProps<T>) {
   const [pageInner, setPageInner] = React.useState(defaultPage);
@@ -96,13 +100,35 @@ export function Pagination<T>({
   }, [pageInner, pageSize, dataset, onChange]);
 
   // If the dataset prop changes, reset the page to the first one.
+  React.useEffect(() => setPageInner(0), [dataset]);
+
+  const [portal, setPortal] = React.useState<HTMLElement | null>(null);
   React.useEffect(() => {
-    setPageInner(0);
-  }, [dataset]);
+    if (navigator !== true && navigator !== false) {
+      setPortal(navigator?.current);
+    }
+  }, [navigator]);
+
+  let navigatorEl: React.ReactNode | undefined = (
+    <Navigator
+      nbPages={Math.ceil(dataset.length / pageSize)}
+      page={pageInner}
+      onChange={setPageInner}
+    />
+  );
+
+  if (portal && navigatorEl) {
+    navigatorEl = createPortal(navigatorEl, portal);
+  }
+
+  if (navigator === false || (navigator !== true && !portal)) {
+    navigatorEl = undefined;
+  }
 
   const data = dataset.slice(pageInner * pageSize, (pageInner + 1) * pageSize);
+  const RootEl = Object.keys(props).length > 0 ? (<div />).type : Fragment;
   return (
-    <div {...props}>
+    <RootEl {...props}>
       {children instanceof Function ? (
         children(data, pageInner)
       ) : (
@@ -111,14 +137,8 @@ export function Pagination<T>({
         </Pagination.Index.Provider>
       )}
 
-      {dataset.length > pageSize && (
-        <Navigator
-          nbPages={Math.ceil(dataset.length / pageSize)}
-          page={pageInner}
-          onChange={setPageInner}
-        />
-      )}
-    </div>
+      {dataset.length > pageSize && navigator && navigatorEl}
+    </RootEl>
   );
 }
 

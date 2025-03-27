@@ -1,11 +1,9 @@
 import React, { useMemo, useState } from 'react';
 
-import { TokenBalance } from '@/components';
+import { Pagination, SearchFilter, TokenBalance } from '@/components';
 import SendModal from '@/components/bank/modals/sendModal';
 import { DenomDisplay, DenomInfoModal } from '@/components/factory';
 import { QuestionIcon, SendTxIcon } from '@/components/icons';
-import { Pagination } from '@/components/react/Pagination';
-import { SearchFilter } from '@/components/react/SearchFilter';
 import { truncateString } from '@/utils';
 import { CombinedBalanceInfo } from '@/utils/types';
 

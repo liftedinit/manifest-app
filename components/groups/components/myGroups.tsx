@@ -9,10 +9,17 @@ import { useRouter } from 'next/router';
 import React, { useEffect, useMemo, useState } from 'react';
 import { PiInfo } from 'react-icons/pi';
 
-import { GroupInfo, MemberManagementModal, TokenBalance } from '@/components';
-import { GroupControls } from '@/components';
-import { MemberIcon, SearchIcon } from '@/components/icons';
-import { Navigator } from '@/components/react/Pagination';
+import {
+  GroupControls,
+  GroupInfo,
+  MemberManagementModal,
+  PageHeader,
+  Pagination,
+  SearchFilter,
+  TokenBalance,
+} from '@/components';
+import { MemberIcon } from '@/components/icons';
+import { SearchProvider } from '@/components/react/SearchFilter';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import env from '@/config/env';
 import useIsMobile from '@/hooks/useIsMobile';
@@ -56,8 +63,6 @@ export const YourGroups = ({
   proposals: { [policyAddress: string]: ProposalSDKType[] };
   isLoading: boolean;
 }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
   const isMobile = useIsMobile();
 
   const sizeLookup: Array<{ height: number; width: number; sizes: PageSizeConfig }> = [
@@ -105,24 +110,6 @@ export const YourGroups = ({
   const router = useRouter();
   const { address } = useChain(env.chain);
 
-  const filteredGroups = groups.groups.filter(group => {
-    try {
-      const metadata = group.metadata ? JSON.parse(group.metadata) : null;
-      const groupTitle = metadata?.title || 'Untitled Group';
-      return groupTitle.toLowerCase().includes(searchTerm.toLowerCase());
-    } catch (e) {
-      // console.warn('Failed to parse group metadata:', e);
-      return 'Untitled Group'.toLowerCase().includes(searchTerm.toLowerCase());
-    }
-  });
-
-  const totalPages = Math.ceil(filteredGroups.length / pageSize.groupInfo);
-
-  const paginatedGroupEntries = filteredGroups.slice(
-    (currentPage - 1) * pageSize.groupEntries,
-    currentPage * pageSize.groupEntries
-  );
-
   useEffect(() => {
     // Check if there's a policy address in the URL on component mount
     const { policyAddress } = router.query;
@@ -161,6 +148,7 @@ export const YourGroups = ({
     );
   };
 
+  const navigatorRef = React.useRef<HTMLDivElement>(null);
   const handleBack = () => {
     setSelectedGroup(null);
     router.push('/groups', undefined, { shallow: true });
@@ -291,35 +279,33 @@ export const YourGroups = ({
     isDenomsLoading ||
     isTotalSupplyLoading;
 
+  if (selectedGroup) {
+    return (
+      <GroupControls
+        group={selectedGroup}
+        onBack={handleBack}
+        isLoading={isLoadingGroupInfo}
+        currentPage={currentPageGroupInfo}
+        setCurrentPage={setCurrentPageGroupInfo}
+        sendTxs={sendTxs}
+        totalPages={totalPagesGroupInfo}
+        txLoading={txLoading}
+        isError={isError}
+        balances={combinedBalances}
+        denoms={combinedData}
+        pageSize={pageSizeGroupInfo}
+        skeletonGroupCount={skeletonGroupCount}
+        skeletonTxCount={skeletonTxCount}
+      />
+    );
+  }
+
   return (
-    <div className="relative w-full h-screen overflow-x-hidden scrollbar-hide ">
-      <div
-        className={`absolute inset-0 transition-transform duration-300 ${
-          selectedGroup ? '-translate-x-full' : 'translate-x-0'
-        }`}
-      >
-        <div className="h-full flex flex-col gap-4 ">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center  gap-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
-              <h1
-                className="text-secondary-content"
-                style={{ fontSize: '20px', fontWeight: 700, lineHeight: '24px' }}
-              >
-                Groups
-              </h1>
-              <div className="relative w-full sm:w-[224px]">
-                <input
-                  type="text"
-                  placeholder="Search for a group..."
-                  className="input input-bordered w-full h-[40px] rounded-[12px] border-none  dark:bg-secondar bg-secondary text-secondary-content pl-10 focus:outline-hidden focus-visible:ring-1 focus-visible:ring-primary"
-                  value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
-                  aria-label="input-search-term"
-                />
-                <SearchIcon className="h-6 w-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              </div>
-            </div>
-          </div>
+    <div className="relative w-full h-screen overflow-x-hidden scrollbar-hide">
+      <div className="grow h-full animate-fadeIn transition-all duration-300 mt-8 lg:mt-0">
+        <SearchProvider>
+          <PageHeader title="Groups" search="Search for a group..."></PageHeader>
+
           <div className="overflow-auto">
             <div className="max-w-8xl mx-auto">
               <table
@@ -337,25 +323,54 @@ export const YourGroups = ({
                   </tr>
                 </thead>
                 <tbody className="space-y-4" role="rowgroup">
-                  {isLoading
-                    ? Array(isMobile ? 6 : 8)
-                        .fill(0)
-                        .map((_, index) => <LoadingGroupRow key={index} />)
-                    : paginatedGroupEntries.map((group, index) => (
-                        <GroupRow
-                          address={address}
-                          key={index}
-                          group={group}
-                          proposals={
-                            group.policies &&
-                            group.policies.length > 0 &&
-                            proposals[group.policies[0].address]
-                              ? proposals[group.policies[0].address]
-                              : []
+                  {isLoading ? (
+                    Array(isMobile ? 6 : 8)
+                      .fill(0)
+                      .map((_, index) => <LoadingGroupRow key={index} />)
+                  ) : (
+                    <SearchFilter
+                      dataset={groups.groups}
+                      filterFn={(searchTerm, data) => {
+                        return data.filter(group => {
+                          try {
+                            const metadata = group.metadata ? JSON.parse(group.metadata) : null;
+                            const groupTitle = metadata?.title || 'Untitled Group';
+                            return groupTitle.toLowerCase().includes(searchTerm.toLowerCase());
+                          } catch (e) {
+                            return 'Untitled Group'
+                              .toLowerCase()
+                              .includes(searchTerm.toLowerCase());
                           }
-                          onSelectGroup={handleSelectGroup}
-                        />
-                      ))}
+                        });
+                      }}
+                    >
+                      {dataset => (
+                        <Pagination
+                          pageSize={pageSize.groupEntries}
+                          dataset={dataset}
+                          navigator={navigatorRef}
+                        >
+                          {groups =>
+                            groups.map(group => (
+                              <GroupRow
+                                address={address}
+                                key={`group-${group.id}`}
+                                group={group}
+                                proposals={
+                                  group.policies &&
+                                  group.policies.length > 0 &&
+                                  proposals[group.policies[0].address]
+                                    ? proposals[group.policies[0].address]
+                                    : []
+                                }
+                                onSelectGroup={handleSelectGroup}
+                              />
+                            ))
+                          }
+                        </Pagination>
+                      )}
+                    </SearchFilter>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -367,11 +382,7 @@ export const YourGroups = ({
               </button>
             </Link>
 
-            <Navigator
-              nbPages={totalPages}
-              onChange={p => setCurrentPage(Math.max(1, p + 1))}
-              page={currentPage - 1}
-            />
+            <div ref={navigatorRef} />
           </div>
           <div className="mt-6 w-full justify-center md:hidden block">
             <Link href="/groups/create" passHref>
@@ -380,33 +391,7 @@ export const YourGroups = ({
               </button>
             </Link>
           </div>
-        </div>
-      </div>
-
-      {/* Group Proposals Section */}
-      <div
-        className={`absolute inset-0 transition-transform duration-300 ${
-          selectedGroup ? 'translate-x-0' : 'translate-x-full'
-        }`}
-      >
-        {selectedGroup && (
-          <GroupControls
-            group={selectedGroup}
-            onBack={handleBack}
-            isLoading={isLoadingGroupInfo}
-            currentPage={currentPageGroupInfo}
-            setCurrentPage={setCurrentPageGroupInfo}
-            sendTxs={sendTxs}
-            totalPages={totalPagesGroupInfo}
-            txLoading={txLoading}
-            isError={isError}
-            balances={combinedBalances}
-            denoms={combinedData}
-            pageSize={pageSizeGroupInfo}
-            skeletonGroupCount={skeletonGroupCount}
-            skeletonTxCount={skeletonTxCount}
-          />
-        )}
+        </SearchProvider>
       </div>
     </div>
   );
