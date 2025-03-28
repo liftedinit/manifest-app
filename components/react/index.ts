@@ -8,3 +8,4 @@ export * from './ModalDialog';
 export * from './TokenBalance';
 export * from './Pagination';
 export * from './SearchFilter';
+export * from './TimeAgo';

@@ -1,6 +1,7 @@
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import React, { useState } from 'react';
 
+import { TimeAgo } from '@/components';
 import { getHandler } from '@/components/bank/handlers/handlerRegistry';
 import { Navigator, Pagination } from '@/components/react/Pagination';
 import { useTokenFactoryDenomsMetadata } from '@/hooks';
@@ -122,62 +123,57 @@ export function HistoryBox({
   }
 
   return (
-    <div
-      className="w-full mx-auto  h-full flex flex-col  overflow-x-hidden"
-      data-testid="historyBox"
-    >
-      <div className="flex-1 overflow-hidden h-full">
-        <div className="h-full w-full overflow-y-auto space-y-2">
-          {sendTxs?.slice(0, skeletonTxCount).map((tx, index) => (
-            <div
-              key={`${tx.id}-${index}`}
-              className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 
+    <div data-testid="historyBox">
+      <div className="h-full w-full space-y-2">
+        {sendTxs?.slice(0, skeletonTxCount).map((tx, index) => (
+          <div
+            key={`${tx.id}-${index}`}
+            className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 
                     ${
                       tx.error
                         ? 'bg-[#E5393522] dark:bg-[#E5393533] hover:bg-[#E5393544] dark:hover:bg-[#E5393555]'
                         : 'bg-[#FFFFFFCC] dark:bg-[#FFFFFF0F] hover:bg-[#FFFFFF66] dark:hover:bg-[#FFFFFF1A]'
                     }
                     rounded-[16px] cursor-pointer transition-colors`}
-              onClick={() => {
-                setSelectedTx(tx);
-                (document?.getElementById('tx_modal_info') as HTMLDialogElement)?.showModal();
-              }}
-            >
-              <div className="flex flex-row items-center space-x-3 mb-2 sm:mb-0">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center text-[#161616] dark:text-white">
-                  {getTransactionIcon(tx, address)}
+            onClick={() => {
+              setSelectedTx(tx);
+              (document?.getElementById('tx_modal_info') as HTMLDialogElement)?.showModal();
+            }}
+          >
+            <div className="flex flex-row items-center space-x-3 mb-2 sm:mb-0">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-[#161616] dark:text-white">
+                {getTransactionIcon(tx, address)}
+              </div>
+              <div>
+                <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99]">
+                  <TimeAgo datetime={tx.timestamp} />
+                </p>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mt-1">
+                  <span className="font-semibold text-[#161616] dark:text-white">
+                    {getTransactionMessage(tx, address, metadatas?.metadatas)}
+                  </span>
                 </div>
-                <div>
-                  <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99]">
-                    {formatDateShort(tx.timestamp)}
-                  </p>
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mt-1">
-                    <span className="font-semibold text-[#161616] dark:text-white">
-                      {getTransactionMessage(tx, address, metadatas?.metadatas)}
-                    </span>
-                  </div>
-                  {tx.message_index < 10000 ? (
-                    tx.sender === address ? (
-                      <div className="text-gray-500 text-xs mt-1">
-                        Incl.:{' '}
-                        {tx.fee && (
-                          <>
-                            {formatLargeNumber(Number(shiftDigits(tx.fee.amount?.[0]?.amount, -6)))}{' '}
-                            {formatDenomWithBadge(tx.fee.amount?.[0]?.denom, true)} fee
-                          </>
-                        )}
-                      </div>
-                    ) : null
-                  ) : (
+                {tx.message_index < 10000 ? (
+                  tx.sender === address ? (
                     <div className="text-gray-500 text-xs mt-1">
-                      Fee incl. in proposal #{tx.proposal_ids} execution
+                      Incl.:{' '}
+                      {tx.fee && (
+                        <>
+                          {formatLargeNumber(Number(shiftDigits(tx.fee.amount?.[0]?.amount, -6)))}{' '}
+                          {formatDenomWithBadge(tx.fee.amount?.[0]?.denom, true)} fee
+                        </>
+                      )}
                     </div>
-                  )}
-                </div>
+                  ) : null
+                ) : (
+                  <div className="text-gray-500 text-xs mt-1">
+                    Fee incl. in proposal #{tx.proposal_ids} execution
+                  </div>
+                )}
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
 
       <Navigator
