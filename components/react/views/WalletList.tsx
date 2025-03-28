@@ -36,7 +36,7 @@ export const WalletList = ({
   let mobileOrder = ['Wallet Connect', 'Keplr Mobile'];
   let leapLogo;
   if (isLeapDappBrowser) {
-    mobileOrder = mobileOrder.splice(1, 0, 'Leap');
+    mobileOrder = ['Wallet Connect', 'Leap', 'Keplr Mobile'];
   } else {
     leapLogo = wallets.find(wallet => wallet.walletInfo.prettyName === 'Leap Mobile')?.walletInfo
       ?.logo;
