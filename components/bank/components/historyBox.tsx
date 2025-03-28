@@ -145,9 +145,10 @@ export function HistoryBox({
                 {getTransactionIcon(tx, address)}
               </div>
               <div>
-                <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99]">
-                  <TimeAgo datetime={tx.timestamp} />
-                </p>
+                <TimeAgo
+                  datetime={tx.timestamp}
+                  className="text-sm text-[#00000099] dark:text-[#FFFFFF99]"
+                />
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mt-1">
                   <span className="font-semibold text-[#161616] dark:text-white">
                     {getTransactionMessage(tx, address, metadatas?.metadatas)}

@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
-import { format } from 'timeago.js';
-import { Opts, TDate } from 'timeago.js';
+import React, { useCallback, useEffect, useState } from 'react';
+import { TDate, format } from 'timeago.js';
 
 /**
  * Mode of operation for the <TimeAgo /> component.
@@ -16,7 +15,7 @@ export enum TimeAgoMode {
  *
  * Inherits `relativeDate` and `minInterval` from `timeago.js`.
  */
-export interface TimeAgoProps extends Opts {
+export interface TimeAgoProps extends React.HTMLProps<HTMLTimeElement> {
   /**
    * The date to convert.
    */
@@ -36,15 +35,20 @@ export interface TimeAgoProps extends Opts {
    * Show a tooltip with the full time in it. True by default.
    */
   readonly tooltip?: boolean;
+
+  /**
+   * The relative date.
+   */
+  readonly relativeDate?: TDate;
 }
 
 export const TimeAgo = ({
   relativeDate,
-  minInterval,
   datetime,
   live = true,
   mode = TimeAgoMode.Default,
   tooltip = true,
+  ...timeProps
 }: TimeAgoProps) => {
   const toString = useCallback(() => {
     const d = new Date(datetime);
@@ -59,8 +63,8 @@ export const TimeAgo = ({
         return 'None';
       }
     }
-    return format(d, undefined, { relativeDate, minInterval });
-  }, [datetime, minInterval, mode, relativeDate]);
+    return format(d, undefined, { relativeDate });
+  }, [datetime, mode, relativeDate]);
 
   const [time, setTime] = useState<string>(toString());
 
@@ -69,7 +73,7 @@ export const TimeAgo = ({
       const id = setInterval(() => setTime(toString()), 60000);
       return () => clearInterval(id);
     }
-  }, [datetime, relativeDate, minInterval, mode, live, toString]);
+  }, [datetime, relativeDate, mode, live, toString]);
 
   const d = new Date(datetime);
   const localeOpts: Partial<Intl.DateTimeFormatOptions> = {
@@ -80,14 +84,14 @@ export const TimeAgo = ({
   const props = {
     ...(tooltip
       ? {
-          className: 'tooltip tooltip-info tooltip-top',
+          className: `tooltip tooltip-info tooltip-top ${timeProps?.className}`,
           'data-tip': d.toLocaleString(undefined, localeOpts),
         }
       : undefined),
   };
 
   return (
-    <time {...props} dateTime={d.toISOString()}>
+    <time {...timeProps} {...props} dateTime={d.toISOString()}>
       {time}
     </time>
   );
