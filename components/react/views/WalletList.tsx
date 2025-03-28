@@ -146,14 +146,16 @@ export const WalletList = ({
 
       {/* Mobile Wallets Section - shown on mobile/tablet, hidden on desktop */}
       <div className={`${isMobile ? 'block' : 'hidden'}`}>
-        <div className="flex items-center mb-3 p-3 rounded-lg dark:bg-[#ffffff0c] bg-[#f0f0ff5c] text-xs text-warning">
-          <img
-            src={getRealLogo(leapLogo?.toString() ?? '', isDarkMode)}
-            alt="leap"
-            className="w-10 h-10 rounded-xl mr-3"
-          />
-          To use Leap Mobile wallet, open this page from within the Leap DApp browser
-        </div>
+        {!isLeapDappBrowser && (
+          <div className="flex items-center mb-3 p-3 rounded-lg dark:bg-[#ffffff0c] bg-[#f0f0ff5c] text-xs text-warning">
+            <img
+              src={getRealLogo(leapLogo?.toString() ?? '', isDarkMode)}
+              alt="leap"
+              className="w-10 h-10 rounded-xl mr-3"
+            />
+            To use Leap Mobile wallet, open this page from within the Leap DApp browser
+          </div>
+        )}
 
         <div className="space-y-2">
           {mobile.map(({ walletInfo: { name, prettyName, logo } }) => (
