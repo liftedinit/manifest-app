@@ -84,7 +84,7 @@ export const TimeAgo = ({
   const props = {
     ...(tooltip
       ? {
-          className: `tooltip tooltip-top ${timeProps?.className ?? ''}`,
+          className: `tooltip tooltip-primary ${timeProps?.className ?? ''}`,
           'data-tip': d.toLocaleString(undefined, localeOpts),
         }
       : undefined),
