@@ -34,7 +34,7 @@ export const ProfileAvatar = ({
   size?: number;
   withBackground?: boolean;
 }) => {
-  const [avatarSrc, setAvatarSrc] = useState('');
+  const [avatarSrc, setAvatarSrc] = useState<string | undefined>();
 
   useEffect(() => {
     if (walletAddress) {
