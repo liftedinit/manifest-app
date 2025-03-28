@@ -252,7 +252,7 @@ export const mockTransactions: TxMessage[] = [
     fee: { amount: [{ amount: '1', denom: 'denom1' }], gas: '1' },
     memo: 'memo1',
     height: 1,
-    timestamp: 'timestamp1',
+    timestamp: '1900-01-01',
     error: '',
     proposal_ids: ['proposal1'],
   },

@@ -13,6 +13,7 @@ import {
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 
+import { TimeAgo, TimeAgoMode } from '@/components';
 import VoteDetailsModal from '@/components/groups/modals/voteDetailsModal';
 import { Pagination } from '@/components/react/Pagination';
 import { ExtendedGroupType, useMultipleTallyCounts, useProposalsByPolicyAccount } from '@/hooks';
@@ -199,35 +200,6 @@ function ProposalTable({ group, pageSize, proposals }: ProposalTableProps) {
   );
 }
 
-/**
- * Converts a number of seconds into a human-readable duration string relative to the current time.
- * The result is formatted as days, hours, minutes, or less than a minute based on the time difference.
- *
- * @param diff - A number of seconds to transform into human readable time.
- * @return A string representing the remaining duration in human-readable format
- *         (e.g., "2 days", "1 hour", "15 minutes", or "less than a minute").
- */
-export function humanReadableDuration(diff: number) {
-  const secsPerMinute = 60;
-  const secsPerHour = secsPerMinute * 60;
-  const secsPerDay = secsPerHour * 24;
-
-  if (diff <= 0) {
-    return 'none';
-  } else if (diff >= secsPerDay) {
-    const days = Math.floor(diff / secsPerDay);
-    return `${days} day${days === 1 ? '' : 's'}`;
-  } else if (diff >= secsPerHour) {
-    const hours = Math.floor(diff / secsPerHour);
-    return `${hours} hour${hours === 1 ? '' : 's'}`;
-  } else if (diff >= secsPerMinute) {
-    const minutes = Math.floor(diff / secsPerMinute);
-    return `${minutes} minute${minutes === 1 ? '' : 's'}`;
-  } else {
-    return 'less than a minute';
-  }
-}
-
 const ProposalRow = ({
   group,
   proposal,
@@ -307,7 +279,7 @@ const ProposalRow = ({
           {proposal.title}
         </td>
         <td className="bg-secondary group-hover:bg-base-300 px-4 py-4 w-[25%] hidden xl:table-cell">
-          {humanReadableDuration((endTime.getTime() - Date.now()) / 1000)}
+          <TimeAgo datetime={endTime} mode={TimeAgoMode.FutureOnly} />
         </td>
         <td className="bg-secondary group-hover:bg-base-300 px-4 py-4 w-[25%] sm:table-cell md:hidden hidden xl:table-cell ">
           {proposal.messages.length > 0

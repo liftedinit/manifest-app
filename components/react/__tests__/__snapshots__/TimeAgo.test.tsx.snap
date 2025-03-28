@@ -1,0 +1,85 @@
+// Bun Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TimeAgo renders correctly in the past: 1-day 1`] = `
+"<DocumentFragment>
+  <time
+    class="tooltip tooltip-primary "
+    data-tip="January 9, 2020 at 12:00:00 AM UTC"
+    datetime="2020-01-09T00:00:00.000Z"
+  >
+    1 day ago
+  </time>
+</DocumentFragment>"
+`;
+
+exports[`TimeAgo renders correctly in the past: 5-days 1`] = `
+"<DocumentFragment>
+  <time
+    class="tooltip tooltip-primary "
+    data-tip="January 5, 2020 at 12:00:00 AM UTC"
+    datetime="2020-01-05T00:00:00.000Z"
+  >
+    5 days ago
+  </time>
+</DocumentFragment>"
+`;
+
+exports[`TimeAgo renders correctly in the past: 1-week 1`] = `
+"<DocumentFragment>
+  <time
+    class="tooltip tooltip-primary "
+    data-tip="January 1, 2020 at 12:00:00 AM UTC"
+    datetime="2020-01-01T00:00:00.000Z"
+  >
+    1 week ago
+  </time>
+</DocumentFragment>"
+`;
+
+exports[`TimeAgo renders correctly in the future: 1-week 1`] = `
+"<DocumentFragment>
+  <time
+    class="tooltip tooltip-primary "
+    data-tip="January 9, 2020 at 12:00:00 AM UTC"
+    datetime="2020-01-09T00:00:00.000Z"
+  >
+    in 1 week
+  </time>
+</DocumentFragment>"
+`;
+
+exports[`TimeAgo renders correctly in the future: 4-days 1`] = `
+"<DocumentFragment>
+  <time
+    class="tooltip tooltip-primary "
+    data-tip="January 5, 2020 at 12:00:00 AM UTC"
+    datetime="2020-01-05T00:00:00.000Z"
+  >
+    in 4 days
+  </time>
+</DocumentFragment>"
+`;
+
+exports[`TimeAgo renders correctly in the future: 1-day 1`] = `
+"<DocumentFragment>
+  <time
+    class="tooltip tooltip-primary "
+    data-tip="January 2, 2020 at 12:00:00 AM UTC"
+    datetime="2020-01-02T00:00:00.000Z"
+  >
+    in 1 day
+  </time>
+</DocumentFragment>"
+`;
+
+exports[`TimeAgo renders correctly in the future: just-now 1`] = `
+"<DocumentFragment>
+  <time
+    class="tooltip tooltip-primary "
+    data-tip="January 1, 2020 at 12:00:00 AM UTC"
+    datetime="2020-01-01T00:00:00.000Z"
+  >
+    just now
+  </time>
+</DocumentFragment>"
+`;
