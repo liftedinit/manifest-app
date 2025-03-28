@@ -101,18 +101,20 @@ export const WalletList = ({
                 <span className="text-md flex-1 text-left">
                   {prettyName === 'Cosmos MetaMask Extension' ? 'MetaMask' : prettyName}
                 </span>
-                {hasMobileVersion(prettyName) && prettyName !== 'Cosmostation' && (
-                  <div
-                    onClick={e => {
-                      e.stopPropagation();
-                      onWalletClicked(getMobileWalletName(prettyName) || '', true);
-                    }}
-                    className="p-1.5 rounded-lg dark:hover:bg-[#ffffff1a] hover:bg-[#0000000d] dark:bg-[#ffffff37] bg-[#d5d5e4]  transition cursor-pointer"
-                    title={`Connect with ${prettyName} Mobile`}
-                  >
-                    <img src={getRealLogo('/sms')} alt="mobile" className="w-5 h-5" />
-                  </div>
-                )}
+                {hasMobileVersion(prettyName) &&
+                  prettyName !== 'Cosmostation' &&
+                  prettyName !== 'Leap' && (
+                    <div
+                      onClick={e => {
+                        e.stopPropagation();
+                        onWalletClicked(getMobileWalletName(prettyName) || '', true);
+                      }}
+                      className="p-1.5 rounded-lg dark:hover:bg-[#ffffff1a] hover:bg-[#0000000d] dark:bg-[#ffffff37] bg-[#d5d5e4]  transition cursor-pointer"
+                      title={`Connect with ${prettyName} Mobile`}
+                    >
+                      <img src={getRealLogo('/sms')} alt="mobile" className="w-5 h-5" />
+                    </div>
+                  )}
               </button>
             </div>
           ))}
