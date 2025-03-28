@@ -70,7 +70,7 @@ export const TimeAgo = ({
 
   useEffect(() => {
     if (live) {
-      const id = setInterval(() => setTime(toString()), 60000);
+      const id = setInterval(() => setTime(toString()), 1000);
       return () => clearInterval(id);
     }
   }, [datetime, relativeDate, mode, live, toString]);
