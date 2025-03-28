@@ -2,7 +2,7 @@ import { useChain } from '@cosmos-kit/react';
 import Link from 'next/link';
 import React, { useMemo, useState } from 'react';
 
-import { FactoryIcon, SearchIcon, WalletNotConnected } from '@/components';
+import { FactoryIcon, IfWalletConnected, SearchIcon } from '@/components';
 import { SEO } from '@/components';
 import DenomList from '@/components/factory/components/DenomList';
 import env from '@/config/env';
@@ -22,7 +22,7 @@ interface PageSizeConfig {
 }
 
 export default function Factory() {
-  const { address, isWalletConnected } = useChain(env.chain);
+  const { address } = useChain(env.chain);
   const isMobile = useIsMobile();
   const { denoms, isDenomsLoading, isDenomsError } = useTokenFactoryDenomsFromAdmin(address ?? '');
   const { metadatas, isMetadatasLoading, isMetadatasError } = useTokenFactoryDenomsMetadata();
@@ -93,20 +93,16 @@ export default function Factory() {
   const [searchTerm, setSearchTerm] = useState('');
 
   return (
-    <div className=" relative mx-auto text-white ">
+    <div className="relative mx-auto">
       <SEO title="Factory - Alberto" />
-      <div className="grow animate-fadeIn transition-all duration-300  mt-8 lg:mt-0">
-        <div className="w-full mx-auto">
-          {!isWalletConnected ? (
-            <WalletNotConnected
-              description="Use the button below to connect your wallet and start creating new tokens."
-              icon={<FactoryIcon className="h-60 w-60 text-primary" />}
-            />
-          ) : combinedData.length === 0 && !isLoading ? (
-            <NoAssetsFound />
-          ) : (
-            <div className="relative w-full h-full overflow-hidden scrollbar-hide">
-              <div className="h-full flex flex-col ">
+
+      <div className="grow h-full animate-fadeIn transition-all duration-300 mt-8 lg:mt-0">
+        <div className="w-full mx-auto relative z-100">
+          <IfWalletConnected icon={FactoryIcon} message="start interacting with your tokens">
+            {combinedData.length === 0 && !isLoading ? (
+              <NoAssetsFound />
+            ) : (
+              <div className="h-full flex flex-col">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto">
                     <h1
@@ -145,8 +141,8 @@ export default function Factory() {
                   )}
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </IfWalletConnected>
         </div>
       </div>
     </div>
@@ -164,8 +160,8 @@ function NoAssetsFound() {
           <p className="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl">
             You do not have any factory assets yet. Create a new asset in the factory page!
           </p>
-          <Link href="/factory/create" passHref>
-            <button className="btn btn-gradient">Create New Token</button>
+          <Link href="/factory/create" className="btn btn-gradient" passHref>
+            Create New Token
           </Link>
         </div>
         <div className="hidden lg:mt-0 lg:ml-24 lg:col-span-5 lg:flex">

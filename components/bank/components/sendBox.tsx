@@ -39,13 +39,11 @@ export default React.memo(function SendBox({
   return (
     <Tab.Group as="div" defaultIndex={activeTab} onChange={setActiveTab}>
       <Tab.List className="relative flex p-3 h-[3.5rem] w-full space-x-1 mb-4 md:mb-6 rounded-2xl bg-[#0000000A] dark:bg-[#FFFFFF0F]">
-        {
-          <div
-            className={`absolute transition-all duration-200 ease-in-out h-[calc(100%-8px)] w-[calc(50%-4px)] top-1 rounded-xl bg-white dark:bg-[#FFFFFF1F] ${
-              activeTab === 0 ? 'left-1' : 'left-[calc(50%+1px)]'
-            }`}
-          />
-        }
+        <div
+          className={`absolute transition-all duration-200 ease-in-out h-[calc(100%-8px)] w-[calc(50%-4px)] top-1 rounded-xl bg-white dark:bg-[#FFFFFF1F] ${
+            activeTab === 0 ? 'left-1' : 'left-[calc(50%+1px)]'
+          }`}
+        />
 
         <Tab
           aria-label="Send tab"
