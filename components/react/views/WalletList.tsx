@@ -12,7 +12,7 @@ const checkLeap = (): { isLeapExtension: boolean; isLeapMobile: boolean } => {
     return { isLeapExtension: false, isLeapMobile: false };
   }
 
-  const isLeapExtension = (window as any).leap !== undefined;
+  const isLeapExtension = window.leap !== undefined;
   const isLeapMobile = window.navigator?.userAgent?.includes('LeapCosmos') || false;
 
   return { isLeapExtension, isLeapMobile };
@@ -28,17 +28,19 @@ export const WalletList = ({
   wallets: ChainWalletBase[];
 }) => {
   const { isLeapExtension, isLeapMobile } = checkLeap();
+  const isLeapDappBrowser = isLeapExtension && isLeapMobile;
   const isDarkMode = document.documentElement.classList.contains('dark');
-
-  // Prefer the Leap extention over the wallet connect extension in the Leap dApp browser
-  let leapWallet = 'Leap Mobile';
-  if (isLeapExtension && isLeapMobile) {
-    leapWallet = 'Leap';
-  }
 
   const socialOrder = ['Google', 'Twitter', 'Apple', 'Discord', 'GitHub', 'Reddit', 'Email', 'SMS'];
   const browserOrder = ['Leap', 'Keplr', 'Cosmostation', 'Cosmos MetaMask Extension', 'Ledger'];
-  const mobileOrder = ['Wallet Connect', leapWallet, 'Keplr Mobile'];
+  let mobileOrder = ['Wallet Connect', 'Keplr Mobile'];
+  let leapLogo;
+  if (isLeapDappBrowser) {
+    mobileOrder = mobileOrder.splice(1, 0, 'Leap');
+  } else {
+    leapLogo = wallets.find(wallet => wallet.walletInfo.prettyName === 'Leap Mobile')?.walletInfo
+      ?.logo;
+  }
 
   const social = wallets
     .filter(wallet => socialOrder.includes(wallet.walletInfo.prettyName))
@@ -144,6 +146,15 @@ export const WalletList = ({
 
       {/* Mobile Wallets Section - shown on mobile/tablet, hidden on desktop */}
       <div className={`${isMobile ? 'block' : 'hidden'}`}>
+        <div className="flex items-center mb-3 p-3 rounded-lg dark:bg-[#ffffff0c] bg-[#f0f0ff5c] text-xs text-warning">
+          <img
+            src={getRealLogo(leapLogo?.toString() ?? '', isDarkMode)}
+            alt="leap"
+            className="w-10 h-10 rounded-xl mr-3"
+          />
+          To use Leap Mobile wallet, open this page from within the Leap DApp browser
+        </div>
+
         <div className="space-y-2">
           {mobile.map(({ walletInfo: { name, prettyName, logo } }) => (
             <button
