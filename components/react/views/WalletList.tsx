@@ -2,6 +2,7 @@
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { ChainWalletBase } from 'cosmos-kit';
 
+import env from '@/config/env';
 import { useDeviceDetect } from '@/hooks';
 import { getRealLogo } from '@/utils';
 
