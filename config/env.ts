@@ -25,6 +25,9 @@ const env = {
   osmosisChainId: process.env.NEXT_PUBLIC_OSMOSIS_CHAIN_ID ?? '',
   axelarChainId: process.env.NEXT_PUBLIC_AXELAR_CHAIN_ID ?? '',
 
+  // Leap Deeplink
+  leapDeeplink: process.env.NEXT_PUBLIC_LEAP_DEEPLINK ?? '',
+
   // Ops
   chainTier: process.env.NEXT_PUBLIC_CHAIN_TIER ?? '',
 
