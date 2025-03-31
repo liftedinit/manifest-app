@@ -147,14 +147,19 @@ export const WalletList = ({
       {/* Mobile Wallets Section - shown on mobile/tablet, hidden on desktop */}
       <div className={`${isMobile ? 'block' : 'hidden'}`}>
         {!isLeapDappBrowser && (
-          <div className="flex items-center mb-3 p-3 rounded-lg dark:bg-[#ffffff0c] bg-[#f0f0ff5c] text-xs text-warning">
+          <button
+            onClick={() =>
+              window.open('https://leapcosmoswallet.page.link/kEraZnni21Rpx8Kt7', '_blank')
+            }
+            className="flex items-center w-full mb-3 p-3 rounded-lg dark:bg-[#ffffff0c] bg-[#f0f0ff5c] text-md hover:opacity-90 transition"
+          >
             <img
               src={getRealLogo(leapLogo?.toString() ?? '', isDarkMode)}
               alt="leap"
               className="w-10 h-10 rounded-xl mr-3"
             />
-            To use Leap Mobile wallet, open this page from within the Leap DApp browser
-          </div>
+            <span>Leap Mobile</span>
+          </button>
         )}
 
         <div className="space-y-2">
