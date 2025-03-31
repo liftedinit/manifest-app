@@ -148,9 +148,7 @@ export const WalletList = ({
       <div className={`${isMobile ? 'block' : 'hidden'}`}>
         {!isLeapDappBrowser && (
           <button
-            onClick={() =>
-              window.open('https://leapcosmoswallet.page.link/kEraZnni21Rpx8Kt7', '_blank')
-            }
+            onClick={() => window.open(env.leapDeeplink, '_blank')}
             className="flex items-center w-full mb-3 p-3 rounded-lg dark:bg-[#ffffff0c] bg-[#f0f0ff5c] text-md hover:opacity-90 transition"
           >
             <img
