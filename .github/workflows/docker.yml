@@ -50,6 +50,7 @@ jobs:
           echo "NEXT_PUBLIC_AXELAR_RPC_URL=${{ vars.NEXT_PUBLIC_AXELAR_RPC_URL }}" >> .env
           echo "NEXT_PUBLIC_AXELAR_API_URL=${{ vars.NEXT_PUBLIC_AXELAR_API_URL }}" >> .env
           echo "NEXT_PUBLIC_AXELAR_EXPLORER_URL=${{ vars.NEXT_PUBLIC_AXELAR_EXPLORER_URL }}" >> .env
+          echo "NEXT_PUBLIC_LEAP_DEEPLING=${{ vars.NEXT_PUBLIC_LEAP_DEEPLINK }}" >> .env
           cat .env
 
       - name: Get the Git tag
