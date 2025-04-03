@@ -8,7 +8,7 @@ exports[`ModalDialog renders correctly: portal 1`] = `
   class="modal modal-open fixed flex p-0 m-0 top-0 left-0 undefined"
   data-headlessui-state="open"
   data-open=""
-  id="headlessui-dialog-:r1v:"
+  id="headlessui-dialog-«r0»"
   role="dialog"
   style="background-color: transparent; align-items: center; justify-content: center; height: 100vh; width: 100vw;"
   tabindex="-1"
@@ -22,7 +22,7 @@ exports[`ModalDialog renders correctly: portal 1`] = `
     class="undefined modal-box mx-auto rounded-[24px] bg-[#F4F4FF] dark:bg-[#1D192D] shadow-lg relative"
     data-headlessui-state="open"
     data-open=""
-    id="headlessui-dialog-panel-:r26:"
+    id="headlessui-dialog-panel-«r7»"
   >
     bound HTMLFormElement {
       "0": <button
