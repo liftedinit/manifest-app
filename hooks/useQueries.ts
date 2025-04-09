@@ -407,7 +407,7 @@ export const useBalance = (address: string) => {
     if (!lcdQueryClient) {
       throw new Error('LCD Client not ready');
     }
-    return await lcdQueryClient.cosmos.bank.v1beta1.balance({
+    return await lcdQueryClient.cosmos.bank.v1beta1.spendableBalanceByDenom({
       denom: 'umfx',
       address,
     });
@@ -451,32 +451,6 @@ export const useTotalSupply = () => {
     refetchTotalSupply: totalSupplyQuery.refetch,
   };
 };
-
-export const useTokenFactoryBalance = (address: string, denom: string) => {
-  const { lcdQueryClient } = useLcdQueryClient();
-
-  const fetchBalance = async () => {
-    if (!lcdQueryClient || !address || !denom) {
-      throw new Error('LCD Client not ready');
-    }
-    return await lcdQueryClient.cosmos.bank.v1beta1.balance({ denom, address });
-  };
-
-  const balanceQuery = useQuery({
-    queryKey: ['factoryBalance', address],
-    queryFn: fetchBalance,
-    enabled: !!lcdQueryClient && !!address && !!denom,
-    staleTime: Infinity,
-  });
-
-  return {
-    balance: balanceQuery.data?.balance,
-    isBalanceLoading: balanceQuery.isLoading,
-    isBalanceError: balanceQuery.isError,
-    refetchBalance: balanceQuery.refetch,
-  };
-};
-
 export const usePoaGetAdmin = () => {
   const { lcdQueryClient } = usePoaLcdQueryClient();
 
