@@ -6,5 +6,6 @@ export * from './manifest';
 export * from './group';
 export * from './upgrade';
 export * from './poa';
+export * from './vesting';
 export { createTokenMessage } from '@/components/bank/handlers/createMessageUtils';
 export { createValidatorMessage } from '@/components/bank/handlers/createMessageUtils';
