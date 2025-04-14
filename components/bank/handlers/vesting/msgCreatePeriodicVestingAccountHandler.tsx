@@ -18,10 +18,7 @@ const createMessage = (template: string, recipient: string, sender?: string) => 
 export const MsgCreatePeriodicVestingAccountHandler = createSenderReceiverHandler({
   iconSender: BankIcon,
   successSender: tx =>
-    createMessage(
-      'You successfully created a periodic vesting account for {0}',
-      tx.metadata?.toAddress
-    ),
+    createMessage('You created a periodic vesting account for {0}', tx.metadata?.toAddress),
   failSender: tx =>
     createMessage(
       'You failed to create a periodic vesting account for {0}',
@@ -29,7 +26,7 @@ export const MsgCreatePeriodicVestingAccountHandler = createSenderReceiverHandle
     ),
   successReceiver: tx =>
     createMessage(
-      'You were created a periodic vesting account by {1}',
+      'You were createdt  a periodic vesting account by {1}',
       tx.metadata?.toAddress,
       tx.sender
     ),
