@@ -24,12 +24,6 @@ function renderWithProps(props = {}) {
 describe('BurnForm Component', () => {
   beforeEach(() => {
     mockRouter();
-    mockModule('@/hooks/useQueries', () => ({
-      useTokenFactoryBalance: jest.fn().mockReturnValue({
-        balance: '1000000',
-        refetch: jest.fn(),
-      }),
-    }));
   });
   afterEach(() => {
     cleanup();
