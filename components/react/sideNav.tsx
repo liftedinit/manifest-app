@@ -3,7 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { MdContacts } from 'react-icons/md';
+import { MdContacts, MdHome } from 'react-icons/md';
 
 import { ContactsModal } from '@/components';
 import {
@@ -83,6 +83,7 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
         </a>
       </Link>
       <ul className="flex flex-col items-center grow mt-8">
+        <NavItem Icon={MdHome} href="/" tooltip="Home" />
         <NavItem Icon={BankIcon} href="/bank" tooltip="Bank" />
         <NavItem Icon={GroupsIcon} href="/groups" tooltip="Groups" />
         {isMember && <NavItem Icon={AdminsIcon} href="/admins" tooltip="Admin" />}
@@ -179,6 +180,7 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
         </div>
       </div>
       <ul className="grow mt-8 p-1">
+        <NavDrawer Icon={MdHome} href="/" label="Home" tooltip="Home" />
         <NavDrawer Icon={BankIcon} href="/bank" label="Bank" tooltip="Manage your assets" />
         <NavDrawer
           Icon={GroupsIcon}

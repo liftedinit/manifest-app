@@ -2,7 +2,7 @@ import { useChain } from '@cosmos-kit/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
-import { MdContacts } from 'react-icons/md';
+import { MdContacts, MdHome } from 'react-icons/md';
 import { RiMenuUnfoldFill } from 'react-icons/ri';
 
 import { ContactsModal } from '@/components';
@@ -113,6 +113,7 @@ export default function MobileNav() {
               </div>
             </div>
             <div className="divider divider-horizon"></div>
+            <NavItem Icon={MdHome} href="/" label="Home" />
             <NavItem Icon={BankIcon} href="/bank" label="Bank" />
             <NavItem Icon={GroupsIcon} href="/groups" label="Groups" />
             {isMember && <NavItem Icon={AdminsIcon} href="/admins" label="Admin" />}

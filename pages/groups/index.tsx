@@ -7,7 +7,7 @@ import env from '@/config/env';
 import { useGroupsByMember, useProposalsByPolicyAccountAll } from '@/hooks';
 
 export default function Groups() {
-  const { address, isWalletConnected } = useChain(env.chain);
+  const { address } = useChain(env.chain);
   const { groupByMemberData, isGroupByMemberLoading, isGroupByMemberError } = useGroupsByMember(
     address ?? ''
   );
@@ -25,10 +25,7 @@ export default function Groups() {
     <div className="relative mx-auto">
       <SEO title="Groups - Alberto" />
 
-      <IfWalletConnected
-        icon={GroupsIcon}
-        message="Use the button below to connect your wallet and start interacting with your groups."
-      >
+      <IfWalletConnected icon={GroupsIcon} message="start interacting with your groups">
         {isLoading ? (
           <YourGroups groups={{ groups: [] }} proposals={{}} isLoading={true} />
         ) : isError ? (
