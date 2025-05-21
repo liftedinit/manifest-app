@@ -20,6 +20,7 @@ import env from '@/config/env';
 import { useTheme } from '@/contexts';
 import { usePoaGetAdmin } from '@/hooks';
 import { useGroupsByAdmin } from '@/hooks';
+import { getRealLogo } from '@/utils';
 
 import { WalletSection } from '../wallet';
 
@@ -67,7 +68,12 @@ export default function MobileNav() {
   return (
     <>
       <div className="fixed top-0 left-0 right-0 z-40 p-3 bg-base-300 flex lg:hidden flex-row justify-between items-center">
-        <Image src="/logo.svg" height={55} width={55} alt="manifest" />
+        <Image
+          src={getRealLogo('/manifest', theme === 'dark')}
+          height={250}
+          width={250}
+          alt="manifest"
+        />
         <label htmlFor="my-drawer" className="btn btn-sm btn-primary drawer-button">
           <RiMenuUnfoldFill fontSize={'24px'} />
         </label>

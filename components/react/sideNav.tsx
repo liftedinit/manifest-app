@@ -168,12 +168,18 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
 
   const SideDrawer: React.FC = () => (
     <div className="overflow-y-auto flex flex-col h-full bg-[#F4F4FF] dark:bg-[#1D192D]  w-64 p-4">
-      <div className="flex flex-row gap-2 justify-start ml-2 mt-2 items-center mb-12 space-x-2">
+      <div className="gap-2 justify-start ml-2 mt-2 items-center mb-12 space-x-2">
         <Link href={'/#'} passHref legacyBehavior>
-          <Image src={'/logo.svg'} alt="logo" width={75} height={75} className="cursor-pointer" />
+          <Image
+            src={getRealLogo('/manifest', theme === 'dark')}
+            alt="logo"
+            width={250}
+            height={250}
+          />
+          {/*<Image src={'/logo.svg'} alt="logo" width={75} height={75} className="cursor-pointer" />*/}
         </Link>
-        <div className="flex flex-col">
-          <p className="text-4xl font-bold">Alberto</p>
+        <div className="flex flex-col mt-2">
+          <p className="text-3xl font-bold">Alberto Wallet</p>
           {env.chainTier === 'mainnet' ? null : (
             <p className="text-md uppercase">{env.chainTier}</p>
           )}
