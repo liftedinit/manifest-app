@@ -199,7 +199,14 @@ export const YourGroups = ({
         })
         .filter((meta): meta is ExtendedMetadataSDKType => meta !== null);
 
-      return [...otherTokens];
+      // Sort tokens alphabetically by ticker name (symbol)
+      const sortedTokens = otherTokens.sort((a, b) => {
+        const tickerA = (a.symbol || a.display || a.name || '').toLowerCase();
+        const tickerB = (b.symbol || b.display || b.name || '').toLowerCase();
+        return tickerA.localeCompare(tickerB);
+      });
+
+      return [...sortedTokens];
     }
     return [];
   }, [denoms, metadatas, balances, totalSupply]);
@@ -268,8 +275,15 @@ export const YourGroups = ({
         };
       });
 
-    // Combine 'mfx' with other balances
-    return mfxCombinedBalance ? [mfxCombinedBalance, ...otherBalances] : otherBalances;
+    // Sort other balances alphabetically by ticker name (symbol)
+    const sortedOtherBalances = otherBalances.sort((a, b) => {
+      const tickerA = (a.metadata?.symbol || a.metadata?.display || a.display || '').toLowerCase();
+      const tickerB = (b.metadata?.symbol || b.metadata?.display || b.display || '').toLowerCase();
+      return tickerA.localeCompare(tickerB);
+    });
+
+    // Combine 'mfx' with other balances (MFX first, then alphabetically sorted others)
+    return mfxCombinedBalance ? [mfxCombinedBalance, ...sortedOtherBalances] : sortedOtherBalances;
   }, [balances, resolvedBalances, metadatas]);
 
   const isLoadingGroupInfo =
