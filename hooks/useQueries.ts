@@ -417,7 +417,8 @@ export const useBalance = (address: string) => {
     queryKey: ['balanceInfo', address],
     queryFn: fetchBalance,
     enabled: !!lcdQueryClient && !!address,
-    staleTime: Infinity,
+    staleTime: 5000, // Consider data stale after 5 seconds
+    refetchInterval: 10000, // Refresh every 10 seconds
   });
 
   return {
@@ -687,7 +688,8 @@ export const useTokenBalances = (address: string) => {
     queryKey: ['balances', address],
     queryFn: fetchBalances,
     enabled: !!lcdQueryClient && !!address,
-    staleTime: Infinity,
+    staleTime: 5000, // Consider data stale after 5 seconds
+    refetchInterval: 10000, // Refresh every 10 seconds
   });
 
   return {
@@ -715,7 +717,8 @@ export const useTokenBalancesResolved = (address: string) => {
     queryKey: ['balances-resolved', address],
     queryFn: fetchBalances,
     enabled: !!lcdQueryClient && !!address,
-    staleTime: Infinity,
+    staleTime: 5000,
+    refetchInterval: 10000,
   });
 
   return {
