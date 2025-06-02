@@ -3,6 +3,7 @@ import { useChain, useWallet } from '@cosmos-kit/react';
 import { SignData } from '@cosmos-kit/web3auth';
 import { Dialog } from '@headlessui/react';
 import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
+import { Coin } from '@liftedinit/manifestjs/dist/codegen/cosmos/base/v1beta1/coin';
 import {
   MsgCreateGroupWithPolicy,
   MsgSubmitProposal,
@@ -221,6 +222,14 @@ const DisplayDataToSign = ({
   // Helper function to extract fee information from SignData
   const extractFeeInfo = (signData: SignData) => {
     try {
+      // Handle case where signData or signData.value is undefined
+      if (!signData || !signData.value || typeof signData.value !== 'object') {
+        return {
+          amount: [],
+          gas: '0',
+        };
+      }
+
       if ('fee' in signData.value) {
         // StdSignDoc case - fee is directly available
         const stdFee = signData.value.fee;
@@ -256,7 +265,7 @@ const DisplayDataToSign = ({
     }
 
     const feeAmounts = amount
-      .map((coin: any) => {
+      .map((coin: Coin) => {
         // Convert from utoken to token (assuming 6 decimal places for most tokens)
         const amountNum = parseInt(coin.amount || '0');
         const denom = coin.denom || '';

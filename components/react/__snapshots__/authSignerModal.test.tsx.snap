@@ -1,6 +1,50 @@
 // Bun Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`PromptSignModalInner should render 1`] = `
+exports[`PromptSignModalInner should render with standard fee data 1`] = `
+"<DocumentFragment>
+  <div
+    class="_14der0i88"
+    data-interchain-ui-provider="true"
+    data-is-controlled="false"
+    style="visibility: visible;"
+  />
+</DocumentFragment>"
+`;
+
+exports[`PromptSignModalInner should render with multiple fee currencies 1`] = `
+"<DocumentFragment>
+  <div
+    class="_14der0i88"
+    data-interchain-ui-provider="true"
+    data-is-controlled="false"
+    style="visibility: visible;"
+  />
+</DocumentFragment>"
+`;
+
+exports[`PromptSignModalInner should render with gas-only fee (no amount) 1`] = `
+"<DocumentFragment>
+  <div
+    class="_14der0i88"
+    data-interchain-ui-provider="true"
+    data-is-controlled="false"
+    style="visibility: visible;"
+  />
+</DocumentFragment>"
+`;
+
+exports[`PromptSignModalInner should render with SignDoc fee data 1`] = `
+"<DocumentFragment>
+  <div
+    class="_14der0i88"
+    data-interchain-ui-provider="true"
+    data-is-controlled="false"
+    style="visibility: visible;"
+  />
+</DocumentFragment>"
+`;
+
+exports[`PromptSignModalInner should render with fallback when no fee data 1`] = `
 "<DocumentFragment>
   <div
     class="_14der0i88"
