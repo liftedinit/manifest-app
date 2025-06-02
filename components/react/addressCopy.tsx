@@ -54,11 +54,9 @@ export const AddressCopyButton: React.FC<AddressCopyButtonProps> = ({
 export const TruncatedAddressWithCopy = ({
   showName = true,
   address,
-  slice = 24,
 }: {
   showName?: boolean;
   address: string | null | undefined;
-  slice?: number;
 }) => {
   address = address ?? '';
   const { contacts } = useContacts();
@@ -87,7 +85,7 @@ export const TruncatedAddressWithCopy = ({
       return (
         <>
           <span className="truncate">
-            {addressToName.get(address)} ({truncateAddress(address, slice)}{' '}
+            {addressToName.get(address)} ({truncateAddress(address)}{' '}
           </span>
           {copied ? <FiCheck data-icon="check" size={16} /> : <FiCopy data-icon="copy" size={16} />}
         </>
@@ -95,12 +93,12 @@ export const TruncatedAddressWithCopy = ({
     } else {
       return (
         <>
-          <span className="truncate">{truncateAddress(address, slice)}</span>
+          <span className="truncate">{truncateAddress(address)}</span>
           {copied ? <FiCheck data-icon="check" size={16} /> : <FiCopy data-icon="copy" size={16} />}
         </>
       );
     }
-  }, [address, addressToName, copied, showName, slice]);
+  }, [address, addressToName, copied, showName]);
 
   return (
     <span

@@ -29,9 +29,16 @@ describe('Success Component', () => {
       screen.getByText('Your transaction was successfully signed and broadcasted.')
     ).toBeInTheDocument();
     expect(screen.getByText('Group Information')).toBeInTheDocument();
-    expect(screen.getByText('manifest1autho...')).toBeInTheDocument();
-    expect(screen.getByText('manifest1efd63...')).toBeInTheDocument();
-    expect(screen.getByText('manifest1hj5fv...')).toBeInTheDocument();
+
+    // 'manifest1author' is short enough that it doesn't get truncated
+    expect(screen.getByText('manifest1author')).toBeInTheDocument();
+
+    // Member addresses use the new middle truncation format:
+    // manifestAddr2 = 'manifest1efd63aw40lxf3n4mhf7dzhjkr453axurm6rp3z' -> 'manifest1efd6...rp3z'
+    expect(screen.getByText('manifest1efd6...rp3z')).toBeInTheDocument();
+    // manifestAddr1 = 'manifest1hj5fveer5cjtn4wd6wstzugjfdxzl0xp8ws9ct' -> 'manifest1hj5f...s9ct'
+    expect(screen.getByText('manifest1hj5f...s9ct')).toBeInTheDocument();
+
     const normalizer = getDefaultNormalizer({ collapseWhitespace: true, trim: true });
     expect(screen.getByText('2 / 2', { normalizer })).toBeInTheDocument();
   });

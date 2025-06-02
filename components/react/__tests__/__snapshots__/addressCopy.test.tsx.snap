@@ -9,7 +9,7 @@ exports[`TruncatedAddressWithCopy should render 1`] = `
     <span
       class="truncate"
     >
-      manifest1234567890123456...
+      manifest12345...7890
     </span>
     <svg
       data-icon="copy"
@@ -48,7 +48,7 @@ exports[`TruncatedAddressWithCopy should show name and address 1`] = `
     <span
       class="truncate"
     >
-      Test Contact (manifest1234567890123456... 
+      Test Contact (manifest12345...7890 
     </span>
     <svg
       data-icon="copy"
@@ -87,7 +87,7 @@ exports[`TruncatedAddressWithCopy should not show name when showName is false 1`
     <span
       class="truncate"
     >
-      manifest1234567890123456...
+      manifest12345...7890
     </span>
     <svg
       data-icon="copy"

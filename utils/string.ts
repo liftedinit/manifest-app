@@ -10,10 +10,9 @@ export function truncateString(str: string, prefixLen: number = 6, suffixLen: nu
  * Truncate an address to show the prefix + first 4 characters + ... + last 4 characters
  * This ensures the prefix is always visible and the truncation happens in the middle
  * @param address The address to truncate
- * @param num Deprecated parameter - kept for backwards compatibility but not used
  * @returns Truncated address with format: prefix + first4 + ... + last4
  */
-export function truncateAddress(address: string | null | undefined, num: number = 24) {
+export function truncateAddress(address: string | null | undefined) {
   if (address == null) {
     console.warn('unable to truncate undefined/null address');
     return '';
