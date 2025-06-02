@@ -114,11 +114,13 @@ export const Contacts = ({
     });
   }, [exportContacts, setToastMessage]);
 
-  const filteredContacts = contacts.filter(
-    contact =>
-      contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      contact.address.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredContacts = contacts
+    .filter(
+      contact =>
+        contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        contact.address.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
 
   if (isAdding) {
     // Render the add contact form in a separate view
