@@ -145,7 +145,7 @@ export default function ConfirmationForm({
                     className="bg-base-300 text-gray-500 dark:text-gray-400 p-4 rounded-lg flex items-center"
                   >
                     {author.trim().startsWith('manifest1') ? (
-                      <TruncatedAddressWithCopy address={author.trim()} slice={14} />
+                      <TruncatedAddressWithCopy address={author.trim()} />
                     ) : (
                       <span>{author.trim()}</span>
                     )}
@@ -154,7 +154,7 @@ export default function ConfirmationForm({
               ) : (
                 <div className="bg-[#2A2A38] p-4 text-gray-500 dark:text-gray-400 rounded-lg flex items-center">
                   {formData.authors.trim().startsWith('manifest1') ? (
-                    <TruncatedAddressWithCopy address={formData.authors.trim()} slice={14} />
+                    <TruncatedAddressWithCopy address={formData.authors.trim()} />
                   ) : (
                     <span>{formData.authors.trim()}</span>
                   )}
@@ -170,7 +170,7 @@ export default function ConfirmationForm({
               {formData.members.map((member, index) => (
                 <div key={index} className="bg-base-300 p-4 rounded-lg">
                   <div className="text-sm dark:text-[#FFFFFF66]">Address</div>
-                  <TruncatedAddressWithCopy address={member.address} slice={14} />
+                  <TruncatedAddressWithCopy address={member.address} />
                   <div className="text-sm dark:text-[#FFFFFF66] mt-2">Name</div>
                   <div className="text-gray-500 dark:text-gray-400">{member.name}</div>
                 </div>

@@ -10,7 +10,7 @@ import { createSenderReceiverHandler } from '../createSenderReceiverHandler';
 const createMessage = (template: string, addr: string): React.ReactNode => {
   const message = format(
     template,
-    addr ? <TruncatedAddressWithCopy address={addr} slice={24} /> : 'an unknown address'
+    addr ? <TruncatedAddressWithCopy address={addr} /> : 'an unknown address'
   );
   return <span className="flex gap-1">{message}</span>;
 };
