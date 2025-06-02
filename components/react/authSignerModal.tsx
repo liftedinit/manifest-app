@@ -218,6 +218,66 @@ const DisplayDataToSign = ({
     return String(value);
   };
 
+  // Helper function to extract fee information from SignData
+  const extractFeeInfo = (signData: SignData) => {
+    try {
+      if ('fee' in signData.value) {
+        // StdSignDoc case - fee is directly available
+        const stdFee = signData.value.fee;
+        return {
+          amount: stdFee.amount || [],
+          gas: stdFee.gas || '0',
+        };
+      } else if ('authInfoBytes' in signData.value) {
+        // SignDoc case - need to decode authInfoBytes
+        const decodedAuthInfo = decodeAuthInfoBytes(signData.value.authInfoBytes);
+        if (typeof decodedAuthInfo === 'object' && 'fee' in decodedAuthInfo) {
+          return {
+            amount: decodedAuthInfo.fee.amount || [],
+            gas: decodedAuthInfo.fee.gasLimit || '0',
+          };
+        }
+      }
+    } catch (error) {
+      console.error('Failed to extract fee info:', error);
+    }
+    return {
+      amount: [],
+      gas: '0',
+    };
+  };
+
+  // Helper function to format fee display
+  const formatFeeDisplay = (feeInfo: { amount: readonly any[]; gas: string }) => {
+    const { amount, gas } = feeInfo;
+
+    if (!amount || amount.length === 0) {
+      return `Gas: ${gas}`;
+    }
+
+    const feeAmounts = amount
+      .map((coin: any) => {
+        // Convert from utoken to token (assuming 6 decimal places for most tokens)
+        const amountNum = parseInt(coin.amount || '0');
+        const denom = coin.denom || '';
+
+        // Format based on denomination
+        if (denom.startsWith('u')) {
+          const mainDenom = denom.substring(1).toUpperCase();
+          const displayAmount = (amountNum / 1_000_000).toFixed(6).replace(/\.?0+$/, '');
+          return `${displayAmount} ${mainDenom}`;
+        }
+
+        return `${amountNum} ${denom.toUpperCase()}`;
+      })
+      .join(', ');
+
+    return `${feeAmounts} `;
+  };
+
+  const feeInfo = extractFeeInfo(data);
+  const formattedFee = formatFeeDisplay(feeInfo);
+
   return (
     <div className={className}>
       <div className="flex flex-col gap-2">
@@ -225,6 +285,12 @@ const DisplayDataToSign = ({
           <span>
             <span className="font-bold">Sender:</span> {address}
           </span>
+        </div>
+      </div>
+      <div className="flex flex-col gap-2">
+        <div className="flex items-start flex-col justify-start">
+          <span className="font-bold">Fee:</span>
+          <span>{formattedFee}</span>
         </div>
       </div>
       <div className="flex flex-col gap-2">
