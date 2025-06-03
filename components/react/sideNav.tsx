@@ -109,17 +109,27 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
             <IconWallet chainName={env.chain} />
           </div>
         </div>
-        <label className="swap swap-rotate text-[#00000066] dark:text-[#FFFFFF66] hover:text-primary dark:hover:text-primary transition-all duration-300 ease-in-out">
-          <input
-            type="checkbox"
-            className="theme-controller hidden"
-            value="dark"
-            checked={theme === 'dark'}
-            onChange={() => toggleTheme()}
-          />
-          <DarkIcon className="swap-on fill-current w-9 h-9 duration-300" />
-          <LightIcon className="swap-off fill-current w-9 h-9 duration-300" />
-        </label>
+        <div
+          className="flex flex-col items-center justify-center w-1/2 h-full z-10 tooltip tooltip-primary tooltip-top hover:after:delay-1000 hover:before:delay-1000"
+          data-tip="Light Mode"
+        >
+          <div
+            className="tooltip tooltip-primary text-xs tooltip-top hover:after:delay-1000 hover:before:delay-1000"
+            data-tip={theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
+          >
+            <label className="swap swap-rotate text-[#00000066] dark:text-[#FFFFFF66] hover:text-primary dark:hover:text-primary transition-all duration-300 ease-in-out">
+              <input
+                type="checkbox"
+                className="theme-controller hidden"
+                value="dark"
+                checked={theme === 'dark'}
+                onChange={() => toggleTheme()}
+              />
+              <DarkIcon className="swap-on fill-current w-9 h-9 duration-300" />
+              <LightIcon className="swap-off fill-current w-9 h-9 duration-300" />
+            </label>
+          </div>
+        </div>
         <div
           className="tooltip tooltip-top tooltip-primary hover:after:delay-1000 hover:before:delay-1000"
           data-tip="Help Guide"
@@ -231,12 +241,18 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
                 checked={theme === 'dark'}
                 onChange={() => toggleTheme()}
               />
-              <div className="flex items-center justify-center w-1/2 h-full z-10">
+              <div
+                className="flex flex-col items-center justify-center w-1/2 h-full z-10 tooltip tooltip-primary tooltip-top hover:after:delay-1000 hover:before:delay-1000"
+                data-tip="Light Mode"
+              >
                 <LightIcon
                   className={`w-8 h-8 ${theme === 'light' ? 'text-white' : 'text-gray-500'} transition-colors duration-300`}
                 />
               </div>
-              <div className="flex items-center justify-center w-1/2 h-full z-10">
+              <div
+                className="flex flex-col items-center justify-center w-1/2 h-full z-10 tooltip tooltip-primary tooltip-top hover:after:delay-1000 hover:before:delay-1000"
+                data-tip="Dark Mode"
+              >
                 <DarkIcon
                   className={`w-8 h-8 ${theme === 'dark' ? 'text-white' : 'text-gray-500'} transition-colors duration-300`}
                 />
