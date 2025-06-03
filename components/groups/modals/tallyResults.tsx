@@ -40,7 +40,7 @@ export function TallyResults({
             {votes.map((vote, index) => (
               <React.Fragment key={index}>
                 <div>
-                  <TruncatedAddressWithCopy address={vote.voter} slice={24} />
+                  <TruncatedAddressWithCopy address={vote.voter} />
                 </div>
                 <div>
                   <span

@@ -17,7 +17,7 @@ export default function Success({
       return formData.authors.map((author, index) => (
         <div key={index} className="bg-base-300 p-4 rounded-lg flex items-center">
           {author.trim().startsWith('manifest') ? (
-            <TruncatedAddressWithCopy address={author.trim()} slice={14} />
+            <TruncatedAddressWithCopy address={author.trim()} />
           ) : (
             <span>{author.trim()}</span>
           )}
@@ -27,7 +27,7 @@ export default function Success({
       return (
         <div className="bg-base-300 p-4 rounded-lg flex items-center">
           {formData.authors.trim().startsWith('manifest') ? (
-            <TruncatedAddressWithCopy address={formData.authors.trim()} slice={14} />
+            <TruncatedAddressWithCopy address={formData.authors.trim()} />
           ) : (
             <span>{formData.authors.trim()}</span>
           )}
@@ -89,7 +89,7 @@ export default function Success({
               {formData.members.map((member, index) => (
                 <div key={index} className="bg-base-300 p-4 rounded-lg">
                   <div className="text-sm text-gray-500 dark:text-gray-400">Address</div>
-                  <TruncatedAddressWithCopy address={member.address} slice={14} />
+                  <TruncatedAddressWithCopy address={member.address} />
                   <div className="text-sm text-gray-500 dark:text-gray-400 mt-2">Name</div>
                   <div>{member.name}</div>
                 </div>

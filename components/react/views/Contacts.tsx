@@ -318,18 +318,10 @@ export const Contacts = ({
                       {contact.name}
                     </p>
                     <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99] xs:block hidden">
-                      <TruncatedAddressWithCopy
-                        showName={false}
-                        address={contact.address}
-                        slice={24}
-                      />
+                      <TruncatedAddressWithCopy showName={false} address={contact.address} />
                     </p>
                     <p className="text-sm text-[#00000099] dark:text-[#FFFFFF99] xs:hidden block">
-                      <TruncatedAddressWithCopy
-                        showName={false}
-                        address={contact.address}
-                        slice={14}
-                      />
+                      <TruncatedAddressWithCopy showName={false} address={contact.address} />
                     </p>
                   </div>
                   {!selectionMode && (

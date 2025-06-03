@@ -50,10 +50,18 @@ describe('GroupInfo', () => {
     expect(screen.getByText('Qualified Majority')).toBeInTheDocument();
     expect(screen.getByText('5')).toBeInTheDocument();
 
-    // Using a RegExp of the first 20 characters as the address might be
-    // truncated.
-    expect(screen.getByText(new RegExp(manifestAddr1.slice(0, 20)))).toBeInTheDocument();
-    expect(screen.getByText(new RegExp(manifestAddr2.slice(0, 20)))).toBeInTheDocument();
+    // Check if Address label is present - this appears when authors are manifest addresses
+    const addressElements = screen.getAllByText('Address');
+    expect(addressElements.length).toBeGreaterThan(0);
+
+    // Check for the actual truncated addresses as rendered
+    // manifestAddr1 = 'manifest1hj5fveer5cjtn4wd6wstzugjfdxzl0xp8ws9ct'
+    // Expected: manifest1hj5f...s9ct (last 4 chars are 's9ct' not 'ws9ct')
+    expect(screen.getAllByText(/manifest1hj5f\.\.\.s9ct/)).toHaveLength(2); // appears in both address displays (xs and regular)
+
+    // manifestAddr2 = 'manifest1efd63aw40lxf3n4mhf7dzhjkr453axurm6rp3z'
+    // Expected: manifest1efd6...rp3z
+    expect(screen.getAllByText(/manifest1efd6\.\.\.rp3z/)).toHaveLength(2); // appears in both address displays (xs and regular)
   });
 
   test("renders 'No authors available' when no authors are provided", () => {

@@ -92,7 +92,7 @@ function InfoItem({
       <div className="dark:bg-[#FFFFFF0F] bg-[#0000000A] rounded-[16px] p-4 grow h-full">
         {isAddress ? (
           <div className="flex items-center">
-            <TruncatedAddressWithCopy address={value} slice={17} />
+            <TruncatedAddressWithCopy address={value} />
           </div>
         ) : (
           <p className="text-[#161616] dark:text-white" title={value}>
