@@ -78,10 +78,10 @@ export default function Home() {
       <div className="min-h-screen">
         {/* Main Hero */}
         <Element name="hero" id="hero">
-          <section className="relative h-screen overflow-hidden py-20 sm:py-24 md:py-28 lg:py-44">
-            <div className="max-w-7xl mx-auto">
-              <div className="relative z-10 pb-8  sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
-                <main className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
+          <section className="relative h-screen overflow-hidden">
+            <div className="max-w-7xl mx-auto h-full">
+              <div className="relative z-10 h-full lg:max-w-2xl lg:w-full flex items-center">
+                <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
                   <div className="sm:text-center lg:text-left">
                     <h1 className="text-4xl tracking-tight font-extrabold sm:text-5xl md:text-6xl">
                       <span className="block xl:inline">Connect to your</span>{' '}
@@ -117,6 +117,40 @@ export default function Home() {
                         >
                           Modules
                         </ScrollLink>
+                      </div>
+                    </div>
+                    {/* Got any questions section */}
+                    <div className="mt-16 w-full">
+                      <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl p-8 text-left border border-primary/20">
+                        <h3 className="text-2xl font-bold mb-4">Got any questions?</h3>
+                        <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
+                          Need help getting started or want to learn more about Alberto Wallet?
+                          Check out our comprehensive documentation for guides, tutorials, and FAQ.
+                        </p>
+                        <Link
+                          href="https://docs.manifestai.org/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full"
+                        >
+                          <button className="btn btn-gradient w-full rounded-md text-white px-8 py-3 inline-flex items-center gap-2 hover:scale-105 transition-transform duration-200">
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                              />
+                            </svg>
+                            View Documentation
+                          </button>
+                        </Link>
                       </div>
                     </div>
                   </div>

@@ -2,6 +2,7 @@ import { useChain } from '@cosmos-kit/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import React from 'react';
 import { useState } from 'react';
 import { MdContacts, MdHome } from 'react-icons/md';
 
@@ -217,6 +218,19 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
       <div className="mt-auto w-full">
         <div
           className="w-full tooltip tooltip-primary tooltip-top hover:after:delay-1000 hover:before:delay-1000"
+          data-tip="Help Guide"
+        >
+          <div className="w-full flex flex-col space-y-2 mb-4">
+            <Link href="https://docs.manifestai.org/" target="_blank">
+              <button className="flex w-full items-center p-2 text-base font-normal rounded-lg text-[#00000066] dark:text-[#FFFFFF66] hover:bg-[#0000000A] hover:text-primary dark:hover:text-primary dark:hover:bg-base-300 transition duration-300 ease-in-out cursor-pointer">
+                <QuestionIcon className="w-8 h-8 mr-6" />
+                <span className="text-xl">Help Guide</span>
+              </button>
+            </Link>
+          </div>
+        </div>
+        <div
+          className="w-full tooltip tooltip-primary tooltip-top hover:after:delay-1000 hover:before:delay-1000"
           data-tip="Manage your contacts"
         >
           <div className="w-full flex flex-col space-y-2 mb-4">
@@ -275,16 +289,6 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
           <div className="flex flex-row justify-between items-center gap-3">
             <Link href="https://github.com/liftedinit/manifest-app" target="_blank">
               <p className="text-sm text-gray-500">v{version}</p>
-            </Link>
-            <Link
-              href="https://docs.manifestai.org/"
-              target="_blank"
-              className="tooltip tooltip-primary tooltip-top hover:after:delay-1000 hover:before:delay-1000"
-              data-tip="Help Guide"
-            >
-              <QuestionIcon
-                className={`w-4 h-4 rounded-xl text-black dark:text-white transition-colors duration-300`}
-              />
             </Link>
           </div>
           <div className="flex flex-row justify-between items-center gap-3">
