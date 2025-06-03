@@ -133,7 +133,7 @@ export default function MobileNav() {
                 onClick={() => {
                   setContactsOpen(true);
                 }}
-                className="flex flex-row justify-start items-center transition-all duration-300 ease-in-out text-primary"
+                className="flex flex-row justify-start items-center transition-all duration-300 ease-in-out text-primary mt-2"
               >
                 <MdContacts className="w-8 h-8" />
                 <span className="text-2xl">Contacts</span>
