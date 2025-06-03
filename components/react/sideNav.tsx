@@ -211,10 +211,12 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
           data-tip="Help Guide"
         >
           <div className="w-full flex flex-col space-y-2 mb-4">
-            <button className="flex w-full items-center p-2 text-base font-normal rounded-lg text-[#00000066] dark:text-[#FFFFFF66] hover:bg-[#0000000A] hover:text-primary dark:hover:text-primary dark:hover:bg-base-300 transition duration-300 ease-in-out cursor-pointer">
-              <QuestionIcon className="w-8 h-8 mr-6" />
-              <span className="text-xl">Help Guide</span>
-            </button>
+            <Link href="https://docs.manifestai.org/" target="_blank">
+              <button className="flex w-full items-center p-2 text-base font-normal rounded-lg text-[#00000066] dark:text-[#FFFFFF66] hover:bg-[#0000000A] hover:text-primary dark:hover:text-primary dark:hover:bg-base-300 transition duration-300 ease-in-out cursor-pointer">
+                <QuestionIcon className="w-8 h-8 mr-6" />
+                <span className="text-xl">Help Guide</span>
+              </button>
+            </Link>
           </div>
         </div>
         <div
