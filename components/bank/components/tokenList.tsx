@@ -111,6 +111,7 @@ const TokenListContent = ({
       {/* Modals */}
       <DenomInfoModal
         denom={balances?.find(b => b.base === selectedDenomBase)?.metadata ?? null}
+        balance={balances?.find(b => b.base === selectedDenomBase)?.amount ?? null}
         open={openDenomInfoModal}
         onClose={() => setOpenDenomInfoModal(false)}
       />
