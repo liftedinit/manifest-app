@@ -12,7 +12,7 @@ export interface DenomInfoModalProps {
   open: boolean;
   onClose?: () => void;
   denom: MetadataSDKType | null;
-  balance: string | null;
+  balance?: string | null;
 }
 
 export const DenomInfoModal: React.FC<DenomInfoModalProps> = ({
@@ -92,14 +92,16 @@ export const DenomInfoModal: React.FC<DenomInfoModalProps> = ({
           explorerUrl={env.explorerUrl}
         />
       </div>
-      <div className="w-full flex justify-center">
-        <InfoItem
-          label="Balance"
-          value={`${tooltipAmount} ${denom?.display ?? 'No display available'}`}
-          explorerUrl={env.explorerUrl}
-          className="w-full"
-        />
-      </div>
+      {balance && (
+        <div className="w-full flex justify-center">
+          <InfoItem
+            label="Balance"
+            value={`${tooltipAmount} ${denom?.display ?? 'No display available'}`}
+            explorerUrl={env.explorerUrl}
+            className="w-full"
+          />
+        </div>
+      )}
     </ModalDialog>
   );
 };
