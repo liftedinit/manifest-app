@@ -1,19 +1,42 @@
 import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import BigNumber from 'bignumber.js';
 import React from 'react';
 
 import { DenomImage, ModalDialog } from '@/components';
 import { DenomDisplay } from '@/components/factory';
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
 import env from '@/config/env';
+import { formatLargeNumber, shiftDigits } from '@/utils';
 
 export interface DenomInfoModalProps {
   open: boolean;
   onClose?: () => void;
   denom: MetadataSDKType | null;
+  balance: string | null;
 }
 
-export const DenomInfoModal: React.FC<DenomInfoModalProps> = ({ open, onClose, denom }) => {
+export const DenomInfoModal: React.FC<DenomInfoModalProps> = ({
+  open,
+  onClose,
+  denom,
+  balance,
+}) => {
   let nameIsAddress = denom?.name?.startsWith('factory/manifest1') ?? false;
+
+  const units = denom?.denom_units;
+  const denomUnit = units?.[units.length - 1];
+  const exponent = denomUnit?.exponent ?? 6;
+
+  const [tooltipAmount] = React.useMemo(() => {
+    const amount = shiftDigits(balance ?? 0, -exponent);
+    const amountBN = new BigNumber(amount);
+
+    const int = BigInt(amountBN.integerValue(BigNumber.ROUND_DOWN).toFixed(0));
+    const dec = amountBN.minus(int.toString()).toNumber();
+    const tooltipAmount = `${int.toLocaleString()}${dec ? ('' + dec).replace(/^0\./, '.') : ''}`;
+
+    return [tooltipAmount];
+  }, [balance, exponent]);
 
   return (
     <ModalDialog
@@ -67,6 +90,14 @@ export const DenomInfoModal: React.FC<DenomInfoModalProps> = ({ open, onClose, d
           label="DISPLAY"
           value={denom?.display ?? 'No display available'}
           explorerUrl={env.explorerUrl}
+        />
+      </div>
+      <div className="w-full flex justify-center">
+        <InfoItem
+          label="Balance"
+          value={`${tooltipAmount} ${denom?.display ?? 'No display available'}`}
+          explorerUrl={env.explorerUrl}
+          className="w-full"
         />
       </div>
     </ModalDialog>
