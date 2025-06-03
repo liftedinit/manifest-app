@@ -85,7 +85,14 @@ export default function Factory() {
         })
         .filter((meta): meta is ExtendedMetadataSDKType => meta !== null);
 
-      return [...otherTokens];
+      // Sort tokens alphabetically by ticker name (symbol)
+      const sortedTokens = otherTokens.sort((a, b) => {
+        const tickerA = (a.symbol || a.display || a.name || '').toLowerCase();
+        const tickerB = (b.symbol || b.display || b.name || '').toLowerCase();
+        return tickerA.localeCompare(tickerB);
+      });
+
+      return [...sortedTokens];
     }
     return [];
   }, [denoms, metadatas, balances, totalSupply]);
