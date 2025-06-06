@@ -99,24 +99,24 @@ export const DenomImage = ({
     );
   }
 
-  // Then check for other conditions
-  if (!denom?.uri || !isSupported || imageError) {
-    return <ProfileAvatar walletAddress={denom?.base} withBackground={withBackground} />;
+  // For factory tokens, try to show the image even if domain is not in supported list
+  if (denom?.uri && !imageError) {
+    return (
+      <div
+        className={`w-11 h-11 p-2 rounded-md ${withBackground ? 'dark:bg-[#ffffff0f] bg-[#0000000A]' : ''}`}
+      >
+        <Image
+          width={44}
+          height={44}
+          src={denom?.uri}
+          alt="Token Icon"
+          onError={() => setImageError(true)}
+          className="rounded-md w-full h-full data-[loaded=false]:animate-pulse data-[loaded=false]:skeleton data-[loaded=false]:bg-gray-300"
+        />
+      </div>
+    );
   }
 
-  // For all other cases, use the denom.uri
-  return (
-    <div
-      className={`w-11 h-11 p-2 rounded-md ${withBackground ? 'dark:bg-[#ffffff0f] bg-[#0000000A]' : ''}`}
-    >
-      <Image
-        width={44}
-        height={44}
-        src={denom?.uri}
-        alt="Token Icon"
-        onError={() => setImageError(true)}
-        className="rounded-md w-full h-full data-[loaded=false]:animate-pulse data-[loaded=false]:skeleton data-[loaded=false]:bg-gray-300"
-      />
-    </div>
-  );
+  // Fallback to ProfileAvatar if no URI or image error
+  return <ProfileAvatar walletAddress={denom?.base} withBackground={withBackground} />;
 };

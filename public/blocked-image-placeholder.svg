@@ -1,0 +1,8 @@
+<svg width="200" height="150" viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="150" fill="#f3f4f6" stroke="#d1d5db" stroke-width="2"/>
+  <circle cx="100" cy="75" r="30" fill="#ef4444" opacity="0.8"/>
+  <path d="M85 60 L115 90 M115 60 L85 90" stroke="white" stroke-width="4" stroke-linecap="round"/>
+  <text x="100" y="120" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#6b7280">
+    Blocked Content
+  </text>
+</svg> 
