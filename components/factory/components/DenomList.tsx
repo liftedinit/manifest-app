@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { PiInfo } from 'react-icons/pi';
 
 import { DenomDisplay, TokenBalance } from '@/components';
@@ -45,8 +45,9 @@ export default function DenomList({
     'mint' | 'burn' | 'multimint' | 'multiburn' | 'update' | 'info' | 'transfer' | null
   >(null);
 
-  let filteredDenoms = denoms.filter(denom =>
-    denom?.display.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredDenoms = useMemo(
+    () => denoms.filter(denom => denom?.display.toLowerCase().includes(searchTerm.toLowerCase())),
+    [denoms, searchTerm]
   );
 
   const updateUrlWithModal = (action: string, denomBase?: string) => {
@@ -69,7 +70,10 @@ export default function DenomList({
     if (!modalType) {
       setSelectedDenom(denom);
       setModalType('info');
-      updateUrlWithModal('info', denom.base);
+      // Update URL after a brief delay to ensure modal state is set first
+      setTimeout(() => {
+        updateUrlWithModal('info', denom.base);
+      }, 50);
     }
   };
 
@@ -196,9 +200,10 @@ export default function DenomList({
     <>
       <Pagination
         pageSize={pageSize}
-        selectedPage={0}
+        selectedPage={currentPage - 1}
         dataset={filteredDenoms ?? []}
         data-testid="denomList"
+        onChange={(_data: ExtendedMetadataSDKType[], page: number) => setCurrentPage(page + 1)}
       >
         <table className="table w-full border-separate border-spacing-y-3">
           <thead className="sticky top-0 bg-[#F0F0FF] dark:bg-[#0E0A1F]">

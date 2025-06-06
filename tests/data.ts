@@ -764,7 +764,7 @@ export const mockTokenFormData = {
     { denom: 'factory/cosmos1address/subtesttoken', exponent: 0, aliases: [] },
     { denom: 'tt', exponent: 6, aliases: [] },
   ],
-  uri: 'www.someuri.com',
+  uri: 'https://www.someuri.com',
   uriHash: 's0m3h4sh',
   exponent: '6',
   label: 'LabelTT',

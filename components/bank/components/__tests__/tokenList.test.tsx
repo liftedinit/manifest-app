@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, jest, mock, test } from 'bun:t
 import React from 'react';
 
 import { TokenList } from '@/components/bank/components/tokenList';
-import { clearAllMocks, mockRouter } from '@/tests';
+import { clearAllMocks, mockModule, mockRouter } from '@/tests';
 import { renderWithChainProvider } from '@/tests/render';
 import { unsafeConvertTokenBase } from '@/utils';
 import { CombinedBalanceInfo } from '@/utils/types';
@@ -50,6 +50,12 @@ const mockBalances: CombinedBalanceInfo[] = [
 describe('TokenList', () => {
   beforeEach(() => {
     mockRouter();
+    mockModule('next/image', () => ({
+      default: (props: any) => {
+        // eslint-disable-next-line @next/next/no-img-element,jsx-a11y/alt-text
+        return <img alt="" {...props} />;
+      },
+    }));
   });
 
   afterEach(() => {

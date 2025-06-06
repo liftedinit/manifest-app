@@ -44,7 +44,7 @@ describe('DenomImage', () => {
     const mockup = renderWithProps({
       denom: { base: 'unsupported', uri: 'https://unsupported.com/token.png' },
     });
-    await waitFor(() => expect(screen.getByAltText('Profile Avatar')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByAltText('Token Icon')).toBeInTheDocument());
     expect(formatComponent(mockup.asFragment())).toMatchSnapshot();
   });
 

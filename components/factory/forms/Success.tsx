@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 
 import { TruncatedAddressWithCopy } from '@/components/react/addressCopy';
@@ -50,7 +51,16 @@ export default function Success({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <h3 className="text-md font-light text-gray-400">NAME</h3>
-              <p className="text-lg font-medium">{formData.name}</p>
+              <div className="flex flex-row items-center gap-2 justify-start">
+                <Image
+                  src={formData.uri}
+                  alt={formData.name}
+                  width={32}
+                  height={32}
+                  className="rounded-[100%]"
+                />
+                <p className="text-lg font-medium">{formData.name}</p>
+              </div>
             </div>
             <div>
               <h3 className="text-md font-light text-gray-400">TICKER</h3>
