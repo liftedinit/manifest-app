@@ -32,10 +32,10 @@ const SECURITY_CHECKS = {
 
 /**
  * Validates a URL against malicious patterns
- * @param {string} url - The URL to validate
- * @returns {boolean} - True if URL is safe, false if potentially malicious
+ * @param url - The URL to validate
+ * @returns True if URL is safe, false if potentially malicious
  */
-function isUrlSafe(url) {
+function isUrlSafe(url: string | null | undefined): boolean {
   // Basic validation
   if (!url || typeof url !== 'string') {
     return false;
@@ -75,14 +75,23 @@ function isUrlSafe(url) {
 }
 
 /**
- * Custom Next.js image loader with security validation
- * @param {Object} params - Loader parameters
- * @param {string} params.src - Source URL
- * @param {number} params.width - Image width
- * @param {number} params.quality - Image quality (defaults to 75)
- * @returns {string} - Validated image URL or fallback
+ * Parameters for the image loader function
  */
-export default function imageLoader({ src, width, quality = 75 }) {
+interface ImageLoaderParams {
+  /** Source URL of the image */
+  src: string;
+  /** Image width for optimization */
+  width: number;
+  /** Image quality (defaults to 75) */
+  quality?: number;
+}
+
+/**
+ * Custom Next.js image loader with security validation
+ * @param params - Loader parameters
+ * @returns Validated image URL or fallback
+ */
+export default function imageLoader({ src, width, quality = 75 }: ImageLoaderParams): string {
   // Validate the source URL
   if (!isUrlSafe(src)) {
     // Return a fallback image or throw an error
@@ -94,8 +103,8 @@ export default function imageLoader({ src, width, quality = 75 }) {
   // For valid URLs, add optimization parameters
   if (src.startsWith('http')) {
     const url = new URL(src);
-    url.searchParams.set('w', width);
-    url.searchParams.set('q', quality);
+    url.searchParams.set('w', width.toString());
+    url.searchParams.set('q', quality.toString());
     return url.toString();
   }
 

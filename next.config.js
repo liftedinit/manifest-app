@@ -6,7 +6,7 @@ const nextConfig = {
   images: {
     // Use a custom loader to validate and block malicious patterns
     loader: 'custom',
-    loaderFile: './lib/image-loader.js',
+    loaderFile: './lib/image-loader.ts',
     // No specific domain allowlist handled in the loader
     domains: [],
     remotePatterns: [],
@@ -17,4 +17,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+export default nextConfig;
