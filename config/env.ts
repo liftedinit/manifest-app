@@ -55,6 +55,10 @@ const env = {
    * By default, it is set to 30 minutes.
    */
   minimumVotingPeriod: parseDuration(process.env.NEXT_PUBLIC_MINIMUM_VOTING_PERIOD, 1800),
+
+  // PostHog
+  posthogKey: process.env.NEXT_PUBLIC_POSTHOG_KEY ?? '',
+  posthogApiHost: process.env.NEXT_PUBLIC_POSTHOG_API_HOST ?? '',
 };
 
 export default env;
