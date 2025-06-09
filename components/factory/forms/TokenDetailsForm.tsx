@@ -107,13 +107,10 @@ export default function TokenDetails({
               nextStep();
             } catch (err) {
               if (err instanceof Yup.ValidationError) {
-                const errors = err.inner.reduce(
-                  (acc: Record<string, string>, error) => ({
-                    ...acc,
-                    [error.path as string]: error.message,
-                  }),
-                  {}
-                );
+                const errors = err.inner.reduce((acc: Record<string, string>, error) => {
+                  acc[error.path as string] = error.message;
+                  return acc;
+                }, {});
                 setErrors(errors);
               } else {
                 setFieldError('subdenom', 'An error occurred during validation');

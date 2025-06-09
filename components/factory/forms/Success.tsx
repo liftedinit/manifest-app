@@ -52,13 +52,15 @@ export default function Success({
             <div>
               <h3 className="text-md font-light text-gray-400">NAME</h3>
               <div className="flex flex-row items-center gap-2 justify-start">
-                <Image
-                  src={formData.uri}
-                  alt={formData.name}
-                  width={32}
-                  height={32}
-                  className="rounded-[100%]"
-                />
+                {formData.uri && (
+                  <Image
+                    src={formData.uri}
+                    alt={formData.name}
+                    width={32}
+                    height={32}
+                    className="rounded-[100%]"
+                  />
+                )}
                 <p className="text-lg font-medium">{formData.name}</p>
               </div>
             </div>
