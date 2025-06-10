@@ -1,4 +1,4 @@
-import { cleanup, render } from '@testing-library/react';
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, jest, test } from 'bun:test';
 import React from 'react';
 
@@ -121,55 +121,52 @@ describe('Web3AuthContext', () => {
     }
   });
 
-  test('isSigning state management works correctly', () => {
+  test('isSigning state management works correctly', async () => {
     let setSigningFunction: ((isSigning: boolean) => void) | undefined;
-    let isSigningValue: boolean | undefined;
 
-    const TestComponent = () => {
+    const TestComponentWithState = () => {
       const context = React.useContext(Web3AuthContext);
       setSigningFunction = context.setIsSigning;
-      isSigningValue = context.isSigning;
       return (
         <div>
           <span data-testid="signing-state">{context.isSigning.toString()}</span>
+          <button
+            data-testid="toggle-signing"
+            onClick={() => context.setIsSigning(!context.isSigning)}
+          >
+            Toggle
+          </button>
         </div>
       );
     };
 
-    const { getByTestId, rerender } = render(
+    const { getByTestId } = render(
       <Web3AuthProvider>
-        <TestComponent />
+        <TestComponentWithState />
       </Web3AuthProvider>
     );
 
     // Initial state should be false
     expect(getByTestId('signing-state').textContent).toBe('false');
 
-    // Set signing to true
+    // Test state changes by triggering the function
     if (setSigningFunction) {
       setSigningFunction(true);
-      rerender(
-        <Web3AuthProvider>
-          <TestComponent />
-        </Web3AuthProvider>
-      );
-      expect(getByTestId('signing-state').textContent).toBe('true');
+      await waitFor(() => {
+        expect(getByTestId('signing-state').textContent).toBe('true');
+      });
 
-      // Set signing back to false
       setSigningFunction(false);
-      rerender(
-        <Web3AuthProvider>
-          <TestComponent />
-        </Web3AuthProvider>
-      );
-      expect(getByTestId('signing-state').textContent).toBe('false');
+      await waitFor(() => {
+        expect(getByTestId('signing-state').textContent).toBe('false');
+      });
     }
   });
 
-  test('promptId state management works correctly', () => {
+  test('promptId state management works correctly', async () => {
     let setPromptIdFunction: ((promptId: string | undefined) => void) | undefined;
 
-    const TestComponent = () => {
+    const TestComponentWithState = () => {
       const context = React.useContext(Web3AuthContext);
       setPromptIdFunction = context.setPromptId;
       return (
@@ -179,33 +176,27 @@ describe('Web3AuthContext', () => {
       );
     };
 
-    const { getByTestId, rerender } = render(
+    const { getByTestId } = render(
       <Web3AuthProvider>
-        <TestComponent />
+        <TestComponentWithState />
       </Web3AuthProvider>
     );
 
     // Initial state should be undefined
     expect(getByTestId('prompt-id').textContent).toBe('undefined');
 
-    // Set prompt ID
+    // Test state changes by triggering the function
     if (setPromptIdFunction) {
       setPromptIdFunction('test-prompt');
-      rerender(
-        <Web3AuthProvider>
-          <TestComponent />
-        </Web3AuthProvider>
-      );
-      expect(getByTestId('prompt-id').textContent).toBe('test-prompt');
+      await waitFor(() => {
+        expect(getByTestId('prompt-id').textContent).toBe('test-prompt');
+      });
 
       // Clear prompt ID
       setPromptIdFunction(undefined);
-      rerender(
-        <Web3AuthProvider>
-          <TestComponent />
-        </Web3AuthProvider>
-      );
-      expect(getByTestId('prompt-id').textContent).toBe('undefined');
+      await waitFor(() => {
+        expect(getByTestId('prompt-id').textContent).toBe('undefined');
+      });
     }
   });
 });
