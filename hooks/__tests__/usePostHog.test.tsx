@@ -13,7 +13,7 @@ const mockEnv = {
   chainId: 'manifest-ledger-testnet',
 };
 
-function TestComponent() {
+function TestComponent({ mockReturnValues }: { mockReturnValues?: any[] }) {
   const { posthog, trackTransaction, isReady } = useManifestPostHog();
 
   return (
@@ -127,50 +127,139 @@ describe('useManifestPostHog', () => {
     });
   });
 
-  test('does not re-identify same address and wallet', async () => {
-    // This test is complex due to useEffect behavior, so we'll test the core logic instead
-    // by verifying that the hook doesn't call identify multiple times for the same wallet
-    const wrapper = renderWithChainProvider(<TestComponent />);
-
-    await waitFor(() => {
-      expect(wrapper.getByTestId('is-ready')).toHaveTextContent('ready');
-    });
-
-    // The hook should only identify once for the same wallet and address
-    expect(mockPostHog.identify).toHaveBeenCalledTimes(1);
-    expect(mockPostHog.capture).toHaveBeenCalledWith('wallet_connected', expect.any(Object));
-  });
-
   test('re-identifies when wallet changes', async () => {
-    // Test that the hook properly identifies different wallets
-    const wrapper = renderWithChainProvider(<TestComponent />);
+    // Mock a sequence where wallet changes from one to another
+    const mockUseChain = jest.fn();
+    const firstWallet = {
+      prettyName: 'First Wallet',
+      mode: 'extension',
+    };
+    const secondWallet = {
+      prettyName: 'Second Wallet',
+      mode: 'mobile',
+    };
 
+    // Sequence: connected with first wallet -> connected with second wallet
+    mockUseChain
+      .mockReturnValueOnce({
+        address: 'manifest1test',
+        wallet: firstWallet,
+        isWalletConnected: true,
+      })
+      .mockReturnValue({
+        address: 'manifest1test',
+        wallet: secondWallet,
+        isWalletConnected: true,
+      });
+
+    mockModule(
+      '@cosmos-kit/react',
+      () => ({
+        useChain: mockUseChain,
+      }),
+      true
+    );
+
+    const { rerender } = renderWithChainProvider(<TestComponent />);
+
+    // First render - connected with first wallet
     await waitFor(() => {
-      expect(wrapper.getByTestId('is-ready')).toHaveTextContent('ready');
+      expect(mockPostHog.identify).toHaveBeenCalledWith('manifest1test', {
+        wallet_address: 'manifest1test',
+        wallet_name: 'First Wallet',
+        wallet_mode: 'extension',
+        chain_id: 'manifest-ledger-testnet',
+        chain_name: 'manifesttestnet',
+        last_connected: expect.any(String),
+      });
     });
 
-    // Should have identified the initial wallet
-    expect(mockPostHog.identify).toHaveBeenCalledWith('manifest1test', {
-      wallet_address: 'manifest1test',
-      wallet_name: 'Test Wallet',
-      wallet_mode: 'extension',
-      chain_id: 'manifest-ledger-testnet',
-      chain_name: 'manifesttestnet',
-      last_connected: expect.any(String),
+    // Clear mocks to test wallet change re-identification
+    mockPostHog.identify.mockClear();
+    mockPostHog.capture.mockClear();
+
+    // Second render - wallet changed (should trigger re-identification)
+    rerender(<TestComponent />);
+
+    await waitFor(() => {
+      expect(mockPostHog.identify).toHaveBeenCalledWith('manifest1test', {
+        wallet_address: 'manifest1test',
+        wallet_name: 'Second Wallet',
+        wallet_mode: 'mobile',
+        chain_id: 'manifest-ledger-testnet',
+        chain_name: 'manifesttestnet',
+        last_connected: expect.any(String),
+      });
+      expect(mockPostHog.capture).toHaveBeenCalledWith(
+        'wallet_connected',
+        expect.objectContaining({
+          wallet_name: 'Second Wallet',
+          wallet_mode: 'mobile',
+        })
+      );
     });
   });
 
   test('handles wallet disconnection', async () => {
-    // Test the disconnection logic by directly testing the hook behavior
-    // when isWalletConnected changes to false
-    const wrapper = renderWithChainProvider(<TestComponent />);
+    // Create a controllable test component that can simulate disconnection
+    let mockChainData = {
+      address: 'manifest1test' as string | null,
+      wallet: mockWallet as any,
+      isWalletConnected: true,
+    };
 
+    const ControllableDisconnectionTestComponent = () => {
+      const [, forceUpdate] = React.useState({});
+      React.useEffect(() => {
+        // Store the force update function globally so we can trigger it
+        (window as any).forceDisconnectionUpdate = () => forceUpdate({});
+      }, []);
+
+      // Mock useChain to return our controllable data
+      mockModule(
+        '@cosmos-kit/react',
+        () => ({
+          useChain: jest.fn().mockReturnValue(mockChainData),
+        }),
+        true
+      );
+
+      const { posthog, isReady } = useManifestPostHog();
+      return (
+        <div>
+          <div data-testid="is-ready">{isReady ? 'ready' : 'not ready'}</div>
+          <div data-testid="posthog-available">{posthog ? 'available' : 'not available'}</div>
+        </div>
+      );
+    };
+
+    renderWithChainProvider(<ControllableDisconnectionTestComponent />);
+
+    // Wait for initial connection
     await waitFor(() => {
       expect(mockPostHog.identify).toHaveBeenCalled();
     });
 
-    // Verify that the hook is working correctly
-    expect(wrapper.getByTestId('is-ready')).toHaveTextContent('ready');
+    // Clear mocks to test disconnection behavior
+    mockPostHog.capture.mockClear();
+    mockPostHog.reset.mockClear();
+
+    // Simulate wallet disconnection
+    mockChainData = {
+      address: null,
+      wallet: null,
+      isWalletConnected: false,
+    };
+    (window as any).forceDisconnectionUpdate();
+
+    await waitFor(() => {
+      expect(mockPostHog.capture).toHaveBeenCalledWith('wallet_disconnected', {
+        chain_id: 'manifest-ledger-testnet',
+        chain_name: 'manifesttestnet',
+        previous_address: 'manifest1test',
+      });
+      expect(mockPostHog.reset).toHaveBeenCalled();
+    });
   });
 
   test('tracks successful transaction', async () => {
@@ -239,9 +328,13 @@ describe('useManifestPostHog', () => {
 
   test('does not track when PostHog is not available', async () => {
     // Mock PostHog as null
-    mockModule.force('posthog-js/react', () => ({
-      usePostHog: jest.fn().mockReturnValue(null),
-    }));
+    mockModule(
+      'posthog-js/react',
+      () => ({
+        usePostHog: jest.fn().mockReturnValue(null),
+      }),
+      true
+    );
 
     const wrapper = renderWithChainProvider(<TestComponent />);
 
@@ -256,7 +349,7 @@ describe('useManifestPostHog', () => {
     expect(mockPostHog.setPersonProperties).not.toHaveBeenCalled();
   });
 
-  test('does not update person properties when address mismatch', async () => {
+  test('updates person properties when address matches', async () => {
     const wrapper = renderWithChainProvider(<TestComponent />);
 
     await waitFor(() => {
@@ -283,13 +376,17 @@ describe('useManifestPostHog', () => {
 
   test('handles wallet without prettyName', async () => {
     // Mock wallet without prettyName
-    mockModule.force('@cosmos-kit/react', () => ({
-      useChain: jest.fn().mockReturnValue({
-        address: 'manifest1test',
-        wallet: { mode: 'extension' }, // No prettyName
-        isWalletConnected: true,
+    mockModule(
+      '@cosmos-kit/react',
+      () => ({
+        useChain: jest.fn().mockReturnValue({
+          address: 'manifest1test',
+          wallet: { mode: 'extension' }, // No prettyName
+          isWalletConnected: true,
+        }),
       }),
-    }));
+      true
+    );
 
     const wrapper = renderWithChainProvider(<TestComponent />);
 
@@ -320,18 +417,108 @@ describe('useManifestPostHog', () => {
 
   test('is not ready when wallet is not connected', async () => {
     // Mock wallet as not connected
-    mockModule.force('@cosmos-kit/react', () => ({
-      useChain: jest.fn().mockReturnValue({
-        address: null,
-        wallet: null,
-        isWalletConnected: false,
+    mockModule(
+      '@cosmos-kit/react',
+      () => ({
+        useChain: jest.fn().mockReturnValue({
+          address: null,
+          wallet: null,
+          isWalletConnected: false,
+        }),
       }),
-    }));
+      true
+    );
 
     const wrapper = renderWithChainProvider(<TestComponent />);
 
     await waitFor(() => {
       expect(wrapper.getByTestId('is-ready')).toHaveTextContent('not ready');
+    });
+  });
+
+  test('does not re-identify same address and wallet (comprehensive test)', async () => {
+    // Create a controllable test component that can simulate state changes
+    let mockChainData = {
+      address: null as string | null,
+      wallet: null as any,
+      isWalletConnected: false,
+    };
+
+    const ControllableTestComponent = () => {
+      const [, forceUpdate] = React.useState({});
+      React.useEffect(() => {
+        // Store the force update function globally so we can trigger it
+        (window as any).forceTestUpdate = () => forceUpdate({});
+      }, []);
+
+      // Mock useChain to return our controllable data
+      mockModule(
+        '@cosmos-kit/react',
+        () => ({
+          useChain: jest.fn().mockReturnValue(mockChainData),
+        }),
+        true
+      );
+
+      const { posthog, isReady } = useManifestPostHog();
+      return (
+        <div>
+          <div data-testid="is-ready">{isReady ? 'ready' : 'not ready'}</div>
+          <div data-testid="posthog-available">{posthog ? 'available' : 'not available'}</div>
+        </div>
+      );
+    };
+
+    renderWithChainProvider(<ControllableTestComponent />);
+
+    // Initial state - not connected
+    await waitFor(() => {
+      expect(mockPostHog.identify).not.toHaveBeenCalled();
+    });
+
+    // Connect wallet - should trigger identification
+    mockChainData = {
+      address: 'manifest1test',
+      wallet: mockWallet,
+      isWalletConnected: true,
+    };
+    (window as any).forceTestUpdate();
+
+    await waitFor(() => {
+      expect(mockPostHog.identify).toHaveBeenCalledTimes(1);
+      expect(mockPostHog.capture).toHaveBeenCalledWith('wallet_connected', expect.any(Object));
+    });
+
+    // Clear mocks
+    mockPostHog.identify.mockClear();
+    mockPostHog.capture.mockClear();
+
+    // Trigger multiple state updates with same wallet - should NOT re-identify
+    (window as any).forceTestUpdate();
+    (window as any).forceTestUpdate();
+    (window as any).forceTestUpdate();
+
+    // Should not have called identify again
+    expect(mockPostHog.identify).toHaveBeenCalledTimes(0);
+    expect(mockPostHog.capture).not.toHaveBeenCalledWith('wallet_connected', expect.any(Object));
+
+    // Change wallet - should trigger re-identification
+    mockChainData = {
+      address: 'manifest1test',
+      wallet: { prettyName: 'Different Wallet', mode: 'mobile' },
+      isWalletConnected: true,
+    };
+    (window as any).forceTestUpdate();
+
+    await waitFor(() => {
+      expect(mockPostHog.identify).toHaveBeenCalledTimes(1);
+      expect(mockPostHog.identify).toHaveBeenCalledWith(
+        'manifest1test',
+        expect.objectContaining({
+          wallet_name: 'Different Wallet',
+          wallet_mode: 'mobile',
+        })
+      );
     });
   });
 });
