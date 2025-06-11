@@ -274,20 +274,22 @@ describe('Image Loader', () => {
       });
 
       test('should integrate with obscenity package for profanity detection', () => {
-        // Test that the obscenity package integration works without specific expectations
-        // since the package has its own rules about what constitutes profanity
-        const testUrls = [
+        const profaneUrls = [
           'https://example.com/fuck-this.jpg',
           'https://site.com/shit-image.png',
-          'https://imagehost.com/clean-photo.jpg',
         ];
 
-        testUrls.forEach(url => {
+        profaneUrls.forEach(url => {
           const result = imageLoader({ src: url, width: 400, quality: 75 });
-          // Just ensure it returns a valid result (either blocked or allowed)
-          expect(typeof result).toBe('string');
-          expect(result.length).toBeGreaterThan(0);
+          expect(result).toBe('/blocked-nsfw-placeholder.svg');
+          expect(mockConsoleError).toHaveBeenCalledWith(`Blocked NSFW image URL: ${url}`);
         });
+
+        // Test that clean URLs are not blocked
+        const cleanUrl = 'https://imagehost.com/clean-photo.jpg';
+        const result = imageLoader({ src: cleanUrl, width: 400, quality: 75 });
+        expect(result).toContain('w=400');
+        expect(result).toContain('q=75');
       });
 
       test('should block NSFW social media patterns', () => {
