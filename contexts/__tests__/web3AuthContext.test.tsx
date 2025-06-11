@@ -1,5 +1,5 @@
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, jest, test } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, jest, spyOn, test } from 'bun:test';
 import React from 'react';
 
 import { clearAllMocks, mockModule } from '@/tests';
@@ -197,6 +197,143 @@ describe('Web3AuthContext', () => {
       await waitFor(() => {
         expect(getByTestId('prompt-id').textContent).toBe('undefined');
       });
+    }
+  });
+
+  test('resetWeb3AuthClients handles wallet disconnect errors gracefully', async () => {
+    const consoleSpy = spyOn(console, 'warn');
+
+    // Create proper mock classes that extend the originals
+    class MockWeb3AuthWallet {
+      walletStatus = 'Connected';
+      walletInfo = { name: 'error-wallet' };
+      client = new MockWeb3AuthClient();
+
+      async disconnect() {
+        throw new Error('disconnect failed');
+      }
+    }
+
+    class MockWeb3AuthClient {
+      setLoginHint = jest.fn();
+    }
+
+    // Mock the module to return our error wallet
+    mockModule.force('@cosmos-kit/web3auth', () => ({
+      makeWeb3AuthWallets: jest.fn().mockReturnValue([new MockWeb3AuthWallet()]),
+      Web3AuthWallet: MockWeb3AuthWallet,
+      Web3AuthClient: MockWeb3AuthClient,
+    }));
+
+    let resetFunction: (() => Promise<void>) | undefined;
+
+    const TestComponent = () => {
+      const context = React.useContext(Web3AuthContext);
+      resetFunction = context.resetWeb3AuthClients;
+      return <div>test</div>;
+    };
+
+    render(
+      <Web3AuthProvider>
+        <TestComponent />
+      </Web3AuthProvider>
+    );
+
+    if (resetFunction) {
+      await resetFunction();
+      // Should log warning for disconnect failure (line 149)
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to disconnect wallet error-wallet:'),
+        expect.any(Error)
+      );
+    }
+  });
+
+  test('resetWeb3AuthClients handles general errors', async () => {
+    const consoleSpy = spyOn(console, 'error');
+
+    // Create a wallet that will cause an error in the forEach loop
+    class MockWeb3AuthWallet {
+      walletStatus = 'Connected';
+      walletInfo = { name: 'bad-client-wallet' };
+      client = new MockWeb3AuthClient();
+
+      async disconnect() {
+        return Promise.resolve();
+      }
+    }
+
+    class MockWeb3AuthClient {
+      setLoginHint() {
+        throw new Error('setLoginHint failed');
+      }
+    }
+
+    // Mock the module to trigger error in the first forEach loop
+    mockModule.force('@cosmos-kit/web3auth', () => ({
+      makeWeb3AuthWallets: jest.fn().mockReturnValue([new MockWeb3AuthWallet()]),
+      Web3AuthWallet: MockWeb3AuthWallet,
+      Web3AuthClient: MockWeb3AuthClient,
+    }));
+
+    let resetFunction: (() => Promise<void>) | undefined;
+
+    const TestComponent = () => {
+      const context = React.useContext(Web3AuthContext);
+      resetFunction = context.resetWeb3AuthClients;
+      return <div>test</div>;
+    };
+
+    render(
+      <Web3AuthProvider>
+        <TestComponent />
+      </Web3AuthProvider>
+    );
+
+    if (resetFunction) {
+      await resetFunction();
+      // Should log general error (line 167)
+      expect(consoleSpy).toHaveBeenCalledWith(
+        '❌ Error resetting Web3Auth clients:',
+        expect.any(Error)
+      );
+    }
+  });
+
+  test('setIsSigning handles negative signing count error', async () => {
+    const consoleSpy = spyOn(console, 'error');
+
+    let setSigningFunction: ((isSigning: boolean) => void) | undefined;
+
+    const TestComponent = () => {
+      const context = React.useContext(Web3AuthContext);
+      setSigningFunction = context.setIsSigning;
+      return (
+        <div>
+          <span data-testid="signing-state">{context.isSigning.toString()}</span>
+        </div>
+      );
+    };
+
+    const { getByTestId } = render(
+      <Web3AuthProvider>
+        <TestComponent />
+      </Web3AuthProvider>
+    );
+
+    if (setSigningFunction) {
+      // Call setIsSigning(false) multiple times to trigger negative count
+      setSigningFunction(false);
+      setSigningFunction(false);
+      setSigningFunction(false);
+
+      await waitFor(() => {
+        // Should log error about negative signing count (lines 154-162)
+        expect(consoleSpy).toHaveBeenCalledWith('signingCount is negative, this should not happen');
+      });
+
+      // State should remain false
+      expect(getByTestId('signing-state').textContent).toBe('false');
     }
   });
 });
