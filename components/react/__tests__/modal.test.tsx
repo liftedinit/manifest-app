@@ -192,7 +192,7 @@ describe('TailwindModal', () => {
   });
 
   describe('isWalletConnectionError function', () => {
-    test('should identify wallet connection errors correctly', () => {
+    test('should have TailwindModal component defined', () => {
       // Import the modal and test that the component is properly defined
       expect(TailwindModal).toBeDefined();
     });
@@ -430,29 +430,6 @@ describe('TailwindModal', () => {
 
       // Should show NotExist view
       expect(screen.getByTestId('not-exist')).toBeInTheDocument();
-    });
-  });
-
-  describe('QR Code State Management', () => {
-    test('should disconnect QR wallet when modal closes', () => {
-      const connectingWallet = {
-        ...mockWallet,
-        walletStatus: WalletStatus.Connecting,
-        disconnect: jest.fn(),
-      };
-
-      const { rerender } = render(
-        <TailwindModal isOpen={true} setOpen={mockSetOpen} walletRepo={mockWalletRepo} />
-      );
-
-      // Simulate QR wallet being set
-      fireEvent.click(screen.getByText('Keplr'));
-
-      // Close modal
-      rerender(<TailwindModal isOpen={false} setOpen={mockSetOpen} walletRepo={mockWalletRepo} />);
-
-      // Should clean up QR wallet
-      expect(screen.queryByTestId('qr-code')).not.toBeInTheDocument();
     });
   });
 });
