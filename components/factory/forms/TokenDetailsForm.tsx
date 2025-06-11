@@ -2,7 +2,9 @@ import { Form, Formik } from 'formik';
 import React from 'react';
 
 import { TextArea, TextInput } from '@/components/react/inputs';
+import { useToast } from '@/contexts/toastContext';
 import { TokenAction, TokenFormData } from '@/helpers/formReducer';
+import { sanitizeImageUrl } from '@/lib/image-loader';
 import { useSimulateDenomCreation } from '@/utils';
 import Yup from '@/utils/yupExtensions';
 
@@ -20,6 +22,7 @@ export default function TokenDetails({
   address: string;
 }>) {
   const { simulateDenomCreation, isSimulating } = useSimulateDenomCreation();
+  const { setToastMessage } = useToast();
 
   const TokenDetailsSchema = Yup.object().shape({
     display: Yup.string()
@@ -102,6 +105,22 @@ export default function TokenDetails({
                 setSubmitting(false);
                 return;
               }
+
+              // Sanitize the image URL (remove if NSFW/problematic, but don't block submission)
+              const sanitizedUri = sanitizeImageUrl(values.uri || '');
+              if (values.uri && !sanitizedUri) {
+                // Image was removed due to content filtering - show a toast warning
+                setToastMessage({
+                  type: 'alert-warning',
+                  title: 'Image Removed',
+                  description:
+                    'The image URL was removed due to inappropriate content. The token will be created without an image.',
+                  bgColor: '#f39c12',
+                });
+              }
+
+              // Update form data with sanitized URI
+              updateField('uri', sanitizedUri);
 
               // All validations passed, proceed to next step
               nextStep();
@@ -202,24 +221,6 @@ export default function TokenDetails({
                       value={values.subdenom}
                       onChange={handleChange}
                     />
-
-                    {/* Show derived subdenom */}
-                    {formData.subdenom && (
-                      <div
-                        className={`dark:text-[#FFFFFF99] text-[#161616] border-[#00000033] dark:border-[#FFFFFF33] bg-[#E0E0FF0A] dark:bg-[#E0E0FF0A] w-full p-3 rounded-lg border ${errors.subdenom ? 'border-error' : ''}`}
-                      >
-                        <p className="text-sm dark:text-[#FFFFFF99] text-[#161616] font-semibold">
-                          Derived Subdenom: <span> u{formData.subdenom}</span>
-                        </p>
-
-                        <p className="text-xs text-[#00000099] dark:text-[#FFFFFF99] mt-2">
-                          This subdenom is automatically generated from your ticker
-                        </p>
-                        {errors.subdenom && touched.subdenom && (
-                          <p className="text-sm text-error mt-2">{errors.subdenom}</p>
-                        )}
-                      </div>
-                    )}
 
                     <div className="grid grid-cols-1 gap-4">
                       <TextInput
