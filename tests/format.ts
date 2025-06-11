@@ -16,12 +16,5 @@ export function formatComponent(value: any): string {
   });
 
   // Normalize dynamic Headless UI IDs for consistent snapshots
-  return formatted
-    .replace(/headlessui-dialog-«r\w+»/g, 'headlessui-dialog-«normalized»')
-    .replace(/headlessui-dialog-panel-«r\w+»/g, 'headlessui-dialog-panel-«normalized»')
-    .replace(/headlessui-\w+-«r\w+»/g, match => {
-      // Handle other headless UI components like headlessui-menu-«rXX», etc.
-      const componentType = match.split('-')[1];
-      return `headlessui-${componentType}-«normalized»`;
-    });
+  return formatted.replace(/headlessui-([\w-]+)-«r\w+»/g, 'headlessui-$1-«normalized»');
 }
