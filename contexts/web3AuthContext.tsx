@@ -17,6 +17,7 @@ export interface Web3AuthContextType {
   wallets: (MainWalletBase | Web3AuthWallet)[];
   isSigning: boolean;
   setIsSigning: (isSigning: boolean) => void;
+  resetWeb3AuthClients: () => void;
 }
 
 export const Web3AuthContext = createContext<Web3AuthContextType>({
@@ -26,6 +27,7 @@ export const Web3AuthContext = createContext<Web3AuthContextType>({
   wallets: [],
   isSigning: false,
   setIsSigning: () => {},
+  resetWeb3AuthClients: () => {},
 });
 
 export const Web3AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -134,9 +136,30 @@ export const Web3AuthProvider = ({ children }: { children: ReactNode }) => {
     ...cosmosExtensionWallets,
   ];
 
+  const resetWeb3AuthClients = () => {
+    // Reset Web3Auth wallets by clearing any cached data
+    web3AuthWallets.forEach(wallet => {
+      if ('client' in wallet && wallet.client && 'reset' in wallet.client) {
+        try {
+          (wallet.client as any).reset();
+        } catch (error) {
+          console.warn('Error resetting Web3Auth client:', error);
+        }
+      }
+    });
+  };
+
   return (
     <Web3AuthContext.Provider
-      value={{ prompt, promptId, setPromptId, wallets, isSigning, setIsSigning }}
+      value={{
+        prompt,
+        promptId,
+        setPromptId,
+        wallets,
+        isSigning,
+        setIsSigning,
+        resetWeb3AuthClients,
+      }}
     >
       {children}
     </Web3AuthContext.Provider>

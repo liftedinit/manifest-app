@@ -27,6 +27,7 @@ const defaultWeb3AuthContext: Web3AuthContextType = {
   wallets: [],
   isSigning: false,
   setIsSigning: () => {},
+  resetWeb3AuthClients: () => {},
 };
 
 export const renderWithChainProvider = (ui: React.ReactElement, options = {}) => {
