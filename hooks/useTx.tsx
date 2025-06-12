@@ -1,7 +1,7 @@
 import { DeliverTxResponse, StdFee, isDeliverTxSuccess } from '@cosmjs/stargate';
 import { useChain } from '@cosmos-kit/react';
 import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
-import { useContext } from 'react';
+import { useContext, useRef } from 'react';
 
 import env from '@/config/env';
 import { useToast } from '@/contexts/toastContext';
@@ -24,27 +24,37 @@ export interface TxOptions {
   showToastOnErrors?: boolean;
 }
 
-const extractSimulationErrorMessage = (errorMessage: string): string => {
-  // This regex looks for the specific error message
-  const match = errorMessage.match(/message index: \d+: (.+?)(?=\s*\[|$)/);
-  if (match && match[1]) {
-    return match[1].trim();
+const extractSimulationErrorMessage = (fullErrorMessage: string): string => {
+  // Common error patterns to clean up
+  const patterns = [
+    /failed to execute message; message index: \d+: (.+?): execute wasm contract failed/,
+    /failed to execute message; message index: \d+: (.+)/,
+    /execute wasm contract failed: (.+)/,
+    /rpc error: code = InvalidArgument desc = (.+)/,
+    /rpc error: code = \w+ desc = (.+)/,
+  ];
+
+  for (const pattern of patterns) {
+    const match = fullErrorMessage.match(pattern);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
   }
 
-  // Check to see if the error is that the account does not exist on chain. If so, return that.
-  if (errorMessage.match(/^Account '.*' does not exist on chain/)) {
-    return errorMessage;
-  }
-
-  // If no match is found, return a generic error message
-  return 'An error occurred during simulation';
+  // If no pattern matches, return a cleaned version
+  return fullErrorMessage
+    .replace(/^.*?failed to execute message[^:]*: /, '')
+    .replace(/: execute wasm contract failed$/, '')
+    .trim();
 };
 
 export const useTx = (chainName: string, promptId?: string) => {
   const { isSigning, setIsSigning, setPromptId } = useContext(Web3AuthContext);
-  const { address, getSigningStargateClient, estimateFee } = useChain(chainName);
+  const { address, getSigningStargateClient, estimateFee, disconnect, connect } =
+    useChain(chainName);
   const { setToastMessage } = useToast();
   const explorerUrl = chainName === env.osmosisChain ? env.osmosisExplorerUrl : env.explorerUrl;
+  const lastUsedAddress = useRef<string | null>(null);
 
   const tx = async (msgs: Msg[], options: TxOptions) => {
     if (!address) {
@@ -61,7 +71,16 @@ export const useTx = (chainName: string, promptId?: string) => {
     setPromptId(promptId);
 
     try {
+      // Check if the address has changed since last use (indicating a potential account switch)
+      if (lastUsedAddress.current && lastUsedAddress.current !== address) {
+        // Add a small delay to allow any ongoing wallet state changes to complete
+        await new Promise(resolve => setTimeout(resolve, 200));
+      }
+
       const client = await getSigningStargateClient();
+
+      // Update the last used address
+      lastUsedAddress.current = address;
 
       if (options.simulate) {
         try {
