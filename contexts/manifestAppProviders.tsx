@@ -23,7 +23,7 @@ import {
   chain as osmosisChain,
 } from 'chain-registry/testnet/osmosistestnet';
 import { SignerOptions } from 'cosmos-kit';
-import { ReactNode, useContext, useMemo } from 'react';
+import { ReactNode, useCallback, useContext, useMemo, useState } from 'react';
 
 import { TailwindModal } from '@/components';
 import env from '@/config/env';
@@ -37,6 +37,7 @@ import { ContactsProvider } from '@/hooks';
 const ManifestChainProvider = ({ children }: { children: ReactNode }) => {
   const web3auth = useContext(Web3AuthContext);
   const combinedWallets = web3auth.wallets as MainWalletBase[];
+  const [chainProviderKey, setChainProviderKey] = useState(0);
 
   const endpointOptions = {
     isLazy: true,
@@ -76,32 +77,49 @@ const ManifestChainProvider = ({ children }: { children: ReactNode }) => {
     },
   };
 
+  // Function to force complete ChainProvider reset
+  const forceChainProviderReset = useCallback(() => {
+    setChainProviderKey(prev => prev + 1);
+  }, []);
+
+  // Expose the reset function to Web3AuthContext
+  const contextValue = useMemo(
+    () => ({
+      ...web3auth,
+      forceChainProviderReset,
+    }),
+    [web3auth, forceChainProviderReset]
+  );
+
   return (
-    <ChainProvider
-      chains={[manifestChain, osmosisChain, axelarChain]}
-      assetLists={[manifestAssets, osmosisAssets, axelarAssets]}
-      wallets={combinedWallets}
-      logLevel={env.production ? 'NONE' : 'INFO'}
-      endpointOptions={endpointOptions}
-      sessionOptions={{ duration: 60 * 60 * 24 * 7 * 1000 }} // 7 days in ms
-      walletConnectOptions={{
-        signClient: {
-          projectId: env.walletConnectKey,
-          relayUrl: 'wss://relay.walletconnect.org',
-          metadata: {
-            name: 'Alberto',
-            description: 'Manifest Network Web App',
-            url: 'https://alberto.com',
-            icons: [],
+    <Web3AuthContext.Provider value={contextValue}>
+      <ChainProvider
+        key={chainProviderKey} // This forces complete re-mount and reset of cosmos-kit
+        chains={[manifestChain, osmosisChain, axelarChain]}
+        assetLists={[manifestAssets, osmosisAssets, axelarAssets]}
+        wallets={combinedWallets}
+        logLevel={env.production ? 'NONE' : 'INFO'}
+        endpointOptions={endpointOptions}
+        sessionOptions={{ duration: 60 * 60 * 24 * 7 * 1000 }} // 7 days in ms
+        walletConnectOptions={{
+          signClient: {
+            projectId: env.walletConnectKey,
+            relayUrl: 'wss://relay.walletconnect.org',
+            metadata: {
+              name: 'Alberto',
+              description: 'Manifest Network Web App',
+              url: 'https://alberto.com',
+              icons: [],
+            },
           },
-        },
-      }}
-      signerOptions={signerOptions}
-      // @ts-ignore
-      walletModal={TailwindModal}
-    >
-      {children}
-    </ChainProvider>
+        }}
+        signerOptions={signerOptions}
+        // @ts-ignore
+        walletModal={TailwindModal}
+      >
+        {children}
+      </ChainProvider>
+    </Web3AuthContext.Provider>
   );
 };
 

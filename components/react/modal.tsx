@@ -23,6 +23,7 @@ import React, { Fragment, useCallback, useEffect, useMemo, useState } from 'reac
 
 import { ToastProvider } from '@/contexts/toastContext';
 import { useDeviceDetect } from '@/hooks';
+import { useClientReset } from '@/hooks/useClientReset';
 
 import {
   Connected,
@@ -82,6 +83,7 @@ export const TailwindModal: React.FC<
   const walletStatus = current?.walletStatus || WalletStatus.Disconnected;
   const currentWalletName = current?.walletName;
   const { isMobile } = useDeviceDetect();
+  const { forceCompleteReset } = useClientReset();
 
   useEffect(() => {
     if (isOpen) {
@@ -263,11 +265,12 @@ export const TailwindModal: React.FC<
    * The main handler for clicking on a wallet in the WalletList.
    * 1) We fetch the wallet from walletRepo by name.
    * 2) Check for Email / SMS (special flow).
-   * 3) Delay a bit (setTimeout) to handle a special metamask extension error check.
-   * 4) Depending on wallet mode, proceed with "wallet-connect" or normal flow.
+   * 3) Reset clients if connecting to a social wallet and already have a connected address.
+   * 4) Delay a bit (setTimeout) to handle a special metamask extension error check.
+   * 5) Depending on wallet mode, proceed with "wallet-connect" or normal flow.
    */
   const onWalletClicked = useCallback(
-    (name: string) => {
+    async (name: string) => {
       const wallet = walletRepo?.getWallet(name);
       if (!wallet) return;
 
@@ -276,7 +279,8 @@ export const TailwindModal: React.FC<
         return;
       }
 
-      // Special case for keplr - check immediately
+      // Step 2: Check if this is a social wallet and if we should reset clients
+      // Step 3: Special case for keplr - check immediately
       if (
         wallet?.walletInfo.name === 'keplr-extension' &&
         typeof window !== 'undefined' &&
@@ -287,7 +291,7 @@ export const TailwindModal: React.FC<
         return;
       }
 
-      // Step 2: We do a small setTimeout to check for metamask extension error
+      // Step 4: We do a small setTimeout to check for metamask extension error
       // or if the wallet doesn't exist. This ensures the error message has time
       // to populate in the wallet's state after calling `getWallet()`.
       setTimeout(() => {
@@ -295,13 +299,13 @@ export const TailwindModal: React.FC<
           return;
         }
 
-        // Step 3: If the wallet is "wallet-connect" style, handle phone vs. desktop flows
+        // Step 5: If the wallet is "wallet-connect" style, handle phone vs. desktop flows
         if (wallet?.walletInfo.mode === 'wallet-connect') {
           handleWalletConnectFlow(wallet, name);
           return;
         }
 
-        // Step 4: Otherwise, handle standard extension or browser-based wallet
+        // Step 6: Otherwise, handle standard extension or browser-based wallet
         handleStandardWalletFlow(wallet, name);
       }, 0);
     },
@@ -417,7 +421,10 @@ export const TailwindModal: React.FC<
             <Connected
               onClose={onCloseModal}
               onReturn={() => setCurrentView(ModalView.WalletList)}
-              disconnect={() => current?.disconnect()}
+              disconnect={() => {
+                current?.disconnect();
+                forceCompleteReset();
+              }}
               name={currentWalletData?.prettyName!}
               logo={currentWalletData?.logo!.toString() ?? ''}
               username={current?.username}
