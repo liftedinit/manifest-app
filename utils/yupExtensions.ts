@@ -1,8 +1,6 @@
 import { bech32 } from '@scure/base';
 import * as Yup from 'yup';
 
-// Updated import
-import { supportedDomains, supportedPatterns } from '@/components/factory/components/DenomImage';
 import { containsProfanity } from '@/utils/profanityFilter';
 
 declare module 'yup' {
@@ -11,7 +9,6 @@ declare module 'yup' {
     manifestAddress(message?: string): this;
     simulateDenomCreation(simulateFn: () => Promise<boolean>, message?: string): this;
     simulateDenomMetadata(simulateFn: () => Promise<boolean>, message?: string): this;
-    supportedImageUrl(message?: string): this;
   }
 
   interface ArraySchema<TIn extends any[] | null | undefined, TContext> {
@@ -124,34 +121,6 @@ Yup.addMethod<Yup.StringSchema>(Yup.string, 'manifestAddress', function (message
     }
 
     return true;
-  });
-});
-
-Yup.addMethod<Yup.StringSchema>(Yup.string, 'supportedImageUrl', function (message) {
-  return this.test('supported-image-url', message, function (value) {
-    const { path, createError } = this;
-    if (!value) return true;
-
-    try {
-      const { hostname } = new URL(value);
-      const isSupported =
-        supportedDomains.includes(hostname) ||
-        supportedPatterns.some(pattern => pattern.test(value));
-
-      return (
-        isSupported ||
-        createError({
-          path,
-          message:
-            message || `URL domain is not supported. Please use one of the supported domains`,
-        })
-      );
-    } catch {
-      return createError({
-        path,
-        message: message || 'Invalid URL format',
-      });
-    }
   });
 });
 

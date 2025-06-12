@@ -1,20 +1,21 @@
 import { cosmos, osmosis } from '@liftedinit/manifestjs';
 import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
 import { MsgSetDenomMetadata } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
-import { useQueryClient } from '@tanstack/react-query';
 import { Form, Formik } from 'formik';
 import React from 'react';
 
 import { SigningModalDialog } from '@/components';
 import { TextArea, TextInput } from '@/components/react/inputs';
 import env from '@/config/env';
+import { useToast } from '@/contexts/toastContext';
 import { TokenFormData } from '@/helpers/formReducer';
 import { useFeeEstimation } from '@/hooks/useFeeEstimation';
 import { useTx } from '@/hooks/useTx';
+import { sanitizeImageUrl } from '@/lib/image-loader';
 import { ExtendedMetadataSDKType, truncateString } from '@/utils';
 import Yup from '@/utils/yupExtensions';
 
-const TokenDetailsSchema = (context: { subdenom: string }) =>
+const TokenDetailsSchema = (_context: { subdenom: string }) =>
   Yup.object().shape({
     display: Yup.string().required('Display is required').noProfanity(),
     name: Yup.string().required('Name is required').noProfanity(),
@@ -23,10 +24,19 @@ const TokenDetailsSchema = (context: { subdenom: string }) =>
       .min(10, 'Description must be at least 10 characters long')
       .noProfanity(),
     uri: Yup.string()
-      .url('Must be a valid URL')
-      .matches(/^https:\/\//i, 'URL must use HTTPS protocol')
-      .matches(/\.(jpg|jpeg|png|gif)$/i, 'URL must point to an image file')
-      .supportedImageUrl(),
+      .nullable()
+      .test('is-valid-url', 'Must be a valid URL', function (value) {
+        if (!value || value.trim() === '') return true; // Allow empty values
+        return Yup.string().url().isValidSync(value);
+      })
+      .test('is-https', 'URL must use HTTPS protocol', function (value) {
+        if (!value || value.trim() === '') return true; // Allow empty values
+        return /^https:\/\//i.test(value);
+      })
+      .test('is-image', 'URL must point to an image file', function (value) {
+        if (!value || value.trim() === '') return true; // Allow empty values
+        return /\.(jpg|jpeg|png|gif|webp|svg)(\?.*|#.*|$)/i.test(value);
+      }),
   });
 
 export default function UpdateDenomMetadataModal({
@@ -69,7 +79,8 @@ export default function UpdateDenomMetadataModal({
   const { estimateFee } = useFeeEstimation(env.chain);
   const { setDenomMetadata } = osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
-  const queryClient = useQueryClient();
+
+  const { setToastMessage } = useToast();
   const handleUpdate = async (values: TokenFormData, resetForm: () => void) => {
     const symbol = values.display.toUpperCase();
     try {
@@ -139,11 +150,48 @@ export default function UpdateDenomMetadataModal({
       <Formik
         initialValues={formData}
         validationSchema={() => TokenDetailsSchema({ subdenom: subdenom })}
-        onSubmit={(values, { resetForm }) => handleUpdate(values, resetForm)}
+        onSubmit={async (values, { setSubmitting, setErrors, setFieldError }) => {
+          try {
+            // Validate the form data sync first
+            await TokenDetailsSchema({ subdenom: subdenom }).validate(values, {
+              abortEarly: false,
+            });
+
+            // Sanitize the image URL (remove if NSFW/problematic, but don't block submission)
+            const sanitizedUri = sanitizeImageUrl(values.uri || '');
+            if (values.uri && !sanitizedUri) {
+              // Image was removed due to content filtering - show a toast warning
+              setToastMessage({
+                type: 'alert-warning',
+                title: 'Image Removed',
+                description:
+                  'The image URL was removed due to inappropriate content. The token will be updated without an image.',
+                bgColor: '#f39c12',
+              });
+            }
+
+            // Call the original handleUpdate function with sanitized values
+            const updatedValues = { ...values, uri: sanitizedUri };
+            await handleUpdate(updatedValues, () => {});
+          } catch (err) {
+            if (err instanceof Yup.ValidationError) {
+              const errors = err.inner.reduce((acc: Record<string, string>, error) => {
+                acc[error.path as string] = error.message;
+                return acc;
+              }, {});
+              setErrors(errors);
+            } else {
+              setFieldError('uri', 'An error occurred during validation');
+            }
+          } finally {
+            setSubmitting(false);
+          }
+        }}
         validateOnChange={true}
         validateOnBlur={true}
+        enableReinitialize={true}
       >
-        {({ isValid, dirty, values, handleChange, handleSubmit }) => (
+        {({ isValid, dirty, values, handleChange, handleSubmit, setFieldValue, isSubmitting }) => (
           <>
             <h3 className="text-xl font-semibold text-[#161616] dark:text-white mb-6">
               Update Metadata for{' '}
@@ -176,8 +224,12 @@ export default function UpdateDenomMetadataModal({
                   label="LOGO URL"
                   name="uri"
                   value={values.uri}
-                  placeholder={denom?.uri}
-                  onChange={handleChange}
+                  placeholder={denom?.uri || 'Enter the logo URL (optional)'}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    const value = e.target.value;
+                    setFieldValue('uri', value);
+                  }}
+                  aria-label="Token logo URL"
                 />
                 <TextInput
                   label="TICKER"
@@ -207,11 +259,14 @@ export default function UpdateDenomMetadataModal({
               </button>
               <button
                 type="submit"
-                className="btn w-1/2 btn-gradient text-white"
-                onClick={() => handleSubmit()}
-                disabled={isSigning || !isValid || !dirty}
+                className="btn w-1/2 btn-gradient text-white disabled:text-black"
+                onClick={e => {
+                  e.preventDefault();
+                  handleSubmit();
+                }}
+                disabled={!isValid || isSubmitting}
               >
-                {isSigning ? <span className="loading loading-dots"></span> : 'Update'}
+                {isSubmitting ? <span className="loading loading-dots"></span> : 'Update'}
               </button>
             </div>
           </>

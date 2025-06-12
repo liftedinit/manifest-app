@@ -14,10 +14,8 @@ describe('Image Loader', () => {
   });
 
   afterEach(() => {
-    // Clear all mocks
-    jest.clearAllMocks();
-    mockConsoleWarn.mockClear();
-    mockConsoleError.mockClear();
+    // Restore original console implementations and reset mock state
+    jest.restoreAllMocks();
   });
 
   describe('Valid URLs', () => {

@@ -99,21 +99,10 @@ export default function ConfirmationForm({
       await tx([msg], {
         fee: () => estimateFee(address, [msg]),
         onSuccess: () => {
-          // Add a delay to ensure metadata is propagated before refreshing cache
-          setTimeout(() => {
-            queryClient.invalidateQueries({ queryKey: ['allMetadatas'] });
-            queryClient.invalidateQueries({ queryKey: ['denoms'] });
-            queryClient.invalidateQueries({ queryKey: ['balances'] });
-            queryClient.invalidateQueries({ queryKey: ['totalSupply'] });
-            // Also invalidate any queries with the specific address
-            queryClient.invalidateQueries({
-              queryKey: ['denoms', formData.groupPolicyAddress || ''],
-            });
-            queryClient.invalidateQueries({
-              queryKey: ['balances', formData.groupPolicyAddress || ''],
-            });
-          }, 2000); // 2 second delay
-
+          queryClient.invalidateQueries({ queryKey: ['allMetadatas'] });
+          queryClient.invalidateQueries({ queryKey: ['denoms'] });
+          queryClient.invalidateQueries({ queryKey: ['balances'] });
+          queryClient.invalidateQueries({ queryKey: ['totalSupply'] });
           nextStep();
         },
         returnError: true,
@@ -156,16 +145,10 @@ export default function ConfirmationForm({
       await tx([createDenomMsg, setMetadataMsg], {
         fee: () => estimateFee(address, [createDenomMsg, setMetadataMsg]),
         onSuccess: () => {
-          // Add a delay to ensure metadata is propagated before refreshing cache
-          setTimeout(() => {
-            queryClient.invalidateQueries({ queryKey: ['allMetadatas'] });
-            queryClient.invalidateQueries({ queryKey: ['denoms'] });
-            queryClient.invalidateQueries({ queryKey: ['balances'] });
-            queryClient.invalidateQueries({ queryKey: ['totalSupply'] });
-            // Also invalidate any queries with the specific address
-            queryClient.invalidateQueries({ queryKey: ['denoms', address] });
-            queryClient.invalidateQueries({ queryKey: ['balances', address] });
-          }, 2000); // 2 second delay
+          queryClient.invalidateQueries({ queryKey: ['allMetadatas'] });
+          queryClient.invalidateQueries({ queryKey: ['denoms'] });
+          queryClient.invalidateQueries({ queryKey: ['balances'] });
+          queryClient.invalidateQueries({ queryKey: ['totalSupply'] });
 
           nextStep();
         },
