@@ -19,8 +19,10 @@ export const DenomImage = ({
     if (denom?.uri) {
       const sanitized = sanitizeImageUrl(denom.uri);
       setSanitizedUri(sanitized);
+      setImageError(false);
     } else {
       setSanitizedUri('');
+      setImageError(false);
     }
   }, [denom?.uri]);
 
