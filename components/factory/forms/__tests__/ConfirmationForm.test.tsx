@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, jest, test } from 'bun:test';
 import React from 'react';
 
 import ConfirmationForm from '@/components/factory/forms/ConfirmationForm';
-import { clearAllMocks, mockRouter } from '@/tests';
+import { clearAllMocks, mockModule, mockRouter } from '@/tests';
 import { mockTokenFormData } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
 
@@ -21,6 +21,12 @@ function renderWithProps(props = {}) {
 describe('ConfirmationForm Component', () => {
   beforeEach(() => {
     mockRouter();
+    mockModule('next/image', () => ({
+      default: (props: any) => {
+        // eslint-disable-next-line @next/next/no-img-element,jsx-a11y/alt-text
+        return <img alt="" {...props} />;
+      },
+    }));
   });
 
   afterEach(() => {
@@ -36,7 +42,7 @@ describe('ConfirmationForm Component', () => {
     expect(screen.getByText('Description')).toBeInTheDocument();
     expect(screen.getByText(mockTokenFormData.description)).toBeInTheDocument();
 
-    expect(screen.getByText('Logo URL')).toBeInTheDocument();
-    expect(screen.getByText(`${mockTokenFormData.uri}`)).toBeInTheDocument();
+    expect(screen.getByText('Logo')).toBeInTheDocument();
+    expect(screen.getByText('✓ Valid image')).toBeInTheDocument();
   });
 });

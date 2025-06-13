@@ -19,6 +19,17 @@ const defaultOptions = {
   wallets: [],
 };
 
+// Default Web3AuthContext for tests
+const defaultWeb3AuthContext: Web3AuthContextType = {
+  prompt: undefined,
+  promptId: undefined,
+  setPromptId: () => {},
+  wallets: [],
+  isSigning: false,
+  setIsSigning: () => {},
+  resetWeb3AuthClients: () => {},
+};
+
 export const renderWithChainProvider = (ui: React.ReactElement, options = {}) => {
   const combinedOptions = { ...defaultOptions, ...options };
   const client = new QueryClient();
@@ -26,7 +37,9 @@ export const renderWithChainProvider = (ui: React.ReactElement, options = {}) =>
     <QueryClientProvider client={client}>
       <ChainProvider throwErrors={false} {...combinedOptions}>
         <SkipProvider>
-          <ToastProvider>{ui}</ToastProvider>
+          <ToastProvider>
+            <Web3AuthContext.Provider value={defaultWeb3AuthContext}>{ui}</Web3AuthContext.Provider>
+          </ToastProvider>
         </SkipProvider>
       </ChainProvider>
     </QueryClientProvider>,

@@ -1,9 +1,14 @@
 import { MainWalletBase } from '@cosmos-kit/core';
 import { wallets as cosmosExtensionWallets } from '@cosmos-kit/cosmos-extension-metamask';
-import { SignData, Web3AuthWallet, makeWeb3AuthWallets } from '@cosmos-kit/web3auth';
+import {
+  SignData,
+  Web3AuthClient,
+  Web3AuthWallet,
+  makeWeb3AuthWallets,
+} from '@cosmos-kit/web3auth';
 import { WEB3AUTH_NETWORK_TYPE } from '@web3auth/auth';
 import { wallets as cosmosWallets } from 'cosmos-kit';
-import { ReactNode, createContext, useMemo, useState } from 'react';
+import { ReactNode, createContext, useCallback, useMemo, useState } from 'react';
 
 import env from '@/config/env';
 
@@ -17,6 +22,8 @@ export interface Web3AuthContextType {
   wallets: (MainWalletBase | Web3AuthWallet)[];
   isSigning: boolean;
   setIsSigning: (isSigning: boolean) => void;
+  resetWeb3AuthClients: () => void;
+  forceChainProviderReset?: () => void;
 }
 
 export const Web3AuthContext = createContext<Web3AuthContextType>({
@@ -26,6 +33,8 @@ export const Web3AuthContext = createContext<Web3AuthContextType>({
   wallets: [],
   isSigning: false,
   setIsSigning: () => {},
+  resetWeb3AuthClients: () => {},
+  forceChainProviderReset: undefined,
 });
 
 export const Web3AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -127,6 +136,39 @@ export const Web3AuthProvider = ({ children }: { children: ReactNode }) => {
     []
   );
 
+  /**
+   * Reset Web3Auth clients and force cosmos-kit to refresh its client cache.
+   * This is essential when switching between social accounts to prevent stale client state.
+   */
+  const resetWeb3AuthClients = useCallback(async () => {
+    try {
+      // Clear Web3Auth login hints for all social wallets
+      web3AuthWallets.forEach(wallet => {
+        if (wallet instanceof Web3AuthWallet && wallet.client instanceof Web3AuthClient) {
+          // Clear any stored login hints using the available method
+          wallet.client.setLoginHint('');
+        }
+      });
+
+      // Force disconnect all Web3Auth wallets to clear their cached state
+      const disconnectPromises = web3AuthWallets.map(async wallet => {
+        if (wallet instanceof Web3AuthWallet) {
+          try {
+            if (wallet.walletStatus === 'Connected') {
+              await wallet.disconnect();
+            }
+          } catch (error) {
+            console.warn(`Failed to disconnect wallet ${wallet.walletInfo.name}:`, error);
+          }
+        }
+      });
+
+      await Promise.all(disconnectPromises);
+    } catch (error) {
+      console.error('❌ Error resetting Web3Auth clients:', error);
+    }
+  }, [web3AuthWallets]);
+
   // Combine the Web3auth wallets with the other wallets
   const wallets = [
     ...web3AuthWallets,
@@ -136,7 +178,15 @@ export const Web3AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <Web3AuthContext.Provider
-      value={{ prompt, promptId, setPromptId, wallets, isSigning, setIsSigning }}
+      value={{
+        prompt,
+        promptId,
+        setPromptId,
+        wallets,
+        isSigning,
+        setIsSigning,
+        resetWeb3AuthClients,
+      }}
     >
       {children}
     </Web3AuthContext.Provider>

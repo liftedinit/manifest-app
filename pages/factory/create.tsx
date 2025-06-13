@@ -46,7 +46,7 @@ export default function CreateToken() {
   }, [router.query]);
 
   const nextStep = () => {
-    if (currentStep < 4) {
+    if (currentStep < 3) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -58,9 +58,8 @@ export default function CreateToken() {
   };
 
   const steps = [
-    { label: 'Create Denom', mobileLabel: 'Denom', step: 1 },
-    { label: 'Token Metadata', mobileLabel: 'Metadata', step: 2 },
-    { label: 'Confirmation', mobileLabel: 'Confirm', step: 3 },
+    { label: 'Token Metadata', mobileLabel: 'Metadata', step: 1 },
+    { label: 'Confirmation', mobileLabel: 'Confirm', step: 2 },
   ];
 
   return (
@@ -73,14 +72,9 @@ export default function CreateToken() {
         />
       ) : (
         <div className="w-full justify-between space-y-8  items-center animate-fadeIn mt-4 overflow-hidden">
-          {currentStep != 4 && <StepIndicator steps={steps} currentStep={currentStep} />}
+          {currentStep != 3 && <StepIndicator steps={steps} currentStep={currentStep} />}
 
           {currentStep === 1 && (
-            <div className="transition-opacity duration-300 animate-fadeIn mx-auto">
-              <CreateDenom formData={formData} dispatch={dispatch} nextStep={nextStep} />
-            </div>
-          )}
-          {currentStep === 2 && (
             <div className="transition-opacity duration-300 animate-fadeIn">
               <TokenDetails
                 address={address ?? ''}
@@ -91,7 +85,7 @@ export default function CreateToken() {
               />
             </div>
           )}
-          {currentStep === 3 && (
+          {currentStep === 2 && (
             <div className="transition-opacity duration-300 animate-fadeIn">
               <ConfirmationForm
                 formData={formData}
@@ -101,7 +95,7 @@ export default function CreateToken() {
               />
             </div>
           )}
-          {currentStep === 4 && (
+          {currentStep === 3 && (
             <div className="transition-opacity duration-300 animate-fadeIn">
               <Success formData={formData} address={address ?? ''} />
             </div>

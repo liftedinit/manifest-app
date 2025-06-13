@@ -5,6 +5,8 @@ import {
 } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
 import { useQueryClient } from '@tanstack/react-query';
 import { Any } from 'cosmjs-types/google/protobuf/any';
+import Image from 'next/image';
+import React, { useState } from 'react';
 
 import { SignModal } from '@/components/react';
 import env from '@/config/env';
@@ -29,6 +31,7 @@ export default function ConfirmationForm({
     osmosis.tokenfactory.v1beta1.MessageComposer.withTypeUrl;
   const { submitProposal } = cosmos.group.v1.MessageComposer.withTypeUrl;
   const queryClient = useQueryClient();
+  const [imageError, setImageError] = useState(false);
 
   const effectiveAddress =
     formData.isGroup && formData.groupPolicyAddress ? formData.groupPolicyAddress : address;
@@ -96,11 +99,11 @@ export default function ConfirmationForm({
       await tx([msg], {
         fee: () => estimateFee(address, [msg]),
         onSuccess: () => {
-          nextStep();
           queryClient.invalidateQueries({ queryKey: ['allMetadatas'] });
           queryClient.invalidateQueries({ queryKey: ['denoms'] });
           queryClient.invalidateQueries({ queryKey: ['balances'] });
           queryClient.invalidateQueries({ queryKey: ['totalSupply'] });
+          nextStep();
         },
         returnError: true,
       });
@@ -142,11 +145,12 @@ export default function ConfirmationForm({
       await tx([createDenomMsg, setMetadataMsg], {
         fee: () => estimateFee(address, [createDenomMsg, setMetadataMsg]),
         onSuccess: () => {
-          nextStep();
           queryClient.invalidateQueries({ queryKey: ['allMetadatas'] });
           queryClient.invalidateQueries({ queryKey: ['denoms'] });
           queryClient.invalidateQueries({ queryKey: ['balances'] });
           queryClient.invalidateQueries({ queryKey: ['totalSupply'] });
+
+          nextStep();
         },
         returnError: true,
       });
@@ -162,7 +166,18 @@ export default function ConfirmationForm({
   return (
     <section>
       <div className="w-full dark:bg-[#FFFFFF0F] bg-[#FFFFFFCC] p-[24px] rounded-[24px]">
-        <div className="flex justify-center p-4 rounded-[8px] mb-6 w-full dark:bg-[#FAFAFA1F] bg-[#A087FF1F] items-center">
+        <div className="flex justify-center p-4 rounded-[8px] mb-6 w-full dark:bg-[#FAFAFA1F] bg-[#A087FF1F] items-center gap-4">
+          {formData.uri && !imageError && (
+            <Image
+              src={formData.uri}
+              alt={`${formData.name} logo`}
+              width={48}
+              height={48}
+              className="w-12 h-12 rounded-full object-cover"
+              onError={() => setImageError(true)}
+              onLoad={() => setImageError(false)}
+            />
+          )}
           <h1 className="text-xl text-primary font-bold">{formData.name}</h1>
         </div>
 
@@ -176,19 +191,39 @@ export default function ConfirmationForm({
                 <div className="">{formData.symbol || formData.display}</div>
               </div>
               <div className="bg-base-300 p-4 rounded-[12px]">
-                <label className="text-sm text-gray-500 dark:text-gray-400">Logo URL</label>
-                <div className=" truncate">{formData.uri || 'N/A'}</div>
+                <label className="text-sm text-gray-500 dark:text-gray-400">Logo</label>
+                <div className="flex items-center gap-2">
+                  {formData.uri && !imageError ? (
+                    <div className="flex items-center gap-2">
+                      <Image
+                        src={formData.uri}
+                        alt={`${formData.name} logo`}
+                        width={32}
+                        height={32}
+                        className="w-8 h-8 rounded-full object-cover"
+                        onError={() => setImageError(true)}
+                        onLoad={() => setImageError(false)}
+                      />
+                      <span className="text-sm text-green-600 dark:text-green-400">
+                        ✓ Valid image
+                      </span>
+                    </div>
+                  ) : formData.uri && imageError ? (
+                    <span className="text-sm text-red-600 dark:text-red-400">
+                      ✗ Invalid image URL
+                    </span>
+                  ) : (
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                      No logo provided
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
             <div className="mt-4 bg-base-300 p-4 rounded-[12px]">
               <label className="text-sm text-gray-500 dark:text-gray-400">Description</label>
-              <div
-                className="overflow-hidden text-ellipsis whitespace-nowrap "
-                title={formData.description}
-              >
-                {formData.description.length > 200
-                  ? `${formData.description.slice(0, 200)}...`
-                  : formData.description}
+              <div className="break-words" title={formData.description}>
+                {formData.description}
               </div>
             </div>
           </div>

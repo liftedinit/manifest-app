@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import React from 'react';
 
 import Success from '@/components/factory/forms/Success';
-import { clearAllMocks, mockRouter } from '@/tests';
+import { clearAllMocks, mockModule, mockRouter } from '@/tests';
 import { mockTokenFormData } from '@/tests/data';
 import { renderWithChainProvider } from '@/tests/render';
 
@@ -15,6 +15,12 @@ const mockProps = {
 describe('Success Component', () => {
   beforeEach(() => {
     mockRouter();
+    mockModule('next/image', () => ({
+      default: (props: any) => {
+        // eslint-disable-next-line @next/next/no-img-element,jsx-a11y/alt-text
+        return <img alt="" {...props} />;
+      },
+    }));
   });
   afterEach(() => {
     clearAllMocks();
