@@ -1,13 +1,9 @@
 import '@fontsource/manrope';
 import '@interchain-ui/react/styles';
 import type { AppProps } from 'next/app';
-<<<<<<< HEAD
 import posthog from 'posthog-js';
 import { PostHogProvider } from 'posthog-js/react';
-import { useEffect } from 'react';
-=======
 import { useContext, useEffect } from 'react';
->>>>>>> main
 
 import MobileNav from '@/components/react/mobileNav';
 import { ManifestAppProviders } from '@/contexts/manifestAppProviders';
