@@ -7,6 +7,8 @@ import env from '@/config/env';
 import { useToast } from '@/contexts/toastContext';
 import { Web3AuthContext } from '@/contexts/web3AuthContext';
 
+import { useManifestPostHog } from './usePostHog';
+
 interface Msg {
   typeUrl: string;
   value: any;
@@ -29,6 +31,7 @@ const extractSimulationErrorMessage = (fullErrorMessage: string): string => {
   const patterns = [
     /failed to execute message; message index: \d+: (.+?): execute wasm contract failed/,
     /failed to execute message; message index: \d+: (.+)/,
+    /message index: \d+: (.+?) \[.*\]/, // Matches: message index: 0: insufficient funds [cosmos.bank.v1beta1.MsgSend]
     /execute wasm contract failed: (.+)/,
     /rpc error: code = InvalidArgument desc = (.+)/,
     /rpc error: code = \w+ desc = (.+)/,
@@ -53,6 +56,7 @@ export const useTx = (chainName: string, promptId?: string) => {
   const { address, getSigningStargateClient, estimateFee, disconnect, connect } =
     useChain(chainName);
   const { setToastMessage } = useToast();
+  const { trackTransaction } = useManifestPostHog();
   const explorerUrl = chainName === env.osmosisChain ? env.osmosisExplorerUrl : env.explorerUrl;
   const lastUsedAddress = useRef<string | null>(null);
 
@@ -135,6 +139,24 @@ export const useTx = (chainName: string, promptId?: string) => {
       if (isDeliverTxSuccess(res)) {
         if (options.onSuccess) options.onSuccess();
 
+        // Track successful transaction
+        trackTransaction({
+          success: true,
+          transactionHash: res.transactionHash,
+          chainId: chainName,
+          messageTypes: msgs.map(msg => msg.typeUrl),
+          fee: fee
+            ? {
+                amount: fee.amount[0]?.amount || '0',
+                denom: fee.amount[0]?.denom || 'unknown',
+              }
+            : undefined,
+          memo: options.memo,
+          gasUsed: res.gasUsed?.toString(),
+          gasWanted: res.gasWanted?.toString(),
+          height: res.height?.toString(),
+        });
+
         if (msgs.filter(msg => msg.typeUrl === '/cosmos.group.v1.MsgSubmitProposal').length > 0) {
           const submitProposalEvent = res.events.find(
             event => event.type === 'cosmos.group.v1.EventSubmitProposal'
@@ -162,6 +184,25 @@ export const useTx = (chainName: string, promptId?: string) => {
         }
         return options.returnError ? { error: null } : undefined;
       } else {
+        // Track failed transaction
+        trackTransaction({
+          success: false,
+          transactionHash: res.transactionHash,
+          chainId: chainName,
+          messageTypes: msgs.map(msg => msg.typeUrl),
+          fee: fee
+            ? {
+                amount: fee.amount[0]?.amount || '0',
+                denom: fee.amount[0]?.denom || 'unknown',
+              }
+            : undefined,
+          memo: options.memo,
+          error: res?.rawLog || 'Unknown error',
+          gasUsed: res.gasUsed?.toString(),
+          gasWanted: res.gasWanted?.toString(),
+          height: res.height?.toString(),
+        });
+
         if (options.showToastOnErrors !== false) {
           setToastMessage({
             type: 'alert-error',
@@ -175,6 +216,7 @@ export const useTx = (chainName: string, promptId?: string) => {
     } catch (e: any) {
       console.error('Failed to broadcast or simulate: ', e);
       const errorMessage = options.simulate ? extractSimulationErrorMessage(e.message) : e.message;
+
       if (options.showToastOnErrors !== false) {
         setToastMessage({
           type: 'alert-error',

@@ -8,3 +8,4 @@ export { default as useIsMobile } from './useIsMobile';
 export * from './useDeviceDetect';
 export * from './useLocalStorage';
 export * from './useEstimateMaxAmount';
+export * from './usePostHog';

@@ -1,6 +1,8 @@
 import '@fontsource/manrope';
 import '@interchain-ui/react/styles';
 import type { AppProps } from 'next/app';
+import posthog from 'posthog-js';
+import { PostHogProvider } from 'posthog-js/react';
 import { useContext, useEffect } from 'react';
 
 import MobileNav from '@/components/react/mobileNav';
@@ -13,17 +15,36 @@ import SideNav from '../components/react/sideNav';
 import '../styles/globals.css';
 
 function ManifestApp({ Component, pageProps }: AppProps) {
+  // Initialize PostHog on the client
+  useEffect(() => {
+    if (process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+      posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
+        api_host: '/ingest',
+        ui_host: 'https://us.posthog.com',
+        capture_pageview: 'history_change',
+        autocapture: false,
+        capture_exceptions: true, // enable capturing exceptions
+        loaded: ph => {
+          if (process.env.NODE_ENV === 'development') ph.debug();
+        },
+        debug: process.env.NODE_ENV === 'development',
+      });
+    }
+  }, []);
+
   const [drawer, setDrawer] = useLocalStorage('isDrawerVisible', true);
 
   return (
-    <ManifestAppProviders>
-      <AppContent
-        Component={Component}
-        pageProps={pageProps}
-        drawer={drawer}
-        setDrawer={setDrawer}
-      />
-    </ManifestAppProviders>
+    <PostHogProvider client={posthog}>
+      <ManifestAppProviders>
+        <AppContent
+          Component={Component}
+          pageProps={pageProps}
+          drawer={drawer}
+          setDrawer={setDrawer}
+        />
+      </ManifestAppProviders>
+    </PostHogProvider>
   );
 }
 
@@ -70,7 +91,7 @@ function AppContent({ Component, pageProps, drawer, setDrawer }: AppContentProps
       </div>
 
       <div
-        className={`flex-1 transition-all duration-300 ease-in-out 
+        className={`flex-1 transition-all duration-300 ease-in-out \
                     ml-0 lg:ml-36 ${drawer ? 'lg:ml-[17rem]' : ''} relative z-0`}
       >
         <div className="lg:hidden pt-12">
