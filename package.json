@@ -1,6 +1,7 @@
 {
   "name": "@liftedinit/manifest-app",
   "version": "0.0.1",
+  "type": "module",
   "private": false,
   "description": "An application to interact with the Manifest Chain",
   "scripts": {

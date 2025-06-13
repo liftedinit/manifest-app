@@ -2,69 +2,8 @@ import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
+import { sanitizeImageUrl } from '@/lib/image-loader';
 import { ProfileAvatar } from '@/utils/identicon';
-
-export const supportedDomains = [
-  'imgur.com',
-  'i.imgur.com',
-  'cloudfront.net',
-  'cdn.jsdelivr.net',
-  'raw.githubusercontent.com',
-  's3.amazonaws.com',
-  'storage.googleapis.com',
-  'res.cloudinary.com',
-  'images.unsplash.com',
-  'media.giphy.com',
-  'media.istockphoto.com',
-  'imgix.net',
-  'staticflickr.com',
-  'twimg.com',
-  'pinimg.com',
-  'giphy.com',
-  'dropboxusercontent.com',
-  'googleusercontent.com',
-  'upload.wikimedia.org',
-  'unsplash.com',
-  'istockphoto.com',
-  't4.ftcdn.net',
-];
-
-export const supportedPatterns = [
-  /^https:\/\/.*\.s3\.amazonaws\.com/,
-  /^https:\/\/.*\.storage\.googleapis\.com/,
-  /^https:\/\/.*\.cloudinary\.com/,
-  /^https:\/\/.*\.imgix\.net/,
-  /^https:\/\/.*\.staticflickr\.com/,
-  /^https:\/\/.*\.twimg\.com/,
-  /^https:\/\/.*\.pinimg\.com/,
-  /^https:\/\/.*\.giphy\.com/,
-  /^https:\/\/.*\.dropboxusercontent\.com/,
-  /^https:\/\/.*\.googleusercontent\.com/,
-  /^https:\/\/.*\.unsplash\.com/,
-  /^https:\/\/.*\.upload\.wikimedia\.org/,
-  /^https:\/\/.*\.istockphoto\.com/,
-  /^https:\/\/.*\.media\.giphy\.com/,
-  /^https:\/\/.*\.media\.istockphoto\.com/,
-  /^https:\/\/.*\.images\.unsplash\.com/,
-  /^https:\/\/.*\.media\.istockphoto\.com/,
-  /^https:\/\/.*\.imgix\.net/,
-  /^https:\/\/.*\.staticflickr\.com/,
-  /^https:\/\/.*\.twimg\.com/,
-  /^https:\/\/.*\.pinimg\.com/,
-  /^https:\/\/.*\.giphy\.com/,
-  /^https:\/\/.*\.t4\.ftcdn\.net/,
-];
-
-export const isUrlSupported = (url: string) => {
-  try {
-    const { hostname } = new URL(url);
-    return (
-      supportedDomains.includes(hostname) || supportedPatterns.some(pattern => pattern.test(url))
-    );
-  } catch {
-    return false;
-  }
-};
 
 export const DenomImage = ({
   denom,
@@ -74,11 +13,16 @@ export const DenomImage = ({
   withBackground?: boolean;
 }) => {
   const [imageError, setImageError] = useState(false);
-  const [isSupported, setIsSupported] = useState(false);
+  const [sanitizedUri, setSanitizedUri] = useState<string>('');
 
   useEffect(() => {
     if (denom?.uri) {
-      setIsSupported(isUrlSupported(denom.uri));
+      const sanitized = sanitizeImageUrl(denom.uri);
+      setSanitizedUri(sanitized);
+      setImageError(false);
+    } else {
+      setSanitizedUri('');
+      setImageError(false);
     }
   }, [denom?.uri]);
 
@@ -99,24 +43,24 @@ export const DenomImage = ({
     );
   }
 
-  // Then check for other conditions
-  if (!denom?.uri || !isSupported || imageError) {
-    return <ProfileAvatar walletAddress={denom?.base} withBackground={withBackground} />;
+  // Use sanitized URI instead of checking supported domains/patterns
+  if (sanitizedUri && !imageError) {
+    return (
+      <div
+        className={`w-11 h-11 p-2 rounded-md ${withBackground ? 'dark:bg-[#ffffff0f] bg-[#0000000A]' : ''}`}
+      >
+        <Image
+          width={44}
+          height={44}
+          src={sanitizedUri}
+          alt="Token Icon"
+          onError={() => setImageError(true)}
+          className="rounded-md w-full h-full data-[loaded=false]:animate-pulse data-[loaded=false]:skeleton data-[loaded=false]:bg-gray-300"
+        />
+      </div>
+    );
   }
 
-  // For all other cases, use the denom.uri
-  return (
-    <div
-      className={`w-11 h-11 p-2 rounded-md ${withBackground ? 'dark:bg-[#ffffff0f] bg-[#0000000A]' : ''}`}
-    >
-      <Image
-        width={44}
-        height={44}
-        src={denom?.uri}
-        alt="Token Icon"
-        onError={() => setImageError(true)}
-        className="rounded-md w-full h-full data-[loaded=false]:animate-pulse data-[loaded=false]:skeleton data-[loaded=false]:bg-gray-300"
-      />
-    </div>
-  );
+  // Fallback to ProfileAvatar if no URI or image error
+  return <ProfileAvatar walletAddress={denom?.base} withBackground={withBackground} />;
 };

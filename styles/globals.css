@@ -168,6 +168,12 @@
 }
 
 @layer utilities {
+  /* Global loading cursor when signing transactions */
+  [data-signing='true'],
+  [data-signing='true'] * {
+    cursor: wait !important;
+  }
+
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
   input:-webkit-autofill:focus,

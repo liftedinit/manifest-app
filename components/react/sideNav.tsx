@@ -196,7 +196,7 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
           )}
         </div>
       </div>
-      <ul className="grow mt-8 p-1">
+      <ul className="-mt-8 p-1">
         <NavDrawer Icon={MdHome} href="/" label="Home" tooltip="Home" />
         <NavDrawer Icon={BankIcon} href="/bank" label="Bank" tooltip="Manage your assets" />
         <NavDrawer

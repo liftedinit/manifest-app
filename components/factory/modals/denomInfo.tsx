@@ -62,8 +62,16 @@ export const DenomInfoModal: React.FC<DenomInfoModalProps> = ({
           label="Description"
           value={denom?.description ?? 'No description available'}
           explorerUrl={env.explorerUrl}
-          className="col-span-2 row-span-2"
+          className="col-span-2"
         />
+        {denom?.uri && (
+          <InfoItem
+            label="Logo URL"
+            value={denom?.uri ?? 'No logo URL provided'}
+            explorerUrl={env.explorerUrl}
+            className="col-span-2"
+          />
+        )}
       </div>
       <h4 className="text-lg font-semibold text-[#161616] dark:text-white mt-6  mb-4">
         Additional Information
@@ -128,7 +136,7 @@ function InfoItem({
             <TruncatedAddressWithCopy address={value} />
           </div>
         ) : (
-          <p className="text-[#161616] dark:text-white" title={value}>
+          <p className="text-[#161616] dark:text-white break-words" title={value}>
             {value}
           </p>
         )}

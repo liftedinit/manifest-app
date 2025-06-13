@@ -22,7 +22,7 @@ export interface Web3AuthContextType {
   wallets: (MainWalletBase | Web3AuthWallet)[];
   isSigning: boolean;
   setIsSigning: (isSigning: boolean) => void;
-  resetWeb3AuthClients: () => Promise<void>;
+  resetWeb3AuthClients: () => void;
   forceChainProviderReset?: () => void;
 }
 
@@ -33,7 +33,7 @@ export const Web3AuthContext = createContext<Web3AuthContextType>({
   wallets: [],
   isSigning: false,
   setIsSigning: () => {},
-  resetWeb3AuthClients: async () => {},
+  resetWeb3AuthClients: () => {},
   forceChainProviderReset: undefined,
 });
 
