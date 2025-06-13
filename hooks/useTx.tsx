@@ -31,6 +31,7 @@ const extractSimulationErrorMessage = (fullErrorMessage: string): string => {
   const patterns = [
     /failed to execute message; message index: \d+: (.+?): execute wasm contract failed/,
     /failed to execute message; message index: \d+: (.+)/,
+    /message index: \d+: (.+?) \[.*\]/, // Matches: message index: 0: insufficient funds [cosmos.bank.v1beta1.MsgSend]
     /execute wasm contract failed: (.+)/,
     /rpc error: code = InvalidArgument desc = (.+)/,
     /rpc error: code = \w+ desc = (.+)/,
