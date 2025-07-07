@@ -190,7 +190,7 @@ function IbcSendForm({ token }: { token: string }) {
       )
     )
     .map((asset: Asset) => asset.base);
-  console.log();
+
   return (
     <div
       aria-label="ibc-send-form"

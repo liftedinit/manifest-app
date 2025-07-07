@@ -155,7 +155,7 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
                   name: toastMessage.targetChain,
                   icon: toastMessage.targetChainIcon!,
                 }}
-                status={toastMessage.status ?? TransactionState.STATE_PENDING_ERROR}
+                status={toastMessage.status}
               />
             )}
 

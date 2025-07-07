@@ -11,7 +11,7 @@ interface IbcTransferProgressProps {
     name: string;
     icon: string;
   };
-  status: TransactionState;
+  status: TransactionState | undefined;
 }
 
 export const IbcTransferProgress: React.FC<IbcTransferProgressProps> = ({
