@@ -1,4 +1,4 @@
-import { StatusState } from '@skip-go/client';
+import { TransactionState } from '@skip-go/client';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useEffect, useRef, useState } from 'react';
@@ -20,7 +20,7 @@ export interface ToastMessage {
   targetChain?: string;
   sourceChainIcon?: string;
   targetChainIcon?: string;
-  status?: StatusState;
+  status?: TransactionState;
 }
 
 interface ToastProps {
@@ -130,8 +130,7 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
                 toastMessage.status !== 'STATE_ABANDONED' &&
                 toastMessage.status !== 'STATE_COMPLETED_SUCCESS' &&
                 toastMessage.status !== 'STATE_COMPLETED_ERROR' &&
-                toastMessage.status !== 'STATE_PENDING_ERROR' &&
-                toastMessage.status !== 'STATE_COMPLETED') ||
+                toastMessage.status !== 'STATE_PENDING_ERROR') ||
                 toastMessage.type === 'alert-info') && (
                 <BroadcastingIcon className="w-6 h-6 text-[#A087FF]" aria-hidden="true" />
               )}
@@ -156,7 +155,7 @@ export const Toast: React.FC<ToastProps> = ({ toastMessage, setToastMessage }) =
                   name: toastMessage.targetChain,
                   icon: toastMessage.targetChainIcon!,
                 }}
-                status={toastMessage.status || 'STATE_UNKNOWN'}
+                status={toastMessage.status ?? TransactionState.STATE_PENDING_ERROR}
               />
             )}
 

@@ -1,4 +1,4 @@
-import { StatusState } from '@skip-go/client';
+import { TransactionState } from '@skip-go/client';
 import Image from 'next/image';
 import React from 'react';
 
@@ -11,7 +11,7 @@ interface IbcTransferProgressProps {
     name: string;
     icon: string;
   };
-  status: StatusState;
+  status: TransactionState;
 }
 
 export const IbcTransferProgress: React.FC<IbcTransferProgressProps> = ({
@@ -27,10 +27,6 @@ export const IbcTransferProgress: React.FC<IbcTransferProgressProps> = ({
       case 'STATE_PENDING':
         // Source chain is active, target is waiting
         return isSource ? 'active' : 'pending';
-      case 'STATE_RECEIVED':
-        // Source is done, target is now active
-        return isSource ? 'completed' : 'active';
-      case 'STATE_COMPLETED':
       case 'STATE_COMPLETED_SUCCESS':
         // Both chains are completed
         return 'completed';

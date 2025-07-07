@@ -29,7 +29,6 @@ import { TailwindModal } from '@/components';
 import env from '@/config/env';
 import { manifestAssets, manifestChain } from '@/config/manifestChain';
 import { ThemeProvider } from '@/contexts';
-import { SkipProvider } from '@/contexts/skipGoContext';
 import { ToastProvider } from '@/contexts/toastContext';
 import { Web3AuthContext, Web3AuthProvider } from '@/contexts/web3AuthContext';
 import { ContactsProvider } from '@/hooks';
@@ -132,11 +131,9 @@ export const ManifestAppProviders = ({ children }: { children: ReactNode }) => {
       <ContactsProvider>
         <Web3AuthProvider>
           <ManifestChainProvider>
-            <SkipProvider>
-              <ThemeProvider>
-                <ToastProvider>{children}</ToastProvider>
-              </ThemeProvider>
-            </SkipProvider>
+            <ThemeProvider>
+              <ToastProvider>{children}</ToastProvider>
+            </ThemeProvider>
           </ManifestChainProvider>
         </Web3AuthProvider>
       </ContactsProvider>

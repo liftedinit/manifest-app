@@ -10,7 +10,6 @@ import React from 'react';
 
 import { manifestAssets, manifestChain } from '@/config/manifestChain';
 import { ToastProvider } from '@/contexts';
-import { SkipProvider } from '@/contexts/skipGoContext';
 import { Web3AuthContext, Web3AuthContextType } from '@/contexts/web3AuthContext';
 
 const defaultOptions = {
@@ -36,11 +35,9 @@ export const renderWithChainProvider = (ui: React.ReactElement, options = {}) =>
   return render(
     <QueryClientProvider client={client}>
       <ChainProvider throwErrors={false} {...combinedOptions}>
-        <SkipProvider>
-          <ToastProvider>
-            <Web3AuthContext.Provider value={defaultWeb3AuthContext}>{ui}</Web3AuthContext.Provider>
-          </ToastProvider>
-        </SkipProvider>
+        <ToastProvider>
+          <Web3AuthContext.Provider value={defaultWeb3AuthContext}>{ui}</Web3AuthContext.Provider>
+        </ToastProvider>
       </ChainProvider>
     </QueryClientProvider>,
     options
