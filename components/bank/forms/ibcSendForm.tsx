@@ -1,5 +1,6 @@
 'use client';
 
+import { Asset } from '@chain-registry/types';
 import { OfflineAminoSigner } from '@cosmjs/amino';
 import { StdSignDoc } from '@cosmjs/amino';
 import { OfflineDirectSigner } from '@cosmjs/proto-signing';
@@ -174,22 +175,22 @@ function IbcSendForm({ token }: { token: string }) {
 
   // filter osmosis tokens that are on manifest chain
   const manifestAssetsOnOsmosis = osmosisAssets.assets
-    .filter(asset =>
+    .filter((asset: Asset) =>
       asset?.traces?.some(
         trace => trace.type === 'ibc' && trace.counterparty.chain_name === env.chain
       )
     )
-    .map(asset => asset.base);
+    .map((asset: Asset) => asset.base);
 
   // filter axelar tokens that are on manifest chain
   const manifestAssetsOnAxelar = axelarAssets.assets
-    .filter(asset =>
+    .filter((asset: Asset) =>
       asset?.traces?.some(
         trace => trace.type === 'ibc' && trace.counterparty.chain_name === env.chain
       )
     )
-    .map(asset => asset.base);
-  console.log();
+    .map((asset: Asset) => asset.base);
+
   return (
     <div
       aria-label="ibc-send-form"
