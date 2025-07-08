@@ -10,7 +10,7 @@ let osmosisModule: {
 };
 
 if (buildType === 'qa') {
-  osmosisModule = require('chain-registry/devnet/osmosistestnet');
+  osmosisModule = require('chain-registry/testnet/osmosistestnet');
 } else if (buildType === 'testnet') {
   osmosisModule = require('chain-registry/testnet/osmosistestnet');
 } else {
@@ -18,8 +18,6 @@ if (buildType === 'qa') {
 }
 
 let osmosisAssets: AssetList, osmosisChain: Chain, osmosisIbc: IBCInfo[];
-
-// Define IBC assets for Osmosis and Axelar
 
 if (buildType === 'qa') {
   const { assets, chain } = osmosisModule;

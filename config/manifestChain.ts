@@ -19,8 +19,6 @@ if (buildType === 'qa') {
 
 let manifestAssets: AssetList, manifestChain: Chain, manifestIbc: IBCInfo[];
 
-// Define IBC assets for Osmosis and Axelar
-
 if (buildType === 'qa') {
   const { assets, chain } = manifestModule;
   manifestAssets = assets;

@@ -5,9 +5,9 @@ import { OfflineAminoSigner } from '@cosmjs/amino';
 import { StdSignDoc } from '@cosmjs/amino';
 import { OfflineDirectSigner } from '@cosmjs/proto-signing';
 import { useChain } from '@cosmos-kit/react';
+import { SignDoc } from '@liftedinit/manifestjs/dist/codegen/cosmos/tx/v1beta1/tx';
 import { Widget } from '@skip-go/widget';
 import { useQueryClient } from '@tanstack/react-query';
-import { assets as axelarAssets } from 'chain-registry/testnet/axelartestnet';
 import { useContext, useEffect, useRef } from 'react';
 import { ShadowScopeConfigProvider } from 'react-shadow-scope';
 
@@ -181,15 +181,6 @@ function IbcSendForm({ token }: { token: string }) {
     )
     .map((asset: Asset) => asset.base);
 
-  // filter axelar tokens that are on manifest chain
-  const manifestAssetsOnAxelar = axelarAssets.assets
-    .filter((asset: Asset) =>
-      asset?.traces?.some(
-        trace => trace.type === 'ibc' && trace.counterparty.chain_name === env.chain
-      )
-    )
-    .map((asset: Asset) => asset.base);
-
   return (
     <div
       aria-label="ibc-send-form"
@@ -202,12 +193,10 @@ function IbcSendForm({ token }: { token: string }) {
             source: {
               [env.chainId]: undefined,
               [env.osmosisChainId]: [...manifestAssetsOnOsmosis, 'uosmo'],
-              [env.axelarChainId]: [...manifestAssetsOnAxelar, 'uaxl'],
             },
             destination: {
               [env.chainId]: undefined,
               [env.osmosisChainId]: [...manifestAssetsOnOsmosis, 'uosmo'],
-              [env.axelarChainId]: [...manifestAssetsOnAxelar, 'uaxl'],
             },
           }}
           defaultRoute={{

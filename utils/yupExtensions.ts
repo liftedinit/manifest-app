@@ -102,7 +102,7 @@ Yup.addMethod<Yup.StringSchema>(Yup.string, 'manifestAddress', function (message
       });
     }
 
-    const validPrefixes = ['manifest', 'manifestvaloper', 'manifestvalcons', 'osmo', 'axelar'];
+    const validPrefixes = ['manifest', 'manifestvaloper', 'manifestvalcons', 'osmo'];
     if (!validPrefixes.includes(decoded.prefix)) {
       return createError({
         path,
