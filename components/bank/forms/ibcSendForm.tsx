@@ -8,12 +8,11 @@ import { useChain } from '@cosmos-kit/react';
 import { Widget } from '@skip-go/widget';
 import { useQueryClient } from '@tanstack/react-query';
 import { assets as axelarAssets } from 'chain-registry/testnet/axelartestnet';
-import { assets as osmosisAssets } from 'chain-registry/testnet/osmosistestnet';
-import { SignDoc } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { useContext, useEffect, useRef } from 'react';
 import { ShadowScopeConfigProvider } from 'react-shadow-scope';
 
 import env from '@/config/env';
+import { osmosisAssets } from '@/config/osmosisChain';
 import { useTheme } from '@/contexts';
 import { Web3AuthContext } from '@/contexts/web3AuthContext';
 import { getIbcDenom } from '@/utils/ibc';

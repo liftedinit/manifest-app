@@ -18,16 +18,13 @@ import {
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { assets as axelarAssets, chain as axelarChain } from 'chain-registry/testnet/axelartestnet';
-import {
-  assets as osmosisAssets,
-  chain as osmosisChain,
-} from 'chain-registry/testnet/osmosistestnet';
 import { SignerOptions } from 'cosmos-kit';
 import { ReactNode, useCallback, useContext, useMemo, useState } from 'react';
 
 import { TailwindModal } from '@/components';
 import env from '@/config/env';
 import { manifestAssets, manifestChain } from '@/config/manifestChain';
+import { osmosisAssets, osmosisChain } from '@/config/osmosisChain';
 import { ThemeProvider } from '@/contexts';
 import { ToastProvider } from '@/contexts/toastContext';
 import { Web3AuthContext, Web3AuthProvider } from '@/contexts/web3AuthContext';

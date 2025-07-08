@@ -33,10 +33,10 @@ if (buildType === 'qa') {
   manifestChain = chain;
   manifestIbc = ibc!;
 } else {
-  const { assets, chain } = manifestModule;
+  const { assets, chain, ibc } = manifestModule;
   manifestAssets = assets;
   manifestChain = chain;
-  manifestIbc = []; // TODO: Update IBC info when available
+  manifestIbc = ibc!;
 }
 
 export { manifestAssets, manifestChain, manifestIbc };
