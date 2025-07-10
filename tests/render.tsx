@@ -1,20 +1,16 @@
 import { ChainProvider } from '@cosmos-kit/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render } from '@testing-library/react';
-import { assets as axelarAssets, chain as axelarChain } from 'chain-registry/testnet/axelartestnet';
-import {
-  assets as osmosisAssets,
-  chain as osmosisChain,
-} from 'chain-registry/testnet/osmosistestnet';
 import React from 'react';
 
 import { manifestAssets, manifestChain } from '@/config/manifestChain';
+import { osmosisAssets, osmosisChain } from '@/config/osmosisChain';
 import { ToastProvider } from '@/contexts';
 import { Web3AuthContext, Web3AuthContextType } from '@/contexts/web3AuthContext';
 
 const defaultOptions = {
-  chains: [manifestChain, osmosisChain, axelarChain],
-  assetLists: [manifestAssets, osmosisAssets, axelarAssets],
+  chains: [manifestChain, osmosisChain],
+  assetLists: [manifestAssets, osmosisAssets],
   wallets: [],
 };
 

@@ -109,8 +109,6 @@
 //           if (!value) return true;
 //           return selectedToChain.id === env.osmosisChain
 //             ? value.startsWith('osmo')
-//             : selectedToChain.id === env.axelarChain
-//               ? value.startsWith('axelar')
 //               : value.startsWith('manifest');
 //         }
 //       ),

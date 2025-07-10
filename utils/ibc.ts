@@ -1,13 +1,12 @@
 import { Asset, AssetList, IBCInfo } from '@chain-registry/types';
 import { Coin } from '@liftedinit/manifestjs/dist/codegen/cosmos/base/v1beta1/coin';
-import { assets as axelarAssets, ibc as axelarIbc } from 'chain-registry/testnet/axelartestnet';
-import { assets as osmosisAssets, ibc as osmosisIbc } from 'chain-registry/testnet/osmosistestnet';
 
 import { manifestAssets, manifestIbc } from '@/config/manifestChain';
+import { osmosisAssets, osmosisIbc } from '@/config/osmosisChain';
 
 import { shiftDigits } from './maths';
 
-const assets: AssetList[] = [manifestAssets, osmosisAssets, axelarAssets];
+const assets: AssetList[] = [manifestAssets, osmosisAssets];
 
 export const truncateDenom = (denom: string) => {
   return denom.slice(0, 10) + '...' + denom.slice(-6);
@@ -66,7 +65,7 @@ export const prettyBalance = (chainName: string, balance: Coin) => {
 
 export type PrettyBalance = ReturnType<typeof prettyBalance>;
 
-const ibcData: IBCInfo[] = [...manifestIbc, ...osmosisIbc, ...axelarIbc];
+const ibcData: IBCInfo[] = [...manifestIbc, ...osmosisIbc];
 
 export const getIbcInfo = (fromChainName: string, toChainName: string) => {
   let flipped = false;

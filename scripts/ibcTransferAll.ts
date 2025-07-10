@@ -7,10 +7,6 @@
 // SOURCE_CHANNEL: the channel id of the source chain
 // DESTINATION_CHANNEL: the channel id of the destination chain
 // You can provide the above env's in the command in the same fashion as the mnemonic or they will be set to default values
-// Axelar example:
-// WALLET_MNEMONIC="" DESTINATION_CHAIN="axelar-testnet-lisbon-3" DESTINATION_PREFIX="axelar" SOURCE_CHANNEL="channel-3" DESTINATION_CHANNEL="channel-591" DESTINATION_RPC_URL="https://axelar-testnet-rpc.polkachu.com/"  bun run ibc-transfer
-// Axlear query only:
-// QUERY_ONLY=true WALLET_MNEMONIC="" DESTINATION_CHAIN="axelar-testnet-lisbon-3" DESTINATION_PREFIX="axelar" SOURCE_CHANNEL="channel-3" DESTINATION_CHANNEL="channel-591" DESTINATION_RPC_URL="https://axelar-testnet-rpc.polkachu.com/" QUERY_ONLY="true" bun run ibc-transfer
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 import { SigningStargateClient } from '@cosmjs/stargate';
 import { ibc } from '@liftedinit/manifestjs';

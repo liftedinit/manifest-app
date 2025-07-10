@@ -34,7 +34,7 @@ export default React.memo(function SendBox({
 }) {
   const [activeTab, setActiveTab] = useState(0);
   const { isSigning } = useTx(env.chain);
-  const allowCrossChainTransfer = !isGroup && env.chainTier === 'testnet';
+  const allowCrossChainTransfer = !isGroup;
 
   return (
     <Tab.Group as="div" defaultIndex={activeTab} onChange={setActiveTab}>

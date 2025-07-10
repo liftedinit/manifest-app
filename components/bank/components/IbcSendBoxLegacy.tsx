@@ -21,13 +21,6 @@ const IBC_CHAINS: IbcChain[] = [
     prefix: 'osmo',
     chainID: env.osmosisChainId,
   },
-  {
-    id: env.axelarChain,
-    name: 'Axelar',
-    icon: 'https://github.com/cosmos/chain-registry/raw/refs/heads/master/axelar/images/axl.svg',
-    prefix: 'axelar',
-    chainID: env.axelarChainId,
-  },
 ];
 
 /**
