@@ -45,11 +45,6 @@ jobs:
           echo "NEXT_PUBLIC_OSMOSIS_RPC_URL=${{ vars.NEXT_PUBLIC_OSMOSIS_RPC_URL }}" >> .env
           echo "NEXT_PUBLIC_OSMOSIS_API_URL=${{ vars.NEXT_PUBLIC_OSMOSIS_API_URL }}" >> .env
           echo "NEXT_PUBLIC_OSMOSIS_EXPLORER_URL=${{ vars.NEXT_PUBLIC_OSMOSIS_EXPLORER_URL }}" >> .env
-          echo "NEXT_PUBLIC_AXELAR_CHAIN=${{ vars.NEXT_PUBLIC_AXELAR_CHAIN }}" >> .env
-          echo "NEXT_PUBLIC_AXELAR_CHAIN_ID=${{ vars.NEXT_PUBLIC_AXELAR_CHAIN_ID }}" >> .env
-          echo "NEXT_PUBLIC_AXELAR_RPC_URL=${{ vars.NEXT_PUBLIC_AXELAR_RPC_URL }}" >> .env
-          echo "NEXT_PUBLIC_AXELAR_API_URL=${{ vars.NEXT_PUBLIC_AXELAR_API_URL }}" >> .env
-          echo "NEXT_PUBLIC_AXELAR_EXPLORER_URL=${{ vars.NEXT_PUBLIC_AXELAR_EXPLORER_URL }}" >> .env
           echo "NEXT_PUBLIC_LEAP_DEEPLINK=${{ vars.NEXT_PUBLIC_LEAP_DEEPLINK }}" >> .env
           cat .env
 
