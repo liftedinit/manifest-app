@@ -48,7 +48,7 @@
     "@react-three/fiber": "9.1.0",
     "@sinonjs/fake-timers": "14.0.0",
     "@skip-go/client": "1.3.7",
-    "@skip-go/widget": "3.12.10",
+    "@skip-go/widget": "3.12.11",
     "@tailwindcss/postcss": "4.0.17",
     "@tanstack/react-query": "5.69.0",
     "@tanstack/react-query-devtools": "5.71.5",
