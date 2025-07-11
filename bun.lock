@@ -21,7 +21,7 @@
         "@react-three/fiber": "9.1.0",
         "@sinonjs/fake-timers": "14.0.0",
         "@skip-go/client": "1.3.7",
-        "@skip-go/widget": "3.12.10",
+        "@skip-go/widget": "3.12.11",
         "@tailwindcss/postcss": "4.0.17",
         "@tanstack/react-query": "5.69.0",
         "@tanstack/react-query-devtools": "5.71.5",
@@ -1111,7 +1111,7 @@
 
     "@skip-go/client": ["@skip-go/client@1.3.7", "", { "dependencies": { "@cosmjs/amino": "0.33.1", "@cosmjs/cosmwasm-stargate": "0.33.1", "@cosmjs/encoding": "0.33.1", "@cosmjs/math": "0.33.1", "@cosmjs/proto-signing": "0.33.1", "@cosmjs/stargate": "0.33.1", "@injectivelabs/sdk-ts": "1.15.3", "@keplr-wallet/unit": "^0.12.143", "@solana/wallet-adapter-base": "^0.9.23", "bech32": "^2.0.0", "cosmjs-types": "^0.9.0", "keccak": "3.0.4" }, "peerDependencies": { "@solana/web3.js": "^1.95.8", "viem": "2.x" } }, "sha512-4qbe9IXaYd/qM3py7FJE1CSwHd915yrfj+gBZBMcvAYfPN26KEwNwwUOSm5DSKTpywE4zT/1VlwG6FM6+sfN6A=="],
 
-    "@skip-go/widget": ["@skip-go/widget@3.12.10", "", { "dependencies": { "@amplitude/analytics-browser": "^2.11.12", "@amplitude/plugin-session-replay-browser": "^1.16.5", "@cosmjs/amino": "0.33.1", "@cosmjs/cosmwasm-stargate": "0.33.1", "@cosmjs/encoding": "0.33.1", "@cosmjs/math": "0.33.1", "@cosmjs/proto-signing": "0.33.1", "@cosmjs/stargate": "0.33.1", "@ebay/nice-modal-react": "^1.2.13", "@eslint/compat": "^1.1.1", "@penumbra-zone/bech32m": "^13.0.0", "@penumbra-zone/client": "^24.0.0", "@penumbra-zone/protobuf": "^7.2.0", "@penumbra-zone/transport-dom": "^7.5.0", "@r2wc/react-to-web-component": "^2.0.3", "@sentry/react": "^8.46.0", "@skip-go/client": "1.3.7", "@solana/spl-token": "^0.4.8", "@solana/wallet-adapter-ledger": "^0.9.25", "@solana/wallet-adapter-react": "^0.15.39", "@solana/wallet-adapter-wallets": "^0.19.37", "@solana/web3.js": "^1.95.8", "@tanstack/query-core": "^5.51.21", "@walletconnect/modal": "^2.7.0", "@walletconnect/sign-client": "^2.20.3", "@walletconnect/solana-adapter": "^0.0.8", "add": "^2.0.6", "bech32": "^2.0.0", "graz": "0.3.2", "jotai": "^2.10.1", "jotai-effect": "^1.0.2", "jotai-tanstack-query": "^0.8.6", "lodash.debounce": "^4.0.8", "pluralize": "^8.0.0", "rc-virtual-list": "^3.14.5", "react-error-boundary": "^4.0.13", "react-shadow-scope": "^1.0.5", "styled-components": "^6.1.13", "yarn": "^1.22.22", "zod": "^3.23.8" }, "peerDependencies": { "@tanstack/react-query": "^5.51.21", "react": ">=17.0.0", "react-dom": ">=17.0.0", "viem": "^2.21.55", "wagmi": "^2.14.1" } }, "sha512-dqnaWeYHyDeCiyUF+qxaoo3EqkROI8cEDZgBqlemcUwX752Au4dNRxODgZ74yK8tW9EyPNEonoAvvWWzT8hICA=="],
+    "@skip-go/widget": ["@skip-go/widget@3.12.11", "", { "dependencies": { "@amplitude/analytics-browser": "^2.11.12", "@amplitude/plugin-session-replay-browser": "^1.16.5", "@cosmjs/amino": "0.33.1", "@cosmjs/cosmwasm-stargate": "0.33.1", "@cosmjs/encoding": "0.33.1", "@cosmjs/math": "0.33.1", "@cosmjs/proto-signing": "0.33.1", "@cosmjs/stargate": "0.33.1", "@ebay/nice-modal-react": "^1.2.13", "@eslint/compat": "^1.1.1", "@penumbra-zone/bech32m": "^13.0.0", "@penumbra-zone/client": "^24.0.0", "@penumbra-zone/protobuf": "^7.2.0", "@penumbra-zone/transport-dom": "^7.5.0", "@r2wc/react-to-web-component": "^2.0.3", "@sentry/react": "^8.46.0", "@skip-go/client": "1.3.7", "@solana/spl-token": "^0.4.8", "@solana/wallet-adapter-ledger": "^0.9.25", "@solana/wallet-adapter-react": "^0.15.39", "@solana/wallet-adapter-wallets": "^0.19.37", "@solana/web3.js": "^1.95.8", "@tanstack/query-core": "^5.51.21", "@walletconnect/modal": "^2.7.0", "@walletconnect/sign-client": "^2.20.3", "@walletconnect/solana-adapter": "^0.0.8", "add": "^2.0.6", "bech32": "^2.0.0", "graz": "0.3.2", "jotai": "^2.10.1", "jotai-effect": "^1.0.2", "jotai-tanstack-query": "^0.8.6", "lodash.debounce": "^4.0.8", "pluralize": "^8.0.0", "rc-virtual-list": "^3.14.5", "react-error-boundary": "^4.0.13", "react-shadow-scope": "^1.0.5", "styled-components": "^6.1.13", "yarn": "^1.22.22", "zod": "^3.23.8" }, "peerDependencies": { "@tanstack/react-query": "^5.51.21", "react": ">=17.0.0", "react-dom": ">=17.0.0", "viem": "^2.21.55", "wagmi": "^2.14.1" } }, "sha512-fkFS5sS0Qh8Zy9BlMldITDM+YzTicq7wZ8DdBIDsY9+yCf7NOQTa39clZutH41f9D+b0BcX6Z+BjOpAuyiNH5A=="],
 
     "@socket.io/component-emitter": ["@socket.io/component-emitter@3.1.2", "", {}, "sha512-9BCxFwvbGg/RsZK9tjXd8s4UcwR0MWeFQ1XEKIQVVvAGJyINdrqKMcTRyLoK8Rse1GjzLV9cwjWV1olXRWEXVA=="],
 
@@ -1243,7 +1243,7 @@
 
     "@solana/wallet-adapter-krystal": ["@solana/wallet-adapter-krystal@0.1.16", "", { "dependencies": { "@solana/wallet-adapter-base": "^0.9.27" }, "peerDependencies": { "@solana/web3.js": "^1.98.0" } }, "sha512-crAVzzPzMo63zIH0GTHDqYjIrjGFhrAjCntOV2hMjebMGSAmaUPTJKRi+vgju2Ons2Ktva7tRwiVaJxD8370DA=="],
 
-    "@solana/wallet-adapter-ledger": ["@solana/wallet-adapter-ledger@0.9.25", "", { "dependencies": { "@ledgerhq/devices": "6.27.1", "@ledgerhq/hw-transport": "6.27.1", "@ledgerhq/hw-transport-webhid": "6.27.1", "@solana/wallet-adapter-base": "^0.9.23", "buffer": "^6.0.3" }, "peerDependencies": { "@solana/web3.js": "^1.77.3" } }, "sha512-59yD3aveLwlzXqk4zBCaPLobeqAhmtMxPizfUBOjzwRKyepi1Nnnt9AC9Af3JrweU2x4qySRxAaZfU/iNqJ3rQ=="],
+    "@solana/wallet-adapter-ledger": ["@solana/wallet-adapter-ledger@0.9.29", "", { "dependencies": { "@ledgerhq/devices": "^8.4.5", "@ledgerhq/hw-transport": "^6.31.5", "@ledgerhq/hw-transport-webhid": "^6.30.1", "@solana/wallet-adapter-base": "^0.9.27", "buffer": "^6.0.3" }, "peerDependencies": { "@solana/web3.js": "^1.98.0" } }, "sha512-1feOHQGdMOPtXtXBCuUuHlsoco2iqDNcUTbHW+Bj+3ItXGJctwMicSSWgfATEAFNUanvOB+kKZ4N3B1MQrP/9w=="],
 
     "@solana/wallet-adapter-mathwallet": ["@solana/wallet-adapter-mathwallet@0.9.22", "", { "dependencies": { "@solana/wallet-adapter-base": "^0.9.27" }, "peerDependencies": { "@solana/web3.js": "^1.98.0" } }, "sha512-5ePUe4lyTbwHlXQJwNrXRXDfyouAeIbfBTkJxcAWVivlVQcxcnE7BOwsCjImVaGNh4MumMLblxd2ywoSVDNf/g=="],
 
@@ -4113,11 +4113,13 @@
 
     "@solana/wallet-adapter-krystal/@solana/wallet-adapter-base": ["@solana/wallet-adapter-base@0.9.27", "", { "dependencies": { "@solana/wallet-standard-features": "^1.3.0", "@wallet-standard/base": "^1.1.0", "@wallet-standard/features": "^1.1.0", "eventemitter3": "^5.0.1" }, "peerDependencies": { "@solana/web3.js": "^1.98.0" } }, "sha512-kXjeNfNFVs/NE9GPmysBRKQ/nf+foSaq3kfVSeMcO/iVgigyRmB551OjU3WyAolLG/1jeEfKLqF9fKwMCRkUqg=="],
 
-    "@solana/wallet-adapter-ledger/@ledgerhq/devices": ["@ledgerhq/devices@6.27.1", "", { "dependencies": { "@ledgerhq/errors": "^6.10.0", "@ledgerhq/logs": "^6.10.0", "rxjs": "6", "semver": "^7.3.5" } }, "sha512-jX++oy89jtv7Dp2X6gwt3MMkoajel80JFWcdc0HCouwDsV1mVJ3SQdwl/bQU0zd8HI6KebvUP95QTwbQLLK/RQ=="],
+    "@solana/wallet-adapter-ledger/@ledgerhq/devices": ["@ledgerhq/devices@8.4.7", "", { "dependencies": { "@ledgerhq/errors": "^6.22.0", "@ledgerhq/logs": "^6.13.0", "rxjs": "^7.8.1", "semver": "^7.3.5" } }, "sha512-CljHIaPmtv93H2If1Zs1xW0pgg+M37bAoJkm6+V6Yw5S0MgFWFpLnTTNgCvHXyD8pG0+uq8TuOXUiG1oAV5AyA=="],
 
-    "@solana/wallet-adapter-ledger/@ledgerhq/hw-transport": ["@ledgerhq/hw-transport@6.27.1", "", { "dependencies": { "@ledgerhq/devices": "^6.27.1", "@ledgerhq/errors": "^6.10.0", "events": "^3.3.0" } }, "sha512-hnE4/Fq1YzQI4PA1W0H8tCkI99R3UWDb3pJeZd6/Xs4Qw/q1uiQO+vNLC6KIPPhK0IajUfuI/P2jk0qWcMsuAQ=="],
+    "@solana/wallet-adapter-ledger/@ledgerhq/hw-transport": ["@ledgerhq/hw-transport@6.31.7", "", { "dependencies": { "@ledgerhq/devices": "8.4.7", "@ledgerhq/errors": "^6.22.0", "@ledgerhq/logs": "^6.13.0", "events": "^3.3.0" } }, "sha512-R+QMlqoLJDPeCiqwWv85PbZ3m0hel5PwQzWwSIbyEwialqjXnG7LFQgytkgXlgMcayT0chvvLeYjuY5ZfMPY7w=="],
 
-    "@solana/wallet-adapter-ledger/@ledgerhq/hw-transport-webhid": ["@ledgerhq/hw-transport-webhid@6.27.1", "", { "dependencies": { "@ledgerhq/devices": "^6.27.1", "@ledgerhq/errors": "^6.10.0", "@ledgerhq/hw-transport": "^6.27.1", "@ledgerhq/logs": "^6.10.0" } }, "sha512-u74rBYlibpbyGblSn74fRs2pMM19gEAkYhfVibq0RE1GNFjxDMFC1n7Sb+93Jqmz8flyfB4UFJsxs8/l1tm2Kw=="],
+    "@solana/wallet-adapter-ledger/@ledgerhq/hw-transport-webhid": ["@ledgerhq/hw-transport-webhid@6.30.3", "", { "dependencies": { "@ledgerhq/devices": "8.4.7", "@ledgerhq/errors": "^6.22.0", "@ledgerhq/hw-transport": "^6.31.7", "@ledgerhq/logs": "^6.13.0" } }, "sha512-DV2QL4gZ3XvB5i271np5DHROu3Ry6Pjvhd65mu6JLpasAQr0VeW0L8KZ+JK9VryARC1soU1ZEPkL2uVw8MRmvg=="],
+
+    "@solana/wallet-adapter-ledger/@solana/wallet-adapter-base": ["@solana/wallet-adapter-base@0.9.27", "", { "dependencies": { "@solana/wallet-standard-features": "^1.3.0", "@wallet-standard/base": "^1.1.0", "@wallet-standard/features": "^1.1.0", "eventemitter3": "^5.0.1" }, "peerDependencies": { "@solana/web3.js": "^1.98.0" } }, "sha512-kXjeNfNFVs/NE9GPmysBRKQ/nf+foSaq3kfVSeMcO/iVgigyRmB551OjU3WyAolLG/1jeEfKLqF9fKwMCRkUqg=="],
 
     "@solana/wallet-adapter-mathwallet/@solana/wallet-adapter-base": ["@solana/wallet-adapter-base@0.9.27", "", { "dependencies": { "@solana/wallet-standard-features": "^1.3.0", "@wallet-standard/base": "^1.1.0", "@wallet-standard/features": "^1.1.0", "eventemitter3": "^5.0.1" }, "peerDependencies": { "@solana/web3.js": "^1.98.0" } }, "sha512-kXjeNfNFVs/NE9GPmysBRKQ/nf+foSaq3kfVSeMcO/iVgigyRmB551OjU3WyAolLG/1jeEfKLqF9fKwMCRkUqg=="],
 
@@ -4164,8 +4166,6 @@
     "@solana/wallet-adapter-unsafe-burner/@solana/wallet-adapter-base": ["@solana/wallet-adapter-base@0.9.27", "", { "dependencies": { "@solana/wallet-standard-features": "^1.3.0", "@wallet-standard/base": "^1.1.0", "@wallet-standard/features": "^1.1.0", "eventemitter3": "^5.0.1" }, "peerDependencies": { "@solana/web3.js": "^1.98.0" } }, "sha512-kXjeNfNFVs/NE9GPmysBRKQ/nf+foSaq3kfVSeMcO/iVgigyRmB551OjU3WyAolLG/1jeEfKLqF9fKwMCRkUqg=="],
 
     "@solana/wallet-adapter-walletconnect/@solana/wallet-adapter-base": ["@solana/wallet-adapter-base@0.9.27", "", { "dependencies": { "@solana/wallet-standard-features": "^1.3.0", "@wallet-standard/base": "^1.1.0", "@wallet-standard/features": "^1.1.0", "eventemitter3": "^5.0.1" }, "peerDependencies": { "@solana/web3.js": "^1.98.0" } }, "sha512-kXjeNfNFVs/NE9GPmysBRKQ/nf+foSaq3kfVSeMcO/iVgigyRmB551OjU3WyAolLG/1jeEfKLqF9fKwMCRkUqg=="],
-
-    "@solana/wallet-adapter-wallets/@solana/wallet-adapter-ledger": ["@solana/wallet-adapter-ledger@0.9.29", "", { "dependencies": { "@ledgerhq/devices": "^8.4.5", "@ledgerhq/hw-transport": "^6.31.5", "@ledgerhq/hw-transport-webhid": "^6.30.1", "@solana/wallet-adapter-base": "^0.9.27", "buffer": "^6.0.3" }, "peerDependencies": { "@solana/web3.js": "^1.98.0" } }, "sha512-1feOHQGdMOPtXtXBCuUuHlsoco2iqDNcUTbHW+Bj+3ItXGJctwMicSSWgfATEAFNUanvOB+kKZ4N3B1MQrP/9w=="],
 
     "@solana/wallet-adapter-xdefi/@solana/wallet-adapter-base": ["@solana/wallet-adapter-base@0.9.27", "", { "dependencies": { "@solana/wallet-standard-features": "^1.3.0", "@wallet-standard/base": "^1.1.0", "@wallet-standard/features": "^1.1.0", "eventemitter3": "^5.0.1" }, "peerDependencies": { "@solana/web3.js": "^1.98.0" } }, "sha512-kXjeNfNFVs/NE9GPmysBRKQ/nf+foSaq3kfVSeMcO/iVgigyRmB551OjU3WyAolLG/1jeEfKLqF9fKwMCRkUqg=="],
 
@@ -5173,9 +5173,19 @@
 
     "@solana/wallet-adapter-krystal/@solana/wallet-adapter-base/eventemitter3": ["eventemitter3@5.0.1", "", {}, "sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA=="],
 
-    "@solana/wallet-adapter-ledger/@ledgerhq/devices/rxjs": ["rxjs@6.6.7", "", { "dependencies": { "tslib": "^1.9.0" } }, "sha512-hTdwr+7yYNIT5n4AMYp85KA6yw2Va0FLa3Rguvbpa4W3I5xynaBZo41cM3XM+4Q6fRMj3sBYIR1VAmZMXYJvRQ=="],
+    "@solana/wallet-adapter-ledger/@ledgerhq/devices/@ledgerhq/errors": ["@ledgerhq/errors@6.22.0", "", {}, "sha512-rXtpIOfHL62jWB7o77PNFD4EDYdcqyMeVgt7TZcmTkWT78cK+YYSUTMrNuGLhnZZZTMLWH023Wgt65OfKIdGBQ=="],
 
-    "@solana/wallet-adapter-ledger/@ledgerhq/hw-transport-webhid/@ledgerhq/hw-transport": ["@ledgerhq/hw-transport@6.31.4", "", { "dependencies": { "@ledgerhq/devices": "^8.4.4", "@ledgerhq/errors": "^6.19.1", "@ledgerhq/logs": "^6.12.0", "events": "^3.3.0" } }, "sha512-6c1ir/cXWJm5dCWdq55NPgCJ3UuKuuxRvf//Xs36Bq9BwkV2YaRQhZITAkads83l07NAdR16hkTWqqpwFMaI6A=="],
+    "@solana/wallet-adapter-ledger/@ledgerhq/devices/@ledgerhq/logs": ["@ledgerhq/logs@6.13.0", "", {}, "sha512-4+qRW2Pc8V+btL0QEmdB2X+uyx0kOWMWE1/LWsq5sZy3Q5tpi4eItJS6mB0XL3wGW59RQ+8bchNQQ1OW/va8Og=="],
+
+    "@solana/wallet-adapter-ledger/@ledgerhq/hw-transport/@ledgerhq/errors": ["@ledgerhq/errors@6.22.0", "", {}, "sha512-rXtpIOfHL62jWB7o77PNFD4EDYdcqyMeVgt7TZcmTkWT78cK+YYSUTMrNuGLhnZZZTMLWH023Wgt65OfKIdGBQ=="],
+
+    "@solana/wallet-adapter-ledger/@ledgerhq/hw-transport/@ledgerhq/logs": ["@ledgerhq/logs@6.13.0", "", {}, "sha512-4+qRW2Pc8V+btL0QEmdB2X+uyx0kOWMWE1/LWsq5sZy3Q5tpi4eItJS6mB0XL3wGW59RQ+8bchNQQ1OW/va8Og=="],
+
+    "@solana/wallet-adapter-ledger/@ledgerhq/hw-transport-webhid/@ledgerhq/errors": ["@ledgerhq/errors@6.22.0", "", {}, "sha512-rXtpIOfHL62jWB7o77PNFD4EDYdcqyMeVgt7TZcmTkWT78cK+YYSUTMrNuGLhnZZZTMLWH023Wgt65OfKIdGBQ=="],
+
+    "@solana/wallet-adapter-ledger/@ledgerhq/hw-transport-webhid/@ledgerhq/logs": ["@ledgerhq/logs@6.13.0", "", {}, "sha512-4+qRW2Pc8V+btL0QEmdB2X+uyx0kOWMWE1/LWsq5sZy3Q5tpi4eItJS6mB0XL3wGW59RQ+8bchNQQ1OW/va8Og=="],
+
+    "@solana/wallet-adapter-ledger/@solana/wallet-adapter-base/eventemitter3": ["eventemitter3@5.0.1", "", {}, "sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA=="],
 
     "@solana/wallet-adapter-mathwallet/@solana/wallet-adapter-base/eventemitter3": ["eventemitter3@5.0.1", "", {}, "sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA=="],
 
@@ -5222,14 +5232,6 @@
     "@solana/wallet-adapter-unsafe-burner/@solana/wallet-adapter-base/eventemitter3": ["eventemitter3@5.0.1", "", {}, "sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA=="],
 
     "@solana/wallet-adapter-walletconnect/@solana/wallet-adapter-base/eventemitter3": ["eventemitter3@5.0.1", "", {}, "sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA=="],
-
-    "@solana/wallet-adapter-wallets/@solana/wallet-adapter-ledger/@ledgerhq/devices": ["@ledgerhq/devices@8.4.7", "", { "dependencies": { "@ledgerhq/errors": "^6.22.0", "@ledgerhq/logs": "^6.13.0", "rxjs": "^7.8.1", "semver": "^7.3.5" } }, "sha512-CljHIaPmtv93H2If1Zs1xW0pgg+M37bAoJkm6+V6Yw5S0MgFWFpLnTTNgCvHXyD8pG0+uq8TuOXUiG1oAV5AyA=="],
-
-    "@solana/wallet-adapter-wallets/@solana/wallet-adapter-ledger/@ledgerhq/hw-transport": ["@ledgerhq/hw-transport@6.31.7", "", { "dependencies": { "@ledgerhq/devices": "8.4.7", "@ledgerhq/errors": "^6.22.0", "@ledgerhq/logs": "^6.13.0", "events": "^3.3.0" } }, "sha512-R+QMlqoLJDPeCiqwWv85PbZ3m0hel5PwQzWwSIbyEwialqjXnG7LFQgytkgXlgMcayT0chvvLeYjuY5ZfMPY7w=="],
-
-    "@solana/wallet-adapter-wallets/@solana/wallet-adapter-ledger/@ledgerhq/hw-transport-webhid": ["@ledgerhq/hw-transport-webhid@6.30.3", "", { "dependencies": { "@ledgerhq/devices": "8.4.7", "@ledgerhq/errors": "^6.22.0", "@ledgerhq/hw-transport": "^6.31.7", "@ledgerhq/logs": "^6.13.0" } }, "sha512-DV2QL4gZ3XvB5i271np5DHROu3Ry6Pjvhd65mu6JLpasAQr0VeW0L8KZ+JK9VryARC1soU1ZEPkL2uVw8MRmvg=="],
-
-    "@solana/wallet-adapter-wallets/@solana/wallet-adapter-ledger/@solana/wallet-adapter-base": ["@solana/wallet-adapter-base@0.9.27", "", { "dependencies": { "@solana/wallet-standard-features": "^1.3.0", "@wallet-standard/base": "^1.1.0", "@wallet-standard/features": "^1.1.0", "eventemitter3": "^5.0.1" }, "peerDependencies": { "@solana/web3.js": "^1.98.0" } }, "sha512-kXjeNfNFVs/NE9GPmysBRKQ/nf+foSaq3kfVSeMcO/iVgigyRmB551OjU3WyAolLG/1jeEfKLqF9fKwMCRkUqg=="],
 
     "@solana/wallet-adapter-xdefi/@solana/wallet-adapter-base/eventemitter3": ["eventemitter3@5.0.1", "", {}, "sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA=="],
 
@@ -5622,24 +5624,6 @@
     "@skip-go/widget/@cosmjs/cosmwasm-stargate/@cosmjs/tendermint-rpc/@cosmjs/socket": ["@cosmjs/socket@0.33.1", "", { "dependencies": { "@cosmjs/stream": "^0.33.1", "isomorphic-ws": "^4.0.1", "ws": "^7", "xstream": "^11.14.0" } }, "sha512-KzAeorten6Vn20sMiM6NNWfgc7jbyVo4Zmxev1FXa5EaoLCZy48cmT3hJxUJQvJP/lAy8wPGEjZ/u4rmF11x9A=="],
 
     "@skip-go/widget/@cosmjs/cosmwasm-stargate/@cosmjs/tendermint-rpc/@cosmjs/stream": ["@cosmjs/stream@0.33.1", "", { "dependencies": { "xstream": "^11.14.0" } }, "sha512-bMUvEENjeQPSTx+YRzVsWT1uFIdHRcf4brsc14SOoRQ/j5rOJM/aHfsf/BmdSAnYbdOQ3CMKj/8nGAQ7xUdn7w=="],
-
-    "@solana/wallet-adapter-ledger/@ledgerhq/devices/rxjs/tslib": ["tslib@1.14.1", "", {}, "sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg=="],
-
-    "@solana/wallet-adapter-ledger/@ledgerhq/hw-transport-webhid/@ledgerhq/hw-transport/@ledgerhq/devices": ["@ledgerhq/devices@8.4.4", "", { "dependencies": { "@ledgerhq/errors": "^6.19.1", "@ledgerhq/logs": "^6.12.0", "rxjs": "^7.8.1", "semver": "^7.3.5" } }, "sha512-sz/ryhe/R687RHtevIE9RlKaV8kkKykUV4k29e7GAVwzHX1gqG+O75cu1NCJUHLbp3eABV5FdvZejqRUlLis9A=="],
-
-    "@solana/wallet-adapter-wallets/@solana/wallet-adapter-ledger/@ledgerhq/devices/@ledgerhq/errors": ["@ledgerhq/errors@6.22.0", "", {}, "sha512-rXtpIOfHL62jWB7o77PNFD4EDYdcqyMeVgt7TZcmTkWT78cK+YYSUTMrNuGLhnZZZTMLWH023Wgt65OfKIdGBQ=="],
-
-    "@solana/wallet-adapter-wallets/@solana/wallet-adapter-ledger/@ledgerhq/devices/@ledgerhq/logs": ["@ledgerhq/logs@6.13.0", "", {}, "sha512-4+qRW2Pc8V+btL0QEmdB2X+uyx0kOWMWE1/LWsq5sZy3Q5tpi4eItJS6mB0XL3wGW59RQ+8bchNQQ1OW/va8Og=="],
-
-    "@solana/wallet-adapter-wallets/@solana/wallet-adapter-ledger/@ledgerhq/hw-transport/@ledgerhq/errors": ["@ledgerhq/errors@6.22.0", "", {}, "sha512-rXtpIOfHL62jWB7o77PNFD4EDYdcqyMeVgt7TZcmTkWT78cK+YYSUTMrNuGLhnZZZTMLWH023Wgt65OfKIdGBQ=="],
-
-    "@solana/wallet-adapter-wallets/@solana/wallet-adapter-ledger/@ledgerhq/hw-transport/@ledgerhq/logs": ["@ledgerhq/logs@6.13.0", "", {}, "sha512-4+qRW2Pc8V+btL0QEmdB2X+uyx0kOWMWE1/LWsq5sZy3Q5tpi4eItJS6mB0XL3wGW59RQ+8bchNQQ1OW/va8Og=="],
-
-    "@solana/wallet-adapter-wallets/@solana/wallet-adapter-ledger/@ledgerhq/hw-transport-webhid/@ledgerhq/errors": ["@ledgerhq/errors@6.22.0", "", {}, "sha512-rXtpIOfHL62jWB7o77PNFD4EDYdcqyMeVgt7TZcmTkWT78cK+YYSUTMrNuGLhnZZZTMLWH023Wgt65OfKIdGBQ=="],
-
-    "@solana/wallet-adapter-wallets/@solana/wallet-adapter-ledger/@ledgerhq/hw-transport-webhid/@ledgerhq/logs": ["@ledgerhq/logs@6.13.0", "", {}, "sha512-4+qRW2Pc8V+btL0QEmdB2X+uyx0kOWMWE1/LWsq5sZy3Q5tpi4eItJS6mB0XL3wGW59RQ+8bchNQQ1OW/va8Og=="],
-
-    "@solana/wallet-adapter-wallets/@solana/wallet-adapter-ledger/@solana/wallet-adapter-base/eventemitter3": ["eventemitter3@5.0.1", "", {}, "sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA=="],
 
     "@toruslabs/solana-embed/@toruslabs/base-controllers/@toruslabs/broadcast-channel/@toruslabs/eccrypto": ["@toruslabs/eccrypto@4.0.0", "", { "dependencies": { "elliptic": "^6.5.4" } }, "sha512-Z3EINkbsgJx1t6jCDVIJjLSUEGUtNIeDjhMWmeDGOWcP/+v/yQ1hEvd1wfxEz4q5WqIHhevacmPiVxiJ4DljGQ=="],
 
