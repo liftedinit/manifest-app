@@ -120,7 +120,7 @@ export default function Home() {
                       </div>
                     </div>
                     {/* Got any questions section */}
-                    <div className="mt-16 w-full">
+                    <div className="mt-10 w-full">
                       <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl p-8 text-left border border-primary/20">
                         <h3 className="text-2xl font-bold mb-4">Got any questions?</h3>
                         <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
