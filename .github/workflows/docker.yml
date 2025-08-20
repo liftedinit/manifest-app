@@ -42,7 +42,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }} # works if org allows Actions to publish packages
 
       - name: Set IMAGE env
-        run: echo "IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/yaci" >> "$GITHUB_ENV"
+        run: echo "IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/manifest-app" >> "$GITHUB_ENV"
 
       - name: Create .env file
         run: |
