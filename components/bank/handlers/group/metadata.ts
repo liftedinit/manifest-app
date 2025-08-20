@@ -1,4 +1,4 @@
-import { ThresholdDecisionPolicy } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { ThresholdDecisionPolicy } from '@manifest-network/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { PercentageDecisionPolicy } from 'cosmjs-types/cosmos/group/v1/types';
 
 import { truncateString } from '@/utils';

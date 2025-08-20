@@ -1,6 +1,6 @@
 import { Coin } from '@cosmjs/stargate';
-import { DenomUnit } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
-import { Duration } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/duration';
+import { DenomUnit } from '@manifest-network/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { Duration } from '@manifest-network/manifestjs/dist/codegen/google/protobuf/duration';
 
 // Schemas for form data
 export type FormData = {

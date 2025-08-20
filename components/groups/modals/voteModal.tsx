@@ -2,7 +2,7 @@ import { Dialog } from '@headlessui/react';
 import {
   ProposalSDKType,
   VoteOption,
-} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+} from '@manifest-network/manifestjs/dist/codegen/cosmos/group/v1/types';
 import React from 'react';
 
 import { CloseIcon } from '@/components/icons';

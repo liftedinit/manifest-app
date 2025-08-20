@@ -1,6 +1,6 @@
-import { Coin } from '@liftedinit/manifestjs/dist/codegen';
-import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
-import { MsgPayout } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
+import { Coin } from '@manifest-network/manifestjs/dist/codegen';
+import { MetadataSDKType } from '@manifest-network/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { MsgPayout } from '@manifest-network/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
 import BigNumber from 'bignumber.js';
 import { format } from 'react-string-format';
 

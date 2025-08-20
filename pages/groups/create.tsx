@@ -1,5 +1,5 @@
 import { useChain } from '@cosmos-kit/react';
-import { Duration } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/duration';
+import { Duration } from '@manifest-network/manifestjs/dist/codegen/google/protobuf/duration';
 import React, { useReducer, useState } from 'react';
 
 import { GroupsIcon, WalletNotConnected } from '@/components';

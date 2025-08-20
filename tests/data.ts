@@ -1,24 +1,24 @@
 import { Chain } from '@chain-registry/types';
-import { cosmos } from '@liftedinit/manifestjs';
-import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
-import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
+import { cosmos } from '@manifest-network/manifestjs';
+import { MetadataSDKType } from '@manifest-network/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { MsgSend } from '@manifest-network/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
 import {
   MemberSDKType,
   ProposalExecutorResult,
   ProposalSDKType,
   ProposalStatus,
   VoteOption,
-} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
-import { BondStatus } from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
-import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
+} from '@manifest-network/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { BondStatus } from '@manifest-network/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
+import { Any } from '@manifest-network/manifestjs/dist/codegen/google/protobuf/any';
 import {
   MsgBurnHeldBalance,
   MsgPayout,
-} from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
+} from '@manifest-network/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
 import {
   MsgBurn,
   MsgMint,
-} from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+} from '@manifest-network/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
 
 import { ExtendedValidatorSDKType } from '@/components';
 import { TxMessage } from '@/components/bank/types';

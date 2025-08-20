@@ -1,4 +1,4 @@
-import { MsgSetDenomMetadata } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+import { MsgSetDenomMetadata } from '@manifest-network/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
 import { format } from 'react-string-format';
 
 import { registerHandler } from '@/components/bank/handlers/handlerRegistry';

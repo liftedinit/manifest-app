@@ -6,7 +6,7 @@ import {
   proposalExecutorResultFromJSON,
   proposalStatusFromJSON,
   voteOptionFromJSON,
-} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+} from '@manifest-network/manifestjs/dist/codegen/cosmos/group/v1/types';
 import React from 'react';
 
 export function getProposalButton(

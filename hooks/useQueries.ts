@@ -1,8 +1,8 @@
-import { QueryGroupsByMemberResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
+import { QueryGroupsByMemberResponseSDKType } from '@manifest-network/manifestjs/dist/codegen/cosmos/group/v1/query';
 import {
   GroupMemberSDKType,
   GroupPolicyInfoSDKType,
-} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+} from '@manifest-network/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { UseQueryResult, keepPreviousData, useQueries, useQuery } from '@tanstack/react-query';
 import { useDebounce } from '@uidotdev/usehooks';
 import axios from 'axios';
@@ -848,7 +848,7 @@ export const useGitHubReleases = () => {
   const fetchReleases = async () => {
     try {
       const response = await octokit.rest.repos.listReleases({
-        owner: 'liftedinit',
+        owner: 'manifest-network',
         repo: 'manifest-ledger',
       });
       return response.data as GitHubRelease[];

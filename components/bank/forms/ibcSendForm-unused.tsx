@@ -1,7 +1,7 @@
 // import { useChain } from '@cosmos-kit/react';
-// import { cosmos, ibc } from '@liftedinit/manifestjs';
-// import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
-// import { MsgTransfer } from '@liftedinit/manifestjs/dist/codegen/ibc/applications/transfer/v1/tx';
+// import { cosmos, ibc } from '@manifest-network/manifestjs';
+// import { Any } from '@manifest-network/manifestjs/dist/codegen/google/protobuf/any';
+// import { MsgTransfer } from '@manifest-network/manifestjs/dist/codegen/ibc/applications/transfer/v1/tx';
 // import { useQueryClient } from '@tanstack/react-query';
 // import { Form, Formik } from 'formik';
 // import Image from 'next/image';

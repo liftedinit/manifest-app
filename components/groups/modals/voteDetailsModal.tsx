@@ -1,12 +1,12 @@
 import { useChain } from '@cosmos-kit/react';
 import { CheckIcon } from '@heroicons/react/24/outline';
-import { cosmos } from '@liftedinit/manifestjs';
-import { QueryTallyResultResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
+import { cosmos } from '@manifest-network/manifestjs';
+import { QueryTallyResultResponseSDKType } from '@manifest-network/manifestjs/dist/codegen/cosmos/group/v1/query';
 import {
   ProposalStatus,
   VoteOption,
   proposalStatusToJSON,
-} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+} from '@manifest-network/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 

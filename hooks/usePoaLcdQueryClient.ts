@@ -1,4 +1,4 @@
-import { strangelove_ventures } from '@liftedinit/manifestjs';
+import { strangelove_ventures } from '@manifest-network/manifestjs';
 import { useQuery } from '@tanstack/react-query';
 
 import env from '@/config/env';

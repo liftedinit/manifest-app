@@ -1,4 +1,4 @@
-import { Duration } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/duration';
+import { Duration } from '@manifest-network/manifestjs/dist/codegen/google/protobuf/duration';
 import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, jest, test } from 'bun:test';
 import React from 'react';

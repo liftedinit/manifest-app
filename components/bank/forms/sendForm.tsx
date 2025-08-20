@@ -1,5 +1,5 @@
-import { cosmos } from '@liftedinit/manifestjs';
-import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
+import { cosmos } from '@manifest-network/manifestjs';
+import { MsgSend } from '@manifest-network/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
 import { useQueryClient } from '@tanstack/react-query';
 import { Any } from 'cosmjs-types/google/protobuf/any';
 import { Form, Formik } from 'formik';

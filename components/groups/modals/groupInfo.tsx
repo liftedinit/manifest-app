@@ -1,5 +1,5 @@
-import { cosmos } from '@liftedinit/manifestjs';
-import { ThresholdDecisionPolicySDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { cosmos } from '@manifest-network/manifestjs';
+import { ThresholdDecisionPolicySDKType } from '@manifest-network/manifestjs/dist/codegen/cosmos/group/v1/types';
 import React, { useState } from 'react';
 
 import { SigningModalDialog, UpdateGroupModal } from '@/components';

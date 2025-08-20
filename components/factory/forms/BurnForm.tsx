@@ -1,7 +1,7 @@
-import { cosmos, liftedinit, osmosis } from '@liftedinit/manifestjs';
-import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
-import { MsgBurnHeldBalance } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
-import { MsgBurn } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+import { cosmos, liftedinit, osmosis } from '@manifest-network/manifestjs';
+import { Any } from '@manifest-network/manifestjs/dist/codegen/google/protobuf/any';
+import { MsgBurnHeldBalance } from '@manifest-network/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
+import { MsgBurn } from '@manifest-network/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
 import { Form, Formik } from 'formik';
 import React, { useState } from 'react';
 

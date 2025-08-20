@@ -9,8 +9,8 @@
 // You can provide the above env's in the command in the same fashion as the mnemonic or they will be set to default values
 import { DirectSecp256k1HdWallet } from '@cosmjs/proto-signing';
 import { SigningStargateClient } from '@cosmjs/stargate';
-import { ibc } from '@liftedinit/manifestjs';
-import { MsgTransfer } from '@liftedinit/manifestjs/dist/codegen/ibc/applications/transfer/v1/tx';
+import { ibc } from '@manifest-network/manifestjs';
+import { MsgTransfer } from '@manifest-network/manifestjs/dist/codegen/ibc/applications/transfer/v1/tx';
 import * as fs from 'fs';
 import * as path from 'path';
 

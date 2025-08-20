@@ -14,7 +14,7 @@ export default function FourOhFour() {
   const links = [
     {
       name: 'Chain Docs',
-      href: 'https://github.com/liftedinit/manifest-ledger',
+      href: 'https://github.com/manifest-network/manifest-ledger',
       description: 'Learn how to sync nodes, query data, and use the Manifest Network.',
       icon: BookOpenIcon,
     },

@@ -1,4 +1,4 @@
-import { MsgMint } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+import { MsgMint } from '@manifest-network/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
 
 import { createTokenMessage } from '@/components';
 import { registerHandler } from '@/components/bank/handlers/handlerRegistry';

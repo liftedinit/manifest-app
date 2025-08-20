@@ -1,4 +1,4 @@
-import { MsgCreateValidator } from '@liftedinit/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
+import { MsgCreateValidator } from '@manifest-network/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
 
 import { createValidatorMessage } from '@/components';
 import { registerHandler } from '@/components/bank/handlers/handlerRegistry';

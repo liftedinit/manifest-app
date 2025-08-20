@@ -1,4 +1,4 @@
-import { MsgUpdateGroupMetadata } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
+import { MsgUpdateGroupMetadata } from '@manifest-network/manifestjs/dist/codegen/cosmos/group/v1/tx';
 
 import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
 import { GroupsIcon } from '@/components/icons/GroupsIcon';

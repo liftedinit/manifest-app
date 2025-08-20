@@ -1,7 +1,7 @@
 import {
   ProposalExecutorResult,
   ProposalStatus,
-} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+} from '@manifest-network/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, jest, mock, spyOn, test } from 'bun:test';
 import React from 'react';

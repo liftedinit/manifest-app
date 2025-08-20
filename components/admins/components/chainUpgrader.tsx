@@ -1,4 +1,4 @@
-import { PlanSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/upgrade';
+import { PlanSDKType } from '@manifest-network/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/upgrade';
 import { useState } from 'react';
 
 import { CancelUpgradeModal, UpgradeModal } from '@/components/admins/modals';

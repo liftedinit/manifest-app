@@ -1,4 +1,4 @@
-import { MsgSoftwareUpgrade } from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
+import { MsgSoftwareUpgrade } from '@manifest-network/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
 import { format } from 'react-string-format';
 
 import { registerHandler } from '@/components/bank/handlers/handlerRegistry';

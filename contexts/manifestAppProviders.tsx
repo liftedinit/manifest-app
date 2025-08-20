@@ -14,7 +14,7 @@ import {
   osmosisProtoRegistry,
   strangeloveVenturesAminoConverters,
   strangeloveVenturesProtoRegistry,
-} from '@liftedinit/manifestjs';
+} from '@manifest-network/manifestjs';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { SignerOptions } from 'cosmos-kit';

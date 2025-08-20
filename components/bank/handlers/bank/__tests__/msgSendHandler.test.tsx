@@ -1,5 +1,5 @@
-import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
-import { CoinSDKType } from '@liftedinit/manifestjs/src/codegen/cosmos/base/v1beta1/coin';
+import { MsgSend } from '@manifest-network/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
+import { CoinSDKType } from '@manifest-network/manifestjs/dist/codegen/cosmos/base/v1beta1/coin';
 import { cleanup, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, jest, mock, test } from 'bun:test';
 
@@ -70,7 +70,7 @@ describe('MsgSendHandler', () => {
     expect(screen.getByText(/address2/i)).toBeInTheDocument();
   });
 
-  // TODO: Implement those when https://github.com/liftedinit/manifest-app/pull/285 is merged
+  // TODO: Implement those when https://github.com/manifest-network/manifest-app/pull/285 is merged
   // test('send two denoms', () => {
   //   const tx = createTx(
   //     'address1',

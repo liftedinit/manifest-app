@@ -5,7 +5,7 @@ import { OfflineAminoSigner } from '@cosmjs/amino';
 import { StdSignDoc } from '@cosmjs/amino';
 import { OfflineDirectSigner } from '@cosmjs/proto-signing';
 import { useChain } from '@cosmos-kit/react';
-import { SignDoc } from '@liftedinit/manifestjs/dist/codegen/cosmos/tx/v1beta1/tx';
+import { SignDoc } from '@manifest-network/manifestjs/dist/codegen/cosmos/tx/v1beta1/tx';
 import { Widget } from '@skip-go/widget';
 import { useQueryClient } from '@tanstack/react-query';
 import { useContext, useEffect, useRef } from 'react';

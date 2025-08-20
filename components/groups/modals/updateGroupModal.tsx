@@ -1,9 +1,9 @@
-import { cosmos } from '@liftedinit/manifestjs';
+import { cosmos } from '@manifest-network/manifestjs';
 import {
   ThresholdDecisionPolicy,
   ThresholdDecisionPolicySDKType,
-} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
-import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
+} from '@manifest-network/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { Any } from '@manifest-network/manifestjs/dist/codegen/google/protobuf/any';
 import { FieldArray, Form, Formik, useFormikContext } from 'formik';
 import React from 'react';
 

@@ -1,5 +1,5 @@
 import { Asset, AssetList, IBCInfo } from '@chain-registry/types';
-import { Coin } from '@liftedinit/manifestjs/dist/codegen/cosmos/base/v1beta1/coin';
+import { Coin } from '@manifest-network/manifestjs/dist/codegen/cosmos/base/v1beta1/coin';
 
 import { manifestAssets, manifestIbc } from '@/config/manifestChain';
 import { osmosisAssets, osmosisIbc } from '@/config/osmosisChain';

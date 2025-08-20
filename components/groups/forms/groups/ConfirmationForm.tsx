@@ -1,6 +1,6 @@
-import { cosmos } from '@liftedinit/manifestjs';
-import { ThresholdDecisionPolicy } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
-import { Duration } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/duration';
+import { cosmos } from '@manifest-network/manifestjs';
+import { ThresholdDecisionPolicy } from '@manifest-network/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { Duration } from '@manifest-network/manifestjs/dist/codegen/google/protobuf/duration';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { SignModal } from '@/components/react';

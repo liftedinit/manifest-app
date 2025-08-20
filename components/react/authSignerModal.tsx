@@ -2,8 +2,8 @@ import { decodePubkey } from '@cosmjs/proto-signing';
 import { useChain, useWallet } from '@cosmos-kit/react';
 import { SignData } from '@cosmos-kit/web3auth';
 import { Dialog } from '@headlessui/react';
-import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
-import { Coin } from '@liftedinit/manifestjs/dist/codegen/cosmos/base/v1beta1/coin';
+import { MsgSend } from '@manifest-network/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
+import { Coin } from '@manifest-network/manifestjs/dist/codegen/cosmos/base/v1beta1/coin';
 import {
   MsgCreateGroupWithPolicy,
   MsgSubmitProposal,
@@ -11,21 +11,21 @@ import {
   MsgUpdateGroupMetadata,
   MsgUpdateGroupPolicyDecisionPolicy,
   MsgUpdateGroupPolicyMetadata,
-} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
-import { AuthInfo, TxBody } from '@liftedinit/manifestjs/dist/codegen/cosmos/tx/v1beta1/tx';
+} from '@manifest-network/manifestjs/dist/codegen/cosmos/group/v1/tx';
+import { AuthInfo, TxBody } from '@manifest-network/manifestjs/dist/codegen/cosmos/tx/v1beta1/tx';
 import {
   MsgCancelUpgrade,
   MsgSoftwareUpgrade,
-} from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
+} from '@manifest-network/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
 import {
   MsgBurnHeldBalance,
   MsgPayout,
-} from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
+} from '@manifest-network/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
 import {
   MsgCreateDenom,
   MsgSetDenomMetadata,
-} from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
-import { MsgSetPower } from '@liftedinit/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
+} from '@manifest-network/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+import { MsgSetPower } from '@manifest-network/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
 import Image from 'next/image';
 import React, { useContext, useEffect, useState } from 'react';
 import { PrismAsyncLight as SyntaxHighlighter } from 'react-syntax-highlighter';

@@ -1,4 +1,4 @@
-import { osmosis } from '@liftedinit/manifestjs';
+import { osmosis } from '@manifest-network/manifestjs';
 import { useQuery } from '@tanstack/react-query';
 
 import env from '@/config/env';

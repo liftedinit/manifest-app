@@ -2,7 +2,7 @@ import { useChain } from '@cosmos-kit/react';
 import {
   ProposalSDKType,
   ThresholdDecisionPolicySDKType,
-} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+} from '@manifest-network/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'next/router';

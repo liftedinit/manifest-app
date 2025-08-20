@@ -1,4 +1,4 @@
-import { ProposalSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { ProposalSDKType } from '@manifest-network/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { cleanup, fireEvent, screen } from '@testing-library/react';
 import { afterEach, describe, expect, jest, test } from 'bun:test';
 import React from 'react';

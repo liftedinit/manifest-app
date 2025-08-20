@@ -1,5 +1,5 @@
 import { Dialog } from '@headlessui/react';
-import { VoteSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { VoteSDKType } from '@manifest-network/manifestjs/dist/codegen/cosmos/group/v1/types';
 import React from 'react';
 
 import { getVoteOptionBadgeColor, getVoteOptionLabel } from '@/components/groups/utils';

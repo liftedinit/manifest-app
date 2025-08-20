@@ -1,5 +1,5 @@
 import { Dialog } from '@headlessui/react';
-import { ProposalSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { ProposalSDKType } from '@manifest-network/manifestjs/dist/codegen/cosmos/group/v1/types';
 import React from 'react';
 import { PrismAsyncLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import json from 'react-syntax-highlighter/dist/esm/languages/prism/json';

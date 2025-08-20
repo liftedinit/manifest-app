@@ -1,4 +1,4 @@
-import { MsgSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
+import { MsgSend } from '@manifest-network/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
 
 import { createTokenMessage } from '@/components';
 import { registerHandler } from '@/components/bank/handlers/handlerRegistry';
