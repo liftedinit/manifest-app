@@ -64,7 +64,7 @@ jobs:
           echo "NEXT_PUBLIC_OSMOSIS_EXPLORER_URL=${{ vars.NEXT_PUBLIC_OSMOSIS_EXPLORER_URL }}" >> .env
           echo "NEXT_PUBLIC_LEAP_DEEPLINK=${{ vars.NEXT_PUBLIC_LEAP_DEEPLINK }}" >> .env
           cat .env
-          
+
       - name: Extract metadata (release tag)
         id: meta_tag
         if: matrix.environment == 'mainnet' && startsWith(github.ref, 'refs/tags/')
