@@ -16,7 +16,7 @@ For more information on the Manifest Network and its modules, please visit the [
 
 1. Clone the repository
 
-   - `git clone hptts://github.com/manifest-network/manifest-app`
+   - `git clone https://github.com/manifest-network/manifest-app`
    - `cd manifest-app`
 
 2. Install dependencies
