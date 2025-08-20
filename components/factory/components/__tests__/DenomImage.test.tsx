@@ -1,4 +1,4 @@
-import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { MetadataSDKType } from '@manifest-network/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { Mock, afterEach, beforeEach, describe, expect, mock, spyOn, test } from 'bun:test';
 

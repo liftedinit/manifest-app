@@ -1,7 +1,7 @@
-import { cosmos, liftedinit } from '@liftedinit/manifestjs';
-import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
-import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
-import { MsgPayout } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
+import { cosmos, liftedinit } from '@manifest-network/manifestjs';
+import { MetadataSDKType } from '@manifest-network/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { Any } from '@manifest-network/manifestjs/dist/codegen/google/protobuf/any';
+import { MsgPayout } from '@manifest-network/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
 import { Field, FieldArray, FieldProps, Form, Formik } from 'formik';
 import React, { useState } from 'react';
 

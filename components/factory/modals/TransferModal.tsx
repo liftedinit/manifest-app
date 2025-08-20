@@ -1,7 +1,7 @@
 import { Dialog } from '@headlessui/react';
-import { cosmos, osmosis } from '@liftedinit/manifestjs';
-import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
-import { MsgChangeAdmin } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+import { cosmos, osmosis } from '@manifest-network/manifestjs';
+import { Any } from '@manifest-network/manifestjs/dist/codegen/google/protobuf/any';
+import { MsgChangeAdmin } from '@manifest-network/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
 import { Form, Formik, FormikValues } from 'formik';
 import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';

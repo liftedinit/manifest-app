@@ -1,4 +1,4 @@
-import { MsgCreateGroupWithPolicy } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
+import { MsgCreateGroupWithPolicy } from '@manifest-network/manifestjs/dist/codegen/cosmos/group/v1/tx';
 import { format } from 'react-string-format';
 
 import { getGroupTitle } from '@/components/bank/handlers/group/metadata';

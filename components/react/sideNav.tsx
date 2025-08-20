@@ -287,7 +287,7 @@ export default function SideNav({ isDrawerVisible, setDrawerVisible }: SideNavPr
         </ul>
         <div className="flex flex-row justify-between items-center">
           <div className="flex flex-row justify-between items-center gap-3">
-            <Link href="https://github.com/liftedinit/manifest-app" target="_blank">
+            <Link href="https://github.com/manifest-network/manifest-app" target="_blank">
               <p className="text-sm text-gray-500">v{version}</p>
             </Link>
           </div>

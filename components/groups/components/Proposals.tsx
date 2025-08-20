@@ -1,11 +1,11 @@
-import { QueryTallyResultResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
+import { TallyResultSDKType } from '@manifest-network/manifestjs/dist/codegen/cosmos/gov/v1/gov';
+import { QueryTallyResultResponseSDKType } from '@manifest-network/manifestjs/dist/codegen/cosmos/group/v1/query';
 import {
   ProposalSDKType,
   ProposalStatus,
   ThresholdDecisionPolicySDKType,
   proposalStatusToJSON,
-} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
-import { TallyResultSDKType } from '@liftedinit/manifestjs/src/codegen/cosmos/gov/v1/gov';
+} from '@manifest-network/manifestjs/dist/codegen/cosmos/group/v1/types';
 import {
   ProposalExecutorResult,
   proposalExecutorResultToJSON,

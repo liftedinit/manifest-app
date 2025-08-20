@@ -1,4 +1,4 @@
-import { QueryTallyResultResponseSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/query';
+import { QueryTallyResultResponseSDKType } from '@manifest-network/manifestjs/dist/codegen/cosmos/group/v1/query';
 import BigNumber from 'bignumber.js';
 import { useMemo } from 'react';
 

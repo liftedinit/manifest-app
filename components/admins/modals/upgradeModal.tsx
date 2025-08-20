@@ -1,7 +1,7 @@
 import { Dialog } from '@headlessui/react';
-import { cosmos } from '@liftedinit/manifestjs';
-import { MsgSoftwareUpgrade } from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
-import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
+import { cosmos } from '@manifest-network/manifestjs';
+import { MsgSoftwareUpgrade } from '@manifest-network/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
+import { Any } from '@manifest-network/manifestjs/dist/codegen/google/protobuf/any';
 import { useQueryClient } from '@tanstack/react-query';
 import { Form, Formik } from 'formik';
 import React, { useMemo, useState } from 'react';

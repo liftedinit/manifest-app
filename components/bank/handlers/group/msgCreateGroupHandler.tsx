@@ -1,4 +1,4 @@
-import { MsgCreateGroup } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
+import { MsgCreateGroup } from '@manifest-network/manifestjs/dist/codegen/cosmos/group/v1/tx';
 import React from 'react';
 import { format } from 'react-string-format';
 

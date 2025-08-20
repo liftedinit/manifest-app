@@ -1,5 +1,5 @@
-import { MetadataSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
-import { CoinSDKType } from '@liftedinit/manifestjs/src/codegen/cosmos/base/v1beta1/coin';
+import { MetadataSDKType } from '@manifest-network/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { CoinSDKType } from '@manifest-network/manifestjs/dist/codegen/cosmos/base/v1beta1/coin';
 import React from 'react';
 import { format } from 'react-string-format';
 

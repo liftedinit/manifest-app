@@ -1,4 +1,4 @@
-import { MsgTransfer } from '@liftedinit/manifestjs/dist/codegen/ibc/applications/transfer/v1/tx';
+import { MsgTransfer } from '@manifest-network/manifestjs/dist/codegen/ibc/applications/transfer/v1/tx';
 
 import { createTokenMessage } from '@/components';
 import { registerHandler } from '@/components/bank/handlers/handlerRegistry';

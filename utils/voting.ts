@@ -2,7 +2,7 @@ import { AssetList } from '@chain-registry/types';
 import {
   VoteOption,
   voteOptionFromJSON,
-} from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
+} from '@manifest-network/manifestjs/dist/codegen/cosmos/group/v1/types';
 import { assets } from 'chain-registry';
 
 export const decodeUint8Arr = (uint8array: Uint8Array | undefined) => {

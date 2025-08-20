@@ -1,7 +1,7 @@
 import { useChain } from '@cosmos-kit/react';
-import { cosmos, strangelove_ventures } from '@liftedinit/manifestjs';
-import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
-import { MsgSetPower } from '@liftedinit/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
+import { cosmos, strangelove_ventures } from '@manifest-network/manifestjs';
+import { Any } from '@manifest-network/manifestjs/dist/codegen/google/protobuf/any';
+import { MsgSetPower } from '@manifest-network/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
 import { Field, FieldProps, Formik } from 'formik';
 import Image from 'next/image';
 import React, { useState } from 'react';

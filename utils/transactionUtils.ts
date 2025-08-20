@@ -1,6 +1,6 @@
 import { useChain } from '@cosmos-kit/react';
-import { osmosis } from '@liftedinit/manifestjs';
-import { DenomUnit } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { osmosis } from '@manifest-network/manifestjs';
+import { DenomUnit } from '@manifest-network/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
 import { useState } from 'react';
 
 import env from '@/config/env';

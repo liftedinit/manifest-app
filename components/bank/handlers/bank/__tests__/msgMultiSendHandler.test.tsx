@@ -1,5 +1,5 @@
-import { Input, Output } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
-import { MsgMultiSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
+import { Input, Output } from '@manifest-network/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { MsgMultiSend } from '@manifest-network/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
 import { cleanup, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, mock, test } from 'bun:test';
 

@@ -1,4 +1,4 @@
-import { MsgCreatePeriodicVestingAccount } from '@liftedinit/manifestjs/dist/codegen/cosmos/vesting/v1beta1/tx';
+import { MsgCreatePeriodicVestingAccount } from '@manifest-network/manifestjs/dist/codegen/cosmos/vesting/v1beta1/tx';
 import { format } from 'react-string-format';
 
 import { TruncatedAddressWithCopy } from '@/components';

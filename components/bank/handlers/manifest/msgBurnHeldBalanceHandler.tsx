@@ -1,4 +1,4 @@
-import { MsgBurnHeldBalance } from '@liftedinit/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
+import { MsgBurnHeldBalance } from '@manifest-network/manifestjs/dist/codegen/liftedinit/manifest/v1/tx';
 
 import { createTokenMessage } from '@/components';
 import { registerHandler } from '@/components/bank/handlers/handlerRegistry';

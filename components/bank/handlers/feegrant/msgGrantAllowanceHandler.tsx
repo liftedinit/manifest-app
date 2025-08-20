@@ -1,4 +1,4 @@
-import { MsgGrantAllowance } from '@liftedinit/manifestjs/dist/codegen/cosmos/feegrant/v1beta1/tx';
+import { MsgGrantAllowance } from '@manifest-network/manifestjs/dist/codegen/cosmos/feegrant/v1beta1/tx';
 import { format } from 'react-string-format';
 
 import { registerHandler } from '@/components/bank/handlers/handlerRegistry';

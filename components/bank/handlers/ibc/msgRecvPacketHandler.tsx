@@ -1,4 +1,4 @@
-import { CoinSDKType } from '@liftedinit/manifestjs/src/codegen/cosmos/base/v1beta1/coin';
+import { CoinSDKType } from '@manifest-network/manifestjs/dist/codegen/cosmos/base/v1beta1/coin';
 import { MsgRecvPacket } from 'cosmjs-types/ibc/core/channel/v1/tx';
 
 import { createTokenMessage } from '@/components';

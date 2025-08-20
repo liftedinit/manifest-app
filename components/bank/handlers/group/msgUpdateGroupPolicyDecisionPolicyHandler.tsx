@@ -1,4 +1,4 @@
-import { MsgUpdateGroupPolicyDecisionPolicy } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
+import { MsgUpdateGroupPolicyDecisionPolicy } from '@manifest-network/manifestjs/dist/codegen/cosmos/group/v1/tx';
 import { format } from 'react-string-format';
 
 import { registerHandler } from '@/components/bank/handlers/handlerRegistry';

@@ -1,5 +1,5 @@
 import { Tab } from '@headlessui/react';
-import { ValidatorSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
+import { ValidatorSDKType } from '@manifest-network/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
 import Image from 'next/image';
 import React, { useMemo, useState } from 'react';
 

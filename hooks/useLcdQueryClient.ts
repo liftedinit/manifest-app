@@ -1,4 +1,4 @@
-import { cosmos } from '@liftedinit/manifestjs';
+import { cosmos } from '@manifest-network/manifestjs';
 import { useQuery } from '@tanstack/react-query';
 
 import env from '@/config/env';

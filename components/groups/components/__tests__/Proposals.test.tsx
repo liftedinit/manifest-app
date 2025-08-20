@@ -1,4 +1,4 @@
-import { TallyResultSDKType } from '@liftedinit/manifestjs/src/codegen/cosmos/gov/v1/gov';
+import { TallyResultSDKType } from '@manifest-network/manifestjs/dist/codegen/cosmos/gov/v1/gov';
 import { describe, expect, test } from 'bun:test';
 
 import { isProposalPassing } from '@/components';

@@ -1,5 +1,5 @@
 import { useChain } from '@cosmos-kit/react';
-import { ValidatorSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
+import { ValidatorSDKType } from '@manifest-network/manifestjs/dist/codegen/cosmos/staking/v1beta1/staking';
 import Head from 'next/head';
 import React from 'react';
 import { PiWarning } from 'react-icons/pi';

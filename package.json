@@ -1,6 +1,6 @@
 {
-  "name": "@liftedinit/manifest-app",
-  "version": "0.0.1",
+  "name": "@manifest-network/manifest-app",
+  "version": "1.0.0",
   "type": "module",
   "private": false,
   "description": "An application to interact with the Manifest Chain",
@@ -24,16 +24,16 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/liftedinit/manifest-app"
+    "url": "https://github.com/manifest-network/manifest-app"
   },
   "resolutions": {
     "**/@chain-registry/types": "0.25.0",
-    "**/@cosmjs/stargate": "npm:@liftedinit/stargate@0.32.4-ll.3"
+    "**/@cosmjs/stargate": "npm:@manifest-network/stargate@0.32.4-ll.3"
   },
   "dependencies": {
     "@chain-registry/assets": "1.70.240",
     "@cosmjs/cosmwasm-stargate": "0.32.4",
-    "@cosmjs/stargate": "npm:@liftedinit/stargate@0.32.4-ll.3",
+    "@cosmjs/stargate": "npm:@manifest-network/stargate@0.32.4-ll.3",
     "@cosmos-kit/cosmos-extension-metamask": "0.13.0",
     "@cosmos-kit/ledger": "2.14.0",
     "@cosmos-kit/react": "2.22.0",
@@ -43,7 +43,7 @@
     "@headlessui/tailwindcss": "0.2.2",
     "@heroicons/react": "2.2.0",
     "@interchain-ui/react": "1.26.2",
-    "@liftedinit/manifestjs": "2.0.0",
+    "@manifest-network/manifestjs": "2.1.0",
     "@react-three/drei": "10.0.5",
     "@react-three/fiber": "9.1.0",
     "@sinonjs/fake-timers": "14.0.0",

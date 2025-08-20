@@ -1,4 +1,4 @@
-import { MsgWithdrawProposal } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
+import { MsgWithdrawProposal } from '@manifest-network/manifestjs/dist/codegen/cosmos/group/v1/tx';
 import { format } from 'react-string-format';
 
 import { registerHandler } from '@/components/bank/handlers/handlerRegistry';

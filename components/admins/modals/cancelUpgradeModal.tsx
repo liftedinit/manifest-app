@@ -1,7 +1,7 @@
-import { cosmos } from '@liftedinit/manifestjs';
-import { MsgCancelUpgrade } from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
-import { PlanSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/upgrade';
-import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
+import { cosmos } from '@manifest-network/manifestjs';
+import { MsgCancelUpgrade } from '@manifest-network/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/tx';
+import { PlanSDKType } from '@manifest-network/manifestjs/dist/codegen/cosmos/upgrade/v1beta1/upgrade';
+import { Any } from '@manifest-network/manifestjs/dist/codegen/google/protobuf/any';
 import { useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 

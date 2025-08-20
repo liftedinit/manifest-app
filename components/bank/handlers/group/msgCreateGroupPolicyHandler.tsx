@@ -1,4 +1,4 @@
-import { MsgCreateGroupPolicy } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
+import { MsgCreateGroupPolicy } from '@manifest-network/manifestjs/dist/codegen/cosmos/group/v1/tx';
 import { format } from 'react-string-format';
 
 import { createSenderReceiverHandler } from '@/components/bank/handlers/createSenderReceiverHandler';

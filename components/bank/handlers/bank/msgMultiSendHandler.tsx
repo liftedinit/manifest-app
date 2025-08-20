@@ -2,8 +2,8 @@ import {
   Input,
   MetadataSDKType,
   Output,
-} from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
-import { MsgMultiSend } from '@liftedinit/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
+} from '@manifest-network/manifestjs/dist/codegen/cosmos/bank/v1beta1/bank';
+import { MsgMultiSend } from '@manifest-network/manifestjs/dist/codegen/cosmos/bank/v1beta1/tx';
 import BigNumber from 'bignumber.js';
 import React from 'react';
 import { format } from 'react-string-format';

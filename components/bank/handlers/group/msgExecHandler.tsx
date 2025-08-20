@@ -1,4 +1,4 @@
-import { MsgExec } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/tx';
+import { MsgExec } from '@manifest-network/manifestjs/dist/codegen/cosmos/group/v1/tx';
 import { format } from 'react-string-format';
 
 import { GroupsIcon } from '@/components/icons/GroupsIcon';

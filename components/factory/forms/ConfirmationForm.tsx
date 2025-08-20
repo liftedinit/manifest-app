@@ -1,8 +1,8 @@
-import { cosmos, osmosis } from '@liftedinit/manifestjs';
+import { cosmos, osmosis } from '@manifest-network/manifestjs';
 import {
   MsgCreateDenom,
   MsgSetDenomMetadata,
-} from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+} from '@manifest-network/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
 import { useQueryClient } from '@tanstack/react-query';
 import { Any } from 'cosmjs-types/google/protobuf/any';
 import Image from 'next/image';

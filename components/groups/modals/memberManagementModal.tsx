@@ -1,6 +1,6 @@
-import { cosmos } from '@liftedinit/manifestjs';
-import { MemberSDKType } from '@liftedinit/manifestjs/dist/codegen/cosmos/group/v1/types';
-import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
+import { cosmos } from '@manifest-network/manifestjs';
+import { MemberSDKType } from '@manifest-network/manifestjs/dist/codegen/cosmos/group/v1/types';
+import { Any } from '@manifest-network/manifestjs/dist/codegen/google/protobuf/any';
 import { Field, FieldProps, Form, Formik } from 'formik';
 import React, { useRef, useState } from 'react';
 import * as Yup from 'yup';

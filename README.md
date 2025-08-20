@@ -1,10 +1,14 @@
-# Manifest App
+<h1 align="center">Manifest Wallet</h1>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/cosmos/chain-registry/00df6ff89abd382f9efe3d37306c353e2bd8d55c/manifest/images/manifest.png" alt="Manifest Network" width="100"/>
+</p>
 
 This is a web app that allows users to interact with the Manifest Network and its various modules.
 
-For more information on the Manifest Network and its modules, please visit the [Manifest Network GitHub](https://github.com/liftedinit/manifest-ledger).
+For more information on the Manifest Network and its modules, please visit the [Manifest Network GitHub](https://github.com/manifest-network/manifest-ledger).
 
-[![codecov](https://codecov.io/gh/liftedinit/manifest-app/branch/main/graph/badge.svg)](https://codecov.io/gh/liftedinit/manifest-app)
+[![codecov](https://codecov.io/gh/manifest-network/manifest-app/branch/main/graph/badge.svg)](https://codecov.io/gh/manifest-network/manifest-app)
 
 ## Getting Started
 
@@ -12,7 +16,7 @@ For more information on the Manifest Network and its modules, please visit the [
 
 1. Clone the repository
 
-   - `git clone hptts://github.com/liftedinit/manifest-app`
+   - `git clone hptts://github.com/manifest-network/manifest-app`
    - `cd manifest-app`
 
 2. Install dependencies

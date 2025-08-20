@@ -1,4 +1,4 @@
-import { MsgSetPower } from '@liftedinit/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
+import { MsgSetPower } from '@manifest-network/manifestjs/dist/codegen/strangelove_ventures/poa/v1/tx';
 import { format } from 'react-string-format';
 
 import { registerHandler } from '@/components/bank/handlers/handlerRegistry';

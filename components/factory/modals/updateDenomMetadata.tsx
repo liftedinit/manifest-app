@@ -1,6 +1,6 @@
-import { cosmos, osmosis } from '@liftedinit/manifestjs';
-import { Any } from '@liftedinit/manifestjs/dist/codegen/google/protobuf/any';
-import { MsgSetDenomMetadata } from '@liftedinit/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
+import { cosmos, osmosis } from '@manifest-network/manifestjs';
+import { Any } from '@manifest-network/manifestjs/dist/codegen/google/protobuf/any';
+import { MsgSetDenomMetadata } from '@manifest-network/manifestjs/dist/codegen/osmosis/tokenfactory/v1beta1/tx';
 import { Form, Formik } from 'formik';
 import React from 'react';
 
