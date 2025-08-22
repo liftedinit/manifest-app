@@ -6,6 +6,8 @@ FROM oven/bun:1.2-slim AS base
 FROM base AS deps
 WORKDIR /app
 
+RUN apt update && apt install -y --no-install-recommends build-essential python3
+
 # Install dependencies based on the preferred package manager
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* bun.lock* ./
 RUN \
@@ -23,7 +25,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-RUN apt update && apt install -y --no-install-recommends git build-essential python3
+RUN apt update && apt install -y git
 
 RUN \
     if [ -f .env ]; then echo ".env file found, continuing..."; else echo ".env file not found, exiting..."; exit 1; fi
