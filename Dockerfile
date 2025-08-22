@@ -23,7 +23,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-RUN apt update && apt install -y git
+RUN apt update && apt install -y --no-install-recommends git build-essential python3
 
 RUN \
     if [ -f .env ]; then echo ".env file found, continuing..."; else echo ".env file not found, exiting..."; exit 1; fi
