@@ -3,7 +3,7 @@
 # Pinned by digest; Dependabot proposes updates. This is the image the old oven/bun:1.2-slim
 # tag pointed to. That tag no longer gets updates; moving to a maintained base is a
 # separate change.
-FROM oven/bun:1.2.23-slim@sha256:9654aa08d4b7e778b84148921bab8edc1409c8d0a85707b8c801dd7cf1878971 AS base
+FROM oven/bun:1.4.3-slim@sha256:14a223fa35747ec728bce300ef85888bc5f7958164d15bbba6a54b22b52a3288 AS base
 
 # Install dependencies only when needed
 FROM base AS deps
